@@ -1,7 +1,10 @@
 {% extends "bookmarks/layout.html" %}
 
 {% block content %}
-    <h2>Bookmarks</h2>
+    <div>
+        <h2>Bookmarks</h2>
+        <a href="{% url 'bookmarks:new' %}">Add</a>
+    </div>
     <ul class="bookmark-list">
         {% for bookmark in bookmarks %}
             <li>
@@ -12,7 +15,7 @@
                     <p>{{ bookmark.description }}</p>
                 {% endif %}
                 <p>
-                    <a href="{% url 'bookmarks:detail' bookmark.id %}">Edit</a>
+                    <a href="{% url 'bookmarks:edit' bookmark.id %}">Edit</a>
                     <a href="{% url 'bookmarks:remove' bookmark.id %}"
                        onclick="return confirm('Do you really want to delete this bookmark?')">Remove</a>
                 </p>

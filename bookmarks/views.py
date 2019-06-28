@@ -1,6 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-
 # Create your views here.
 from django.urls import reverse
 
@@ -18,11 +17,15 @@ def create(request):
     return HttpResponse('OK')
 
 
-def detail(request, bookmark_id):
+def new(request):
+    return render(request, 'bookmarks/new.html')
+
+
+def edit(request, bookmark_id):
     context = {
-        'bookmark': Bookmark.objects.get(bookmark_id)
+        'bookmark': Bookmark.objects.get(pk=bookmark_id)
     }
-    return render(request, 'bookmarks/detail.html', context)
+    return render(request, 'bookmarks/edit.html', context)
 
 
 def remove(request, bookmark_id: int):
