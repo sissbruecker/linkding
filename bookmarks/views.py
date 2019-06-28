@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect, HttpRequest
 from django.shortcuts import render
 from django.urls import reverse
 
-from bookmarks.services.bookmarks import create_bookmark
+from bookmarks.services.bookmarks import create_bookmark, update_bookmark
 from . import forms
 from .models import Bookmark
 
@@ -29,10 +29,17 @@ def new(request: HttpRequest):
 
 
 def edit(request, bookmark_id):
-    context = {
-        'bookmark': Bookmark.objects.get(pk=bookmark_id)
-    }
-    return render(request, 'bookmarks/edit.html', context)
+    bookmark = Bookmark.objects.get(pk=bookmark_id)
+    if request.method == 'POST':
+        form = forms.BookmarkForm(request.POST, instance=bookmark)
+        if form.is_valid():
+            bookmark = form.save(commit=False)
+            update_bookmark(bookmark)
+            return HttpResponseRedirect(reverse('bookmarks:index'))
+    else:
+        form = forms.BookmarkForm(instance=bookmark)
+
+    return render(request, 'bookmarks/edit.html', {'form': form, 'bookmark_id': bookmark_id})
 
 
 def remove(request, bookmark_id: int):

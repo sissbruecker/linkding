@@ -11,6 +11,15 @@ def create_bookmark(bookmark: Bookmark, current_user: User):
     bookmark.owner = current_user
     # Set dates
     bookmark.date_added = timezone.now()
+    bookmark.date_modified = timezone.now()
+    bookmark.save()
+
+
+def update_bookmark(bookmark: Bookmark):
+    # Update website info
+    _update_website_metadata(bookmark)
+    # Update dates
+    bookmark.date_modified = timezone.now()
     bookmark.save()
 
 
