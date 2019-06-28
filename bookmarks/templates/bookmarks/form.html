@@ -1,0 +1,17 @@
+{% csrf_token %}
+<div class="field">
+    <label for="{{ form.url.id_for_label }}">URL</label>
+    {{ form.url }}
+    {{ form.url.errors }}
+</div>
+<div class="field">
+    <label for="{{ form.title.id_for_label }}">Title</label>
+    {{ form.title }}
+    {{ form.title.errors }}
+</div>
+<div class="field">
+    <label for="{{ form.description.id_for_label }}">Description</label>
+    {{ form.description }}
+    {{ form.description.errors }}
+</div>
+<input type="submit" value="Save">

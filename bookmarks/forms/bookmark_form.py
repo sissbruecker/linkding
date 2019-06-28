@@ -1,6 +1,6 @@
 from django import forms
 
-from ..models import Bookmark
+from bookmarks.models import Bookmark
 
 auto_fill_placeholder = 'Leave empty to fill from website metadata'
 
