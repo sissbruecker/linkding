@@ -1,6 +1,6 @@
 from django import template
 
-from bookmarks.forms import BookmarkForm
+from bookmarks.models import BookmarkForm
 
 register = template.Library()
 
