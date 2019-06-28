@@ -9,10 +9,10 @@
         {% for bookmark in bookmarks %}
             <li>
                 <p>
-                    <a href="{{ bookmark.url }}" target="_blank">{{ bookmark.title }}</a>
+                    <a href="{{ bookmark.url }}" target="_blank">{{ bookmark.resolved_title }}</a>
                 </p>
-                {% if bookmark.description is not None %}
-                    <p>{{ bookmark.description }}</p>
+                {% if bookmark.resolved_description is not None %}
+                    <p>{{ bookmark.resolved_description }}</p>
                 {% endif %}
                 <p>
                     <a href="{% url 'bookmarks:edit' bookmark.id %}">Edit</a>

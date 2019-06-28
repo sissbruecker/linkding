@@ -1,8 +1,9 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpRequest
 from django.shortcuts import render
-# Create your views here.
 from django.urls import reverse
 
+from bookmarks.services.bookmarks import create_bookmark
+from . import forms
 from .models import Bookmark
 
 
@@ -13,12 +14,18 @@ def index(request):
     return render(request, 'bookmarks/index.html', context)
 
 
-def create(request):
-    return HttpResponse('OK')
+def new(request: HttpRequest):
+    if request.method == 'POST':
+        form = forms.BookmarkForm(request.POST)
+        if form.is_valid():
+            bookmark = form.save(commit=False)
+            current_user = request.user
+            create_bookmark(bookmark, current_user)
+            return HttpResponseRedirect(reverse('bookmarks:index'))
+    else:
+        form = forms.BookmarkForm()
 
-
-def new(request):
-    return render(request, 'bookmarks/new.html')
+    return render(request, 'bookmarks/new.html', {'form': form})
 
 
 def edit(request, bookmark_id):

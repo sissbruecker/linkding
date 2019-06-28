@@ -10,7 +10,6 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(pattern_name='bookmarks:index', permanent=False)),
     path('bookmarks', views.index, name='index'),
     path('bookmarks/new', views.new, name='new'),
-    # path('bookmarks/create', views.create, name='create'),
     path('bookmarks/<int:bookmark_id>/edit', views.edit, name='edit'),
     # path('bookmarks/<int:bookmark_id>/update', views.update, name='edit'),
     path('bookmarks/<int:bookmark_id>/remove', views.remove, name='remove'),
