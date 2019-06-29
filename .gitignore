@@ -159,3 +159,4 @@ venv.bak/
 .mypy_cache/
 
 polls
+tmp
