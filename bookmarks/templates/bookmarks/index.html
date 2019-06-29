@@ -2,42 +2,59 @@
 {% load shared %}
 
 {% block content %}
-    <div>
-        <h2>Bookmarks</h2>
-        <a href="{% url 'bookmarks:new' %}" class="btn btn-primary">Add</a>
-    </div>
-    <div>
-        <form method="get">
-            <div class="input-group">
-                <input type="search" name="q" placeholder="Search..." value="{{ query }}">
-                <input type="submit" value="Search" class="btn input-group-btn">
+    <div class="columns">
+
+        {# Bookmark list #}
+        <section class="content-area column col-8">
+            <div class="content-area-header">
+                <h2>Bookmarks</h2>
+                <div class="spacer"></div>
+                <div class="search">
+                    <form action="{% url 'bookmarks:index' %}" method="get">
+                        <div class="input-group">
+                            <input type="search" name="q" placeholder="Search..." value="{{ query }}">
+                            <input type="submit" value="Search" class="btn input-group-btn">
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
-    </div>
-    <ul class="bookmark-list">
-        {% for bookmark in bookmarks %}
-            <li>
-                <p>
-                    <a href="{{ bookmark.url }}" target="_blank">{{ bookmark.resolved_title }}</a>
-                </p>
-                {% if bookmark.resolved_description is not None %}
-                    <p>{{ bookmark.resolved_description }}</p>
+            <ul class="bookmark-list">
+                {% for bookmark in bookmarks %}
+                    <li>
+                        <div class="title truncate">
+                            <a href="{{ bookmark.url }}" target="_blank">{{ bookmark.resolved_title }}</a>
+                        </div>
+                        {% if bookmark.resolved_description is not None %}
+                            <div class="description truncate">{{ bookmark.resolved_description }}</div>
+                        {% endif %}
+                        <div class="actions">
+                            <a href="{% url 'bookmarks:edit' bookmark.id %}"
+                               class="btn btn-link">Edit</a>
+                            <a href="{% url 'bookmarks:remove' bookmark.id %}"
+                               class="btn btn-link"
+                               onclick="return confirm('Do you really want to delete this bookmark?')">Remove</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="pagination">
+                {% if bookmarks.has_next %}
+                    <a href="?{% update_query_string page=bookmarks.next_page_number %}"
+                       class="btn mr-2">< Older</a>
                 {% endif %}
-                <p>
-                    <a href="{% url 'bookmarks:edit' bookmark.id %}">Edit</a>
-                    <a href="{% url 'bookmarks:remove' bookmark.id %}"
-                       onclick="return confirm('Do you really want to delete this bookmark?')">Remove</a>
-                </p>
-            </li>
-        {% endfor %}
-    </ul>
-    <div class="pagination">
-        {% if bookmarks.has_next %}
-            <a href="?{% update_query_string page=bookmarks.next_page_number %}">< Older</a>
-        {% endif %}
-        {% if bookmarks.has_previous %}
-            <a href="?{% update_query_string page=bookmarks.previous_page_number %}">Newer ></a>
-        {% endif %}
+                {% if bookmarks.has_previous %}
+                    <a href="?{% update_query_string page=bookmarks.previous_page_number %}"
+                       class="btn">Newer ></a>
+                {% endif %}
+            </div>
+        </section>
+
+        {# Tag list #}
+        <section class="content-area column col-4">
+            <div class="content-area-header">
+                <h2>Tags</h2>
+            </div>
+        </section>
     </div>
 
 {% endblock %}

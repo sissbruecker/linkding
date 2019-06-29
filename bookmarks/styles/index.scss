@@ -1,0 +1,17 @@
+// Font sizes
+$html-font-size: 18px !default;
+
+// Import Spectre CSS lib
+@import "../../node_modules/spectre.css/src/spectre";
+// Import Spectre icons
+@import "../../node_modules/spectre.css/src/icons/icons-core";
+@import "../../node_modules/spectre.css/src/icons/icons-navigation";
+@import "../../node_modules/spectre.css/src/icons/icons-action";
+@import "../../node_modules/spectre.css/src/icons/icons-object";
+
+
+// Import style modules
+@import "base";
+@import "util";
+@import "components";
+@import "bookmarks";

@@ -7,13 +7,25 @@
     <meta charset="UTF-8">
     <title>linkdings</title>
     {# Include SASS styles, files are resolved from bookmarks/styles #}
-    <link href="{% sass_src 'base.scss' %}" rel="stylesheet" type="text/css" />
+    <link href="{% sass_src 'index.scss' %}" rel="stylesheet" type="text/css" />
 </head>
 <body>
-<header>
-    <h1>linkdings</h1>
+<header class="navbar container grid-lg">
+    <section class="navbar-section">
+        <a href="/" class="navbar-brand text-bold">
+            <i class="logo icon icon-link s-circle"></i>
+
+            <h1>linkdings</h1>
+        </a>
+    </section>
+    <section class="navbar-section">
+        <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
+        <a href="/bookmarks" class="btn btn-link">Bookmarks</a>
+        <a href="/settings" class="btn btn-link">Settings</a>
+        <a href="/logout" class="btn btn-link">Logout</a>
+    </section>
 </header>
-<div class="content">
+<div class="content container grid-lg">
     {% block content %}
     {% endblock %}
 </div>
