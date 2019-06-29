@@ -1,3 +1,5 @@
+import requests
+from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -24,7 +26,22 @@ def update_bookmark(bookmark: Bookmark):
 
 
 def _update_website_metadata(bookmark: Bookmark):
-    # TODO: Load website metadata
-    bookmark.website_title = 'Title from website'
-    bookmark.website_description = 'Description from website'
-    pass
+    # noinspection PyBroadException
+    try:
+        page_text = load_page(bookmark.url)
+        soup = BeautifulSoup(page_text, 'html.parser')
+
+        title = soup.title.string if soup.title is not None else None
+        description_tag = soup.find('meta', attrs={'name': 'description'})
+        description = description_tag['content'] if description_tag is not None else None
+
+        bookmark.website_title = title
+        bookmark.website_description = description
+    except Exception:
+        bookmark.website_title = None
+        bookmark.website_description = None
+
+
+def load_page(url: str):
+    r = requests.get(url)
+    return r.text

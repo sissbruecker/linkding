@@ -1,3 +1,11 @@
+beautifulsoup4==4.7.1
+certifi==2019.6.16
+chardet==3.0.4
 Django==2.2.2
+django-picklefield==2.0
+idna==2.8
 pytz==2019.1
+requests==2.22.0
+soupsieve==1.9.2
 sqlparse==0.3.0
+urllib3==1.25.3
