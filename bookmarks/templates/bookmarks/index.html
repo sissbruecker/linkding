@@ -22,4 +22,13 @@
             </li>
         {% endfor %}
     </ul>
+    <div class="pagination">
+        {% if bookmarks.has_next %}
+            <a href="?page={{ bookmarks.next_page_number }}">< Older</a>
+        {% endif %}
+        {% if bookmarks.has_previous %}
+            <a href="?page={{ bookmarks.previous_page_number }}">Newer ></a>
+        {% endif %}
+    </div>
+
 {% endblock %}
