@@ -1,8 +1,9 @@
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect, HttpRequest
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
+from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkForm
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
 
@@ -11,20 +12,19 @@ _default_page_size = 30
 
 def index(request):
     page = request.GET.get('page')
-    paginator = Paginator(_get_bookmark_list(), _default_page_size)
+    query_string = request.GET.get('q')
+    query_set = queries.query_bookmarks(request.user, query_string)
+    paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
 
     context = {
-        'bookmarks': bookmarks
+        'bookmarks': bookmarks,
+        'query': query_string if query_string else '',
     }
     return render(request, 'bookmarks/index.html', context)
 
 
-def _get_bookmark_list():
-    return Bookmark.objects.order_by('-date_added')
-
-
-def new(request: HttpRequest):
+def new(request):
     if request.method == 'POST':
         form = BookmarkForm(request.POST)
         if form.is_valid():
@@ -38,7 +38,7 @@ def new(request: HttpRequest):
     return render(request, 'bookmarks/new.html', {'form': form})
 
 
-def edit(request, bookmark_id):
+def edit(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     if request.method == 'POST':
         form = BookmarkForm(request.POST, instance=bookmark)

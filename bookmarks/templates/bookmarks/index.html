@@ -1,9 +1,16 @@
 {% extends "bookmarks/layout.html" %}
+{% load shared %}
 
 {% block content %}
     <div>
         <h2>Bookmarks</h2>
         <a href="{% url 'bookmarks:new' %}">Add</a>
+    </div>
+    <div>
+        <form method="get">
+            <input type="search" name="q" placeholder="Search..." value="{{ query }}">
+            <input type="submit" value="Search">
+        </form>
     </div>
     <ul class="bookmark-list">
         {% for bookmark in bookmarks %}
@@ -24,10 +31,10 @@
     </ul>
     <div class="pagination">
         {% if bookmarks.has_next %}
-            <a href="?page={{ bookmarks.next_page_number }}">< Older</a>
+            <a href="?{% update_query_string page=bookmarks.next_page_number %}">< Older</a>
         {% endif %}
         {% if bookmarks.has_previous %}
-            <a href="?page={{ bookmarks.previous_page_number }}">Newer ></a>
+            <a href="?{% update_query_string page=bookmarks.previous_page_number %}">Newer ></a>
         {% endif %}
     </div>
 
