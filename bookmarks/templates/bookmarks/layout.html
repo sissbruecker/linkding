@@ -1,8 +1,13 @@
+{% load static %}
+{% load sass_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>linkdings</title>
+    {# Include SASS styles, files are resolved from bookmarks/styles #}
+    <link href="{% sass_src 'base.scss' %}" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <header>

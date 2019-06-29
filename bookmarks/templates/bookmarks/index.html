@@ -4,12 +4,14 @@
 {% block content %}
     <div>
         <h2>Bookmarks</h2>
-        <a href="{% url 'bookmarks:new' %}">Add</a>
+        <a href="{% url 'bookmarks:new' %}" class="btn btn-primary">Add</a>
     </div>
     <div>
         <form method="get">
-            <input type="search" name="q" placeholder="Search..." value="{{ query }}">
-            <input type="submit" value="Search">
+            <div class="input-group">
+                <input type="search" name="q" placeholder="Search..." value="{{ query }}">
+                <input type="submit" value="Search" class="btn input-group-btn">
+            </div>
         </form>
     </div>
     <ul class="bookmark-list">
