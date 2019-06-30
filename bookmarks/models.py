@@ -3,6 +3,12 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=64)
+    date_added = models.DateTimeField()
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+
+
 class Bookmark(models.Model):
     url = models.URLField()
     title = models.CharField(max_length=512)
@@ -14,6 +20,7 @@ class Bookmark(models.Model):
     date_modified = models.DateTimeField()
     date_accessed = models.DateTimeField(blank=True, null=True)
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    tags = models.ManyToManyField(Tag)
 
     @property
     def resolved_title(self):

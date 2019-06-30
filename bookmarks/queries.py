@@ -1,11 +1,27 @@
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, Count, Aggregate, CharField
 
 from bookmarks.models import Bookmark
 
 
+class Concat(Aggregate):
+    function = 'GROUP_CONCAT'
+    template = '%(function)s(%(distinct)s%(expressions)s)'
+
+    def __init__(self, expression, distinct=False, **extra):
+        super(Concat, self).__init__(
+            expression,
+            distinct='DISTINCT ' if distinct else '',
+            output_field=CharField(),
+            **extra)
+
+
 def query_bookmarks(user: User, query_string: str):
-    query_set = Bookmark.objects
+
+    # Add aggregated tag info to bookmark instances
+    query_set = Bookmark.objects \
+        .annotate(tags_count=Count('tags')) \
+        .annotate(tags_string=Concat('tags__name'))
 
     # Sanitize query params
     if not query_string:
