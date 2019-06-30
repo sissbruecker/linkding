@@ -1,5 +1,6 @@
 {% extends "bookmarks/layout.html" %}
 {% load shared %}
+{% load bookmarks %}
 
 {% block content %}
     <div class="columns">
@@ -65,6 +66,7 @@
             <div class="content-area-header">
                 <h2>Tags</h2>
             </div>
+            {% tag_cloud tags %}
         </section>
     </div>
 

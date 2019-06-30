@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkForm
+from bookmarks.models import Bookmark, BookmarkForm, Tag
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
 
 _default_page_size = 30
@@ -16,6 +16,7 @@ def index(request):
     query_set = queries.query_bookmarks(request.user, query_string)
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
+    tags = Tag.objects.all()
 
     if request.GET.get('tag'):
         mod = request.GET.copy()
@@ -24,6 +25,7 @@ def index(request):
 
     context = {
         'bookmarks': bookmarks,
+        'tags': tags,
         'query': query_string if query_string else '',
     }
     return render(request, 'bookmarks/index.html', context)

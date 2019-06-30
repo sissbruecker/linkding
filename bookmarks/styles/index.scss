@@ -5,7 +5,8 @@ $alternative-color: #f45d00;
 $alternative-color: #FF84E8;
 $alternative-color: #98C1D9;
 $alternative-color: #7B287D;
-$alternative-color: #06c5c2;
+$alternative-color: #05a6a3;
+$alternative-color-dark: darken($alternative-color, 5%);
 
 // Import Spectre CSS lib
 @import "../../node_modules/spectre.css/src/spectre";

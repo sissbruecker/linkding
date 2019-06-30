@@ -5,7 +5,7 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def update_query_string(context, **kwargs):
-    query = context['request'].GET.copy()
+    query = context.request.GET.copy()
 
     # Replace query params with the ones from tag parameters
     for key in kwargs:
@@ -16,7 +16,7 @@ def update_query_string(context, **kwargs):
 
 @register.simple_tag(takes_context=True)
 def append_query_param(context, **kwargs):
-    query = context['request'].GET.copy()
+    query = context.request.GET.copy()
 
     # Append to or create query param
     for key in kwargs:

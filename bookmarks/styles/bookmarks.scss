@@ -25,3 +25,20 @@ ul.bookmark-list {
     }
   }
 }
+
+.tag-cloud {
+
+  a {
+    color: $alternative-color;
+  }
+
+  .group {
+    margin-bottom: 0.4rem;
+  }
+
+  .group-label {
+    font-weight: bold;
+    text-transform: uppercase;
+    color: $alternative-color-dark;
+  }
+}
