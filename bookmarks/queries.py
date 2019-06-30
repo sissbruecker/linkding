@@ -17,11 +17,10 @@ class Concat(Aggregate):
 
 
 def query_bookmarks(user: User, query_string: str):
-
     # Add aggregated tag info to bookmark instances
     query_set = Bookmark.objects \
-        .annotate(tags_count=Count('tags')) \
-        .annotate(tags_string=Concat('tags__name'))
+        .annotate(tag_count=Count('tags'),
+                  tag_string=Concat('tags__name'))
 
     # Sanitize query params
     if not query_string:

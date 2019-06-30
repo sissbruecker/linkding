@@ -17,6 +17,11 @@ def index(request):
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
 
+    if request.GET.get('tag'):
+        mod = request.GET.copy()
+        mod.pop('tag')
+        request.GET = mod
+
     context = {
         'bookmarks': bookmarks,
         'query': query_string if query_string else '',

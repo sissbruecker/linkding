@@ -5,11 +5,15 @@ ul.bookmark-list {
   padding: 0;
 
   .description {
-    color: $gray-color;
+    color: $gray-color-dark;
+
+    a {
+      color: $alternative-color;
+    }
   }
 
   .actions .btn-link {
-    color: $gray-color-dark;
+    color: $gray-color;
     padding-left: 0;
     padding-right: 0;
 
@@ -17,7 +21,7 @@ ul.bookmark-list {
     &:hover,
     &:active,
     &.active {
-      color: darken($gray-color-dark, 10%);
+      color: darken($gray-color, 10%);
     }
   }
 }

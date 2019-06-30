@@ -8,6 +8,9 @@ class Tag(models.Model):
     date_added = models.DateTimeField()
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
 
 class Bookmark(models.Model):
     url = models.URLField()
@@ -22,6 +25,10 @@ class Bookmark(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag)
 
+    # Attributes might be calculated in query
+    tag_count = 0
+    tag_string = ''
+
     @property
     def resolved_title(self):
         return self.website_title if not self.title else self.title
@@ -29,6 +36,12 @@ class Bookmark(models.Model):
     @property
     def resolved_description(self):
         return self.website_description if not self.description else self.description
+
+    @property
+    def tag_names(self):
+        tag_names = self.tag_string.strip().split(',') if self.tag_string else []
+        tag_names.sort(key=str.lower)
+        return tag_names
 
     def __str__(self):
         return self.resolved_title + ' (' + self.url[:30] + '...)'
