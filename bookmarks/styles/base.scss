@@ -38,9 +38,6 @@ h2 {
 }
 
 // Increase spacing between columns
-.container > .columns > .column {
-}
-
 .container > .columns > .column:not(:first-child) {
   padding-left: 2rem;
 }

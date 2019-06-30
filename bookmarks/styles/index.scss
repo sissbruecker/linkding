@@ -20,5 +20,5 @@ $alternative-color-dark: darken($alternative-color, 5%);
 // Import style modules
 @import "base";
 @import "util";
-@import "components";
+@import "shared";
 @import "bookmarks";
