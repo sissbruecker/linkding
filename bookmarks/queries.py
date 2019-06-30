@@ -29,17 +29,25 @@ def query_bookmarks(user: User, query_string: str):
     # Filter for user
     query_set = query_set.filter(owner=user)
 
-    # Split query into keywords
+    # Split query into search terms and tags
     keywords = query_string.strip().split(' ')
     keywords = [word for word in keywords if word]
 
-    # Filter for each keyword
-    for word in keywords:
+    search_terms = [word for word in keywords if word[0] != '#']
+    tag_names = [word[1:] for word in keywords if word[0] == '#']
+
+    # Filter for search terms and tags
+    for term in search_terms:
         query_set = query_set.filter(
-            Q(title__contains=word)
-            | Q(description__contains=word)
-            | Q(website_title__contains=word)
-            | Q(website_description__contains=word)
+            Q(title__contains=term)
+            | Q(description__contains=term)
+            | Q(website_title__contains=term)
+            | Q(website_description__contains=term)
+        )
+
+    for tag_name in tag_names:
+        query_set = query_set.filter(
+            tags__name=tag_name
         )
 
     # Sort by modification date

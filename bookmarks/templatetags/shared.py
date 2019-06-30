@@ -28,3 +28,8 @@ def append_query_param(context, **kwargs):
         query.__setitem__(key, value)
 
     return query.urlencode()
+
+
+@register.filter(name='hash_tag')
+def hash_tag(tag_name):
+    return '#' + tag_name

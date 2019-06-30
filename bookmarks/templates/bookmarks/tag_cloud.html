@@ -5,7 +5,7 @@
         <p class="group">
             <span class="group-label mr-2">{{ group.char }}</span>
             {% for tag in group.tags %}
-                <a href="?{% append_query_param q=tag.name %}">
+                <a href="?{% append_query_param q=tag.name|hash_tag %}">
                     <span class="mr-2">{{ tag.name }}</span>
                 </a>
             {% endfor %}

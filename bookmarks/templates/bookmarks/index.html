@@ -3,7 +3,7 @@
 {% load bookmarks %}
 
 {% block content %}
-    <div class="columns">
+    <div class="bookmarks-page columns">
 
         {# Bookmark list #}
         <section class="content-area column col-8">
@@ -13,7 +13,7 @@
                 <div class="search">
                     <form action="{% url 'bookmarks:index' %}" method="get">
                         <div class="input-group">
-                            <input type="search" name="q" placeholder="Search..." value="{{ query }}">
+                            <input type="search" name="q" placeholder="Search for words or #tags" value="{{ query }}">
                             <input type="submit" value="Search" class="btn input-group-btn">
                         </div>
                     </form>
@@ -29,7 +29,7 @@
                             {% if bookmark.tag_names %}
                                 <span>
                                 {% for tag_name in bookmark.tag_names %}
-                                    <a href="?{% append_query_param q=tag_name %}">#{{ tag_name }}</a>
+                                    <a href="?{% append_query_param q=tag_name|hash_tag %}">{{ tag_name|hash_tag }}</a>
                                 {% endfor %}
                                 </span>
                             {% endif %}
