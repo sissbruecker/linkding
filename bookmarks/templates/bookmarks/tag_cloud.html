@@ -3,11 +3,20 @@
 <div class="tag-cloud">
     {% for group in groups %}
         <p class="group">
-            <span class="group-label mr-2">{{ group.char }}</span>
             {% for tag in group.tags %}
-                <a href="?{% append_query_param q=tag.name|hash_tag %}">
-                    <span class="mr-2">{{ tag.name }}</span>
-                </a>
+                {# Highlight first char of first tag in group #}
+                {% if forloop.counter == 1 %}
+                    <a href="?{% append_query_param q=tag.name|hash_tag %}"
+                       class="mr-2">
+                        <span class="highlight-char">{{ tag.name|first_char }}</span><span>{{ tag.name|remaining_chars:1 }}</span>
+                    </a>
+                {% else %}
+                    {# Render remaining tags normally #}
+                    <a href="?{% append_query_param q=tag.name|hash_tag %}"
+                       class="mr-2">
+                        <span>{{ tag.name }}</span>
+                    </a>
+                {% endif %}
             {% endfor %}
         </p>
     {% endfor %}

@@ -33,3 +33,13 @@ def append_query_param(context, **kwargs):
 @register.filter(name='hash_tag')
 def hash_tag(tag_name):
     return '#' + tag_name
+
+
+@register.filter(name='first_char')
+def first_char(text):
+    return text[0]
+
+
+@register.filter(name='remaining_chars')
+def remaining_chars(text, index):
+    return text[index:]

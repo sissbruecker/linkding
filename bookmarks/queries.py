@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db.models import Q, Count, Aggregate, CharField
 
-from bookmarks.models import Bookmark
+from bookmarks.models import Bookmark, Tag
 
 
 class Concat(Aggregate):
@@ -22,22 +22,14 @@ def query_bookmarks(user: User, query_string: str):
         .annotate(tag_count=Count('tags'),
                   tag_string=Concat('tags__name'))
 
-    # Sanitize query params
-    if not query_string:
-        query_string = ''
-
     # Filter for user
     query_set = query_set.filter(owner=user)
 
     # Split query into search terms and tags
-    keywords = query_string.strip().split(' ')
-    keywords = [word for word in keywords if word]
-
-    search_terms = [word for word in keywords if word[0] != '#']
-    tag_names = [word[1:] for word in keywords if word[0] == '#']
+    query = _parse_query_string(query_string)
 
     # Filter for search terms and tags
-    for term in search_terms:
+    for term in query['search_terms']:
         query_set = query_set.filter(
             Q(title__contains=term)
             | Q(description__contains=term)
@@ -45,7 +37,7 @@ def query_bookmarks(user: User, query_string: str):
             | Q(website_description__contains=term)
         )
 
-    for tag_name in tag_names:
+    for tag_name in query['tag_names']:
         query_set = query_set.filter(
             tags__name=tag_name
         )
@@ -54,3 +46,47 @@ def query_bookmarks(user: User, query_string: str):
     query_set = query_set.order_by('-date_modified')
 
     return query_set
+
+
+def query_tags(user: User, query_string: str):
+    query_set = Tag.objects;
+
+    # Filter for user
+    query_set = query_set.filter(owner=user)
+
+    # Split query into search terms and tags
+    query = _parse_query_string(query_string)
+
+    # Filter for search terms and tags
+    for term in query['search_terms']:
+        query_set = query_set.filter(
+            Q(bookmark__title__contains=term)
+            | Q(bookmark__description__contains=term)
+            | Q(bookmark__website_title__contains=term)
+            | Q(bookmark__website_description__contains=term)
+        )
+
+    for tag_name in query['tag_names']:
+        query_set = query_set.filter(
+            bookmark__tags__name=tag_name
+        )
+
+    return query_set.distinct()
+
+
+def _parse_query_string(query_string):
+    # Sanitize query params
+    if not query_string:
+        query_string = ''
+
+    # Split query into search terms and tags
+    keywords = query_string.strip().split(' ')
+    keywords = [word for word in keywords if word]
+
+    search_terms = [word for word in keywords if word[0] != '#']
+    tag_names = [word[1:] for word in keywords if word[0] == '#']
+
+    return {
+        'search_terms': search_terms,
+        'tag_names': tag_names,
+    }
