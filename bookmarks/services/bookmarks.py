@@ -1,10 +1,9 @@
-import requests
-from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, BookmarkForm, parse_tag_string
 from services.tags import get_or_create_tags
+from services.website_loader import load_website_metadata
 
 
 def create_bookmark(form: BookmarkForm, current_user: User):
@@ -34,28 +33,12 @@ def update_bookmark(form: BookmarkForm, current_user: User):
 
 
 def _update_website_metadata(bookmark: Bookmark):
-    # noinspection PyBroadException
-    try:
-        page_text = load_page(bookmark.url)
-        soup = BeautifulSoup(page_text, 'html.parser')
-
-        title = soup.title.string if soup.title is not None else None
-        description_tag = soup.find('meta', attrs={'name': 'description'})
-        description = description_tag['content'] if description_tag is not None else None
-
-        bookmark.website_title = title
-        bookmark.website_description = description
-    except Exception:
-        bookmark.website_title = None
-        bookmark.website_description = None
+    metadata = load_website_metadata(bookmark.url)
+    bookmark.website_title = metadata.title
+    bookmark.website_description = metadata.description
 
 
 def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):
     tag_names = parse_tag_string(tag_string, ' ')
     tags = get_or_create_tags(tag_names, user)
     bookmark.tags.set(tags)
-
-
-def load_page(url: str):
-    r = requests.get(url)
-    return r.text

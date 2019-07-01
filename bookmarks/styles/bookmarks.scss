@@ -49,3 +49,10 @@ ul.bookmark-list {
     color: $alternative-color-dark;
   }
 }
+
+.bookmarks-form {
+
+  .form-icon.loading {
+    visibility: hidden;
+  }
+}

@@ -3,6 +3,7 @@ from django.urls import path
 from django.views.generic import RedirectView
 
 from . import views
+from .views import api
 
 app_name = 'bookmarks'
 urlpatterns = [
@@ -13,4 +14,6 @@ urlpatterns = [
     path('bookmarks/new', views.new, name='new'),
     path('bookmarks/<int:bookmark_id>/edit', views.edit, name='edit'),
     path('bookmarks/<int:bookmark_id>/remove', views.remove, name='remove'),
+    # API
+    path('api/website_metadata', api.website_metadata, name='api.website_metadata'),
 ]

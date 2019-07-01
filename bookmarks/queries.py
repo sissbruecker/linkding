@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.db.models import Q, Count, Aggregate, CharField
+from django.db.models import Q, Count, Aggregate, CharField, Value, BooleanField
 
 from bookmarks.models import Bookmark, Tag
 
@@ -20,7 +20,8 @@ def query_bookmarks(user: User, query_string: str):
     # Add aggregated tag info to bookmark instances
     query_set = Bookmark.objects \
         .annotate(tag_count=Count('tags'),
-                  tag_string=Concat('tags__name'))
+                  tag_string=Concat('tags__name'),
+                  tag_projection=Value(True, BooleanField()))
 
     # Filter for user
     query_set = query_set.filter(owner=user)
@@ -49,7 +50,7 @@ def query_bookmarks(user: User, query_string: str):
 
 
 def query_tags(user: User, query_string: str):
-    query_set = Tag.objects;
+    query_set = Tag.objects
 
     # Filter for user
     query_set = query_set.filter(owner=user)
