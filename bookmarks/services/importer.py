@@ -3,9 +3,9 @@ from datetime import datetime
 import bs4
 from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
-from django.utils import timezone
 
-from bookmarks.models import Bookmark, Tag
+from bookmarks.models import Bookmark, parse_tag_string
+from services.tags import get_or_create_tags
 
 
 def import_netscape_html(html: str, user: User):
@@ -38,9 +38,9 @@ def _import_bookmark_tag(bookmark_tag: bs4.Tag, user: User):
 
     # Set tags
     tag_string = link_tag['tags']
-    tag_names = tag_string.strip().split(',')
+    tag_names = parse_tag_string(tag_string)
+    tags = get_or_create_tags(tag_names, user)
 
-    tags = [_get_or_create_tag(tag_name, user) for tag_name in tag_names]
     bookmark.tags.set(tags)
     bookmark.save()
 
@@ -50,13 +50,3 @@ def _get_or_create_bookmark(url: str, user: User):
         return Bookmark.objects.get(url=url, owner=user)
     except Bookmark.DoesNotExist:
         return Bookmark()
-
-
-def _get_or_create_tag(name: str, user: User):
-    try:
-        return Tag.objects.get(name=name, owner=user)
-    except Tag.DoesNotExist:
-        tag = Tag(name=name, owner=user)
-        tag.date_added = timezone.now()
-        tag.save()
-        return tag

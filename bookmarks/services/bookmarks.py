@@ -3,10 +3,12 @@ from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from bookmarks.models import Bookmark
+from bookmarks.models import Bookmark, BookmarkForm, parse_tag_string
+from services.tags import get_or_create_tags
 
 
-def create_bookmark(bookmark: Bookmark, current_user: User):
+def create_bookmark(form: BookmarkForm, current_user: User):
+    bookmark = form.save(commit=False)
     # Update website info
     _update_website_metadata(bookmark)
     # Set currently logged in user as owner
@@ -15,11 +17,17 @@ def create_bookmark(bookmark: Bookmark, current_user: User):
     bookmark.date_added = timezone.now()
     bookmark.date_modified = timezone.now()
     bookmark.save()
+    # Update tag list
+    _update_bookmark_tags(bookmark, form.data['tag_string'], current_user)
+    bookmark.save()
 
 
-def update_bookmark(bookmark: Bookmark):
+def update_bookmark(form: BookmarkForm, current_user: User):
+    bookmark = form.save(commit=False)
     # Update website info
     _update_website_metadata(bookmark)
+    # Update tag list
+    _update_bookmark_tags(bookmark, form.data['tag_string'], current_user)
     # Update dates
     bookmark.date_modified = timezone.now()
     bookmark.save()
@@ -40,6 +48,12 @@ def _update_website_metadata(bookmark: Bookmark):
     except Exception:
         bookmark.website_title = None
         bookmark.website_description = None
+
+
+def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):
+    tag_names = parse_tag_string(tag_string, ' ')
+    tags = get_or_create_tags(tag_names, user)
+    bookmark.tags.set(tags)
 
 
 def load_page(url: str):

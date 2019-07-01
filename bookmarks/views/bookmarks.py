@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkForm
+from bookmarks.models import Bookmark, BookmarkForm, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
 
 _default_page_size = 30
@@ -35,9 +35,8 @@ def new(request):
     if request.method == 'POST':
         form = BookmarkForm(request.POST)
         if form.is_valid():
-            bookmark = form.save(commit=False)
             current_user = request.user
-            create_bookmark(bookmark, current_user)
+            create_bookmark(form, current_user)
             return HttpResponseRedirect(reverse('bookmarks:index'))
     else:
         form = BookmarkForm()
@@ -50,12 +49,12 @@ def edit(request, bookmark_id: int):
     if request.method == 'POST':
         form = BookmarkForm(request.POST, instance=bookmark)
         if form.is_valid():
-            bookmark = form.save(commit=False)
-            update_bookmark(bookmark)
+            update_bookmark(form, request.user)
             return HttpResponseRedirect(reverse('bookmarks:index'))
     else:
         form = BookmarkForm(instance=bookmark)
 
+    form.initial['tag_string'] = build_tag_string(bookmark.tag_names, ' ')
     return render(request, 'bookmarks/edit.html', {'form': form, 'bookmark_id': bookmark_id})
 
 

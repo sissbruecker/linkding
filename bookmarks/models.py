@@ -1,3 +1,5 @@
+from typing import List
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -10,6 +12,20 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def parse_tag_string(tag_string: str, delimiter: str = ','):
+    if not tag_string:
+        return []
+    names = tag_string.strip().split(delimiter)
+    names = [name for name in names if name]
+    names.sort(key=str.lower)
+
+    return names
+
+
+def build_tag_string(tag_names: List[str], delimiter: str = ','):
+    return delimiter.join(tag_names)
 
 
 class Bookmark(models.Model):
@@ -39,9 +55,10 @@ class Bookmark(models.Model):
 
     @property
     def tag_names(self):
-        tag_names = self.tag_string.strip().split(',') if self.tag_string else []
-        tag_names.sort(key=str.lower)
-        return tag_names
+        if self.tag_string:
+            return parse_tag_string(self.tag_string)
+        else:
+            return [tag.name for tag in self.tags.all()]
 
     def __str__(self):
         return self.resolved_title + ' (' + self.url[:30] + '...)'
@@ -53,6 +70,7 @@ auto_fill_placeholder = 'Leave empty to fill from website metadata'
 class BookmarkForm(forms.ModelForm):
     # Use URLField for URL
     url = forms.URLField()
+    tag_string = forms.CharField(required=False)
     # Do not require title and description in form as we fill these automatically if they are empty
     title = forms.CharField(max_length=512,
                             required=False)
@@ -61,4 +79,4 @@ class BookmarkForm(forms.ModelForm):
 
     class Meta:
         model = Bookmark
-        fields = ['url', 'title', 'description']
+        fields = ['url', 'tag_string', 'title', 'description']
