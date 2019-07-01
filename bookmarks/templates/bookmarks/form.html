@@ -1,17 +1,26 @@
+{% load widget_tweaks %}
+
 {% csrf_token %}
-<div class="field">
-    <label for="{{ form.url.id_for_label }}">URL</label>
-    {{ form.url }}
-    {{ form.url.errors }}
+<div class="form-group {% if form.url.errors %}has-error{% endif %}">
+    <label for="{{ form.url.id_for_label }}" class="form-label">URL</label>
+    {{ form.url|add_class:"form-input"|attr:"autofocus" }}
+    {% if form.url.errors %}
+        <div class="form-input-hint">
+            {{ form.url.errors }}
+        </div>
+    {% endif %}
 </div>
-<div class="field">
-    <label for="{{ form.title.id_for_label }}">Title</label>
-    {{ form.title }}
+<div class="form-group">
+    <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+    {{ form.title|add_class:"form-input"|attr:"placeholder: Leave empty to fill from website metadata" }}
     {{ form.title.errors }}
 </div>
-<div class="field">
-    <label for="{{ form.description.id_for_label }}">Description</label>
-    {{ form.description }}
+<div class="form-group">
+    <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+    {{ form.description|add_class:"form-input"|attr:"placeholder: Leave empty to fill from website metadata" }}
     {{ form.description.errors }}
 </div>
-<input type="submit" value="Save">
+<div class="form-group mt-2">
+    <input type="submit" value="Save" class="btn btn-primary mr-2">
+    <a href="{% url 'bookmarks:index' %}" class="btn">Nevermind</a>
+</div>

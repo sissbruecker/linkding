@@ -6,6 +6,7 @@ django-appconf==1.0.3
 django-compressor==2.3
 django-picklefield==2.0
 django-sass-processor==0.7.3
+django-widget-tweaks==1.4.5
 idna==2.8
 libsass==0.19.2
 pytz==2019.1

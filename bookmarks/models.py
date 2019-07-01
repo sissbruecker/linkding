@@ -55,10 +55,9 @@ class BookmarkForm(forms.ModelForm):
     url = forms.URLField()
     # Do not require title and description in form as we fill these automatically if they are empty
     title = forms.CharField(max_length=512,
-                            required=False,
-                            widget=forms.TextInput(attrs={'placeholder': auto_fill_placeholder}))
+                            required=False)
     description = forms.CharField(required=False,
-                                  widget=forms.Textarea(attrs={'placeholder': auto_fill_placeholder}))
+                                  widget=forms.Textarea())
 
     class Meta:
         model = Bookmark
