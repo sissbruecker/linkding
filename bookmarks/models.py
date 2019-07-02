@@ -57,16 +57,13 @@ class Bookmark(models.Model):
     @property
     def tag_names(self):
         # If tag projections were loaded then avoid querying all tags (=executing further selects)
-        if self.tag_string or self.tag_projection:
+        if self.tag_projection:
             return parse_tag_string(self.tag_string)
         else:
             return [tag.name for tag in self.tags.all()]
 
     def __str__(self):
         return self.resolved_title + ' (' + self.url[:30] + '...)'
-
-
-auto_fill_placeholder = 'Leave empty to fill from website metadata'
 
 
 class BookmarkForm(forms.ModelForm):

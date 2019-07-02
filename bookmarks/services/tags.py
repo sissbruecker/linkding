@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from bookmarks.models import Tag
 
+
 def get_or_create_tags(tag_names: List[str], user: User):
     return [get_or_create_tag(tag_name, user) for tag_name in tag_names]
 
