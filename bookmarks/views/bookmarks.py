@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -10,6 +11,7 @@ from bookmarks.services.bookmarks import create_bookmark, update_bookmark
 _default_page_size = 30
 
 
+@login_required
 def index(request):
     page = request.GET.get('page')
     query_string = request.GET.get('q')
@@ -31,6 +33,7 @@ def index(request):
     return render(request, 'bookmarks/index.html', context)
 
 
+@login_required
 def new(request):
     if request.method == 'POST':
         form = BookmarkForm(request.POST)
@@ -44,6 +47,7 @@ def new(request):
     return render(request, 'bookmarks/new.html', {'form': form})
 
 
+@login_required
 def edit(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     if request.method == 'POST':
@@ -58,6 +62,7 @@ def edit(request, bookmark_id: int):
     return render(request, 'bookmarks/edit.html', {'form': form, 'bookmark_id': bookmark_id})
 
 
+@login_required
 def remove(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     bookmark.delete()
