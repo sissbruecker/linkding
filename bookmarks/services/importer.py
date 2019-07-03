@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 
 from bookmarks.models import Bookmark, parse_tag_string
-from services.tags import get_or_create_tags
+from bookmarks.services.tags import get_or_create_tags
 
 
 def import_netscape_html(html: str, user: User):

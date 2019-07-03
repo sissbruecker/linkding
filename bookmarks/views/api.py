@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
-from services.website_loader import load_website_metadata
+from bookmarks.services.website_loader import load_website_metadata
 
 
 @login_required

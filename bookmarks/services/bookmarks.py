@@ -2,8 +2,8 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, BookmarkForm, parse_tag_string
-from services.tags import get_or_create_tags
-from services.website_loader import load_website_metadata
+from bookmarks.services.tags import get_or_create_tags
+from bookmarks.services.website_loader import load_website_metadata
 
 
 def create_bookmark(form: BookmarkForm, current_user: User):

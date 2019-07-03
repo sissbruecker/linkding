@@ -222,5 +222,8 @@ typings/
 .next
 
 ### Custom
-polls
-tmp
+
+# Collected static files for deployment
+/static
+# Build output, etc.
+/tmp
