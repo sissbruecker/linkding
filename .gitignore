@@ -227,3 +227,5 @@ typings/
 /static
 # Build output, etc.
 /tmp
+# Database file
+/data

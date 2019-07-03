@@ -20,6 +20,9 @@ COPY uwsgi.ini .
 COPY bootstrap.sh .
 RUN ["chmod", "+x", "./bootstrap.sh"]
 
+# Create data folder
+RUN ["mkdir", "data"]
+
 EXPOSE 9090
 
 # Start uwsgi server
