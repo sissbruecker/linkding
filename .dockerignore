@@ -1,0 +1,16 @@
+# Remove project files, data, tmp files, build files
+/.env
+/.idea
+/data
+/node_modules
+/tmp
+
+/.dockerignore
+/.gitignore
+/build-*.sh
+/Dockerfile
+/*.iml
+/package*.json
+
+# Remove development settings
+/siteroot/settings/dev.py

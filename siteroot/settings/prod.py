@@ -1,0 +1,33 @@
+"""
+Production settings for linkding webapp
+"""
+
+# Start from development settings
+# noinspection PyUnresolvedReferences
+import os
+
+from .base import *
+
+# Turn of debug mode
+DEBUG = False
+# Turn off SASS compilation
+SASS_PROCESSOR_ENABLED = False
+
+# Try read secret key from file
+try:
+    with open(os.path.join(BASE_DIR, 'secretkey.txt')) as f:
+        SECRET_KEY = f.read().strip()
+except:
+    pass
+
+# Set ALLOWED_HOSTS
+# By default look in the HOST_NAME environment variable, if that is not set then allow all hosts
+host_name = os.environ.get('HOST_NAME')
+if host_name:
+    ALLOWED_HOSTS = [host_name]
+else:
+    ALLOWED_HOSTS = ['*']
+
+# Import custom settings
+# noinspection PyUnresolvedReferences
+from .custom import *

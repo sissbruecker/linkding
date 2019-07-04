@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 # Bootstrap script that gets executed in new Docker containers
 
-# Set host name in settings if it was passed as environment variable
-if [[ -v HOST_NAME ]]
-then
-    printf "ALLOWED_HOSTS=['%s']" $HOST_NAME > ./siteroot/settings_custom.py
-fi
-
+# Create data folder if it does not exist
+mkdir -p data
 # Run database migration
 python manage.py migrate
+# Generate secret key file if it does not exist
+python manage.py generate_secret_key
 
 # Start uwsgi server
 uwsgi uwsgi.ini
