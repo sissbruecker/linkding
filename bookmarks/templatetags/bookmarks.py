@@ -8,9 +8,10 @@ register = template.Library()
 
 
 @register.inclusion_tag('bookmarks/form.html', name='bookmark_form')
-def bookmark_form(form: BookmarkForm):
+def bookmark_form(form: BookmarkForm, auto_close: bool = False):
     return {
         'form': form,
+        'auto_close': auto_close
     }
 
 

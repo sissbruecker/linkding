@@ -75,7 +75,9 @@ class BookmarkForm(forms.ModelForm):
                             required=False)
     description = forms.CharField(required=False,
                                   widget=forms.Textarea())
+    # Hidden field that determines whether to close window/tab after saving the bookmark
+    auto_close = forms.CharField(required=False)
 
     class Meta:
         model = Bookmark
-        fields = ['url', 'tag_string', 'title', 'description']
+        fields = ['url', 'tag_string', 'title', 'description', 'auto_close']

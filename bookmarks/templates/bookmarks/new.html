@@ -8,7 +8,7 @@
                 <h2>New bookmark</h2>
             </div>
             <form action="{% url 'bookmarks:new' %}" method="post" class="col-6" novalidate>
-                {% bookmark_form form %}
+                {% bookmark_form form auto_close %}
             </form>
         </section>
     </div>
