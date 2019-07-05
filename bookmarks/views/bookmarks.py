@@ -12,7 +12,7 @@ _default_page_size = 30
 
 
 @login_required
-def index(request):
+def bookmarks_index(request):
     page = request.GET.get('page')
     query_string = request.GET.get('q')
     query_set = queries.query_bookmarks(request.user, query_string)
@@ -34,7 +34,7 @@ def index(request):
 
 
 @login_required
-def new(request):
+def bookmarks_new(request):
     if request.method == 'POST':
         form = BookmarkForm(request.POST)
         if form.is_valid():
@@ -48,7 +48,7 @@ def new(request):
 
 
 @login_required
-def edit(request, bookmark_id: int):
+def bookmarks_edit(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     if request.method == 'POST':
         form = BookmarkForm(request.POST, instance=bookmark)
@@ -63,7 +63,7 @@ def edit(request, bookmark_id: int):
 
 
 @login_required
-def remove(request, bookmark_id: int):
+def bookmarks_remove(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     bookmark.delete()
     return HttpResponseRedirect(reverse('bookmarks:index'))

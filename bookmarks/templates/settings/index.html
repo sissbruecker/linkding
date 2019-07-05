@@ -1,0 +1,47 @@
+{% extends "bookmarks/layout.html" %}
+
+{% block content %}
+    <div class="settings-page">
+
+        {# Import section #}
+        <section class="content-area">
+            <div class="content-area-header">
+                <h2>Import</h2>
+            </div>
+            <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
+                added and existing ones are updated.</p>
+            <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings_import' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="input-group col-8 col-sm-12">
+                        <input class="form-input" type="file" name="import_file">
+                        <input type="submit" class="input-group-btn col-2 btn btn-primary" value="Upload">
+                    </div>
+                    {% if import_message %}
+                        {% if import_message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                            <div class="has-success">
+                        {% endif %}
+                    {% if import_message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        <div class="has-error">
+                    {% endif %}
+                        <p class="form-input-hint">
+                            {{ import_message }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </form>
+        </section>
+
+        {# Export section #}
+        <section class="content-area">
+            <div class="content-area-header">
+                <h2>Export</h2>
+            </div>
+            <p>Export all bookmarks in Netscape HTML format.</p>
+            <a class="btn btn-primary">Download (.html)</a>
+        </section>
+
+    </div>
+
+{% endblock %}
