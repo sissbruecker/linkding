@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from services.importer import import_netscape_html
+from bookmarks.services.importer import import_netscape_html
 
 
 @login_required
