@@ -29,6 +29,7 @@ def index(request):
         'bookmarks': bookmarks,
         'tags': tags,
         'query': query_string if query_string else '',
+        'empty': paginator.count == 0
     }
     return render(request, 'bookmarks/index.html', context)
 

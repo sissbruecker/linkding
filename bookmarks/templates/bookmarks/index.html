@@ -20,7 +20,9 @@
                 </div>
             </div>
 
-            {% if bookmarks.paginator.num_pages > 0 %}
+            {% if empty %}
+                {% include 'bookmarks/empty_bookmarks.html' %}
+            {% else %}
                 {% bookmark_list bookmarks %}
             {% endif %}
         </section>
