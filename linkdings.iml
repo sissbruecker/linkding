@@ -25,11 +25,5 @@
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
-    <option name="TEMPLATE_FOLDERS">
-      <list>
-        <option value="$MODULE_DIR$/bookmarks/templates" />
-        <option value="$MODULE_DIR$/bookmarks/templates/bookmarks" />
-      </list>
-    </option>
   </component>
 </module>
