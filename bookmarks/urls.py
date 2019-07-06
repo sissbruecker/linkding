@@ -16,8 +16,8 @@ urlpatterns = [
     path('bookmarks/<int:bookmark_id>/remove', views.bookmarks.remove, name='remove'),
     path('bookmarklet', views.bookmarks.bookmarklet, name='bookmarklet'),
     # Settings
-    path('settings', views.settings.index, name='settings_index'),
-    path('settings/import', views.settings.bookmark_import, name='settings_import'),
+    path('settings', views.settings.index, name='settings.index'),
+    path('settings/import', views.settings.bookmark_import, name='settings.import'),
     # API
     path('api/website_metadata', views.api.website_metadata, name='api.website_metadata'),
 ]

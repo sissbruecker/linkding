@@ -26,7 +26,7 @@ def bookmark_import(request):
         messages.error(request, 'An error occurred during bookmark import.', 'bookmark_import')
         pass
 
-    return HttpResponseRedirect(reverse('bookmarks:settings_index'))
+    return HttpResponseRedirect(reverse('bookmarks:settings.index'))
 
 
 def _find_message_with_tag(messages, tag):

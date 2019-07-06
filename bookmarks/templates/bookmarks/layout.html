@@ -5,7 +5,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>linkdings</title>
+    <title>linkding</title>
     {# Include SASS styles, files are resolved from bookmarks/styles #}
     <link href="{% sass_src 'index.scss' %}" rel="stylesheet" type="text/css"/>
 </head>
@@ -22,9 +22,9 @@
     {% if request.user.is_authenticated %}
         <section class="navbar-section">
             <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
-            <a href="/bookmarklet" class="btn btn-link">Bookmarklet</a>
-            <a href="/settings" class="btn btn-link">Settings</a>
-            <a href="/logout" class="btn btn-link">Logout</a>
+            <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
+            <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
+            <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
         </section>
     {% endif %}
 </header>

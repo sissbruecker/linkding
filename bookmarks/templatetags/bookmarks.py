@@ -1,6 +1,7 @@
 from typing import List
 
 from django import template
+from django.core.paginator import Page
 
 from bookmarks.models import BookmarkForm, Tag
 
@@ -44,4 +45,11 @@ def tag_cloud(context, tags: List[Tag]):
     groups = create_tag_groups(tags)
     return {
         'groups': groups,
+    }
+
+
+@register.inclusion_tag('bookmarks/bookmark_list.html', name='bookmark_list', takes_context=True)
+def bookmark_list(context, bookmarks: Page):
+    return {
+        'bookmarks': bookmarks,
     }

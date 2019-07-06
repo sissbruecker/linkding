@@ -10,7 +10,7 @@
             </div>
             <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
                 added and existing ones are updated.</p>
-            <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings_import' %}">
+            <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings.import' %}">
                 {% csrf_token %}
                 <div class="form-group">
                     <div class="input-group col-8 col-sm-12">
