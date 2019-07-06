@@ -8,7 +8,7 @@ from bookmarks.services.importer import import_netscape_html
 
 
 @login_required
-def settings_index(request):
+def index(request):
     import_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import')
     return render(request, 'settings/index.html', {
         'import_message': import_message
@@ -16,7 +16,7 @@ def settings_index(request):
 
 
 @login_required
-def settings_bookmark_import(request):
+def bookmark_import(request):
     try:
         import_file = request.FILES.get('import_file')
         content = import_file.read()

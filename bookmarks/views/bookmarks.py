@@ -12,7 +12,7 @@ _default_page_size = 30
 
 
 @login_required
-def bookmarks_index(request):
+def index(request):
     page = request.GET.get('page')
     query_string = request.GET.get('q')
     query_set = queries.query_bookmarks(request.user, query_string)
@@ -34,7 +34,7 @@ def bookmarks_index(request):
 
 
 @login_required
-def bookmarks_new(request):
+def new(request):
     initial_url = request.GET.get('url')
     initial_auto_close = 'auto_close' in request.GET
 
@@ -59,7 +59,7 @@ def bookmarks_new(request):
 
 
 @login_required
-def bookmarks_edit(request, bookmark_id: int):
+def edit(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     if request.method == 'POST':
         form = BookmarkForm(request.POST, instance=bookmark)
@@ -74,19 +74,19 @@ def bookmarks_edit(request, bookmark_id: int):
 
 
 @login_required
-def bookmarks_remove(request, bookmark_id: int):
+def remove(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     bookmark.delete()
     return HttpResponseRedirect(reverse('bookmarks:index'))
 
 
 @login_required
-def bookmarks_bookmarklet(request):
+def bookmarklet(request):
     return render(request, 'bookmarks/bookmarklet.html', {
         'application_url': request.build_absolute_uri("/bookmarks/new")
     })
 
 
 @login_required
-def bookmarks_close(request):
+def close(request):
     return render(request, 'bookmarks/close.html')
