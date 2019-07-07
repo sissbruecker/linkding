@@ -1,22 +1,29 @@
 body {
-  margin: 20px 0;
+  margin: 20px 10px;
 }
 
 header {
   margin-bottom: 40px;
 }
 
-.navbar-brand {
+.navbar {
 
-  .logo {
-    background-color: $primary-color;
-    color: $light-color;
-    padding: 14px;
+  .navbar-brand {
+
+    .logo {
+      background-color: $primary-color;
+      color: $light-color;
+      padding: 14px;
+    }
+
+    h1 {
+      text-transform: uppercase;
+      display: inline-block;
+    }
   }
 
-  h1 {
-    text-transform: uppercase;
-    display: inline-block;
+  .dropdown-toggle {
+    padding: 0;
   }
 }
 

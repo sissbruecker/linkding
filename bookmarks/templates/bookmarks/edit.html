@@ -7,7 +7,7 @@
             <div class="content-area-header">
                 <h2>Edit bookmark</h2>
             </div>
-            <form action="{% url 'bookmarks:edit' bookmark_id %}" method="post" class="col-6" novalidate>
+            <form action="{% url 'bookmarks:edit' bookmark_id %}" method="post" class="col-6 col-md-12" novalidate>
                 {% bookmark_form form %}
             </form>
         </section>
