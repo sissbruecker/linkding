@@ -7,7 +7,7 @@ The name comes from:
 - *Ding* which is german for *thing*
 - ...so basically some thing for managing your links
 
-**Demo:** https://demo.linkding.link/
+**Demo:** https://demo.linkding.link/ (configured with open registration)
 
 **Screenshot:**
 
