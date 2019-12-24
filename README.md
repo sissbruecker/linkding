@@ -7,6 +7,10 @@ The name comes from:
 - *Ding* which is german for *thing*
 - ...so basically some thing for managing your links
 
+**Demo:** https://demo.linkding.link/
+
+**Screenshot:**
+
 ![Screenshot](/docs/linkding-screenshot.png?raw=true "Screenshot")
 
 ## Installation
