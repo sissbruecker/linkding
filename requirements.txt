@@ -1,11 +1,13 @@
 beautifulsoup4==4.7.1
 certifi==2019.6.16
 chardet==3.0.4
+confusable-homoglyphs==3.2.0
 Django==2.2.2
 django-appconf==1.0.3
 django-compressor==2.3
 django-generate-secret-key==1.0.2
 django-picklefield==2.0
+django-registration==3.0.1
 django-sass-processor==0.7.3
 django-widget-tweaks==1.4.5
 idna==2.8

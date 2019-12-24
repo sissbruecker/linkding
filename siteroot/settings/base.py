@@ -141,3 +141,6 @@ STATICFILES_FINDERS = [
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'bookmarks', 'styles'),
 ]
+
+# Registration switch
+ALLOW_REGISTRATION = False
