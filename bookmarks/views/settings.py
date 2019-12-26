@@ -1,9 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 
+from bookmarks.models import Bookmark
+from bookmarks.services.exporter import export_netscape_html
 from bookmarks.services.importer import import_netscape_html
 
 
@@ -22,11 +24,28 @@ def bookmark_import(request):
         content = import_file.read()
         import_netscape_html(content, request.user)
         messages.success(request, 'Bookmarks were successfully imported.', 'bookmark_import')
-    except():
+    except Exception:
         messages.error(request, 'An error occurred during bookmark import.', 'bookmark_import')
         pass
 
     return HttpResponseRedirect(reverse('bookmarks:settings.index'))
+
+
+@login_required
+def bookmark_export(request):
+    try:
+        bookmarks = Bookmark.objects.all()
+        file_content = export_netscape_html(bookmarks)
+
+        response = HttpResponse(content_type='text/plain; charset=UTF-8')
+        response['Content-Disposition'] = 'attachment; filename="bookmarks.html"'
+        response.write(file_content)
+
+        return response
+    except Exception:
+        return render(request, 'settings/index.html', {
+            'export_error': 'An error occurred during bookmark export.'
+        })
 
 
 def _find_message_with_tag(messages, tag):

@@ -18,6 +18,7 @@ urlpatterns = [
     # Settings
     path('settings', views.settings.index, name='settings.index'),
     path('settings/import', views.settings.bookmark_import, name='settings.import'),
+    path('settings/export', views.settings.bookmark_export, name='settings.export'),
     # API
     path('api/website_metadata', views.api.website_metadata, name='api.website_metadata'),
 ]

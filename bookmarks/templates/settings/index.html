@@ -39,7 +39,14 @@
                 <h2>Export</h2>
             </div>
             <p>Export all bookmarks in Netscape HTML format.</p>
-            <a class="btn btn-primary">Download (.html)</a>
+            <a class="btn btn-primary" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
+            {% if export_error %}
+                <div class="has-error">
+                    <p class="form-input-hint">
+                        {{ export_error }}
+                    </p>
+                </div>
+            {% endif %}
         </section>
 
     </div>
