@@ -55,6 +55,9 @@ def query_tags(user: User, query_string: str):
     # Filter for user
     query_set = query_set.filter(owner=user)
 
+    # Only show tags which have bookmarks
+    query_set = query_set.filter(bookmark__isnull=False)
+
     # Split query into search terms and tags
     query = _parse_query_string(query_string)
 
