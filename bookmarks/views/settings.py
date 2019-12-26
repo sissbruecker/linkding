@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 
-from bookmarks.models import Bookmark
+from bookmarks.queries import query_bookmarks
 from bookmarks.services.exporter import export_netscape_html
 from bookmarks.services.importer import import_netscape_html
 
@@ -34,7 +34,7 @@ def bookmark_import(request):
 @login_required
 def bookmark_export(request):
     try:
-        bookmarks = Bookmark.objects.all()
+        bookmarks = query_bookmarks(request.user, '')
         file_content = export_netscape_html(bookmarks)
 
         response = HttpResponse(content_type='text/plain; charset=UTF-8')
