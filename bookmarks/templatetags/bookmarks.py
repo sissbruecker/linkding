@@ -3,16 +3,21 @@ from typing import List
 from django import template
 from django.core.paginator import Page
 
-from bookmarks.models import BookmarkForm, Tag
+from bookmarks.models import BookmarkForm, Tag, build_tag_string
 
 register = template.Library()
 
 
 @register.inclusion_tag('bookmarks/form.html', name='bookmark_form')
-def bookmark_form(form: BookmarkForm, auto_close: bool = False):
+def bookmark_form(form: BookmarkForm, all_tags: List[Tag], auto_close: bool = False):
+
+    all_tag_names = [tag.name for tag in all_tags]
+    all_tags_string = build_tag_string(all_tag_names, ' ')
+
     return {
         'form': form,
-        'auto_close': auto_close
+        'auto_close': auto_close,
+        'all_tags': all_tags_string
     }
 
 

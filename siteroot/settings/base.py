@@ -139,6 +139,7 @@ STATICFILES_FINDERS = [
 
 # Include SASS styles into static path, otherwise they can not be found by the SASS preprocessor
 STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'build'),
     os.path.join(BASE_DIR, 'bookmarks', 'styles'),
 ]
 

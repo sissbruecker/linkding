@@ -78,6 +78,10 @@ def query_tags(user: User, query_string: str):
     return query_set.distinct()
 
 
+def get_user_tags(user: User):
+    return Tag.objects.filter(owner=user).all()
+
+
 def _parse_query_string(query_string):
     # Sanitize query params
     if not query_string:

@@ -10,6 +10,7 @@ $alternative-color-dark: darken($alternative-color, 5%);
 
 // Import Spectre CSS lib
 @import "../../node_modules/spectre.css/src/spectre";
+@import "../../node_modules/spectre.css/src/autocomplete";
 // Import Spectre icons
 @import "../../node_modules/spectre.css/src/icons/icons-core";
 @import "../../node_modules/spectre.css/src/icons/icons-navigation";

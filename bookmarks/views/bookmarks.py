@@ -7,6 +7,7 @@ from django.urls import reverse
 from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkForm, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
+from bookmarks.queries import get_user_tags
 
 _default_page_size = 30
 
@@ -56,7 +57,10 @@ def new(request):
         if initial_auto_close:
             form.initial['auto_close'] = 'true'
 
-    return render(request, 'bookmarks/new.html', {'form': form, 'auto_close': initial_auto_close})
+    all_tags = get_user_tags(request.user)
+    context = {'form': form, 'auto_close': initial_auto_close, 'all_tags': all_tags}
+
+    return render(request, 'bookmarks/new.html', context)
 
 
 @login_required
@@ -71,7 +75,11 @@ def edit(request, bookmark_id: int):
         form = BookmarkForm(instance=bookmark)
 
     form.initial['tag_string'] = build_tag_string(bookmark.tag_names, ' ')
-    return render(request, 'bookmarks/edit.html', {'form': form, 'bookmark_id': bookmark_id})
+
+    all_tags = get_user_tags(request.user)
+    context = {'form': form, 'bookmark_id': bookmark_id, 'all_tags': all_tags}
+
+    return render(request, 'bookmarks/edit.html', context)
 
 
 @login_required

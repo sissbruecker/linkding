@@ -102,6 +102,10 @@ Create a user for the frontend:
 ```
 python3 manage.py createsuperuser --username=joe --email=joe@example.com
 ```
+Start the Node.js development server (used for compiling JavaScript components like tag auto-completion) with:
+```
+npm run dev
+```
 Start the Django development server with:
 ```
 python3 manage.py runserver

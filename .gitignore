@@ -222,7 +222,8 @@ typings/
 .next
 
 ### Custom
-
+# Rollup compilation output
+/build
 # Collected static files for deployment
 /static
 # Build output, etc.
