@@ -22,14 +22,16 @@
 
     function handleInput(e) {
         input = e.target;
-        const word = getCurrentWord(e.target);
 
-        if (!word) {
+        const word = getCurrentWord();
+
+        suggestions = word ? tags.filter(tag => tag.indexOf(word) === 0) : [];
+
+        if (word && suggestions.length > 0) {
+            open();
+        } else {
             close();
-            return;
         }
-
-        open(word);
     }
 
     function handleKeyDown(e) {
@@ -52,9 +54,8 @@
         }
     }
 
-    function open(word) {
+    function open() {
         isOpen = true;
-        updateSuggestions(word);
         selectedIndex = 0;
     }
 
@@ -91,10 +92,6 @@
         const bounds = getCurrentWordBounds(input);
 
         return input.value.substring(bounds.start, bounds.end);
-    }
-
-    function updateSuggestions(word) {
-        suggestions = tags.filter(tag => tag.indexOf(word) === 0);
     }
 
     function updateSelection(dir) {
