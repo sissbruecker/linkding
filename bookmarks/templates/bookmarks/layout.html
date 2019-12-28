@@ -25,11 +25,14 @@
     {# Only nav items menu when logged in #}
     {% if request.user.is_authenticated %}
         <section class="navbar-section">
+            {% url 'bookmarks:new' as bookmarks_new_url %}
+            {% url 'bookmarks:bookmarklet' as bookmarklet_url %}
+            {% url 'bookmarks:settings.index' as bookmarks_settings_url %}
             {# Basic menu list #}
             <div class="hide-md">
-                <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
-                <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
-                <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
+                <a href="{{ bookmarks_new_url }}" class="btn {% if request.path == bookmarks_new_url %} btn-primary mr-2 {% else %} btn-link {% endif %}">Add bookmark</a>
+                <a href="{{ bookmarklet_url }}" class="btn {% if request.path == bookmarklet_url %} btn-primary mr-2 {% else %} btn-link {% endif %}">Bookmarklet</a>
+                <a href="{{ bookmarks_settings_url }}" class="btn {% if request.path == bookmarks_settings_url %} btn-primary mr-2 {% else %} btn-link {% endif %}">Settings</a>
                 <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
             </div>
             {# Menu drop-down for smaller devices #}
@@ -41,13 +44,13 @@
                     <!-- menu component -->
                     <ul class="menu">
                         <li>
-                            <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
+                            <a href="{{ bookmarks_new_url }}" class="btn {% if request.path == bookmarks_new_url %} btn-primary mr-2 {% else %} btn-link {% endif %}">Add bookmark</a>
                         </li>
                         <li>
-                            <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
+                            <a href="{{ bookmarklet_url }}" class="btn {% if request.path == bookmarklet_url %} btn-primary mr-2 {% else %} btn-link {% endif %}">Bookmarklet</a>
                         </li>
                         <li>
-                            <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
+                            <a href="{{ bookmarks_settings_url }}" class="btn {% if request.path == bookmarks_settings_url %} btn-primary mr-2 {% else %} btn-link {% endif %}">Settings</a>
                         </li>
                         <li>
                             <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
