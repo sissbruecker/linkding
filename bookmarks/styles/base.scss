@@ -48,3 +48,8 @@ h2 {
 .container > .columns > .column:not(:first-child) {
   padding-left: 2rem;
 }
+
+// Full width for the menu buttons on mobild
+.menu > li > a {
+  width: 100%
+}
