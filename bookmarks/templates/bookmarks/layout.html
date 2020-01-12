@@ -34,15 +34,15 @@
             </div>
             {# Menu drop-down for smaller devices #}
             <div class="show-md">
+                <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">
+                    <i class="icon icon-plus"></i>
+                </a>
                 <div class="dropdown dropdown-right">
                     <a href="#" class="btn btn-link dropdown-toggle" tabindex="0">
                         <i class="icon icon-menu icon-2x"></i>
                     </a>
                     <!-- menu component -->
                     <ul class="menu">
-                        <li>
-                            <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
-                        </li>
                         <li>
                             <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
                         </li>
