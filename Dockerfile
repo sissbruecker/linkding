@@ -3,6 +3,7 @@ FROM python:3.7-slim-stretch
 # Install packages required for uswgi
 RUN apt-get update
 RUN apt-get -y install build-essential
+RUN apt-get -y install mime-support
 
 # Install requirements and uwsgi server for running python web apps
 WORKDIR /etc/linkding
