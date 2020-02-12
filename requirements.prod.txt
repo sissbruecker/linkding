@@ -1,7 +1,7 @@
 beautifulsoup4==4.7.1
 certifi==2019.6.16
 chardet==3.0.4
-Django==2.2.8
+Django==2.2.10
 django-appconf==1.0.3
 django-compressor==2.3
 django-generate-secret-key==1.0.2
