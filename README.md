@@ -111,3 +111,7 @@ Start the Django development server with:
 python3 manage.py runserver
 ```
 The frontend is now available under http://localhost:8000
+
+### Community
+
+- [linkding-extension](https://github.com/jeroenpardon/linkding-extension) Chromium compatible extension that wraps the linkding bookmarklet. Tested with Chrome, Edge, Brave. By [jeroenpardon](https://github.com/jeroenpardon)
