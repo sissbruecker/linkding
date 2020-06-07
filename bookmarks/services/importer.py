@@ -28,16 +28,17 @@ def _import_bookmark_tag(bookmark_tag: bs4.Tag, user: User):
     bookmark = _get_or_create_bookmark(url, user)
 
     bookmark.url = url
-    bookmark.date_added = datetime.utcfromtimestamp(int(link_tag['add_date']))
+    add_date = link_tag.get('add_date', datetime.now().timestamp())
+    bookmark.date_added = datetime.utcfromtimestamp(int(add_date)).astimezone()
     bookmark.date_modified = bookmark.date_added
-    bookmark.unread = link_tag['toread'] == '1'
+    bookmark.unread = link_tag.get('toread', '0') == '1'
     bookmark.title = link_tag.string
     bookmark.owner = user
 
     bookmark.save()
 
     # Set tags
-    tag_string = link_tag['tags']
+    tag_string = link_tag.get('tags', '')
     tag_names = parse_tag_string(tag_string)
     tags = get_or_create_tags(tag_names, user)
 
