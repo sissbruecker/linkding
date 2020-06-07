@@ -1,3 +1,5 @@
+import logging
+from dataclasses import dataclass
 from datetime import datetime
 
 import bs4
@@ -7,14 +9,38 @@ from django.contrib.auth.models import User
 from bookmarks.models import Bookmark, parse_tag_string
 from bookmarks.services.tags import get_or_create_tags
 
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ImportResult:
+    total: int = 0
+    success: int = 0
+    failed: int = 0
+
 
 def import_netscape_html(html: str, user: User):
-    soup = BeautifulSoup(html, 'html.parser')
+    result = ImportResult()
+
+    try:
+        soup = BeautifulSoup(html, 'html.parser')
+    except:
+        logging.exception('Could not read bookmarks file.')
+        raise
 
     bookmark_tags = soup.find_all('dt')
 
     for bookmark_tag in bookmark_tags:
-        _import_bookmark_tag(bookmark_tag, user)
+        result.total = result.total + 1
+        try:
+            _import_bookmark_tag(bookmark_tag, user)
+            result.success = result.success + 1
+        except:
+            shortened_bookmark_tag_str = str(bookmark_tag)[:100] + '...'
+            logging.exception('Error importing bookmark: ' + shortened_bookmark_tag_str)
+            result.failed = result.failed + 1
+
+    return result
 
 
 def _import_bookmark_tag(bookmark_tag: bs4.Tag, user: User):

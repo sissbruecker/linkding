@@ -17,17 +17,19 @@
                         <input class="form-input" type="file" name="import_file">
                         <input type="submit" class="input-group-btn col-2 btn btn-primary" value="Upload">
                     </div>
-                    {% if import_message %}
-                        {% if import_message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-                            <div class="has-success">
-                        {% endif %}
-                    {% if import_message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-                        <div class="has-error">
+                    {% if import_success_message %}
+                        <div class="has-success">
+                            <p class="form-input-hint">
+                                {{ import_success_message }}
+                            </p>
+                        </div>
                     {% endif %}
-                        <p class="form-input-hint">
-                            {{ import_message }}
-                        </p>
-                    </div>
+                    {% if import_errors_message %}
+                        <div class="has-error">
+                            <p class="form-input-hint">
+                                {{ import_errors_message }}
+                            </p>
+                        </div>
                     {% endif %}
                 </div>
             </form>
