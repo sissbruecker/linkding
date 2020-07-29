@@ -55,4 +55,15 @@ ul.bookmark-list {
   .form-icon.loading {
     visibility: hidden;
   }
+
+  .form-input-hint.bookmark-exists {
+    visibility: hidden;
+    color: $warning-color;
+
+    a {
+      color: $warning-color;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+  }
 }
