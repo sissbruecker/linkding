@@ -87,6 +87,7 @@
             const urlInput = document.getElementById('{{ form.url.id_for_label }}');
             const titleInput = document.getElementById('{{ form.title.id_for_label }}');
             const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+            const editedBookmarkId = {{ bookmark_id }}
 
             urlInput.addEventListener('input', checkUrl);
 
@@ -105,11 +106,11 @@
                         toggleIcon(titleInput, false);
                         toggleIcon(descriptionInput, false);
 
-                        // Display message that bookmark already exists
+                        // Display hint if URL is already bookmarked
                         const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists')
                         const editExistingBookmarkLink = bookmarkExistsHint.querySelector('a')
 
-                        if(data.bookmark) {
+                        if(data.bookmark && data.bookmark.id !== editedBookmarkId) {
                             bookmarkExistsHint.style['visibility'] = 'visible'
                             editExistingBookmarkLink.href = data.bookmark.edit_url
                         } else {
