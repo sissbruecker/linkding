@@ -95,7 +95,7 @@
                 toggleIcon(titleInput, true);
                 toggleIcon(descriptionInput, true);
 
-                const websiteUrl = urlInput.value;
+                const websiteUrl = encodeURIComponent(urlInput.value);
                 const requestUrl = `{% url 'bookmarks:api.check_url' %}?url=${websiteUrl}`;
                 fetch(requestUrl)
                     .then(response => response.json())
