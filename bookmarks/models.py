@@ -29,7 +29,7 @@ def build_tag_string(tag_names: List[str], delimiter: str = ','):
 
 
 class Bookmark(models.Model):
-    url = models.URLField()
+    url = models.URLField(max_length=2048)
     title = models.CharField(max_length=512)
     description = models.TextField()
     website_title = models.CharField(max_length=512, blank=True, null=True)
