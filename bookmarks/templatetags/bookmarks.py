@@ -9,7 +9,7 @@ register = template.Library()
 
 
 @register.inclusion_tag('bookmarks/form.html', name='bookmark_form')
-def bookmark_form(form: BookmarkForm, all_tags: List[Tag], auto_close: bool = False):
+def bookmark_form(form: BookmarkForm, all_tags: List[Tag], bookmark_id: int = 0, auto_close: bool = False):
 
     all_tag_names = [tag.name for tag in all_tags]
     all_tags_string = build_tag_string(all_tag_names, ' ')
@@ -17,7 +17,8 @@ def bookmark_form(form: BookmarkForm, all_tags: List[Tag], auto_close: bool = Fa
     return {
         'form': form,
         'auto_close': auto_close,
-        'all_tags': all_tags_string
+        'all_tags': all_tags_string,
+        'bookmark_id': bookmark_id
     }
 
 

@@ -7,6 +7,14 @@ from bookmarks.services.website_loader import load_website_metadata
 
 
 def create_bookmark(form: BookmarkForm, current_user: User):
+    # If URL is already bookmarked, then update it
+    existing_bookmark = Bookmark.objects.filter(owner=current_user, url=form.data['url']).first()
+
+    if existing_bookmark is not None:
+        update_form = BookmarkForm(data=form.data, instance=existing_bookmark)
+        update_bookmark(update_form, current_user)
+        return
+
     bookmark = form.save(commit=False)
     # Update website info
     _update_website_metadata(bookmark)

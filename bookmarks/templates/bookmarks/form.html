@@ -12,6 +12,9 @@
                 {{ form.url.errors }}
             </div>
         {% endif %}
+        <div class="form-input-hint bookmark-exists">
+            This URL is already bookmarked. You can <a href="#">edit</a> it or you can overwrite the existing bookmark by saving this form.
+        </div>
     </div>
     <div class="form-group">
         <label for="{{ form.tag_string.id_for_label }}" class="form-label">Tags</label>
@@ -77,28 +80,42 @@
     </script>
     <script type="application/javascript">
         /**
-         * Pre-fill title and description placeholders with metadata from website as soon as URL changes
+         * - Pre-fill title and description placeholders with metadata from website as soon as URL changes
+         * - Show hint if URL is already bookmarked
          */
         (function init() {
             const urlInput = document.getElementById('{{ form.url.id_for_label }}');
             const titleInput = document.getElementById('{{ form.title.id_for_label }}');
             const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+            const editedBookmarkId = {{ bookmark_id }}
 
-            urlInput.addEventListener('input', updateMetadata);
+            urlInput.addEventListener('input', checkUrl);
 
-            function updateMetadata() {
+            function checkUrl() {
                 toggleIcon(titleInput, true);
                 toggleIcon(descriptionInput, true);
 
-                const websiteUrl = urlInput.value;
-                const requestUrl = `{% url 'bookmarks:api.website_metadata' %}?url=${websiteUrl}`;
+                const websiteUrl = encodeURIComponent(urlInput.value);
+                const requestUrl = `{% url 'bookmarks:api.check_url' %}?url=${websiteUrl}`;
                 fetch(requestUrl)
                     .then(response => response.json())
-                    .then(metadata => {
+                    .then(data => {
+                        const metadata = data.metadata
                         titleInput.setAttribute('placeholder', metadata.title || '');
                         descriptionInput.setAttribute('placeholder', metadata.description || '');
                         toggleIcon(titleInput, false);
                         toggleIcon(descriptionInput, false);
+
+                        // Display hint if URL is already bookmarked
+                        const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists')
+                        const editExistingBookmarkLink = bookmarkExistsHint.querySelector('a')
+
+                        if(data.bookmark && data.bookmark.id !== editedBookmarkId) {
+                            bookmarkExistsHint.style['visibility'] = 'visible'
+                            editExistingBookmarkLink.href = data.bookmark.edit_url
+                        } else {
+                            bookmarkExistsHint.style['visibility'] = 'hidden'
+                        }
                     });
             }
 
@@ -107,7 +124,7 @@
                 icon.style['visibility'] = show ? 'visible' : 'hidden';
             }
 
-            if (urlInput.value) updateMetadata();
+            if (urlInput.value) checkUrl();
         })();
     </script>
 </div>
