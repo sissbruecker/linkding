@@ -4,6 +4,7 @@
 <div class="bookmarks-form">
     {% csrf_token %}
     {{ form.auto_close|attr:"type:hidden" }}
+    {{ form.return_url|attr:"type:hidden" }}
     <div class="form-group {% if form.url.errors %}has-error{% endif %}">
         <label for="{{ form.url.id_for_label }}" class="form-label">URL</label>
         {{ form.url|add_class:"form-input"|attr:"autofocus" }}
@@ -55,7 +56,7 @@
         {% else %}
             <input type="submit" value="Save" class="btn btn-primary mr-2">
         {% endif %}
-        <a href="{% url 'bookmarks:index' %}" class="btn">Nevermind</a>
+        <a href="{{ cancel_url }}" class="btn">Nevermind</a>
     </div>
 
     {# Replace tag input with auto-complete component #}

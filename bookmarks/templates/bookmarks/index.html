@@ -23,7 +23,7 @@
             {% if empty %}
                 {% include 'bookmarks/empty_bookmarks.html' %}
             {% else %}
-                {% bookmark_list bookmarks %}
+                {% bookmark_list bookmarks return_url %}
             {% endif %}
         </section>
 

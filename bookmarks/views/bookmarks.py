@@ -1,3 +1,5 @@
+import urllib.parse
+
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
@@ -20,6 +22,7 @@ def index(request):
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
     tags = queries.query_tags(request.user, query_string)
+    return_url = generate_index_return_url(page, query_string)
 
     if request.GET.get('tag'):
         mod = request.GET.copy()
@@ -30,9 +33,22 @@ def index(request):
         'bookmarks': bookmarks,
         'tags': tags,
         'query': query_string if query_string else '',
-        'empty': paginator.count == 0
+        'empty': paginator.count == 0,
+        'return_url': return_url
     }
     return render(request, 'bookmarks/index.html', context)
+
+
+def generate_index_return_url(page, query_string):
+    url_query = {}
+    if query_string is not None:
+        url_query['q'] = query_string
+    if page is not None:
+        url_query['page'] = page
+    base_url = reverse('bookmarks:index')
+    url_params = urllib.parse.urlencode(url_query)
+    return_url = base_url if url_params == '' else base_url + '?' + url_params
+    return urllib.parse.quote_plus(return_url)
 
 
 @login_required
@@ -58,7 +74,12 @@ def new(request):
             form.initial['auto_close'] = 'true'
 
     all_tags = get_user_tags(request.user)
-    context = {'form': form, 'auto_close': initial_auto_close, 'all_tags': all_tags}
+    context = {
+        'form': form,
+        'auto_close': initial_auto_close,
+        'all_tags': all_tags,
+        'return_url': reverse('bookmarks:index')
+    }
 
     return render(request, 'bookmarks/new.html', context)
 
@@ -66,18 +87,29 @@ def new(request):
 @login_required
 def edit(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
+
     if request.method == 'POST':
         form = BookmarkForm(request.POST, instance=bookmark)
+        return_url = form.data['return_url']
         if form.is_valid():
             update_bookmark(form, request.user)
-            return HttpResponseRedirect(reverse('bookmarks:index'))
+            return HttpResponseRedirect(return_url)
     else:
+        return_url = request.GET.get('return_url')
         form = BookmarkForm(instance=bookmark)
 
-    form.initial['tag_string'] = build_tag_string(bookmark.tag_names, ' ')
+    return_url = return_url if return_url else reverse('bookmarks:index')
 
+    form.initial['tag_string'] = build_tag_string(bookmark.tag_names, ' ')
+    form.initial['return_url'] = return_url
     all_tags = get_user_tags(request.user)
-    context = {'form': form, 'bookmark_id': bookmark_id, 'all_tags': all_tags}
+
+    context = {
+        'form': form,
+        'bookmark_id': bookmark_id,
+        'all_tags': all_tags,
+        'return_url': return_url
+    }
 
     return render(request, 'bookmarks/edit.html', context)
 
@@ -86,7 +118,9 @@ def edit(request, bookmark_id: int):
 def remove(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     bookmark.delete()
-    return HttpResponseRedirect(reverse('bookmarks:index'))
+    return_url = request.GET.get('return_url')
+    return_url = return_url if return_url else reverse('bookmarks:index')
+    return HttpResponseRedirect(return_url)
 
 
 @login_required
