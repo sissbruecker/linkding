@@ -9,6 +9,7 @@ django-picklefield==2.0
 django-registration==3.0.1
 django-sass-processor==0.7.3
 django-widget-tweaks==1.4.5
+djangorestframework==3.11.1
 idna==2.8
 pytz==2019.1
 rcssmin==1.0.6
