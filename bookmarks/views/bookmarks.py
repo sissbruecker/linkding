@@ -61,7 +61,7 @@ def new(request):
         auto_close = form.data['auto_close']
         if form.is_valid():
             current_user = request.user
-            create_bookmark(form, current_user)
+            create_bookmark(form.save(commit=False), form.data['tag_string'], current_user)
             if auto_close:
                 return HttpResponseRedirect(reverse('bookmarks:close'))
             else:
@@ -92,7 +92,7 @@ def edit(request, bookmark_id: int):
         form = BookmarkForm(request.POST, instance=bookmark)
         return_url = form.data['return_url']
         if form.is_valid():
-            update_bookmark(form, request.user)
+            update_bookmark(form.save(commit=False), form.data['tag_string'], request.user)
             return HttpResponseRedirect(return_url)
     else:
         return_url = request.GET.get('return_url')

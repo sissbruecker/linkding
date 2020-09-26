@@ -1,21 +1,19 @@
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, BookmarkForm, parse_tag_string
+from bookmarks.models import Bookmark, parse_tag_string
 from bookmarks.services.tags import get_or_create_tags
 from bookmarks.services.website_loader import load_website_metadata
 
 
-def create_bookmark(form: BookmarkForm, current_user: User):
+def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     # If URL is already bookmarked, then update it
-    existing_bookmark = Bookmark.objects.filter(owner=current_user, url=form.data['url']).first()
+    existing_bookmark: Bookmark = Bookmark.objects.filter(owner=current_user, url=bookmark.url).first()
 
     if existing_bookmark is not None:
-        update_form = BookmarkForm(data=form.data, instance=existing_bookmark)
-        update_bookmark(update_form, current_user)
-        return
+        _merge_bookmark_data(bookmark, existing_bookmark)
+        return update_bookmark(existing_bookmark, tag_string, current_user)
 
-    bookmark = form.save(commit=False)
     # Update website info
     _update_website_metadata(bookmark)
     # Set currently logged in user as owner
@@ -25,19 +23,25 @@ def create_bookmark(form: BookmarkForm, current_user: User):
     bookmark.date_modified = timezone.now()
     bookmark.save()
     # Update tag list
-    _update_bookmark_tags(bookmark, form.data['tag_string'], current_user)
+    _update_bookmark_tags(bookmark, tag_string, current_user)
     bookmark.save()
+    return bookmark
 
 
-def update_bookmark(form: BookmarkForm, current_user: User):
-    bookmark = form.save(commit=False)
+def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     # Update website info
     _update_website_metadata(bookmark)
     # Update tag list
-    _update_bookmark_tags(bookmark, form.data['tag_string'], current_user)
+    _update_bookmark_tags(bookmark, tag_string, current_user)
     # Update dates
     bookmark.date_modified = timezone.now()
     bookmark.save()
+    return bookmark
+
+
+def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
+    to_bookmark.title = from_bookmark.title
+    to_bookmark.description = from_bookmark.description
 
 
 def _update_website_metadata(bookmark: Bookmark):
