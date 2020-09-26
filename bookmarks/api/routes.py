@@ -10,7 +10,8 @@ class BookmarkViewSet(viewsets.GenericViewSet,
                       mixins.ListModelMixin,
                       mixins.RetrieveModelMixin,
                       mixins.CreateModelMixin,
-                      mixins.UpdateModelMixin):
+                      mixins.UpdateModelMixin,
+                      mixins.DestroyModelMixin):
     serializer_class = BookmarkSerializer
 
     def get_queryset(self):
