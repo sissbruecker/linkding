@@ -69,7 +69,7 @@ For automatic backups you want to backup the applications database. As described
 
 ## API
 
-The application provides a REST API that can be used by 3rd party applications to manage bookmarks. Check the [API docs](./api.md) for further information.
+The application provides a REST API that can be used by 3rd party applications to manage bookmarks. Check the [API docs](api.md) for further information.
 
 ## Development
 
