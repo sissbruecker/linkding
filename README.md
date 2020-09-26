@@ -67,6 +67,10 @@ For manual backups you can export your bookmarks from the UI and store them on a
 
 For automatic backups you want to backup the applications database. As described above, for production setups you should [mount](https://stackoverflow.com/questions/23439126/how-to-mount-a-host-directory-in-a-docker-container) the `/etc/linkding/data` directory from the Docker container to a directory on your host system. You can then use a backup tool of your choice to backup the contents of that directory.
 
+## API
+
+The application provides a REST API that can be used by 3rd party applications to manage bookmarks. Check the [API docs](./api.md) for further information.
+
 ## Development
 
 The application is open source, so you are free to modify or contribute. The application is built using the Django web framework. You can get started by checking out the excellent Django docs: https://docs.djangoproject.com/en/3.0/. The `bookmarks` folder contains the actual bookmark application, `siteroot` is the Django root application. Other than that the code should be self-explanatory / standard Django stuff 🙂.

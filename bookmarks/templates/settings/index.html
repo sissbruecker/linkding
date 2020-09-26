@@ -57,11 +57,14 @@
                 <h2>API Token</h2>
             </div>
             <p>The following token can be used to authenticate 3rd-party applications against the REST API:</p>
-            <div class="columns">
-                <div class="column col-6 col-md-12">
-                    <input class="form-input" value="{{ api_token }}" disabled>
+            <div class="form-group">
+                <div class="columns">
+                    <div class="column col-6 col-md-12">
+                        <input class="form-input" value="{{ api_token }}" disabled>
+                    </div>
                 </div>
             </div>
+            <p><strong>Please treat this token as you would any other credential.</strong> Any party with access to this token can access and manage all your bookmarks.</p>
         </section>
 
     </div>
