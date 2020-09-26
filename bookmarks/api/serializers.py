@@ -11,7 +11,8 @@ class TagListField(serializers.ListField):
 class BookmarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
-        fields = ['id', 'url', 'title', 'description', 'tag_names']
+        fields = ['id', 'url', 'title', 'description', 'tag_names', 'date_added', 'date_modified']
+        read_only_fields = ['date_added', 'date_modified']
 
     # Override readonly tag_names property to allow passing a list of tag names to create/update
     tag_names = TagListField()
