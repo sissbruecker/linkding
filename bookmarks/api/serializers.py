@@ -29,7 +29,4 @@ class BookmarkSerializer(serializers.ModelSerializer):
         instance.title = validated_data['title']
         instance.description = validated_data['description']
         tag_string = build_tag_string(validated_data['tag_names'], ' ')
-        result = update_bookmark(instance, tag_string, self.context['user'])
-        print(result.tag_names)
-        self.instance = result
-        return result
+        return update_bookmark(instance, tag_string, self.context['user'])
