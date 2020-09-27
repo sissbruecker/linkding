@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from bookmarks.models import Bookmark, build_tag_string
+from bookmarks.models import Bookmark, Tag, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
+from bookmarks.services.tags import get_or_create_tag
 
 
 class TagListField(serializers.ListField):
@@ -31,3 +32,13 @@ class BookmarkSerializer(serializers.ModelSerializer):
         instance.description = validated_data['description']
         tag_string = build_tag_string(validated_data['tag_names'], ' ')
         return update_bookmark(instance, tag_string, self.context['user'])
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['id', 'name', 'date_added']
+        read_only_fields = ['date_added']
+
+    def create(self, validated_data):
+        return get_or_create_tag(validated_data['name'], self.context['user'])

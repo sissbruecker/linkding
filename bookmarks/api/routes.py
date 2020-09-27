@@ -2,8 +2,8 @@ from rest_framework import viewsets, mixins
 from rest_framework.routers import DefaultRouter
 
 from bookmarks import queries
-from bookmarks.api.serializers import BookmarkSerializer
-from bookmarks.models import Bookmark
+from bookmarks.api.serializers import BookmarkSerializer, TagSerializer
+from bookmarks.models import Bookmark, Tag
 
 
 class BookmarkViewSet(viewsets.GenericViewSet,
@@ -28,5 +28,20 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         return {'user': self.request.user}
 
 
+class TagViewSet(viewsets.GenericViewSet,
+                 mixins.ListModelMixin,
+                 mixins.RetrieveModelMixin,
+                 mixins.CreateModelMixin):
+    serializer_class = TagSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Tag.objects.all().filter(owner=user)
+
+    def get_serializer_context(self):
+        return {'user': self.request.user}
+
+
 router = DefaultRouter()
 router.register(r'bookmarks', BookmarkViewSet, basename='bookmark')
+router.register(r'tags', TagViewSet, basename='tag')

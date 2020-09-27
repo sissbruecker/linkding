@@ -4,7 +4,7 @@ The application provides a REST API that can be used by 3rd party applications t
 
 ## Authentication
 
-All requests against the API need to be authorized using an authorization token. The application automatically generates an API token for each user, which can be accessed through the *Settings* page.
+All requests against the API must be authorized using an authorization token. The application automatically generates an API token for each user, which can be accessed through the *Settings* page.
 
 The token needs to be passed as `Authorization` header in the HTTP request:
 
@@ -21,16 +21,22 @@ The following resources are available:
 **List**
 
 ```
-GET /api/bookmarks/[?q=<search-phrase>]
+GET /api/bookmarks/
 ```
 
-List bookmarks. Use the `q` query param to apply a search filter using the same logic as through the UI. The action uses pagination with a default limit of `100`.
+List bookmarks. 
+
+Parameters:
+
+- `q` - Filters results using a search phrase using the same logic as through the UI
+- `limit` - Limits the max. number of results. Default is `100`.
+- `offset` - Index from which to start returning results
 
 Example response:
 
 ```json
 {
-  "count": 183,
+  "count": 123,
   "next": "http://127.0.0.1:8000/api/bookmarks/?limit=100&offset=100",
   "previous": null,
   "results": [
@@ -110,3 +116,61 @@ DELETE /api/bookmarks/<id>/
 ```
 
 Deletes a bookmark by ID.
+
+### Tags
+
+**List**
+
+```
+GET /api/tags/
+```
+
+List tags.
+
+Parameters:
+
+- `limit` - Limits the max. number of results. Default is `100`.
+- `offset` - Index from which to start returning results
+
+Example response:
+
+```json
+{
+  "count": 123,
+  "next": "http://127.0.0.1:8000/api/tags/?limit=100&offset=100",
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "name": "example",
+      "date_added": "2020-09-26T09:46:23.006313Z"
+    },
+    ...
+  ]
+}
+```
+
+**Retrieve**
+
+```
+GET /api/tags/<id>/
+```
+
+Retrieves a single tag by ID.
+
+**Create**
+
+```
+POST /api/tags/
+```
+
+Creates a new tag.
+
+Example payload:
+
+```json
+{
+  "name": "example"
+}
+```
+
