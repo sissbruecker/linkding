@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'sass_processor',
     'widget_tweaks',
     'django_generate_secret_key',
+    'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -142,6 +144,16 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'build'),
     os.path.join(BASE_DIR, 'bookmarks', 'styles'),
 ]
+
+# REST framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
+}
 
 # Registration switch
 ALLOW_REGISTRATION = False

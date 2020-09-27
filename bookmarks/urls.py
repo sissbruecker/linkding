@@ -1,7 +1,8 @@
 from django.conf.urls import url
-from django.urls import path
+from django.urls import path, include
 from django.views.generic import RedirectView
 
+from bookmarks.api.routes import router
 from bookmarks import views
 
 app_name = 'bookmarks'
@@ -21,4 +22,5 @@ urlpatterns = [
     path('settings/export', views.settings.bookmark_export, name='settings.export'),
     # API
     path('api/check_url', views.api.check_url, name='api.check_url'),
+    url(r'^api/', include(router.urls))
 ]
