@@ -1,8 +1,12 @@
 .bookmarks-page {
 
   .search input[type=search] {
-    width: 200px;
+    width: 180px;
     height: 1.8rem;
+
+    @media (min-width: $control-width-md) {
+      width: 300px;
+    }
   }
 }
 

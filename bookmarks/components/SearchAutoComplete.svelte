@@ -1,11 +1,13 @@
 <script>
     import {SearchHistory} from "./SearchHistory";
+    import {clampText, debounce} from "./util";
 
     const searchHistory = new SearchHistory()
 
     export let name;
     export let placeholder;
     export let value;
+    export let apiClient;
 
     let isFocus = false;
     let isOpen = false;
@@ -27,12 +29,12 @@
 
     function handleInput(e) {
         value = e.target.value
-        loadSuggestions()
+        debouncedLoadSuggestions()
     }
 
     function handleKeyDown(e) {
         // Enter
-        if (isOpen && (e.keyCode === 13 || e.keyCode === 9)) {
+        if (isOpen && selectedIndex !== undefined && (e.keyCode === 13 || e.keyCode === 9)) {
             const suggestion = suggestions.total[selectedIndex];
             completeSuggestion(suggestion);
             e.preventDefault();
@@ -72,7 +74,7 @@
         return suggestions.total.length > 0
     }
 
-    function loadSuggestions() {
+    async function loadSuggestions() {
 
         let suggestionIndex = 0
 
@@ -83,10 +85,27 @@
         const search = searchHistory.getRecentSearches(value, 5).map(value => ({
             type: 'search',
             index: nextIndex(),
+            label: value,
             value
         }))
 
-        updateSuggestions(search)
+        let bookmarks = []
+
+        if (value && value.length >= 3) {
+            const fetchedBookmarks = await apiClient.getBookmarks(value, {limit: 5, offset: 0})
+            bookmarks = fetchedBookmarks.map(bookmark => {
+                const fullLabel = bookmark.title || bookmark.website_title || bookmark.url
+                const label = clampText(fullLabel, 60)
+                return {
+                    type: 'bookmark',
+                    index: nextIndex(),
+                    label,
+                    bookmark
+                }
+            })
+        }
+
+        updateSuggestions(search, bookmarks)
 
         if (hasSuggestions()) {
             open()
@@ -95,21 +114,28 @@
         }
     }
 
-    function updateSuggestions(search) {
+    const debouncedLoadSuggestions = debounce(loadSuggestions)
+
+    function updateSuggestions(search, bookmarks) {
         search = search || []
+        bookmarks = bookmarks || []
         suggestions = {
             search,
+            bookmarks,
             total: [
-                ...search
+                ...search,
+                ...bookmarks
             ]
         }
-
-        console.log(suggestions)
     }
 
     function completeSuggestion(suggestion) {
-        if(suggestion.type === 'search') {
+        if (suggestion.type === 'search') {
             value = suggestion.value
+            close()
+        }
+        if (suggestion.type === 'bookmark') {
+            window.open(suggestion.bookmark.url, '_blank')
             close()
         }
     }
@@ -146,10 +172,25 @@
         {/if}
         {#each suggestions.search as suggestion}
             <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
-                <a href="#"  on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
+                <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
                     <div class="tile tile-centered">
                         <div class="tile-content">
-                            {suggestion.value}
+                            {suggestion.label}
+                        </div>
+                    </div>
+                </a>
+            </li>
+        {/each}
+
+        {#if suggestions.bookmarks.length > 0}
+            <li class="menu-item group-item">Bookmarks</li>
+        {/if}
+        {#each suggestions.bookmarks as suggestion}
+            <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
+                <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
+                    <div class="tile tile-centered">
+                        <div class="tile-content">
+                            {suggestion.label}
                         </div>
                     </div>
                 </a>
@@ -161,7 +202,7 @@
 <style>
     .menu {
         display: none;
-        max-height: 200px;
+        max-height: 400px;
         overflow: auto;
     }
 

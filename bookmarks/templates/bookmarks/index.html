@@ -43,6 +43,7 @@
     {# Replace search input with auto-complete component #}
     <script src="{% static "bundle.js" %}"></script>
     <script type="application/javascript">
+        const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
         const wrapper = document.getElementById('search-input-wrap')
         const newWrapper = document.createElement('div')
         new linkding.SearchAutoComplete({
@@ -50,7 +51,8 @@
             props: {
                 name: 'q',
                 placeholder: 'Search for words or #tags',
-                value: '{{ query }}'
+                value: '{{ query }}',
+                apiClient
             }
         })
         wrapper.parentElement.replaceChild(newWrapper, wrapper)
