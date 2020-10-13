@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  linkding:
+    container_name: linkding
+    image: sissbruecker/linkding:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - <your backup data folder>:/etc/linkding/data
+    restart: unless-stopped
