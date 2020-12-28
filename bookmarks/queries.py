@@ -36,6 +36,7 @@ def query_bookmarks(user: User, query_string: str):
             | Q(description__contains=term)
             | Q(website_title__contains=term)
             | Q(website_description__contains=term)
+            | Q(url__contains=term)
         )
 
     for tag_name in query['tag_names']:
@@ -68,6 +69,7 @@ def query_tags(user: User, query_string: str):
             | Q(bookmark__description__contains=term)
             | Q(bookmark__website_title__contains=term)
             | Q(bookmark__website_description__contains=term)
+            | Q(bookmark__url__contains=term)
         )
 
     for tag_name in query['tag_names']:

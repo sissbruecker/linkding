@@ -4,7 +4,7 @@
     {% for bookmark in bookmarks %}
         <li>
             <div class="title truncate">
-                <a href="{{ bookmark.url }}" target="_blank">{{ bookmark.resolved_title }}</a>
+                <a href="{{ bookmark.url }}" target="_blank" rel="noopener">{{ bookmark.resolved_title }}</a>
             </div>
             <div class="description truncate">
                 {% if bookmark.tag_names %}
