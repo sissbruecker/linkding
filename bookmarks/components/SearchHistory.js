@@ -42,7 +42,7 @@ export class SearchHistory {
         const history = this.getHistory()
 
         return history.recent
-            .filter(search => !query || search.toLowerCase().indexOf(query) >= 0)
+            .filter(search => !query || search.toLowerCase().indexOf(query.toLowerCase()) >= 0)
             .slice(0, max)
     }
 }

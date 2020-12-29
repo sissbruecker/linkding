@@ -4,7 +4,8 @@ export class ApiClient {
     }
 
     getBookmarks(query, options = {limit: 100, offset: 0}) {
-        const url = `${this.baseUrl}bookmarks?q=${query}&limit=${options.limit}&offset=${options.offset}`
+        const encodedQuery = encodeURIComponent(query)
+        const url = `${this.baseUrl}bookmarks?q=${encodedQuery}&limit=${options.limit}&offset=${options.offset}`
 
         return fetch(url)
             .then(response => response.json())
