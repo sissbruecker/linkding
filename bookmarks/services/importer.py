@@ -51,6 +51,7 @@ def _import_bookmark_tag(bookmark_tag: bs4.Tag, user: User):
 
     # Either modify existing bookmark for the URL or create new one
     url = link_tag['href']
+    description = _extract_description(bookmark_tag)
     bookmark = _get_or_create_bookmark(url, user)
 
     bookmark.url = url
@@ -59,6 +60,8 @@ def _import_bookmark_tag(bookmark_tag: bs4.Tag, user: User):
     bookmark.date_modified = bookmark.date_added
     bookmark.unread = link_tag.get('toread', '0') == '1'
     bookmark.title = link_tag.string
+    if description:
+        bookmark.description = description
     bookmark.owner = user
 
     bookmark.save()
@@ -77,3 +80,27 @@ def _get_or_create_bookmark(url: str, user: User):
         return Bookmark.objects.get(url=url, owner=user)
     except Bookmark.DoesNotExist:
         return Bookmark()
+
+
+def _extract_description(bookmark_tag: bs4.Tag):
+    """
+    Since the Netscape HTML format has no closing tags, all following bookmark tags are part of the description tag
+    so to extract the description text we have to get creative. For now we combine the text of all text nodes until we
+    detect a <dt> tag which indicates a new bookmark
+    :param bookmark_tag:
+    :return:
+    """
+    description_tag = bookmark_tag.find('dd', recursive=False)
+
+    if description_tag is None:
+        return None
+
+    description = ''
+
+    for content in description_tag.contents:
+        if type(content) is bs4.element.Tag and content.name == 'dt':
+            break
+        if type(content) is bs4.element.NavigableString:
+            description += content
+
+    return description.strip()
