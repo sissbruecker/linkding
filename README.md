@@ -71,6 +71,21 @@ For automatic backups you want to backup the applications database. As described
 
 The application provides a REST API that can be used by 3rd party applications to manage bookmarks. Check the [API docs](API.md) for further information.
 
+## Troubleshooting
+
+**Import fails with `502 Bad Gateway`**
+
+The default timeout for requests is 60 seconds, after which the application server will cancel the request and return the above error.
+Depending on the system that the application runs on, and the number of bookmarks that need to be imported, the import may take longer than the default 60 seconds.
+
+To increase the timeout you can provide a custom timeout to the Docker container using the `LD_REQUEST_TIMEOUT` environment variable:
+
+```
+docker run --name linkding -p 9090:9090 -e LD_REQUEST_TIMEOUT=180 -d sissbruecker/linkding:latest
+```
+
+Note that any proxy servers that you are running in front of linkding may have their own timeout settings, which are not affected by the variable.
+
 ## Development
 
 The application is open source, so you are free to modify or contribute. The application is built using the Django web framework. You can get started by checking out the excellent Django docs: https://docs.djangoproject.com/en/3.0/. The `bookmarks` folder contains the actual bookmark application, `siteroot` is the Django root application. Other than that the code should be self-explanatory / standard Django stuff 🙂.
