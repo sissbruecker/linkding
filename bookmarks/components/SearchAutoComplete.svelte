@@ -1,18 +1,20 @@
 <script>
     import {SearchHistory} from "./SearchHistory";
-    import {clampText, debounce} from "./util";
+    import {clampText, debounce, getCurrentWord, getCurrentWordBounds} from "./util";
 
     const searchHistory = new SearchHistory()
 
     export let name;
     export let placeholder;
     export let value;
+    export let tags;
     export let apiClient;
 
     let isFocus = false;
     let isOpen = false;
     let suggestions = []
     let selectedIndex = undefined;
+    let input = null;
 
     // Track current search query after loading the page
     searchHistory.pushCurrent()
@@ -36,7 +38,7 @@
         // Enter
         if (isOpen && selectedIndex !== undefined && (e.keyCode === 13 || e.keyCode === 9)) {
             const suggestion = suggestions.total[selectedIndex];
-            completeSuggestion(suggestion);
+            if (suggestion) completeSuggestion(suggestion);
             e.preventDefault();
         }
         // Escape
@@ -82,6 +84,22 @@
             return suggestionIndex++
         }
 
+        // Tag suggestions
+        let tagSuggestions = []
+        const currentWord = getCurrentWord(input)
+        if (currentWord && currentWord.length > 1 && currentWord[0] === '#') {
+            const searchTag = currentWord.substring(1, currentWord.length)
+            tagSuggestions = (tags || []).filter(tagName => tagName.toLowerCase().indexOf(searchTag.toLowerCase()) === 0)
+                .slice(0, 5)
+                .map(tagName => ({
+                    type: 'tag',
+                    index: nextIndex(),
+                    label: `#${tagName}`,
+                    tagName: tagName
+                }))
+        }
+
+        // Recent search suggestions
         const search = searchHistory.getRecentSearches(value, 5).map(value => ({
             type: 'search',
             index: nextIndex(),
@@ -89,6 +107,7 @@
             value
         }))
 
+        // Bookmark suggestions
         let bookmarks = []
 
         if (value && value.length >= 3) {
@@ -105,7 +124,7 @@
             })
         }
 
-        updateSuggestions(search, bookmarks)
+        updateSuggestions(search, bookmarks, tagSuggestions)
 
         if (hasSuggestions()) {
             open()
@@ -116,15 +135,18 @@
 
     const debouncedLoadSuggestions = debounce(loadSuggestions)
 
-    function updateSuggestions(search, bookmarks) {
+    function updateSuggestions(search, bookmarks, tagSuggestions) {
         search = search || []
         bookmarks = bookmarks || []
+        tagSuggestions = tagSuggestions || []
         suggestions = {
             search,
             bookmarks,
+            tags: tagSuggestions,
             total: [
+                ...tagSuggestions,
                 ...search,
-                ...bookmarks
+                ...bookmarks,
             ]
         }
     }
@@ -136,6 +158,12 @@
         }
         if (suggestion.type === 'bookmark') {
             window.open(suggestion.bookmark.url, '_blank')
+            close()
+        }
+        if (suggestion.type === 'tag') {
+            const bounds = getCurrentWordBounds(input);
+            const inputValue = input.value;
+            input.value = inputValue.substring(0, bounds.start) + `#${suggestion.tagName} ` + inputValue.substring(bounds.end);
             close()
         }
     }
@@ -163,10 +191,26 @@
 <div class="form-autocomplete">
     <div class="form-autocomplete-input" class:is-focused={isFocus}>
         <input type="search" name="{name}" placeholder="{placeholder}" autocomplete="off" value="{value}"
+               bind:this={input}
                on:input={handleInput} on:keydown={handleKeyDown} on:focus={handleFocus} on:blur={handleBlur}>
     </div>
 
     <ul class="menu" class:open={isOpen}>
+        {#if suggestions.tags.length > 0}
+            <li class="menu-item group-item">Tags</li>
+        {/if}
+        {#each suggestions.tags as suggestion}
+            <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
+                <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
+                    <div class="tile tile-centered">
+                        <div class="tile-content">
+                            {suggestion.label}
+                        </div>
+                    </div>
+                </a>
+            </li>
+        {/each}
+
         {#if suggestions.search.length > 0}
             <li class="menu-item group-item">Recent Searches</li>
         {/if}
