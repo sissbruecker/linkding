@@ -1,6 +1,8 @@
 # Changelog
 
 ## v1.0.0 (31/12/2020)
+- [**enhancement**] Search autocomplete [#52](https://github.com/sissbruecker/linkding/issues/52)
+- [**enhancement**] Improve Netscape bookmarks file parsing [#50](https://github.com/sissbruecker/linkding/issues/50)
 - [**bug**] Import does not import bookmark descriptions [#47](https://github.com/sissbruecker/linkding/issues/47)
 - [**enhancement**] Enhancement: return to same page we were on after editing a bookmark [#26](https://github.com/sissbruecker/linkding/issues/26)
 - [**bug**] Increase limit on bookmark URL length [#25](https://github.com/sissbruecker/linkding/issues/25)
