@@ -22,6 +22,8 @@ def index(request):
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
     tags = queries.query_tags(request.user, query_string)
+    tag_names = [tag.name for tag in tags]
+    tags_string = build_tag_string(tag_names, ' ')
     return_url = generate_index_return_url(page, query_string)
 
     if request.GET.get('tag'):
@@ -32,6 +34,7 @@ def index(request):
     context = {
         'bookmarks': bookmarks,
         'tags': tags,
+        'tags_string': tags_string,
         'query': query_string if query_string else '',
         'empty': paginator.count == 0,
         'return_url': return_url

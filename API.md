@@ -45,6 +45,8 @@ Example response:
       "url": "https://example.com",
       "title": "Example title",
       "description": "Example description",
+      "website_title": "Website title",
+      "website_description": "Website description",
       "tag_names": [
         "tag1",
         "tag2"        

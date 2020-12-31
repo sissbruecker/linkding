@@ -1,4 +1,5 @@
 {% extends "bookmarks/layout.html" %}
+{% load static %}
 {% load shared %}
 {% load bookmarks %}
 
@@ -13,7 +14,10 @@
                 <div class="search">
                     <form action="{% url 'bookmarks:index' %}" method="get">
                         <div class="input-group">
-                            <input type="search" name="q" placeholder="Search for words or #tags" value="{{ query }}">
+                            <span id="search-input-wrap">
+                                <input type="search" name="q" placeholder="Search for words or #tags"
+                                       value="{{ query }}">
+                            </span>
                             <input type="submit" value="Search" class="btn input-group-btn">
                         </div>
                     </form>
@@ -36,4 +40,24 @@
         </section>
     </div>
 
+    {# Replace search input with auto-complete component #}
+    <script src="{% static "bundle.js" %}"></script>
+    <script type="application/javascript">
+        const currentTagsString = '{{ tags_string }}';
+        const currentTags = currentTagsString.split(' ');
+        const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
+        const wrapper = document.getElementById('search-input-wrap')
+        const newWrapper = document.createElement('div')
+        new linkding.SearchAutoComplete({
+            target: newWrapper,
+            props: {
+                name: 'q',
+                placeholder: 'Search for words or #tags',
+                value: '{{ query }}',
+                tags: currentTags,
+                apiClient
+            }
+        })
+        wrapper.parentElement.replaceChild(newWrapper, wrapper)
+    </script>
 {% endblock %}

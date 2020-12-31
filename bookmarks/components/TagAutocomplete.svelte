@@ -1,4 +1,6 @@
 <script>
+    import {getCurrentWord, getCurrentWordBounds} from "./util";
+
     export let id;
     export let name;
     export let value;
@@ -23,7 +25,7 @@
     function handleInput(e) {
         input = e.target;
 
-        const word = getCurrentWord();
+        const word = getCurrentWord(input);
 
         suggestions = word ? tags.filter(tag => tag.indexOf(word) === 0) : [];
 
@@ -71,27 +73,6 @@
         input.value = value.substring(0, bounds.start) + suggestion + value.substring(bounds.end);
 
         close();
-    }
-
-    function getCurrentWordBounds() {
-        const text = input.value;
-        const end = input.selectionStart;
-        let start = end;
-
-        let currentChar = text.charAt(start - 1);
-
-        while (currentChar && currentChar !== ' ' && start > 0) {
-            start--;
-            currentChar = text.charAt(start - 1);
-        }
-
-        return {start, end};
-    }
-
-    function getCurrentWord() {
-        const bounds = getCurrentWordBounds(input);
-
-        return input.value.substring(bounds.start, bounds.end);
     }
 
     function updateSelection(dir) {
