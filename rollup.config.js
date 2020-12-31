@@ -15,8 +15,7 @@ export default {
 	},
 	plugins: [
 		svelte({
-			// enable run-time checks when not in production
-			dev: !production,
+			emitCss: false
 		}),
 
 		// If you have external dependencies installed from
