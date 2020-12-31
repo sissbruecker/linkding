@@ -11,6 +11,7 @@ django-sass-processor==0.7.3
 django-widget-tweaks==1.4.5
 djangorestframework==3.11.1
 idna==2.8
+pyparsing==2.4.7
 pytz==2019.1
 rcssmin==1.0.6
 requests==2.22.0

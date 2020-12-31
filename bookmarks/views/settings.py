@@ -35,7 +35,7 @@ def bookmark_import(request):
         return HttpResponseRedirect(reverse('bookmarks:settings.index'))
 
     try:
-        content = import_file.read()
+        content = import_file.read().decode()
         result = import_netscape_html(content, request.user)
         success_msg = str(result.success) + ' bookmarks were successfully imported.'
         messages.success(request, success_msg, 'bookmark_import_success')
