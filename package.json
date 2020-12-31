@@ -1,5 +1,5 @@
 {
-  "name": "linkdings",
+  "name": "linkding",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sissbruecker/linkdings.git"
+    "url": "git+https://github.com/sissbruecker/linkding.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/sissbruecker/linkdings/issues"
+    "url": "https://github.com/sissbruecker/linkding/issues"
   },
-  "homepage": "https://github.com/sissbruecker/linkdings#readme",
+  "homepage": "https://github.com/sissbruecker/linkding#readme",
   "dependencies": {
     "spectre.css": "^0.5.8",
     "@rollup/plugin-commonjs": "^11.0.0",
