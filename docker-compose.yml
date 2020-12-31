@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  linkding:
+    container_name: "${LD_CONTAINER_NAME:-linkding}"
+    image: sissbruecker/linkding:latest
+    ports:
+      - "${LD_HOST_PORT:-9090}:9090"
+    volumes:
+      - "${LD_HOST_DATA_DIR:-./linkding_data}:/etc/linkding/data"
+    restart: unless-stopped
