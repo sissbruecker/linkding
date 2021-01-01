@@ -28,7 +28,7 @@ docker run --name linkding -p 9090:9090 -d sissbruecker/linkding:latest
 By default the application runs on port `9090`, but you can map it to a different host port by modifying the command above.
 
 However for **production use** you also want to mount a data folder on your system, so that the applications database is not stored in the container, but on your hosts file system. This is safer in case something happens to the container and makes it easier to update the container later on, or to run backups. To do so you can use the following extended command, where you replace `{host-data-folder}` with the absolute path to a folder on your system where you want to store the data:
-```
+```shell
 docker run --name linkding -p 9090:9090 -v {host-data-folder}:/etc/linkding/data -d sissbruecker/linkding:latest
 ```
 
@@ -40,29 +40,28 @@ If you are using a Linux system you can use the following [shell script](https:/
 
 The script can be configured using using shell variables - for more details have a look at the script itself.
 
-### User setup
-
-Finally you need to create a user so that you can access the frontend. Replace the credentials in the following command and run it:
-```
-docker exec -it linkding python manage.py createsuperuser --username=joe --email=joe@example.com
-```
-The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
-
 ###  Docker-compose setup
 
-To install linkding using docker-compose you can use the `docker-compose.yml` file. Rename the `.env.sample` file to `.env` and set you parameters, the run:
+To install linkding using docker-compose you can use the `docker-compose.yml` file. Copy the `.env.sample` file to `.env` and set your parameters, then run:
 ```shell
 docker-compose up -d
 ```
 
-### Docker-compose user setup
+### User setup
 
 Finally you need to create a user so that you can access the frontend. Replace the credentials in the following command and run it:
+
+**Docker**
+```shell
+docker exec -it linkding python manage.py createsuperuser --username=joe --email=joe@example.com
+```
+
+**Docker-compose**
 ```shell
 docker-compose exec linkding python manage.py createsuperuser --username=joe --email=joe@example.com
 ```
-The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
 
+The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
 
 ### Manual setup
 
