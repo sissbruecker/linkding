@@ -48,6 +48,22 @@ docker exec -it linkding python manage.py createsuperuser --username=joe --email
 ```
 The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
 
+###  Docker-compose setup
+
+To install linkding using docker-compose you can use the `docker-compose.yml` file. Rename the `.env.sample` file to `.env` and set you parameters, the run:
+```shell
+docker-compose up -d
+```
+
+### Docker-compose user setup
+
+Finally you need to create a user so that you can access the frontend. Replace the credentials in the following command and run it:
+```shell
+docker-compose exec linkding python manage.py createsuperuser --username=joe --email=joe@example.com
+```
+The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
+
+
 ### Manual setup
 
 If you can not or don't want to use Docker you can install the application manually on your server. To do so you can basically follow the steps from the *Development* section below while cross-referencing the `Dockerfile` and `bootstrap.sh` on how to make the application production-ready.
