@@ -7,5 +7,5 @@ services:
     ports:
       - "${LD_HOST_PORT:-9090}:9090"
     volumes:
-      - "${LD_HOST_DATA_DIR:-./linkding_data}:/etc/linkding/data"
+      - "${LD_HOST_DATA_DIR:-./data}:/etc/linkding/data"
     restart: unless-stopped
