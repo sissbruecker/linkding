@@ -4,6 +4,8 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from bookmarks.utils import unique
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=64)
@@ -19,6 +21,7 @@ def parse_tag_string(tag_string: str, delimiter: str = ','):
         return []
     names = tag_string.strip().split(delimiter)
     names = [name for name in names if name]
+    names = unique(names, str.lower)
     names.sort(key=str.lower)
 
     return names

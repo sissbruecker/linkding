@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, Count, Aggregate, CharField, Value, BooleanField
 
 from bookmarks.models import Bookmark, Tag
+from bookmarks.utils import unique
 
 
 class Concat(Aggregate):
@@ -41,7 +42,7 @@ def query_bookmarks(user: User, query_string: str):
 
     for tag_name in query['tag_names']:
         query_set = query_set.filter(
-            tags__name=tag_name
+            tags__name__iexact=tag_name
         )
 
     # Sort by modification date
@@ -74,7 +75,7 @@ def query_tags(user: User, query_string: str):
 
     for tag_name in query['tag_names']:
         query_set = query_set.filter(
-            bookmark__tags__name=tag_name
+            bookmark__tags__name__iexact=tag_name
         )
 
     return query_set.distinct()
@@ -95,6 +96,7 @@ def _parse_query_string(query_string):
 
     search_terms = [word for word in keywords if word[0] != '#']
     tag_names = [word[1:] for word in keywords if word[0] == '#']
+    tag_names = unique(tag_names, str.lower)
 
     return {
         'search_terms': search_terms,
