@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.1 (01/01/2021)
+- [**enhancement**] Add docker-compose support [#54](https://github.com/sissbruecker/linkding/pull/54)
+
+---
+
 ## v1.1.0 (31/12/2020)
 - [**enhancement**] Search autocomplete [#52](https://github.com/sissbruecker/linkding/issues/52)
 - [**enhancement**] Improve Netscape bookmarks file parsing [#50](https://github.com/sissbruecker/linkding/issues/50)
