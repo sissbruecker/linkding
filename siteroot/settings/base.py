@@ -157,3 +157,6 @@ REST_FRAMEWORK = {
 
 # Registration switch
 ALLOW_REGISTRATION = False
+
+# URL validation flag
+LD_DISABLE_URL_VALIDATION = os.getenv('LD_DISABLE_URL_VALIDATION', False) in (True, 'True', '1')

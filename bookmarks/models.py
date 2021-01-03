@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 from bookmarks.utils import unique
+from bookmarks.validators import BookmarkURLValidator
 
 
 class Tag(models.Model):
@@ -32,7 +33,7 @@ def build_tag_string(tag_names: List[str], delimiter: str = ','):
 
 
 class Bookmark(models.Model):
-    url = models.URLField(max_length=2048)
+    url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     title = models.CharField(max_length=512, blank=True)
     description = models.TextField(blank=True)
     website_title = models.CharField(max_length=512, blank=True, null=True)
@@ -71,7 +72,7 @@ class Bookmark(models.Model):
 
 class BookmarkForm(forms.ModelForm):
     # Use URLField for URL
-    url = forms.URLField()
+    url = forms.CharField(validators=[BookmarkURLValidator()])
     tag_string = forms.CharField(required=False)
     # Do not require title and description in form as we fill these automatically if they are empty
     title = forms.CharField(max_length=512,
