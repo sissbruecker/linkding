@@ -1,8 +1,13 @@
 # Changelog
 
+## v1.2.0 (09/01/2021)
+- [**closed**] Add Favicon [#58](https://github.com/sissbruecker/linkding/issues/58)
+- [**closed**] Make tags case-insensitive [#45](https://github.com/sissbruecker/linkding/issues/45)
+
+---
+
 ## v1.1.1 (01/01/2021)
 - [**enhancement**] Add docker-compose support [#54](https://github.com/sissbruecker/linkding/pull/54)
-
 ---
 
 ## v1.1.0 (31/12/2020)
