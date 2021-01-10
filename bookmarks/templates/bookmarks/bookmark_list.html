@@ -1,4 +1,5 @@
 {% load shared %}
+{% load pagination %}
 
 <ul class="bookmark-list">
     {% for bookmark in bookmarks %}
@@ -30,13 +31,6 @@
         </li>
     {% endfor %}
 </ul>
-<div class="pagination">
-    {% if bookmarks.has_next %}
-        <a href="?{% update_query_string page=bookmarks.next_page_number %}"
-           class="btn mr-2">< Older</a>
-    {% endif %}
-    {% if bookmarks.has_previous %}
-        <a href="?{% update_query_string page=bookmarks.previous_page_number %}"
-           class="btn">Newer ></a>
-    {% endif %}
+<div class="mt-2">
+    {% pagination bookmarks %}
 </div>
