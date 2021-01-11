@@ -48,3 +48,8 @@ h2 {
 .container > .columns > .column:not(:first-child) {
   padding-left: 2rem;
 }
+
+// Remove left padding from first pagination link
+.pagination .page-item:first-child a {
+  padding-left: 0;
+}
