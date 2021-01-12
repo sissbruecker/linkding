@@ -42,6 +42,13 @@ class TagTestCase(TestCase):
         self.assertEqual(len(tags), 1)
         self.assertEqual(first_tag.id, second_tag.id)
 
+    def test_get_or_create_tag_should_handle_legacy_dbs_with_existing_duplicates(self):
+        Tag.objects.create(name='book', date_added=timezone.now(), owner=self.user)
+        Tag.objects.create(name='Book', date_added=timezone.now(), owner=self.user)
+        first_tag = get_or_create_tag('Book', self.user)
+
+        self.assertEqual(first_tag.id, first_tag.id)
+
     def test_get_or_create_tags_should_return_tags(self):
         books_tag = get_or_create_tag('Book', self.user)
         movies_tag = get_or_create_tag('Movie', self.user)
