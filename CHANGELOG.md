@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.1 (12/01/2021)
+- [**bug**] Bug: Two equal tags with different capitalisation lead to 500 server errors [#65](https://github.com/sissbruecker/linkding/issues/65)
+- [**closed**] Enhancement: category and pagination [#11](https://github.com/sissbruecker/linkding/issues/11)
+
+---
+
 ## v1.2.0 (09/01/2021)
 - [**closed**] Add Favicon [#58](https://github.com/sissbruecker/linkding/issues/58)
 - [**closed**] Make tags case-insensitive [#45](https://github.com/sissbruecker/linkding/issues/45)
