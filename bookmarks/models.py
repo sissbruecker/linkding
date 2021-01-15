@@ -51,7 +51,12 @@ class Bookmark(models.Model):
 
     @property
     def resolved_title(self):
-        return self.website_title if not self.title else self.title
+        if self.title:
+            return self.title
+        elif self.website_title:
+            return self.website_title
+        else:
+            return self.url
 
     @property
     def resolved_description(self):
