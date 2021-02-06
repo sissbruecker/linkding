@@ -12,10 +12,10 @@
                 <h2>Bookmarks</h2>
                 <div class="spacer"></div>
                 <div class="search">
-                    <form action="{% url 'bookmarks:index' %}" method="get">
+                    <form action="{% url 'bookmarks:index' %}" method="get" role="search">
                         <div class="input-group">
                             <span id="search-input-wrap">
-                                <input type="search" name="q" placeholder="Search for words or #tags"
+                                <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
                                        value="{{ query }}">
                             </span>
                             <input type="submit" value="Search" class="btn input-group-btn">

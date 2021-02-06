@@ -189,8 +189,8 @@
 </script>
 
 <div class="form-autocomplete">
-    <div class="form-autocomplete-input" class:is-focused={isFocus}>
-        <input type="search" name="{name}" placeholder="{placeholder}" autocomplete="off" value="{value}"
+    <div class="form-autocomplete-input form-input" class:is-focused={isFocus}>
+        <input type="search" class="form-input" name="{name}" placeholder="{placeholder}" autocomplete="off" value="{value}"
                bind:this={input}
                on:input={handleInput} on:keydown={handleKeyDown} on:focus={handleFocus} on:blur={handleBlur}>
     </div>
@@ -256,6 +256,9 @@
 
     .form-autocomplete-input {
         padding: 0;
+    }
+    .form-autocomplete-input.is-focused {
+        z-index: 2;
     }
 
     /* TODO: Should be read from theme */

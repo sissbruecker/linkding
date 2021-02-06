@@ -1,11 +1,31 @@
-.bookmarks-page {
+.bookmarks-page .search {
+  $searchbox-height: 1.8rem;
 
-  .search input[type=search] {
+  // Regular input
+  input[type='search'] {
     width: 180px;
-    height: 1.8rem;
+    height: $searchbox-height;
+    -webkit-appearance: none;
 
     @media (min-width: $control-width-md) {
       width: 300px;
+    }
+  }
+
+  // Enhanced auto-complete input
+  // This needs a bit more wrangling to make the CSS component align with the attached button
+  .form-autocomplete {
+    height: $searchbox-height;
+
+    .form-autocomplete-input {
+      height: $searchbox-height;
+      width: 100%;
+
+      input[type='search'] {
+        height: 100%;
+        margin: 0;
+        border: none;
+      }
     }
   }
 }
