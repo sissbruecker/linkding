@@ -1,0 +1,49 @@
+{# Basic menu list #}
+<div class="hide-md">
+    <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
+    <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
+    <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
+    <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
+</div>
+{# Menu drop-down for smaller devices #}
+<div class="show-md">
+    <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">
+        <i class="icon icon-plus"></i>
+    </a>
+    <div class="dropdown dropdown-right">
+        <a href="#" id="mobile-nav-menu-trigger" class="btn btn-link dropdown-toggle" tabindex="0">
+            <i class="icon icon-menu icon-2x"></i>
+        </a>
+        <!-- menu component -->
+        <ul class="menu">
+            <li>
+                <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
+            </li>
+            <li>
+                <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
+            </li>
+            <li>
+                <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    // Hide mobile menu on outside click
+    // The Spectre CSS component relies on focus changes to show/hide the dropdown, however mobile browsers like
+    // Safari will not trigger a blur event when clicking on a non-focusable element, so we have to simulate the
+    // behaviour through Javascript
+    const mobileNavMenuTrigger = document.getElementById('mobile-nav-menu-trigger');
+
+    function mobileNavMenuOutsideClickHandler(clickEvent) {
+        if (mobileNavMenuTrigger.parentElement.contains(clickEvent.target)) return
+        mobileNavMenuTrigger.blur();
+    }
+
+    mobileNavMenuTrigger.addEventListener('focus', function () {
+        document.addEventListener('click', mobileNavMenuOutsideClickHandler);
+    })
+    mobileNavMenuTrigger.addEventListener('blur', function () {
+        document.removeEventListener('click', mobileNavMenuOutsideClickHandler);
+    })
+</script>

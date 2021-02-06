@@ -5,7 +5,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="{% static 'favicon.png' %}" />
+    <link rel="icon" href="{% static 'favicon.png' %}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
     <meta name="description" content="Self-hosted bookmark service">
     <meta name="robots" content="index,follow">
@@ -23,39 +23,10 @@
             <h1>linkding</h1>
         </a>
     </section>
-    {# Only nav items menu when logged in #}
+    {# Only show nav items menu when logged in #}
     {% if request.user.is_authenticated %}
         <section class="navbar-section">
-            {# Basic menu list #}
-            <div class="hide-md">
-                <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
-                <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
-                <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
-                <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
-            </div>
-            {# Menu drop-down for smaller devices #}
-            <div class="show-md">
-                <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">
-                    <i class="icon icon-plus"></i>
-                </a>
-                <div class="dropdown dropdown-right">
-                    <a href="#" class="btn btn-link dropdown-toggle" tabindex="0">
-                        <i class="icon icon-menu icon-2x"></i>
-                    </a>
-                    <!-- menu component -->
-                    <ul class="menu">
-                        <li>
-                            <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            {% include 'bookmarks/nav_menu.html' %}
         </section>
     {% endif %}
 </header>
