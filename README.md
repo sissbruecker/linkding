@@ -38,7 +38,7 @@ If everything completed successfully the application should now be running and c
 
 If you are using a Linux system you can use the following [shell script](https://github.com/sissbruecker/linkding/blob/master/install-linkding.sh) for an automated setup. The script does basically everything described above, but also handles updating an existing container to a new application version (technically replaces the existing container with a new container built from a newer image, while mounting the same data folder).
 
-The script can be configured using using shell variables - for more details have a look at the script itself.
+The script can be configured using shell variables - for more details have a look at the script itself.
 
 ###  Docker-compose setup
 
@@ -67,6 +67,10 @@ The command will prompt you for a secure password. After the command has complet
 
 If you can not or don't want to use Docker you can install the application manually on your server. To do so you can basically follow the steps from the *Development* section below while cross-referencing the `Dockerfile` and `bootstrap.sh` on how to make the application production-ready.
 
+### Options
+
+Check the [options document](Options.md) on how to configure your linkding installation.
+
 ### Hosting
 
 The application runs in a web-server called [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) that is production-ready and that you can expose to the web. If you don't know how to configure your server to expose the application to the web there are several more steps involved. I can not support support the process here, but I can give some pointers on what to search for:
@@ -93,11 +97,7 @@ The application provides a REST API that can be used by 3rd party applications t
 The default timeout for requests is 60 seconds, after which the application server will cancel the request and return the above error.
 Depending on the system that the application runs on, and the number of bookmarks that need to be imported, the import may take longer than the default 60 seconds.
 
-To increase the timeout you can provide a custom timeout to the Docker container using the `LD_REQUEST_TIMEOUT` environment variable:
-
-```
-docker run --name linkding -p 9090:9090 -e LD_REQUEST_TIMEOUT=180 -d sissbruecker/linkding:latest
-```
+To increase the timeout you can configure the [`LD_REQUEST_TIMEOUT` option](Options.md#LD_REQUEST_TIMEOUT).
 
 Note that any proxy servers that you are running in front of linkding may have their own timeout settings, which are not affected by the variable.
 
