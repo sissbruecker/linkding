@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.3.0 (14/02/2021)
+- [**closed**] Novice help. [#71](https://github.com/sissbruecker/linkding/issues/71)
+- [**closed**] Option to create bookmarks public [#70](https://github.com/sissbruecker/linkding/issues/70)
+- [**enhancement**] Show URL if title is not available [#64](https://github.com/sissbruecker/linkding/issues/64)
+- [**bug**] minor ui nitpicks [#62](https://github.com/sissbruecker/linkding/issues/62)
+- [**enhancement**] add an archive function [#46](https://github.com/sissbruecker/linkding/issues/46)
+- [**closed**] remove non fqdn check and alert [#36](https://github.com/sissbruecker/linkding/issues/36)
+- [**closed**] Add Lotus Notes links [#22](https://github.com/sissbruecker/linkding/issues/22)
+
+---
+
 ## v1.2.1 (12/01/2021)
 - [**bug**] Bug: Two equal tags with different capitalisation lead to 500 server errors [#65](https://github.com/sissbruecker/linkding/issues/65)
 - [**closed**] Enhancement: category and pagination [#11](https://github.com/sissbruecker/linkding/issues/11)
