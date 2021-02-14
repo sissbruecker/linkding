@@ -16,22 +16,38 @@ _default_page_size = 30
 
 @login_required
 def index(request):
-    page = request.GET.get('page')
     query_string = request.GET.get('q')
     query_set = queries.query_bookmarks(request.user, query_string)
+    base_url = reverse('bookmarks:index')
+    context = get_bookmark_view_context(request, query_set, base_url)
+    return render(request, 'bookmarks/index.html', context)
+
+
+@login_required
+def archived(request):
+    query_string = request.GET.get('q')
+    query_set = queries.query_archived_bookmarks(request.user, query_string)
+    base_url = reverse('bookmarks:archived')
+    context = get_bookmark_view_context(request, query_set, base_url)
+    return render(request, 'bookmarks/archive.html', context)
+
+
+def get_bookmark_view_context(request, query_set, base_url):
+    page = request.GET.get('page')
+    query_string = request.GET.get('q')
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
     tags = queries.query_tags(request.user, query_string)
     tag_names = [tag.name for tag in tags]
     tags_string = build_tag_string(tag_names, ' ')
-    return_url = generate_index_return_url(page, query_string)
+    return_url = generate_return_url(base_url, page, query_string)
 
     if request.GET.get('tag'):
         mod = request.GET.copy()
         mod.pop('tag')
         request.GET = mod
 
-    context = {
+    return {
         'bookmarks': bookmarks,
         'tags': tags,
         'tags_string': tags_string,
@@ -39,16 +55,14 @@ def index(request):
         'empty': paginator.count == 0,
         'return_url': return_url
     }
-    return render(request, 'bookmarks/index.html', context)
 
 
-def generate_index_return_url(page, query_string):
+def generate_return_url(base_url, page, query_string):
     url_query = {}
     if query_string is not None:
         url_query['q'] = query_string
     if page is not None:
         url_query['page'] = page
-    base_url = reverse('bookmarks:index')
     url_params = urllib.parse.urlencode(url_query)
     return_url = base_url if url_params == '' else base_url + '?' + url_params
     return urllib.parse.quote_plus(return_url)
@@ -140,7 +154,7 @@ def unarchive(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     unarchive_bookmark(bookmark)
     return_url = request.GET.get('return_url')
-    return_url = return_url if return_url else reverse('bookmarks:index')
+    return_url = return_url if return_url else reverse('bookmarks:archived')
     return HttpResponseRedirect(return_url)
 
 
