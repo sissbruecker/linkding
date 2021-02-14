@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkForm, build_tag_string
-from bookmarks.services.bookmarks import create_bookmark, update_bookmark
+from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, unarchive_bookmark
 from bookmarks.queries import get_user_tags
 
 _default_page_size = 30
@@ -121,6 +121,24 @@ def edit(request, bookmark_id: int):
 def remove(request, bookmark_id: int):
     bookmark = Bookmark.objects.get(pk=bookmark_id)
     bookmark.delete()
+    return_url = request.GET.get('return_url')
+    return_url = return_url if return_url else reverse('bookmarks:index')
+    return HttpResponseRedirect(return_url)
+
+
+@login_required
+def archive(request, bookmark_id: int):
+    bookmark = Bookmark.objects.get(pk=bookmark_id)
+    archive_bookmark(bookmark)
+    return_url = request.GET.get('return_url')
+    return_url = return_url if return_url else reverse('bookmarks:index')
+    return HttpResponseRedirect(return_url)
+
+
+@login_required
+def unarchive(request, bookmark_id: int):
+    bookmark = Bookmark.objects.get(pk=bookmark_id)
+    unarchive_bookmark(bookmark)
     return_url = request.GET.get('return_url')
     return_url = return_url if return_url else reverse('bookmarks:index')
     return HttpResponseRedirect(return_url)
