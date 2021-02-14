@@ -156,12 +156,5 @@ def unarchive(request, bookmark_id: int):
 
 
 @login_required
-def bookmarklet(request):
-    return render(request, 'bookmarks/bookmarklet.html', {
-        'application_url': request.build_absolute_uri("/bookmarks/new")
-    })
-
-
-@login_required
 def close(request):
     return render(request, 'bookmarks/close.html')
