@@ -49,7 +49,7 @@ Example response:
       "website_description": "Website description",
       "tag_names": [
         "tag1",
-        "tag2"        
+        "tag2"
       ],
       "date_added": "2020-09-26T09:46:23.006313Z",
       "date_modified": "2020-09-26T16:01:14.275335Z"
@@ -58,6 +58,16 @@ Example response:
   ]
 }
 ```
+
+**Archived**
+
+```
+GET /api/bookmarks/archived/
+```
+
+List archived bookmarks. 
+
+Parameters and response are the same as for the regular list endpoint.
 
 **Retrieve**
 

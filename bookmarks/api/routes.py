@@ -1,4 +1,6 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
 
 from bookmarks import queries
@@ -26,6 +28,16 @@ class BookmarkViewSet(viewsets.GenericViewSet,
 
     def get_serializer_context(self):
         return {'user': self.request.user}
+
+    @action(methods=['get'], detail=False)
+    def archived(self, request):
+        user = request.user
+        query_string = request.GET.get('q')
+        query_set = queries.query_archived_bookmarks(user, query_string)
+        page = self.paginate_queryset(query_set)
+        serializer = self.get_serializer_class()
+        data = serializer(page, many=True).data
+        return self.get_paginated_response(data)
 
 
 class TagViewSet(viewsets.GenericViewSet,

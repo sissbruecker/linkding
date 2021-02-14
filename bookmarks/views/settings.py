@@ -18,10 +18,12 @@ logger = logging.getLogger(__name__)
 def index(request):
     import_success_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_success')
     import_errors_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_errors')
+    application_url = request.build_absolute_uri("/bookmarks/new")
     api_token = Token.objects.get_or_create(user=request.user)[0]
     return render(request, 'settings/index.html', {
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
+        'application_url': application_url,
         'api_token': api_token.key
     })
 

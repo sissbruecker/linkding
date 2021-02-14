@@ -39,6 +39,20 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     return bookmark
 
 
+def archive_bookmark(bookmark: Bookmark):
+    bookmark.is_archived = True
+    bookmark.date_modified = timezone.now()
+    bookmark.save()
+    return bookmark
+
+
+def unarchive_bookmark(bookmark: Bookmark):
+    bookmark.is_archived = False
+    bookmark.date_modified = timezone.now()
+    bookmark.save()
+    return bookmark
+
+
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.title = from_bookmark.title
     to_bookmark.description = from_bookmark.description

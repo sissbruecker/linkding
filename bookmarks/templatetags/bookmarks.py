@@ -61,3 +61,14 @@ def bookmark_list(context, bookmarks: Page, return_url: str):
         'bookmarks': bookmarks,
         'return_url': return_url
     }
+
+
+@register.inclusion_tag('bookmarks/search.html', name='bookmark_search', takes_context=True)
+def bookmark_search(context, query: str, tags: [Tag], mode: str = 'default'):
+    tag_names = [tag.name for tag in tags]
+    tags_string = build_tag_string(tag_names, ' ')
+    return {
+        'query': query,
+        'tags_string': tags_string,
+        'mode': mode,
+    }

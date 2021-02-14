@@ -11,11 +11,13 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(pattern_name='bookmarks:index', permanent=False)),
     # Bookmarks
     path('bookmarks', views.bookmarks.index, name='index'),
+    path('bookmarks/archived', views.bookmarks.archived, name='archived'),
     path('bookmarks/new', views.bookmarks.new, name='new'),
     path('bookmarks/close', views.bookmarks.close, name='close'),
     path('bookmarks/<int:bookmark_id>/edit', views.bookmarks.edit, name='edit'),
     path('bookmarks/<int:bookmark_id>/remove', views.bookmarks.remove, name='remove'),
-    path('bookmarklet', views.bookmarks.bookmarklet, name='bookmarklet'),
+    path('bookmarks/<int:bookmark_id>/archive', views.bookmarks.archive, name='archive'),
+    path('bookmarks/<int:bookmark_id>/unarchive', views.bookmarks.unarchive, name='unarchive'),
     # Settings
     path('settings', views.settings.index, name='settings.index'),
     path('settings/import', views.settings.bookmark_import, name='settings.import'),

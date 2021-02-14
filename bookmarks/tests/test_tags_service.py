@@ -9,7 +9,7 @@ from bookmarks.services.tags import get_or_create_tag, get_or_create_tags
 User = get_user_model()
 
 
-class TagTestCase(TestCase):
+class TagServiceTestCase(TestCase):
 
     def setUp(self) -> None:
         self.user = User.objects.create_user('testuser', 'test@example.com', 'password123')
