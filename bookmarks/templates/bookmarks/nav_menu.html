@@ -2,7 +2,6 @@
 <div class="hide-md">
     <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
     <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archive</a>
-    <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
     <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
     <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
 </div>
@@ -19,9 +18,6 @@
         <ul class="menu">
             <li>
                 <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archive</a>
-            </li>
-            <li>
-                <a href="{% url 'bookmarks:bookmarklet' %}" class="btn btn-link">Bookmarklet</a>
             </li>
             <li>
                 <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
