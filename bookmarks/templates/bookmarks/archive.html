@@ -11,7 +11,7 @@
             <div class="content-area-header">
                 <h2>Archived bookmarks</h2>
                 <div class="spacer"></div>
-                {% include 'bookmarks/search.html' %}
+                {% bookmark_search query tags mode='archive' %}
             </div>
 
             {% if empty %}

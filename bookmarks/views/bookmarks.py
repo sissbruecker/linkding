@@ -38,8 +38,6 @@ def get_bookmark_view_context(request, query_set, tags, base_url):
     query_string = request.GET.get('q')
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
-    tag_names = [tag.name for tag in tags]
-    tags_string = build_tag_string(tag_names, ' ')
     return_url = generate_return_url(base_url, page, query_string)
 
     if request.GET.get('tag'):
@@ -50,7 +48,6 @@ def get_bookmark_view_context(request, query_set, tags, base_url):
     return {
         'bookmarks': bookmarks,
         'tags': tags,
-        'tags_string': tags_string,
         'query': query_string if query_string else '',
         'empty': paginator.count == 0,
         'return_url': return_url

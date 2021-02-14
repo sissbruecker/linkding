@@ -8,6 +8,7 @@
     export let placeholder;
     export let value;
     export let tags;
+    export let mode = 'default';
     export let apiClient;
 
     let isFocus = false;
@@ -111,7 +112,9 @@
         let bookmarks = []
 
         if (value && value.length >= 3) {
-            const fetchedBookmarks = await apiClient.getBookmarks(value, {limit: 5, offset: 0})
+            const fetchedBookmarks = mode === 'archive'
+                ? await apiClient.getArchivedBookmarks(value, {limit: 5, offset: 0})
+                : await apiClient.getBookmarks(value, {limit: 5, offset: 0})
             bookmarks = fetchedBookmarks.map(bookmark => {
                 const fullLabel = bookmark.title || bookmark.website_title || bookmark.url
                 const label = clampText(fullLabel, 60)
