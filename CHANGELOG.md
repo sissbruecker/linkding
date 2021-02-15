@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.1 (15/02/2021)
+*No changelog for this release.*
+
+---
+
 ## v1.3.0 (14/02/2021)
 - [**closed**] Novice help. [#71](https://github.com/sissbruecker/linkding/issues/71)
 - [**closed**] Option to create bookmarks public [#70](https://github.com/sissbruecker/linkding/issues/70)
