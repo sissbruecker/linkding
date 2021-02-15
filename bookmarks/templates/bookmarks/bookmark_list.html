@@ -32,8 +32,7 @@
                        class="btn btn-link btn-sm">Archive</a>
                 {% endif %}
                 <a href="{% url 'bookmarks:remove' bookmark.id %}?return_url={{ return_url }}"
-                   class="btn btn-link btn-sm"
-                   onclick="return confirm('Do you really want to delete this bookmark?')">Remove</a>
+                   class="btn btn-link btn-sm bm-remove">Remove</a>
             </div>
         </li>
     {% endfor %}
@@ -42,3 +41,38 @@
 <div class="bookmark-pagination">
     {% pagination bookmarks %}
 </div>
+
+{# Enhance delete links to show inline confirmation #}
+<script type="application/javascript">
+    window.addEventListener("load", function () {
+        const linkEls = document.querySelectorAll('.bookmark-list a.bm-remove');
+
+        function showConfirmation(linkEl) {
+            const cancelEl = document.createElement('span');
+            cancelEl.innerText = 'Cancel';
+            cancelEl.className = 'btn btn-link btn-sm bm-remove-confirm mr-1';
+            cancelEl.addEventListener('click', function() {
+                container.remove();
+                linkEl.style = '';
+            });
+
+            const confirmEl = document.createElement('a');
+            confirmEl.innerText = 'Confirm';
+            confirmEl.className = 'btn btn-link btn-delete btn-sm bm-remove-confirm';
+            confirmEl.href = linkEl.href;
+
+            const container = document.createElement('span');
+            container.appendChild(cancelEl);
+            container.appendChild(confirmEl);
+            linkEl.parentElement.appendChild(container);
+            linkEl.style = 'display: none';
+        }
+
+        linkEls.forEach(function (linkEl) {
+            linkEl.addEventListener('click', function (e) {
+                e.preventDefault();
+                showConfirmation(linkEl);
+            });
+        });
+    });
+</script>

@@ -56,6 +56,13 @@ ul.bookmark-list {
       color: darken($gray-color, 10%);
     }
   }
+
+  .actions .btn-link.bm-remove-confirm {
+    color: $error-color;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .bookmark-pagination {
