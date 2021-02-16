@@ -3,10 +3,29 @@
 {% block content %}
     <div class="settings-page">
 
+        {# Admin section #}
+        <section class="content-area">
+            <div class="content-area-header">
+                <h2>Administration</h2>
+            </div>
+            <p>linkding comes with an admin panel that provides additional management features such as user management
+                or bulk operations.<br>
+                <a href="{% url 'admin:index' %}" class="btn btn-primary mt-2">Open admin</a>
+            </p>
+            <p>
+                Quicklinks:
+            <ul>
+                <li><a href="{% url 'admin:auth_user_changelist' %}">User management</a></li>
+                <li><a href="{% url 'admin:bookmarks_bookmark_changelist' %}">Bookmarks</a></li>
+                <li><a href="{% url 'admin:bookmarks_tag_changelist' %}">Tags</a></li>
+            </ul>
+            </p>
+        </section>
+
         {# Import section #}
         <section class="content-area">
             <div class="content-area-header">
-                <h2>Import</h2>
+                <a id="bookmarklet"><h2>Import</h2></a>
             </div>
             <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
                 added and existing ones are updated.</p>
@@ -62,7 +81,7 @@
                 <li>Drag the bookmarklet below into your browsers bookmark bar / toolbar</li>
                 <li>Open the website that you want to bookmark</li>
                 <li>Click the bookmarklet in your browsers toolbar</li>
-                <li>linkding opens in a new window  or tab and allows you to add a bookmark for the site</li>
+                <li>linkding opens in a new window or tab and allows you to add a bookmark for the site</li>
                 <li>After saving the bookmark the linkding window closes and you are back on your website</li>
             </ul>
             <p>Drag the following bookmarklet to your browsers toolbar:</p>
@@ -83,7 +102,9 @@
                     </div>
                 </div>
             </div>
-            <p><strong>Please treat this token as you would any other credential.</strong> Any party with access to this token can access and manage all your bookmarks.</p>
+            <p><strong>Please treat this token as you would any other credential.</strong> Any party with access to this
+                token can access and manage all your bookmarks.</p>
+            <p>If you think that a token was compromised you can revoke (delete) it in the <a href="{% url 'admin:authtoken_token_changelist' %}">admin panel</a>. After deleting the token, a new one will be generated when you reload this settings page.</p>
         </section>
 
     </div>
