@@ -1,12 +1,21 @@
 from django.contrib import admin, messages
+from django.contrib.admin import AdminSite
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
 from django.db.models import Count, QuerySet
 from django.utils.translation import ngettext, gettext
+from rest_framework.authtoken.admin import TokenAdmin
+from rest_framework.authtoken.models import Token
 
 from bookmarks.models import Bookmark, Tag
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
 
 
-@admin.register(Bookmark)
+class LinkdingAdminSite(AdminSite):
+    site_header = 'linkding administration'
+    site_title = 'linkding Admin'
+
+
 class AdminBookmark(admin.ModelAdmin):
     list_display = ('resolved_title', 'url', 'owner', 'date_added', 'is_archived')
     search_fields = ('title', 'description', 'website_title', 'website_description', 'url', 'tags__name')
@@ -35,7 +44,6 @@ class AdminBookmark(admin.ModelAdmin):
         ) % bookmarks_count, messages.SUCCESS)
 
 
-@admin.register(Tag)
 class AdminTag(admin.ModelAdmin):
     list_display = ('name', 'date_added', 'owner', 'bookmarks_count')
     search_fields = ('name', 'owner__username')
@@ -67,3 +75,10 @@ class AdminTag(admin.ModelAdmin):
             self.message_user(request, gettext(
                 'There were no unused tags in the selection',
             ), messages.SUCCESS)
+
+
+linkding_admin_site = LinkdingAdminSite()
+linkding_admin_site.register(Bookmark, AdminBookmark)
+linkding_admin_site.register(Tag, AdminTag)
+linkding_admin_site.register(User, UserAdmin)
+linkding_admin_site.register(Token, TokenAdmin)
