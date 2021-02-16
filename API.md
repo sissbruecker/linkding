@@ -59,7 +59,7 @@ Example response:
 }
 ```
 
-**Archived**
+**List Archived**
 
 ```
 GET /api/bookmarks/archived/
@@ -120,6 +120,22 @@ Example payload:
   ]
 }
 ```
+
+**Archive**
+
+```
+POST /api/bookmarks/<id>/archive/
+```
+
+Archives a bookmark.
+
+**Unarchive**
+
+```
+POST /api/bookmarks/<id>/unarchive/
+```
+
+Unarchives a bookmark.
 
 **Delete**
 

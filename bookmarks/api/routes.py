@@ -6,6 +6,7 @@ from rest_framework.routers import DefaultRouter
 from bookmarks import queries
 from bookmarks.api.serializers import BookmarkSerializer, TagSerializer
 from bookmarks.models import Bookmark, Tag
+from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
 
 
 class BookmarkViewSet(viewsets.GenericViewSet,
@@ -38,6 +39,18 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         serializer = self.get_serializer_class()
         data = serializer(page, many=True).data
         return self.get_paginated_response(data)
+
+    @action(methods=['post'], detail=True)
+    def archive(self, request, pk):
+        bookmark = self.get_object()
+        archive_bookmark(bookmark)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=['post'], detail=True)
+    def unarchive(self, request, pk):
+        bookmark = self.get_object()
+        unarchive_bookmark(bookmark)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(viewsets.GenericViewSet,
