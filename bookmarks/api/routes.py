@@ -1,3 +1,4 @@
+from django.urls import reverse
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from bookmarks import queries
 from bookmarks.api.serializers import BookmarkSerializer, TagSerializer
 from bookmarks.models import Bookmark, Tag
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
+from bookmarks.services.website_loader import load_website_metadata
 
 
 class BookmarkViewSet(viewsets.GenericViewSet,
@@ -41,16 +43,35 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         return self.get_paginated_response(data)
 
     @action(methods=['post'], detail=True)
-    def archive(self, request, pk):
+    def archive(self, _request, _pk):
         bookmark = self.get_object()
         archive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['post'], detail=True)
-    def unarchive(self, request, pk):
+    def unarchive(self, _request, _pk):
         bookmark = self.get_object()
         unarchive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=['get'], detail=False)
+    def check(self, request):
+        url = request.GET.get('url')
+        bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
+        existing_bookmark_data = None
+
+        if bookmark is not None:
+            existing_bookmark_data = {
+                'id': bookmark.id,
+                'edit_url': reverse('bookmarks:edit', args=[bookmark.id])
+            }
+
+        metadata = load_website_metadata(url)
+
+        return Response({
+            'bookmark': existing_bookmark_data,
+            'metadata': metadata.to_dict()
+        }, status=status.HTTP_200_OK)
 
 
 class TagViewSet(viewsets.GenericViewSet,
