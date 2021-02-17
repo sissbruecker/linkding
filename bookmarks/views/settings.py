@@ -61,7 +61,7 @@ def bookmark_import(request):
         messages.error(request, 'An error occurred during bookmark import.', 'bookmark_import_errors')
         pass
 
-    return HttpResponseRedirect(reverse('bookmarks:settings.index'))
+    return HttpResponseRedirect(reverse('bookmarks:settings.data'))
 
 
 @login_required
@@ -77,7 +77,7 @@ def bookmark_export(request):
 
         return response
     except:
-        return render(request, 'settings/index.html', {
+        return render(request, 'settings/data.html', {
             'export_error': 'An error occurred during bookmark export.'
         })
 
