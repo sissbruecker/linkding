@@ -17,7 +17,7 @@ class LinkdingAdminSite(AdminSite):
 
 
 class AdminBookmark(admin.ModelAdmin):
-    list_display = ('resolved_title', 'url', 'owner', 'date_added', 'is_archived')
+    list_display = ('resolved_title', 'url', 'is_archived', 'owner', 'date_added')
     search_fields = ('title', 'description', 'website_title', 'website_description', 'url', 'tags__name')
     list_filter = ('owner__username', 'is_archived', 'tags',)
     ordering = ('-date_added',)
@@ -45,7 +45,7 @@ class AdminBookmark(admin.ModelAdmin):
 
 
 class AdminTag(admin.ModelAdmin):
-    list_display = ('name', 'date_added', 'owner', 'bookmarks_count')
+    list_display = ('name', 'bookmarks_count', 'owner', 'date_added')
     search_fields = ('name', 'owner__username')
     list_filter = ('owner__username',)
     ordering = ('-date_added',)
