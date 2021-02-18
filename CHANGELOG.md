@@ -1,7 +1,13 @@
 # Changelog
 
+## v1.3.2 (18/02/2021)
+- [**closed**] /archive and /unarchive API routes return 404 [#77](https://github.com/sissbruecker/linkding/issues/77)
+- [**closed**] API - /api/check_url?url= with token authetification [#55](https://github.com/sissbruecker/linkding/issues/55)
+
+---
+
 ## v1.3.1 (15/02/2021)
-*No changelog for this release.*
+[enhancement] Enhance delete links with inline confirmation
 
 ---
 
