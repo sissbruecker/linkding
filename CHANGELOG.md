@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.3 (18/02/2021)
+- [**closed**] Missing "description" request body parameter in API causes 500 [#78](https://github.com/sissbruecker/linkding/issues/78)
+
+---
+
 ## v1.3.2 (18/02/2021)
 - [**closed**] /archive and /unarchive API routes return 404 [#77](https://github.com/sissbruecker/linkding/issues/77)
 - [**closed**] API - /api/check_url?url= with token authetification [#55](https://github.com/sissbruecker/linkding/issues/55)
