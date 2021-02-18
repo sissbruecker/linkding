@@ -30,8 +30,11 @@ class BookmarkSerializer(serializers.ModelSerializer):
             'date_modified'
         ]
 
+    # Override optional char fields to provide default value
+    title = serializers.CharField(required=False, allow_blank=True, default='')
+    description = serializers.CharField(required=False, allow_blank=True, default='')
     # Override readonly tag_names property to allow passing a list of tag names to create/update
-    tag_names = TagListField()
+    tag_names = TagListField(required=False, default=[])
 
     def create(self, validated_data):
         bookmark = Bookmark()
