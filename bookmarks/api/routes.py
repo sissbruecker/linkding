@@ -43,13 +43,13 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         return self.get_paginated_response(data)
 
     @action(methods=['post'], detail=True)
-    def archive(self, _request, _pk):
+    def archive(self, request, pk):
         bookmark = self.get_object()
         archive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['post'], detail=True)
-    def unarchive(self, _request, _pk):
+    def unarchive(self, request, pk):
         bookmark = self.get_object()
         unarchive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
