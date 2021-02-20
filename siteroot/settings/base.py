@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_generate_secret_key',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [

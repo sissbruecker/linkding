@@ -1,38 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import timezone
-from django.utils.crypto import get_random_string
-from bookmarks.models import Bookmark, Tag
+
 from bookmarks import queries
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 User = get_user_model()
 
 
-class QueriesTestCase(TestCase):
-
-    def setUp(self) -> None:
-        self.user = User.objects.create_user('testuser', 'test@example.com', 'password123')
-
-    def setup_bookmark(self, is_archived: bool = False, tags: [Tag] = []):
-        unique_id = get_random_string(length=32)
-        bookmark = Bookmark(
-            url='https://example.com/' + unique_id,
-            date_added=timezone.now(),
-            date_modified=timezone.now(),
-            owner=self.user,
-            is_archived=is_archived
-        )
-        bookmark.save()
-        for tag in tags:
-            bookmark.tags.add(tag)
-        bookmark.save()
-        return bookmark
-
-    def setup_tag(self):
-        name = get_random_string(length=32)
-        tag = Tag(name=name, date_added=timezone.now(), owner=self.user)
-        tag.save()
-        return tag
+class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_query_bookmarks_should_not_return_archived_bookmarks(self):
         bookmark1 = self.setup_bookmark()
@@ -41,7 +16,7 @@ class QueriesTestCase(TestCase):
         self.setup_bookmark(is_archived=True)
         self.setup_bookmark(is_archived=True)
 
-        query = queries.query_bookmarks(self.user, '')
+        query = queries.query_bookmarks(self.get_or_create_test_user(), '')
 
         self.assertCountEqual([bookmark1, bookmark2], list(query))
 
@@ -52,7 +27,7 @@ class QueriesTestCase(TestCase):
         self.setup_bookmark()
         self.setup_bookmark()
 
-        query = queries.query_archived_bookmarks(self.user, '')
+        query = queries.query_archived_bookmarks(self.get_or_create_test_user(), '')
 
         self.assertCountEqual([bookmark1, bookmark2], list(query))
 
@@ -63,7 +38,7 @@ class QueriesTestCase(TestCase):
         self.setup_bookmark()
         self.setup_bookmark(is_archived=True, tags=[tag2])
 
-        query = queries.query_bookmark_tags(self.user, '')
+        query = queries.query_bookmark_tags(self.get_or_create_test_user(), '')
 
         self.assertCountEqual([tag1], list(query))
 
@@ -73,7 +48,7 @@ class QueriesTestCase(TestCase):
         self.setup_bookmark(tags=[tag])
         self.setup_bookmark(tags=[tag])
 
-        query = queries.query_bookmark_tags(self.user, '')
+        query = queries.query_bookmark_tags(self.get_or_create_test_user(), '')
 
         self.assertCountEqual([tag], list(query))
 
@@ -84,7 +59,7 @@ class QueriesTestCase(TestCase):
         self.setup_bookmark()
         self.setup_bookmark(is_archived=True, tags=[tag2])
 
-        query = queries.query_archived_bookmark_tags(self.user, '')
+        query = queries.query_archived_bookmark_tags(self.get_or_create_test_user(), '')
 
         self.assertCountEqual([tag2], list(query))
 
@@ -94,6 +69,6 @@ class QueriesTestCase(TestCase):
         self.setup_bookmark(is_archived=True, tags=[tag])
         self.setup_bookmark(is_archived=True, tags=[tag])
 
-        query = queries.query_archived_bookmark_tags(self.user, '')
+        query = queries.query_archived_bookmark_tags(self.get_or_create_test_user(), '')
 
         self.assertCountEqual([tag], list(query))
