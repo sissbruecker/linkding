@@ -53,3 +53,8 @@ h2 {
 .pagination .page-item:first-child a {
   padding-left: 0;
 }
+
+// Override border color for tab block
+.tab-block {
+  border-bottom: solid 1px $border-color;
+}

@@ -1,0 +1,23 @@
+{% url 'bookmarks:settings.index' as index_url %}
+{% url 'bookmarks:settings.data' as data_url %}
+{% url 'bookmarks:settings.integrations' as integrations_url %}
+{% url 'bookmarks:settings.api' as api_url %}
+
+<ul class="tab tab-block">
+    <li class="tab-item {% if request.get_full_path == index_url or request.get_full_path == data_url%}active{% endif %}">
+        <a href="{% url 'bookmarks:settings.data' %}">Data</a>
+    </li>
+    <li class="tab-item {% if request.get_full_path == integrations_url %}active{% endif %}">
+        <a href="{% url 'bookmarks:settings.integrations' %}">Integrations</a>
+    </li>
+    <li class="tab-item {% if request.get_full_path == api_url %}active{% endif %}">
+        <a href="{% url 'bookmarks:settings.api' %}">API</a>
+    </li>
+    <li class="tab-item tooltip tooltip-bottom" data-tooltip="The admin panel provides additional features &#010; such as user management and bulk operations.">
+        <a href="{% url 'admin:index' %}" target="_blank">
+            <span>Admin</span>
+            <i class="icon icon-share ml-1" style="font-size: 12px"></i>
+        </a>
+    </li>
+</ul>
+<br>

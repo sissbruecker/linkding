@@ -1,0 +1,54 @@
+{% extends "bookmarks/layout.html" %}
+
+{% block content %}
+    <div class="settings-page">
+
+        {% include 'settings/nav.html' %}
+
+        {# Import section #}
+        <section class="content-area">
+            <h2>Import</h2>
+            <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
+                added and existing ones are updated.</p>
+            <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings.import' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="input-group col-8 col-md-12">
+                        <input class="form-input" type="file" name="import_file">
+                        <input type="submit" class="input-group-btn col-2 btn btn-primary" value="Upload">
+                    </div>
+                    {% if import_success_message %}
+                        <div class="has-success">
+                            <p class="form-input-hint">
+                                {{ import_success_message }}
+                            </p>
+                        </div>
+                    {% endif %}
+                    {% if import_errors_message %}
+                        <div class="has-error">
+                            <p class="form-input-hint">
+                                {{ import_errors_message }}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </form>
+        </section>
+
+        {# Export section #}
+        <section class="content-area">
+            <h2>Export</h2>
+            <p>Export all bookmarks in Netscape HTML format.</p>
+            <a class="btn btn-primary" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
+            {% if export_error %}
+                <div class="has-error">
+                    <p class="form-input-hint">
+                        {{ export_error }}
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+
+    </div>
+
+{% endblock %}

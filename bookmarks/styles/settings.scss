@@ -1,6 +1,11 @@
 .settings-page {
   section.content-area {
     margin-bottom: 2rem;
+
+    h2 {
+      font-size: 1.0rem;
+      margin-bottom: 0.8rem;
+    }
   }
 
   .input-group > input[type=submit] {
