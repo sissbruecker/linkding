@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.4.0 (24/02/2021)
+- [**enhancement**] Improve admin utilization [#76](https://github.com/sissbruecker/linkding/issues/76)
+
+---
+
 ## v1.3.3 (18/02/2021)
 - [**closed**] Missing "description" request body parameter in API causes 500 [#78](https://github.com/sissbruecker/linkding/issues/78)
 
