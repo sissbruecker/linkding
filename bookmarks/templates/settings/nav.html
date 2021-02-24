@@ -13,8 +13,11 @@
     <li class="tab-item {% if request.get_full_path == api_url %}active{% endif %}">
         <a href="{% url 'bookmarks:settings.api' %}">API</a>
     </li>
-    <li class="tab-item">
-        <a href="{% url 'admin:index' %}" target="_blank">Admin <i class="icon icon-share ml-1" style="font-size: 12px"></i></a>
+    <li class="tab-item tooltip tooltip-bottom" data-tooltip="The admin panel provides additional features &#010; such as user management and bulk operations.">
+        <a href="{% url 'admin:index' %}" target="_blank">
+            <span>Admin</span>
+            <i class="icon icon-share ml-1" style="font-size: 12px"></i>
+        </a>
     </li>
 </ul>
 <br>
