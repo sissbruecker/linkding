@@ -11,7 +11,7 @@
 /build-*.sh
 /Dockerfile
 /*.iml
-/package*.json
+/package-*.json
 
 # Remove development settings
 /siteroot/settings/dev.py
