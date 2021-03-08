@@ -8,7 +8,7 @@ This page describes some main administration functions.
 
 ## Linkding administration page
 
-To do bulk operations, go to the linkding administration page. 
+Go to the linkding administration page. 
 You do this by opening the URL http://[ip-address]:9090/admin.
 
 ## User management
