@@ -5,13 +5,22 @@
 /node_modules
 /tmp
 /docs
+/static
+/build
 
 /.dockerignore
 /.gitignore
-/build-*.sh
 /Dockerfile
+/docker-compose.yml
+/*.sh
 /*.iml
-/package*.json
+/*.patch
+/*.md
+/*.js
+
+# Whitelist files needed in build or prod image
+!/rollup.config.js
+!/bootstrap.sh
 
 # Remove development settings
 /siteroot/settings/dev.py
