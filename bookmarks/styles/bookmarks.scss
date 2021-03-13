@@ -103,3 +103,55 @@ ul.bookmark-list {
     }
   }
 }
+
+// Dark Theme
+@media (prefers-color-scheme: dark) {
+  ul.bookmark-list {
+    .description {
+      color: $dt-gray-color-dark;
+      a {
+        color: $dt-alternative-color;
+      }
+    }
+    .actions .btn-link {
+      color: $dt-gray-color;
+      &:focus, &:hover, &:active, &.active {
+        color: lighten($dt-gray-color, 10%);
+      }
+    }
+  }
+
+  .tag-cloud {
+    a {
+      color: $dt-alternative-color;
+    }
+    .highlight-char {
+      color: $dt-alternative-color-dark;
+    }
+  }
+
+  .btn {
+    background: $dt-bg-color;
+  }
+  .btn:focus, .btn:hover {
+    background: $dt-highlight-color;
+  }
+
+  .menu {
+    background: $dt-bg-color;
+  }
+  //New bookmark tags input-form menu
+  .menu-item.selected.svelte-nfqi2o>a.svelte-nfqi2o {
+    background: $dt-bg-color !important;
+  }
+  .menu-item.selected.svelte-nfqi2o>a.svelte-nfqi2o:hover {
+    background: $dt-highlight-color !important;
+    color: $dt-light-color;
+  }
+  //Search bar on main page
+  .menu .menu-item > a:focus, .menu .menu-item > a:hover {
+    background: $dt-highlight-color;
+    color: $dt-light-color;
+  }
+}
+

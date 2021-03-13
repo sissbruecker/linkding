@@ -12,3 +12,10 @@
     height: auto;
   }
 }
+
+// Dark Theme
+@media (prefers-color-scheme: dark) {
+  .form-input:disabled {
+    background: $dt-bg-color;
+  }
+}

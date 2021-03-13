@@ -58,3 +58,21 @@ h2 {
 .tab-block {
   border-bottom: solid 1px $border-color;
 }
+
+// Dark Theme
+@media (prefers-color-scheme: dark) {
+  body {
+    background: $dt-body-bg;
+    color: $dt-body-font-color;
+  }
+  h2 {
+    color: $dt-gray-color-light;
+  }
+  .tab-block {
+    border-bottom: solid 1px $dt-border-color;
+  }
+  .empty {
+    background: $dt-bg-color;
+    color: $dt-gray-color-light;
+  }
+}

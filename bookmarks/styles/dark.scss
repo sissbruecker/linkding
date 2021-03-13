@@ -1,0 +1,41 @@
+// Copy of colors from spectre _variables
+
+// Core colors
+//$dt-primary-color: #5755d9 !default;
+//$dt-primary-color-dark: darken($primary-color, 3%) !default;
+//$dt-primary-color-light: lighten($primary-color, 3%) !default;
+//$dt-secondary-color: lighten($primary-color, 37.5%) !default;
+//$dt-secondary-color-dark: darken($secondary-color, 3%) !default;
+//$dt-secondary-color-light: lighten($secondary-color, 3%) !default;
+
+// Gray colors
+$dt-dark-color: #303742 !default;
+$dt-light-color: #ddd !default;
+$dt-gray-color: lighten($dt-dark-color, 55%) !default;
+$dt-gray-color-dark: darken($dt-gray-color, 30%) !default;
+$dt-gray-color-light: lighten($dt-gray-color, 20%) !default;
+
+$dt-border-color: #30363d !default;
+$dt-border-color-dark: darken($dt-border-color, 10%) !default;
+$dt-border-color-light: lighten($dt-border-color, 8%) !default;
+$dt-bg-color: #161b22 !default;
+$dt-bg-color-dark: #0d1117 !default;
+$dt-bg-color-light: $dt-light-color !default;
+
+// Control colors
+//$dt-success-color: #32b643 !default;
+//$dt-warning-color: #ffb700 !default;
+//$dt-error-color: #e85600 !default;
+
+// Other colors
+//$dt-code-color: #d73e48 !default;
+$dt-highlight-color: #388bfd !default; //#388bfd
+$dt-body-bg: $dt-bg-color-dark !default;
+$dt-body-font-color: #8b949e !default;
+//$dt-link-color: $dt-primary-color !default;
+//$dt-link-color-dark: darken($dt-link-color, 10%) !default;
+//$dt-link-color-light: lighten($dt-link-color, 10%) !default;
+
+// Custom colors
+$dt-alternative-color: #05a6a3;
+$dt-alternative-color-dark: darken($alternative-color, 5%);

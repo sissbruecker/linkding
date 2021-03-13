@@ -11,3 +11,20 @@ section.content-area {
     }
   }
 }
+
+//  Dark Theme
+@media (prefers-color-scheme: dark) {
+  section.content-area {
+    .content-area-header {
+      border-bottom: solid 1px $dt-border-color;
+    }
+  }
+  .form-input {
+    background: $dt-bg-color;
+    border-color: $dt-border-color;
+    color: $dt-light-color;
+  }
+  .form-input:not(:placeholder-shown):invalid:focus {
+    background: $dt-bg-color;
+  }
+}
