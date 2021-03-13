@@ -1,45 +1,52 @@
-FROM node:current-alpine AS NODEBUILD
-# copy directory to /opt and work inside it
-WORKDIR /opt
-COPY . /opt
-# run the npm portion of build-static script
-RUN rm -rf static && mkdir -p static/
+FROM node:current-alpine AS node-build
+WORKDIR /etc/linkding
+# install build dependencies
+COPY package.json package-lock.json ./
 RUN npm install -g npm && \
-    npm install && \
-    npm run build
+    npm install
+# compile JS components
+COPY . .
+RUN npm run build
 
 
-FROM python:3.9-slim AS PYTHONBUILD
-# install missing system deps
-RUN apt-get update && apt-get -y install build-essential mime-support libpcre3-dev libsass-dev mime-support
-# set working dir
+FROM python:3.9-slim AS python-base
+RUN apt-get update && apt-get -y install build-essential
 WORKDIR /etc/linkding
+
+
+FROM python-base AS python-build
+# install build dependencies
+COPY requirements.txt requirements.txt
+RUN pip install -U pip && pip install -Ur requirements.txt
+# run Django part of the build
+COPY --from=node-build /etc/linkding .
+RUN python manage.py compilescss && \
+    python manage.py collectstatic --ignore=*.scss && \
+    python manage.py compilescss --delete-files
+
+
+FROM python-base AS prod-deps
 COPY requirements.prod.txt ./requirements.txt
-# make a virtualenv, upgrade pip & wheel, install prod requirements
-RUN mkdir /venv && \
-    python -m venv --upgrade-deps --copies /venv && \
-    /venv/bin/pip install --upgrade pip wheel && \
-    /venv/bin/pip install -Ur requirements.txt
-# run the python half of build-static script
-COPY --from=NODEBUILD /opt/ .
-RUN /venv/bin/python manage.py compilescss && \
-    /venv/bin/python manage.py collectstatic --ignore=*.scss && \
-    /venv/bin/python manage.py compilescss --delete-files
+RUN mkdir /opt/venv && \
+    python -m venv --upgrade-deps --copies /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip wheel && \
+    /opt/venv/bin/pip install -Ur requirements.txt
 
 
-FROM python:3.9-slim as FINAL
+FROM python:3.9-slim as final
+RUN apt-get update && apt-get -y install mime-support
 WORKDIR /etc/linkding
-# copy application code from PYTHONBUILD stage
-COPY --from=PYTHONBUILD /etc/linkding  /etc/linkding
-# copy virtualenv from PYTHONBUILD stage
-COPY --from=PYTHONBUILD /venv /venv
-# copy mime.types from PYTHONBUILD stage
-COPY --from=PYTHONBUILD /etc/mime.types /etc/mime.types
-# run bootstrap.sh
-RUN mkdir -p data && \
-    /venv/bin/python manage.py migrate && \
-    /venv/bin/python manage.py generate_secret_key && \
-    chown -R www-data: /etc/linkding/data
-# expose port and run uwsgi server
+# copy prod dependencies
+COPY --from=prod-deps /opt/venv /opt/venv
+# copy output from build stage
+COPY --from=python-build /etc/linkding/static static/
+# copy application code
+COPY . .
+# Expose uwsgi server at port 9090
 EXPOSE 9090
-CMD ["/venv/bin/uwsgi","/etc/linkding/uwsgi.ini"]
+# Activate virtual env
+ENV VIRTUAL_ENV /opt/venv
+ENV PATH /opt/venv/bin:$PATH
+# Run bootstrap logic
+RUN ["chmod", "+x", "./bootstrap.sh"]
+CMD ["./bootstrap.sh"]
