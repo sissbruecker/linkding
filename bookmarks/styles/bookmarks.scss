@@ -140,18 +140,25 @@ ul.bookmark-list {
   .menu {
     background: $dt-bg-color;
   }
-  //New bookmark tags input-form menu
-  .menu-item.selected.svelte-nfqi2o>a.svelte-nfqi2o {
-    background: $dt-bg-color !important;
+  .menu .menu-item > a {
+    color: $dt-primary-color-light !important;
   }
-  .menu-item.selected.svelte-nfqi2o>a.svelte-nfqi2o:hover {
-    background: $dt-highlight-color !important;
+  //New bookmark tags input-form menu
+  li.menu-item.selected.svelte-nfqi2o>a.svelte-nfqi2o {
+    background: $dt-bg-color;
+  }
+  li.menu-item.selected.svelte-nfqi2o>a.svelte-nfqi2o:hover {
+    background: $dt-highlight-color;
     color: $dt-light-color;
+  }
+  //Border to improve contrast on menu
+  ul.menu.open.svelte-nfqi2o.svelte-nfqi2o, ul.menu.open.svelte-zmrtk1{
+    border: 1px solid $primary-color;
+    border-top: hidden;
   }
   //Search bar on main page
   .menu .menu-item > a:focus, .menu .menu-item > a:hover {
     background: $dt-highlight-color;
-    color: $dt-light-color;
+    color: $dt-light-color !important;
   }
 }
-

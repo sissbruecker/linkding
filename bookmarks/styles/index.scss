@@ -1,12 +1,6 @@
 // Font sizes
 $html-font-size: 18px !default;
 
-@media (prefers-color-scheme: dark) {
-}
-
-html[data-theme='dark'] {
-}
-
 //$alternative-color: #c84e00;
 //$alternative-color: #FF84E8;
 //$alternative-color: #98C1D9;
@@ -25,7 +19,7 @@ $alternative-color-dark: darken($alternative-color, 5%);
 
 
 // Import style modules
-@import "dark"; //import first to override changes in files below
+@import "dark";
 @import "base";
 @import "util";
 @import "shared";
