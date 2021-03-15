@@ -106,30 +106,6 @@ ul.bookmark-list {
 
 // Dark Theme
 @media (prefers-color-scheme: dark) {
-  ul.bookmark-list {
-    .description {
-      color: $dt-gray-color-dark;
-      a {
-        color: $dt-alternative-color;
-      }
-    }
-    .actions .btn-link {
-      color: $dt-gray-color;
-      &:focus, &:hover, &:active, &.active {
-        color: lighten($dt-gray-color, 10%);
-      }
-    }
-  }
-
-  .tag-cloud {
-    a {
-      color: $dt-alternative-color;
-    }
-    .highlight-char {
-      color: $dt-alternative-color-dark;
-    }
-  }
-
   .btn {
     background: $dt-bg-color;
   }

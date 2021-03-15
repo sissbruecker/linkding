@@ -4,11 +4,7 @@
 $dt-primary-color-light: lighten($primary-color, 15%) !default;
 
 // Gray colors
-$dt-dark-color: #303742 !default;
 $dt-light-color: #ddd !default;
-$dt-gray-color: lighten($dt-dark-color, 55%) !default;
-$dt-gray-color-dark: darken($dt-gray-color, 30%) !default;
-$dt-gray-color-light: lighten($dt-gray-color, 20%) !default;
 
 // Border Bg colors
 $dt-border-color: #30363d !default;
@@ -22,5 +18,3 @@ $dt-body-bg: $dt-bg-color-dark !default;
 // Other colors
 $dt-highlight-color: #388bfd !default;
 $dt-body-font-color: #8b949e !default;
-$dt-alternative-color: #05a6a3;
-$dt-alternative-color-dark: darken($alternative-color, 5%);

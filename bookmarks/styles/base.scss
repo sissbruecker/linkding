@@ -65,14 +65,11 @@ h2 {
     background: $dt-body-bg;
     color: $dt-body-font-color;
   }
-  h2 {
-    color: $dt-gray-color-light;
-  }
   .tab-block {
     border-bottom: solid 1px $dt-border-color;
   }
   .empty {
     background: $dt-bg-color;
-    color: $dt-gray-color-light;
+    color: $gray-color-light;
   }
 }
