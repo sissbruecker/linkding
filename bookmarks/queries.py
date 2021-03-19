@@ -56,7 +56,7 @@ def _base_bookmarks_query(user: User, query_string: str) -> QuerySet:
         )
 
     # Sort by modification date
-    query_set = query_set.order_by('-date_modified')
+    query_set = query_set.order_by('-date_added')
 
     return query_set
 

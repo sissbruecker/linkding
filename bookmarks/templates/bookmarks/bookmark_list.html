@@ -26,6 +26,8 @@
                 {% endif %}
             </div>
             <div class="actions">
+                <span class="text-gray text-small">{{ bookmark.date_added|date:"SHORT_DATE_FORMAT" }}</span>
+                <span class="text-gray text-small">|</span>
                 <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
                    class="btn btn-link btn-sm">Edit</a>
                 {% if bookmark.is_archived %}
