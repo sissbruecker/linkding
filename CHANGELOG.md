@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.4.1 (20/03/2021)
+- [**closed**] Tags don't support spaces?  A tag with a space is never found. [#86](https://github.com/sissbruecker/linkding/issues/86)
+
+---
+
 ## v1.4.0 (24/02/2021)
 - [**enhancement**] Improve admin utilization [#76](https://github.com/sissbruecker/linkding/issues/76)
 
