@@ -1,11 +1,28 @@
 #  linkding
 
-*linkding* is a simple bookmark service that you can host yourself. It supports managing bookmarks, categorizing them with tags and has a search function. It provides a bookmarklet for quickly adding new bookmarks while browsing the web. It also supports import / export of bookmarks in the Netscape HTML format. And that's basically it 🙂.
+*linkding* is a simple bookmark service that you can host yourself.
+It's designed be to be minimal, fast and easy to set up using Docker. 
 
 The name comes from:
 - *link* which is often used as a synonym for URLs and bookmarks in common language
 - *Ding* which is german for *thing*
 - ...so basically some thing for managing your links
+
+**Feature Overview:**
+- Tags for organizing bookmarks
+- Search by text or tags
+- Automatically provides titles and descriptions from linked websites 
+- Import and export bookmarks in Netscape HTML format
+- Bookmark archive
+- Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe)
+- Bookmarklet that should work in most browsers
+- Easy to set up using Docker
+- Uses SQLite as database
+- Works without Javascript
+- ...but has several UI enhancements when Javascript is enabled
+- REST API for developing 3rd party apps
+- Admin panel for user self-service and bulk operations
+
 
 **Demo:** https://demo.linkding.link/ (configured with open registration)
 
@@ -15,7 +32,7 @@ The name comes from:
 
 ## Installation
 
-The easiest way to run linkding is to use [Docker](https://docs.docker.com/get-started/).  The Docker image should be compatible with ARM platforms, so it can be run on a Raspberry Pi.
+The easiest way to run linkding is to use [Docker](https://docs.docker.com/get-started/).  The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
 
 There is also the option to set up the installation manually which I do not support, but can give some pointers on below.
 
@@ -49,7 +66,7 @@ docker-compose up -d
 
 ### User setup
 
-Finally you need to create a user so that you can access the frontend. Replace the credentials in the following command and run it:
+Finally you need to create a user so that you can access the application. Replace the credentials in the following command and run it:
 
 **Docker**
 ```shell
@@ -67,10 +84,6 @@ The command will prompt you for a secure password. After the command has complet
 
 If you can not or don't want to use Docker you can install the application manually on your server. To do so you can basically follow the steps from the *Development* section below while cross-referencing the `Dockerfile` and `bootstrap.sh` on how to make the application production-ready.
 
-### Options
-
-Check the [options document](Options.md) on how to configure your linkding installation.
-
 ### Hosting
 
 The application runs in a web-server called [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) that is production-ready and that you can expose to the web. If you don't know how to configure your server to expose the application to the web there are several more steps involved. I can not support support the process here, but I can give some pointers on what to search for:
@@ -78,13 +91,17 @@ The application runs in a web-server called [uWSGI](https://uwsgi-docs.readthedo
 - open the port that the application is running on in your servers firewall
 - depending on your network configuration, forward the opened port in your network router, so that the application can be addressed from the internet using your public IP address and the opened port
 
-### Backups
+## Options
+
+Check the [options document](docs/Options.md) on how to configure your linkding installation.
+
+## Backups
 
 Check the [backups document](docs/backup.md) for options on how to create backups.
 
 ## API
 
-The application provides a REST API that can be used by 3rd party applications to manage bookmarks. Check the [API docs](API.md) for further information.
+The application provides a REST API that can be used by 3rd party applications to manage bookmarks. Check the [API docs](docs/API.md) for further information.
 
 ## Troubleshooting
 
