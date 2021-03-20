@@ -80,11 +80,7 @@ The application runs in a web-server called [uWSGI](https://uwsgi-docs.readthedo
 
 ### Backups
 
-For backups you have two options: manually or automatic.
-
-For manual backups you can export your bookmarks from the UI and store them on a backup device or online service.
-
-For automatic backups you want to backup the applications database. As described above, for production setups you should [mount](https://stackoverflow.com/questions/23439126/how-to-mount-a-host-directory-in-a-docker-container) the `/etc/linkding/data` directory from the Docker container to a directory on your host system. You can then use a backup tool of your choice to backup the contents of that directory.
+Check the [backups document](docs/backup.md) for options on how to create backups.
 
 ## API
 
