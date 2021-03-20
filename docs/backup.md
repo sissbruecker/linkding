@@ -10,7 +10,7 @@ The location of the database file is `data/db.sqlite3` in the application folder
 If you are using Docker then the full path in the Docker container is `/etc/linkding/data/db.sqlite`. 
 As described in the installation docs, you should mount the `/etc/linkding/data` folder to a folder on your host system, from which you then can execute the backup.
 
-Below, we describe two methods to create a backup of the database:
+Below, we describe several methods to create a backup of the database:
 
 - Manual backup using the export function from the UI
 - Create a copy of the SQLite databse with the SQLite backup function
@@ -23,7 +23,7 @@ Choose the method that fits you best.
 The least technical option is to use the bookmark export in the UI.
 Go to the settings page and open the *Data* tab. 
 Then click on the *Download* button to download an HTML file containing all your bookmarks.
-Then backup this file on a drive, or an online file host.
+You can backup this file on a drive, or an online file host.
 
 ## Using the SQLite backup function
 
