@@ -16,6 +16,7 @@ The name comes from:
 - Bookmark archive
 - Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe)
 - Bookmarklet that should work in most browsers
+- Dark mode
 - Easy to set up using Docker
 - Uses SQLite as database
 - Works without Javascript

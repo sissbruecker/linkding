@@ -39,7 +39,7 @@ ul.bookmark-list {
   .description {
     color: $gray-color-dark;
 
-    a {
+    a, a:visited:hover {
       color: $alternative-color;
     }
   }
@@ -71,7 +71,7 @@ ul.bookmark-list {
 
 .tag-cloud {
 
-  a {
+  a, a:visited:hover {
     color: $alternative-color;
   }
 

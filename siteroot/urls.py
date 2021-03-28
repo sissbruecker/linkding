@@ -17,7 +17,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, include
 
 from bookmarks.admin import linkding_admin_site
-from .settings import ALLOW_REGISTRATION
+from .settings import ALLOW_REGISTRATION, DEBUG
 
 urlpatterns = [
     path('admin/', linkding_admin_site.urls),
@@ -27,6 +27,10 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('', include('bookmarks.urls')),
 ]
+
+if DEBUG:
+    import debug_toolbar
+    urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))
 
 if ALLOW_REGISTRATION:
     urlpatterns.append(path('', include('django_registration.backends.one_step.urls')))

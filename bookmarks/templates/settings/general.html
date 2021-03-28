@@ -1,9 +1,25 @@
 {% extends "bookmarks/layout.html" %}
+{% load widget_tweaks %}
 
 {% block content %}
     <div class="settings-page">
 
         {% include 'settings/nav.html' %}
+
+        {# Profile section #}
+        <section class="content-area">
+            <h2>Profile</h2>
+            <form action="{% url 'bookmarks:settings.general' %}" method="post" novalidate>
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.theme.id_for_label }}" class="form-label">Theme</label>
+                    {{ form.theme|add_class:"form-select col-2 col-sm-12" }}
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary mt-2">
+                </div>
+            </form>
+        </section>
 
         {# Import section #}
         <section class="content-area">

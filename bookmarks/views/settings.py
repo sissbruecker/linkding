@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
+from bookmarks.models import UserProfileForm
 from bookmarks.queries import query_bookmarks
 from bookmarks.services.exporter import export_netscape_html
 from bookmarks.services.importer import import_netscape_html
@@ -15,10 +16,18 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-def data(request):
+def general(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+    else:
+        form = UserProfileForm(instance=request.user.profile)
+
     import_success_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_success')
     import_errors_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_errors')
-    return render(request, 'settings/data.html', {
+    return render(request, 'settings/general.html', {
+        'form': form,
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
     })
@@ -61,7 +70,7 @@ def bookmark_import(request):
         messages.error(request, 'An error occurred during bookmark import.', 'bookmark_import_errors')
         pass
 
-    return HttpResponseRedirect(reverse('bookmarks:settings.data'))
+    return HttpResponseRedirect(reverse('bookmarks:settings.general'))
 
 
 @login_required
@@ -77,7 +86,7 @@ def bookmark_export(request):
 
         return response
     except:
-        return render(request, 'settings/data.html', {
+        return render(request, 'settings/general.html', {
             'export_error': 'An error occurred during bookmark export.'
         })
 

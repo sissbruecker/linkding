@@ -264,17 +264,4 @@
         z-index: 2;
     }
 
-    /* TODO: Should be read from theme */
-    .menu-item.selected > a {
-        background: #f1f1fc;
-        color: #5755d9;
-    }
-
-    .group-item, .group-item:hover {
-        color: #999999;
-        text-transform: uppercase;
-        background: none;
-        font-size: 0.6rem;
-        font-weight: bold;
-    }
 </style>
