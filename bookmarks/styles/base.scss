@@ -10,20 +10,22 @@ header {
 
   .navbar-brand {
 
+    display: flex;
+    align-items: center;
+
     .logo {
-      background-color: $primary-color;
-      color: $light-color;
-      padding: 14px;
+      width: 28px;
+      height: 28px;
     }
 
     h1 {
       text-transform: uppercase;
       display: inline-block;
+      margin: 0 0 0 8px;
     }
   }
 
   .dropdown-toggle {
-    padding: 0;
   }
 }
 
@@ -39,9 +41,18 @@ h2 {
   color: $gray-color-dark;
 }
 
-// Button color should not change for anchor elements
-.btn:visited:not(.btn-primary) {
-  color: $primary-color;
+// Fix up visited styles
+a:visited {
+  color: $link-color;
+}
+a:visited:hover {
+  color: $link-color-dark;
+}
+.btn-link:visited:not(.btn-primary) {
+  color: $link-color;
+}
+.btn-link:visited:not(.btn-primary):hover {
+  color: $link-color-dark;
 }
 
 // Increase spacing between columns
@@ -57,4 +68,20 @@ h2 {
 // Override border color for tab block
 .tab-block {
   border-bottom: solid 1px $border-color;
+}
+
+// Form auto-complete menu
+.form-autocomplete .menu {
+  .menu-item.selected > a, .menu-item > a:hover {
+    background: $secondary-color;
+    color: $primary-color;
+  }
+
+  .group-item, .group-item:hover {
+    color: $gray-color;
+    text-transform: uppercase;
+    background: none;
+    font-size: 0.6rem;
+    font-weight: bold;
+  }
 }

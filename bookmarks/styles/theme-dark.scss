@@ -1,0 +1,17 @@
+// Import custom variables
+@import "variables-dark";
+
+// Import Spectre CSS lib
+@import "../../node_modules/spectre.css/src/spectre";
+@import "../../node_modules/spectre.css/src/autocomplete";
+
+// Import style modules
+@import "base";
+@import "util";
+@import "shared";
+@import "bookmarks";
+@import "settings";
+@import "auth";
+
+// Dark theme overrides
+@import "dark";

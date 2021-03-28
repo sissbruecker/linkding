@@ -2,7 +2,10 @@ from typing import List
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from bookmarks.utils import unique
 from bookmarks.validators import BookmarkURLValidator
@@ -93,3 +96,33 @@ class BookmarkForm(forms.ModelForm):
     class Meta:
         model = Bookmark
         fields = ['url', 'tag_string', 'title', 'description', 'auto_close', 'return_url']
+
+
+class UserProfile(models.Model):
+    THEME_AUTO = 'auto'
+    THEME_LIGHT = 'light'
+    THEME_DARK = 'dark'
+    THEME_CHOICES = [
+        (THEME_AUTO, 'Auto'),
+        (THEME_LIGHT, 'Light'),
+        (THEME_DARK, 'Dark'),
+    ]
+    user = models.OneToOneField(get_user_model(), related_name='profile', on_delete=models.CASCADE)
+    theme = models.CharField(max_length=10, choices=THEME_CHOICES, blank=False, default=THEME_AUTO)
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['theme']
+
+
+@receiver(post_save, sender=get_user_model())
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=get_user_model())
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()

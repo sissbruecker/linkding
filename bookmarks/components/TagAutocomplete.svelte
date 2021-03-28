@@ -124,10 +124,4 @@
     .menu.open {
         display: block;
     }
-
-    /* TODO: Should be read from theme */
-    .menu-item.selected > a {
-        background: #f1f1fc;
-        color: #5755d9;
-    }
 </style>

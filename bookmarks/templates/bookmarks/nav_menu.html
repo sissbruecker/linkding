@@ -7,12 +7,16 @@
 </div>
 {# Menu drop-down for smaller devices #}
 <div class="show-md">
-    <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">
-        <i class="icon icon-plus"></i>
+    <a href="{% url 'bookmarks:new' %}" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 24px; height: 24px">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
     </a>
     <div class="dropdown dropdown-right">
         <a href="#" id="mobile-nav-menu-trigger" class="btn btn-link dropdown-toggle" tabindex="0">
-            <i class="icon icon-menu icon-2x"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 24px; height: 24px">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
         </a>
         <!-- menu component -->
         <ul class="menu">

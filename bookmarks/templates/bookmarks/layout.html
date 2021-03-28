@@ -12,14 +12,24 @@
     <meta name="author" content="Sascha Ißbrücker">
     <title>linkding</title>
     {# Include SASS styles, files are resolved from bookmarks/styles #}
-    <link href="{% sass_src 'index.scss' %}" rel="stylesheet" type="text/css"/>
+    {# Include specific theme variant based on user profile setting #}
+    {% if request.user.profile.theme == 'light' %}
+        <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"/>
+    {% elif request.user.profile.theme == 'dark' %}
+        <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"/>
+    {% else %}
+        {# Use auto theme as fallback #}
+        <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: dark)"/>
+        <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: light)"/>
+    {% endif %}
 </head>
 <body>
 <header class="navbar container grid-lg">
     <section class="navbar-section">
         <a href="/" class="navbar-brand text-bold">
-            <i class="logo icon icon-link s-circle"></i>
-
+            <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
             <h1>linkding</h1>
         </a>
     </section>

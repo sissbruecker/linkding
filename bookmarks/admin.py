@@ -7,7 +7,7 @@ from django.utils.translation import ngettext, gettext
 from rest_framework.authtoken.admin import TokenAdmin
 from rest_framework.authtoken.models import Token
 
-from bookmarks.models import Bookmark, Tag
+from bookmarks.models import Bookmark, Tag, UserProfile
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
 
 
@@ -77,8 +77,24 @@ class AdminTag(admin.ModelAdmin):
             ), messages.SUCCESS)
 
 
+class AdminUserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'Profile'
+    fk_name = 'user'
+
+
+class AdminCustomUser(UserAdmin):
+    inlines = (AdminUserProfileInline,)
+
+    def get_inline_instances(self, request, obj=None):
+        if not obj:
+            return list()
+        return super(AdminCustomUser, self).get_inline_instances(request, obj)
+
+
 linkding_admin_site = LinkdingAdminSite()
 linkding_admin_site.register(Bookmark, AdminBookmark)
 linkding_admin_site.register(Tag, AdminTag)
-linkding_admin_site.register(User, UserAdmin)
+linkding_admin_site.register(User, AdminCustomUser)
 linkding_admin_site.register(Token, TokenAdmin)
