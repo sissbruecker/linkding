@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.5.0 (28/03/2021)
+- [**closed**] Saving links is slow with nginx as reverse proxy [#88](https://github.com/sissbruecker/linkding/issues/88)
+- [**closed**] Add a dark mode [#49](https://github.com/sissbruecker/linkding/issues/49)
+- [**closed**] Database locked [#41](https://github.com/sissbruecker/linkding/issues/41)
+- [**closed**] Bug:  when put after cloudflare and reverse engine by nignx, CSRF failed [#39](https://github.com/sissbruecker/linkding/issues/39)
+- [**closed**] Add an API for backup / store data in pure text [#37](https://github.com/sissbruecker/linkding/issues/37)
+- [**closed**] Unused tags still get suggested after no longer being attached to any bookmarks [#33](https://github.com/sissbruecker/linkding/issues/33)
+- [**closed**] invalid request block size: 4243 (max 4096)...skip [#28](https://github.com/sissbruecker/linkding/issues/28)
+
+---
+
 ## v1.4.1 (20/03/2021)
 - Security patches
 - Documentation improvements
