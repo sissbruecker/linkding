@@ -4,6 +4,9 @@
 {% load bookmarks %}
 
 {% block content %}
+
+    {% include 'bookmarks/bulk_edit/state.html' %}
+
     <div class="bookmarks-page columns">
 
         {# Bookmark list #}
@@ -12,13 +15,20 @@
                 <h2>Bookmarks</h2>
                 <div class="spacer"></div>
                 {% bookmark_search query tags %}
+                {% include 'bookmarks/bulk_edit/toggle.html' %}
             </div>
 
-            {% if empty %}
-                {% include 'bookmarks/empty_bookmarks.html' %}
-            {% else %}
-                {% bookmark_list bookmarks return_url %}
-            {% endif %}
+            <form class="bulk-edit-form" action="{% url 'bookmarks:bulk_edit' %}?return_url={{ return_url }}"
+                  method="post">
+                {% csrf_token %}
+                {% include 'bookmarks/bulk_edit/bar.html' with mode='default' %}
+
+                {% if empty %}
+                    {% include 'bookmarks/empty_bookmarks.html' %}
+                {% else %}
+                    {% bookmark_list bookmarks return_url %}
+                {% endif %}
+            </form>
         </section>
 
         {# Tag list #}
@@ -31,4 +41,6 @@
     </div>
 
     <script src="{% static "bundle.js" %}"></script>
+    <script src="{% static "shared.js" %}"></script>
+    <script src="{% static "bulk_edit.js" %}"></script>
 {% endblock %}

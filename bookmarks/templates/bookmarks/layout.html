@@ -2,7 +2,8 @@
 {% load sass_tags %}
 
 <!DOCTYPE html>
-<html lang="en">
+{# Use data attributes as storage for access in static scripts #}
+<html lang="en" data-api-base-url="{% url 'bookmarks:api-root' %}">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="{% static 'favicon.png' %}"/>

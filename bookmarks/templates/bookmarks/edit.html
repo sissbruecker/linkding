@@ -8,7 +8,7 @@
                 <h2>Edit bookmark</h2>
             </div>
             <form action="{% url 'bookmarks:edit' bookmark_id %}" method="post" class="col-6 col-md-12" novalidate>
-                {% bookmark_form form all_tags return_url bookmark_id %}
+                {% bookmark_form form return_url bookmark_id %}
             </form>
         </section>
     </div>
