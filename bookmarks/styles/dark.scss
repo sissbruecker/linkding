@@ -21,6 +21,11 @@ a:focus, .btn:focus {
   background: darken($error-color, 40%);
 }
 
+.form-checkbox input:checked + .form-icon, .form-radio input:checked + .form-icon, .form-switch input:checked + .form-icon {
+  background: $dt-primary-button-color;
+  border-color: $dt-primary-button-color;
+}
+
 /* Pagination */
 .pagination .page-item.active a {
   background: $dt-primary-button-color;

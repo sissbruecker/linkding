@@ -8,7 +8,8 @@ from django.urls import reverse
 
 from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkForm, build_tag_string
-from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, unarchive_bookmark
+from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, archive_bookmarks, \
+    unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks
 
 _default_page_size = 30
 
@@ -87,11 +88,9 @@ def new(request):
         if initial_auto_close:
             form.initial['auto_close'] = 'true'
 
-    all_tags = queries.get_user_tags(request.user)
     context = {
         'form': form,
         'auto_close': initial_auto_close,
-        'all_tags': all_tags,
         'return_url': reverse('bookmarks:index')
     }
 
@@ -116,12 +115,10 @@ def edit(request, bookmark_id: int):
 
     form.initial['tag_string'] = build_tag_string(bookmark.tag_names, ' ')
     form.initial['return_url'] = return_url
-    all_tags = queries.get_user_tags(request.user)
 
     context = {
         'form': form,
         'bookmark_id': bookmark_id,
-        'all_tags': all_tags,
         'return_url': return_url
     }
 
@@ -152,6 +149,29 @@ def unarchive(request, bookmark_id: int):
     unarchive_bookmark(bookmark)
     return_url = request.GET.get('return_url')
     return_url = return_url if return_url else reverse('bookmarks:archived')
+    return HttpResponseRedirect(return_url)
+
+
+@login_required
+def bulk_edit(request):
+    bookmark_ids = request.POST.getlist('bookmark_id')
+
+    # Determine action
+    if 'bulk_archive' in request.POST:
+        archive_bookmarks(bookmark_ids, request.user)
+    if 'bulk_unarchive' in request.POST:
+        unarchive_bookmarks(bookmark_ids, request.user)
+    if 'bulk_delete' in request.POST:
+        delete_bookmarks(bookmark_ids, request.user)
+    if 'bulk_tag' in request.POST:
+        tag_string = request.POST['bulk_tag_string']
+        tag_bookmarks(bookmark_ids, tag_string, request.user)
+    if 'bulk_untag' in request.POST:
+        tag_string = request.POST['bulk_tag_string']
+        untag_bookmarks(bookmark_ids, tag_string, request.user)
+
+    return_url = request.GET.get('return_url')
+    return_url = return_url if return_url else reverse('bookmarks:index')
     return HttpResponseRedirect(return_url)
 
 

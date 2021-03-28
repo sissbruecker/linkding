@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -46,11 +48,58 @@ def archive_bookmark(bookmark: Bookmark):
     return bookmark
 
 
+def archive_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(is_archived=True, date_modified=timezone.now())
+
+
 def unarchive_bookmark(bookmark: Bookmark):
     bookmark.is_archived = False
     bookmark.date_modified = timezone.now()
     bookmark.save()
     return bookmark
+
+
+def unarchive_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(is_archived=False, date_modified=timezone.now())
+
+
+def delete_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.delete()
+
+
+def tag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+    tag_names = parse_tag_string(tag_string, ' ')
+    tags = get_or_create_tags(tag_names, current_user)
+
+    for bookmark in bookmarks:
+        bookmark.tags.add(*tags)
+        bookmark.date_modified = timezone.now()
+
+    Bookmark.objects.bulk_update(bookmarks, ['date_modified'])
+
+
+def untag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+    tag_names = parse_tag_string(tag_string, ' ')
+    tags = get_or_create_tags(tag_names, current_user)
+
+    for bookmark in bookmarks:
+        bookmark.tags.remove(*tags)
+        bookmark.date_modified = timezone.now()
+
+    Bookmark.objects.bulk_update(bookmarks, ['date_modified'])
 
 
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
@@ -68,3 +117,8 @@ def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):
     tag_names = parse_tag_string(tag_string, ' ')
     tags = get_or_create_tags(tag_names, user)
     bookmark.tags.set(tags)
+
+
+def _sanitize_id_list(bookmark_ids: [Union[int, str]]) -> [int]:
+    # Convert string ids to int if necessary
+    return [int(bm_id) if isinstance(bm_id, str) else bm_id for bm_id in bookmark_ids]

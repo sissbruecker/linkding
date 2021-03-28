@@ -11,9 +11,10 @@ The name comes from:
 **Feature Overview:**
 - Tags for organizing bookmarks
 - Search by text or tags
+- Bulk editing
+- Bookmark archive
 - Automatically provides titles and descriptions from linked websites 
 - Import and export bookmarks in Netscape HTML format
-- Bookmark archive
 - Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe)
 - Bookmarklet that should work in most browsers
 - Dark mode
@@ -22,7 +23,7 @@ The name comes from:
 - Works without Javascript
 - ...but has several UI enhancements when Javascript is enabled
 - REST API for developing 3rd party apps
-- Admin panel for user self-service and bulk operations
+- Admin panel for user self-service and raw data access
 
 
 **Demo:** https://demo.linkding.link/ (configured with open registration)

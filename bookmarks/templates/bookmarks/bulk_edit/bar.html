@@ -1,0 +1,31 @@
+<div class="bulk-edit-bar">
+    <div class="bulk-edit-actions bg-gray">
+        <label class="form-checkbox bulk-edit-all-toggle">
+            <input type="checkbox" style="display: none">
+            <i class="form-icon"></i>
+        </label>
+        {% if mode == 'archive' %}
+            <button type="submit" name="bulk_unarchive" class="btn btn-link btn-sm btn-confirmation"
+                    title="Unarchive selected bookmarks">Unarchive
+            </button>
+        {% else %}
+            <button type="submit" name="bulk_archive" class="btn btn-link btn-sm btn-confirmation"
+                    title="Archive selected bookmarks">Archive
+            </button>
+        {% endif %}
+        <span class="text-sm text-gray-dark">•</span>
+        <button type="submit" name="bulk_delete" class="btn btn-link btn-sm btn-confirmation"
+                title="Delete selected bookmarks">Delete
+        </button>
+        <span class="text-sm text-gray-dark">•</span>
+        <span class="text-sm text-gray-dark"><label for="bulk-edit-tags-input">Tags:</label></span>
+        <input id="bulk-edit-tags-input" name="bulk_tag_string" class="form-input input-sm"
+               placeholder="&nbsp;">
+        <button type="submit" name="bulk_tag" class="btn btn-link btn-sm"
+                title="Add tags to selected bookmarks">Add
+        </button>
+        <button type="submit" name="bulk_untag" class="btn btn-link btn-sm"
+                title="Remove tags from selected bookmarks">Remove
+        </button>
+    </div>
+</div>

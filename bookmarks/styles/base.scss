@@ -1,5 +1,10 @@
 body {
   margin: 20px 10px;
+
+  @media (min-width: $size-sm) {
+    // High horizontal padding accounts for checkboxes that show up in bulk edit mode
+    margin: 20px 24px;
+  }
 }
 
 header {

@@ -1,3 +1,4 @@
+// Content area component
 section.content-area {
 
   .content-area-header {
@@ -9,5 +10,13 @@ section.content-area {
     h2 {
       line-height: 1.8rem;
     }
+  }
+}
+
+// Confirm button component
+.btn-confirmation-action {
+  color: $error-color !important;
+  &:hover {
+    text-decoration: underline;
   }
 }

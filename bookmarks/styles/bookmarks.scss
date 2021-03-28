@@ -30,6 +30,12 @@
   }
 }
 
+.bookmarks-page .content-area-header {
+  span.btn {
+    margin-left: 8px;
+  }
+}
+
 ul.bookmark-list {
 
   list-style: none;
@@ -57,11 +63,8 @@ ul.bookmark-list {
     }
   }
 
-  .actions .btn-link.bm-remove-confirm {
-    color: $error-color;
-    &:hover {
-      text-decoration: underline;
-    }
+  .bulk-edit-toggle {
+    display: none;
   }
 }
 
@@ -102,4 +105,101 @@ ul.bookmark-list {
       font-weight: bold;
     }
   }
+}
+
+/* Bulk edit */
+$bulk-edit-toggle-width: 16px;
+$bulk-edit-toggle-offset: 8px;
+$bulk-edit-bar-offset: $bulk-edit-toggle-width + (2 * $bulk-edit-toggle-offset);
+$bulk-edit-transition-duration: 400ms;
+
+.bulk-edit-form {
+
+  .bulk-edit-bar {
+    margin-top: -17px;
+    margin-bottom: 16px;
+    margin-left: -$bulk-edit-bar-offset;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height $bulk-edit-transition-duration;
+  }
+
+  .bulk-edit-actions {
+    display: flex;
+    align-items: baseline;
+    padding: 4px 0;
+    border-top: solid 1px $border-color;
+
+    button:hover {
+      text-decoration: underline;
+    }
+
+    > label.form-checkbox {
+      min-height: 1rem;
+    }
+
+    > button {
+      padding: 0;
+      margin-left: 8px;
+    }
+
+    > span {
+      margin-left: 8px;
+    }
+
+    > input, .form-autocomplete {
+      width: auto;
+      margin-left: 4px;
+      max-width: 200px;
+      -webkit-appearance: none;
+    }
+
+    span.confirmation {
+      display: flex;
+    }
+    span.confirmation button {
+      padding: 0;
+    }
+  }
+
+  .bulk-edit-all-toggle {
+    width: $bulk-edit-toggle-width;
+    margin: 0 0 0 $bulk-edit-toggle-offset;
+    padding: 0;
+  }
+
+  ul.bookmark-list li {
+    position: relative;
+  }
+
+  ul.bookmark-list li .bulk-edit-toggle {
+    display: block;
+    position: absolute;
+    width: $bulk-edit-toggle-width;
+    left: -$bulk-edit-toggle-width - $bulk-edit-toggle-offset;
+    top: 0;
+    padding: 0;
+    margin: 0;
+    visibility: hidden;
+    opacity: 0;
+    transition: all $bulk-edit-transition-duration;
+
+    i {
+      top: 0.2rem;
+    }
+  }
+}
+
+#bulk-edit-mode {
+  display: none;
+}
+
+#bulk-edit-mode:checked ~ .bookmarks-page .bulk-edit-toggle {
+  visibility: visible;
+  opacity: 1;
+}
+
+#bulk-edit-mode:checked ~ .bookmarks-page .bulk-edit-bar {
+  max-height: 37px;
+  border-bottom: solid 1px $border-color;
 }
