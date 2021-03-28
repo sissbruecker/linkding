@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.6.0 (29/03/2021)
+*No changelog for this release.*
+
+---
+
 ## v1.5.0 (28/03/2021)
 - [**closed**] Add a dark mode [#49](https://github.com/sissbruecker/linkding/issues/49)
 ---
