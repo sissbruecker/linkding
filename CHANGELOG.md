@@ -1,8 +1,7 @@
 # Changelog
 
 ## v1.6.0 (29/03/2021)
-*No changelog for this release.*
-
+- Bulk edit mode [#101](https://github.com/sissbruecker/linkding/pull/101)
 ---
 
 ## v1.5.0 (28/03/2021)
