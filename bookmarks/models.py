@@ -107,14 +107,24 @@ class UserProfile(models.Model):
         (THEME_LIGHT, 'Light'),
         (THEME_DARK, 'Dark'),
     ]
+    BOOKMARK_DATE_DISPLAY_RELATIVE = 'relative'
+    BOOKMARK_DATE_DISPLAY_ABSOLUTE = 'absolute'
+    BOOKMARK_DATE_DISPLAY_HIDDEN = 'hidden'
+    BOOKMARK_DATE_DISPLAY_CHOICES = [
+        (BOOKMARK_DATE_DISPLAY_RELATIVE, 'Relative'),
+        (BOOKMARK_DATE_DISPLAY_ABSOLUTE, 'Absolute'),
+        (BOOKMARK_DATE_DISPLAY_HIDDEN, 'Hidden'),
+    ]
     user = models.OneToOneField(get_user_model(), related_name='profile', on_delete=models.CASCADE)
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, blank=False, default=THEME_AUTO)
+    bookmark_date_display = models.CharField(max_length=10, choices=BOOKMARK_DATE_DISPLAY_CHOICES, blank=False,
+                                             default=BOOKMARK_DATE_DISPLAY_RELATIVE)
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme']
+        fields = ['theme', 'bookmark_date_display']
 
 
 @receiver(post_save, sender=get_user_model())

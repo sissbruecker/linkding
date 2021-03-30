@@ -1,5 +1,7 @@
 from django import template
 
+from bookmarks import utils
+
 register = template.Library()
 
 
@@ -43,3 +45,8 @@ def first_char(text):
 @register.filter(name='remaining_chars')
 def remaining_chars(text, index):
     return text[index:]
+
+
+@register.filter(name='humanize_time_delta')
+def humanize_time_delta(from_date):
+    return utils.humanize_time_delta(from_date)

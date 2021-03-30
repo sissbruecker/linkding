@@ -15,6 +15,7 @@ djangorestframework==3.11.2
 idna==2.8
 libsass==0.19.2
 pyparsing==2.4.7
+python-dateutil==2.8.1
 pytz==2019.1
 rcssmin==1.0.6
 requests==2.22.0
