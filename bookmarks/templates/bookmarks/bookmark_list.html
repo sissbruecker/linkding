@@ -26,6 +26,14 @@
                 {% endif %}
             </div>
             <div class="actions">
+                {% if request.user.profile.bookmark_date_display == 'relative' %}
+                    <span class="text-gray text-sm">{{ bookmark.date_added|humanize_relative_date }}</span>
+                    <span class="text-gray text-sm">|</span>
+                {% endif %}
+                {% if request.user.profile.bookmark_date_display == 'absolute' %}
+                    <span class="text-gray text-sm">{{ bookmark.date_added|humanize_absolute_date }}</span>
+                    <span class="text-gray text-sm">|</span>
+                {% endif %}
                 <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
                    class="btn btn-link btn-sm">Edit</a>
                 {% if bookmark.is_archived %}

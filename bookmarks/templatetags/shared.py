@@ -1,5 +1,7 @@
 from django import template
 
+from bookmarks import utils
+
 register = template.Library()
 
 
@@ -43,3 +45,17 @@ def first_char(text):
 @register.filter(name='remaining_chars')
 def remaining_chars(text, index):
     return text[index:]
+
+
+@register.filter(name='humanize_absolute_date')
+def humanize_absolute_date(value):
+    if value in (None, ''):
+        return ''
+    return utils.humanize_absolute_date(value)
+
+
+@register.filter(name='humanize_relative_date')
+def humanize_relative_date(value):
+    if value in (None, ''):
+        return ''
+    return utils.humanize_relative_date(value)

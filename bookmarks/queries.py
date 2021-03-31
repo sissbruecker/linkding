@@ -55,8 +55,8 @@ def _base_bookmarks_query(user: User, query_string: str) -> QuerySet:
             tags__name__iexact=tag_name
         )
 
-    # Sort by modification date
-    query_set = query_set.order_by('-date_modified')
+    # Sort by date added
+    query_set = query_set.order_by('-date_added')
 
     return query_set
 

@@ -53,6 +53,7 @@ def tag_cloud(context, tags: List[Tag]):
 @register.inclusion_tag('bookmarks/bookmark_list.html', name='bookmark_list', takes_context=True)
 def bookmark_list(context, bookmarks: Page, return_url: str):
     return {
+        'request': context['request'],
         'bookmarks': bookmarks,
         'return_url': return_url
     }
