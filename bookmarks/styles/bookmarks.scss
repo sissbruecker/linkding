@@ -65,7 +65,7 @@ ul.bookmark-list {
     &:hover,
     &:active,
     &.active {
-      text-decoration: underline;
+      color: $gray-color-dark;
     }
   }
 
