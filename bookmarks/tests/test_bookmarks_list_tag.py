@@ -47,5 +47,5 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         html = self.render_template([bookmark])
 
         self.assertInHTML('''
-        <span class="text-gray text-sm">A week ago</span>
+        <span class="text-gray text-sm">1 week ago</span>
         ''', html)

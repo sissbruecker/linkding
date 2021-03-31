@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
+from django.template.defaultfilters import pluralize
 from django.utils import timezone, formats
 
 
@@ -38,18 +39,12 @@ def humanize_absolute_date(value: datetime, now=timezone.now()):
 def humanize_relative_date(value: datetime, now: datetime = timezone.now()):
     delta = relativedelta(now, value)
 
-    if delta.years > 1:
-        return f'{delta.years} years ago'
-    elif delta.years == 1:
-        return 'A year ago'
-    elif delta.months > 1:
-        return f'{delta.months} months ago'
-    elif delta.months == 1:
-        return 'A month ago'
-    elif delta.weeks > 1:
-        return f'{delta.weeks} weeks ago'
-    elif delta.weeks == 1:
-        return 'A week ago'
+    if delta.years > 0:
+        return f'{delta.years} year{pluralize(delta.years)} ago'
+    elif delta.months > 0:
+        return f'{delta.months} month{pluralize(delta.months)} ago'
+    elif delta.weeks > 0:
+        return f'{delta.weeks} week{pluralize(delta.weeks)} ago'
     else:
         yesterday = now - relativedelta(days=1)
         if value.day == now.day:
