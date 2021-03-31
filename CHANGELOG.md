@@ -1,7 +1,7 @@
 # Changelog
 
 ## v1.6.1 (31/03/2021)
-*No changelog for this release.*
+- Expose date_added in UI [#85](https://github.com/sissbruecker/linkding/issues/85)
 
 ---
 
