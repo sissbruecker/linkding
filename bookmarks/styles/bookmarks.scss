@@ -97,12 +97,41 @@ ul.bookmark-list {
 
 .bookmarks-form {
 
+  .btn.form-icon {
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    visibility: hidden;
+    color: $gray-color;
+
+    &:focus,
+    &:hover,
+    &:active,
+    &.active {
+      color: $gray-color-dark;
+    }
+
+    > svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .has-icon-right > input, .has-icon-right > textarea {
+    padding-right: 30px;
+  }
+
+  .has-icon-right > input:placeholder-shown ~ .btn.form-icon,
+  .has-icon-right > textarea:placeholder-shown ~ .btn.form-icon {
+    visibility: visible;
+  }
+
   .form-icon.loading {
     visibility: hidden;
   }
 
   .form-input-hint.bookmark-exists {
-    visibility: hidden;
+    display: none;
     color: $warning-color;
 
     a {
@@ -163,6 +192,7 @@ $bulk-edit-transition-duration: 400ms;
     span.confirmation {
       display: flex;
     }
+
     span.confirmation button {
       padding: 0;
     }
