@@ -14,12 +14,13 @@
             </div>
         {% endif %}
         <div class="form-input-hint bookmark-exists">
-            This URL is already bookmarked. You can <a href="#">edit</a> it or you can overwrite the existing bookmark by saving this form.
+            This URL is already bookmarked. You can <a href="#">edit</a> it or you can overwrite the existing bookmark
+            by saving this form.
         </div>
     </div>
     <div class="form-group">
         <label for="{{ form.tag_string.id_for_label }}" class="form-label">Tags</label>
-        {{ form.tag_string|add_class:"form-input" }}
+        {{ form.tag_string|add_class:"form-input"|attr:"autocomplete:off" }}
         <div class="form-input-hint">
             Enter any number of tags separated by space and <strong>without</strong> the hash (#). If a tag does not
             exist it will be
@@ -30,8 +31,16 @@
     <div class="form-group has-icon-right">
         <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
         <div class="has-icon-right">
-            {{ form.title|add_class:"form-input" }}
+            {{ form.title|add_class:"form-input"|attr:"autocomplete:off" }}
             <i class="form-icon loading"></i>
+            <a class="btn btn-link form-icon" title="Edit title from website">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/>
+                    <path fill-rule="evenodd"
+                          d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
         </div>
         <div class="form-input-hint">
             Optional, leave empty to use title from website.
@@ -43,6 +52,14 @@
         <div class="has-icon-right">
             {{ form.description|add_class:"form-input"|attr:"rows:4" }}
             <i class="form-icon loading"></i>
+            <a class="btn btn-link form-icon" title="Edit description from website">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/>
+                    <path fill-rule="evenodd"
+                          d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
         </div>
         <div class="form-input-hint">
             Optional, leave empty to use description from website.
@@ -82,49 +99,72 @@
         /**
          * - Pre-fill title and description placeholders with metadata from website as soon as URL changes
          * - Show hint if URL is already bookmarked
+         * - Setup buttons that allow editing of scraped website values
          */
         (function init() {
             const urlInput = document.getElementById('{{ form.url.id_for_label }}');
             const titleInput = document.getElementById('{{ form.title.id_for_label }}');
             const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
-            const editedBookmarkId = {{ bookmark_id }}
+            const editedBookmarkId = {{ bookmark_id }};
 
-            urlInput.addEventListener('input', checkUrl);
+            function toggleLoadingIcon(input, show) {
+                const icon = input.parentNode.querySelector('i.form-icon');
+                icon.style['visibility'] = show ? 'visible' : 'hidden';
+            }
+
+            function updatePlaceholder(input, value) {
+                if (value) {
+                    input.setAttribute('placeholder', value);
+                } else {
+                    input.removeAttribute('placeholder');
+                }
+            }
 
             function checkUrl() {
-                toggleIcon(titleInput, true);
-                toggleIcon(descriptionInput, true);
+                toggleLoadingIcon(titleInput, true);
+                toggleLoadingIcon(descriptionInput, true);
+                updatePlaceholder(titleInput, null);
+                updatePlaceholder(descriptionInput, null);
 
                 const websiteUrl = encodeURIComponent(urlInput.value);
                 const requestUrl = `{% url 'bookmarks:api-root' %}bookmarks/check?url=${websiteUrl}`;
                 fetch(requestUrl)
                     .then(response => response.json())
                     .then(data => {
-                        const metadata = data.metadata
-                        titleInput.setAttribute('placeholder', metadata.title || '');
-                        descriptionInput.setAttribute('placeholder', metadata.description || '');
-                        toggleIcon(titleInput, false);
-                        toggleIcon(descriptionInput, false);
+                        const metadata = data.metadata;
+                        updatePlaceholder(titleInput, metadata.title);
+                        updatePlaceholder(descriptionInput, metadata.description);
+                        toggleLoadingIcon(titleInput, false);
+                        toggleLoadingIcon(descriptionInput, false);
 
                         // Display hint if URL is already bookmarked
-                        const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists')
-                        const editExistingBookmarkLink = bookmarkExistsHint.querySelector('a')
+                        const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
+                        const editExistingBookmarkLink = bookmarkExistsHint.querySelector('a');
 
-                        if(data.bookmark && data.bookmark.id !== editedBookmarkId) {
-                            bookmarkExistsHint.style['visibility'] = 'visible'
-                            editExistingBookmarkLink.href = data.bookmark.edit_url
+                        if (data.bookmark && data.bookmark.id !== editedBookmarkId) {
+                            bookmarkExistsHint.style['display'] = 'block';
+                            editExistingBookmarkLink.href = data.bookmark.edit_url;
                         } else {
-                            bookmarkExistsHint.style['visibility'] = 'hidden'
+                            bookmarkExistsHint.style['display'] = 'none';
                         }
                     });
             }
 
-            function toggleIcon(input, show) {
-                const icon = input.parentNode.querySelector('i.form-icon');
-                icon.style['visibility'] = show ? 'visible' : 'hidden';
+            function setupEditAutoValueButton(input) {
+                const editAutoValueButton = input.parentNode.querySelector('.btn.form-icon');
+                if (!editAutoValueButton) return;
+                editAutoValueButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    input.value = input.getAttribute('placeholder');
+                    input.focus();
+                    input.select();
+                });
             }
 
             if (urlInput.value) checkUrl();
+            urlInput.addEventListener('input', checkUrl);
+            setupEditAutoValueButton(titleInput);
+            setupEditAutoValueButton(descriptionInput);
         })();
     </script>
 </div>
