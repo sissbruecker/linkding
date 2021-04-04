@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.6.2 (04/04/2021)
+- [**enhancement**] Expose `date_added` in UI [#85](https://github.com/sissbruecker/linkding/issues/85)
+- [**closed**] Archived bookmarks - no result when searching for a word which is used only as tag [#83](https://github.com/sissbruecker/linkding/issues/83)
+- [**closed**] Add archive/unarchive button to edit bookmark page [#82](https://github.com/sissbruecker/linkding/issues/82)
+- [**enhancement**] Make scraped title and description editable [#80](https://github.com/sissbruecker/linkding/issues/80)
+
+---
+
 ## v1.6.1 (31/03/2021)
 - Expose date_added in UI [#85](https://github.com/sissbruecker/linkding/issues/85)
 
