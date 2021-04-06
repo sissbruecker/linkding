@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from dateutil.relativedelta import relativedelta
 from django.template.defaultfilters import pluralize
@@ -20,7 +21,9 @@ weekday_names = {
 }
 
 
-def humanize_absolute_date(value: datetime, now=timezone.now()):
+def humanize_absolute_date(value: datetime, now: Optional[datetime] = None):
+    if not now:
+        now = timezone.now()
     delta = relativedelta(now, value)
     yesterday = now - relativedelta(days=1)
 
@@ -36,7 +39,9 @@ def humanize_absolute_date(value: datetime, now=timezone.now()):
         return weekday_names[value.isoweekday()]
 
 
-def humanize_relative_date(value: datetime, now: datetime = timezone.now()):
+def humanize_relative_date(value: datetime, now: Optional[datetime] = None):
+    if not now:
+        now = timezone.now()
     delta = relativedelta(now, value)
 
     if delta.years > 0:
