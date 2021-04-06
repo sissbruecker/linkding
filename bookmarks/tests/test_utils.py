@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.utils import timezone
 
@@ -23,6 +25,14 @@ class UtilsTestCase(TestCase):
             result = humanize_absolute_date(test_case[0], test_case[1])
             self.assertEqual(test_case[2], result)
 
+    def test_humanize_absolute_date_should_use_current_date_as_default(self):
+        with patch.object(timezone, 'now', return_value=timezone.datetime(2021, 1, 1)):
+            self.assertEqual(humanize_absolute_date(timezone.datetime(2021, 1, 1)), 'Today')
+
+        # Regression: Test that subsequent calls use current date instead of cached date (#107)
+        with patch.object(timezone, 'now', return_value=timezone.datetime(2021, 1, 13)):
+            self.assertEqual(humanize_absolute_date(timezone.datetime(2021, 1, 13)), 'Today')
+
     def test_humanize_relative_date(self):
         test_cases = [
             (timezone.datetime(2021, 1, 1), timezone.datetime(2022, 1, 1), '1 year ago'),
@@ -45,3 +55,11 @@ class UtilsTestCase(TestCase):
         for test_case in test_cases:
             result = humanize_relative_date(test_case[0], test_case[1])
             self.assertEqual(test_case[2], result)
+
+    def test_humanize_relative_date_should_use_current_date_as_default(self):
+        with patch.object(timezone, 'now', return_value=timezone.datetime(2021, 1, 1)):
+            self.assertEqual(humanize_relative_date(timezone.datetime(2021, 1, 1)), 'Today')
+
+        # Regression: Test that subsequent calls use current date instead of cached date (#107)
+        with patch.object(timezone, 'now', return_value=timezone.datetime(2021, 1, 13)):
+            self.assertEqual(humanize_relative_date(timezone.datetime(2021, 1, 13)), 'Today')
