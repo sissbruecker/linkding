@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.6.3 (07/04/2021)
+- [**bug**] relative names use the wrong "today" after day change [#107](https://github.com/sissbruecker/linkding/issues/107)
+
+---
+
 ## v1.6.2 (04/04/2021)
 - [**enhancement**] Expose `date_added` in UI [#85](https://github.com/sissbruecker/linkding/issues/85)
 - [**closed**] Archived bookmarks - no result when searching for a word which is used only as tag [#83](https://github.com/sissbruecker/linkding/issues/83)
