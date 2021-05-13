@@ -1,34 +1,43 @@
-# Linkding administration
+# Administration
 
-In the linkding administration page you can manage users.
-Linkding also allows you to do some bulk operations, like archiving bookmarks tagged with a certain tag.
-Also you can delete tags or bookmarks.
+This document describes how to make use of the admin app that comes as part of each linkding installation. This is the default Django admin app with some linkding specific customizations.
 
-This page describes some main administration functions.
+The admin app provides several features that are not available in the linkding UI:
+- User management and user self-management
+- Bookmark and tag management, including bulk operations
 
 ## Linkding administration page
 
-Go to the linkding administration page. 
-You do this by opening the URL http://[ip-address]:9090/admin.
+To open the Admin app, go the *Settings* view and click on the *Admin* tab. This should open a new window with the admin app.
+
+Alternatively you can open the URL directly by adding `/admin` to the URL of your linkding installation.
 
 ## User management
 
-Go to the linkding administration page and select "Users".
+Go to the linkding administration page and select *Users*.
 Here you can add and delete users, and change the password of a user.
 
-Once you have added a user you can, if needed, give the user staff status, which means this user can access the linkding administration page.
+Once you have added a user you can, if needed, give the user staff status, which means this user can also access the linkding administration page.
 
-## Bulk operations on bookmarks tagged with a certain tag
+This page also allows you to change your own password if necessary.
 
-In the linkding administration page you have several options, among which operations on bookmarks and operation on tags.
-First select the bookmarks to operate on.
+## Bookmark management
 
-- Click on the "bookmarks" link in the linkding administration page.
-- In the column "by tags", choose the tag.
+While the linkding UI itself now has a bulk edit feature for bookmarks you can also use the admin app to manage bookmarks or to do bulk operations. 
 
-Now a list of bookmarks, which are tagged with this tag, is opened, each bookmark on a separate line.
+In the main linkding administration page, choose *Bookmarks*.
+
+First select the bookmarks to operate on:
+
+- Specify a filter to determine which bookmarks to operate on:
+  - In the column *by username*, you can choose to filter for bookmarks for a specific user
+  - In the column *by is archived*, you can choose to filter for bookmarks that are either archived or not
+  - In the column *by tags*, you can choose to filter for specific tags
+  - In the search box you can also add a text filter (note that this doesn't use the same search syntax as the linkding UI itself)  
+
+Now a list of bookmarks which match your filter is displayed, each bookmark on a separate line.
 Each line starts with a checkbox.
-Choose the bookmarks you want to do a bulk operation on, or choose the top checkbox to select all shown bookmarks.
+Either choose the individual bookmarks you want to do a bulk operation on, or choose the top checkbox to select all shown bookmarks.
 
 Open the "Action" select box to choose the desired bulk operation:
 
@@ -36,30 +45,21 @@ Open the "Action" select box to choose the desired bulk operation:
 - Archive
 - Unarchive
 
-## Bulk archiving or unarchiving
-
-Linkding allows you to archive bookmarks. You can archive individual bookmarks, but also perform a bulk archive operation.
-
-First select the bookmarks to operate on.
-There are several ways to select bookmarks.
-
-- Use the search box to do a text query.
-- Select bookmarks by tag (see above).
-- Select by archived or by unarchived.
-- Select by user (if you have more than one user in linkding).
-
-After this you will have a list of bookmarks, each on a separate line. 
-Each line starts with a checkbox.
-Choose the bookmarks you want to do a bulk operation on, or choose the top checkbox to select all shown bookmarks.
-
-Open the "Action" select box to choose the desired bulk operation:
-
-- Archive
-- Unarchive
+Click the button next to the checkbox to execute the operation.
 
 ## Tag management
 
-In the main linkding administration page, choose "tags".
+While linkding UI currently only allows to create or assign tags, you can use the admin app to manage your tags. This can be especially useful if you want to clean up your tag collection.
 
-You can now select one or more tags and choose to delete those tags.
-Deleting a tag does not affect the bookmarks that are tagged with this tag, it only removes the tag from those bookmarks.
+In the main linkding administration page, choose *Tags*.
+
+Similar to bookmarks management described above you can now specify which tags to operate on by specifying a filter and then selecting the individual tags.
+
+Open the "Action" select box to choose the desired bulk operation:
+
+- Delete
+- Delete unused tags - this will only delete the selected tags that are currently not assigned to any bookmark
+
+Click the button next to the checkbox to execute the operation.
+
+Note that deleting a tag does not affect the bookmarks that are tagged with this tag, it only removes the tag from those bookmarks.

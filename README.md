@@ -97,6 +97,10 @@ The application runs in a web-server called [uWSGI](https://uwsgi-docs.readthedo
 
 Check the [options document](docs/Options.md) on how to configure your linkding installation.
 
+## Administration
+
+Check the [administration document](docs/Admin.md) on how to use the admin app that is bundled with linkding.
+
 ## Backups
 
 Check the [backups document](docs/backup.md) for options on how to create backups.
