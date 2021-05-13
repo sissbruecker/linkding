@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.6.4 (13/05/2021)
+- [**closed**] Feature request: different color of chrome extension button indicating current website added or not [#120](https://github.com/sissbruecker/linkding/issues/120)
+- [**enhancement**] Add Automated, periodic link validation [#117](https://github.com/sissbruecker/linkding/issues/117)
+- [**closed**] Modify language [#109](https://github.com/sissbruecker/linkding/issues/109)
+
+---
+
 ## v1.6.3 (07/04/2021)
 - [**bug**] relative names use the wrong "today" after day change [#107](https://github.com/sissbruecker/linkding/issues/107)
 
