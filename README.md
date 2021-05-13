@@ -101,6 +101,10 @@ Check the [options document](docs/Options.md) on how to configure your linkding 
 
 Check the [backups document](docs/backup.md) for options on how to create backups.
 
+## How To
+
+Check the [how-to document](docs/how-to.md) for tips and tricks around using linkding.
+
 ## API
 
 The application provides a REST API that can be used by 3rd party applications to manage bookmarks. Check the [API docs](docs/API.md) for further information.
