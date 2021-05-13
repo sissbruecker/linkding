@@ -2,7 +2,7 @@ beautifulsoup4==4.7.1
 certifi==2019.6.16
 chardet==3.0.4
 confusable-homoglyphs==3.2.0
-Django==2.2.18
+Django==2.2.20
 django-appconf==1.0.3
 django-compressor==2.3
 django-debug-toolbar==3.2.1
