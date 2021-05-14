@@ -1,3 +1,5 @@
+import random
+
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -20,17 +22,25 @@ class BookmarkFactoryMixin:
                        is_archived: bool = False,
                        tags=None,
                        user: User = None,
+                       url: str = '',
                        title: str = '',
-                       description: str = ''):
+                       description: str = '',
+                       website_title: str = '',
+                       website_description: str = '',
+                       ):
         if tags is None:
             tags = []
         if user is None:
             user = self.get_or_create_test_user()
-        unique_id = get_random_string(length=32)
+        if not url:
+            unique_id = get_random_string(length=32)
+            url = 'https://example.com/' + unique_id
         bookmark = Bookmark(
-            url='https://example.com/' + unique_id,
+            url=url,
             title=title,
             description=description,
+            website_title=website_title,
+            website_description=website_description,
             date_added=timezone.now(),
             date_modified=timezone.now(),
             owner=user,
@@ -42,10 +52,11 @@ class BookmarkFactoryMixin:
         bookmark.save()
         return bookmark
 
-    def setup_tag(self, user: User = None):
+    def setup_tag(self, user: User = None, name: str = ''):
         if user is None:
             user = self.get_or_create_test_user()
-        name = get_random_string(length=32)
+        if not name:
+            name = get_random_string(length=32)
         tag = Tag(name=name, date_added=timezone.now(), owner=user)
         tag.save()
         return tag
@@ -71,3 +82,38 @@ class LinkdingApiTestCase(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, expected_status_code)
         return response
+
+
+_words = [
+    'quasi',
+    'consequatur',
+    'necessitatibus',
+    'debitis',
+    'quod',
+    'vero',
+    'qui',
+    'commodi',
+    'quod',
+    'odio',
+    'aliquam',
+    'veniam',
+    'architecto',
+    'consequatur',
+    'autem',
+    'qui',
+    'iste',
+    'asperiores',
+    'soluta',
+    'et',
+]
+
+
+def random_sentence(num_words: int = None, including_word: str = ''):
+    if num_words is None:
+        num_words = random.randint(5, 10)
+    selected_words = random.choices(_words, k=num_words)
+    if including_word:
+        selected_words.append(including_word)
+    random.shuffle(selected_words)
+
+    return ' '.join(selected_words)
