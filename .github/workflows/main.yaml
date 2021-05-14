@@ -12,7 +12,13 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.7
-      - name: Install dependencies
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - name: Install Python dependencies
         run: pip install -r requirements.txt
+      - name: Install Node dependencies
+        run: npm install
       - name: Run tests
         run: python manage.py test
