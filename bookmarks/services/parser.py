@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 
 import pyparsing as pp
 
@@ -9,7 +8,7 @@ class NetscapeBookmark:
     href: str
     title: str
     description: str
-    date_added: int
+    date_added: str
     tag_string: str
 
 
@@ -17,8 +16,7 @@ def extract_bookmark_link(tag):
     href = tag[0].href
     title = tag[0].text
     tag_string = tag[0].tags
-    date_added_string = tag[0].add_date if tag[0].add_date else datetime.now().timestamp()
-    date_added = int(date_added_string)
+    date_added = tag[0].add_date
 
     return {
         'href': href,

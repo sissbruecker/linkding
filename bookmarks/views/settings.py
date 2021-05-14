@@ -9,8 +9,8 @@ from rest_framework.authtoken.models import Token
 
 from bookmarks.models import UserProfileForm
 from bookmarks.queries import query_bookmarks
-from bookmarks.services.exporter import export_netscape_html
-from bookmarks.services.importer import import_netscape_html
+from bookmarks.services import exporter
+from bookmarks.services import importer
 
 logger = logging.getLogger(__name__)
 
@@ -55,11 +55,11 @@ def bookmark_import(request):
 
     if import_file is None:
         messages.error(request, 'Please select a file to import.', 'bookmark_import_errors')
-        return HttpResponseRedirect(reverse('bookmarks:settings.index'))
+        return HttpResponseRedirect(reverse('bookmarks:settings.general'))
 
     try:
         content = import_file.read().decode()
-        result = import_netscape_html(content, request.user)
+        result = importer.import_netscape_html(content, request.user)
         success_msg = str(result.success) + ' bookmarks were successfully imported.'
         messages.success(request, success_msg, 'bookmark_import_success')
         if result.failed > 0:
@@ -78,7 +78,7 @@ def bookmark_export(request):
     # noinspection PyBroadException
     try:
         bookmarks = query_bookmarks(request.user, '')
-        file_content = export_netscape_html(bookmarks)
+        file_content = exporter.export_netscape_html(bookmarks)
 
         response = HttpResponse(content_type='text/plain; charset=UTF-8')
         response['Content-Disposition'] = 'attachment; filename="bookmarks.html"'

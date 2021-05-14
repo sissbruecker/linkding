@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from bookmarks.models import Bookmark, parse_tag_string
 from bookmarks.services.parser import parse, NetscapeBookmark
@@ -45,7 +46,10 @@ def _import_bookmark_tag(netscape_bookmark: NetscapeBookmark, user: User):
     bookmark = _get_or_create_bookmark(netscape_bookmark.href, user)
 
     bookmark.url = netscape_bookmark.href
-    bookmark.date_added = datetime.utcfromtimestamp(int(netscape_bookmark.date_added)).astimezone()
+    if netscape_bookmark.date_added:
+        bookmark.date_added = datetime.utcfromtimestamp(int(netscape_bookmark.date_added)).astimezone()
+    else:
+        bookmark.date_added = timezone.now()
     bookmark.date_modified = bookmark.date_added
     bookmark.unread = False
     bookmark.title = netscape_bookmark.title
