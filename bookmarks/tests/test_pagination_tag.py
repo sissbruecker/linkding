@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
-from django.test import SimpleTestCase, RequestFactory
 from django.template import Template, RequestContext
+from django.test import SimpleTestCase, RequestFactory
 
 
 class PaginationTagTest(SimpleTestCase):

@@ -4,8 +4,8 @@ from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 from django.utils import timezone, formats
 
-from bookmarks.tests.helpers import BookmarkFactoryMixin
 from bookmarks.models import UserProfile
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):

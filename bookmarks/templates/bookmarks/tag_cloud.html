@@ -7,13 +7,13 @@
                 {# Highlight first char of first tag in group #}
                 {% if forloop.counter == 1 %}
                     <a href="?{% append_query_param q=tag.name|hash_tag %}"
-                       class="mr-2">
+                       class="mr-2" data-is-tag-item>
                         <span class="highlight-char">{{ tag.name|first_char }}</span><span>{{ tag.name|remaining_chars:1 }}</span>
                     </a>
                 {% else %}
                     {# Render remaining tags normally #}
                     <a href="?{% append_query_param q=tag.name|hash_tag %}"
-                       class="mr-2">
+                       class="mr-2" data-is-tag-item>
                         <span>{{ tag.name }}</span>
                     </a>
                 {% endif %}

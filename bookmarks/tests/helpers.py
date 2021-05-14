@@ -16,12 +16,21 @@ class BookmarkFactoryMixin:
 
         return self.user
 
-    def setup_bookmark(self, is_archived: bool = False, tags: [Tag] = [], user: User = None):
+    def setup_bookmark(self,
+                       is_archived: bool = False,
+                       tags=None,
+                       user: User = None,
+                       title: str = '',
+                       description: str = ''):
+        if tags is None:
+            tags = []
         if user is None:
             user = self.get_or_create_test_user()
         unique_id = get_random_string(length=32)
         bookmark = Bookmark(
             url='https://example.com/' + unique_id,
+            title=title,
+            description=description,
             date_added=timezone.now(),
             date_modified=timezone.now(),
             owner=user,

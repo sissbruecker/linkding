@@ -6,7 +6,7 @@ from bookmarks.models import Bookmark
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
-class BulkEditIntegrationTests(TestCase, BookmarkFactoryMixin):
+class BookmarkBulkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def setUp(self) -> None:
         user = self.get_or_create_test_user()

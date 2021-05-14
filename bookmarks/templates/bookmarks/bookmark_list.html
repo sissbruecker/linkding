@@ -3,7 +3,7 @@
 
 <ul class="bookmark-list">
     {% for bookmark in bookmarks %}
-        <li>
+        <li data-is-bookmark-item>
             <label class="form-checkbox bulk-edit-toggle">
                 <input type="checkbox" name="bookmark_id" value="{{ bookmark.id }}">
                 <i class="form-icon"></i>
