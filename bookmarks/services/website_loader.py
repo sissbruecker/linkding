@@ -34,4 +34,4 @@ def load_website_metadata(url: str):
 
 def load_page(url: str):
     r = requests.get(url, timeout=10)
-    return r.text
+    return r.content
