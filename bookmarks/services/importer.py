@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, parse_tag_string
+from bookmarks.services import tasks
 from bookmarks.services.parser import parse, NetscapeBookmark
 from bookmarks.services.tags import get_or_create_tags
 from bookmarks.utils import parse_timestamp
@@ -66,6 +67,9 @@ def _import_bookmark_tag(netscape_bookmark: NetscapeBookmark, user: User):
 
     bookmark.tags.set(tags)
     bookmark.save()
+
+    # Create snapshot on web archive
+    tasks.create_web_archive_snapshot(bookmark.id)
 
 
 def _get_or_create_bookmark(url: str, user: User):

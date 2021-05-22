@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_generate_secret_key',
     'rest_framework',
     'rest_framework.authtoken',
+    'background_task',
 ]
 
 MIDDLEWARE = [
@@ -166,3 +167,11 @@ ALLOW_REGISTRATION = False
 
 # URL validation flag
 LD_DISABLE_URL_VALIDATION = os.getenv('LD_DISABLE_URL_VALIDATION', False) in (True, 'True', '1')
+
+# django-background-tasks
+MAX_ATTEMPTS = 5
+# How many tasks will run in parallel
+# We want to keep this low to prevent SQLite lock errors and in general not to consume too much resources on smaller
+# specced systems like Raspberries. Should be OK as tasks are not time critical.
+BACKGROUND_TASK_RUN_ASYNC = True
+BACKGROUND_TASK_ASYNC_THREADS = 2

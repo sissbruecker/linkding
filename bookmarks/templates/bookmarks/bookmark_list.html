@@ -26,13 +26,27 @@
                 {% endif %}
             </div>
             <div class="actions">
-                {% if request.user.profile.bookmark_date_display == 'relative' %}
-                    <span class="text-gray text-sm">{{ bookmark.date_added|humanize_relative_date }}</span>
+                {% if bookmark.archive_url %}
+                    <a class="text-gray text-sm" href="{{ bookmark.archive_url }}"
+                       title="Show snapshot on web archive" target="_blank" rel="noopener">
+                        {% if request.user.profile.bookmark_date_display == 'relative' %}
+                            <span class="text-gray text-sm">{{ bookmark.date_added|humanize_relative_date }}</span>
+                        {% endif %}
+                        {% if request.user.profile.bookmark_date_display == 'absolute' %}
+                            <span class="text-gray text-sm">{{ bookmark.date_added|humanize_absolute_date }}</span>
+                        {% endif %}
+                        <span>◉</span>
+                    </a>
                     <span class="text-gray text-sm">|</span>
-                {% endif %}
-                {% if request.user.profile.bookmark_date_display == 'absolute' %}
-                    <span class="text-gray text-sm">{{ bookmark.date_added|humanize_absolute_date }}</span>
-                    <span class="text-gray text-sm">|</span>
+                {% else %}
+                    {% if request.user.profile.bookmark_date_display == 'relative' %}
+                        <span class="text-gray text-sm">{{ bookmark.date_added|humanize_relative_date }}</span>
+                        <span class="text-gray text-sm">|</span>
+                    {% endif %}
+                    {% if request.user.profile.bookmark_date_display == 'absolute' %}
+                        <span class="text-gray text-sm">{{ bookmark.date_added|humanize_absolute_date }}</span>
+                        <span class="text-gray text-sm">|</span>
+                    {% endif %}
                 {% endif %}
                 <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
                    class="btn btn-link btn-sm">Edit</a>

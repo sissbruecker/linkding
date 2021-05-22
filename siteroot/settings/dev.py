@@ -43,6 +43,11 @@ LOGGING = {
         'django.db.backends': {
             'level': 'ERROR',  # Set to DEBUG to log all SQL calls
             'handlers': ['console'],
+        },
+        'bookmarks.services.tasks': {  # Log task output
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
         }
     }
 }

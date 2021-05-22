@@ -1,11 +1,14 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, Tag
-from bookmarks.services.bookmarks import archive_bookmark, archive_bookmarks, unarchive_bookmark, unarchive_bookmarks, \
-    delete_bookmarks, tag_bookmarks, untag_bookmarks
+from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, archive_bookmarks, \
+    unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks
 from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.services import tasks
 
 User = get_user_model()
 
@@ -13,7 +16,30 @@ User = get_user_model()
 class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user('testuser', 'test@example.com', 'password123')
+        self.get_or_create_test_user()
+
+    def test_create_should_create_web_archive_snapshot(self):
+        with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:
+            bookmark_data = Bookmark(url='https://example.com')
+            bookmark = create_bookmark(bookmark_data, 'tag1 tag2', self.user)
+
+            mock_create_web_archive_snapshot.assert_called_once_with(bookmark.id)
+
+    def test_update_should_create_web_archive_snapshot_if_url_did_change(self):
+        with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:
+            bookmark = self.setup_bookmark()
+            bookmark.url = 'https://example.com/updated'
+            update_bookmark(bookmark, 'tag1 tag2', self.user)
+
+            mock_create_web_archive_snapshot.assert_called_once_with(bookmark.id)
+
+    def test_update_should_not_create_web_archive_snapshot_if_url_did_not_change(self):
+        with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:
+            bookmark = self.setup_bookmark()
+            bookmark.title = 'updated title'
+            update_bookmark(bookmark, 'tag1 tag2', self.user)
+
+            mock_create_web_archive_snapshot.assert_not_called()
 
     def test_archive_bookmark(self):
         bookmark = Bookmark(
