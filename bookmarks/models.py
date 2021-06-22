@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from django import forms
@@ -78,6 +79,13 @@ class Bookmark(models.Model):
     def __str__(self):
         return self.resolved_title + ' (' + self.url[:30] + '...)'
 
+    def save(self, *args, **kwargs):
+        try:
+            self.full_clean()
+            return super(Bookmark, self).save(*args, **kwargs)
+        except Exception as exc:
+            logging.exception(exc)
+            raise exc
 
 class BookmarkForm(forms.ModelForm):
     # Use URLField for URL
@@ -97,6 +105,13 @@ class BookmarkForm(forms.ModelForm):
         model = Bookmark
         fields = ['url', 'tag_string', 'title', 'description', 'auto_close', 'return_url']
 
+    def save(self, *args, **kwargs):
+        try:
+            self.full_clean()
+            return super(BookmarkForm, self).save(*args, **kwargs)
+        except Exception as exc:
+            logging.exception(exc)
+            raise exc
 
 class UserProfile(models.Model):
     THEME_AUTO = 'auto'
