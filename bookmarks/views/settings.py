@@ -33,6 +33,13 @@ def general(request):
     })
 
 
+def about(request):
+    app_version = _get_app_version()
+    return render(request, 'settings/about.html', {
+        'version': app_version
+    })
+
+
 @login_required
 def integrations(request):
     application_url = request.build_absolute_uri("/bookmarks/new")
@@ -95,3 +102,11 @@ def _find_message_with_tag(messages, tag):
     for message in messages:
         if message.extra_tags == tag:
             return message
+
+def _get_app_version():
+    try:
+        with open("version.txt", "r") as f:
+            return f.read().strip("\n")
+    except Exception as exc: 
+        logging.exception(exc)
+        pass
