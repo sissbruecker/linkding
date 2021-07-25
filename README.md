@@ -88,7 +88,7 @@ If you can not or don't want to use Docker you can install the application manua
 
 ### Hosting
 
-The application runs in a web-server called [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) that is production-ready and that you can expose to the web. If you don't know how to configure your server to expose the application to the web there are several more steps involved. I can not support support the process here, but I can give some pointers on what to search for:
+The application runs in a web-server called [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) that is production-ready and that you can expose to the web. If you don't know how to configure your server to expose the application to the web there are several more steps involved. I can not support the process here, but I can give some pointers on what to search for:
 - first get the app running (described in this document)
 - open the port that the application is running on in your servers firewall
 - depending on your network configuration, forward the opened port in your network router, so that the application can be addressed from the internet using your public IP address and the opened port
