@@ -82,14 +82,25 @@ def new(request):
             else:
                 return HttpResponseRedirect(reverse('bookmarks:index'))
     else:
-        form = BookmarkForm()
-        if initial_url:
-            form.initial['url'] = initial_url
+        try:
+            bookmark = Bookmark.objects.get(url=initial_url)
+            print(bookmark.id)
+            bookmark_id = bookmark.id
+            form = BookmarkForm(instance=bookmark)
+            form.initial['tag_string'] = build_tag_string(bookmark.tag_names, ' ')
+        except Bookmark.DoesNotExist:
+            bookmark_id = 0
+            form = BookmarkForm()
+            if initial_url:
+                form.initial['url'] = initial_url
+        # AFAIK Shouldn't be possible, but if there are duplicate URLs there is an
+        # uncaught Bookmark.MultipleObjectsReturned that will happen here
         if initial_auto_close:
             form.initial['auto_close'] = 'true'
 
     context = {
         'form': form,
+        'bookmark_id': bookmark_id,
         'auto_close': initial_auto_close,
         'return_url': reverse('bookmarks:index')
     }
