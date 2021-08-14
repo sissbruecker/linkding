@@ -95,11 +95,13 @@ def _base_bookmark_tags_query(user: User, query_string: str) -> QuerySet:
             | Q(bookmark__url__contains=term)
         )
 
-    tagged_bookmarks = Bookmark.objects.all()
-    for tag_name in query['tag_names']:
-        tagged_bookmarks = tagged_bookmarks.filter(tags__name__iexact=tag_name)
+    has_queried_tags = len(query['tag_names']) > 0
+    if has_queried_tags:
+        tagged_bookmarks = Bookmark.objects.all().filter(owner=user)
+        for tag_name in query['tag_names']:
+            tagged_bookmarks = tagged_bookmarks.filter(tags__name__iexact=tag_name)
 
-    query_set = query_set.intersection(Tag.objects.filter(bookmark__in=tagged_bookmarks))
+        query_set = query_set.intersection(Tag.objects.filter(bookmark__in=tagged_bookmarks))
 
     return query_set.distinct()
 
