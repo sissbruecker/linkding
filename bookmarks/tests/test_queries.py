@@ -17,6 +17,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def setup_bookmark_search_data(self) -> None:
         tag1 = self.setup_tag(name='tag1')
         tag2 = self.setup_tag(name='tag2')
+        self.setup_tag(name='unused_tag1')
 
         self.other_bookmarks = [
             self.setup_bookmark(),
@@ -204,6 +205,18 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_bookmarks(self.get_or_create_test_user(), '#tag3')
         self.assertQueryResult(query, [])
 
+        # Unused tag
+        query = queries.query_bookmarks(self.get_or_create_test_user(), '#unused_tag1')
+        self.assertQueryResult(query, [])
+
+        # Unused tag combined with tag that is used
+        query = queries.query_bookmarks(self.get_or_create_test_user(), '#tag1 #unused_tag1')
+        self.assertQueryResult(query, [])
+
+        # Unused tag combined with term that is used
+        query = queries.query_bookmarks(self.get_or_create_test_user(), 'term1 #unused_tag1')
+        self.assertQueryResult(query, [])
+
     def test_query_bookmarks_should_not_return_archived_bookmarks(self):
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()
@@ -351,16 +364,28 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmark_tags_should_return_no_matches(self):
         self.setup_tag_search_data()
 
-        query = queries.query_bookmarks(self.get_or_create_test_user(), 'term3')
+        query = queries.query_bookmark_tags(self.get_or_create_test_user(), 'term3')
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmarks(self.get_or_create_test_user(), 'term1 term3')
+        query = queries.query_bookmark_tags(self.get_or_create_test_user(), 'term1 term3')
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmarks(self.get_or_create_test_user(), 'term1 #tag2')
+        query = queries.query_bookmark_tags(self.get_or_create_test_user(), 'term1 #tag2')
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmarks(self.get_or_create_test_user(), '#tag3')
+        query = queries.query_bookmark_tags(self.get_or_create_test_user(), '#tag3')
+        self.assertQueryResult(query, [])
+
+        # Unused tag
+        query = queries.query_bookmark_tags(self.get_or_create_test_user(), '#unused_tag1')
+        self.assertQueryResult(query, [])
+
+        # Unused tag combined with tag that is used
+        query = queries.query_bookmark_tags(self.get_or_create_test_user(), '#tag1 #unused_tag1')
+        self.assertQueryResult(query, [])
+
+        # Unused tag combined with term that is used
+        query = queries.query_bookmark_tags(self.get_or_create_test_user(), 'term1 #unused_tag1')
         self.assertQueryResult(query, [])
 
     def test_query_bookmark_tags_should_return_tags_for_unarchived_bookmarks_only(self):
