@@ -26,8 +26,8 @@
                 {% endif %}
             </div>
             <div class="actions">
-                {% if bookmark.archive_url %}
-                    <a class="text-gray text-sm" href="{{ bookmark.archive_url }}"
+                {% if bookmark.web_archive_snapshot_url %}
+                    <a class="text-gray text-sm" href="{{ bookmark.web_archive_snapshot_url }}"
                        title="Show snapshot on web archive" target="_blank" rel="noopener">
                         {% if request.user.profile.bookmark_date_display == 'relative' %}
                             <span class="text-gray text-sm">{{ bookmark.date_added|humanize_relative_date }}</span>

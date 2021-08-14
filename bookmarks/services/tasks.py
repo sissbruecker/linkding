@@ -30,6 +30,6 @@ def create_web_archive_snapshot(bookmark_id: int):
         logger.exception(f'Error saving for bookmark: {bookmark}...', exc_info=error)
         raise
 
-    bookmark.archive_url = archive.archive_url
+    bookmark.web_archive_snapshot_url = archive.archive_url
     bookmark.save()
     logger.debug(f'Successfully saved archive for bookmark: {bookmark}...')
