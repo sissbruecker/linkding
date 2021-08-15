@@ -1,15 +1,7 @@
 # Changelog
 
 ## v1.6.5 (15/08/2021)
-- [**closed**] Search by tag is very slow [#141](https://github.com/sissbruecker/linkding/issues/141)
-- [**closed**] Feature-Request: Dark mode [#139](https://github.com/sissbruecker/linkding/issues/139)
-- [**closed**] Multiple link selection in default view, option to add tags at selected links [#131](https://github.com/sissbruecker/linkding/issues/131)
-- [**closed**] what's the initial username and password [#125](https://github.com/sissbruecker/linkding/issues/125)
-- [**closed**] Not Acceptable! on WordPress Sites [#116](https://github.com/sissbruecker/linkding/issues/116)
-- [**closed**] [Feature Request] Link image [#114](https://github.com/sissbruecker/linkding/issues/114)
 - [**enhancement**] query with multiple hashtags very slow [#112](https://github.com/sissbruecker/linkding/issues/112)
-- [**closed**] Add bookmarks to a queue waiting for connection to linkding instance [#99](https://github.com/sissbruecker/linkding/issues/99)
-
 ---
 
 ## v1.6.4 (13/05/2021)
