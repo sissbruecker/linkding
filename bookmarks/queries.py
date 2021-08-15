@@ -62,46 +62,17 @@ def _base_bookmarks_query(user: User, query_string: str) -> QuerySet:
 
 
 def query_bookmark_tags(user: User, query_string: str) -> QuerySet:
-    return _base_bookmark_tags_query(user, query_string) \
-        .filter(bookmark__is_archived=False) \
-        .distinct()
+    bookmarks_query = query_bookmarks(user, query_string)
+
+    query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
+
+    return query_set.distinct()
 
 
 def query_archived_bookmark_tags(user: User, query_string: str) -> QuerySet:
-    return _base_bookmark_tags_query(user, query_string) \
-        .filter(bookmark__is_archived=True) \
-        .distinct()
+    bookmarks_query = query_archived_bookmarks(user, query_string)
 
-
-def _base_bookmark_tags_query(user: User, query_string: str) -> QuerySet:
-    query_set = Tag.objects
-
-    # Filter for user
-    query_set = query_set.filter(owner=user)
-
-    # Only show tags which have bookmarks
-    query_set = query_set.filter(bookmark__isnull=False)
-
-    # Split query into search terms and tags
-    query = _parse_query_string(query_string)
-
-    # Filter for search terms and tags
-    for term in query['search_terms']:
-        query_set = query_set.filter(
-            Q(bookmark__title__contains=term)
-            | Q(bookmark__description__contains=term)
-            | Q(bookmark__website_title__contains=term)
-            | Q(bookmark__website_description__contains=term)
-            | Q(bookmark__url__contains=term)
-        )
-
-    has_queried_tags = len(query['tag_names']) > 0
-    if has_queried_tags:
-        tagged_bookmarks = Bookmark.objects.all().filter(owner=user)
-        for tag_name in query['tag_names']:
-            tagged_bookmarks = tagged_bookmarks.filter(tags__name__iexact=tag_name)
-
-        query_set = query_set.intersection(Tag.objects.filter(bookmark__in=tagged_bookmarks))
+    query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
 
     return query_set.distinct()
 
