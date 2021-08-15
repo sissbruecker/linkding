@@ -66,6 +66,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def setup_tag_search_data(self):
         tag1 = self.setup_tag(name='tag1')
         tag2 = self.setup_tag(name='tag2')
+        self.setup_tag(name='unused_tag1')
 
         self.other_bookmarks = [
             self.setup_bookmark(tags=[self.setup_tag()]),
