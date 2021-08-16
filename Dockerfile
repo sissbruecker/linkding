@@ -47,7 +47,7 @@ EXPOSE 9090
 # Activate virtual env
 ENV VIRTUAL_ENV /opt/venv
 ENV PATH /opt/venv/bin:$PATH
-# Support running container images as an an arbitrary user (e.g., OpenShift)
+# Allow running containers as an an arbitrary user in the root group, to support deployment scenarios like OpenShift, Podman
 RUN ["chmod", "g+w", "."]
 # Run bootstrap logic
 RUN ["chmod", "+x", "./bootstrap.sh"]
