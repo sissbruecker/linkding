@@ -6,6 +6,8 @@ confusable-homoglyphs==3.2.0
 coverage==5.5
 Django==3.2.6
 django-appconf==1.0.4
+django-background-tasks==1.2.5
+django-compat==1.0.15
 django-compressor==2.4.1
 django-debug-toolbar==3.2.1
 django-generate-secret-key==1.0.2
@@ -27,3 +29,4 @@ soupsieve==1.9.2
 sqlparse==0.4.1
 typing-extensions==3.10.0.0
 urllib3==1.26.6
+waybackpy==2.4.3
