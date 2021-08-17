@@ -19,6 +19,7 @@ pytz==2021.1
 requests==2.26.0
 soupsieve==1.9.2
 sqlparse==0.4.1
+supervisor==4.2.2
 typing-extensions==3.10.0.0
 urllib3==1.26.6
 uWSGI==2.0.18
