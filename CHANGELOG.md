@@ -1,7 +1,8 @@
 # Changelog
 
 ## v1.7.0 (17/08/2021)
-*No changelog for this release.*
+- Upgrade to Django 3
+- Bump other dependencies
 
 ---
 
