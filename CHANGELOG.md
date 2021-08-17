@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.7.0 (17/08/2021)
+*No changelog for this release.*
+
+---
+
 ## v1.6.5 (15/08/2021)
 - [**enhancement**] query with multiple hashtags very slow [#112](https://github.com/sissbruecker/linkding/issues/112)
 ---
