@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Type
 
 import pyparsing as pp
 
@@ -11,61 +12,73 @@ class NetscapeBookmark:
     date_added: str
     tag_string: str
 
-
-def extract_bookmark_link(tag):
-    href = tag[0].href
-    title = tag[0].text
-    tag_string = tag[0].tags
-    date_added = tag[0].add_date
-
-    return {
-        'href': href,
-        'title': title,
-        'tag_string': tag_string,
-        'date_added': date_added
-    }
+@dataclass
+class NetscapeBookmarkFileData:
+    folder: str
+    bookmarks: [NetscapeBookmark]
+    sub_folders: [Type['NetscapeBookmarkFileData']]
 
 
-def extract_bookmark(tag):
-    link = tag[0].link
-    description = tag[0].description
-    description = description[0] if description else ''
+def extract_bookmark(tokens):
+    bookmark = tokens.link
+    if tokens.description:
+        bookmark.description = tokens.description[0]
+    return {'type': "bookmark",
+            'data': bookmark,
+            }
 
-    return {
-        'link': link,
-        'description': description,
-    }
-
-
-def extract_description(tag):
-    return tag[0].strip()
+def extract_folder_data(tokens):
+    bookmarks = []
+    sub_folders = []
+    for elem in tokens.folder_items:
+        if elem['type'] == "bookmark":
+            bookmarks.append(elem['data'])
+        else:
+            sub_folders.append(elem['data'])
+    return NetscapeBookmarkFileData(folder='',
+                                    bookmarks=bookmarks,
+                                    sub_folders=sub_folders,
+                                    )
 
 
 # define grammar
 dt_start, _ = pp.makeHTMLTags("DT")
 dd_start, _ = pp.makeHTMLTags("DD")
 a_start, a_end = pp.makeHTMLTags("A")
-bookmark_link_tag = pp.Group(a_start + a_start.tag_body("text") + a_end.suppress())
-bookmark_link_tag.addParseAction(extract_bookmark_link)
-bookmark_description_tag = dd_start.suppress() + pp.SkipTo(pp.anyOpenTag | pp.anyCloseTag)("description")
-bookmark_description_tag.addParseAction(extract_description)
-bookmark_tag = pp.Group(dt_start + bookmark_link_tag("link") + pp.ZeroOrMore(bookmark_description_tag)("description"))
-bookmark_tag.addParseAction(extract_bookmark)
+bookmark_link = a_start + a_start.tag_body("text") + a_end
+bookmark_link.setParseAction(lambda tokens: NetscapeBookmark(href=tokens.href,
+                                                             title=tokens.text,
+                                                             description='',
+                                                             tag_string=tokens.tags,
+                                                             date_added=tokens.add_date,
+                                                             ))
+
+bookmark_description = dd_start + pp.SkipTo(pp.anyOpenTag | pp.anyCloseTag)("description")
+bookmark_description.setParseAction(lambda tokens: tokens.description.strip())
+
+bookmark = dt_start + bookmark_link("link") + pp.ZeroOrMore(bookmark_description)("description")
+bookmark.setParseAction(extract_bookmark)
+
+p_start, _ = pp.makeHTMLTags("p")
+dl_start, dl_end = pp.makeHTMLTags("DL")
+folder = pp.Forward()
+folder_data = dl_start + p_start + pp.Group(pp.ZeroOrMore(bookmark | folder))("folder_items") + dl_end + pp.Optional(p_start)
+folder_data.setParseAction(extract_folder_data)
+
+h3_start, h3_end = pp.makeHTMLTags("H3")
+folder_name = h3_start + h3_start.tag_body("text") + h3_end
+folder_name.setParseAction(lambda tokens: tokens.text)
+
+folder << dt_start + folder_name("folder_name") + folder_data("data")
+folder.setParseAction(lambda tokens: {'type': "folder",
+                                      'data': NetscapeBookmarkFileData(
+                                          folder=tokens.folder_name,
+                                          bookmarks=tokens.data.bookmarks,
+                                          sub_folders=tokens.data.sub_folders,
+                                      )})
 
 
-def parse(html: str) -> [NetscapeBookmark]:
-    matches = bookmark_tag.searchString(html)
-    bookmarks = []
+def parse(html: str):
+    bookmarks_data = folder_data.searchString(html)[0][0]
 
-    for match in matches:
-        bookmark_match = match[0]
-        bookmark = NetscapeBookmark(
-            href=bookmark_match['link']['href'],
-            title=bookmark_match['link']['title'],
-            description=bookmark_match['description'],
-            tag_string=bookmark_match['link']['tag_string'],
-            date_added=bookmark_match['link']['date_added'],
-        )
-        bookmarks.append(bookmark)
-
-    return bookmarks
+    return bookmarks_data

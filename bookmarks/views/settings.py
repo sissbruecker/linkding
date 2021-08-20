@@ -8,7 +8,8 @@ from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
 from bookmarks.models import UserProfileForm
-from bookmarks.queries import query_bookmarks
+from bookmarks.queries import query_bookmarks, query_archived_bookmarks
+from bookmarks.services.parser import NetscapeBookmarkFileData
 from bookmarks.services import exporter
 from bookmarks.services import importer
 
@@ -84,8 +85,15 @@ def bookmark_import(request):
 def bookmark_export(request):
     # noinspection PyBroadException
     try:
-        bookmarks = query_bookmarks(request.user, '')
-        file_content = exporter.export_netscape_html(bookmarks)
+        archive_data = NetscapeBookmarkFileData(folder='archive',
+                                                 bookmarks=query_archived_bookmarks(request.user, ''),
+                                                 sub_folders=[],
+                                                 )
+        netscape_data = NetscapeBookmarkFileData(folder='',
+                                                 bookmarks=query_bookmarks(request.user, ''),
+                                                 sub_folders=[archive_data],
+                                                 )
+        file_content = exporter.export_netscape_html(netscape_data)
 
         response = HttpResponse(content_type='text/plain; charset=UTF-8')
         response['Content-Disposition'] = 'attachment; filename="bookmarks.html"'
