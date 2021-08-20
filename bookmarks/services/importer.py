@@ -47,7 +47,13 @@ def _import_bookmark_tag(netscape_bookmark: NetscapeBookmark, user: User):
 
     bookmark.url = netscape_bookmark.href
     if netscape_bookmark.date_added:
-        bookmark.date_added = datetime.utcfromtimestamp(int(netscape_bookmark.date_added)).astimezone()
+        tstamp = int(netscape_bookmark.date_added)
+        if tstamp > 11644473600:
+            # Windows epoch from 1 January 1601 00:00:00
+            bookmark.date_added = datetime.utcfromtimestamp((tstamp-11644473600)/1000000).astimezone()
+        else:
+            # Unix epoch from 1 January 1970 00:00:00
+            bookmark.date_added = datetime.utcfromtimestamp(tstamp).astimezone()
     else:
         bookmark.date_added = timezone.now()
     bookmark.date_modified = bookmark.date_added
