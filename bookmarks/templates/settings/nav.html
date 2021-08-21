@@ -2,7 +2,6 @@
 {% url 'bookmarks:settings.general' as general_url %}
 {% url 'bookmarks:settings.integrations' as integrations_url %}
 {% url 'bookmarks:settings.api' as api_url %}
-{% url 'bookmarks:settings.about' as about_url %}
 
 <ul class="tab tab-block">
     <li class="tab-item {% if request.get_full_path == index_url or request.get_full_path == general_url%}active{% endif %}">
@@ -22,9 +21,6 @@
                 <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
             </svg>
         </a>
-    </li>
-    <li class="tab-item {% if request.get_full_path == about_url %}active{% endif %}">
-        <a href="{% url 'bookmarks:settings.about' %}">About</a>
     </li>
 </ul>
 <br>

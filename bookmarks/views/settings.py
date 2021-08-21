@@ -14,6 +14,12 @@ from bookmarks.services import importer
 
 logger = logging.getLogger(__name__)
 
+try:
+    with open("version.txt", "r") as f:
+        APP_VERSION = f.read().strip("\n")
+except Exception as exc: 
+    logging.exception(exc)
+    pass
 
 @login_required
 def general(request):
@@ -30,13 +36,7 @@ def general(request):
         'form': form,
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
-    })
-
-
-def about(request):
-    app_version = _get_app_version()
-    return render(request, 'settings/about.html', {
-        'version': app_version
+        'app_version': APP_VERSION
     })
 
 
@@ -102,11 +102,3 @@ def _find_message_with_tag(messages, tag):
     for message in messages:
         if message.extra_tags == tag:
             return message
-
-def _get_app_version():
-    try:
-        with open("version.txt", "r") as f:
-            return f.read().strip("\n")
-    except Exception as exc: 
-        logging.exception(exc)
-        pass

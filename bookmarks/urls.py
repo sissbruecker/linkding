@@ -26,7 +26,6 @@ urlpatterns = [
     path('settings/api', views.settings.api, name='settings.api'),
     path('settings/import', views.settings.bookmark_import, name='settings.import'),
     path('settings/export', views.settings.bookmark_export, name='settings.export'),
-    path('settings/about', views.settings.about, name='settings.about'),
     # API
     path('api/', include(router.urls), name='api')
 ]
