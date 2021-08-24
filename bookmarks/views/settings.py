@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 try:
     with open("version.txt", "r") as f:
-        APP_VERSION = f.read().strip("\n")
+        app_version = f.read().strip("\n")
 except Exception as exc: 
     logging.exception(exc)
     pass
@@ -36,7 +36,7 @@ def general(request):
         'form': form,
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
-        'app_version': APP_VERSION
+        'app_version': app_version
     })
 
 
