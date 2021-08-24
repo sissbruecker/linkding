@@ -14,6 +14,12 @@ from bookmarks.services import importer
 
 logger = logging.getLogger(__name__)
 
+try:
+    with open("version.txt", "r") as f:
+        app_version = f.read().strip("\n")
+except Exception as exc: 
+    logging.exception(exc)
+    pass
 
 @login_required
 def general(request):
@@ -30,6 +36,7 @@ def general(request):
         'form': form,
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
+        'app_version': app_version
     })
 
 
