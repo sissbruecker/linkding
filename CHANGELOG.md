@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.7.1 (25/08/2021)
+- [**bug**] umlaut/non-ascii characters broken when using bookmarklet (firefox) [#148](https://github.com/sissbruecker/linkding/issues/148)
+- [**bug**] Bookmark import accepts empty URL values [#124](https://github.com/sissbruecker/linkding/issues/124)
+- [**enhancement**] Show the version in the settings [#104](https://github.com/sissbruecker/linkding/issues/104)
+
+---
+
 ## v1.7.0 (17/08/2021)
 - Upgrade to Django 3
 - Bump other dependencies
