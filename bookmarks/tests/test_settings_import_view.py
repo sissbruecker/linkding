@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
 class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
@@ -52,6 +52,7 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertNoFormSuccessHint(response)
         self.assertFormErrorHint(response, 'Please select a file to import.')
 
+    @disable_logging
     def test_should_show_hint_if_import_raises_exception(self):
         with open('bookmarks/tests/resources/invalid_import_file.png', 'rb') as import_file:
             response = self.client.post(
@@ -64,6 +65,7 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             self.assertNoFormSuccessHint(response)
             self.assertFormErrorHint(response, 'An error occurred during bookmark import.')
 
+    @disable_logging
     def test_should_show_respective_hints_if_not_all_bookmarks_were_imported_successfully(self):
         with open('bookmarks/tests/resources/simple_valid_import_file_with_one_invalid_bookmark.html') as import_file:
             response = self.client.post(

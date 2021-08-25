@@ -1,4 +1,5 @@
 import random
+import logging
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -117,3 +118,14 @@ def random_sentence(num_words: int = None, including_word: str = ''):
     random.shuffle(selected_words)
 
     return ' '.join(selected_words)
+
+
+def disable_logging(f):
+    def wrapper(*args):
+        logging.disable(logging.CRITICAL)
+        result = f(*args)
+        logging.disable(logging.NOTSET)
+
+        return result
+
+    return wrapper

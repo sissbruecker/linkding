@@ -57,6 +57,7 @@ def _import_bookmark_tag(netscape_bookmark: NetscapeBookmark, user: User):
         bookmark.description = netscape_bookmark.description
     bookmark.owner = user
 
+    bookmark.full_clean()
     bookmark.save()
 
     # Set tags

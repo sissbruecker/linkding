@@ -34,6 +34,27 @@ class BookmarkValidationTestCase(TestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user('testuser', 'test@example.com', 'password123')
 
+    def test_bookmark_model_should_not_allow_missing_url(self):
+        bookmark = Bookmark(
+            date_added=datetime.datetime.now(),
+            date_modified=datetime.datetime.now(),
+            owner=self.user
+        )
+
+        with self.assertRaises(ValidationError):
+            bookmark.full_clean()
+
+    def test_bookmark_model_should_not_allow_empty_url(self):
+        bookmark = Bookmark(
+            url='',
+            date_added=datetime.datetime.now(),
+            date_modified=datetime.datetime.now(),
+            owner=self.user
+        )
+
+        with self.assertRaises(ValidationError):
+            bookmark.full_clean()
+
     @override_settings(LD_DISABLE_URL_VALIDATION=False)
     def test_bookmark_model_should_validate_url_if_not_disabled_in_settings(self):
         self._run_bookmark_model_url_validity_checks(ENABLED_URL_VALIDATION_TEST_CASES)
