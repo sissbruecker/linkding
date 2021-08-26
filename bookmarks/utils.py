@@ -58,3 +58,40 @@ def humanize_relative_date(value: datetime, now: Optional[datetime] = None):
             return 'Yesterday'
         else:
             return weekday_names[value.isoweekday()]
+
+
+def parse_timestamp(value: str):
+    """
+    Parses a string timestamp into a datetime value
+    First tries to parse the timestamp as milliseconds.
+    If that fails with an error indicating that the timestamp exceeds the maximum,
+    it tries to parse the timestamp as microseconds, and then as nanoseconds
+    :param value:
+    :return:
+    """
+    try:
+        timestamp = int(value)
+    except ValueError:
+        raise ValueError(f'{value} is not a valid timestamp')
+
+    try:
+        return datetime.utcfromtimestamp(timestamp).astimezone()
+    except (OverflowError, ValueError, OSError):
+        pass
+
+    # Value exceeds the max. allowed timestamp
+    # Try parsing as microseconds
+    try:
+        return datetime.utcfromtimestamp(timestamp / 1000).astimezone()
+    except (OverflowError, ValueError, OSError):
+        pass
+
+    # Value exceeds the max. allowed timestamp
+    # Try parsing as nanoseconds
+    try:
+        return datetime.utcfromtimestamp(timestamp / 1000000).astimezone()
+    except (OverflowError, ValueError, OSError):
+        pass
+
+    # Timestamp is out of range
+    raise ValueError(f'{value} exceeds maximum value for a timestamp')
