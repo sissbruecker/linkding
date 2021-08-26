@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
+from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from django.utils import timezone
 
-from bookmarks.utils import humanize_absolute_date, humanize_relative_date
+from bookmarks.utils import humanize_absolute_date, humanize_relative_date, parse_timestamp
 
 
 class UtilsTestCase(TestCase):
@@ -63,3 +64,45 @@ class UtilsTestCase(TestCase):
         # Regression: Test that subsequent calls use current date instead of cached date (#107)
         with patch.object(timezone, 'now', return_value=timezone.datetime(2021, 1, 13)):
             self.assertEqual(humanize_relative_date(timezone.datetime(2021, 1, 13)), 'Today')
+
+    def verify_timestamp(self, date, factor=1):
+        timestamp_string = str(int(date.timestamp() * factor))
+        parsed_date = parse_timestamp(timestamp_string)
+        self.assertEqual(date, parsed_date)
+
+    def test_parse_timestamp_fails_for_invalid_timestamps(self):
+        with self.assertRaises(ValueError):
+            parse_timestamp('invalid')
+
+    def test_parse_timestamp_parses_millisecond_timestamps(self):
+        now = timezone.now().replace(microsecond=0)
+        fifty_years_ago = now - relativedelta(year=50)
+        fifty_years_from_now = now + relativedelta(year=50)
+
+        self.verify_timestamp(now)
+        self.verify_timestamp(fifty_years_ago)
+        self.verify_timestamp(fifty_years_from_now)
+
+    def test_parse_timestamp_parses_microsecond_timestamps(self):
+        now = timezone.now().replace(microsecond=0)
+        fifty_years_ago = now - relativedelta(year=50)
+        fifty_years_from_now = now + relativedelta(year=50)
+
+        self.verify_timestamp(now, 1000)
+        self.verify_timestamp(fifty_years_ago, 1000)
+        self.verify_timestamp(fifty_years_from_now, 1000)
+
+    def test_parse_timestamp_parses_nanosecond_timestamps(self):
+        now = timezone.now().replace(microsecond=0)
+        fifty_years_ago = now - relativedelta(year=50)
+        fifty_years_from_now = now + relativedelta(year=50)
+
+        self.verify_timestamp(now, 1000000)
+        self.verify_timestamp(fifty_years_ago, 1000000)
+        self.verify_timestamp(fifty_years_from_now, 1000000)
+
+    def test_parse_timestamp_fails_for_out_of_range_timestamp(self):
+        now = timezone.now().replace(microsecond=0)
+
+        with self.assertRaises(ValueError):
+            self.verify_timestamp(now, 1000000000)
