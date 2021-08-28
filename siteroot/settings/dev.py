@@ -45,7 +45,7 @@ LOGGING = {
             'handlers': ['console'],
         },
         'bookmarks.services.tasks': {  # Log task output
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
         }

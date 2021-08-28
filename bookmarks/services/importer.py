@@ -39,6 +39,9 @@ def import_netscape_html(html: str, user: User):
             logging.exception('Error importing bookmark: ' + shortened_bookmark_tag_str)
             result.failed = result.failed + 1
 
+    # Create snapshots for newly imported bookmarks
+    tasks.schedule_bookmarks_without_snapshots(user.id)
+
     return result
 
 
@@ -67,9 +70,6 @@ def _import_bookmark_tag(netscape_bookmark: NetscapeBookmark, user: User):
 
     bookmark.tags.set(tags)
     bookmark.save()
-
-    # Create snapshot on web archive
-    tasks.create_web_archive_snapshot(bookmark.id, False)
 
 
 def _get_or_create_bookmark(url: str, user: User):

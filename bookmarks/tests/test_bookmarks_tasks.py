@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from bookmarks.models import Bookmark
 from bookmarks.services.tasks import create_web_archive_snapshot, schedule_bookmarks_without_snapshots
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
 class MockWaybackUrl:
@@ -26,6 +26,7 @@ class MockWaybackUrlWithSaveError:
 
 class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
+    @disable_logging
     def run_pending_task(self, task_function):
         func = getattr(task_function, 'task_function', None)
         task = Task.objects.all()[0]
@@ -33,6 +34,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         func(*args, **kwargs)
         task.delete()
 
+    @disable_logging
     def run_all_pending_tasks(self, task_function):
         func = getattr(task_function, 'task_function', None)
         tasks = Task.objects.all()
