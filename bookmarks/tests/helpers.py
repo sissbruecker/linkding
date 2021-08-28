@@ -28,6 +28,7 @@ class BookmarkFactoryMixin:
                        description: str = '',
                        website_title: str = '',
                        website_description: str = '',
+                       web_archive_snapshot_url: str = '',
                        ):
         if tags is None:
             tags = []
@@ -45,7 +46,8 @@ class BookmarkFactoryMixin:
             date_added=timezone.now(),
             date_modified=timezone.now(),
             owner=user,
-            is_archived=is_archived
+            is_archived=is_archived,
+            web_archive_snapshot_url=web_archive_snapshot_url,
         )
         bookmark.save()
         for tag in tags:

@@ -29,7 +29,7 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     _update_bookmark_tags(bookmark, tag_string, current_user)
     bookmark.save()
     # Create snapshot on web archive
-    tasks.create_web_archive_snapshot(bookmark.id)
+    tasks.create_web_archive_snapshot(bookmark.id, False)
 
     return bookmark
 
@@ -47,7 +47,7 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     bookmark.save()
     # Update web archive snapshot, if URL changed
     if has_url_changed:
-        tasks.create_web_archive_snapshot(bookmark.id)
+        tasks.create_web_archive_snapshot(bookmark.id, True)
 
     return bookmark
 

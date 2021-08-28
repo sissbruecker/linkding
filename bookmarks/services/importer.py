@@ -69,7 +69,7 @@ def _import_bookmark_tag(netscape_bookmark: NetscapeBookmark, user: User):
     bookmark.save()
 
     # Create snapshot on web archive
-    tasks.create_web_archive_snapshot(bookmark.id)
+    tasks.create_web_archive_snapshot(bookmark.id, False)
 
 
 def _get_or_create_bookmark(url: str, user: User):
