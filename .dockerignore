@@ -7,6 +7,7 @@
 /docs
 /static
 /build
+/out
 
 /.dockerignore
 /.gitignore
@@ -17,10 +18,13 @@
 /*.patch
 /*.md
 /*.js
+/*.log
+/*.pid
 
 # Whitelist files needed in build or prod image
 !/rollup.config.js
 !/bootstrap.sh
+!/background-tasks-wrapper.sh
 
 # Remove development settings
 /siteroot/settings/dev.py
