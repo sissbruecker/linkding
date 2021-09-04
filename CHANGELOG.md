@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.8.0 (04/09/2021)
+- [**closed**] Stability issues [#153](https://github.com/sissbruecker/linkding/issues/153)
+- [**enhancement**] Wayback Machine Integration [#59](https://github.com/sissbruecker/linkding/issues/59)
+
+---
+
 ## v1.7.2 (26/08/2021)
 - [**enhancement**] Add support for nanosecond resolution timestamps for bookmark import (e.g. Google Bookmarks) [#146](https://github.com/sissbruecker/linkding/issues/146)
 
