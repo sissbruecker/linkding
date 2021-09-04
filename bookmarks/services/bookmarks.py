@@ -6,6 +6,7 @@ from django.utils import timezone
 from bookmarks.models import Bookmark, parse_tag_string
 from bookmarks.services.tags import get_or_create_tags
 from bookmarks.services.website_loader import load_website_metadata
+from bookmarks.services import tasks
 
 
 def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
@@ -27,10 +28,16 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     # Update tag list
     _update_bookmark_tags(bookmark, tag_string, current_user)
     bookmark.save()
+    # Create snapshot on web archive
+    tasks.create_web_archive_snapshot(bookmark.id, False)
+
     return bookmark
 
 
 def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
+    # Detect URL change
+    original_bookmark = Bookmark.objects.get(id=bookmark.id)
+    has_url_changed = original_bookmark.url != bookmark.url
     # Update website info
     _update_website_metadata(bookmark)
     # Update tag list
@@ -38,6 +45,10 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     # Update dates
     bookmark.date_modified = timezone.now()
     bookmark.save()
+    # Update web archive snapshot, if URL changed
+    if has_url_changed:
+        tasks.create_web_archive_snapshot(bookmark.id, True)
+
     return bookmark
 
 

@@ -1,5 +1,8 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 
+from bookmarks.services import tasks
 from bookmarks.services.importer import import_netscape_html
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
@@ -31,3 +34,12 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin):
         import_result = import_netscape_html(test_html, self.get_or_create_test_user())
 
         self.assertEqual(import_result.success, 0)
+
+    def test_schedule_snapshot_creation(self):
+        user = self.get_or_create_test_user()
+        test_html = self.create_import_html('')
+
+        with patch.object(tasks, 'schedule_bookmarks_without_snapshots') as mock_schedule_bookmarks_without_snapshots:
+            import_netscape_html(test_html, user)
+
+            mock_schedule_bookmarks_without_snapshots.assert_called_once_with(user.id)

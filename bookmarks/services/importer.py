@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, parse_tag_string
+from bookmarks.services import tasks
 from bookmarks.services.parser import parse, NetscapeBookmark
 from bookmarks.services.tags import get_or_create_tags
 from bookmarks.utils import parse_timestamp
@@ -37,6 +38,9 @@ def import_netscape_html(html: str, user: User):
             shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + '...'
             logging.exception('Error importing bookmark: ' + shortened_bookmark_tag_str)
             result.failed = result.failed + 1
+
+    # Create snapshots for newly imported bookmarks
+    tasks.schedule_bookmarks_without_snapshots(user.id)
 
     return result
 

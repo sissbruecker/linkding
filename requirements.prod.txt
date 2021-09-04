@@ -4,6 +4,8 @@ certifi==2019.6.16
 charset-normalizer==2.0.4
 confusable-homoglyphs==3.2.0
 Django==3.2.6
+django-background-tasks==1.2.5
+django-compat==1.0.15
 django-generate-secret-key==1.0.2
 django-picklefield==3.0.1
 django-registration==3.2
@@ -17,6 +19,8 @@ pytz==2021.1
 requests==2.26.0
 soupsieve==1.9.2
 sqlparse==0.4.1
+supervisor==4.2.2
 typing-extensions==3.10.0.0
 urllib3==1.26.6
 uWSGI==2.0.18
+waybackpy==2.4.3

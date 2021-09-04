@@ -13,17 +13,14 @@ The name comes from:
 - Search by text or tags
 - Bulk editing
 - Bookmark archive
-- Automatically provides titles and descriptions from linked websites 
-- Import and export bookmarks in Netscape HTML format
-- Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe)
-- Bookmarklet that should work in most browsers
 - Dark mode
-- Easy to set up using Docker
-- Uses SQLite as database
-- Works without Javascript
-- ...but has several UI enhancements when Javascript is enabled
+- Automatically creates snapshots of bookmarked websites on [web archive](https://archive.org/web/)
+- Automatically provides titles and descriptions of bookmarked websites 
+- Import and export bookmarks in Netscape HTML format
+- Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), and a bookmarklet that should work in most browsers
 - REST API for developing 3rd party apps
 - Admin panel for user self-service and raw data access
+- Easy to set up using Docker, uses SQLite as database
 
 
 **Demo:** https://demo.linkding.link/ (configured with open registration)

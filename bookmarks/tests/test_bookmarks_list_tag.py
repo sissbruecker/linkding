@@ -24,9 +24,10 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         )
         return template_to_render.render(context)
 
-    def setup_date_format_test(self, date_display_setting):
+    def setup_date_format_test(self, date_display_setting: str, web_archive_url: str = ''):
         bookmark = self.setup_bookmark()
         bookmark.date_added = timezone.now() - relativedelta(days=8)
+        bookmark.web_archive_snapshot_url = web_archive_url
         bookmark.save()
         user = self.get_or_create_test_user()
         user.profile.bookmark_date_display = date_display_setting
@@ -39,7 +40,27 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         formatted_date = formats.date_format(bookmark.date_added, 'SHORT_DATE_FORMAT')
 
         self.assertInHTML(f'''
-        <span class="text-gray text-sm">{formatted_date}</span>
+        <span class="date-label text-gray text-sm">
+            <span>{formatted_date}</span>
+        </span>
+        <span class="text-gray text-sm">|</span>
+        ''', html)
+
+    def test_should_render_web_archive_link_with_absolute_date_setting(self):
+        bookmark = self.setup_date_format_test(UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE,
+                                               'https://web.archive.org/web/20210811214511/https://wanikani.com/')
+        html = self.render_template([bookmark])
+        formatted_date = formats.date_format(bookmark.date_added, 'SHORT_DATE_FORMAT')
+
+        self.assertInHTML(f'''
+        <span class="date-label text-gray text-sm">
+            <a href="{bookmark.web_archive_snapshot_url}"
+               title="Show snapshot on web archive" target="_blank" rel="noopener">
+                <span>{formatted_date}</span>
+                <span>∞</span>
+            </a>
+        </span>
+        <span class="text-gray text-sm">|</span>
         ''', html)
 
     def test_should_respect_relative_date_setting(self):
@@ -47,5 +68,23 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         html = self.render_template([bookmark])
 
         self.assertInHTML('''
-        <span class="text-gray text-sm">1 week ago</span>
+        <span class="date-label text-gray text-sm">
+            <span>1 week ago</span>
+        </span>
+        <span class="text-gray text-sm">|</span>
+        ''', html)
+
+    def test_should_render_web_archive_link_with_relative_date_setting(self):
+        bookmark = self.setup_date_format_test(UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE,
+                                               'https://web.archive.org/web/20210811214511/https://wanikani.com/')
+        html = self.render_template([bookmark])
+        self.assertInHTML(f'''
+        <span class="date-label text-gray text-sm">
+            <a href="{bookmark.web_archive_snapshot_url}"
+               title="Show snapshot on web archive" target="_blank" rel="noopener">
+                <span>1 week ago</span>
+                <span>∞</span>
+            </a>
+        </span>
+        <span class="text-gray text-sm">|</span>
         ''', html)
