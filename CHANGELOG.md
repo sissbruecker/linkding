@@ -1,8 +1,9 @@
 # Changelog
 
 ## v1.8.0 (04/09/2021)
-- [**closed**] Stability issues [#153](https://github.com/sissbruecker/linkding/issues/153)
 - [**enhancement**] Wayback Machine Integration [#59](https://github.com/sissbruecker/linkding/issues/59)
+  - Automatically creates snapshots of bookmarked websites on [web archive](https://archive.org/web/)
+  - This is one of the largest changes yet and adds a task processor that runs as a separate process in the background. If you run into issues with this feature, it can be disabled using the [LD_DISABLE_BACKGROUND_TASKS](https://github.com/sissbruecker/linkding/blob/master/docs/Options.md#ld_disable_background_tasks) option
 
 ---
 
