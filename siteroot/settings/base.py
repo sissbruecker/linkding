@@ -168,6 +168,9 @@ ALLOW_REGISTRATION = False
 # URL validation flag
 LD_DISABLE_URL_VALIDATION = os.getenv('LD_DISABLE_URL_VALIDATION', False) in (True, 'True', '1')
 
+# Background task enabled setting
+LD_DISABLE_BACKGROUND_TASKS = os.getenv('LD_DISABLE_BACKGROUND_TASKS', False) in (True, 'True', '1')
+
 # django-background-tasks
 MAX_ATTEMPTS = 5
 # How many tasks will run in parallel

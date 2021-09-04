@@ -12,8 +12,10 @@ python manage.py generate_secret_key
 # Ensure the DB folder is owned by the right user
 chown -R www-data: /etc/linkding/data
 
-# Start background task processor using supervisord
-supervisord -c supervisord.conf
+# Start background task processor using supervisord, unless explicitly disabled
+if [ "$LD_DISABLE_BACKGROUND_TASKS" != "True" ]; then
+  supervisord -c supervisord.conf
+fi
 
 # Start uwsgi server
 uwsgi uwsgi.ini

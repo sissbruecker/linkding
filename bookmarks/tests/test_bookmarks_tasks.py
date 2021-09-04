@@ -3,7 +3,7 @@ from unittest.mock import patch
 import waybackpy
 from background_task.models import Task
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from bookmarks.models import Bookmark
 from bookmarks.services.tasks import create_web_archive_snapshot, schedule_bookmarks_without_snapshots
@@ -90,6 +90,13 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
             self.assertEqual(bookmark.web_archive_snapshot_url, 'https://other.com')
 
+    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_create_web_archive_snapshot_should_not_run_when_background_tasks_are_disabled(self):
+        bookmark = self.setup_bookmark()
+        create_web_archive_snapshot(bookmark.id, False)
+
+        self.assertEqual(Task.objects.count(), 0)
+
     def test_schedule_bookmarks_without_snapshots_should_create_snapshot_task_for_all_bookmarks_without_snapshot(self):
         user = self.get_or_create_test_user()
         self.setup_bookmark()
@@ -138,3 +145,10 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
             for bookmark in Bookmark.objects.all().filter(owner=other_user):
                 self.assertEqual(bookmark.web_archive_snapshot_url, '')
+
+    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_schedule_bookmarks_without_snapshots_should_not_run_when_background_tasks_are_disabled(self):
+        user = self.get_or_create_test_user()
+        schedule_bookmarks_without_snapshots(user.id)
+
+        self.assertEqual(Task.objects.count(), 0)

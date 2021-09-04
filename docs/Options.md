@@ -25,11 +25,20 @@ All options need to be defined as environment variables in the environment that 
 
 ## List of options
 
+### `LD_DISABLE_BACKGROUND_TASKS`
+
+Values: `True`, `False` | Default = `False`
+
+Disables background tasks, such as creating snapshots for bookmarks on the web archive.
+Enabling this flag will prevent the background task processor from starting up, and prevents scheduling tasks.
+This might be useful if you are experiencing performance issues or other problematic behaviour due to background task processing.
+
 ### `LD_DISABLE_URL_VALIDATION`
 
 Values: `True`, `False` | Default = `False`
 
-Completely disables URL validation for bookmarks. This can be useful if you intend to store non fully qualified domain name URLs, such as network paths, or you want to store URLs that use another protocol than `http` or `https`.
+Completely disables URL validation for bookmarks.
+This can be useful if you intend to store non fully qualified domain name URLs, such as network paths, or you want to store URLs that use another protocol than `http` or `https`.
 
 ### `LD_REQUEST_TIMEOUT`
 
