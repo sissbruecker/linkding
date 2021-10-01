@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.8.1 (01/10/2021)
+- [**closed**] Will linkding support url_prefix? [#158](https://github.com/sissbruecker/linkding/issues/158)
+
+---
+
 ## v1.8.0 (04/09/2021)
 - [**enhancement**] Wayback Machine Integration [#59](https://github.com/sissbruecker/linkding/issues/59)
   - Automatically creates snapshots of bookmarked websites on [web archive](https://archive.org/web/)
