@@ -40,6 +40,28 @@
         });
     }
 
+    function initGlobalShortcuts() {
+        // Focus search button
+        document.addEventListener('keydown', function (event) {
+            // Filter for shortcut key
+            if (event.key !== 's') return;
+            // Skip if event occurred within an input element
+            const targetNodeName = event.target.nodeName;
+            const isInputTarget = targetNodeName === 'INPUT'
+                || targetNodeName === 'SELECT'
+                || targetNodeName === 'TEXTAREA';
 
-    initConfirmationButtons()
+            if (isInputTarget) return;
+
+            const searchInput = document.querySelector('input[type="search"]');
+
+            if (searchInput) {
+                searchInput.focus();
+                event.preventDefault();
+            }
+        });
+    }
+
+    initConfirmationButtons();
+    initGlobalShortcuts();
 })()
