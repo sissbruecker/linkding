@@ -1,9 +1,7 @@
 # Changelog
 
 ## v1.8.2 (02/10/2021)
-- [**closed**] Question Default username and password [#162](https://github.com/sissbruecker/linkding/issues/162)
-- [**closed**] Add a setting to open clicked bookmark in new tab (target="_blank") vs. same tab [#160](https://github.com/sissbruecker/linkding/issues/160)
-
+- [**bug**] Fix jumping search box [#163](https://github.com/sissbruecker/linkding/pull/163)
 ---
 
 ## v1.8.1 (01/10/2021)
