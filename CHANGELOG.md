@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.8.2 (02/10/2021)
+- [**closed**] Question Default username and password [#162](https://github.com/sissbruecker/linkding/issues/162)
+- [**closed**] Add a setting to open clicked bookmark in new tab (target="_blank") vs. same tab [#160](https://github.com/sissbruecker/linkding/issues/160)
+
+---
+
 ## v1.8.1 (01/10/2021)
 - [**enhancement**] Add global shortcut for search [#161](https://github.com/sissbruecker/linkding/pull/161)
   - allows to press `s` to focus the search input
