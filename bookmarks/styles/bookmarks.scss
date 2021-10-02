@@ -1,14 +1,16 @@
 .bookmarks-page .search {
+  $searchbox-width: 180px;
+  $searchbox-width-md: 300px;
   $searchbox-height: 1.8rem;
 
   // Regular input
   input[type='search'] {
-    width: 180px;
+    width: $searchbox-width;
     height: $searchbox-height;
     -webkit-appearance: none;
 
     @media (min-width: $control-width-md) {
-      width: 300px;
+      width: $searchbox-width-md;
     }
   }
 
@@ -18,13 +20,18 @@
     height: $searchbox-height;
 
     .form-autocomplete-input {
+      width: $searchbox-width;
       height: $searchbox-height;
-      width: 100%;
 
       input[type='search'] {
+        width: 100%;
         height: 100%;
         margin: 0;
         border: none;
+      }
+
+      @media (min-width: $control-width-md) {
+        width: $searchbox-width-md;
       }
     }
   }
