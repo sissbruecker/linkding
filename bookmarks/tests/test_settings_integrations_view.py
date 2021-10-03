@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework.authtoken.models import Token
 
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
@@ -20,3 +21,20 @@ class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse('bookmarks:settings.integrations'), follow=True)
 
         self.assertRedirects(response, reverse('login') + '?next=' + reverse('bookmarks:settings.integrations'))
+
+    def test_should_generate_api_token_if_not_exists(self):
+        self.assertEqual(Token.objects.count(), 0)
+
+        self.client.get(reverse('bookmarks:settings.integrations'))
+
+        self.assertEqual(Token.objects.count(), 1)
+        token = Token.objects.first()
+        self.assertEqual(token.user, self.user)
+
+    def test_should_not_generate_api_token_if_exists(self):
+        Token.objects.get_or_create(user=self.user)
+        self.assertEqual(Token.objects.count(), 1)
+
+        self.client.get(reverse('bookmarks:settings.integrations'))
+
+        self.assertEqual(Token.objects.count(), 1)

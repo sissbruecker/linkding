@@ -1,7 +1,6 @@
 {% url 'bookmarks:settings.index' as index_url %}
 {% url 'bookmarks:settings.general' as general_url %}
 {% url 'bookmarks:settings.integrations' as integrations_url %}
-{% url 'bookmarks:settings.api' as api_url %}
 
 <ul class="tab tab-block">
     <li class="tab-item {% if request.get_full_path == index_url or request.get_full_path == general_url%}active{% endif %}">
@@ -9,9 +8,6 @@
     </li>
     <li class="tab-item {% if request.get_full_path == integrations_url %}active{% endif %}">
         <a href="{% url 'bookmarks:settings.integrations' %}">Integrations</a>
-    </li>
-    <li class="tab-item {% if request.get_full_path == api_url %}active{% endif %}">
-        <a href="{% url 'bookmarks:settings.api' %}">API</a>
     </li>
     <li class="tab-item tooltip tooltip-bottom" data-tooltip="The admin panel provides additional features &#010; such as user management and bulk operations.">
         <a href="{% url 'admin:index' %}" target="_blank">
