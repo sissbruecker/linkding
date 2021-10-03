@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.8.3 (03/10/2021)
+- [**enhancement**] Enhancement: let user configure to open links in same tab instead on a new window/tab [#27](https://github.com/sissbruecker/linkding/issues/27)
+
+---
+
 ## v1.8.2 (02/10/2021)
 - [**bug**] Fix jumping search box [#163](https://github.com/sissbruecker/linkding/pull/163)
 ---
