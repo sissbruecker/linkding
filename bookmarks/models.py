@@ -116,16 +116,24 @@ class UserProfile(models.Model):
         (BOOKMARK_DATE_DISPLAY_ABSOLUTE, 'Absolute'),
         (BOOKMARK_DATE_DISPLAY_HIDDEN, 'Hidden'),
     ]
+    BOOKMARK_LINK_TARGET_BLANK = '_blank'
+    BOOKMARK_LINK_TARGET_SELF = '_self'
+    BOOKMARK_LINK_TARGET_CHOICES = [
+        (BOOKMARK_LINK_TARGET_BLANK, 'New page'),
+        (BOOKMARK_LINK_TARGET_SELF, 'Same page'),
+    ]
     user = models.OneToOneField(get_user_model(), related_name='profile', on_delete=models.CASCADE)
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, blank=False, default=THEME_AUTO)
     bookmark_date_display = models.CharField(max_length=10, choices=BOOKMARK_DATE_DISPLAY_CHOICES, blank=False,
                                              default=BOOKMARK_DATE_DISPLAY_RELATIVE)
+    bookmark_link_target = models.CharField(max_length=10, choices=BOOKMARK_LINK_TARGET_CHOICES, blank=False,
+                                            default=BOOKMARK_LINK_TARGET_BLANK)
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme', 'bookmark_date_display']
+        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target']
 
 
 @receiver(post_save, sender=get_user_model())

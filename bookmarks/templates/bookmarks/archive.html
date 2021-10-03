@@ -26,7 +26,7 @@
                 {% if empty %}
                     {% include 'bookmarks/empty_bookmarks.html' %}
                 {% else %}
-                    {% bookmark_list bookmarks return_url %}
+                    {% bookmark_list bookmarks return_url link_target %}
                 {% endif %}
             </form>
         </section>

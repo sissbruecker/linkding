@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.models import Bookmark, Tag
+from bookmarks.models import Bookmark, Tag, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -12,22 +12,22 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
         user = self.get_or_create_test_user()
         self.client.force_login(user)
 
-    def assertVisibleBookmarks(self, response, bookmarks: [Bookmark]):
+    def assertVisibleBookmarks(self, response, bookmarks: [Bookmark], link_target: str = '_blank'):
         html = response.content.decode()
         self.assertContains(response, 'data-is-bookmark-item', count=len(bookmarks))
 
         for bookmark in bookmarks:
             self.assertInHTML(
-                '<a href="{0}" target="_blank" rel="noopener">{1}</a>'.format(bookmark.url, bookmark.resolved_title),
+                f'<a href="{bookmark.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
                 html
             )
 
-    def assertInvisibleBookmarks(self, response, bookmarks: [Bookmark]):
+    def assertInvisibleBookmarks(self, response, bookmarks: [Bookmark], link_target: str = '_blank'):
         html = response.content.decode()
 
         for bookmark in bookmarks:
             self.assertInHTML(
-                '<a href="{0}" target="_blank" rel="noopener">{1}</a>'.format(bookmark.url, bookmark.resolved_title),
+                f'<a href="{bookmark.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
                 html,
                 count=0
             )
@@ -130,3 +130,29 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)
+
+    def test_should_open_bookmarks_in_new_page_by_default(self):
+        visible_bookmarks = [
+            self.setup_bookmark(),
+            self.setup_bookmark(),
+            self.setup_bookmark()
+        ]
+
+        response = self.client.get(reverse('bookmarks:index'))
+
+        self.assertVisibleBookmarks(response, visible_bookmarks, '_blank')
+
+    def test_should_open_bookmarks_in_same_page_if_specified_in_user_profile(self):
+        user = self.get_or_create_test_user()
+        user.profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_SELF
+        user.profile.save()
+
+        visible_bookmarks = [
+            self.setup_bookmark(),
+            self.setup_bookmark(),
+            self.setup_bookmark()
+        ]
+
+        response = self.client.get(reverse('bookmarks:index'))
+
+        self.assertVisibleBookmarks(response, visible_bookmarks, '_self')
