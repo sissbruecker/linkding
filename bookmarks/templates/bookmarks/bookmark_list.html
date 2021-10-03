@@ -9,7 +9,7 @@
                 <i class="form-icon"></i>
             </label>
             <div class="title truncate">
-                <a href="{{ bookmark.url }}" target="_blank" rel="noopener">{{ bookmark.resolved_title }}</a>
+                <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener">{{ bookmark.resolved_title }}</a>
             </div>
             <div class="description truncate">
                 {% if bookmark.tag_names %}
@@ -30,7 +30,7 @@
                     <span class="date-label text-gray text-sm">
                         {% if bookmark.web_archive_snapshot_url %}
                         <a href="{{ bookmark.web_archive_snapshot_url }}"
-                           title="Show snapshot on web archive" target="_blank" rel="noopener">
+                           title="Show snapshot on web archive" target="{{ link_target }}" rel="noopener">
                         {% endif %}
                         <span>{{ bookmark.date_added|humanize_relative_date }}</span>
                         {% if bookmark.web_archive_snapshot_url %}
@@ -44,7 +44,7 @@
                     <span class="date-label text-gray text-sm">
                         {% if bookmark.web_archive_snapshot_url %}
                         <a href="{{ bookmark.web_archive_snapshot_url }}"
-                           title="Show snapshot on web archive" target="_blank" rel="noopener">
+                           title="Show snapshot on web archive" target="{{ link_target }}" rel="noopener">
                         {% endif %}
                         <span>{{ bookmark.date_added|humanize_absolute_date }}</span>
                         {% if bookmark.web_archive_snapshot_url %}

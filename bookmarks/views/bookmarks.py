@@ -40,6 +40,7 @@ def get_bookmark_view_context(request, query_set, tags, base_url):
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
     return_url = generate_return_url(base_url, page, query_string)
+    link_target = request.user.profile.bookmark_link_target
 
     if request.GET.get('tag'):
         mod = request.GET.copy()
@@ -51,7 +52,8 @@ def get_bookmark_view_context(request, query_set, tags, base_url):
         'tags': tags,
         'query': query_string if query_string else '',
         'empty': paginator.count == 0,
-        'return_url': return_url
+        'return_url': return_url,
+        'link_target': link_target,
     }
 
 

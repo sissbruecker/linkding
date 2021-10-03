@@ -26,6 +26,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         form_data = {
             'theme': UserProfile.THEME_DARK,
             'bookmark_date_display': UserProfile.BOOKMARK_DATE_DISPLAY_HIDDEN,
+            'bookmark_link_target': UserProfile.BOOKMARK_LINK_TARGET_SELF,
         }
         response = self.client.post(reverse('bookmarks:settings.general'), form_data)
 
@@ -34,3 +35,4 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user.profile.theme, form_data['theme'])
         self.assertEqual(self.user.profile.bookmark_date_display, form_data['bookmark_date_display'])
+        self.assertEqual(self.user.profile.bookmark_link_target, form_data['bookmark_link_target'])
