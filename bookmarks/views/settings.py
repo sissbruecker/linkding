@@ -43,15 +43,9 @@ def general(request):
 @login_required
 def integrations(request):
     application_url = request.build_absolute_uri("/bookmarks/new")
+    api_token = Token.objects.get_or_create(user=request.user)[0]
     return render(request, 'settings/integrations.html', {
         'application_url': application_url,
-    })
-
-
-@login_required
-def api(request):
-    api_token = Token.objects.get_or_create(user=request.user)[0]
-    return render(request, 'settings/api.html', {
         'api_token': api_token.key
     })
 

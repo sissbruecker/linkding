@@ -23,7 +23,6 @@ urlpatterns = [
     path('settings', views.settings.general, name='settings.index'),
     path('settings/general', views.settings.general, name='settings.general'),
     path('settings/integrations', views.settings.integrations, name='settings.integrations'),
-    path('settings/api', views.settings.api, name='settings.api'),
     path('settings/import', views.settings.bookmark_import, name='settings.import'),
     path('settings/export', views.settings.bookmark_export, name='settings.export'),
     # API
