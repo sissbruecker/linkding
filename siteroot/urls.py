@@ -25,11 +25,14 @@ urlpatterns = [
                                                 extra_context=dict(allow_registration=ALLOW_REGISTRATION)),
          name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('change-password/', auth_views.PasswordChangeView.as_view(), name='change_password'),
+    path('password-change-done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
     path('', include('bookmarks.urls')),
 ]
 
 if DEBUG:
     import debug_toolbar
+
     urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))
 
 if ALLOW_REGISTRATION:

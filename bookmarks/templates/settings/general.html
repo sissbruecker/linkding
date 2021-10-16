@@ -9,6 +9,9 @@
         {# Profile section #}
         <section class="content-area">
             <h2>Profile</h2>
+            <p>
+                <a href="{% url 'change_password' %}">Change password</a>
+            </p>
             <form action="{% url 'bookmarks:settings.general' %}" method="post" novalidate>
                 {% csrf_token %}
                 <div class="form-group">
