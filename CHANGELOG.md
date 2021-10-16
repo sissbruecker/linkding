@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.8.4 (16/10/2021)
+- [**enhancement**] Allow non-admin users to change their password [#166](https://github.com/sissbruecker/linkding/issues/166)
+
+---
+
 ## v1.8.3 (03/10/2021)
 - [**enhancement**] Enhancement: let user configure to open links in same tab instead on a new window/tab [#27](https://github.com/sissbruecker/linkding/issues/27)
 
