@@ -90,7 +90,7 @@ def delete_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
 def tag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
     bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
-    tag_names = parse_tag_string(tag_string, ' ')
+    tag_names = parse_tag_string(tag_string)
     tags = get_or_create_tags(tag_names, current_user)
 
     for bookmark in bookmarks:
@@ -103,7 +103,7 @@ def tag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_user
 def untag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
     bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
-    tag_names = parse_tag_string(tag_string, ' ')
+    tag_names = parse_tag_string(tag_string)
     tags = get_or_create_tags(tag_names, current_user)
 
     for bookmark in bookmarks:
@@ -125,7 +125,7 @@ def _update_website_metadata(bookmark: Bookmark):
 
 
 def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):
-    tag_names = parse_tag_string(tag_string, ' ')
+    tag_names = parse_tag_string(tag_string)
     tags = get_or_create_tags(tag_names, user)
     bookmark.tags.set(tags)
 

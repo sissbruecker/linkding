@@ -20,11 +20,19 @@ class Tag(models.Model):
         return self.name
 
 
+def sanitize_tag_name(tag_name: str):
+    # strip leading/trailing spaces
+    # replace inner spaces with replacement char
+    return tag_name.strip().replace(' ', '-')
+
+
 def parse_tag_string(tag_string: str, delimiter: str = ','):
     if not tag_string:
         return []
     names = tag_string.strip().split(delimiter)
-    names = [name.strip() for name in names if name]
+    # remove empty names, sanitize remaining names
+    names = [sanitize_tag_name(name) for name in names if name]
+    # remove duplicates
     names = unique(names, str.lower)
     names.sort(key=str.lower)
 
