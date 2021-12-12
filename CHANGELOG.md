@@ -2,12 +2,8 @@
 
 ## v1.8.5 (13/12/2021)
 - [**bug**] Ensure tag names do not contain spaces [#182](https://github.com/sissbruecker/linkding/issues/182)
-- [**closed**] Timezone does not change when changing a variable "TZ" in docker [#179](https://github.com/sissbruecker/linkding/issues/179)
-- [**closed**] Consider not copying whole GIT repository to Docker image [#174](https://github.com/sissbruecker/linkding/issues/174)
-- [**closed**] demo site account delete [#172](https://github.com/sissbruecker/linkding/issues/172)
-- [**closed**] Proper implementation of Archive.org + opting-out from Archive.org with Docker [#171](https://github.com/sissbruecker/linkding/issues/171)
-- [**closed**] Using fuse(rclone) mounted drive as storage [#170](https://github.com/sissbruecker/linkding/issues/170)
-- [**closed**] Show installed version  [#169](https://github.com/sissbruecker/linkding/issues/169)
+- [**bug**] Consider not copying whole GIT repository to Docker image [#174](https://github.com/sissbruecker/linkding/issues/174)
+- [**enhancement**] Make bookmarks count column in admin sortable [#183](https://github.com/sissbruecker/linkding/pull/183)
 
 ---
 
