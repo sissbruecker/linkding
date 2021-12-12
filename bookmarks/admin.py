@@ -58,6 +58,8 @@ class AdminTag(admin.ModelAdmin):
 
     def bookmarks_count(self, obj):
         return obj.bookmarks_count
+    
+    bookmarks_count.admin_order_field = 'bookmarks_count'
 
     def delete_unused_tags(self, request, queryset: QuerySet):
         unused_tags = queryset.filter(bookmark__isnull=True)
