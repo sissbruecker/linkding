@@ -41,14 +41,14 @@ class BookmarkSerializer(serializers.ModelSerializer):
         bookmark.url = validated_data['url']
         bookmark.title = validated_data['title']
         bookmark.description = validated_data['description']
-        tag_string = build_tag_string(validated_data['tag_names'], ' ')
+        tag_string = build_tag_string(validated_data['tag_names'])
         return create_bookmark(bookmark, tag_string, self.context['user'])
 
     def update(self, instance: Bookmark, validated_data):
         instance.url = validated_data['url']
         instance.title = validated_data['title']
         instance.description = validated_data['description']
-        tag_string = build_tag_string(validated_data['tag_names'], ' ')
+        tag_string = build_tag_string(validated_data['tag_names'])
         return update_bookmark(instance, tag_string, self.context['user'])
 
 

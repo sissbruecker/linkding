@@ -21,7 +21,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_should_create_web_archive_snapshot(self):
         with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:
             bookmark_data = Bookmark(url='https://example.com')
-            bookmark = create_bookmark(bookmark_data, 'tag1 tag2', self.user)
+            bookmark = create_bookmark(bookmark_data, 'tag1,tag2', self.user)
 
             mock_create_web_archive_snapshot.assert_called_once_with(bookmark.id, False)
 
@@ -29,7 +29,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:
             bookmark = self.setup_bookmark()
             bookmark.url = 'https://example.com/updated'
-            update_bookmark(bookmark, 'tag1 tag2', self.user)
+            update_bookmark(bookmark, 'tag1,tag2', self.user)
 
             mock_create_web_archive_snapshot.assert_called_once_with(bookmark.id, True)
 
@@ -37,7 +37,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:
             bookmark = self.setup_bookmark()
             bookmark.title = 'updated title'
-            update_bookmark(bookmark, 'tag1 tag2', self.user)
+            update_bookmark(bookmark, 'tag1,tag2', self.user)
 
             mock_create_web_archive_snapshot.assert_not_called()
 
@@ -216,7 +216,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
 
-        tag_bookmarks([bookmark1.id, bookmark2.id, bookmark3.id], f'{tag1.name} {tag2.name}',
+        tag_bookmarks([bookmark1.id, bookmark2.id, bookmark3.id], f'{tag1.name},{tag2.name}',
                       self.get_or_create_test_user())
 
         bookmark1.refresh_from_db()
@@ -232,7 +232,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         bookmark2 = self.setup_bookmark()
         bookmark3 = self.setup_bookmark()
 
-        tag_bookmarks([bookmark1.id, bookmark2.id, bookmark3.id], 'tag1 tag2', self.get_or_create_test_user())
+        tag_bookmarks([bookmark1.id, bookmark2.id, bookmark3.id], 'tag1,tag2', self.get_or_create_test_user())
 
         bookmark1.refresh_from_db()
         bookmark2.refresh_from_db()
@@ -257,7 +257,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
 
-        tag_bookmarks([bookmark1.id, bookmark3.id], f'{tag1.name} {tag2.name}', self.get_or_create_test_user())
+        tag_bookmarks([bookmark1.id, bookmark3.id], f'{tag1.name},{tag2.name}', self.get_or_create_test_user())
 
         bookmark1.refresh_from_db()
         bookmark2.refresh_from_db()
@@ -275,7 +275,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
 
-        tag_bookmarks([bookmark1.id, bookmark2.id, inaccessible_bookmark.id], f'{tag1.name} {tag2.name}',
+        tag_bookmarks([bookmark1.id, bookmark2.id, inaccessible_bookmark.id], f'{tag1.name},{tag2.name}',
                       self.get_or_create_test_user())
 
         bookmark1.refresh_from_db()
@@ -293,7 +293,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
 
-        tag_bookmarks([str(bookmark1.id), bookmark2.id, str(bookmark3.id)], f'{tag1.name} {tag2.name}',
+        tag_bookmarks([str(bookmark1.id), bookmark2.id, str(bookmark3.id)], f'{tag1.name},{tag2.name}',
                       self.get_or_create_test_user())
 
         self.assertCountEqual(bookmark1.tags.all(), [tag1, tag2])
@@ -307,7 +307,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         bookmark2 = self.setup_bookmark(tags=[tag1, tag2])
         bookmark3 = self.setup_bookmark(tags=[tag1, tag2])
 
-        untag_bookmarks([bookmark1.id, bookmark2.id, bookmark3.id], f'{tag1.name} {tag2.name}',
+        untag_bookmarks([bookmark1.id, bookmark2.id, bookmark3.id], f'{tag1.name},{tag2.name}',
                         self.get_or_create_test_user())
 
         bookmark1.refresh_from_db()
@@ -325,7 +325,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         bookmark2 = self.setup_bookmark(tags=[tag1, tag2])
         bookmark3 = self.setup_bookmark(tags=[tag1, tag2])
 
-        untag_bookmarks([bookmark1.id, bookmark3.id], f'{tag1.name} {tag2.name}', self.get_or_create_test_user())
+        untag_bookmarks([bookmark1.id, bookmark3.id], f'{tag1.name},{tag2.name}', self.get_or_create_test_user())
 
         bookmark1.refresh_from_db()
         bookmark2.refresh_from_db()
@@ -343,7 +343,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         bookmark2 = self.setup_bookmark(tags=[tag1, tag2])
         inaccessible_bookmark = self.setup_bookmark(user=other_user, tags=[tag1, tag2])
 
-        untag_bookmarks([bookmark1.id, bookmark2.id, inaccessible_bookmark.id], f'{tag1.name} {tag2.name}',
+        untag_bookmarks([bookmark1.id, bookmark2.id, inaccessible_bookmark.id], f'{tag1.name},{tag2.name}',
                         self.get_or_create_test_user())
 
         bookmark1.refresh_from_db()
@@ -361,7 +361,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         bookmark2 = self.setup_bookmark(tags=[tag1, tag2])
         bookmark3 = self.setup_bookmark(tags=[tag1, tag2])
 
-        untag_bookmarks([str(bookmark1.id), bookmark2.id, str(bookmark3.id)], f'{tag1.name} {tag2.name}',
+        untag_bookmarks([str(bookmark1.id), bookmark2.id, str(bookmark3.id)], f'{tag1.name},{tag2.name}',
                         self.get_or_create_test_user())
 
         self.assertCountEqual(bookmark1.tags.all(), [])

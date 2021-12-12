@@ -25,3 +25,9 @@ class TagTestCase(TestCase):
     def test_parse_tag_string_deduplicates_tag_names(self):
         self.assertEqual(len(parse_tag_string('book,book,Book,BOOK')), 1)
 
+    def test_parse_tag_string_handles_duplicate_separators(self):
+        self.assertCountEqual(parse_tag_string('book,,movie,,,album'), ['album', 'book', 'movie'])
+
+    def test_parse_tag_string_replaces_whitespace_within_names(self):
+        self.assertCountEqual(parse_tag_string('travel guide, book recommendations'),
+                              ['travel-guide', 'book-recommendations'])

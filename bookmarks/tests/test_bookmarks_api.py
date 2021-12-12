@@ -60,6 +60,18 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.tags.filter(name=data['tag_names'][0]).count(), 1)
         self.assertEqual(bookmark.tags.filter(name=data['tag_names'][1]).count(), 1)
 
+    def test_create_bookmark_replaces_whitespace_in_tag_names(self):
+        data = {
+            'url': 'https://example.com/',
+            'title': 'Test title',
+            'description': 'Test description',
+            'tag_names': ['tag 1', 'tag 2']
+        }
+        self.post(reverse('bookmarks:bookmark-list'), data, status.HTTP_201_CREATED)
+        bookmark = Bookmark.objects.get(url=data['url'])
+        tag_names = [tag.name for tag in bookmark.tags.all()]
+        self.assertListEqual(tag_names, ['tag-1', 'tag-2'])
+
     def test_create_bookmark_minimal_payload(self):
         data = {'url': 'https://example.com/'}
         self.post(reverse('bookmarks:bookmark-list'), data, status.HTTP_201_CREATED)

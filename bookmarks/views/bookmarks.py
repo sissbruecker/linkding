@@ -68,6 +68,12 @@ def generate_return_url(base_url, page, query_string):
     return urllib.parse.quote_plus(return_url)
 
 
+def convert_tag_string(tag_string: str):
+    # Tag strings coming from inputs are space-separated, however services.bookmarks functions expect comma-separated
+    # strings
+    return tag_string.replace(' ', ',')
+
+
 @login_required
 def new(request):
     initial_url = request.GET.get('url')
@@ -78,7 +84,8 @@ def new(request):
         auto_close = form.data['auto_close']
         if form.is_valid():
             current_user = request.user
-            create_bookmark(form.save(commit=False), form.data['tag_string'], current_user)
+            tag_string = convert_tag_string(form.data['tag_string'])
+            create_bookmark(form.save(commit=False), tag_string, current_user)
             if auto_close:
                 return HttpResponseRedirect(reverse('bookmarks:close'))
             else:
@@ -107,7 +114,8 @@ def edit(request, bookmark_id: int):
         form = BookmarkForm(request.POST, instance=bookmark)
         return_url = form.data['return_url']
         if form.is_valid():
-            update_bookmark(form.save(commit=False), form.data['tag_string'], request.user)
+            tag_string = convert_tag_string(form.data['tag_string'])
+            update_bookmark(form.save(commit=False), tag_string, request.user)
             return HttpResponseRedirect(return_url)
     else:
         return_url = request.GET.get('return_url')
@@ -166,10 +174,10 @@ def bulk_edit(request):
     if 'bulk_delete' in request.POST:
         delete_bookmarks(bookmark_ids, request.user)
     if 'bulk_tag' in request.POST:
-        tag_string = request.POST['bulk_tag_string']
+        tag_string = convert_tag_string(request.POST['bulk_tag_string'])
         tag_bookmarks(bookmark_ids, tag_string, request.user)
     if 'bulk_untag' in request.POST:
-        tag_string = request.POST['bulk_tag_string']
+        tag_string = convert_tag_string(request.POST['bulk_tag_string'])
         untag_bookmarks(bookmark_ids, tag_string, request.user)
 
     return_url = request.GET.get('return_url')
