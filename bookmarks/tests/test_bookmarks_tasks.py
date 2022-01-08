@@ -5,8 +5,8 @@ from background_task.models import Task
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 
-from bookmarks.models import Bookmark
-from bookmarks.services.tasks import create_web_archive_snapshot, schedule_bookmarks_without_snapshots
+from bookmarks.models import Bookmark, UserProfile
+from bookmarks.services import tasks
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
@@ -25,6 +25,11 @@ class MockWaybackUrlWithSaveError:
 
 
 class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
+
+    def setUp(self):
+        user = self.get_or_create_test_user()
+        user.profile.web_archive_integration = UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED
+        user.profile.save()
 
     @disable_logging
     def run_pending_task(self, task_function):
@@ -48,16 +53,16 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
 
         with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://example.com')):
-            create_web_archive_snapshot(bookmark.id, False)
-            self.run_pending_task(create_web_archive_snapshot)
+            tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
+            self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
 
             self.assertEqual(bookmark.web_archive_snapshot_url, 'https://example.com')
 
     def test_create_web_archive_snapshot_should_handle_missing_bookmark_id(self):
         with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://example.com')) as mock_wayback_url:
-            create_web_archive_snapshot(123, False)
-            self.run_pending_task(create_web_archive_snapshot)
+            tasks._create_web_archive_snapshot_task(123, False)
+            self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
             mock_wayback_url.assert_not_called()
 
@@ -67,15 +72,15 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         with patch.object(waybackpy, 'Url',
                           return_value=MockWaybackUrlWithSaveError()):
             with self.assertRaises(NotImplementedError):
-                create_web_archive_snapshot(bookmark.id, False)
-                self.run_pending_task(create_web_archive_snapshot)
+                tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
+                self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
     def test_create_web_archive_snapshot_should_skip_if_snapshot_exists(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
         with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://other.com')):
-            create_web_archive_snapshot(bookmark.id, False)
-            self.run_pending_task(create_web_archive_snapshot)
+            tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
+            self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
 
             self.assertEqual(bookmark.web_archive_snapshot_url, 'https://example.com')
@@ -84,8 +89,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
         with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://other.com')):
-            create_web_archive_snapshot(bookmark.id, True)
-            self.run_pending_task(create_web_archive_snapshot)
+            tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, True)
+            self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
 
             self.assertEqual(bookmark.web_archive_snapshot_url, 'https://other.com')
@@ -93,7 +98,16 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
     def test_create_web_archive_snapshot_should_not_run_when_background_tasks_are_disabled(self):
         bookmark = self.setup_bookmark()
-        create_web_archive_snapshot(bookmark.id, False)
+        tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_create_web_archive_snapshot_should_not_run_when_web_archive_integration_is_disabled(self):
+        self.user.profile.web_archive_integration = UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED
+        self.user.profile.save()
+
+        bookmark = self.setup_bookmark()
+        tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
 
         self.assertEqual(Task.objects.count(), 0)
 
@@ -104,9 +118,9 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
 
         with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://example.com')):
-            schedule_bookmarks_without_snapshots(user.id)
-            self.run_pending_task(schedule_bookmarks_without_snapshots)
-            self.run_all_pending_tasks(create_web_archive_snapshot)
+            tasks.schedule_bookmarks_without_snapshots(user)
+            self.run_pending_task(tasks._schedule_bookmarks_without_snapshots_task)
+            self.run_all_pending_tasks(tasks._create_web_archive_snapshot_task)
 
             for bookmark in Bookmark.objects.all():
                 self.assertEqual(bookmark.web_archive_snapshot_url, 'https://example.com')
@@ -118,9 +132,9 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
         with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://other.com')):
-            schedule_bookmarks_without_snapshots(user.id)
-            self.run_pending_task(schedule_bookmarks_without_snapshots)
-            self.run_all_pending_tasks(create_web_archive_snapshot)
+            tasks.schedule_bookmarks_without_snapshots(user)
+            self.run_pending_task(tasks._schedule_bookmarks_without_snapshots_task)
+            self.run_all_pending_tasks(tasks._create_web_archive_snapshot_task)
 
             for bookmark in Bookmark.objects.all():
                 self.assertEqual(bookmark.web_archive_snapshot_url, 'https://example.com')
@@ -136,9 +150,9 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=other_user)
 
         with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://example.com')):
-            schedule_bookmarks_without_snapshots(user.id)
-            self.run_pending_task(schedule_bookmarks_without_snapshots)
-            self.run_all_pending_tasks(create_web_archive_snapshot)
+            tasks.schedule_bookmarks_without_snapshots(user)
+            self.run_pending_task(tasks._schedule_bookmarks_without_snapshots_task)
+            self.run_all_pending_tasks(tasks._create_web_archive_snapshot_task)
 
             for bookmark in Bookmark.objects.all().filter(owner=user):
                 self.assertEqual(bookmark.web_archive_snapshot_url, 'https://example.com')
@@ -148,7 +162,13 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
     def test_schedule_bookmarks_without_snapshots_should_not_run_when_background_tasks_are_disabled(self):
-        user = self.get_or_create_test_user()
-        schedule_bookmarks_without_snapshots(user.id)
+        tasks.schedule_bookmarks_without_snapshots(self.user)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_schedule_bookmarks_without_snapshots_should_not_run_when_web_archive_integration_is_disabled(self):
+        self.user.profile.web_archive_integration = UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED
+        self.user.profile.save()
+        tasks.schedule_bookmarks_without_snapshots(self.user)
 
         self.assertEqual(Task.objects.count(), 0)

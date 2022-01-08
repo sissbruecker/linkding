@@ -5,4 +5,4 @@ from bookmarks.services import tasks
 
 @receiver(user_logged_in)
 def user_logged_in(sender, request, user, **kwargs):
-    tasks.schedule_bookmarks_without_snapshots(user.id)
+    tasks.schedule_bookmarks_without_snapshots(user)

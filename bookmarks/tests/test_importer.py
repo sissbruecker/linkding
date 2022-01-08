@@ -55,4 +55,4 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin):
         with patch.object(tasks, 'schedule_bookmarks_without_snapshots') as mock_schedule_bookmarks_without_snapshots:
             import_netscape_html(test_html, user)
 
-            mock_schedule_bookmarks_without_snapshots.assert_called_once_with(user.id)
+            mock_schedule_bookmarks_without_snapshots.assert_called_once_with(user)

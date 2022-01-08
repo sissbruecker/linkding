@@ -4,30 +4,29 @@ import waybackpy
 from background_task import background
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from waybackpy.exceptions import WaybackError
 
-from bookmarks.models import Bookmark
+from bookmarks.models import Bookmark, UserProfile
 
 logger = logging.getLogger(__name__)
 
 
-def when_background_tasks_enabled(fn):
-    def wrapper(*args, **kwargs):
-        if settings.LD_DISABLE_BACKGROUND_TASKS:
-            return
-        return fn(*args, **kwargs)
+def is_web_archive_integration_active(user: User) -> bool:
+    background_tasks_enabled = not settings.LD_DISABLE_BACKGROUND_TASKS
+    web_archive_integration_enabled = \
+        user.profile.web_archive_integration == UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED
 
-    # Expose attributes from wrapped TaskProxy function
-    attrs = vars(fn)
-    for key, value in attrs.items():
-        setattr(wrapper, key, value)
-
-    return wrapper
+    return background_tasks_enabled and web_archive_integration_enabled
 
 
-@when_background_tasks_enabled
+def create_web_archive_snapshot(user: User, bookmark: Bookmark, force_update: bool):
+    if is_web_archive_integration_active(user):
+        _create_web_archive_snapshot_task(bookmark.id, force_update)
+
+
 @background()
-def create_web_archive_snapshot(bookmark_id: int, force_update: bool):
+def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
     except Bookmark.DoesNotExist:
@@ -52,11 +51,15 @@ def create_web_archive_snapshot(bookmark_id: int, force_update: bool):
     logger.debug(f'Successfully created web archive link for bookmark: {bookmark}...')
 
 
-@when_background_tasks_enabled
+def schedule_bookmarks_without_snapshots(user: User):
+    if is_web_archive_integration_active(user):
+        _schedule_bookmarks_without_snapshots_task(user.id)
+
+
 @background()
-def schedule_bookmarks_without_snapshots(user_id: int):
+def _schedule_bookmarks_without_snapshots_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks_without_snapshots = Bookmark.objects.filter(web_archive_snapshot_url__exact='', owner=user)
 
     for bookmark in bookmarks_without_snapshots:
-        create_web_archive_snapshot(bookmark.id, False)
+        _create_web_archive_snapshot_task(bookmark.id, False)

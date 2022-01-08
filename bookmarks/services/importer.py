@@ -40,7 +40,7 @@ def import_netscape_html(html: str, user: User):
             result.failed = result.failed + 1
 
     # Create snapshots for newly imported bookmarks
-    tasks.schedule_bookmarks_without_snapshots(user.id)
+    tasks.schedule_bookmarks_without_snapshots(user)
 
     return result
 

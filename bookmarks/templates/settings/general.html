@@ -27,6 +27,17 @@
                     {{ form.bookmark_link_target|add_class:"form-select col-2 col-sm-12" }}
                 </div>
                 <div class="form-group">
+                    <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Web Archive
+                        integration</label>
+                    {{ form.web_archive_integration|add_class:"form-select col-2 col-sm-12" }}
+                    <div class="form-input-hint">
+                        Enabling this feature will automatically create snapshots of bookmarked websites on the <a
+                            href="https://web.archive.org/" target="_blank" rel="noopener">web archive</a>. This allows
+                        to preserve the website as it was at the point in time it was bookmarked, in case it goes
+                        offline or its content is modified. Note that this will leak your bookmarks to the web archive.
+                    </div>
+                </div>
+                <div class="form-group">
                     <input type="submit" value="Save" class="btn btn-primary mt-2">
                 </div>
             </form>
