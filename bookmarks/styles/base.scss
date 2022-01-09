@@ -17,6 +17,10 @@ header .toasts {
   .toast {
     margin-bottom: 0.4rem;
   }
+
+  .toast a.btn-clear:visited {
+    color: currentColor;
+  }
 }
 
 .navbar {
