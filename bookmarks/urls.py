@@ -22,6 +22,8 @@ urlpatterns = [
     path('settings/integrations', views.settings.integrations, name='settings.integrations'),
     path('settings/import', views.settings.bookmark_import, name='settings.import'),
     path('settings/export', views.settings.bookmark_export, name='settings.export'),
+    # Toasts
+    path('toasts/<int:toast_id>/acknowledge', views.toasts.acknowledge, name='toasts.acknowledge'),
     # API
     path('api/', include(router.urls), name='api')
 ]

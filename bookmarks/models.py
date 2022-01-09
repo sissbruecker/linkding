@@ -159,3 +159,10 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=get_user_model())
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+class Toast(models.Model):
+    key = models.CharField(max_length=50)
+    message = models.TextField()
+    acknowledged = models.BooleanField(default=False)
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
