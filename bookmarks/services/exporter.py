@@ -1,18 +1,48 @@
-from typing import List
+from collections import Counter
+from functools import reduce
+from itertools import chain
+from typing import Dict, List, Union
 
 from bookmarks.models import Bookmark
 
 BookmarkDocument = List[str]
+Tree = Dict[Union[str, int], Union[Dict, Bookmark]]
 
 
-def export_netscape_html(bookmarks: List[Bookmark]):
-    doc = []
-    append_header(doc)
-    append_list_start(doc)
-    [append_bookmark(doc, bookmark) for bookmark in bookmarks]
-    append_list_end(doc)
+def export_netscape_html(bookmarks: List[Bookmark], apply_pseudo_structure: str):
+    doc: BookmarkDocument = []
+    if apply_pseudo_structure == 'on':
+        append_header(doc)
+        append_list_start(doc)
+        counter = Counter(chain.from_iterable(frozenset(frozenset(bookmark.tag_names) for bookmark in bookmarks)))
+        tree: Tree = {}
+        for bookmark in bookmarks:
+            path: List[Union[str, Bookmark]] = sorted(bookmark.tag_names, key=lambda c: counter[c], reverse=True) + [bookmark]
+            reduce(
+                lambda d, k: d.setdefault(len(d), k) if isinstance(k, Bookmark) else d.setdefault(k, {}),
+                path,
+                tree,
+            )
+        append_branch(doc, tree)
+        append_list_end(doc)
+    else:
+        [append_bookmark(doc, bookmark) for bookmark in bookmarks]
 
     return '\n\r'.join(doc)
+
+
+def append_branch(doc: BookmarkDocument, branch: Tree):
+    append_list_start(doc)
+    # Folders
+    for key, value in branch.items():
+        if isinstance(key, str):
+            doc.append(f'<DT><H3 ADD_DATE="0" LAST_MODIFIED="0">{key.title()}</H3>')
+            append_branch(doc, value)
+    # Bookmarks
+    for key, value in branch.items():
+        if isinstance(value, Bookmark):
+            append_bookmark(doc, value)
+    append_list_end(doc)
 
 
 def append_header(doc: BookmarkDocument):

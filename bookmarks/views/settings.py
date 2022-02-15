@@ -17,9 +17,10 @@ logger = logging.getLogger(__name__)
 try:
     with open("version.txt", "r") as f:
         app_version = f.read().strip("\n")
-except Exception as exc: 
+except Exception as exc:
     logging.exception(exc)
     pass
+
 
 @login_required
 def general(request):
@@ -79,7 +80,7 @@ def bookmark_export(request):
     # noinspection PyBroadException
     try:
         bookmarks = query_bookmarks(request.user, '')
-        file_content = exporter.export_netscape_html(bookmarks)
+        file_content = exporter.export_netscape_html(bookmarks, request.GET.get('apply_pseudo_structure', 'off'))
 
         response = HttpResponse(content_type='text/plain; charset=UTF-8')
         response['Content-Disposition'] = 'attachment; filename="bookmarks.html"'

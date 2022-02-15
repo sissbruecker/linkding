@@ -66,7 +66,16 @@
         <section class="content-area">
             <h2>Export</h2>
             <p>Export all bookmarks in Netscape HTML format.</p>
-            <a class="btn btn-primary" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
+            <form action="{% url 'bookmarks:settings.export' %}" method="get" novalidate>
+                <div class="form-group">
+                    <label class="form-checkbox">
+                        <input type="checkbox" name="apply_pseudo_structure"><i class="form-icon"></i>Apply pseudo structure
+                    </label>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Download (.html)" class="btn btn-primary mt-2">
+                </div>
+            </form>
             {% if export_error %}
                 <div class="has-error">
                     <p class="form-input-hint">
