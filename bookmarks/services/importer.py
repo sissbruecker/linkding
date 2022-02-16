@@ -1,12 +1,13 @@
 import logging
 from dataclasses import dataclass
+from typing import List
 
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, parse_tag_string
 from bookmarks.services import tasks
-from bookmarks.services.parser import parse, NetscapeBookmark
+from bookmarks.services.parser import parse, NetscapeBookmark, parse_with_folders
 from bookmarks.services.tags import get_or_create_tags
 from bookmarks.utils import parse_timestamp
 
@@ -20,11 +21,11 @@ class ImportResult:
     failed: int = 0
 
 
-def import_netscape_html(html: str, user: User):
+def import_netscape_html(html: str, user: User, tags_from_folders: str):
     result = ImportResult()
 
     try:
-        netscape_bookmarks = parse(html)
+        netscape_bookmarks: List[NetscapeBookmark] = parse_with_folders(html) if tags_from_folders == 'on' else parse(html)
     except:
         logging.exception('Could not read bookmarks file.')
         raise

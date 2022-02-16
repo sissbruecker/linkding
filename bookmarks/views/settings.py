@@ -60,7 +60,7 @@ def bookmark_import(request):
 
     try:
         content = import_file.read().decode()
-        result = importer.import_netscape_html(content, request.user)
+        result = importer.import_netscape_html(content, request.user, request.POST['tags_from_folders'])
         success_msg = str(result.success) + ' bookmarks were successfully imported.'
         messages.success(request, success_msg, 'bookmark_import_success')
         if result.failed > 0:
