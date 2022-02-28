@@ -1,0 +1,59 @@
+{
+  "categories": [
+    {
+      "id": "8f4299d4-4c30-4a8e-a3f9-c90694011713",
+      "name": "Shortcuts",
+      "shortcuts": [
+        {
+          "bodyContent": "{ \"url\": \"{{b2953f61-b302-4c79-b90d-39858a06d9a6}}\", \"tag_names\": [ \"{{c360f61f-ce17-47b4-bea3-1d8c3913ca52}}\" ] }",
+          "contentType": "application/json",
+          "description": "Bookmark to linkding",
+          "headers": [
+            {
+              "id": "d235f7b4-fce2-41f4-a00f-72d5fde9e4b9",
+              "key": "Authorization",
+              "value": "Token {{6a739a16-d16d-4a06-93a5-3457da3c3d20}}"
+            }
+          ],
+          "iconName": "flat_grey_ribbon",
+          "id": "1e047d02-a4a3-4cad-b4cc-123cc16c8398",
+          "launcherShortcut": true,
+          "method": "POST",
+          "name": "Linkding",
+          "quickSettingsTileShortcut": true,
+          "responseHandling": {
+            "failureOutput": "simple",
+            "id": "61fa9fc3-8b7a-47ce-b43c-f24618a65e1e",
+            "uiType": "toast"
+          },
+          "url": "{{ea2db14b-b9ca-45d8-8555-403271a38f5a}}/api/bookmarks/"
+        }
+      ]
+    }
+  ],
+  "variables": [
+    {
+      "id": "ea2db14b-b9ca-45d8-8555-403271a38f5a",
+      "key": "linkding_instance",
+      "value": "https://your.instance.tld.without.slashed.end"
+    },
+    {
+      "flags": 1,
+      "id": "b2953f61-b302-4c79-b90d-39858a06d9a6",
+      "key": "linkding_add_url",
+      "title": "Enter URL",
+      "type": "text"
+    },
+    {
+      "id": "c360f61f-ce17-47b4-bea3-1d8c3913ca52",
+      "key": "linkding_tag",
+      "value": "single-tag"
+    },
+    {
+      "id": "6a739a16-d16d-4a06-93a5-3457da3c3d20",
+      "key": "linkding_api_token",
+      "value": "your_token_from_integrations_tab"
+    }
+  ],
+  "version": 45
+}

@@ -24,19 +24,17 @@ For more info see here: https://paul.kinlan.me/use-bookmarklets-on-chrome-on-and
 
 **Note** This allows you to share URL from any app to bookmark it to linkding
 
-Install HTTP Shortcuts from [F-Droid](https://f-droid.org/en/packages/ch.rmy.android.http_shortcuts/) or [Play Store](https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts).
+- Install HTTP Shortcuts from [Play Store](https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts) or [F-Droid](https://f-droid.org/en/packages/ch.rmy.android.http_shortcuts/).
 
-Download `linkding_shortcut.zip` from this repository.
+- Download [linkding_shortcuts.json](linkding_shortcuts.json) from this repository.
 
-Open HTTP Shortcuts, tap the 3-dot-button at the top-right corner, tap `Import/Export`, then tap `Import from file`.
+- Open HTTP Shortcuts, tap the 3-dot-button at the top-right corner, tap `Import/Export`, then tap `Import from file`.
 
-Select the zip file you downloaded earlier, go back, tap the 3-dot-button again, then tap `Variables`.
+- Select the json file you downloaded earlier, go back, tap the 3-dot-button again, then tap `Variables`.
 
-Edit the `values` of `linkding_instance`, `linkding_tag` and `linkding_api_token`.
+- Edit the `values` of `linkding_instance`, `linkding_tag` and `linkding_api_token`.
 
-Try using share button on an app, a new item `Send to...` should appear on the share sheet.
-
-You can also manually share by tapping the shortcut inside the HTTP Shortcuts app itself.
+Try using share button on an app, a new item `Send to...` should appear on the share sheet. You can also manually share by tapping the shortcut inside the HTTP Shortcuts app itself.
 
 ## Create a share action on iOS for adding bookmarks to linkding
 
