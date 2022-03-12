@@ -92,6 +92,13 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertRedirects(response, return_url)
 
+    def test_acknowledge_toast_should_redirect_to_index_by_default(self):
+        toast = self.create_toast()
+
+        response = self.client.get(reverse('bookmarks:toasts.acknowledge', args=[toast.id]))
+
+        self.assertRedirects(response, reverse('bookmarks:index'))
+
     @disable_logging
     def test_acknowledge_toast_should_not_acknowledge_other_users_toast(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
