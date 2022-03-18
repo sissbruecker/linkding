@@ -12,6 +12,13 @@
                 <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener">{{ bookmark.resolved_title }}</a>
             </div>
             <div class="description truncate">
+
+TODO Move this and / or have a hide/hover display option
+<div id="qrcode_{{ forloop.counter }}"></div>
+<script type="text/javascript">
+new QRCode(document.getElementById("qrcode_{{ forloop.counter }}"), "{{ bookmark.url }}");
+</script>
+
                 <span>
 					<a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" class="text-gray text-sm">{{ bookmark.url }}</a><br>
 				</span>
