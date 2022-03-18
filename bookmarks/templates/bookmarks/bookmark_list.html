@@ -12,6 +12,9 @@
                 <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener">{{ bookmark.resolved_title }}</a>
             </div>
             <div class="description truncate">
+                <span>
+					<a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" class="text-gray text-sm">{{ bookmark.url }}</a><br>
+				</span>
                 {% if bookmark.tag_names %}
                     <span>
                             {% for tag_name in bookmark.tag_names %}
