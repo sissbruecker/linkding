@@ -2,7 +2,7 @@ import urllib.parse
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -108,7 +108,10 @@ def new(request):
 
 @login_required
 def edit(request, bookmark_id: int):
-    bookmark = Bookmark.objects.get(pk=bookmark_id)
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404('Bookmark does not exist')
 
     if request.method == 'POST':
         form = BookmarkForm(request.POST, instance=bookmark)
@@ -137,7 +140,11 @@ def edit(request, bookmark_id: int):
 
 @login_required
 def remove(request, bookmark_id: int):
-    bookmark = Bookmark.objects.get(pk=bookmark_id)
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404('Bookmark does not exist')
+
     bookmark.delete()
     return_url = request.GET.get('return_url')
     return_url = return_url if return_url else reverse('bookmarks:index')
@@ -146,7 +153,11 @@ def remove(request, bookmark_id: int):
 
 @login_required
 def archive(request, bookmark_id: int):
-    bookmark = Bookmark.objects.get(pk=bookmark_id)
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404('Bookmark does not exist')
+
     archive_bookmark(bookmark)
     return_url = request.GET.get('return_url')
     return_url = return_url if return_url else reverse('bookmarks:index')
@@ -155,7 +166,11 @@ def archive(request, bookmark_id: int):
 
 @login_required
 def unarchive(request, bookmark_id: int):
-    bookmark = Bookmark.objects.get(pk=bookmark_id)
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404('Bookmark does not exist')
+
     unarchive_bookmark(bookmark)
     return_url = request.GET.get('return_url')
     return_url = return_url if return_url else reverse('bookmarks:archived')

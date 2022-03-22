@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
@@ -33,3 +34,13 @@ class BookmarkUnarchiveViewTestCase(TestCase, BookmarkFactoryMixin):
         )
 
         self.assertRedirects(response, reverse('bookmarks:close'))
+
+    def test_can_only_archive_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark = self.setup_bookmark(is_archived=True, user=other_user)
+
+        response = self.client.get(reverse('bookmarks:unarchive', args=[bookmark.id]))
+        bookmark.refresh_from_db()
+
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(bookmark.is_archived)

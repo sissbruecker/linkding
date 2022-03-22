@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.forms import model_to_dict
 from django.test import TestCase
 from django.urls import reverse
@@ -32,6 +33,21 @@ class BookmarkBulkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(Bookmark.objects.get(id=bookmark2.id).is_archived)
         self.assertTrue(Bookmark.objects.get(id=bookmark3.id).is_archived)
 
+    def test_can_only_bulk_archive_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(user=other_user)
+        bookmark2 = self.setup_bookmark(user=other_user)
+        bookmark3 = self.setup_bookmark(user=other_user)
+
+        self.client.post(reverse('bookmarks:bulk_edit'), {
+            'bulk_archive': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertFalse(Bookmark.objects.get(id=bookmark1.id).is_archived)
+        self.assertFalse(Bookmark.objects.get(id=bookmark2.id).is_archived)
+        self.assertFalse(Bookmark.objects.get(id=bookmark3.id).is_archived)
+
     def test_bulk_unarchive(self):
         bookmark1 = self.setup_bookmark(is_archived=True)
         bookmark2 = self.setup_bookmark(is_archived=True)
@@ -46,6 +62,21 @@ class BookmarkBulkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertFalse(Bookmark.objects.get(id=bookmark2.id).is_archived)
         self.assertFalse(Bookmark.objects.get(id=bookmark3.id).is_archived)
 
+    def test_can_only_bulk_unarchive_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(is_archived=True, user=other_user)
+        bookmark2 = self.setup_bookmark(is_archived=True, user=other_user)
+        bookmark3 = self.setup_bookmark(is_archived=True, user=other_user)
+
+        self.client.post(reverse('bookmarks:bulk_edit'), {
+            'bulk_unarchive': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertTrue(Bookmark.objects.get(id=bookmark1.id).is_archived)
+        self.assertTrue(Bookmark.objects.get(id=bookmark2.id).is_archived)
+        self.assertTrue(Bookmark.objects.get(id=bookmark3.id).is_archived)
+
     def test_bulk_delete(self):
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()
@@ -57,8 +88,23 @@ class BookmarkBulkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         })
 
         self.assertIsNone(Bookmark.objects.filter(id=bookmark1.id).first())
-        self.assertFalse(Bookmark.objects.filter(id=bookmark2.id).first())
-        self.assertFalse(Bookmark.objects.filter(id=bookmark3.id).first())
+        self.assertIsNone(Bookmark.objects.filter(id=bookmark2.id).first())
+        self.assertIsNone(Bookmark.objects.filter(id=bookmark3.id).first())
+
+    def test_can_only_bulk_delete_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(user=other_user)
+        bookmark2 = self.setup_bookmark(user=other_user)
+        bookmark3 = self.setup_bookmark(user=other_user)
+
+        self.client.post(reverse('bookmarks:bulk_edit'), {
+            'bulk_delete': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertIsNotNone(Bookmark.objects.filter(id=bookmark1.id).first())
+        self.assertIsNotNone(Bookmark.objects.filter(id=bookmark2.id).first())
+        self.assertIsNotNone(Bookmark.objects.filter(id=bookmark3.id).first())
 
     def test_bulk_tag(self):
         bookmark1 = self.setup_bookmark()
@@ -81,6 +127,28 @@ class BookmarkBulkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertCountEqual(bookmark2.tags.all(), [tag1, tag2])
         self.assertCountEqual(bookmark3.tags.all(), [tag1, tag2])
 
+    def test_can_only_bulk_tag_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(user=other_user)
+        bookmark2 = self.setup_bookmark(user=other_user)
+        bookmark3 = self.setup_bookmark(user=other_user)
+        tag1 = self.setup_tag()
+        tag2 = self.setup_tag()
+
+        self.client.post(reverse('bookmarks:bulk_edit'), {
+            'bulk_tag': [''],
+            'bulk_tag_string': [f'{tag1.name} {tag2.name}'],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        bookmark1.refresh_from_db()
+        bookmark2.refresh_from_db()
+        bookmark3.refresh_from_db()
+
+        self.assertCountEqual(bookmark1.tags.all(), [])
+        self.assertCountEqual(bookmark2.tags.all(), [])
+        self.assertCountEqual(bookmark3.tags.all(), [])
+
     def test_bulk_untag(self):
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
@@ -101,6 +169,28 @@ class BookmarkBulkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertCountEqual(bookmark1.tags.all(), [])
         self.assertCountEqual(bookmark2.tags.all(), [])
         self.assertCountEqual(bookmark3.tags.all(), [])
+
+    def test_can_only_bulk_untag_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        tag1 = self.setup_tag()
+        tag2 = self.setup_tag()
+        bookmark1 = self.setup_bookmark(tags=[tag1, tag2], user=other_user)
+        bookmark2 = self.setup_bookmark(tags=[tag1, tag2], user=other_user)
+        bookmark3 = self.setup_bookmark(tags=[tag1, tag2], user=other_user)
+
+        self.client.post(reverse('bookmarks:bulk_edit'), {
+            'bulk_untag': [''],
+            'bulk_tag_string': [f'{tag1.name} {tag2.name}'],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        bookmark1.refresh_from_db()
+        bookmark2.refresh_from_db()
+        bookmark3.refresh_from_db()
+
+        self.assertCountEqual(bookmark1.tags.all(), [tag1, tag2])
+        self.assertCountEqual(bookmark2.tags.all(), [tag1, tag2])
+        self.assertCountEqual(bookmark3.tags.all(), [tag1, tag2])
 
     def test_bulk_edit_handles_empty_bookmark_id(self):
         bookmark1 = self.setup_bookmark()

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
@@ -95,3 +96,14 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.post(reverse('bookmarks:edit', args=[bookmark.id]), form_data)
 
         self.assertRedirects(response, form_data['return_url'])
+
+    def test_can_only_edit_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark = self.setup_bookmark(user=other_user)
+        form_data = self.create_form_data({'id': bookmark.id})
+
+        response = self.client.post(reverse('bookmarks:edit', args=[bookmark.id]), form_data)
+        bookmark.refresh_from_db()
+        self.assertNotEqual(bookmark.url, form_data['url'])
+        self.assertEqual(response.status_code, 404)
+

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
@@ -33,3 +34,12 @@ class BookmarkRemoveViewTestCase(TestCase, BookmarkFactoryMixin):
         )
 
         self.assertRedirects(response, reverse('bookmarks:close'))
+
+    def test_can_only_edit_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark = self.setup_bookmark(user=other_user)
+
+        response = self.client.get(reverse('bookmarks:remove', args=[bookmark.id]))
+
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Bookmark.objects.filter(id=bookmark.id).exists())
