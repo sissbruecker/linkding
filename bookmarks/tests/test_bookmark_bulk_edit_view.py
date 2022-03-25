@@ -220,3 +220,29 @@ class BookmarkBulkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         })
 
         self.assertBookmarksAreUnmodified([bookmark1, bookmark2, bookmark3])
+
+    def test_bulk_edit_should_redirect_to_return_url(self):
+        bookmark1 = self.setup_bookmark()
+        bookmark2 = self.setup_bookmark()
+        bookmark3 = self.setup_bookmark()
+
+        url = reverse('bookmarks:bulk_edit') + '?return_url=' + reverse('bookmarks:settings.index')
+        response = self.client.post(url, {
+            'bulk_archive': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertRedirects(response, reverse('bookmarks:settings.index'))
+
+    def test_bulk_edit_should_not_redirect_to_external_url(self):
+        bookmark1 = self.setup_bookmark()
+        bookmark2 = self.setup_bookmark()
+        bookmark3 = self.setup_bookmark()
+
+        url = reverse('bookmarks:bulk_edit') + '?return_url=https://example.com'
+        response = self.client.post(url, {
+            'bulk_archive': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertRedirects(response, reverse('bookmarks:index'))

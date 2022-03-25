@@ -99,12 +99,10 @@ class BookmarkForm(forms.ModelForm):
                                   widget=forms.Textarea())
     # Hidden field that determines whether to close window/tab after saving the bookmark
     auto_close = forms.CharField(required=False)
-    # Hidden field that determines where to redirect after saving the form
-    return_url = forms.CharField(required=False)
 
     class Meta:
         model = Bookmark
-        fields = ['url', 'tag_string', 'title', 'description', 'auto_close', 'return_url']
+        fields = ['url', 'tag_string', 'title', 'description', 'auto_close']
 
 
 class UserProfile(models.Model):

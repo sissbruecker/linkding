@@ -95,3 +95,10 @@ def parse_timestamp(value: str):
 
     # Timestamp is out of range
     raise ValueError(f'{value} exceeds maximum value for a timestamp')
+
+
+def get_safe_return_url(return_url: str, fallback_url: str):
+    # Use fallback if URL is none or URL is not on same domain
+    if not return_url or not return_url.startswith('/'):
+        return fallback_url
+    return return_url

@@ -10,6 +10,7 @@ from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkForm, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, archive_bookmarks, \
     unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks
+from bookmarks.utils import get_safe_return_url
 
 _default_page_size = 30
 
@@ -112,22 +113,18 @@ def edit(request, bookmark_id: int):
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
         raise Http404('Bookmark does not exist')
+    return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
 
     if request.method == 'POST':
         form = BookmarkForm(request.POST, instance=bookmark)
-        return_url = form.data['return_url']
         if form.is_valid():
             tag_string = convert_tag_string(form.data['tag_string'])
             update_bookmark(form.save(commit=False), tag_string, request.user)
             return HttpResponseRedirect(return_url)
     else:
-        return_url = request.GET.get('return_url')
         form = BookmarkForm(instance=bookmark)
 
-    return_url = return_url if return_url else reverse('bookmarks:index')
-
     form.initial['tag_string'] = build_tag_string(bookmark.tag_names, ' ')
-    form.initial['return_url'] = return_url
 
     context = {
         'form': form,
@@ -146,8 +143,7 @@ def remove(request, bookmark_id: int):
         raise Http404('Bookmark does not exist')
 
     bookmark.delete()
-    return_url = request.GET.get('return_url')
-    return_url = return_url if return_url else reverse('bookmarks:index')
+    return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
     return HttpResponseRedirect(return_url)
 
 
@@ -159,8 +155,7 @@ def archive(request, bookmark_id: int):
         raise Http404('Bookmark does not exist')
 
     archive_bookmark(bookmark)
-    return_url = request.GET.get('return_url')
-    return_url = return_url if return_url else reverse('bookmarks:index')
+    return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
     return HttpResponseRedirect(return_url)
 
 
@@ -172,8 +167,7 @@ def unarchive(request, bookmark_id: int):
         raise Http404('Bookmark does not exist')
 
     unarchive_bookmark(bookmark)
-    return_url = request.GET.get('return_url')
-    return_url = return_url if return_url else reverse('bookmarks:archived')
+    return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:archived'))
     return HttpResponseRedirect(return_url)
 
 
@@ -195,8 +189,7 @@ def bulk_edit(request):
         tag_string = convert_tag_string(request.POST['bulk_tag_string'])
         untag_bookmarks(bookmark_ids, tag_string, request.user)
 
-    return_url = request.GET.get('return_url')
-    return_url = return_url if return_url else reverse('bookmarks:index')
+    return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
     return HttpResponseRedirect(return_url)
 
 
