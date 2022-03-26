@@ -33,8 +33,10 @@
 
         {# Tag list #}
         <section class="content-area column col-4 hide-md">
-            <div class="content-area-header">
+            <div class="content-area-header align-baseline">
                 <h2>Tags</h2>
+                <div class="spacer"></div>
+                <a href="?q=!untagged" class="text-gray text-sm">Show Untagged</a>
             </div>
             {% tag_cloud tags %}
         </section>

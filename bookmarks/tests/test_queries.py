@@ -289,6 +289,60 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(bookmark.tag_string, None)
             self.assertTrue(bookmark.tag_projection)
 
+    def test_query_bookmarks_untagged_should_return_untagged_bookmarks_only(self):
+        tag = self.setup_tag()
+        untagged_bookmark = self.setup_bookmark()
+        self.setup_bookmark(tags=[tag])
+        self.setup_bookmark(tags=[tag])
+
+        query = queries.query_bookmarks(self.user, '!untagged')
+        self.assertCountEqual(list(query), [untagged_bookmark])
+
+    def test_query_bookmarks_untagged_should_be_combinable_with_search_terms(self):
+        tag = self.setup_tag()
+        untagged_bookmark = self.setup_bookmark(title='term1')
+        self.setup_bookmark(title='term2')
+        self.setup_bookmark(tags=[tag])
+
+        query = queries.query_bookmarks(self.user, '!untagged term1')
+        self.assertCountEqual(list(query), [untagged_bookmark])
+
+    def test_query_bookmarks_untagged_should_not_be_combinable_with_tags(self):
+        tag = self.setup_tag()
+        self.setup_bookmark()
+        self.setup_bookmark(tags=[tag])
+        self.setup_bookmark(tags=[tag])
+
+        query = queries.query_bookmarks(self.user, f'!untagged #{tag.name}')
+        self.assertCountEqual(list(query), [])
+
+    def test_query_archived_bookmarks_untagged_should_return_untagged_bookmarks_only(self):
+        tag = self.setup_tag()
+        untagged_bookmark = self.setup_bookmark(is_archived=True)
+        self.setup_bookmark(is_archived=True, tags=[tag])
+        self.setup_bookmark(is_archived=True, tags=[tag])
+
+        query = queries.query_archived_bookmarks(self.user, '!untagged')
+        self.assertCountEqual(list(query), [untagged_bookmark])
+
+    def test_query_archived_bookmarks_untagged_should_be_combinable_with_search_terms(self):
+        tag = self.setup_tag()
+        untagged_bookmark = self.setup_bookmark(is_archived=True, title='term1')
+        self.setup_bookmark(is_archived=True, title='term2')
+        self.setup_bookmark(is_archived=True, tags=[tag])
+
+        query = queries.query_archived_bookmarks(self.user, '!untagged term1')
+        self.assertCountEqual(list(query), [untagged_bookmark])
+
+    def test_query_archived_bookmarks_untagged_should_not_be_combinable_with_tags(self):
+        tag = self.setup_tag()
+        self.setup_bookmark(is_archived=True)
+        self.setup_bookmark(is_archived=True, tags=[tag])
+        self.setup_bookmark(is_archived=True, tags=[tag])
+
+        query = queries.query_archived_bookmarks(self.user, f'!untagged #{tag.name}')
+        self.assertCountEqual(list(query), [])
+
     def test_query_bookmark_tags_should_return_all_tags_for_empty_query(self):
         self.setup_tag_search_data()
 
@@ -460,3 +514,35 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_archived_bookmark_tags(self.user, '')
 
         self.assertQueryResult(query, [self.get_tags_from_bookmarks(owned_bookmarks)])
+
+    def test_query_bookmark_tags_untagged_should_never_return_any_tags(self):
+        tag = self.setup_tag()
+        self.setup_bookmark()
+        self.setup_bookmark(title='term1')
+        self.setup_bookmark(title='term1', tags=[tag])
+        self.setup_bookmark(tags=[tag])
+
+        query = queries.query_bookmark_tags(self.user, '!untagged')
+        self.assertCountEqual(list(query), [])
+
+        query = queries.query_bookmark_tags(self.user, '!untagged term1')
+        self.assertCountEqual(list(query), [])
+
+        query = queries.query_bookmark_tags(self.user, f'!untagged #{tag.name}')
+        self.assertCountEqual(list(query), [])
+
+    def test_query_archived_bookmark_tags_untagged_should_never_return_any_tags(self):
+        tag = self.setup_tag()
+        self.setup_bookmark(is_archived=True)
+        self.setup_bookmark(is_archived=True, title='term1')
+        self.setup_bookmark(is_archived=True, title='term1', tags=[tag])
+        self.setup_bookmark(is_archived=True, tags=[tag])
+
+        query = queries.query_archived_bookmark_tags(self.user, '!untagged')
+        self.assertCountEqual(list(query), [])
+
+        query = queries.query_archived_bookmark_tags(self.user, '!untagged term1')
+        self.assertCountEqual(list(query), [])
+
+        query = queries.query_archived_bookmark_tags(self.user, f'!untagged #{tag.name}')
+        self.assertCountEqual(list(query), [])

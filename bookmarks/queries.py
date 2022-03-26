@@ -55,6 +55,12 @@ def _base_bookmarks_query(user: User, query_string: str) -> QuerySet:
             tags__name__iexact=tag_name
         )
 
+    # Untagged bookmarks
+    if query['untagged']:
+        query_set = query_set.filter(
+            tags=None
+        )
+
     # Sort by date added
     query_set = query_set.order_by('-date_added')
 
@@ -90,11 +96,15 @@ def _parse_query_string(query_string):
     keywords = query_string.strip().split(' ')
     keywords = [word for word in keywords if word]
 
-    search_terms = [word for word in keywords if word[0] != '#']
+    search_terms = [word for word in keywords if word[0] != '#' and word[0] != '!']
     tag_names = [word[1:] for word in keywords if word[0] == '#']
     tag_names = unique(tag_names, str.lower)
+
+    # Special search commands
+    untagged = '!untagged' in keywords
 
     return {
         'search_terms': search_terms,
         'tag_names': tag_names,
+        'untagged': untagged,
     }
