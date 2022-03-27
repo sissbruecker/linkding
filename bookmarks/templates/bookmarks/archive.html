@@ -18,7 +18,7 @@
                 {% include 'bookmarks/bulk_edit/toggle.html' %}
             </div>
 
-            <form class="bulk-edit-form" action="{% url 'bookmarks:bulk_edit' %}?return_url={{ return_url }}"
+            <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ return_url }}"
                   method="post">
                 {% csrf_token %}
                 {% include 'bookmarks/bulk_edit/bar.html' with mode='archive' %}

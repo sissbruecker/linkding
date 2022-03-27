@@ -135,7 +135,6 @@ def edit(request, bookmark_id: int):
     return render(request, 'bookmarks/edit.html', context)
 
 
-@login_required
 def remove(request, bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
@@ -143,11 +142,8 @@ def remove(request, bookmark_id: int):
         raise Http404('Bookmark does not exist')
 
     bookmark.delete()
-    return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
-    return HttpResponseRedirect(return_url)
 
 
-@login_required
 def archive(request, bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
@@ -155,11 +151,8 @@ def archive(request, bookmark_id: int):
         raise Http404('Bookmark does not exist')
 
     archive_bookmark(bookmark)
-    return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
-    return HttpResponseRedirect(return_url)
 
 
-@login_required
 def unarchive(request, bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
@@ -167,25 +160,32 @@ def unarchive(request, bookmark_id: int):
         raise Http404('Bookmark does not exist')
 
     unarchive_bookmark(bookmark)
-    return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:archived'))
-    return HttpResponseRedirect(return_url)
 
 
 @login_required
-def bulk_edit(request):
-    bookmark_ids = request.POST.getlist('bookmark_id')
-
+def action(request):
     # Determine action
+    if 'archive' in request.POST:
+        archive(request, request.POST['archive'])
+    if 'unarchive' in request.POST:
+        unarchive(request, request.POST['unarchive'])
+    if 'remove' in request.POST:
+        remove(request, request.POST['remove'])
     if 'bulk_archive' in request.POST:
+        bookmark_ids = request.POST.getlist('bookmark_id')
         archive_bookmarks(bookmark_ids, request.user)
     if 'bulk_unarchive' in request.POST:
+        bookmark_ids = request.POST.getlist('bookmark_id')
         unarchive_bookmarks(bookmark_ids, request.user)
     if 'bulk_delete' in request.POST:
+        bookmark_ids = request.POST.getlist('bookmark_id')
         delete_bookmarks(bookmark_ids, request.user)
     if 'bulk_tag' in request.POST:
+        bookmark_ids = request.POST.getlist('bookmark_id')
         tag_string = convert_tag_string(request.POST['bulk_tag_string'])
         tag_bookmarks(bookmark_ids, tag_string, request.user)
     if 'bulk_untag' in request.POST:
+        bookmark_ids = request.POST.getlist('bookmark_id')
         tag_string = convert_tag_string(request.POST['bulk_tag_string'])
         untag_bookmarks(bookmark_ids, tag_string, request.user)
 

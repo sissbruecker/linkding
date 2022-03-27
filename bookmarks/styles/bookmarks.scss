@@ -153,13 +153,13 @@ ul.bookmark-list {
   }
 }
 
-/* Bulk edit */
+/* Bookmark actions / bulk edit */
 $bulk-edit-toggle-width: 16px;
 $bulk-edit-toggle-offset: 8px;
 $bulk-edit-bar-offset: $bulk-edit-toggle-width + (2 * $bulk-edit-toggle-offset);
 $bulk-edit-transition-duration: 400ms;
 
-.bulk-edit-form {
+.bookmarks-page form.bookmark-actions {
 
   .bulk-edit-bar {
     margin-top: -17px;
