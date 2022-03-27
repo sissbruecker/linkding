@@ -74,7 +74,6 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(Bookmark.objects.count(), 0)
 
-
     def test_delete_can_only_delete_own_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
         bookmark = self.setup_bookmark(user=other_user)
@@ -305,10 +304,19 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark2 = self.setup_bookmark()
         bookmark3 = self.setup_bookmark()
 
-        url = reverse('bookmarks:action') + '?return_url=https://example.com'
-        response = self.client.post(url, {
-            'bulk_archive': [''],
-            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
-        })
+        def post_with(return_url, follow=None):
+            url = reverse('bookmarks:action') + f'?return_url={return_url}'
+            return self.client.post(url, {
+                'bulk_archive': [''],
+                'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+            }, follow=follow)
 
+        response = post_with('https://example.com')
         self.assertRedirects(response, reverse('bookmarks:index'))
+        response = post_with('//example.com')
+        self.assertRedirects(response, reverse('bookmarks:index'))
+        response = post_with('://example.com')
+        self.assertRedirects(response, reverse('bookmarks:index'))
+
+        response = post_with('/foo//example.com', follow=True)
+        self.assertEqual(response.status_code, 404)

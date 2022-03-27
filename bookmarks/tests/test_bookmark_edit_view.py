@@ -88,11 +88,21 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_should_not_redirect_to_external_url(self):
         bookmark = self.setup_bookmark()
-        form_data = self.create_form_data({'return_url': 'https://example.com'})
 
-        response = self.client.post(reverse('bookmarks:edit', args=[bookmark.id]), form_data)
+        def post_with(return_url, follow=None):
+            form_data = self.create_form_data()
+            url = reverse('bookmarks:edit', args=[bookmark.id]) + f'?return_url={return_url}'
+            return self.client.post(url, form_data, follow=follow)
 
+        response = post_with('https://example.com')
         self.assertRedirects(response, reverse('bookmarks:index'))
+        response = post_with('//example.com')
+        self.assertRedirects(response, reverse('bookmarks:index'))
+        response = post_with('://example.com')
+        self.assertRedirects(response, reverse('bookmarks:index'))
+
+        response = post_with('/foo//example.com', follow=True)
+        self.assertEqual(response.status_code, 404)
 
     def test_can_only_edit_own_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
