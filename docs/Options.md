@@ -29,7 +29,7 @@ All options need to be defined as environment variables in the environment that 
 
 Values: `True`, `False` | Default = `False`
 
-Disables background tasks, such as creating snapshots for bookmarks on the web archive.
+Disables background tasks, such as creating snapshots for bookmarks on the Internet Archive Wayback Machine (archive.org).
 Enabling this flag will prevent the background task processor from starting up, and prevents scheduling tasks.
 This might be useful if you are experiencing performance issues or other problematic behaviour due to background task processing.
 
