@@ -12,13 +12,6 @@
                 <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener">{{ bookmark.resolved_title }}</a>
             </div>
             <div class="description truncate">
-
-TODO Move this and / or have a hide/hover display option
-<div id="qrcode_{{ forloop.counter }}"></div>
-<script type="text/javascript">
-new QRCode(document.getElementById("qrcode_{{ forloop.counter }}"), "{{ bookmark.url }}");
-</script>
-
                 <span>
 					<a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" class="text-gray text-sm">{{ bookmark.url }}</a><br>
 				</span>
@@ -75,6 +68,17 @@ new QRCode(document.getElementById("qrcode_{{ forloop.counter }}"), "{{ bookmark
                 {% endif %}
                 <a href="{% url 'bookmarks:remove' bookmark.id %}?return_url={{ return_url }}"
                    class="btn btn-link btn-sm btn-confirmation">Remove</a>
+    <!-- 
+    <span><div class="linkqrcode">
+    -->
+        <a href="#" onclick="showQrCode(this); return false;" class="qrcode" data-permalink="{{ bookmark.url }}">
+            <img src="/static/qricon.png" class="linklist-plugin-icon" title="QR-Code" alt="QRCode">
+            <!-- qricon.png is converted from https://commons.wikimedia.org/wiki/File:QR_icon.svg -->
+        </a>
+    <!-- 
+    </div>
+    </span>
+    -->
             </div>
         </li>
     {% endfor %}

@@ -10,7 +10,49 @@
     <div class="bookmarks-page columns">
 
         {# Bookmark list #}
-    <script src="{% static "qrcode.min.js" %}"></script>
+
+<script src="{% static "qrcode.min.js" %}"></script>
+<script>
+    // Show the QR-Code of a data-permalink (when the QR-Code icon is clicked).
+    function showQrCode(caller,loading)
+    { 
+        // Remove previous qrcode if present.
+        removeQrcode();
+        
+        // Build the div which contains the QR-Code:
+        var element = document.createElement('div');
+        element.id = 'permalinkQrcode';
+
+        // Make QR-Code div commit sepuku when clicked:
+        if ( element.attachEvent ){
+            element.attachEvent('onclick', 'this.parentNode.removeChild(this);' );
+
+        } else {
+            // Damn IE
+            element.setAttribute('onclick', 'this.parentNode.removeChild(this);' );
+        }
+        
+        element.innerHTML += "<br>Click to close";
+        caller.parentNode.appendChild(element);
+        new QRCode(document.getElementById(element.id), caller.dataset.permalink);
+        qrcodeImage = document.getElementById(element.id);
+        // make sure QR code is actually shown - Workaround to deal with newly created element lag for transition.
+        window.getComputedStyle(qrcodeImage).opacity;
+        qrcodeImage.className = 'show';
+        return false;
+    }
+
+    // Remove any displayed QR-Code
+    function removeQrcode()
+    {
+        var elem = document.getElementById('permalinkQrcode');
+        if (elem) {
+            elem.parentNode.removeChild(elem);
+        }
+        return false;
+    }
+</script>
+
         <section class="content-area column col-8 col-md-12">
             <div class="content-area-header">
                 <h2>Bookmarks</h2>
