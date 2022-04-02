@@ -12,9 +12,6 @@
                 <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener">{{ bookmark.resolved_title }}</a>
             </div>
             <div class="description truncate">
-                <span>
-					<a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" class="text-gray text-sm">{{ bookmark.url }}</a><br>
-				</span>
                 {% if bookmark.tag_names %}
                     <span>
                             {% for tag_name in bookmark.tag_names %}
@@ -27,6 +24,10 @@
                 {% if bookmark.resolved_description %}
                     <span>{{ bookmark.resolved_description }}</span>
                 {% endif %}
+                <span>
+                    <br>
+					<a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" class="text-gray text-sm">{{ bookmark.url }}</a><br>
+				</span>
             </div>
             <div class="actions">
                 {% if request.user.profile.bookmark_date_display == 'relative' %}
