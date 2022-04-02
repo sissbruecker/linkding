@@ -15,10 +15,7 @@ urlpatterns = [
     path('bookmarks/new', views.bookmarks.new, name='new'),
     path('bookmarks/close', views.bookmarks.close, name='close'),
     path('bookmarks/<int:bookmark_id>/edit', views.bookmarks.edit, name='edit'),
-    path('bookmarks/<int:bookmark_id>/remove', views.bookmarks.remove, name='remove'),
-    path('bookmarks/<int:bookmark_id>/archive', views.bookmarks.archive, name='archive'),
-    path('bookmarks/<int:bookmark_id>/unarchive', views.bookmarks.unarchive, name='unarchive'),
-    path('bookmarks/bulkedit', views.bookmarks.bulk_edit, name='bulk_edit'),
+    path('bookmarks/action', views.bookmarks.action, name='action'),
     # Settings
     path('settings', views.settings.general, name='settings.index'),
     path('settings/general', views.settings.general, name='settings.general'),

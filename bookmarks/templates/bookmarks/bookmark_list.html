@@ -60,14 +60,14 @@
                 <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
                    class="btn btn-link btn-sm">Edit</a>
                 {% if bookmark.is_archived %}
-                    <a href="{% url 'bookmarks:unarchive' bookmark.id %}?return_url={{ return_url }}"
-                       class="btn btn-link btn-sm">Unarchive</a>
+                    <button type="submit" name="unarchive" value="{{ bookmark.id }}"
+                       class="btn btn-link btn-sm">Unarchive</button>
                 {% else %}
-                    <a href="{% url 'bookmarks:archive' bookmark.id %}?return_url={{ return_url }}"
-                       class="btn btn-link btn-sm">Archive</a>
+                    <button type="submit" name="archive" value="{{ bookmark.id }}"
+                       class="btn btn-link btn-sm">Archive</button>
                 {% endif %}
-                <a href="{% url 'bookmarks:remove' bookmark.id %}?return_url={{ return_url }}"
-                   class="btn btn-link btn-sm btn-confirmation">Remove</a>
+                <button type="submit" name="remove" value="{{ bookmark.id }}"
+                   class="btn btn-link btn-sm btn-confirmation">Remove</button>
     <!-- 
     <span><div class="linkqrcode">
     -->

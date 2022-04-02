@@ -73,6 +73,13 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertRedirects(response, reverse('bookmarks:index'))
 
+    def test_should_not_redirect_to_external_url(self):
+        form_data = self.create_form_data()
+
+        response = self.client.post(reverse('bookmarks:new') + '?return_url=https://example.com', form_data)
+
+        self.assertRedirects(response, reverse('bookmarks:index'))
+
     def test_auto_close_should_redirect_to_close_view(self):
         form_data = self.create_form_data({'auto_close': 'true'})
 

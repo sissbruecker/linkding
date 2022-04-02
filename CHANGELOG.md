@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.8.8 (27/03/2022)
+- [**bug**] Prevent bookmark actions through get requests
+- [**bug**] Prevent external redirects
+
+---
+
+## v1.8.7 (26/03/2022)
+- [**bug**] Increase request buffer size [#28](https://github.com/sissbruecker/linkding/issues/28)
+- [**enhancement**]  Allow specifying port through LINKDING_PORT environment variable [#156](https://github.com/sissbruecker/linkding/pull/156)
+- [**chore**] Bump NPM packages [#224](https://github.com/sissbruecker/linkding/pull/224)
+---
+
+## v1.8.6 (25/03/2022)
+- [bug] fix bookmark access restrictions
+- [bug] prevent external redirects
+- [chore] bump dependencies
+---
+
 ## v1.8.5 (13/12/2021)
 - [**bug**] Ensure tag names do not contain spaces [#182](https://github.com/sissbruecker/linkding/issues/182)
 - [**bug**] Consider not copying whole GIT repository to Docker image [#174](https://github.com/sissbruecker/linkding/issues/174)

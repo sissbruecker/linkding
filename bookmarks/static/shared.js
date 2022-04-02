@@ -19,6 +19,7 @@
             if (buttonEl.nodeName === 'BUTTON') {
                 confirmEl.type = buttonEl.type;
                 confirmEl.name = buttonEl.name;
+                confirmEl.value = buttonEl.value;
             }
             if (buttonEl.nodeName === 'A') {
                 confirmEl.href = buttonEl.href;

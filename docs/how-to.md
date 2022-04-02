@@ -26,7 +26,7 @@ For more info see here: https://paul.kinlan.me/use-bookmarklets-on-chrome-on-and
 
 - Install HTTP Shortcuts from [Play Store](https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts) or [F-Droid](https://f-droid.org/en/packages/ch.rmy.android.http_shortcuts/).
 
-- Download [linkding_shortcut.json](../linkding_shortcut.json) from this repository.
+- Download [linkding_shortcut.json](/docs/linkding_shortcut.json) from this repository.
 
 - Open HTTP Shortcuts, tap the 3-dot-button at the top-right corner, tap `Import/Export`, then tap `Import from file`.
 

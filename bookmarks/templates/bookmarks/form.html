@@ -4,7 +4,6 @@
 <div class="bookmarks-form">
     {% csrf_token %}
     {{ form.auto_close|attr:"type:hidden" }}
-    {{ form.return_url|attr:"type:hidden" }}
     <div class="form-group {% if form.url.errors %}has-error{% endif %}">
         <label for="{{ form.url.id_for_label }}" class="form-label">URL</label>
         {{ form.url|add_class:"form-input"|attr:"autofocus"|attr:"placeholder: " }}
