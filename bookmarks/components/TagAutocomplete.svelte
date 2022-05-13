@@ -11,6 +11,7 @@
     let isFocus = false;
     let isOpen = false;
     let input = null;
+    let suggestionList = null;
 
     let suggestions = [];
     let selectedIndex = 0;
@@ -100,6 +101,16 @@
         if (newIndex >= length) newIndex = 0;
 
         selectedIndex = newIndex;
+
+        // Scroll to selected list item
+        setTimeout(() => {
+            if (suggestionList) {
+                const selectedListItem = suggestionList.querySelector('li.selected');
+                if (selectedListItem) {
+                    selectedListItem.scrollIntoView({block: 'center'});
+                }
+            }
+        }, 0);
     }
 </script>
 
@@ -114,7 +125,8 @@
     </div>
 
     <!-- autocomplete suggestion list -->
-    <ul class="menu" class:open={isOpen && suggestions.length > 0}>
+    <ul class="menu" class:open={isOpen && suggestions.length > 0}
+        bind:this={suggestionList}>
         <!-- menu list items -->
         {#each suggestions as tag,i}
             <li class="menu-item" class:selected={selectedIndex === i}>
