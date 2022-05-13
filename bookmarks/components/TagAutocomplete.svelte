@@ -87,7 +87,7 @@
     function complete(suggestion) {
         const bounds = getCurrentWordBounds(input);
         const value = input.value;
-        input.value = value.substring(0, bounds.start) + suggestion.name + value.substring(bounds.end);
+        input.value = value.substring(0, bounds.start) + suggestion.name + ' ' + value.substring(bounds.end);
 
         close();
     }
