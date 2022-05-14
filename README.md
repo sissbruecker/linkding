@@ -14,7 +14,7 @@ The name comes from:
 - Bulk editing
 - Bookmark archive
 - Dark mode
-- Automatically creates snapshots of bookmarked websites on [web archive](https://archive.org/web/)
+- Automatically creates snapshots of bookmarked websites on [the Internet Archive Wayback Machine](https://archive.org/web/)
 - Automatically provides titles and descriptions of bookmarked websites 
 - Import and export bookmarks in Netscape HTML format
 - Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), and a bookmarklet that should work in most browsers
