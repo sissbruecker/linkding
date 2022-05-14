@@ -13,16 +13,10 @@
     - [Using Docker Compose](#using-docker-compose)
     - [User Setup](#user-setup)
     - [Managed Hosting Options](#managed-hosting-options)
+- [Documentation](#documentation)
 - [Browser Extension](#browser-extension)
 - [Community](#community)
 - [Development](#development)
-- Additional Documentation
-    - [Options](docs/Options.md)
-    - [Backups](docs/backup.md)
-    - [Troubleshooting](docs/troubleshooting.md)
-    - [How To](docs/how-to.md)
-    - [Admin documentation](docs/Admin.md)
-    - [REST API](docs/API.md)
 
 ##  Introduction
 
@@ -106,6 +100,17 @@ The command will prompt you for a secure password. After the command has complet
 Self-hosting web applications on your own hardware (unfortunately) still requires a lot of technical know-how, and commitment to maintenance, with regard to keeping everything up-to-date and secure. This can be a huge entry barrier for people who are interested in self-hosting linkding, but lack the technical knowledge to do so. This section is intended to provide alternatives in form of managed hosting solutions. Note that these options are usually commercial offerings, that require paying a (usually monthly) fee for the convenience of being managed by another party. The technical knowledge required to make use of individual options is going to vary, and no guarantees can be made that every option is accessible for everyone. That being said, I hope this section helps in making the application accessible to a wider audience.
 
 - [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) - Guide for hosting a linkding installation on [fly.io](https://fly.io). By [fspoettel](https://github.com/fspoettel)
+
+## Documentation
+
+| Document                                                                                        | Description                                              |
+|-------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| [Options](https://github.com/sissbruecker/linkding/blob/master/docs/Options.md)                 | Lists available options, and describes how to apply them |
+| [Backups](https://github.com/sissbruecker/linkding/blob/master/docs/backup.md)                  | How to backup the linkding database                      |
+| [Troubleshooting](https://github.com/sissbruecker/linkding/blob/master/docs/troubleshooting.md) | Advice for troubleshooting common problems               |
+| [How To](https://github.com/sissbruecker/linkding/blob/master/docs/how-to.md)                   | Tips and tricks around using linking                     |
+| [Admin documentation](https://github.com/sissbruecker/linkding/blob/master/docs/Admin.md)       | User documentation for the Admin UI                      |
+| [API documentation](https://github.com/sissbruecker/linkding/blob/master/docs/API.md)           | Documentation for the REST API                           |
 
 ## Browser Extension
 
