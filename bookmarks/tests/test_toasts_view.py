@@ -104,5 +104,5 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
         toast = self.create_toast(user=other_user)
 
-        with self.assertRaises(Toast.DoesNotExist):
-            self.client.get(reverse('bookmarks:toasts.acknowledge', args=[toast.id]))
+        response = self.client.get(reverse('bookmarks:toasts.acknowledge', args=[toast.id]))
+        self.assertEqual(response.status_code, 404)
