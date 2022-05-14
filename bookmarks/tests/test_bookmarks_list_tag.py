@@ -28,7 +28,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(f'''
         <span class="date-label text-gray text-sm">
             <a href="{url}"
-               title="Show snapshot on web archive" target="{link_target}" rel="noopener">
+               title="Show snapshot on the Internet Archive Wayback Machine" target="{link_target}" rel="noopener">
                 <span>{label_content}</span>
                 <span>∞</span>
             </a>

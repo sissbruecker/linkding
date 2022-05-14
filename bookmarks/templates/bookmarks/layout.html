@@ -27,19 +27,31 @@
     {% endif %}
 </head>
 <body>
-<header class="navbar container grid-lg">
-    <section class="navbar-section">
-        <a href="/" class="navbar-brand text-bold">
-            <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
-            <h1>linkding</h1>
-        </a>
-    </section>
-    {# Only show nav items menu when logged in #}
-    {% if request.user.is_authenticated %}
-        <section class="navbar-section">
-            {% include 'bookmarks/nav_menu.html' %}
-        </section>
+<header>
+    {% if has_toasts %}
+    <div class="toasts container grid-lg">
+        {% for toast in toast_messages %}
+            <div class="toast">
+                {{ toast.message }}
+                <a href="{% url 'bookmarks:toasts.acknowledge' toast.id %}?return_url={{ request.path | urlencode }}" class="btn btn-clear float-right"></a>
+            </div>
+        {% endfor %}
+    </div>
     {% endif %}
+    <div class="navbar container grid-lg">
+        <section class="navbar-section">
+            <a href="/" class="navbar-brand text-bold">
+                <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
+                <h1>linkding</h1>
+            </a>
+        </section>
+        {# Only show nav items menu when logged in #}
+        {% if request.user.is_authenticated %}
+            <section class="navbar-section">
+                {% include 'bookmarks/nav_menu.html' %}
+            </section>
+        {% endif %}
+    </div>
 </header>
 <div class="content container grid-lg">
     {% block content %}

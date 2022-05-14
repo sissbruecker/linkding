@@ -23,7 +23,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark_data = Bookmark(url='https://example.com')
             bookmark = create_bookmark(bookmark_data, 'tag1,tag2', self.user)
 
-            mock_create_web_archive_snapshot.assert_called_once_with(bookmark.id, False)
+            mock_create_web_archive_snapshot.assert_called_once_with(self.user, bookmark, False)
 
     def test_update_should_create_web_archive_snapshot_if_url_did_change(self):
         with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:
@@ -31,7 +31,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark.url = 'https://example.com/updated'
             update_bookmark(bookmark, 'tag1,tag2', self.user)
 
-            mock_create_web_archive_snapshot.assert_called_once_with(bookmark.id, True)
+            mock_create_web_archive_snapshot.assert_called_once_with(self.user, bookmark, True)
 
     def test_update_should_not_create_web_archive_snapshot_if_url_did_not_change(self):
         with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:

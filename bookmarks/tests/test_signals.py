@@ -12,4 +12,4 @@ class SignalsTestCase(TestCase, BookmarkFactoryMixin):
 
         with patch.object(tasks, 'schedule_bookmarks_without_snapshots') as mock_schedule_bookmarks_without_snapshots:
             self.client.force_login(user)
-            mock_schedule_bookmarks_without_snapshots.assert_called_once_with(user.id)
+            mock_schedule_bookmarks_without_snapshots.assert_called_once_with(user)

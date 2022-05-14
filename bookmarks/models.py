@@ -128,18 +128,26 @@ class UserProfile(models.Model):
         (BOOKMARK_LINK_TARGET_BLANK, 'New page'),
         (BOOKMARK_LINK_TARGET_SELF, 'Same page'),
     ]
+    WEB_ARCHIVE_INTEGRATION_DISABLED = 'disabled'
+    WEB_ARCHIVE_INTEGRATION_ENABLED = 'enabled'
+    WEB_ARCHIVE_INTEGRATION_CHOICES = [
+        (WEB_ARCHIVE_INTEGRATION_DISABLED, 'Disabled'),
+        (WEB_ARCHIVE_INTEGRATION_ENABLED, 'Enabled'),
+    ]
     user = models.OneToOneField(get_user_model(), related_name='profile', on_delete=models.CASCADE)
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, blank=False, default=THEME_AUTO)
     bookmark_date_display = models.CharField(max_length=10, choices=BOOKMARK_DATE_DISPLAY_CHOICES, blank=False,
                                              default=BOOKMARK_DATE_DISPLAY_RELATIVE)
     bookmark_link_target = models.CharField(max_length=10, choices=BOOKMARK_LINK_TARGET_CHOICES, blank=False,
                                             default=BOOKMARK_LINK_TARGET_BLANK)
+    web_archive_integration = models.CharField(max_length=10, choices=WEB_ARCHIVE_INTEGRATION_CHOICES, blank=False,
+                                               default=WEB_ARCHIVE_INTEGRATION_DISABLED)
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target']
+        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration']
 
 
 @receiver(post_save, sender=get_user_model())
@@ -151,3 +159,10 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=get_user_model())
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+class Toast(models.Model):
+    key = models.CharField(max_length=50)
+    message = models.TextField()
+    acknowledged = models.BooleanField(default=False)
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)

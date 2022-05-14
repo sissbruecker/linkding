@@ -7,7 +7,7 @@ from django.utils.translation import ngettext, gettext
 from rest_framework.authtoken.admin import TokenAdmin
 from rest_framework.authtoken.models import TokenProxy
 
-from bookmarks.models import Bookmark, Tag, UserProfile
+from bookmarks.models import Bookmark, Tag, UserProfile, Toast
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
 
 
@@ -58,7 +58,7 @@ class AdminTag(admin.ModelAdmin):
 
     def bookmarks_count(self, obj):
         return obj.bookmarks_count
-    
+
     bookmarks_count.admin_order_field = 'bookmarks_count'
 
     def delete_unused_tags(self, request, queryset: QuerySet):
@@ -95,8 +95,15 @@ class AdminCustomUser(UserAdmin):
         return super(AdminCustomUser, self).get_inline_instances(request, obj)
 
 
+class AdminToast(admin.ModelAdmin):
+    list_display = ('key', 'message', 'owner', 'acknowledged')
+    search_fields = ('key', 'message')
+    list_filter = ('owner__username',)
+
+
 linkding_admin_site = LinkdingAdminSite()
 linkding_admin_site.register(Bookmark, AdminBookmark)
 linkding_admin_site.register(Tag, AdminTag)
 linkding_admin_site.register(User, AdminCustomUser)
 linkding_admin_site.register(TokenProxy, TokenAdmin)
+linkding_admin_site.register(Toast, AdminToast)

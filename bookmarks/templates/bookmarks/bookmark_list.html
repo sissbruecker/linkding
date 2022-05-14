@@ -30,7 +30,7 @@
                     <span class="date-label text-gray text-sm">
                         {% if bookmark.web_archive_snapshot_url %}
                         <a href="{{ bookmark.web_archive_snapshot_url }}"
-                           title="Show snapshot on web archive" target="{{ link_target }}" rel="noopener">
+                           title="Show snapshot on the Internet Archive Wayback Machine" target="{{ link_target }}" rel="noopener">
                         {% endif %}
                         <span>{{ bookmark.date_added|humanize_relative_date }}</span>
                         {% if bookmark.web_archive_snapshot_url %}
@@ -44,7 +44,7 @@
                     <span class="date-label text-gray text-sm">
                         {% if bookmark.web_archive_snapshot_url %}
                         <a href="{{ bookmark.web_archive_snapshot_url }}"
-                           title="Show snapshot on web archive" target="{{ link_target }}" rel="noopener">
+                           title="Show snapshot on the Internet Archive Wayback Machine" target="{{ link_target }}" rel="noopener">
                         {% endif %}
                         <span>{{ bookmark.date_added|humanize_absolute_date }}</span>
                         {% if bookmark.web_archive_snapshot_url %}
