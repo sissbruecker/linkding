@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.9.0 (14/05/2022)
+### What's Changed
+* Scroll menu items into view when using keyboard by @sissbruecker in https://github.com/sissbruecker/linkding/pull/248
+* Add whitespace after auto-completed tag by @sissbruecker in https://github.com/sissbruecker/linkding/pull/249
+* Bump django from 3.2.12 to 3.2.13 by @dependabot in https://github.com/sissbruecker/linkding/pull/244
+* Add community helm chart reference to readme by @pascaliske in https://github.com/sissbruecker/linkding/pull/242
+* Feature: Shortcut key for new bookmark by @rithask in https://github.com/sissbruecker/linkding/pull/241
+* Clarify archive.org feature by @clach04 in https://github.com/sissbruecker/linkding/pull/229
+* Make Internet Archive integration opt-in by @sissbruecker in https://github.com/sissbruecker/linkding/pull/250
+
+### New Contributors
+* @pascaliske made their first contribution in https://github.com/sissbruecker/linkding/pull/242
+* @rithask made their first contribution in https://github.com/sissbruecker/linkding/pull/241
+* @clach04 made their first contribution in https://github.com/sissbruecker/linkding/pull/229
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.8.8...v1.9.0
+
+---
+
 ## v1.8.8 (27/03/2022)
 - [**bug**] Prevent bookmark actions through get requests
 - [**bug**] Prevent external redirects
@@ -162,15 +181,3 @@
 ## v1.1.0 (31/12/2020)
 - [**enhancement**] Search autocomplete [#52](https://github.com/sissbruecker/linkding/issues/52)
 - [**enhancement**] Improve Netscape bookmarks file parsing [#50](https://github.com/sissbruecker/linkding/issues/50)
----
-
-## v1.0.0 (31/12/2020)
-- [**bug**] Import does not import bookmark descriptions [#47](https://github.com/sissbruecker/linkding/issues/47)
-- [**enhancement**] Enhancement: return to same page we were on after editing a bookmark [#26](https://github.com/sissbruecker/linkding/issues/26)
-- [**bug**] Increase limit on bookmark URL length [#25](https://github.com/sissbruecker/linkding/issues/25)
-- [**enhancement**] API for app development [#24](https://github.com/sissbruecker/linkding/issues/24)
-- [**enhancement**] Enhancement: detect duplicates at entry time [#23](https://github.com/sissbruecker/linkding/issues/23)
-- [**bug**] Error importing bookmarks [#18](https://github.com/sissbruecker/linkding/issues/18)
-- [**enhancement**] Enhancement: better administration page [#4](https://github.com/sissbruecker/linkding/issues/4)
-- [**enhancement**] Bug: Navigation bar active link stays on add bookmark [#3](https://github.com/sissbruecker/linkding/issues/3)
-- [**bug**] CSS Stylesheet presented as text/plain [#2](https://github.com/sissbruecker/linkding/issues/2)
