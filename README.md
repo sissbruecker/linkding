@@ -1,12 +1,38 @@
-#  linkding
+<div align="center">
+    <br>
+    <a href="https://github.com/sissbruecker/linkding">
+        <img src="docs/header.svg" height="50">
+    </a>
+    <br>
+</div>
 
-*linkding* is a simple bookmark service that you can host yourself.
-It's designed be to be minimal, fast and easy to set up using Docker. 
+## Overview
+- [Introduction](#introduction)
+- [Installation](#installation)
+    - [Using Docker](#using-docker)
+    - [Using Docker Compose](#using-docker-compose)
+    - [User Setup](#user-setup)
+    - [Managed Hosting Options](#managed-hosting-options)
+- [Browser Extension](#browser-extension)
+- [Community](#community)
+- [Development](#development)
+- Additional Documentation
+    - [Options](docs/Options.md)
+    - [Backups](docs/backup.md)
+    - [Troubleshooting](docs/troubleshooting.md)
+    - [How To](docs/how-to.md)
+    - [Admin documentation](docs/Admin.md)
+    - [REST API](docs/API.md)
+
+##  Introduction
+
+linkding is a simple bookmark service that you can host yourself.
+It's designed be to be minimal, fast, and easy to set up using Docker.
 
 The name comes from:
 - *link* which is often used as a synonym for URLs and bookmarks in common language
-- *Ding* which is german for *thing*
-- ...so basically some thing for managing your links
+- *Ding* which is German for thing
+- ...so basically something for managing your links
 
 **Feature Overview:**
 - Tags for organizing bookmarks
@@ -15,7 +41,7 @@ The name comes from:
 - Bookmark archive
 - Dark mode
 - Automatically creates snapshots of bookmarked websites on [the Internet Archive Wayback Machine](https://archive.org/web/)
-- Automatically provides titles and descriptions of bookmarked websites 
+- Automatically provides titles and descriptions of bookmarked websites
 - Import and export bookmarks in Netscape HTML format
 - Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), and a bookmarklet that should work in most browsers
 - REST API for developing 3rd party apps
@@ -31,95 +57,71 @@ The name comes from:
 
 ## Installation
 
-The easiest way to run linkding is to use [Docker](https://docs.docker.com/get-started/).  The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
+linkding is designed to be run with container solutions like [Docker](https://docs.docker.com/get-started/).  The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
 
-There is also the option to set up the installation manually which I do not support, but can give some pointers on below.
+###  Using Docker
 
-###  Docker setup
-
-To install linkding using Docker you can just run the image from the Docker registry:
-```
+To install linkding using Docker you can just run the [latest image](https://hub.docker.com/repository/docker/sissbruecker/linkding) from Docker Hub:
+```shell
 docker run --name linkding -p 9090:9090 -d sissbruecker/linkding:latest
 ```
-By default the application runs on port `9090`, but you can map it to a different host port by modifying the command above.
+By default, the application runs on port `9090`, you can map it to a different host port by modifying the port mapping in the command above. If everything completed successfully, the application should now be running and can be accessed at http://localhost:9090, provided you did not change the port mapping.
 
-However for **production use** you also want to mount a data folder on your system, so that the applications database is not stored in the container, but on your hosts file system. This is safer in case something happens to the container and makes it easier to update the container later on, or to run backups. To do so you can use the following extended command, where you replace `{host-data-folder}` with the absolute path to a folder on your system where you want to store the data:
+Note that the command above will store the linkding SQLite database in the container, which means that deleting the container, for example when upgrading the installation, will also remove the database. For hosting an actual installation you usually want to store the database on the host system, rather than in the container. To do so, run the following command, and replace the `{host-data-folder}` placeholder with an absolute path to a folder on your host system where you want to store the linkding database:
 ```shell
 docker run --name linkding -p 9090:9090 -v {host-data-folder}:/etc/linkding/data -d sissbruecker/linkding:latest
 ```
 
-If everything completed successfully the application should now be running and can be accessed at http://localhost:9090, provided you did not change the port mapping. 
+To upgrade the installation to a new version, remove the existing container, pull the latest version of the linkding Docker image, and then start a new container using the same command that you used above. There is a [shell script](https://github.com/sissbruecker/linkding/blob/master/install-linkding.sh) available to automate these steps. The script can be configured using environment variables, or you can just modify it.
 
-### Automated Docker setup
+To complete the setup, you still have to [create an initial user](#user-setup), so that you can access your installation.
 
-If you are using a Linux system you can use the following [shell script](https://github.com/sissbruecker/linkding/blob/master/install-linkding.sh) for an automated setup. The script does basically everything described above, but also handles updating an existing container to a new application version (technically replaces the existing container with a new container built from a newer image, while mounting the same data folder).
+###  Using Docker Compose
 
-The script can be configured using shell variables - for more details have a look at the script itself.
-
-###  Docker-compose setup
-
-To install linkding using docker-compose you can use the `docker-compose.yml` file. Copy the `.env.sample` file to `.env` and set your parameters, then run:
+To install linkding using [Docker Compose](https://docs.docker.com/compose/), you can use the [`docker-compose.yml`](https://github.com/sissbruecker/linkding/blob/master/docker-compose.yml) file. Copy the [`.env.sample`](https://github.com/sissbruecker/linkding/blob/master/.env.sample) file to `.env`, configure the parameters, and then run:
 ```shell
 docker-compose up -d
 ```
 
+To complete the setup, you still have to [create an initial user](#user-setup), so that you can access your installation.
+
 ### User setup
 
-Finally you need to create a user so that you can access the application. Replace the credentials in the following command and run it:
+For security reasons, the linkding Docker image does not provide an initial user, so you have to create one after setting up an installation. To do so, replace the credentials in the following command and run it:
 
 **Docker**
 ```shell
 docker exec -it linkding python manage.py createsuperuser --username=joe --email=joe@example.com
 ```
 
-**Docker-compose**
+**Docker Compose**
 ```shell
 docker-compose exec linkding python manage.py createsuperuser --username=joe --email=joe@example.com
 ```
 
 The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
 
-### Manual setup
+### Managed Hosting Options
 
-If you can not or don't want to use Docker you can install the application manually on your server. To do so you can basically follow the steps from the *Development* section below while cross-referencing the `Dockerfile` and `bootstrap.sh` on how to make the application production-ready.
+Self-hosting web applications on your own hardware (unfortunately) still requires a lot of technical know-how, and commitment to maintenance, with regard to keeping everything up-to-date and secure. This can be a huge entry barrier for people who are interested in self-hosting linkding, but lack the technical knowledge to do so. This section is intended to provide alternatives in form of managed hosting solutions. Note that these options are usually commercial offerings, that require paying a (usually monthly) fee for the convenience of being managed by another party. The technical knowledge required to make use of individual options is going to vary, and no guarantees can be made that every option is accessible for everyone. That being said, I hope this section helps in making the application accessible to a wider audience.
 
-### Hosting
+- [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) - Guide for hosting a linkding installation on [fly.io](https://fly.io). By [fspoettel](https://github.com/fspoettel)
 
-The application runs in a web-server called [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) that is production-ready and that you can expose to the web. If you don't know how to configure your server to expose the application to the web there are several more steps involved. I can not support the process here, but I can give some pointers on what to search for:
-- first get the app running (described in this document)
-- open the port that the application is running on in your servers firewall
-- depending on your network configuration, forward the opened port in your network router, so that the application can be addressed from the internet using your public IP address and the opened port
+## Browser Extension
 
-## Options
+linkding comes with an official browser extension that allows to quickly add bookmarks, and search bookmarks through the browser's address bar. You can get the extension here:
+- [Mozilla Addon Store](https://addons.mozilla.org/de/firefox/addon/linkding-extension/)
+- [Chrome Web Store](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe)
 
-Check the [options document](docs/Options.md) on how to configure your linkding installation.
+The extension is open-source as well, and can be found [here](https://github.com/sissbruecker/linkding-extension).
 
-## Administration
+## Community
 
-Check the [administration document](docs/Admin.md) on how to use the admin app that is bundled with linkding.
+This section lists community projects around using linkding, in alphabetical order. If you have a project that you want to share with the linkding community, feel free to submit a PR to add your project to this section.
 
-## Backups
-
-Check the [backups document](docs/backup.md) for options on how to create backups.
-
-## How To
-
-Check the [how-to document](docs/how-to.md) for tips and tricks around using linkding.
-
-## API
-
-The application provides a REST API that can be used by 3rd party applications to manage bookmarks. Check the [API docs](docs/API.md) for further information.
-
-## Troubleshooting
-
-**Import fails with `502 Bad Gateway`**
-
-The default timeout for requests is 60 seconds, after which the application server will cancel the request and return the above error.
-Depending on the system that the application runs on, and the number of bookmarks that need to be imported, the import may take longer than the default 60 seconds.
-
-To increase the timeout you can configure the [`LD_REQUEST_TIMEOUT` option](Options.md#LD_REQUEST_TIMEOUT).
-
-Note that any proxy servers that you are running in front of linkding may have their own timeout settings, which are not affected by the variable.
+- [Helm Chart](https://charts.pascaliske.dev/charts/linkding/) Helm Chart for deploying linkding inside a Kubernetes cluster. By [pascaliske](https://github.com/pascaliske)
+- [linkding-extension](https://github.com/jeroenpardon/linkding-extension) Chromium compatible extension that wraps the linkding bookmarklet. Tested with Chrome, Edge, Brave. By [jeroenpardon](https://github.com/jeroenpardon)
+- [linkding-injector](https://github.com/Fivefold/linkding-injector) Injects search results from linkding into the sidebar of search pages like google and duckduckgo. Tested with Firefox and Chrome. By [Fivefold](https://github.com/Fivefold)
 
 ## Development
 
@@ -165,9 +167,3 @@ Start the Django development server with:
 python3 manage.py runserver
 ```
 The frontend is now available under http://localhost:8000
-
-## Community
-
-- [Helm Chart](https://charts.pascaliske.dev/charts/linkding/) Helm Chart for deploying linkding inside a Kubernetes cluster. By [pascaliske](https://github.com/pascaliske)
-- [linkding-extension](https://github.com/jeroenpardon/linkding-extension) Chromium compatible extension that wraps the linkding bookmarklet. Tested with Chrome, Edge, Brave. By [jeroenpardon](https://github.com/jeroenpardon)
-- [linkding-injector](https://github.com/Fivefold/linkding-injector) Injects search results from linkding into the sidebar of search pages like google and duckduckgo. Tested with Firefox and Chrome. By [Fivefold](https://github.com/Fivefold)
