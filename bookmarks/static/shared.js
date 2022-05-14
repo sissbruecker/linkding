@@ -65,7 +65,7 @@
         // Add new bookmark
         document.addEventListener('keydown', function(event) {
             // Filter for new entry shortcut key
-            if(event.key !== 'n') return;
+            if (event.key !== 'n') return;
             // Skip if event occurred within an input element
             const targetNodeName = event.target.nodeName;
             const isInputTarget = targetNodeName === 'INPUT'
@@ -74,7 +74,7 @@
 
             if (isInputTarget) return;
 
-            window.location.replace("/bookmarks/new");
+            window.location.assign("/bookmarks/new");
         });
     }
 
