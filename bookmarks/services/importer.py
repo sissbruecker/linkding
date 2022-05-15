@@ -57,6 +57,7 @@ def import_netscape_html(html: str, user: User):
     parse_end = timezone.now()
     print('Parse duration: ', parse_end - start)
 
+    # Split bookmarks to import into batches, to keep memory usage for bulk operations manageable
     batches = _get_batches(netscape_bookmarks, 100)
     for batch in batches:
         _import_batch(batch, user, tag_cache, result)
@@ -89,24 +90,66 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
     batch_urls = [bookmark.href for bookmark in netscape_bookmarks]
     existing_bookmarks = Bookmark.objects.filter(owner=user, url__in=batch_urls)
 
+    # Create or update bookmarks from parsed Netscape bookmarks
+    bookmarks_to_create = []
+    bookmarks_to_update = []
+
     for netscape_bookmark in netscape_bookmarks:
         result.total = result.total + 1
         try:
-            existing_bookmark = next(
+            bookmark = next(
                 (bookmark for bookmark in existing_bookmarks if bookmark.url == netscape_bookmark.href), None)
-            _import_netscape_bookmark(netscape_bookmark, existing_bookmark, user, tag_cache)
+            if not bookmark:
+                bookmark = Bookmark(owner=user)
+                is_update = False
+            else:
+                is_update = True
+            # TODO: Validate bookmarks, exclude invalid bookmarks from bulk operations
+            _update_bookmark_data(netscape_bookmark, bookmark)
+            if is_update:
+                bookmarks_to_update.append(bookmark)
+            else:
+                bookmarks_to_create.append(bookmark)
+
             result.success = result.success + 1
         except:
             shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + '...'
             logging.exception('Error importing bookmark: ' + shortened_bookmark_tag_str)
             result.failed = result.failed + 1
 
+    # Bulk update bookmarks in DB
+    Bookmark.objects.bulk_update(bookmarks_to_update,
+                                 ['url', 'date_added', 'date_modified', 'unread', 'title', 'description', 'owner'])
+    # Bulk insert new bookmarks into DB
+    Bookmark.objects.bulk_create(bookmarks_to_create)
 
-def _import_netscape_bookmark(netscape_bookmark: NetscapeBookmark, existing_bookmark: Bookmark, user: User,
-                              tag_cache: TagCache):
-    # Either modify existing bookmark for the URL or create new one
-    bookmark = existing_bookmark if existing_bookmark else Bookmark()
+    # Bulk assign tags
+    # In Django 3, bulk_create does not return the auto-generated IDs when bulk inserting,
+    # so we have to reload the inserted bookmarks, and match them to the parsed bookmarks by URL
+    existing_bookmarks = Bookmark.objects.filter(owner=user, url__in=batch_urls)
 
+    BookmarkToTagRelationShip = Bookmark.tags.through
+    relationships = []
+
+    for netscape_bookmark in netscape_bookmarks:
+        bookmark = next(
+            (bookmark for bookmark in existing_bookmarks if bookmark.url == netscape_bookmark.href), None)
+
+        if not bookmark:
+            # Something is wrong, we should have just created this bookmark
+            shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + '...'
+            logging.warning(
+                f'Failed to assign tags to the bookmark: {shortened_bookmark_tag_str}. Could not find bookmark by URL.')
+
+        tag_names = parse_tag_string(netscape_bookmark.tag_string)
+        tags = tag_cache.get(tag_names)
+        for tag in tags:
+            relationships.append(BookmarkToTagRelationShip(bookmark=bookmark, tag=tag))
+
+    BookmarkToTagRelationShip.objects.bulk_create(relationships, ignore_conflicts=True)
+
+
+def _update_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark):
     bookmark.url = netscape_bookmark.href
     if netscape_bookmark.date_added:
         bookmark.date_added = parse_timestamp(netscape_bookmark.date_added)
@@ -117,21 +160,3 @@ def _import_netscape_bookmark(netscape_bookmark: NetscapeBookmark, existing_book
     bookmark.title = netscape_bookmark.title
     if netscape_bookmark.description:
         bookmark.description = netscape_bookmark.description
-    bookmark.owner = user
-
-    # bookmark.full_clean()
-    bookmark.save()
-
-    # Set tags
-    tag_names = parse_tag_string(netscape_bookmark.tag_string)
-    tags = tag_cache.get(tag_names)
-
-    bookmark.tags.set(tags)
-    bookmark.save()
-
-
-def _get_or_create_bookmark(url: str, user: User):
-    try:
-        return Bookmark.objects.get(url=url, owner=user)
-    except Bookmark.DoesNotExist:
-        return Bookmark()
