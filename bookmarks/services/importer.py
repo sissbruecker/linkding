@@ -5,10 +5,9 @@ from typing import List
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, parse_tag_string
+from bookmarks.models import Bookmark, Tag, parse_tag_string
 from bookmarks.services import tasks
 from bookmarks.services.parser import parse, NetscapeBookmark
-from bookmarks.services.tags import get_or_create_tag
 from bookmarks.utils import parse_timestamp
 
 logger = logging.getLogger(__name__)
@@ -25,28 +24,35 @@ class TagCache:
     def __init__(self, user: User):
         self.user = user
         self.cache = dict()
+        # Init cache with all existing tags for that user
+        tags = Tag.objects.filter(owner=user)
+        for tag in tags:
+            self.put(tag)
 
-    def get(self, tag_names: List[str]):
+    def get(self, tag_name: str):
+        tag_name_lowercase = tag_name.lower()
+        if tag_name_lowercase in self.cache:
+            return self.cache[tag_name_lowercase]
+        else:
+            return None
+
+    def get_all(self, tag_names: List[str]):
         result = []
         for tag_name in tag_names:
-            tag_name_lowercase = tag_name.lower()
-            if tag_name_lowercase in self.cache:
-                tag = self.cache[tag_name_lowercase]
-            else:
-                tag = get_or_create_tag(tag_name, self.user)
-                self.cache[tag_name_lowercase] = tag
-
-            # Prevent adding duplicates
+            tag = self.get(tag_name)
+            # Prevent returning duplicates
             if not (tag in result):
                 result.append(tag)
 
         return result
 
+    def put(self, tag: Tag):
+        self.cache[tag.name.lower()] = tag
+
 
 def import_netscape_html(html: str, user: User):
     result = ImportResult()
     import_start = timezone.now()
-    tag_cache = TagCache(user)
 
     try:
         netscape_bookmarks = parse(html)
@@ -56,6 +62,10 @@ def import_netscape_html(html: str, user: User):
 
     parse_end = timezone.now()
     logger.debug(f'Parse duration: {parse_end - import_start}')
+
+    # Create and cache all tags beforehand
+    _create_missing_tags(netscape_bookmarks, user)
+    tag_cache = TagCache(user)
 
     # Split bookmarks to import into batches, to keep memory usage for bulk operations manageable
     batches = _get_batches(netscape_bookmarks, 200)
@@ -69,6 +79,22 @@ def import_netscape_html(html: str, user: User):
     logger.debug(f'Import duration: {end - import_start}')
 
     return result
+
+
+def _create_missing_tags(netscape_bookmarks: List[NetscapeBookmark], user: User):
+    tag_cache = TagCache(user)
+    tags_to_create = []
+
+    for netscape_bookmark in netscape_bookmarks:
+        tag_names = parse_tag_string(netscape_bookmark.tag_string)
+        for tag_name in tag_names:
+            tag = tag_cache.get(tag_name)
+            if not tag:
+                tag = Tag(name=tag_name, owner=user)
+                tag.date_added = timezone.now()
+                tags_to_create.append(tag)
+
+    Tag.objects.bulk_create(tags_to_create)
 
 
 def _get_batches(items: List, batch_size: int):
@@ -149,7 +175,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
 
         # Get tag models by string, schedule inserts for bookmark -> tag associations
         tag_names = parse_tag_string(netscape_bookmark.tag_string)
-        tags = tag_cache.get(tag_names)
+        tags = tag_cache.get_all(tag_names)
         for tag in tags:
             relationships.append(BookmarkToTagRelationShip(bookmark=bookmark, tag=tag))
 
