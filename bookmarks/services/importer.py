@@ -105,7 +105,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
             else:
                 is_update = True
             # TODO: Validate bookmarks, exclude invalid bookmarks from bulk operations
-            _update_bookmark_data(netscape_bookmark, bookmark)
+            _copy_bookmark_data(netscape_bookmark, bookmark)
             if is_update:
                 bookmarks_to_update.append(bookmark)
             else:
@@ -149,7 +149,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
     BookmarkToTagRelationShip.objects.bulk_create(relationships, ignore_conflicts=True)
 
 
-def _update_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark):
+def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark):
     bookmark.url = netscape_bookmark.href
     if netscape_bookmark.date_added:
         bookmark.date_added = parse_timestamp(netscape_bookmark.date_added)
