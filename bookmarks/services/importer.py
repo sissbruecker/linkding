@@ -97,6 +97,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
     for netscape_bookmark in netscape_bookmarks:
         result.total = result.total + 1
         try:
+            # Lookup existing bookmark by URL, or create new bookmark if there is no bookmark for that URL yet
             bookmark = next(
                 (bookmark for bookmark in existing_bookmarks if bookmark.url == netscape_bookmark.href), None)
             if not bookmark:
@@ -104,8 +105,12 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
                 is_update = False
             else:
                 is_update = True
-            # TODO: Validate bookmarks, exclude invalid bookmarks from bulk operations
+            # Copy data from parsed bookmark
             _copy_bookmark_data(netscape_bookmark, bookmark)
+            # Validate bookmark fields, exclude owner to prevent n+1 database query,
+            # also there is no specific validation on owner
+            bookmark.clean_fields(exclude=['owner'])
+            # Schedule for update or insert
             if is_update:
                 bookmarks_to_update.append(bookmark)
             else:
@@ -132,6 +137,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
     relationships = []
 
     for netscape_bookmark in netscape_bookmarks:
+        # Lookup bookmark by URL again
         bookmark = next(
             (bookmark for bookmark in existing_bookmarks if bookmark.url == netscape_bookmark.href), None)
 
@@ -141,11 +147,13 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
             logging.warning(
                 f'Failed to assign tags to the bookmark: {shortened_bookmark_tag_str}. Could not find bookmark by URL.')
 
+        # Get tag models by string, schedule inserts for bookmark -> tag associations
         tag_names = parse_tag_string(netscape_bookmark.tag_string)
         tags = tag_cache.get(tag_names)
         for tag in tags:
             relationships.append(BookmarkToTagRelationShip(bookmark=bookmark, tag=tag))
 
+    # Insert all bookmark -> tag associations at once, should ignore errors if association already exists
     BookmarkToTagRelationShip.objects.bulk_create(relationships, ignore_conflicts=True)
 
 
