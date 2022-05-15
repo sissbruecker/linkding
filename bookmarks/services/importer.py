@@ -45,7 +45,7 @@ class TagCache:
 
 def import_netscape_html(html: str, user: User):
     result = ImportResult()
-    start = timezone.now()
+    import_start = timezone.now()
     tag_cache = TagCache(user)
 
     try:
@@ -55,10 +55,10 @@ def import_netscape_html(html: str, user: User):
         raise
 
     parse_end = timezone.now()
-    print('Parse duration: ', parse_end - start)
+    logger.debug(f'Parse duration: {parse_end - import_start}')
 
     # Split bookmarks to import into batches, to keep memory usage for bulk operations manageable
-    batches = _get_batches(netscape_bookmarks, 100)
+    batches = _get_batches(netscape_bookmarks, 200)
     for batch in batches:
         _import_batch(batch, user, tag_cache, result)
 
@@ -66,7 +66,7 @@ def import_netscape_html(html: str, user: User):
     tasks.schedule_bookmarks_without_snapshots(user)
 
     end = timezone.now()
-    print('Import duration: ', end - start)
+    logger.debug(f'Import duration: {end - import_start}')
 
     return result
 
