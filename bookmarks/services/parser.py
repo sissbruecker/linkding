@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-
-import pyparsing as pp
+from html.parser import HTMLParser
+from typing import Dict, List
 
 
 @dataclass
@@ -12,60 +12,71 @@ class NetscapeBookmark:
     tag_string: str
 
 
-def extract_bookmark_link(tag):
-    href = tag[0].href
-    title = tag[0].text
-    tag_string = tag[0].tags
-    date_added = tag[0].add_date
+class BookmarkParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.href = None
+        self.add_date = None
+        self.tags = None
+        self.description = None
 
-    return {
-        'href': href,
-        'title': title,
-        'tag_string': tag_string,
-        'date_added': date_added
-    }
+        self.current_tag = None
+        self.bookmarks = []
+        self.bookmark = None
 
+    def handle_starttag(self, tag: str, attrs: list):
+        name = 'handle_start_' + tag.lower()
+        if name in dir(self):
+            getattr(self, name)({k.lower(): v for k, v in attrs})
+        self.current_tag = tag
 
-def extract_bookmark(tag):
-    link = tag[0].link
-    description = tag[0].description
-    description = description[0] if description else ''
+    def handle_endtag(self, tag: str):
+        name = 'handle_end_' + tag.lower()
+        if name in dir(self):
+            getattr(self, name)()
+        self.current_tag = None
 
-    return {
-        'link': link,
-        'description': description,
-    }
+    def handle_data(self, data):
+        name = f'handle_{self.current_tag}_data'
+        if name in dir(self):
+            getattr(self, name)(data)
 
+    def handle_start_dl(self, attrs: Dict[str, str]):
+        self.description = None
 
-def extract_description(tag):
-    return tag[0].strip()
+    def handle_end_dl(self):
+        self.add_bookmark()
 
+    def handle_start_dt(self, attrs: Dict[str, str]):
+        self.add_bookmark()
 
-# define grammar
-dt_start, _ = pp.makeHTMLTags("DT")
-dd_start, _ = pp.makeHTMLTags("DD")
-a_start, a_end = pp.makeHTMLTags("A")
-bookmark_link_tag = pp.Group(a_start + a_start.tag_body("text") + a_end.suppress())
-bookmark_link_tag.addParseAction(extract_bookmark_link)
-bookmark_description_tag = dd_start.suppress() + pp.SkipTo(pp.anyOpenTag | pp.anyCloseTag)("description")
-bookmark_description_tag.addParseAction(extract_description)
-bookmark_tag = pp.Group(dt_start + bookmark_link_tag("link") + pp.ZeroOrMore(bookmark_description_tag)("description"))
-bookmark_tag.addParseAction(extract_bookmark)
+    def handle_start_a(self, attrs: Dict[str, str]):
+        vars(self).update(attrs)
 
-
-def parse(html: str) -> [NetscapeBookmark]:
-    matches = bookmark_tag.searchString(html)
-    bookmarks = []
-
-    for match in matches:
-        bookmark_match = match[0]
-        bookmark = NetscapeBookmark(
-            href=bookmark_match['link']['href'],
-            title=bookmark_match['link']['title'],
-            description=bookmark_match['description'],
-            tag_string=bookmark_match['link']['tag_string'],
-            date_added=bookmark_match['link']['date_added'],
+    def handle_a_data(self, data):
+        self.bookmark = NetscapeBookmark(
+            href=self.href,
+            title=data,
+            description='',
+            date_added=self.add_date,
+            tag_string=self.tags,
         )
-        bookmarks.append(bookmark)
 
-    return bookmarks
+    def handle_dd_data(self, data):
+        if self.bookmark:
+            self.bookmark.description = data.strip()
+
+    def add_bookmark(self):
+        if self.bookmark:
+            self.bookmarks.append(self.bookmark)
+        self.bookmark = None
+        self.href = None
+        self.description = None
+        self.add_date = None
+        self.tags = None
+
+
+def parse(html: str) -> List[NetscapeBookmark]:
+    parser = BookmarkParser()
+    parser.feed(html)
+    return parser.bookmarks
