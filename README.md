@@ -100,6 +100,7 @@ The command will prompt you for a secure password. After the command has complet
 Self-hosting web applications on your own hardware (unfortunately) still requires a lot of technical know-how, and commitment to maintenance, with regard to keeping everything up-to-date and secure. This can be a huge entry barrier for people who are interested in self-hosting linkding, but lack the technical knowledge to do so. This section is intended to provide alternatives in form of managed hosting solutions. Note that these options are usually commercial offerings, that require paying a (usually monthly) fee for the convenience of being managed by another party. The technical knowledge required to make use of individual options is going to vary, and no guarantees can be made that every option is accessible for everyone. That being said, I hope this section helps in making the application accessible to a wider audience.
 
 - [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) - Guide for hosting a linkding installation on [fly.io](https://fly.io). By [fspoettel](https://github.com/fspoettel)
+- [PikaPods.com](https://www.pikapods.com/) - Managed hosting for linkding, EU and US regions available. [1-click setup link](https://www.pikapods.com/pods?run=linkding)
 
 ## Documentation
 
