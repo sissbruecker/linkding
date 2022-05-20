@@ -7,7 +7,8 @@ from bookmarks.utils import get_safe_return_url
 
 
 @login_required
-def acknowledge(request, toast_id: int):
+def acknowledge(request):
+    toast_id = request.POST['toast']
     try:
         toast = Toast.objects.get(pk=toast_id, owner=request.user)
     except Toast.DoesNotExist:

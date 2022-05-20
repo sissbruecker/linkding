@@ -60,12 +60,20 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
         # Should not render toasts
         self.assertContains(response, '<div class="toast">', count=0)
 
+    def test_form_tag(self):
+        self.create_toast()
+        expected_form_tag = f'<form action="{reverse("bookmarks:toasts.acknowledge")}?return_url={reverse("bookmarks:index")}" method="post">'
+
+        response = self.client.get(reverse('bookmarks:index'))
+
+        self.assertContains(response, expected_form_tag)
+
     def test_toast_content(self):
         toast = self.create_toast()
         expected_toast = f'''
             <div class="toast">
                 {toast.message}
-                <a href="{reverse('bookmarks:toasts.acknowledge', args=[toast.id])}?return_url={reverse('bookmarks:index')}" class="btn btn-clear float-right"></a>
+                <button type="submit" name="toast" value="{toast.id}" class="btn btn-clear float-right"></button>
             </div>        
         '''
 
@@ -77,7 +85,9 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_acknowledge_toast(self):
         toast = self.create_toast()
 
-        self.client.get(reverse('bookmarks:toasts.acknowledge', args=[toast.id]))
+        self.client.post(reverse('bookmarks:toasts.acknowledge'), {
+            'toast': [toast.id],
+        })
 
         toast.refresh_from_db()
         self.assertTrue(toast.acknowledged)
@@ -85,17 +95,21 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_acknowledge_toast_should_redirect_to_return_url(self):
         toast = self.create_toast()
         return_url = reverse('bookmarks:settings.general')
-        acknowledge_url = reverse('bookmarks:toasts.acknowledge', args=[toast.id])
+        acknowledge_url = reverse('bookmarks:toasts.acknowledge')
         acknowledge_url = acknowledge_url + '?return_url=' + return_url
 
-        response = self.client.get(acknowledge_url)
+        response = self.client.post(acknowledge_url, {
+            'toast': [toast.id],
+        })
 
         self.assertRedirects(response, return_url)
 
     def test_acknowledge_toast_should_redirect_to_index_by_default(self):
         toast = self.create_toast()
 
-        response = self.client.get(reverse('bookmarks:toasts.acknowledge', args=[toast.id]))
+        response = self.client.post(reverse('bookmarks:toasts.acknowledge'), {
+            'toast': [toast.id],
+        })
 
         self.assertRedirects(response, reverse('bookmarks:index'))
 
@@ -104,5 +118,7 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
         toast = self.create_toast(user=other_user)
 
-        response = self.client.get(reverse('bookmarks:toasts.acknowledge', args=[toast.id]))
+        response = self.client.post(reverse('bookmarks:toasts.acknowledge'), {
+            'toast': [toast.id],
+        })
         self.assertEqual(response.status_code, 404)
