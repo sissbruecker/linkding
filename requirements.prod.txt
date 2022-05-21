@@ -13,7 +13,6 @@ django-sass-processor==1.0.1
 django-widget-tweaks==1.4.8
 djangorestframework==3.12.4
 idna==2.8
-pyparsing==2.4.7
 python-dateutil==2.8.1
 pytz==2021.1
 requests==2.26.0
