@@ -1,5 +1,8 @@
 import logging
+import time
+from functools import lru_cache
 
+import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
@@ -17,9 +20,10 @@ logger = logging.getLogger(__name__)
 try:
     with open("version.txt", "r") as f:
         app_version = f.read().strip("\n")
-except Exception as exc: 
+except Exception as exc:
     logging.exception(exc)
     pass
+
 
 @login_required
 def general(request):
@@ -32,12 +36,39 @@ def general(request):
 
     import_success_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_success')
     import_errors_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_errors')
+    version_info = get_version_info(get_ttl_hash())
     return render(request, 'settings/general.html', {
         'form': form,
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
-        'app_version': app_version
+        'version_info': version_info,
     })
+
+
+# Cache API call response, for one hour when using get_ttl_hash with default params
+@lru_cache(maxsize=1)
+def get_version_info(ttl_hash=None):
+    latest_version = None
+    try:
+        latest_version_url = 'https://api.github.com/repos/sissbruecker/linkding/releases/latest'
+        response = requests.get(latest_version_url, timeout=5)
+        json = response.json()
+        latest_version = json['name'][1:]
+    except requests.exceptions.RequestException:
+        pass
+
+    latest_version_info = ''
+    if latest_version == app_version:
+        latest_version_info = ' (latest)'
+    elif latest_version is not None:
+        latest_version_info = f' (latest: {latest_version})'
+
+    return f'{app_version}{latest_version_info}'
+
+
+def get_ttl_hash(seconds=3600):
+    """Return the same value within `seconds` time period"""
+    return round(time.time() / seconds)
 
 
 @login_required
