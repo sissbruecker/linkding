@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.10.1 (21/05/2022)
+### What's Changed
+* Fake request headers to reduce bot detection by @sissbruecker in https://github.com/sissbruecker/linkding/pull/263
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.10.0...v1.10.1
+
+---
+
 ## v1.10.0 (21/05/2022)
 ### What's Changed
 * Add to managed hosting options by @m3nu in https://github.com/sissbruecker/linkding/pull/253
@@ -33,6 +42,7 @@
 * @clach04 made their first contribution in https://github.com/sissbruecker/linkding/pull/229
 
 **Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.8.8...v1.9.0
+
 ---
 
 ## v1.8.8 (27/03/2022)
@@ -187,8 +197,3 @@
 ## v1.2.0 (09/01/2021)
 - [**closed**] Add Favicon [#58](https://github.com/sissbruecker/linkding/issues/58)
 - [**closed**] Make tags case-insensitive [#45](https://github.com/sissbruecker/linkding/issues/45)
-
----
-
-## v1.1.1 (01/01/2021)
-- [**enhancement**] Add docker-compose support [#54](https://github.com/sissbruecker/linkding/pull/54)
