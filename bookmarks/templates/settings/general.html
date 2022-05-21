@@ -98,13 +98,29 @@
         </section>
 
         {# About section #}
-        <section class="content-area">
+        <section class="content-area about">
             <h2>About</h2>
-            <p>Version: {{ app_version }}</p>
-            <p>
-                Code: <a href="https://github.com/sissbruecker/linkding/"
-                    target="_blank">GitHub</a>
-            </p>
+            <table class="table">
+                <tbody>
+                <tr>
+                    <td>Version</td>
+                    <td>{{ version_info }}</td>
+                </tr>
+                <tr>
+                    <td rowspan="3" style="vertical-align: top">Links</td>
+                    <td><a href="https://github.com/sissbruecker/linkding/"
+                           target="_blank">GitHub</a></td>
+                </tr>
+                <tr>
+                    <td><a href="https://github.com/sissbruecker/linkding#documentation"
+                           target="_blank">Documentation</a></td>
+                </tr>
+                <tr>
+                    <td><a href="https://github.com/sissbruecker/linkding/blob/master/CHANGELOG.md"
+                           target="_blank">Changelog</a></td>
+                </tr>
+                </tbody>
+            </table>
         </section>
     </div>
 

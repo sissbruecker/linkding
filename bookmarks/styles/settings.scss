@@ -11,4 +11,8 @@
   .input-group > input[type=submit] {
     height: auto;
   }
+
+  section.about table {
+    max-width: 500px;
+  }
 }

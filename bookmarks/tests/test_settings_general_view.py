@@ -1,8 +1,14 @@
+import random
+
 from django.test import TestCase
 from django.urls import reverse
+from unittest.mock import patch, Mock
+import requests
+from requests import RequestException
 
-from bookmarks.tests.helpers import BookmarkFactoryMixin
 from bookmarks.models import UserProfile
+from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.views.settings import app_version, get_version_info
 
 
 class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
@@ -38,3 +44,31 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(self.user.profile.bookmark_date_display, form_data['bookmark_date_display'])
         self.assertEqual(self.user.profile.bookmark_link_target, form_data['bookmark_link_target'])
         self.assertEqual(self.user.profile.web_archive_integration, form_data['web_archive_integration'])
+
+    def test_about_shows_version_info(self):
+        response = self.client.get(reverse('bookmarks:settings.general'))
+        html = response.content.decode()
+
+        self.assertInHTML(f'''
+            <tr>
+                <td>Version</td>
+                <td>{get_version_info(random.random())}</td>
+            </tr>
+        ''', html)
+
+    def test_get_version_info_just_displays_latest_when_versions_are_equal(self):
+        latest_version_response_mock = Mock(status_code=201, json=lambda: {'name': f'v{app_version}'})
+        with patch.object(requests, 'get', return_value=latest_version_response_mock):
+            version_info = get_version_info(random.random())
+            self.assertEqual(version_info, f'{app_version} (latest)')
+
+    def test_get_version_info_shows_latest_version_when_versions_are_not_equal(self):
+        latest_version_response_mock = Mock(status_code=201, json=lambda: {'name': f'v123.0.1'})
+        with patch.object(requests, 'get', return_value=latest_version_response_mock):
+            version_info = get_version_info(random.random())
+            self.assertEqual(version_info, f'{app_version} (latest: 123.0.1)')
+
+    def test_get_version_info_silently_ignores_request_errors(self):
+        with patch.object(requests, 'get', side_effect=RequestException()):
+            version_info = get_version_info(random.random())
+            self.assertEqual(version_info, f'{app_version}')
