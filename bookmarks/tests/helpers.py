@@ -1,5 +1,7 @@
 import random
 import logging
+from dataclasses import dataclass
+from typing import Optional, List
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -85,6 +87,42 @@ class LinkdingApiTestCase(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, expected_status_code)
         return response
+
+
+class BookmarkHtmlTag:
+    def __init__(self, href: str = '', title: str = '', description: str = '', add_date: str = '', tags: str = ''):
+        self.href = href
+        self.title = title
+        self.description = description
+        self.add_date = add_date
+        self.tags = tags
+
+
+class ImportTestMixin:
+    def render_tag(self, tag: BookmarkHtmlTag):
+        return f'''
+        <DT>
+        <A {f'HREF="{tag.href}"' if tag.href else ''}
+           {f'ADD_DATE="{tag.add_date}"' if tag.add_date else ''}
+           {f'TAGS="{tag.tags}"' if tag.tags else ''}>
+           {tag.title if tag.title else ''}
+        </A>
+        {f'<DD>{tag.description}' if tag.description else ''}
+        '''
+
+    def render_html(self, tags: List[BookmarkHtmlTag] = None, tags_html: str = ''):
+        if tags:
+            rendered_tags = [self.render_tag(tag) for tag in tags]
+            tags_html = '\n'.join(rendered_tags)
+        return f'''
+        <!DOCTYPE NETSCAPE-Bookmark-file-1>
+        <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+        <TITLE>Bookmarks</TITLE>
+        <H1>Bookmarks</H1>
+        <DL><p>
+        {tags_html}
+        </DL><p>
+        '''
 
 
 _words = [

@@ -48,6 +48,11 @@ LOGGING = {
             'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
+        },
+        'bookmarks.services.importer': {  # Log importer debug output
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
         }
     }
 }
