@@ -191,6 +191,7 @@ def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark)
         bookmark.date_added = timezone.now()
     bookmark.date_modified = bookmark.date_added
     bookmark.unread = False
-    bookmark.title = netscape_bookmark.title
+    if netscape_bookmark.title:
+        bookmark.title = netscape_bookmark.title
     if netscape_bookmark.description:
         bookmark.description = netscape_bookmark.description
