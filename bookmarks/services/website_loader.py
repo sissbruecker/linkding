@@ -34,7 +34,8 @@ def load_website_metadata(url: str):
 
 
 def load_page(url: str):
-    r = requests.get(url, timeout=10)
+    headers = fake_request_headers()
+    r = requests.get(url, timeout=10, headers=headers)
 
     # Use charset_normalizer to determine encoding that best matches the response content
     # Several sites seem to specify the response encoding incorrectly, so we ignore it and use custom logic instead
@@ -42,3 +43,13 @@ def load_page(url: str):
     # before trying to determine one
     results = from_bytes(r.content)
     return str(results.best())
+
+
+def fake_request_headers():
+    return {
+        "Accept": "text/html,application/xhtml+xml,application/xml",
+        "Accept-Encoding": "gzip, deflate",
+        "Dnt": "1",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36",
+    }
