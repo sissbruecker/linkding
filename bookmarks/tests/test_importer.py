@@ -139,6 +139,22 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
 
         self.assertEqual(Tag.objects.count(), 4)
 
+    def test_should_append_tags_to_bookmark_when_reimporting_with_different_tags(self):
+        html_tags = [
+            BookmarkHtmlTag(href='https://example.com', tags='tag1'),
+        ]
+        import_html = self.render_html(tags=html_tags)
+        import_netscape_html(import_html, self.get_or_create_test_user())
+
+        html_tags.append(
+            BookmarkHtmlTag(href='https://example.com', tags='tag2, tag3')
+        )
+        import_html = self.render_html(tags=html_tags)
+        import_netscape_html(import_html, self.get_or_create_test_user())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(Bookmark.objects.all()[0].tags.all().count(), 3)
+
     @override_settings(USE_TZ=False)
     def test_use_current_date_when_no_add_date(self):
         test_html = self.render_html(tags_html=f'''
