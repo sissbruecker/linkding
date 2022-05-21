@@ -44,7 +44,7 @@ This how-to explains how to make use of the app shortcuts iOS app to create a sh
 - create new shortcut
 - go to shortcut details, enable to option to show the shortcut in share menu
 - from the available share input types only select "URL"
-- add Safari action "Display website in Safari" (paraphrasing, not sure how it's called in english)
+- add Safari action "Show Web Page At"
 - for URL enter your linkding instance URL and specifically point to the new bookmark form, then add the shortcut input variable from the list of suggested variables after the URL parameter. Visually it should look something like this: `https://linkding.mydomain.com/bookmarks/new?url=[Shortcut input]`, where `[Shortcut input]` is a visual block that was inserted after selecting the shortcut input variable suggestion. This is basically a placeholder that will get replaced with the actual URL that you want to bookmark. See screenshot at the end for an example on how this looks.
 - save, give the shortcut a nice name + glyph
 
