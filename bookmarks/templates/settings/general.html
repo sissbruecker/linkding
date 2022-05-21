@@ -61,6 +61,12 @@
             <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings.import' %}">
                 {% csrf_token %}
                 <div class="form-group">
+                    <label class="form-checkbox">
+                        <input type="checkbox" name="tags_from_folders"><i class="form-icon"></i>
+                        Create tags from folders
+                    </label>
+                </div>
+                <div class="form-group">
                     <div class="input-group col-8 col-md-12">
                         <input class="form-input" type="file" name="import_file">
                         <input type="submit" class="input-group-btn col-2 btn btn-primary" value="Upload">
