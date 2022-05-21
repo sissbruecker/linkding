@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.10.0 (21/05/2022)
+### What's Changed
+* Add to managed hosting options by @m3nu in https://github.com/sissbruecker/linkding/pull/253
+* Add community reference to aiolinkding by @bachya in https://github.com/sissbruecker/linkding/pull/259
+* Improve import performance by @sissbruecker in https://github.com/sissbruecker/linkding/pull/261
+* Update how-to.md to fix unclear/paraphrased Safari action in IOS Shortcuts by @feoh in https://github.com/sissbruecker/linkding/pull/260
+* Allow searching for untagged bookmarks by @sissbruecker in https://github.com/sissbruecker/linkding/pull/226
+
+### New Contributors
+* @m3nu made their first contribution in https://github.com/sissbruecker/linkding/pull/253
+* @bachya made their first contribution in https://github.com/sissbruecker/linkding/pull/259
+* @feoh made their first contribution in https://github.com/sissbruecker/linkding/pull/260
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.9.0...v1.10.0
+
+---
+
 ## v1.9.0 (14/05/2022)
 ### What's Changed
 * Scroll menu items into view when using keyboard by @sissbruecker in https://github.com/sissbruecker/linkding/pull/248
@@ -16,7 +33,6 @@
 * @clach04 made their first contribution in https://github.com/sissbruecker/linkding/pull/229
 
 **Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.8.8...v1.9.0
-
 ---
 
 ## v1.8.8 (27/03/2022)
@@ -176,8 +192,3 @@
 
 ## v1.1.1 (01/01/2021)
 - [**enhancement**] Add docker-compose support [#54](https://github.com/sissbruecker/linkding/pull/54)
----
-
-## v1.1.0 (31/12/2020)
-- [**enhancement**] Search autocomplete [#52](https://github.com/sissbruecker/linkding/issues/52)
-- [**enhancement**] Improve Netscape bookmarks file parsing [#50](https://github.com/sissbruecker/linkding/issues/50)
