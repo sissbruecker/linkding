@@ -48,10 +48,16 @@ class BookmarkSerializer(serializers.ModelSerializer):
         return create_bookmark(bookmark, tag_string, self.context['user'])
 
     def update(self, instance: Bookmark, validated_data):
-        instance.url = validated_data['url']
-        instance.title = validated_data['title']
-        instance.description = validated_data['description']
-        tag_string = build_tag_string(validated_data['tag_names'])
+        # Update fields if they were provided in the payload
+        for key in ['url', 'title', 'description']:
+            if key in validated_data:
+                setattr(instance, key, validated_data[key])
+
+        # Use tag string from payload, or use bookmark's current tags as fallback
+        tag_string = build_tag_string(instance.tag_names)
+        if 'tag_names' in validated_data:
+            tag_string = build_tag_string(validated_data['tag_names'])
+
         return update_bookmark(instance, tag_string, self.context['user'])
 
 

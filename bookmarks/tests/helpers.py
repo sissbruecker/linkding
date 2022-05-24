@@ -83,6 +83,11 @@ class LinkdingApiTestCase(APITestCase):
         self.assertEqual(response.status_code, expected_status_code)
         return response
 
+    def patch(self, url, data=None, expected_status_code=status.HTTP_200_OK):
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, expected_status_code)
+        return response
+
     def delete(self, url, expected_status_code=status.HTTP_200_OK):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, expected_status_code)

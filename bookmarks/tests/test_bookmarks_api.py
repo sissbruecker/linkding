@@ -131,6 +131,56 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         updated_bookmark = Bookmark.objects.get(id=self.bookmark1.id)
         self.assertEqual(updated_bookmark.url, data['url'])
 
+    def test_update_bookmark_fails_without_required_fields(self):
+        data = {'title': 'https://example.com/'}
+        url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
+        self.put(url, data, expected_status_code=status.HTTP_400_BAD_REQUEST)
+
+    def test_update_bookmark_with_minimal_payload_clears_all_fields(self):
+        data = {'url': 'https://example.com/'}
+        url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
+        self.put(url, data, expected_status_code=status.HTTP_200_OK)
+        updated_bookmark = Bookmark.objects.get(id=self.bookmark1.id)
+        self.assertEqual(updated_bookmark.url, data['url'])
+        self.assertEqual(updated_bookmark.title, '')
+        self.assertEqual(updated_bookmark.description, '')
+        self.assertEqual(updated_bookmark.tag_names, [])
+
+    def test_patch_bookmark(self):
+        data = {'url': 'https://example.com'}
+        url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
+        self.patch(url, data, expected_status_code=status.HTTP_200_OK)
+        self.bookmark1.refresh_from_db()
+        self.assertEqual(self.bookmark1.url, data['url'])
+
+        data = {'title': 'Updated title'}
+        url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
+        self.patch(url, data, expected_status_code=status.HTTP_200_OK)
+        self.bookmark1.refresh_from_db()
+        self.assertEqual(self.bookmark1.title, data['title'])
+
+        data = {'description': 'Updated description'}
+        url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
+        self.patch(url, data, expected_status_code=status.HTTP_200_OK)
+        self.bookmark1.refresh_from_db()
+        self.assertEqual(self.bookmark1.description, data['description'])
+
+        data = {'tag_names': ['updated-tag-1', 'updated-tag-2']}
+        url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
+        self.patch(url, data, expected_status_code=status.HTTP_200_OK)
+        self.bookmark1.refresh_from_db()
+        tag_names = [tag.name for tag in self.bookmark1.tags.all()]
+        self.assertListEqual(tag_names, ['updated-tag-1', 'updated-tag-2'])
+
+    def test_patch_with_empty_payload_does_not_modify_bookmark(self):
+        url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
+        self.patch(url, {}, expected_status_code=status.HTTP_200_OK)
+        updated_bookmark = Bookmark.objects.get(id=self.bookmark1.id)
+        self.assertEqual(updated_bookmark.url, self.bookmark1.url)
+        self.assertEqual(updated_bookmark.title, self.bookmark1.title)
+        self.assertEqual(updated_bookmark.description, self.bookmark1.description)
+        self.assertListEqual(updated_bookmark.tag_names, self.bookmark1.tag_names)
+
     def test_delete_bookmark(self):
         url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
         self.delete(url, expected_status_code=status.HTTP_204_NO_CONTENT)
