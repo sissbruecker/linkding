@@ -47,8 +47,8 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_create_bookmark(self):
         data = {
             'url': 'https://example.com/',
-            'title': 'Test title',
-            'description': 'Test description',
+            'title': 'test title',
+            'description': 'test description',
             'tag_names': ['tag1', 'tag2']
         }
         self.post(reverse('bookmarks:bookmark-list'), data, status.HTTP_201_CREATED)
@@ -91,6 +91,15 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_list_archived_bookmarks_should_filter_by_query(self):
         response = self.get(reverse('bookmarks:bookmark-archived') + '?q=#' + self.tag1.name, expected_status_code=status.HTTP_200_OK)
         self.assertBookmarkListEqual(response.data['results'], [self.archived_bookmark1])
+
+    def test_create_archived_bookmark(self):
+        data = {
+            'url': 'https://example.com/',
+            'title': 'test Title',
+            'description': 'test Description',
+            'tag_names': ['tag1', 'tag2']
+        }
+        self.post(reverse('bookmarks:bookmark-archived'), data, status.HTTP_201_CREATED)
 
     def test_get_bookmark(self):
         url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
