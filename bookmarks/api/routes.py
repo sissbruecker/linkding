@@ -32,24 +32,15 @@ class BookmarkViewSet(viewsets.GenericViewSet,
     def get_serializer_context(self):
         return {'user': self.request.user}
 
-    @action(methods=['get', 'post'], detail=False)
+    @action(methods=['get'], detail=False)
     def archived(self, request):
-        if request.method == 'GET':
-            user = request.user
-            query_string = request.GET.get('q')
-            query_set = queries.query_archived_bookmarks(user, query_string)
-            page = self.paginate_queryset(query_set)
-            serializer = self.get_serializer_class()
-            data = serializer(page, many=True).data
-            return self.get_paginated_response(data)
-
-        if request.method == 'POST':
-            serializer = self.get_serializer(data=request.data)
-            if serializer.is_valid():
-                self.perform_create(serializer)
-                archive_bookmark(serializer.save())
-                return Response(status=status.HTTP_201_CREATED)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        user = request.user
+        query_string = request.GET.get('q')
+        query_set = queries.query_archived_bookmarks(user, query_string)
+        page = self.paginate_queryset(query_set)
+        serializer = self.get_serializer_class()
+        data = serializer(page, many=True).data
+        return self.get_paginated_response(data)
 
     @action(methods=['post'], detail=True)
     def archive(self, request, pk):

@@ -34,6 +34,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             expectation['description'] = bookmark.description
             expectation['website_title'] = bookmark.website_title
             expectation['website_description'] = bookmark.website_description
+            expectation['is_archived'] = bookmark.is_archived
             expectation['tag_names'] = tag_names
             expectation['date_added'] = bookmark.date_added.isoformat().replace('+00:00', 'Z')
             expectation['date_modified'] = bookmark.date_modified.isoformat().replace('+00:00', 'Z')
@@ -47,8 +48,9 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_create_bookmark(self):
         data = {
             'url': 'https://example.com/',
-            'title': 'test title',
-            'description': 'test description',
+            'title': 'Test title',
+            'description': 'Test description',
+            'is_archived': False,
             'tag_names': ['tag1', 'tag2']
         }
         self.post(reverse('bookmarks:bookmark-list'), data, status.HTTP_201_CREATED)
@@ -56,6 +58,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.url, data['url'])
         self.assertEqual(bookmark.title, data['title'])
         self.assertEqual(bookmark.description, data['description'])
+        self.assertFalse(bookmark.is_archived, data['is_archived'])
         self.assertEqual(bookmark.tags.count(), 2)
         self.assertEqual(bookmark.tags.filter(name=data['tag_names'][0]).count(), 1)
         self.assertEqual(bookmark.tags.filter(name=data['tag_names'][1]).count(), 1)
@@ -95,11 +98,20 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_create_archived_bookmark(self):
         data = {
             'url': 'https://example.com/',
-            'title': 'test Title',
-            'description': 'test Description',
+            'title': 'Test title',
+            'description': 'Test description',
+            'is_archived': True,
             'tag_names': ['tag1', 'tag2']
         }
-        self.post(reverse('bookmarks:bookmark-archived'), data, status.HTTP_201_CREATED)
+        self.post(reverse('bookmarks:bookmark-list'), data, status.HTTP_201_CREATED)
+        bookmark = Bookmark.objects.get(url=data['url'])
+        self.assertEqual(bookmark.url, data['url'])
+        self.assertEqual(bookmark.title, data['title'])
+        self.assertEqual(bookmark.description, data['description'])
+        self.assertTrue(bookmark.is_archived)
+        self.assertEqual(bookmark.tags.count(), 2)
+        self.assertEqual(bookmark.tags.filter(name=data['tag_names'][0]).count(), 1)
+        self.assertEqual(bookmark.tags.filter(name=data['tag_names'][1]).count(), 1)
 
     def test_get_bookmark(self):
         url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
