@@ -1,7 +1,28 @@
 {# Basic menu list #}
 <div class="hide-md">
     <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
-    <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archive</a>
+    <div class="dropdown">
+        <a href="#" class="btn btn-link dropdown-toggle" tabindex="0" style="padding-right: 0.2rem">
+          Bookmarks
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" style="height:1rem;width:1rem;vertical-align: text-bottom;">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </a>
+        <ul class="menu">
+          <li>
+            <a href="{% url 'bookmarks:index' %}" class="btn btn-link">Active</a>
+          </li>
+          <li>
+            <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archived</a>
+          </li>
+          <li>
+            <a href="{% url 'bookmarks:index' %}?q=!unread" class="btn btn-link">Unread</a>
+          </li>
+          <li>
+            <a href="{% url 'bookmarks:index' %}?q=!untagged" class="btn btn-link">Untagged</a>
+          </li>
+        </ul>
+    </div>
     <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
     <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
 </div>
@@ -21,7 +42,16 @@
         <!-- menu component -->
         <ul class="menu">
             <li>
-                <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archive</a>
+              <a href="{% url 'bookmarks:index' %}" class="btn btn-link">Bookmarks</a>
+            </li>
+            <li style="padding-left: 1rem">
+              <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archived</a>
+            </li>
+            <li style="padding-left: 1rem">
+              <a href="{% url 'bookmarks:index' %}?q=!unread" class="btn btn-link">Unread</a>
+            </li>
+            <li style="padding-left: 1rem">
+              <a href="{% url 'bookmarks:index' %}?q=!untagged" class="btn btn-link">Untagged</a>
             </li>
             <li>
                 <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
