@@ -65,6 +65,11 @@
                 {% endif %}
                 <button type="submit" name="remove" value="{{ bookmark.id }}"
                    class="btn btn-link btn-sm btn-confirmation">Remove</button>
+                {% if bookmark.unread %}
+                  <span class="text-gray text-sm">|</span>
+                  <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
+                          class="btn btn-link btn-sm">Mark as read</button>
+                {% endif %}
             </div>
         </li>
     {% endfor %}
