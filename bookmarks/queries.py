@@ -60,6 +60,11 @@ def _base_bookmarks_query(user: User, query_string: str) -> QuerySet:
         query_set = query_set.filter(
             tags=None
         )
+    # Unread bookmarks
+    if query['unread']:
+        query_set = query_set.filter(
+            unread=True
+        )
 
     # Sort by date added
     query_set = query_set.order_by('-date_added')
@@ -102,9 +107,11 @@ def _parse_query_string(query_string):
 
     # Special search commands
     untagged = '!untagged' in keywords
+    unread = '!unread' in keywords
 
     return {
         'search_terms': search_terms,
         'tag_names': tag_names,
         'untagged': untagged,
+        'unread': unread,
     }

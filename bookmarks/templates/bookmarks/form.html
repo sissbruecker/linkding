@@ -65,6 +65,16 @@
         </div>
         {{ form.description.errors }}
     </div>
+    <div class="form-group">
+      <label for="{{ form.unread.id_for_label }}" class="form-checkbox">
+        {{ form.unread }}
+        <i class="form-icon"></i>
+        <span>Mark as unread</span>
+      </label>
+      <div class="form-input-hint">
+        Allows you to filter for unread bookmarks, and mark them as read when you had a chance to look at them.
+      </div>
+    </div>
     <br/>
     <div class="form-group">
         {% if auto_close %}
