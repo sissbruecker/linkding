@@ -84,7 +84,7 @@ POST /api/bookmarks/
 ```
 
 Creates a new bookmark. Tags are simply assigned using their names. Including
-`is_archived: True` creates a new archived bookmark.
+`is_archived: true` saves a bookmark directly to the archive.
 
 Example payload:
 
@@ -93,7 +93,7 @@ Example payload:
   "url": "https://example.com",
   "title": "Example title",
   "description": "Example description",
-  "is_archived": False,
+  "is_archived": false,
   "tag_names": [
     "tag1",
     "tag2"
