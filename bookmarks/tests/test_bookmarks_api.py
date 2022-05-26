@@ -113,6 +113,12 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.tags.filter(name=data['tag_names'][0]).count(), 1)
         self.assertEqual(bookmark.tags.filter(name=data['tag_names'][1]).count(), 1)
 
+    def test_create_bookmark_minimal_payload_does_not_archive(self):
+        data = {'url': 'https://example.com/'}
+        self.post(reverse('bookmarks:bookmark-list'), data, status.HTTP_201_CREATED)
+        bookmark = Bookmark.objects.get(url=data['url'])
+        self.assertFalse(bookmark.is_archived)
+
     def test_get_bookmark(self):
         url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
         response = self.get(url, expected_status_code=status.HTTP_200_OK)

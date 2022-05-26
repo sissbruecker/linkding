@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from bookmarks.models import Bookmark, Tag, build_tag_string
-from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark
+from bookmarks.services.bookmarks import create_bookmark, update_bookmark
 from bookmarks.services.tags import get_or_create_tag
 
 
@@ -43,12 +43,9 @@ class BookmarkSerializer(serializers.ModelSerializer):
         bookmark.url = validated_data['url']
         bookmark.title = validated_data['title']
         bookmark.description = validated_data['description']
+        bookmark.is_archived = validated_data['is_archived']
         tag_string = build_tag_string(validated_data['tag_names'])
-        bookmark = create_bookmark(bookmark, tag_string, self.context['user'])
-
-        if validated_data['is_archived']:
-            bookmark = archive_bookmark(bookmark)
-        return bookmark
+        return create_bookmark(bookmark, tag_string, self.context['user'])
 
     def update(self, instance: Bookmark, validated_data):
         instance.url = validated_data['url']

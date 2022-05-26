@@ -83,7 +83,8 @@ Retrieves a single bookmark by ID.
 POST /api/bookmarks/
 ```
 
-Creates a new bookmark. Tags are simply assigned using their names.
+Creates a new bookmark. Tags are simply assigned using their names. Including
+`is_archived: True` creates a new archived bookmark.
 
 Example payload:
 
@@ -92,28 +93,7 @@ Example payload:
   "url": "https://example.com",
   "title": "Example title",
   "description": "Example description",
-  "tag_names": [
-    "tag1",
-    "tag2"
-  ]
-}
-```
-
-**Create Archived**
-
-```
-POST /api/bookmarks/archived/
-```
-
-Creates a new archived bookmark. Tags are simply assigned using their names.
-
-Example payload:
-
-```json
-{
-  "url": "https://example.com",
-  "title": "Example title",
-  "description": "Example description",
+  "is_archived": False,
   "tag_names": [
     "tag1",
     "tag2"
