@@ -24,7 +24,7 @@ The following resources are available:
 GET /api/bookmarks/
 ```
 
-List bookmarks. 
+List bookmarks.
 
 Parameters:
 
@@ -65,7 +65,7 @@ Example response:
 GET /api/bookmarks/archived/
 ```
 
-List archived bookmarks. 
+List archived bookmarks.
 
 Parameters and response are the same as for the regular list endpoint.
 
@@ -83,7 +83,8 @@ Retrieves a single bookmark by ID.
 POST /api/bookmarks/
 ```
 
-Creates a new bookmark. Tags are simply assigned using their names.
+Creates a new bookmark. Tags are simply assigned using their names. Including
+`is_archived: true` saves a bookmark directly to the archive.
 
 Example payload:
 
@@ -92,6 +93,7 @@ Example payload:
   "url": "https://example.com",
   "title": "Example title",
   "description": "Example description",
+  "is_archived": false,
   "tag_names": [
     "tag1",
     "tag2"
@@ -201,4 +203,3 @@ Example payload:
   "name": "example"
 }
 ```
-

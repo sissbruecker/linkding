@@ -19,6 +19,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             'description',
             'website_title',
             'website_description',
+            'is_archived',
             'tag_names',
             'date_added',
             'date_modified'
@@ -33,6 +34,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
     # Override optional char fields to provide default value
     title = serializers.CharField(required=False, allow_blank=True, default='')
     description = serializers.CharField(required=False, allow_blank=True, default='')
+    is_archived = serializers.BooleanField(required=False, default=False)
     # Override readonly tag_names property to allow passing a list of tag names to create/update
     tag_names = TagListField(required=False, default=[])
 
@@ -41,6 +43,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
         bookmark.url = validated_data['url']
         bookmark.title = validated_data['title']
         bookmark.description = validated_data['description']
+        bookmark.is_archived = validated_data['is_archived']
         tag_string = build_tag_string(validated_data['tag_names'])
         return create_bookmark(bookmark, tag_string, self.context['user'])
 
