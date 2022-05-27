@@ -9,6 +9,7 @@ from bookmarks.api.serializers import BookmarkSerializer, TagSerializer
 from bookmarks.models import Bookmark, Tag
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
 from bookmarks.services.website_loader import load_website_metadata
+from bookmarks.views.settings import app_version
 
 
 class BookmarkViewSet(viewsets.GenericViewSet,
@@ -88,6 +89,16 @@ class TagViewSet(viewsets.GenericViewSet,
         return {'user': self.request.user}
 
 
+class VersionViewSet(viewsets.ViewSet,
+                     mixins.ListModelMixin):
+
+    def list(self, request):
+        return Response({
+            'version': app_version
+        }, status=status.HTTP_200_OK)
+
+
 router = DefaultRouter()
 router.register(r'bookmarks', BookmarkViewSet, basename='bookmark')
 router.register(r'tags', TagViewSet, basename='tag')
+router.register(r'version', VersionViewSet, basename='version')

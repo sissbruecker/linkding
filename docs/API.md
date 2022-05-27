@@ -203,3 +203,11 @@ Example payload:
   "name": "example"
 }
 ```
+
+#### Version
+
+Retrieve Linkding version.
+
+```
+GET /api/version/
+```

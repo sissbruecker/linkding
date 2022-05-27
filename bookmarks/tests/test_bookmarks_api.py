@@ -7,6 +7,7 @@ from rest_framework.authtoken.models import Token
 
 from bookmarks.models import Bookmark
 from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
+from bookmarks.views.settings import app_version
 
 
 class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
@@ -225,3 +226,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
         url = reverse('bookmarks:bookmark-unarchive', args=[inaccessible_bookmark.id])
         self.post(url, expected_status_code=status.HTTP_404_NOT_FOUND)
+
+    def test_get_version_from_api(self):
+        response = self.get(reverse('bookmarks:version-list'), expected_status_code=status.HTTP_200_OK)
+        self.assertEqual(response.data['version'], app_version)
