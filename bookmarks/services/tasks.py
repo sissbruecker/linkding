@@ -1,6 +1,6 @@
 import logging
 
-import waybackpy
+from waybackpy import WaybackMachineSaveAPI
 from background_task import background
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -38,10 +38,10 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
 
     logger.debug(f'Create web archive link for bookmark: {bookmark}...')
 
-    wayback = waybackpy.Url(bookmark.url)
+    archive = WaybackMachineSaveAPI(bookmark.url, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36")
 
     try:
-        archive = wayback.save()
+        archive.save()
     except WaybackError as error:
         logger.exception(f'Error creating web archive link for bookmark: {bookmark}...', exc_info=error)
         raise
