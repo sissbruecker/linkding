@@ -86,7 +86,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_force_update_snapshot(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
-        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackUrl('https://other.com')):
+        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI('https://other.com')):
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, True)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
