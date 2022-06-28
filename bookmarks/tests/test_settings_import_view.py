@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from bookmarks.models import Tag
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
@@ -77,3 +78,17 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             self.assertRedirects(response, reverse('bookmarks:settings.general'))
             self.assertFormSuccessHint(response, '2 bookmarks were successfully imported')
             self.assertFormErrorHint(response, '1 bookmarks could not be imported')
+
+    def test_should_import_duplicated_tag_only_once(self):
+        with open('bookmarks/tests/resources/simple_valid_import_file_with_duplicated_tag.html') as import_file:
+            response = self.client.post(
+                reverse('bookmarks:settings.import'),
+                {'import_file': import_file},
+                follow=True
+            )
+
+            tag_list = list(Tag.objects.all())
+            self.assertEqual(len(tag_list), 3, 'wrong number of tags: ' + str(tag_list))
+            self.assertRedirects(response, reverse('bookmarks:settings.general'))
+            self.assertFormSuccessHint(response, '3 bookmarks were successfully imported')
+            self.assertNoFormErrorHint(response)

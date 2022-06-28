@@ -93,6 +93,7 @@ def _create_missing_tags(netscape_bookmarks: List[NetscapeBookmark], user: User)
                 tag = Tag(name=tag_name, owner=user)
                 tag.date_added = timezone.now()
                 tags_to_create.append(tag)
+                tag_cache.put(tag)
 
     Tag.objects.bulk_create(tags_to_create)
 
