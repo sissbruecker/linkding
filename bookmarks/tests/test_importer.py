@@ -139,6 +139,17 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
 
         self.assertEqual(Tag.objects.count(), 4)
 
+    def test_create_missing_tags_does_not_duplicate_tags(self):
+        html_tags = [
+            BookmarkHtmlTag(href='https://example.com', tags='tag1'),
+            BookmarkHtmlTag(href='https://foo.com', tags='tag1'),
+            BookmarkHtmlTag(href='https://bar.com', tags='tag1'),
+        ]
+        import_html = self.render_html(tags=html_tags)
+        import_netscape_html(import_html, self.get_or_create_test_user())
+
+        self.assertEqual(Tag.objects.count(), 1)
+
     def test_should_append_tags_to_bookmark_when_reimporting_with_different_tags(self):
         html_tags = [
             BookmarkHtmlTag(href='https://example.com', tags='tag1'),
