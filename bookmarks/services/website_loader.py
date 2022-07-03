@@ -45,11 +45,14 @@ def load_page(url: str):
     return str(results.best())
 
 
+DEFAULT_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36'
+
+
 def fake_request_headers():
     return {
         "Accept": "text/html,application/xhtml+xml,application/xml",
         "Accept-Encoding": "gzip, deflate",
         "Dnt": "1",
         "Upgrade-Insecure-Requests": "1",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36",
+        "User-Agent": DEFAULT_USER_AGENT,
     }
