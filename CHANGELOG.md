@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.11.1 (03/07/2022)
+
+### What's Changed
+* Fix duplicate tags on import by @wahlm in https://github.com/sissbruecker/linkding/pull/289
+* Add apple-touch-icon by @daveonkels in https://github.com/sissbruecker/linkding/pull/282
+* Bump waybackpy to 3.0.6 by @dustinblackman in https://github.com/sissbruecker/linkding/pull/281
+
+### New Contributors
+* @wahlm made their first contribution in https://github.com/sissbruecker/linkding/pull/289
+* @daveonkels made their first contribution in https://github.com/sissbruecker/linkding/pull/282
+* @dustinblackman made their first contribution in https://github.com/sissbruecker/linkding/pull/281
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.11.0...v1.11.1
+
+---
+
 ## v1.11.0 (26/05/2022)
 
 ### What's Changed
