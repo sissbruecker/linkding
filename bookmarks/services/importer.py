@@ -173,6 +173,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
             shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + '...'
             logging.warning(
                 f'Failed to assign tags to the bookmark: {shortened_bookmark_tag_str}. Could not find bookmark by URL.')
+            continue
 
         # Get tag models by string, schedule inserts for bookmark -> tag associations
         tag_names = parse_tag_string(netscape_bookmark.tag_string)

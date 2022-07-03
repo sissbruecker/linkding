@@ -111,6 +111,19 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         self.assertEqual(len(bookmarks), 1)
         self.assertBookmarksImported(html_tags[1:1])
 
+    def test_import_invalid_bookmark_does_not_associate_tags(self):
+        html_tags = [
+            # No URL
+            BookmarkHtmlTag(tags='tag1, tag2, tag3'),
+        ]
+        import_html = self.render_html(tags=html_tags)
+        # Sqlite silently ignores relationships that have a non-persisted bookmark,
+        # thus testing if the bulk create receives no relationships
+        BookmarkToTagRelationShip = Bookmark.tags.through
+        with patch.object(BookmarkToTagRelationShip.objects, 'bulk_create') as mock_bulk_create:
+            import_netscape_html(import_html, self.get_or_create_test_user())
+            mock_bulk_create.assert_called_once_with([], ignore_conflicts=True)
+
     def test_import_tags(self):
         html_tags = [
             BookmarkHtmlTag(href='https://example.com', tags='tag1'),
