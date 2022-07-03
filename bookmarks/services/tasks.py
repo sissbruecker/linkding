@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from waybackpy.exceptions import WaybackError
 
 from bookmarks.models import Bookmark, UserProfile
+from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
 
@@ -38,10 +39,10 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
 
     logger.debug(f'Create web archive link for bookmark: {bookmark}...')
 
-    wayback = waybackpy.Url(bookmark.url)
+    archive = waybackpy.WaybackMachineSaveAPI(bookmark.url, DEFAULT_USER_AGENT)
 
     try:
-        archive = wayback.save()
+        archive.save()
     except WaybackError as error:
         logger.exception(f'Error creating web archive link for bookmark: {bookmark}...', exc_info=error)
         raise

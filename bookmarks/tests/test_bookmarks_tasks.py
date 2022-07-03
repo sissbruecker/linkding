@@ -10,14 +10,12 @@ from bookmarks.services import tasks
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
-class MockWaybackUrl:
-
+class MockWaybackMachineSaveAPI:
     def __init__(self, archive_url: str):
         self.archive_url = archive_url
 
     def save(self):
         return self
-
 
 class MockWaybackUrlWithSaveError:
     def save(self):
@@ -52,7 +50,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_update_snapshot_url(self):
         bookmark = self.setup_bookmark()
 
-        with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://example.com')):
+        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI('https://example.com')):
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
@@ -60,7 +58,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(bookmark.web_archive_snapshot_url, 'https://example.com')
 
     def test_create_web_archive_snapshot_should_handle_missing_bookmark_id(self):
-        with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://example.com')) as mock_wayback_url:
+        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI('https://example.com')) as mock_wayback_url:
             tasks._create_web_archive_snapshot_task(123, False)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
@@ -69,7 +67,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_handle_wayback_save_error(self):
         bookmark = self.setup_bookmark()
 
-        with patch.object(waybackpy, 'Url',
+        with patch.object(waybackpy, 'WaybackMachineSaveAPI',
                           return_value=MockWaybackUrlWithSaveError()):
             with self.assertRaises(NotImplementedError):
                 tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
@@ -78,7 +76,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_skip_if_snapshot_exists(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
-        with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://other.com')):
+        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI('https://other.com')):
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
@@ -88,7 +86,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_force_update_snapshot(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
-        with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://other.com')):
+        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI('https://other.com')):
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, True)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
@@ -117,7 +115,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
         self.setup_bookmark()
 
-        with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://example.com')):
+        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI('https://example.com')):
             tasks.schedule_bookmarks_without_snapshots(user)
             self.run_pending_task(tasks._schedule_bookmarks_without_snapshots_task)
             self.run_all_pending_tasks(tasks._create_web_archive_snapshot_task)
@@ -131,7 +129,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(web_archive_snapshot_url='https://example.com')
         self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
-        with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://other.com')):
+        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI('https://other.com')):
             tasks.schedule_bookmarks_without_snapshots(user)
             self.run_pending_task(tasks._schedule_bookmarks_without_snapshots_task)
             self.run_all_pending_tasks(tasks._create_web_archive_snapshot_task)
@@ -149,7 +147,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=other_user)
         self.setup_bookmark(user=other_user)
 
-        with patch.object(waybackpy, 'Url', return_value=MockWaybackUrl('https://example.com')):
+        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI('https://example.com')):
             tasks.schedule_bookmarks_without_snapshots(user)
             self.run_pending_task(tasks._schedule_bookmarks_without_snapshots_task)
             self.run_all_pending_tasks(tasks._create_web_archive_snapshot_task)
