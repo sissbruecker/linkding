@@ -13,7 +13,7 @@ As described in the installation docs, you should mount the `/etc/linkding/data`
 Below, we describe several methods to create a backup of the database:
 
 - Manual backup using the export function from the UI
-- Create a copy of the SQLite databse with the SQLite backup function
+- Create a copy of the SQLite database with the SQLite backup function
 - Create a plain textfile with the contents of the SQLite database with the SQLite dump function
 
 Choose the method that fits you best.
