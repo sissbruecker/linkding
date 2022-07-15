@@ -25,6 +25,6 @@
     "rollup-plugin-svelte": "^7.1.0",
     "rollup-plugin-terser": "^7.0.2",
     "spectre.css": "^0.5.8",
-    "svelte": "^3.46.4"
+    "svelte": "^3.49.0"
   }
 }
