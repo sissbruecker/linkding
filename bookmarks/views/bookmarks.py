@@ -1,3 +1,4 @@
+from typing import List
 import urllib.parse
 
 from django.contrib.auth.decorators import login_required
@@ -35,9 +36,19 @@ def archived(request):
     return render(request, 'bookmarks/archive.html', context)
 
 
+def get_current_tags(query_string: str) -> List[str]:
+    current_tags = []
+    if query_string and query_string != '!untagged':
+        current_tags = query_string.split()
+        current_tags = list(map(lambda s: s[1:] if len(s) > 0 and s[0] == '#' else s, current_tags))
+    
+    return current_tags
+
+
 def get_bookmark_view_context(request, query_set, tags, base_url):
     page = request.GET.get('page')
     query_string = request.GET.get('q')
+    current_tags = get_current_tags(query_string=query_string)
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
     return_url = generate_return_url(base_url, page, query_string)
@@ -51,6 +62,7 @@ def get_bookmark_view_context(request, query_set, tags, base_url):
     return {
         'bookmarks': bookmarks,
         'tags': tags,
+        'current_tags': current_tags,
         'query': query_string if query_string else '',
         'empty': paginator.count == 0,
         'return_url': return_url,
