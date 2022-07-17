@@ -58,6 +58,12 @@ def tag_cloud(context, tags: List[Tag]):
     }
 
 
+@register.inclusion_tag('bookmarks/tags_current.html', name='tags_current', takes_context=True)
+def tags_current(context, tags: List[Tag]):
+    tags.sort()
+    return { 'tags': tags }
+
+
 @register.inclusion_tag('bookmarks/bookmark_list.html', name='bookmark_list', takes_context=True)
 def bookmark_list(context, bookmarks: Page, return_url: str, link_target: str = '_blank'):
     return {

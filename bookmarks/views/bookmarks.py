@@ -1,3 +1,4 @@
+from typing import List
 import urllib.parse
 
 from django.contrib.auth.decorators import login_required
@@ -50,6 +51,15 @@ def shared(request):
     return render(request, 'bookmarks/shared.html', context)
 
 
+def get_current_tags(query_string: str) -> List[str]:
+    current_tags = []
+    if query_string and query_string != '!untagged':
+        current_tags = query_string.split()
+        current_tags = list(map(lambda s: s[1:] if len(s) > 0 and s[0] == '#' else s, current_tags))
+
+    return current_tags
+
+
 def get_bookmark_view_context(request: WSGIRequest,
                               filters: BookmarkFilters,
                               query_set: QuerySet[Bookmark],
@@ -58,6 +68,7 @@ def get_bookmark_view_context(request: WSGIRequest,
     page = request.GET.get('page')
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
+    current_tags = get_current_tags(filters.query)
     # Prefetch owner relation, this avoids n+1 queries when using the owner in templates
     prefetch_related_objects(bookmarks.object_list, 'owner')
     return_url = generate_return_url(base_url, page, filters)
@@ -71,6 +82,7 @@ def get_bookmark_view_context(request: WSGIRequest,
     return {
         'bookmarks': bookmarks,
         'tags': tags,
+        'current_tags': current_tags,
         'filters': filters,
         'empty': paginator.count == 0,
         'return_url': return_url,

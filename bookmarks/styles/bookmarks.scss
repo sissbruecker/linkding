@@ -106,6 +106,13 @@ ul.bookmark-list {
   }
 }
 
+.current-tag-cloud {
+  a, a:visited:hover {
+    color: $alternative-color;
+    font-style: italic;
+  }
+}
+
 .bookmarks-form {
 
   .btn.form-icon {
