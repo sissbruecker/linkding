@@ -28,5 +28,5 @@ urlpatterns = [
     # API
     path('api/', include(router.urls), name='api'),
     # Feeds
-    path('feeds/unread', UnreadBookmarksFeed(), name='feeds.unread'),
+    path('feeds/<str:feed_key>/unread', UnreadBookmarksFeed(), name='feeds.unread'),
 ]

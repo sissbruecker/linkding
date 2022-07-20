@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
 from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.models import FeedToken
 
 
 class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
@@ -38,3 +39,27 @@ class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
         self.client.get(reverse('bookmarks:settings.integrations'))
 
         self.assertEqual(Token.objects.count(), 1)
+
+    def test_should_generate_feed_token_if_not_exists(self):
+        self.assertEqual(FeedToken.objects.count(), 0)
+
+        self.client.get(reverse('bookmarks:settings.integrations'))
+
+        self.assertEqual(FeedToken.objects.count(), 1)
+        token = FeedToken.objects.first()
+        self.assertEqual(token.user, self.user)
+
+    def test_should_not_generate_feed_token_if_exists(self):
+        FeedToken.objects.get_or_create(user=self.user)
+        self.assertEqual(FeedToken.objects.count(), 1)
+
+        self.client.get(reverse('bookmarks:settings.integrations'))
+
+        self.assertEqual(FeedToken.objects.count(), 1)
+
+    def test_should_display_unread_bookmarks_feed_url(self):
+        response = self.client.get(reverse('bookmarks:settings.integrations'))
+        html = response.content.decode()
+
+        token = FeedToken.objects.first()
+        self.assertInHTML(f'<a href="http://testserver/feeds/{token.key}/unread">Unread bookmarks</a>', html)

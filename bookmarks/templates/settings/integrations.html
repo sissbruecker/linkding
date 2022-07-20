@@ -42,5 +42,13 @@
                 token can access and manage all your bookmarks.</p>
             <p>If you think that a token was compromised you can revoke (delete) it in the <a href="{% url 'admin:authtoken_tokenproxy_changelist' %}">admin panel</a>. After deleting the token, a new one will be generated when you reload this settings page.</p>
         </section>
+
+        <section class="content-area">
+            <h2>RSS Feeds</h2>
+            <p>The following URLs provide RSS feeds for your bookmarks:</p>
+            <ul>
+              <li><a href="{{ unread_feed_url }}">Unread bookmarks</a></li>
+            </ul>
+        </section>
     </div>
 {% endblock %}
