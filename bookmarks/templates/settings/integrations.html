@@ -50,6 +50,7 @@
               <li><a href="{{ all_feed_url }}">All bookmarks</a></li>
               <li><a href="{{ unread_feed_url }}">Unread bookmarks</a></li>
             </ul>
+          <p>To generate new URLs you can remove the feed token for your user in the <a href="{% url 'admin:bookmarks_feedtoken_changelist' %}">admin panel</a>. After deleting the feed token, new URLs will be generated when you reload this settings page.</p>
         </section>
     </div>
 {% endblock %}
