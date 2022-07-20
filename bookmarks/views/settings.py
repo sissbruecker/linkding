@@ -76,10 +76,12 @@ def integrations(request):
     application_url = request.build_absolute_uri("/bookmarks/new")
     api_token = Token.objects.get_or_create(user=request.user)[0]
     feed_token = FeedToken.objects.get_or_create(user=request.user)[0]
+    all_feed_url = request.build_absolute_uri(reverse('bookmarks:feeds.all', args=[feed_token.key]))
     unread_feed_url = request.build_absolute_uri(reverse('bookmarks:feeds.unread', args=[feed_token.key]))
     return render(request, 'settings/integrations.html', {
         'application_url': application_url,
         'api_token': api_token.key,
+        'all_feed_url': all_feed_url,
         'unread_feed_url': unread_feed_url,
     })
 

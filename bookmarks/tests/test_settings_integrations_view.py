@@ -57,9 +57,10 @@ class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(FeedToken.objects.count(), 1)
 
-    def test_should_display_unread_bookmarks_feed_url(self):
+    def test_should_display_feed_urls(self):
         response = self.client.get(reverse('bookmarks:settings.integrations'))
         html = response.content.decode()
 
         token = FeedToken.objects.first()
+        self.assertInHTML(f'<a href="http://testserver/feeds/{token.key}/all">All bookmarks</a>', html)
         self.assertInHTML(f'<a href="http://testserver/feeds/{token.key}/unread">Unread bookmarks</a>', html)
