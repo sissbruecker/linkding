@@ -34,6 +34,8 @@ class BookmarkFactoryMixin:
                        web_archive_snapshot_url: str = '',
                        unread: bool = False,
                        ):
+        if not title:
+            title = get_random_string(length=32)
         if tags is None:
             tags = []
         if user is None:
