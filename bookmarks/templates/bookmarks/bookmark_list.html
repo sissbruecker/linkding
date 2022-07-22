@@ -9,7 +9,7 @@
                 <i class="form-icon"></i>
             </label>
             <div class="title truncate">
-                <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener">{{ bookmark.resolved_title }}</a>
+                <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" class="{% if bookmark.unread %}text-italic{% endif %}">{{ bookmark.resolved_title }}</a>
             </div>
             <div class="description truncate">
                 {% if bookmark.tag_names %}
