@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.12.0 (23/07/2022)
+
+### What's Changed
+* Add read it later functionality by @sissbruecker in https://github.com/sissbruecker/linkding/pull/304
+* Add RSS feeds by @sissbruecker in https://github.com/sissbruecker/linkding/pull/305
+* Add bookmarklet to community by @ukcuddlyguy in https://github.com/sissbruecker/linkding/pull/293
+* Shorten and simplify example bookmarklet in documentation by @FunctionDJ in https://github.com/sissbruecker/linkding/pull/297
+* Fix typo by @kianmeng in https://github.com/sissbruecker/linkding/pull/295
+* Bump django from 3.2.13 to 3.2.14 by @dependabot in https://github.com/sissbruecker/linkding/pull/294
+* Bump svelte from 3.46.4 to 3.49.0 by @dependabot in https://github.com/sissbruecker/linkding/pull/299
+* Bump terser from 5.5.1 to 5.14.2 by @dependabot in https://github.com/sissbruecker/linkding/pull/302
+
+### New Contributors
+* @ukcuddlyguy made their first contribution in https://github.com/sissbruecker/linkding/pull/293
+* @FunctionDJ made their first contribution in https://github.com/sissbruecker/linkding/pull/297
+* @kianmeng made their first contribution in https://github.com/sissbruecker/linkding/pull/295
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.11.1...v1.12.0
+
+---
+
 ## v1.11.1 (03/07/2022)
 
 ### What's Changed
