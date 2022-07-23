@@ -50,7 +50,7 @@ class Bookmark(models.Model):
     website_title = models.CharField(max_length=512, blank=True, null=True)
     website_description = models.TextField(blank=True, null=True)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
-    unread = models.BooleanField(default=True)
+    unread = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     date_added = models.DateTimeField()
     date_modified = models.DateTimeField()
