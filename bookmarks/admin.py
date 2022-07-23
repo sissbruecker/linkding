@@ -21,9 +21,9 @@ class LinkdingAdminSite(AdminSite):
 class AdminBookmark(admin.ModelAdmin):
     list_display = ('resolved_title', 'url', 'is_archived', 'owner', 'date_added')
     search_fields = ('title', 'description', 'website_title', 'website_description', 'url', 'tags__name')
-    list_filter = ('owner__username', 'is_archived', 'tags',)
+    list_filter = ('owner__username', 'is_archived', 'unread', 'tags',)
     ordering = ('-date_added',)
-    actions = ['archive_selected_bookmarks', 'unarchive_selected_bookmarks']
+    actions = ['archive_selected_bookmarks', 'unarchive_selected_bookmarks', 'mark_as_read', 'mark_as_unread']
 
     def archive_selected_bookmarks(self, request, queryset: QuerySet):
         for bookmark in queryset:
@@ -42,6 +42,24 @@ class AdminBookmark(admin.ModelAdmin):
         self.message_user(request, ngettext(
             '%d bookmark was successfully unarchived.',
             '%d bookmarks were successfully unarchived.',
+            bookmarks_count,
+        ) % bookmarks_count, messages.SUCCESS)
+
+    def mark_as_read(self, request, queryset: QuerySet):
+        bookmarks_count = queryset.count()
+        queryset.update(unread=False)
+        self.message_user(request, ngettext(
+            '%d bookmark marked as read.',
+            '%d bookmarks marked as read.',
+            bookmarks_count,
+        ) % bookmarks_count, messages.SUCCESS)
+
+    def mark_as_unread(self, request, queryset: QuerySet):
+        bookmarks_count = queryset.count()
+        queryset.update(unread=True)
+        self.message_user(request, ngettext(
+            '%d bookmark marked as unread.',
+            '%d bookmarks marked as unread.',
             bookmarks_count,
         ) % bookmarks_count, messages.SUCCESS)
 
