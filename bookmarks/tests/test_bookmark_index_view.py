@@ -18,7 +18,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
 
         for bookmark in bookmarks:
             self.assertInHTML(
-                f'<a href="{bookmark.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
+                f'<a href="{bookmark.url}" target="{link_target}" rel="noopener" class="">{bookmark.resolved_title}</a>',
                 html
             )
 
@@ -27,7 +27,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
 
         for bookmark in bookmarks:
             self.assertInHTML(
-                f'<a href="{bookmark.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
+                f'<a href="{bookmark.url}" target="{link_target}" rel="noopener" class="">{bookmark.resolved_title}</a>',
                 html,
                 count=0
             )

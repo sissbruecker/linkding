@@ -10,9 +10,14 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
-    def assertBookmarksLink(self, html: str, bookmark: Bookmark, link_target: str = '_blank'):
+    def assertBookmarksLink(self, html: str, bookmark: Bookmark, link_target: str = '_blank', unread: bool = False):
         self.assertInHTML(
-            f'<a href="{bookmark.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
+            f'''
+            <a href="{bookmark.url}" 
+                target="{link_target}" 
+                rel="noopener" 
+                class="{'text-italic' if unread else ''}">{bookmark.resolved_title}</a>
+            ''',
             html
         )
 
@@ -113,6 +118,15 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         html = self.render_template_with_link_target([bookmark], '_self')
 
         self.assertBookmarksLink(html, bookmark, link_target='_self')
+
+    def test_bookmark_link_target_should_respect_unread_flag(self):
+        bookmark = self.setup_bookmark()
+        html = self.render_template_with_link_target([bookmark], '_self')
+        self.assertBookmarksLink(html, bookmark, link_target='_self', unread=False)
+
+        bookmark = self.setup_bookmark(unread=True)
+        html = self.render_template_with_link_target([bookmark], '_self')
+        self.assertBookmarksLink(html, bookmark, link_target='_self', unread=True)
 
     def test_web_archive_link_target_should_be_blank_by_default(self):
         bookmark = self.setup_bookmark()

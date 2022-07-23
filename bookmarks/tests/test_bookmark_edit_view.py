@@ -20,6 +20,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
             'tag_string': 'editedtag1 editedtag2',
             'title': 'edited title',
             'description': 'edited description',
+            'unread': False,
         }
         return {**form_data, **overrides}
 
@@ -35,9 +36,20 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.url, form_data['url'])
         self.assertEqual(bookmark.title, form_data['title'])
         self.assertEqual(bookmark.description, form_data['description'])
+        self.assertEqual(bookmark.unread, form_data['unread'])
         self.assertEqual(bookmark.tags.count(), 2)
         self.assertEqual(bookmark.tags.all()[0].name, 'editedtag1')
         self.assertEqual(bookmark.tags.all()[1].name, 'editedtag2')
+
+    def test_should_mark_bookmark_as_unread(self):
+        bookmark = self.setup_bookmark()
+        form_data = self.create_form_data({'id': bookmark.id, 'unread': True})
+
+        self.client.post(reverse('bookmarks:edit', args=[bookmark.id]), form_data)
+
+        bookmark.refresh_from_db()
+
+        self.assertTrue(bookmark.unread)
 
     def test_should_prefill_bookmark_form_fields(self):
         tag1 = self.setup_tag()
