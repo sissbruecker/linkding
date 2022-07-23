@@ -1,7 +1,6 @@
 import random
 import logging
-from dataclasses import dataclass
-from typing import Optional, List
+from typing import List
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -32,7 +31,6 @@ class BookmarkFactoryMixin:
                        website_title: str = '',
                        website_description: str = '',
                        web_archive_snapshot_url: str = '',
-                       unread: bool = False,
                        ):
         if not title:
             title = get_random_string(length=32)
@@ -55,7 +53,6 @@ class BookmarkFactoryMixin:
             is_archived=is_archived,
             unread=unread,
             web_archive_snapshot_url=web_archive_snapshot_url,
-            unread=unread
         )
         bookmark.save()
         for tag in tags:
