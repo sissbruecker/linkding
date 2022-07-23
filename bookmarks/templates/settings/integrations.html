@@ -38,9 +38,12 @@
                     </div>
                 </div>
             </div>
-            <p><strong>Please treat this token as you would any other credential.</strong> Any party with access to this
-                token can access and manage all your bookmarks.</p>
-            <p>If you think that a token was compromised you can revoke (delete) it in the <a href="{% url 'admin:authtoken_tokenproxy_changelist' %}">admin panel</a>. After deleting the token, a new one will be generated when you reload this settings page.</p>
+            <p>
+              <strong>Please treat this token as you would any other credential.</strong>
+              Any party with access to this token can access and manage all your bookmarks.
+              If you think that a token was compromised you can revoke (delete) it in the <a href="{% url 'admin:authtoken_tokenproxy_changelist' %}">admin panel</a>.
+              After deleting the token, a new one will be generated when you reload this settings page.
+            </p>
         </section>
 
         <section class="content-area">
@@ -50,7 +53,16 @@
               <li><a href="{{ all_feed_url }}">All bookmarks</a></li>
               <li><a href="{{ unread_feed_url }}">Unread bookmarks</a></li>
             </ul>
-          <p>To generate new URLs you can remove the feed token for your user in the <a href="{% url 'admin:bookmarks_feedtoken_changelist' %}">admin panel</a>. After deleting the feed token, new URLs will be generated when you reload this settings page.</p>
+            <p>
+              All URLs support appending a <code>q</code> URL parameter for specifying a search query.
+              You can get an example by doing a search in the bookmarks view and then copying the parameter from the URL.
+            </p>
+            <p>
+              <strong>Please note that these URLs include an authentication token that should be treated like any other credential.</strong>
+              Any party with access to these URLs can read all your bookmarks.
+              If you think that a URL was compromised you can delete the feed token for your user in the <a href="{% url 'admin:bookmarks_feedtoken_changelist' %}">admin panel</a>.
+              After deleting the feed token, new URLs will be generated when you reload this settings page.
+            </p>
         </section>
     </div>
 {% endblock %}
