@@ -84,6 +84,16 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 404)
         self.assertTrue(Bookmark.objects.filter(id=bookmark.id).exists())
 
+    def test_mark_as_read(self):
+        bookmark = self.setup_bookmark(unread=True)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'mark_as_read': [bookmark.id],
+        })
+        bookmark.refresh_from_db()
+
+        self.assertFalse(bookmark.unread)
+
     def test_bulk_archive(self):
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()

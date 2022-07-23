@@ -19,6 +19,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
             'tag_string': 'tag1 tag2',
             'title': 'test title',
             'description': 'test description',
+            'unread': False,
             'auto_close': '',
         }
         return {**form_data, **overrides}
@@ -35,9 +36,20 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.url, form_data['url'])
         self.assertEqual(bookmark.title, form_data['title'])
         self.assertEqual(bookmark.description, form_data['description'])
+        self.assertEqual(bookmark.unread, form_data['unread'])
         self.assertEqual(bookmark.tags.count(), 2)
         self.assertEqual(bookmark.tags.all()[0].name, 'tag1')
         self.assertEqual(bookmark.tags.all()[1].name, 'tag2')
+
+    def test_should_create_new_unread_bookmark(self):
+        form_data = self.create_form_data({'unread': True})
+
+        self.client.post(reverse('bookmarks:new'), form_data)
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+
+        bookmark = Bookmark.objects.first()
+        self.assertTrue(bookmark.unread)
 
     def test_should_prefill_url_from_url_parameter(self):
         response = self.client.get(reverse('bookmarks:new') + '?url=http://example.com')
@@ -64,7 +76,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse('bookmarks:new'))
         html = response.content.decode()
 
-        self.assertInHTML('<input type="hidden" name="auto_close" id="id_auto_close">',html)
+        self.assertInHTML('<input type="hidden" name="auto_close" id="id_auto_close">', html)
 
     def test_should_redirect_to_index_view(self):
         form_data = self.create_form_data()

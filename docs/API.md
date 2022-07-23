@@ -47,6 +47,8 @@ Example response:
       "description": "Example description",
       "website_title": "Website title",
       "website_description": "Website description",
+      "is_archived": false,
+      "unread": false,
       "tag_names": [
         "tag1",
         "tag2"
@@ -94,6 +96,7 @@ Example payload:
   "title": "Example title",
   "description": "Example description",
   "is_archived": false,
+  "unread": false,
   "tag_names": [
     "tag1",
     "tag2"
@@ -107,7 +110,33 @@ Example payload:
 PUT /api/bookmarks/<id>/
 ```
 
-Updates a bookmark. Tags are simply assigned using their names.
+Updates a bookmark.
+This is a full update, which requires at least a URL, and fields that are not specified are cleared or reset to their defaults.
+Tags are simply assigned using their names.
+
+Example payload:
+
+```json
+{
+  "url": "https://example.com",
+  "title": "Example title",
+  "description": "Example description",
+  "tag_names": [
+    "tag1",
+    "tag2"
+  ]
+}
+```
+
+**Patch**
+
+```
+PATCH /api/bookmarks/<id>/
+```
+
+Updates a bookmark partially.
+Allows to modify individual fields of a bookmark.
+Tags are simply assigned using their names.
 
 Example payload:
 

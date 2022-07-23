@@ -10,6 +10,7 @@ class NetscapeBookmark:
     description: str
     date_added: str
     tag_string: str
+    to_read: bool
 
 
 class BookmarkParser(HTMLParser):
@@ -24,6 +25,7 @@ class BookmarkParser(HTMLParser):
         self.tags = ''
         self.title = ''
         self.description = ''
+        self.toread = ''
 
     def handle_starttag(self, tag: str, attrs: list):
         name = 'handle_start_' + tag.lower()
@@ -56,6 +58,7 @@ class BookmarkParser(HTMLParser):
             description='',
             date_added=self.add_date,
             tag_string=self.tags,
+            to_read=self.toread == '1'
         )
 
     def handle_a_data(self, data):
@@ -75,6 +78,7 @@ class BookmarkParser(HTMLParser):
         self.tags = ''
         self.title = ''
         self.description = ''
+        self.toread = ''
 
 
 def parse(html: str) -> List[NetscapeBookmark]:

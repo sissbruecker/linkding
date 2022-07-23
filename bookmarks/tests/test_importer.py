@@ -21,6 +21,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
             self.assertEqual(bookmark.title, html_tag.title)
             self.assertEqual(bookmark.description, html_tag.description)
             self.assertEqual(bookmark.date_added, parse_timestamp(html_tag.add_date))
+            self.assertEqual(bookmark.unread, html_tag.to_read)
 
             tag_names = parse_tag_string(html_tag.tags)
 
@@ -34,49 +35,13 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         html_tags = [
             BookmarkHtmlTag(href='https://example.com', title='Example title', description='Example description',
                             add_date='1', tags='example-tag'),
-            BookmarkHtmlTag(href='https://foo.com', title='Foo title', description='',
+            BookmarkHtmlTag(href='https://example.com/foo', title='Foo title', description='',
                             add_date='2', tags=''),
-            BookmarkHtmlTag(href='https://bar.com', title='Bar title', description='Bar description',
+            BookmarkHtmlTag(href='https://example.com/bar', title='Bar title', description='Bar description',
                             add_date='3', tags='bar-tag, other-tag'),
+            BookmarkHtmlTag(href='https://example.com/baz', title='Baz title', description='Baz description',
+                            add_date='4', to_read=True),
         ]
-        import_html = self.render_html(tags=html_tags)
-        result = import_netscape_html(import_html, self.get_or_create_test_user())
-
-        # Check result
-        self.assertEqual(result.total, 3)
-        self.assertEqual(result.success, 3)
-        self.assertEqual(result.failed, 0)
-
-        # Check bookmarks
-        bookmarks = Bookmark.objects.all()
-        self.assertEqual(len(bookmarks), 3)
-        self.assertBookmarksImported(html_tags)
-
-    def test_synchronize(self):
-        # Initial import
-        html_tags = [
-            BookmarkHtmlTag(href='https://example.com', title='Example title', description='Example description',
-                            add_date='1', tags='example-tag'),
-            BookmarkHtmlTag(href='https://foo.com', title='Foo title', description='',
-                            add_date='2', tags=''),
-            BookmarkHtmlTag(href='https://bar.com', title='Bar title', description='Bar description',
-                            add_date='3', tags='bar-tag, other-tag'),
-        ]
-        import_html = self.render_html(tags=html_tags)
-        import_netscape_html(import_html, self.get_or_create_test_user())
-
-        # Change data, add some new data
-        html_tags = [
-            BookmarkHtmlTag(href='https://example.com', title='Updated Example title',
-                            description='Updated Example description', add_date='111', tags='updated-example-tag'),
-            BookmarkHtmlTag(href='https://foo.com', title='Updated Foo title', description='Updated Foo description',
-                            add_date='222', tags='new-tag'),
-            BookmarkHtmlTag(href='https://bar.com', title='Updated Bar title', description='Updated Bar description',
-                            add_date='333', tags='updated-bar-tag, updated-other-tag'),
-            BookmarkHtmlTag(href='https://baz.com', add_date='444', tags='baz-tag')
-        ]
-
-        # Import updated data
         import_html = self.render_html(tags=html_tags)
         result = import_netscape_html(import_html, self.get_or_create_test_user())
 
@@ -88,6 +53,48 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         # Check bookmarks
         bookmarks = Bookmark.objects.all()
         self.assertEqual(len(bookmarks), 4)
+        self.assertBookmarksImported(html_tags)
+
+    def test_synchronize(self):
+        # Initial import
+        html_tags = [
+            BookmarkHtmlTag(href='https://example.com', title='Example title', description='Example description',
+                            add_date='1', tags='example-tag'),
+            BookmarkHtmlTag(href='https://example.com/foo', title='Foo title', description='',
+                            add_date='2', tags=''),
+            BookmarkHtmlTag(href='https://example.com/bar', title='Bar title', description='Bar description',
+                            add_date='3', tags='bar-tag, other-tag'),
+            BookmarkHtmlTag(href='https://example.com/unread', title='Unread title', description='Unread description',
+                            add_date='3', to_read=True),
+        ]
+        import_html = self.render_html(tags=html_tags)
+        import_netscape_html(import_html, self.get_or_create_test_user())
+
+        # Change data, add some new data
+        html_tags = [
+            BookmarkHtmlTag(href='https://example.com', title='Updated Example title',
+                            description='Updated Example description', add_date='111', tags='updated-example-tag'),
+            BookmarkHtmlTag(href='https://example.com/foo', title='Updated Foo title', description='Updated Foo description',
+                            add_date='222', tags='new-tag'),
+            BookmarkHtmlTag(href='https://example.com/bar', title='Updated Bar title', description='Updated Bar description',
+                            add_date='333', tags='updated-bar-tag, updated-other-tag'),
+            BookmarkHtmlTag(href='https://example.com/unread', title='Unread title', description='Unread description',
+                            add_date='3', to_read=False),
+            BookmarkHtmlTag(href='https://baz.com', add_date='444', tags='baz-tag')
+        ]
+
+        # Import updated data
+        import_html = self.render_html(tags=html_tags)
+        result = import_netscape_html(import_html, self.get_or_create_test_user())
+
+        # Check result
+        self.assertEqual(result.total, 5)
+        self.assertEqual(result.success, 5)
+        self.assertEqual(result.failed, 0)
+
+        # Check bookmarks
+        bookmarks = Bookmark.objects.all()
+        self.assertEqual(len(bookmarks), 5)
         self.assertBookmarksImported(html_tags)
 
     def test_import_with_some_invalid_bookmarks(self):

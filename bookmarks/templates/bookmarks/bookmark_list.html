@@ -9,7 +9,7 @@
                 <i class="form-icon"></i>
             </label>
             <div class="title truncate">
-                <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener">{{ bookmark.resolved_title }}</a>
+                <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" class="{% if bookmark.unread %}text-italic{% endif %}">{{ bookmark.resolved_title }}</a>
             </div>
             <div class="description truncate">
                 {% if bookmark.tag_names %}
@@ -65,6 +65,11 @@
                 {% endif %}
                 <button type="submit" name="remove" value="{{ bookmark.id }}"
                    class="btn btn-link btn-sm btn-confirmation">Remove</button>
+                {% if bookmark.unread %}
+                  <span class="text-gray text-sm">|</span>
+                  <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
+                          class="btn btn-link btn-sm">Mark as read</button>
+                {% endif %}
             </div>
         </li>
     {% endfor %}

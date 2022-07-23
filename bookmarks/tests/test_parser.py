@@ -17,15 +17,18 @@ class ParserTestCase(TestCase, ImportTestMixin):
             self.assertEqual(bookmark.date_added, html_tag.add_date)
             self.assertEqual(bookmark.description, html_tag.description)
             self.assertEqual(bookmark.tag_string, html_tag.tags)
+            self.assertEqual(bookmark.to_read, html_tag.to_read)
 
     def test_parse_bookmarks(self):
         html_tags = [
             BookmarkHtmlTag(href='https://example.com', title='Example title', description='Example description',
                             add_date='1', tags='example-tag'),
-            BookmarkHtmlTag(href='https://foo.com', title='Foo title', description='',
+            BookmarkHtmlTag(href='https://example.com/foo', title='Foo title', description='',
                             add_date='2', tags=''),
-            BookmarkHtmlTag(href='https://bar.com', title='Bar title', description='Bar description',
+            BookmarkHtmlTag(href='https://example.com/bar', title='Bar title', description='Bar description',
                             add_date='3', tags='bar-tag, other-tag'),
+            BookmarkHtmlTag(href='https://example.com/baz', title='Baz title', description='Baz description',
+                            add_date='3', to_read=True),
         ]
         html = self.render_html(html_tags)
         bookmarks = parse(html)

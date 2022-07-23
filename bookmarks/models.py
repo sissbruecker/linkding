@@ -50,7 +50,7 @@ class Bookmark(models.Model):
     website_title = models.CharField(max_length=512, blank=True, null=True)
     website_description = models.TextField(blank=True, null=True)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
-    unread = models.BooleanField(default=True)
+    unread = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     date_added = models.DateTimeField()
     date_modified = models.DateTimeField()
@@ -97,12 +97,13 @@ class BookmarkForm(forms.ModelForm):
                             required=False)
     description = forms.CharField(required=False,
                                   widget=forms.Textarea())
+    unread = forms.BooleanField(required=False)
     # Hidden field that determines whether to close window/tab after saving the bookmark
     auto_close = forms.CharField(required=False)
 
     class Meta:
         model = Bookmark
-        fields = ['url', 'tag_string', 'title', 'description', 'auto_close']
+        fields = ['url', 'tag_string', 'title', 'description', 'unread', 'auto_close']
 
 
 class UserProfile(models.Model):

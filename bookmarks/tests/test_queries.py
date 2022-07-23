@@ -343,6 +343,32 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_archived_bookmarks(self.user, f'!untagged #{tag.name}')
         self.assertCountEqual(list(query), [])
 
+    def test_query_bookmarks_unread_should_return_unread_bookmarks_only(self):
+        unread_bookmarks = [
+            self.setup_bookmark(unread=True),
+            self.setup_bookmark(unread=True),
+            self.setup_bookmark(unread=True),
+        ]
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+
+        query = queries.query_bookmarks(self.user, '!unread')
+        self.assertCountEqual(list(query), unread_bookmarks)
+
+    def test_query_archived_bookmarks_unread_should_return_unread_bookmarks_only(self):
+        unread_bookmarks = [
+            self.setup_bookmark(is_archived=True, unread=True),
+            self.setup_bookmark(is_archived=True, unread=True),
+            self.setup_bookmark(is_archived=True, unread=True),
+        ]
+        self.setup_bookmark(is_archived=True)
+        self.setup_bookmark(is_archived=True)
+        self.setup_bookmark(is_archived=True)
+
+        query = queries.query_archived_bookmarks(self.user, '!unread')
+        self.assertCountEqual(list(query), unread_bookmarks)
+
     def test_query_bookmark_tags_should_return_all_tags_for_empty_query(self):
         self.setup_tag_search_data()
 

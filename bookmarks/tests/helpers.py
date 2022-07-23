@@ -23,6 +23,7 @@ class BookmarkFactoryMixin:
 
     def setup_bookmark(self,
                        is_archived: bool = False,
+                       unread: bool = False,
                        tags=None,
                        user: User = None,
                        url: str = '',
@@ -49,6 +50,7 @@ class BookmarkFactoryMixin:
             date_modified=timezone.now(),
             owner=user,
             is_archived=is_archived,
+            unread=unread,
             web_archive_snapshot_url=web_archive_snapshot_url,
         )
         bookmark.save()
@@ -95,12 +97,19 @@ class LinkdingApiTestCase(APITestCase):
 
 
 class BookmarkHtmlTag:
-    def __init__(self, href: str = '', title: str = '', description: str = '', add_date: str = '', tags: str = ''):
+    def __init__(self,
+                 href: str = '',
+                 title: str = '',
+                 description: str = '',
+                 add_date: str = '',
+                 tags: str = '',
+                 to_read: bool = False):
         self.href = href
         self.title = title
         self.description = description
         self.add_date = add_date
         self.tags = tags
+        self.to_read = to_read
 
 
 class ImportTestMixin:
@@ -109,7 +118,8 @@ class ImportTestMixin:
         <DT>
         <A {f'HREF="{tag.href}"' if tag.href else ''}
            {f'ADD_DATE="{tag.add_date}"' if tag.add_date else ''}
-           {f'TAGS="{tag.tags}"' if tag.tags else ''}>
+           {f'TAGS="{tag.tags}"' if tag.tags else ''}
+           TOREAD="{1 if tag.to_read else 0}">
            {tag.title if tag.title else ''}
         </A>
         {f'<DD>{tag.description}' if tag.description else ''}
