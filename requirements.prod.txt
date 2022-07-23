@@ -3,7 +3,7 @@ beautifulsoup4==4.7.1
 certifi==2019.6.16
 charset-normalizer==2.0.4
 confusable-homoglyphs==3.2.0
-Django==3.2.13
+Django==3.2.14
 django-background-tasks==1.2.5
 django-compat==1.0.15
 django-generate-secret-key==1.0.2
