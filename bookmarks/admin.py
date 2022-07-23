@@ -9,7 +9,7 @@ from django.utils.translation import ngettext, gettext
 from rest_framework.authtoken.admin import TokenAdmin
 from rest_framework.authtoken.models import TokenProxy
 
-from bookmarks.models import Bookmark, Tag, UserProfile, Toast
+from bookmarks.models import Bookmark, Tag, UserProfile, Toast, FeedToken
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
 
 
@@ -121,11 +121,18 @@ class AdminToast(admin.ModelAdmin):
     list_filter = ('owner__username',)
 
 
+class AdminFeedToken(admin.ModelAdmin):
+    list_display = ('key', 'user')
+    search_fields = ['key']
+    list_filter = ('user__username',)
+
+
 linkding_admin_site = LinkdingAdminSite()
 linkding_admin_site.register(Bookmark, AdminBookmark)
 linkding_admin_site.register(Tag, AdminTag)
 linkding_admin_site.register(User, AdminCustomUser)
 linkding_admin_site.register(TokenProxy, TokenAdmin)
 linkding_admin_site.register(Toast, AdminToast)
+linkding_admin_site.register(FeedToken, AdminFeedToken)
 linkding_admin_site.register(Task, TaskAdmin)
 linkding_admin_site.register(CompletedTask, CompletedTaskAdmin)

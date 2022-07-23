@@ -4,6 +4,7 @@ from django.views.generic import RedirectView
 
 from bookmarks.api.routes import router
 from bookmarks import views
+from bookmarks.feeds import AllBookmarksFeed, UnreadBookmarksFeed
 
 app_name = 'bookmarks'
 urlpatterns = [
@@ -25,5 +26,8 @@ urlpatterns = [
     # Toasts
     path('toasts/acknowledge', views.toasts.acknowledge, name='toasts.acknowledge'),
     # API
-    path('api/', include(router.urls), name='api')
+    path('api/', include(router.urls), name='api'),
+    # Feeds
+    path('feeds/<str:feed_key>/all', AllBookmarksFeed(), name='feeds.all'),
+    path('feeds/<str:feed_key>/unread', UnreadBookmarksFeed(), name='feeds.unread'),
 ]

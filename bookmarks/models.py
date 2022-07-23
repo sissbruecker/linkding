@@ -1,3 +1,5 @@
+import binascii
+import os
 from typing import List
 
 from django import forms
@@ -167,3 +169,27 @@ class Toast(models.Model):
     message = models.TextField()
     acknowledged = models.BooleanField(default=False)
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+
+
+class FeedToken(models.Model):
+    """
+    Adapted from authtoken.models.Token
+    """
+    key = models.CharField(max_length=40, primary_key=True)
+    user = models.OneToOneField(get_user_model(),
+                                related_name='feed_token',
+                                on_delete=models.CASCADE,
+                                )
+    created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
+
+    def __str__(self):
+        return self.key
