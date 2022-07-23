@@ -97,12 +97,19 @@ class LinkdingApiTestCase(APITestCase):
 
 
 class BookmarkHtmlTag:
-    def __init__(self, href: str = '', title: str = '', description: str = '', add_date: str = '', tags: str = ''):
+    def __init__(self,
+                 href: str = '',
+                 title: str = '',
+                 description: str = '',
+                 add_date: str = '',
+                 tags: str = '',
+                 to_read: bool = False):
         self.href = href
         self.title = title
         self.description = description
         self.add_date = add_date
         self.tags = tags
+        self.to_read = to_read
 
 
 class ImportTestMixin:
@@ -111,7 +118,8 @@ class ImportTestMixin:
         <DT>
         <A {f'HREF="{tag.href}"' if tag.href else ''}
            {f'ADD_DATE="{tag.add_date}"' if tag.add_date else ''}
-           {f'TAGS="{tag.tags}"' if tag.tags else ''}>
+           {f'TAGS="{tag.tags}"' if tag.tags else ''}
+           TOREAD="{1 if tag.to_read else 0}">
            {tag.title if tag.title else ''}
         </A>
         {f'<DD>{tag.description}' if tag.description else ''}
