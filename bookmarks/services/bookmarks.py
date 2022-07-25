@@ -116,6 +116,7 @@ def untag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_us
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.title = from_bookmark.title
     to_bookmark.description = from_bookmark.description
+    to_bookmark.unread = from_bookmark.unread
 
 
 def _update_website_metadata(bookmark: Bookmark):
