@@ -18,6 +18,23 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
     def setUp(self) -> None:
         self.get_or_create_test_user()
 
+    def test_create_should_update_existing_bookmark_with_same_url(self):
+        original_bookmark = self.setup_bookmark(url='https://example.com', unread=False)
+        bookmark_data = Bookmark(url='https://example.com',
+                                 title='Updated Title',
+                                 description='Updated description',
+                                 unread=True,
+                                 is_archived=True)
+        updated_bookmark = create_bookmark(bookmark_data, '', self.get_or_create_test_user())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(updated_bookmark.id, original_bookmark.id)
+        self.assertEqual(updated_bookmark.title, bookmark_data.title)
+        self.assertEqual(updated_bookmark.description, bookmark_data.description)
+        self.assertEqual(updated_bookmark.unread, bookmark_data.unread)
+        # Saving a duplicate bookmark should not modify archive flag - right?
+        self.assertFalse(updated_bookmark.is_archived)
+
     def test_create_should_create_web_archive_snapshot(self):
         with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:
             bookmark_data = Bookmark(url='https://example.com')
