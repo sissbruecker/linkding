@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 
 from django import template
 from django.core.paginator import Page
@@ -26,7 +26,7 @@ class TagGroup:
         self.char = char
 
 
-def create_tag_groups(tags: List[Tag]):
+def create_tag_groups(tags: Set[Tag]):
     # Only display each tag name once, ignoring casing
     # This covers cases where the tag cloud contains shared tags with duplicate names
     # Also means that the cloud can not make assumptions that it will necessarily contain
@@ -51,17 +51,15 @@ def create_tag_groups(tags: List[Tag]):
 
 
 @register.inclusion_tag('bookmarks/tag_cloud.html', name='tag_cloud', takes_context=True)
-def tag_cloud(context, tags: List[Tag]):
-    groups = create_tag_groups(tags)
+def tag_cloud(context, tags: List[Tag], selected_tags: List[Tag]):
+    has_selected_tags = len(selected_tags) > 0
+    unselected_tags = set(tags).symmetric_difference(selected_tags)
+    groups = create_tag_groups(unselected_tags)
     return {
         'groups': groups,
+        'selected_tags': selected_tags,
+        'has_selected_tags': has_selected_tags,
     }
-
-
-@register.inclusion_tag('bookmarks/tags_current.html', name='tags_current', takes_context=True)
-def tags_current(context, tags: List[Tag]):
-    tags.sort()
-    return { 'tags': tags }
 
 
 @register.inclusion_tag('bookmarks/bookmark_list.html', name='bookmark_list', takes_context=True)

@@ -31,10 +31,11 @@ def append_query_param(context, **kwargs):
 
     return query.urlencode()
 
+
 @register.simple_tag(takes_context=True)
 def remove_query_param(context, **kwargs):
     query = context.request.GET.copy()
-    
+
     # Remove item from query param
     for key in kwargs:
         if query.__contains__(key):
@@ -44,7 +45,7 @@ def remove_query_param(context, **kwargs):
                 cur_values.remove(kwargs[key])
                 value = ' '.join(cur_values)
                 query.__setitem__(key, value)
-            
+
     return query.urlencode()
 
 @register.simple_tag(takes_context=True)

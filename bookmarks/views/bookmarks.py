@@ -4,7 +4,7 @@ import urllib.parse
 from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator
-from django.db.models import QuerySet, prefetch_related_objects
+from django.db.models import QuerySet, Q, prefetch_related_objects
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.urls import reverse
@@ -51,13 +51,18 @@ def shared(request):
     return render(request, 'bookmarks/shared.html', context)
 
 
-def get_current_tags(query_string: str) -> List[str]:
-    current_tags = []
-    if query_string and query_string != '!untagged':
-        current_tags = query_string.split()
-        current_tags = list(map(lambda s: s[1:] if len(s) > 0 and s[0] == '#' else s, current_tags))
+def _get_selected_tags(tags: QuerySet[Tag], query_string: str):
+    parsed_query = queries._parse_query_string(query_string)
+    tag_names = parsed_query['tag_names']
 
-    return current_tags
+    if len(tag_names) == 0:
+        return []
+
+    condition = Q()
+    for tag_name in parsed_query['tag_names']:
+        condition = condition | Q(name__iexact=tag_name)
+
+    return list(tags.filter(condition))
 
 
 def get_bookmark_view_context(request: WSGIRequest,
@@ -68,7 +73,7 @@ def get_bookmark_view_context(request: WSGIRequest,
     page = request.GET.get('page')
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
-    current_tags = get_current_tags(filters.query)
+    selected_tags = _get_selected_tags(tags, filters.query)
     # Prefetch owner relation, this avoids n+1 queries when using the owner in templates
     prefetch_related_objects(bookmarks.object_list, 'owner')
     return_url = generate_return_url(base_url, page, filters)
@@ -82,7 +87,7 @@ def get_bookmark_view_context(request: WSGIRequest,
     return {
         'bookmarks': bookmarks,
         'tags': tags,
-        'current_tags': current_tags,
+        'selected_tags': selected_tags,
         'filters': filters,
         'empty': paginator.count == 0,
         'return_url': return_url,
