@@ -1,4 +1,3 @@
-from typing import List
 import urllib.parse
 
 from django.contrib.auth.decorators import login_required

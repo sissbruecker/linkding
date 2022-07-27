@@ -1,17 +1,13 @@
 from typing import List
 
-from bs4 import BeautifulSoup
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
 from bookmarks.models import Tag, User
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
-class TagCloudTagTest(TestCase, BookmarkFactoryMixin):
-    def make_soup(self, html: str):
-        return BeautifulSoup(html, features="html.parser")
-
+class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def render_template(self, tags: List[Tag], selected_tags: List[Tag] = [], url: str = '/test'):
         rf = RequestFactory()
         request = rf.get(url)
@@ -103,30 +99,35 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin):
         tags = [
             self.setup_tag(name='tag1'),
             self.setup_tag(name='tag2'),
-            self.setup_tag(name='tag3'),
-            self.setup_tag(name='tag4'),
-            self.setup_tag(name='tag5'),
-        ]
-        selected_tags = [
-            tags[0],
-            tags[1],
         ]
 
-        rendered_template = self.render_template(tags, selected_tags, url='/test?q=%23tag1 %23tag2 %23tag3')
+        rendered_template = self.render_template(tags, tags, url='/test?q=%23tag1 %23tag2')
 
         self.assertNumSelectedTags(rendered_template, 2)
 
         self.assertInHTML('''
-            <a href="?q=%23tag2+%23tag3"
+            <a href="?q=%23tag2"
                class="text-bold mr-2">
                 <span>-tag1</span>
             </a>
         ''', rendered_template)
 
         self.assertInHTML('''
-            <a href="?q=%23tag1+%23tag3"
+            <a href="?q=%23tag1"
                class="text-bold mr-2">
                 <span>-tag2</span>
+            </a>
+        ''', rendered_template)
+
+    def test_selected_tag_url_keeps_other_search_terms(self):
+        tag = self.setup_tag(name='tag1')
+
+        rendered_template = self.render_template([tag], [tag], url='/test?q=term1 %23tag1 term2 %21untagged')
+
+        self.assertInHTML('''
+            <a href="?q=term1+term2+%21untagged"
+               class="text-bold mr-2">
+                <span>-tag1</span>
             </a>
         ''', rendered_template)
 
