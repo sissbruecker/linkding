@@ -52,7 +52,7 @@ def shared(request):
 
 
 def _get_selected_tags(tags: QuerySet[Tag], query_string: str):
-    parsed_query = queries._parse_query_string(query_string)
+    parsed_query = queries.parse_query_string(query_string)
     tag_names = parsed_query['tag_names']
 
     if len(tag_names) == 0:
