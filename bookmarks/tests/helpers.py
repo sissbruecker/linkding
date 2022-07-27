@@ -2,6 +2,7 @@ import random
 import logging
 from typing import List
 
+from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -78,6 +79,11 @@ class BookmarkFactoryMixin:
         user.profile.enable_sharing = enable_sharing
         user.profile.save()
         return user
+
+
+class HtmlTestMixin:
+    def make_soup(self, html: str):
+        return BeautifulSoup(html, features="html.parser")
 
 
 class LinkdingApiTestCase(APITestCase):

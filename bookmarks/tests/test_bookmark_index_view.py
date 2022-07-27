@@ -1,3 +1,4 @@
+from typing import List
 import urllib.parse
 
 from django.contrib.auth.models import User
@@ -5,16 +6,16 @@ from django.test import TestCase
 from django.urls import reverse
 
 from bookmarks.models import Bookmark, Tag, UserProfile
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
-class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
+class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
 
-    def assertVisibleBookmarks(self, response, bookmarks: [Bookmark], link_target: str = '_blank'):
+    def assertVisibleBookmarks(self, response, bookmarks: List[Bookmark], link_target: str = '_blank'):
         html = response.content.decode()
         self.assertContains(response, 'data-is-bookmark-item', count=len(bookmarks))
 
@@ -24,7 +25,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
                 html
             )
 
-    def assertInvisibleBookmarks(self, response, bookmarks: [Bookmark], link_target: str = '_blank'):
+    def assertInvisibleBookmarks(self, response, bookmarks: List[Bookmark], link_target: str = '_blank'):
         html = response.content.decode()
 
         for bookmark in bookmarks:
@@ -34,15 +35,26 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
                 count=0
             )
 
-    def assertVisibleTags(self, response, tags: [Tag]):
+    def assertVisibleTags(self, response, tags: List[Tag]):
         self.assertContains(response, 'data-is-tag-item', count=len(tags))
 
         for tag in tags:
             self.assertContains(response, tag.name)
 
-    def assertInvisibleTags(self, response, tags: [Tag]):
+    def assertInvisibleTags(self, response, tags: List[Tag]):
         for tag in tags:
             self.assertNotContains(response, tag.name)
+
+    def assertSelectedTags(self, response, tags: List[Tag]):
+        soup = self.make_soup(response.content.decode())
+        selected_tags = soup.select('p.selected-tags')[0]
+        self.assertIsNotNone(selected_tags)
+
+        tag_list = selected_tags.select('a')
+        self.assertEqual(len(tag_list), len(tags))
+
+        for tag in tags:
+            self.assertTrue(tag.name in selected_tags.text, msg=f'Selected tags do not contain: {tag.name}')
 
     def test_should_list_unarchived_and_user_owned_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
@@ -121,7 +133,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_tag(),
         ]
 
-        self.setup_bookmark(tags=[visible_tags[0]], title='searchvalue'),
+        self.setup_bookmark(tags=[visible_tags[0]], title='searchvalue')
         self.setup_bookmark(tags=[visible_tags[1]], title='searchvalue')
         self.setup_bookmark(tags=[visible_tags[2]], title='searchvalue')
         self.setup_bookmark(tags=[invisible_tags[0]])
@@ -132,6 +144,20 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)
+
+    def test_should_display_selected_tags_from_query(self):
+        tags = [
+            self.setup_tag(),
+            self.setup_tag(),
+            self.setup_tag(),
+            self.setup_tag(),
+            self.setup_tag(),
+        ]
+        self.setup_bookmark(tags=tags)
+
+        response = self.client.get(reverse('bookmarks:index') + f'?q=%23{tags[0].name}+%23{tags[1].name}')
+
+        self.assertSelectedTags(response, [tags[0], tags[1]])
 
     def test_should_open_bookmarks_in_new_page_by_default(self):
         visible_bookmarks = [
