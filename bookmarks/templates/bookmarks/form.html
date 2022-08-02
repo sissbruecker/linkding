@@ -75,6 +75,16 @@
         Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them.
       </div>
     </div>
+    <div class="form-group">
+      <label for="{{ form.shared.id_for_label }}" class="form-checkbox">
+        {{ form.shared }}
+        <i class="form-icon"></i>
+        <span>Share</span>
+      </label>
+      <div class="form-input-hint">
+        Share this bookmark with other users.
+      </div>
+    </div>
     <br/>
     <div class="form-group">
         {% if auto_close %}

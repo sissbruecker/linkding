@@ -19,11 +19,12 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.get_or_create_test_user()
 
     def test_create_should_update_existing_bookmark_with_same_url(self):
-        original_bookmark = self.setup_bookmark(url='https://example.com', unread=False)
+        original_bookmark = self.setup_bookmark(url='https://example.com', unread=False, shared=False)
         bookmark_data = Bookmark(url='https://example.com',
                                  title='Updated Title',
                                  description='Updated description',
                                  unread=True,
+                                 shared=True,
                                  is_archived=True)
         updated_bookmark = create_bookmark(bookmark_data, '', self.get_or_create_test_user())
 
@@ -32,6 +33,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(updated_bookmark.title, bookmark_data.title)
         self.assertEqual(updated_bookmark.description, bookmark_data.description)
         self.assertEqual(updated_bookmark.unread, bookmark_data.unread)
+        self.assertEqual(updated_bookmark.shared, bookmark_data.shared)
         # Saving a duplicate bookmark should not modify archive flag - right?
         self.assertFalse(updated_bookmark.is_archived)
 

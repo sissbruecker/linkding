@@ -23,6 +23,7 @@ class BookmarkFactoryMixin:
     def setup_bookmark(self,
                        is_archived: bool = False,
                        unread: bool = False,
+                       shared: bool = False,
                        tags=None,
                        user: User = None,
                        url: str = '',
@@ -52,6 +53,7 @@ class BookmarkFactoryMixin:
             owner=user,
             is_archived=is_archived,
             unread=unread,
+            shared=shared,
             web_archive_snapshot_url=web_archive_snapshot_url,
         )
         bookmark.save()
