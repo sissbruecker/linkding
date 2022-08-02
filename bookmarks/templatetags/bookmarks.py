@@ -4,6 +4,7 @@ from django import template
 from django.core.paginator import Page
 
 from bookmarks.models import BookmarkForm, Tag, build_tag_string
+from bookmarks.utils import unique
 
 register = template.Library()
 
@@ -25,7 +26,13 @@ class TagGroup:
 
 
 def create_tag_groups(tags: List[Tag]):
-    sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
+    # Only display each tag name once, ignoring casing
+    # This covers cases where the tag cloud contains shared tags with duplicate names
+    # Also means that the cloud can not make assumptions that it will necessarily contain
+    # all tags of the current user
+    unique_tags = unique(tags, key=lambda x: str.lower(x.name))
+    # Ensure groups, as well as tags within groups, are ordered alphabetically
+    sorted_tags = sorted(unique_tags, key=lambda x: str.lower(x.name))
     group = None
     groups = []
 
