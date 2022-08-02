@@ -54,21 +54,27 @@
                     </span>
                     <span class="text-gray text-sm">|</span>
                 {% endif %}
-                <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
-                   class="btn btn-link btn-sm">Edit</a>
-                {% if bookmark.is_archived %}
-                    <button type="submit" name="unarchive" value="{{ bookmark.id }}"
-                       class="btn btn-link btn-sm">Unarchive</button>
+                {% if bookmark.owner == request.user %}
+                    {# Bookmark owner actions #}
+                    <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
+                       class="btn btn-link btn-sm">Edit</a>
+                    {% if bookmark.is_archived %}
+                        <button type="submit" name="unarchive" value="{{ bookmark.id }}"
+                           class="btn btn-link btn-sm">Unarchive</button>
+                    {% else %}
+                        <button type="submit" name="archive" value="{{ bookmark.id }}"
+                           class="btn btn-link btn-sm">Archive</button>
+                    {% endif %}
+                    <button type="submit" name="remove" value="{{ bookmark.id }}"
+                       class="btn btn-link btn-sm btn-confirmation">Remove</button>
+                    {% if bookmark.unread %}
+                      <span class="text-gray text-sm">|</span>
+                      <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
+                              class="btn btn-link btn-sm">Mark as read</button>
+                    {% endif %}
                 {% else %}
-                    <button type="submit" name="archive" value="{{ bookmark.id }}"
-                       class="btn btn-link btn-sm">Archive</button>
-                {% endif %}
-                <button type="submit" name="remove" value="{{ bookmark.id }}"
-                   class="btn btn-link btn-sm btn-confirmation">Remove</button>
-                {% if bookmark.unread %}
-                  <span class="text-gray text-sm">|</span>
-                  <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
-                          class="btn btn-link btn-sm">Mark as read</button>
+                    {# Shared bookmark actions #}
+                    <span class="text-gray text-sm">Shared by {{ bookmark.owner.username }}</span>
                 {% endif %}
             </div>
         </li>

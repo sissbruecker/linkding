@@ -35,6 +35,16 @@ def archived(request):
     return render(request, 'bookmarks/archive.html', context)
 
 
+@login_required
+def shared(request):
+    query_string = request.GET.get('q')
+    query_set = queries.query_shared_bookmarks(query_string)
+    tags = queries.query_shared_bookmark_tags(query_string)
+    base_url = reverse('bookmarks:shared')
+    context = get_bookmark_view_context(request, query_set, tags, base_url)
+    return render(request, 'bookmarks/shared.html', context)
+
+
 def get_bookmark_view_context(request, query_set, tags, base_url):
     page = request.GET.get('page')
     query_string = request.GET.get('q')

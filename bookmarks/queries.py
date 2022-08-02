@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib.auth.models import User
 from django.db.models import Q, Count, Aggregate, CharField, Value, BooleanField, QuerySet
 
@@ -27,7 +29,12 @@ def query_archived_bookmarks(user: User, query_string: str) -> QuerySet:
         .filter(is_archived=True)
 
 
-def _base_bookmarks_query(user: User, query_string: str) -> QuerySet:
+def query_shared_bookmarks(query_string: str) -> QuerySet:
+    return _base_bookmarks_query(None, query_string) \
+        .filter(shared=True)
+
+
+def _base_bookmarks_query(user: Optional[User], query_string: str) -> QuerySet:
     # Add aggregated tag info to bookmark instances
     query_set = Bookmark.objects \
         .annotate(tag_count=Count('tags'),
@@ -35,7 +42,8 @@ def _base_bookmarks_query(user: User, query_string: str) -> QuerySet:
                   tag_projection=Value(True, BooleanField()))
 
     # Filter for user
-    query_set = query_set.filter(owner=user)
+    if user:
+        query_set = query_set.filter(owner=user)
 
     # Split query into search terms and tags
     query = _parse_query_string(query_string)
@@ -82,6 +90,14 @@ def query_bookmark_tags(user: User, query_string: str) -> QuerySet:
 
 def query_archived_bookmark_tags(user: User, query_string: str) -> QuerySet:
     bookmarks_query = query_archived_bookmarks(user, query_string)
+
+    query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
+
+    return query_set.distinct()
+
+
+def query_shared_bookmark_tags(query_string: str) -> QuerySet:
+    bookmarks_query = query_shared_bookmarks(query_string)
 
     query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
 

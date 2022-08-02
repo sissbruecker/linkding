@@ -16,6 +16,9 @@
             <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archived</a>
           </li>
           <li>
+            <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared</a>
+          </li>
+          <li>
             <a href="{% url 'bookmarks:index' %}?q=!unread" class="btn btn-link">Unread</a>
           </li>
           <li>
@@ -46,6 +49,9 @@
             </li>
             <li style="padding-left: 1rem">
               <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archived</a>
+            </li>
+            <li style="padding-left: 1rem">
+              <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared</a>
             </li>
             <li style="padding-left: 1rem">
               <a href="{% url 'bookmarks:index' %}?q=!unread" class="btn btn-link">Unread</a>

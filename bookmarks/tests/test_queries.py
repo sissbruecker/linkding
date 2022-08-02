@@ -572,3 +572,54 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
         query = queries.query_archived_bookmark_tags(self.user, f'!untagged #{tag.name}')
         self.assertCountEqual(list(query), [])
+
+    def test_query_shared_bookmarks(self):
+        user1 = User.objects.create_user('user1', 'user1@example.com', 'password123')
+        user2 = User.objects.create_user('user2', 'user2@example.com', 'password123')
+        user3 = User.objects.create_user('user3', 'user3@example.com', 'password123')
+        tag = self.setup_tag()
+
+        shared_bookmarks = [
+            self.setup_bookmark(user=user1, shared=True, title='test title'),
+            self.setup_bookmark(user=user2, shared=True),
+            self.setup_bookmark(user=user3, shared=True, tags=[tag]),
+        ]
+
+        # Unshared bookmarks
+        self.setup_bookmark(user=user1, shared=False, title='test title'),
+        self.setup_bookmark(user=user2, shared=False),
+        self.setup_bookmark(user=user3, shared=False, tags=[tag]),
+
+        # Should return shared bookmarks from all users
+        query_set = queries.query_shared_bookmarks('')
+        self.assertQueryResult(query_set, [shared_bookmarks])
+
+        # Should respect search query
+        query_set = queries.query_shared_bookmarks('test title')
+        self.assertQueryResult(query_set, [[shared_bookmarks[0]]])
+
+        query_set = queries.query_shared_bookmarks('#' + tag.name)
+        self.assertQueryResult(query_set, [[shared_bookmarks[2]]])
+
+    def test_query_shared_bookmark_tags(self):
+        user1 = User.objects.create_user('user1', 'user1@example.com', 'password123')
+        user2 = User.objects.create_user('user2', 'user2@example.com', 'password123')
+        user3 = User.objects.create_user('user3', 'user3@example.com', 'password123')
+
+        shared_tags = [
+            self.setup_tag(user=user1),
+            self.setup_tag(user=user2),
+            self.setup_tag(user=user3),
+        ]
+
+        self.setup_bookmark(user=user1, shared=True, tags=[shared_tags[0]]),
+        self.setup_bookmark(user=user2, shared=True, tags=[shared_tags[1]]),
+        self.setup_bookmark(user=user3, shared=True, tags=[shared_tags[2]]),
+
+        self.setup_bookmark(user=user1, shared=False, tags=[self.setup_tag(user=user1)]),
+        self.setup_bookmark(user=user2, shared=False, tags=[self.setup_tag(user=user2)]),
+        self.setup_bookmark(user=user3, shared=False, tags=[self.setup_tag(user=user3)]),
+
+        query_set = queries.query_shared_bookmark_tags('')
+
+        self.assertQueryResult(query_set, [shared_tags])
