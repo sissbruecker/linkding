@@ -65,6 +65,41 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
                             expected_status_code=status.HTTP_200_OK)
         self.assertBookmarkListEqual(response.data['results'], [self.archived_bookmark1])
 
+    def test_list_shared_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'user@example.com', 'password123')
+        shared_bookmarks = [
+            self.setup_bookmark(shared=True),
+            self.setup_bookmark(shared=True),
+            self.setup_bookmark(shared=True, user=other_user),
+            self.setup_bookmark(shared=True, user=other_user),
+        ]
+
+        response = self.get(reverse('bookmarks:bookmark-shared'), expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], shared_bookmarks)
+
+    def test_list_shared_bookmarks_should_filter_by_query_and_user(self):
+        other_user = User.objects.create_user('otheruser', 'user@example.com', 'password123')
+        self_shared = [
+            self.setup_bookmark(shared=True, tags=[self.setup_tag(name='shared')]),
+            self.setup_bookmark(shared=True),
+        ]
+        other_shared = [
+            self.setup_bookmark(shared=True, tags=[self.setup_tag(name='shared')], user=other_user),
+            self.setup_bookmark(shared=True, user=other_user),
+        ]
+
+        response = self.get(reverse('bookmarks:bookmark-shared') + '?q=#shared',
+                            expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], [self_shared[0], other_shared[0]])
+
+        response = self.get(reverse('bookmarks:bookmark-shared') + '?user=otheruser',
+                            expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], other_shared)
+
+        response = self.get(reverse('bookmarks:bookmark-shared') + '?q=#shared&user=otheruser',
+                            expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], [other_shared[0]])
+
     def test_create_bookmark(self):
         data = {
             'url': 'https://example.com/',
@@ -296,6 +331,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_can_only_access_own_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
         inaccessible_bookmark = self.setup_bookmark(user=other_user)
+        inaccessible_shared_bookmark = self.setup_bookmark(user=other_user, shared=True)
         self.setup_bookmark(user=other_user, is_archived=True)
 
         url = reverse('bookmarks:bookmark-list')
@@ -309,14 +345,29 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         url = reverse('bookmarks:bookmark-detail', args=[inaccessible_bookmark.id])
         self.get(url, expected_status_code=status.HTTP_404_NOT_FOUND)
 
+        url = reverse('bookmarks:bookmark-detail', args=[inaccessible_shared_bookmark.id])
+        self.get(url, expected_status_code=status.HTTP_404_NOT_FOUND)
+
         url = reverse('bookmarks:bookmark-detail', args=[inaccessible_bookmark.id])
+        self.put(url, {url: 'https://example.com/'}, expected_status_code=status.HTTP_404_NOT_FOUND)
+
+        url = reverse('bookmarks:bookmark-detail', args=[inaccessible_shared_bookmark.id])
         self.put(url, {url: 'https://example.com/'}, expected_status_code=status.HTTP_404_NOT_FOUND)
 
         url = reverse('bookmarks:bookmark-detail', args=[inaccessible_bookmark.id])
         self.delete(url, expected_status_code=status.HTTP_404_NOT_FOUND)
 
+        url = reverse('bookmarks:bookmark-detail', args=[inaccessible_shared_bookmark.id])
+        self.delete(url, expected_status_code=status.HTTP_404_NOT_FOUND)
+
         url = reverse('bookmarks:bookmark-archive', args=[inaccessible_bookmark.id])
         self.post(url, expected_status_code=status.HTTP_404_NOT_FOUND)
 
+        url = reverse('bookmarks:bookmark-archive', args=[inaccessible_shared_bookmark.id])
+        self.post(url, expected_status_code=status.HTTP_404_NOT_FOUND)
+
         url = reverse('bookmarks:bookmark-unarchive', args=[inaccessible_bookmark.id])
+        self.post(url, expected_status_code=status.HTTP_404_NOT_FOUND)
+
+        url = reverse('bookmarks:bookmark-unarchive', args=[inaccessible_shared_bookmark.id])
         self.post(url, expected_status_code=status.HTTP_404_NOT_FOUND)
