@@ -18,6 +18,10 @@
     window.addEventListener("load", function() {
         const currentTagsString = '{{ tags_string }}';
         const currentTags = currentTagsString.split(' ');
+        const filters = {
+          q: '{{ filters.query }}',
+          user: '{{ filters.user }}',
+        }
         const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
         const wrapper = document.getElementById('search-input-wrap')
         const newWrapper = document.createElement('div')
@@ -29,7 +33,8 @@
                 value: '{{ filters.query }}',
                 tags: currentTags,
                 mode: '{{ mode }}',
-                apiClient
+                apiClient,
+                filters,
             }
         })
         wrapper.parentElement.replaceChild(newWrapper, wrapper)

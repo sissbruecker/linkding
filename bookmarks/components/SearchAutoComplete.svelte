@@ -8,8 +8,9 @@
     export let placeholder;
     export let value;
     export let tags;
-    export let mode = 'default';
+    export let mode = '';
     export let apiClient;
+    export let filters;
 
     let isFocus = false;
     let isOpen = false;
@@ -112,9 +113,12 @@
         let bookmarks = []
 
         if (value && value.length >= 3) {
-            const fetchedBookmarks = mode === 'archive'
-                ? await apiClient.getArchivedBookmarks(value, {limit: 5, offset: 0})
-                : await apiClient.getBookmarks(value, {limit: 5, offset: 0})
+            const path = mode ? `/${mode}` : ''
+            const suggestionFilters = {
+                ...filters,
+                q: value
+            }
+            const fetchedBookmarks = await apiClient.listBookmarks(suggestionFilters, {limit: 5, offset: 0, path})
             bookmarks = fetchedBookmarks.map(bookmark => {
                 const fullLabel = bookmark.title || bookmark.website_title || bookmark.url
                 const label = clampText(fullLabel, 60)

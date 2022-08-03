@@ -12,7 +12,7 @@
             <div class="content-area-header">
                 <h2>Shared bookmarks</h2>
                 <div class="spacer"></div>
-                {% bookmark_search filters tags %}
+                {% bookmark_search filters tags mode='shared' %}
             </div>
 
             <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ return_url }}"
