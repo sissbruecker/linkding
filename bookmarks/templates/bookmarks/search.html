@@ -18,6 +18,7 @@
     window.addEventListener("load", function() {
         const currentTagsString = '{{ tags_string }}';
         const currentTags = currentTagsString.split(' ');
+        const uniqueTags = [...new Set(currentTags)]
         const filters = {
           q: '{{ filters.query }}',
           user: '{{ filters.user }}',
@@ -31,7 +32,7 @@
                 name: 'q',
                 placeholder: 'Search for words or #tags',
                 value: '{{ filters.query }}',
-                tags: currentTags,
+                tags: uniqueTags,
                 mode: '{{ mode }}',
                 apiClient,
                 filters,
