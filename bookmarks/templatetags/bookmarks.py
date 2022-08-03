@@ -3,7 +3,7 @@ from typing import List
 from django import template
 from django.core.paginator import Page
 
-from bookmarks.models import BookmarkForm, Tag, build_tag_string
+from bookmarks.models import BookmarkForm, BookmarkFilters, Tag, build_tag_string, User
 from bookmarks.utils import unique
 
 register = template.Library()
@@ -68,11 +68,19 @@ def bookmark_list(context, bookmarks: Page, return_url: str, link_target: str = 
 
 
 @register.inclusion_tag('bookmarks/search.html', name='bookmark_search', takes_context=True)
-def bookmark_search(context, query: str, tags: [Tag], mode: str = 'default'):
+def bookmark_search(context, filters: BookmarkFilters, tags: [Tag], mode: str = 'default'):
     tag_names = [tag.name for tag in tags]
     tags_string = build_tag_string(tag_names, ' ')
     return {
-        'query': query,
+        'filters': filters,
         'tags_string': tags_string,
         'mode': mode,
+    }
+
+
+@register.inclusion_tag('bookmarks/user_select.html', name='user_select', takes_context=True)
+def bookmark_search(context, filters: BookmarkFilters, users: List[User]):
+    return {
+        'filters': filters,
+        'users': users,
     }

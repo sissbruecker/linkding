@@ -12,7 +12,7 @@
             <div class="content-area-header">
                 <h2>Shared bookmarks</h2>
                 <div class="spacer"></div>
-                {% bookmark_search query tags %}
+                {% bookmark_search filters tags %}
             </div>
 
             <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ return_url }}"
@@ -27,8 +27,15 @@
             </form>
         </section>
 
-        {# Tag list #}
+        {# Filters #}
         <section class="content-area column col-4 hide-md">
+            <div class="content-area-header">
+                <h2>User</h2>
+            </div>
+            <div>
+                {% user_select filters users %}
+                <br>
+            </div>
             <div class="content-area-header">
                 <h2>Tags</h2>
             </div>
@@ -38,5 +45,4 @@
 
     <script src="{% static "bundle.js" %}"></script>
     <script src="{% static "shared.js" %}"></script>
-    <script src="{% static "bulk_edit.js" %}"></script>
 {% endblock %}

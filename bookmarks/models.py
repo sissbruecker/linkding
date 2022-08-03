@@ -5,6 +5,7 @@ from typing import List
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -108,6 +109,12 @@ class BookmarkForm(forms.ModelForm):
     class Meta:
         model = Bookmark
         fields = ['url', 'tag_string', 'title', 'description', 'unread', 'shared', 'auto_close']
+
+
+class BookmarkFilters:
+    def __init__(self, request: WSGIRequest):
+        self.query = request.GET.get('q') or ''
+        self.user = request.GET.get('user') or ''
 
 
 class UserProfile(models.Model):

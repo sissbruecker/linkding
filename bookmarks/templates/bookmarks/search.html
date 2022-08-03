@@ -3,10 +3,13 @@
         <div class="input-group">
             <span id="search-input-wrap">
                 <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
-                       value="{{ query }}">
+                       value="{{ filters.query }}">
             </span>
             <input type="submit" value="Search" class="btn input-group-btn">
         </div>
+        {% if filters.user %}
+            <input type="hidden" name="user" value="{{ filters.user }}">
+        {% endif %}
     </form>
 </div>
 
@@ -23,7 +26,7 @@
             props: {
                 name: 'q',
                 placeholder: 'Search for words or #tags',
-                value: '{{ query }}',
+                value: '{{ filters.query }}',
                 tags: currentTags,
                 mode: '{{ mode }}',
                 apiClient

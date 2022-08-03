@@ -591,14 +591,14 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=user3, shared=False, tags=[tag]),
 
         # Should return shared bookmarks from all users
-        query_set = queries.query_shared_bookmarks('')
+        query_set = queries.query_shared_bookmarks(None, '')
         self.assertQueryResult(query_set, [shared_bookmarks])
 
         # Should respect search query
-        query_set = queries.query_shared_bookmarks('test title')
+        query_set = queries.query_shared_bookmarks(None, 'test title')
         self.assertQueryResult(query_set, [[shared_bookmarks[0]]])
 
-        query_set = queries.query_shared_bookmarks('#' + tag.name)
+        query_set = queries.query_shared_bookmarks(None, '#' + tag.name)
         self.assertQueryResult(query_set, [[shared_bookmarks[2]]])
 
     def test_query_shared_bookmark_tags(self):
@@ -620,6 +620,32 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=user2, shared=False, tags=[self.setup_tag(user=user2)]),
         self.setup_bookmark(user=user3, shared=False, tags=[self.setup_tag(user=user3)]),
 
-        query_set = queries.query_shared_bookmark_tags('')
+        query_set = queries.query_shared_bookmark_tags(None, '')
 
         self.assertQueryResult(query_set, [shared_tags])
+
+    def test_query_shared_bookmark_users(self):
+        users_with_shared_bookmarks = [
+            User.objects.create_user('user1', 'user1@example.com', 'password123'),
+            User.objects.create_user('user2', 'user2@example.com', 'password123'),
+        ]
+        users_without_shared_bookmarks = [
+            User.objects.create_user('user3', 'user3@example.com', 'password123'),
+            User.objects.create_user('user4', 'user4@example.com', 'password123'),
+        ]
+
+        # Shared bookmarks
+        self.setup_bookmark(user=users_with_shared_bookmarks[0], shared=True, title='test title'),
+        self.setup_bookmark(user=users_with_shared_bookmarks[1], shared=True),
+
+        # Unshared bookmarks
+        self.setup_bookmark(user=users_without_shared_bookmarks[0], shared=False, title='test title'),
+        self.setup_bookmark(user=users_without_shared_bookmarks[1], shared=False),
+
+        # Should return users with shared bookmarks
+        query_set = queries.query_shared_bookmark_users('')
+        self.assertQueryResult(query_set, [users_with_shared_bookmarks])
+
+        # Should respect search query
+        query_set = queries.query_shared_bookmark_users('test title')
+        self.assertQueryResult(query_set, [[users_with_shared_bookmarks[0]]])

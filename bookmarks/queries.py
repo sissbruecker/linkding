@@ -29,8 +29,8 @@ def query_archived_bookmarks(user: User, query_string: str) -> QuerySet:
         .filter(is_archived=True)
 
 
-def query_shared_bookmarks(query_string: str) -> QuerySet:
-    return _base_bookmarks_query(None, query_string) \
+def query_shared_bookmarks(user: Optional[User], query_string: str) -> QuerySet:
+    return _base_bookmarks_query(user, query_string) \
         .filter(shared=True)
 
 
@@ -96,10 +96,18 @@ def query_archived_bookmark_tags(user: User, query_string: str) -> QuerySet:
     return query_set.distinct()
 
 
-def query_shared_bookmark_tags(query_string: str) -> QuerySet:
-    bookmarks_query = query_shared_bookmarks(query_string)
+def query_shared_bookmark_tags(user: Optional[User], query_string: str) -> QuerySet:
+    bookmarks_query = query_shared_bookmarks(user, query_string)
 
     query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
+
+    return query_set.distinct()
+
+
+def query_shared_bookmark_users(query_string: str) -> QuerySet:
+    bookmarks_query = query_shared_bookmarks(None, query_string)
+
+    query_set = User.objects.filter(bookmark__in=bookmarks_query)
 
     return query_set.distinct()
 
