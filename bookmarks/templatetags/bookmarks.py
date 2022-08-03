@@ -79,7 +79,7 @@ def bookmark_search(context, filters: BookmarkFilters, tags: [Tag], mode: str = 
 
 
 @register.inclusion_tag('bookmarks/user_select.html', name='user_select', takes_context=True)
-def bookmark_search(context, filters: BookmarkFilters, users: List[User]):
+def user_select(context, filters: BookmarkFilters, users: List[User]):
     return {
         'filters': filters,
         'users': users,
