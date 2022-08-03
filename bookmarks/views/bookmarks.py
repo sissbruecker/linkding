@@ -3,7 +3,7 @@ import urllib.parse
 from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator
-from django.db.models import QuerySet
+from django.db.models import QuerySet, prefetch_related_objects
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.urls import reverse
@@ -58,6 +58,8 @@ def get_bookmark_view_context(request: WSGIRequest,
     page = request.GET.get('page')
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
+    # Prefetch owner relation, this avoids n+1 queries when using the owner in templates
+    prefetch_related_objects(bookmarks.object_list, 'owner')
     return_url = generate_return_url(base_url, page, filters)
     link_target = request.user.profile.bookmark_link_target
 
