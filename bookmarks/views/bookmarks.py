@@ -80,9 +80,9 @@ def get_bookmark_view_context(request: WSGIRequest,
 
 def generate_return_url(base_url: str, page: int, filters: BookmarkFilters):
     url_query = {}
-    if filters.query is not None:
+    if filters.query:
         url_query['q'] = filters.query
-    if filters.user is not None:
+    if filters.user:
         url_query['user'] = filters.user
     if page is not None:
         url_query['page'] = page
