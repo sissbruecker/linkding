@@ -74,7 +74,9 @@
                     {% endif %}
                 {% else %}
                     {# Shared bookmark actions #}
-                    <span class="text-gray text-sm">Shared by {{ bookmark.owner.username }}</span>
+                    <span class="text-gray text-sm">Shared by
+                      <a class="text-gray" href="?{% replace_query_param user=bookmark.owner.username %}">{{ bookmark.owner.username }}</a>
+                    </span>
                 {% endif %}
             </div>
         </li>

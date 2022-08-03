@@ -74,12 +74,14 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
     def assertShareInfoCount(self, html: str, bookmark: Bookmark, count=1):
         self.assertInHTML(f'''
-            <span class="text-gray text-sm">Shared by {bookmark.owner.username}</span>
+            <span class="text-gray text-sm">Shared by 
+                <a class="text-gray" href="?user={bookmark.owner.username}">{bookmark.owner.username}</a>
+            </span>
         ''', html, count=count)
 
-    def render_template(self, bookmarks: [Bookmark], template: Template) -> str:
+    def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test') -> str:
         rf = RequestFactory()
-        request = rf.get('/test')
+        request = rf.get(url)
         request.user = self.get_or_create_test_user()
         paginator = Paginator(bookmarks, 10)
         page = paginator.page(1)
@@ -87,12 +89,12 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         context = RequestContext(request, {'bookmarks': page, 'return_url': '/test'})
         return template.render(context)
 
-    def render_default_template(self, bookmarks: [Bookmark]) -> str:
+    def render_default_template(self, bookmarks: [Bookmark], url: str = '/test') -> str:
         template = Template(
             '{% load bookmarks %}'
             '{% bookmark_list bookmarks return_url %}'
         )
-        return self.render_template(bookmarks, template)
+        return self.render_template(bookmarks, template, url)
 
     def render_template_with_link_target(self, bookmarks: [Bookmark], link_target: str) -> str:
         template = Template(
@@ -198,3 +200,14 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
         self.assertNoBookmarkActions(html, bookmark)
         self.assertShareInfo(html, bookmark)
+
+    def test_share_info_user_link_keeps_query_params(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark = self.setup_bookmark(user=other_user)
+        html = self.render_default_template([bookmark], url='/test?q=foo')
+
+        self.assertInHTML(f'''
+            <span class="text-gray text-sm">Shared by 
+                <a class="text-gray" href="?q=foo&user={bookmark.owner.username}">{bookmark.owner.username}</a>
+            </span>
+        ''', html)
