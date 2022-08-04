@@ -80,7 +80,8 @@ def bookmark_search(context, filters: BookmarkFilters, tags: [Tag], mode: str = 
 
 @register.inclusion_tag('bookmarks/user_select.html', name='user_select', takes_context=True)
 def user_select(context, filters: BookmarkFilters, users: List[User]):
+    sorted_users = sorted(users, key=lambda x: str.lower(x.username))
     return {
         'filters': filters,
-        'users': users,
+        'users': sorted_users,
     }
