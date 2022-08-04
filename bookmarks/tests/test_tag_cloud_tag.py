@@ -3,7 +3,7 @@ from typing import List
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
-from bookmarks.models import Tag, User
+from bookmarks.models import Tag
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
@@ -80,14 +80,10 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         ])
 
     def test_no_duplicate_tag_names(self):
-        user1 = User.objects.create_user('user1', 'user1@example.com', 'password123')
-        user2 = User.objects.create_user('user2', 'user2@example.com', 'password123')
-        user3 = User.objects.create_user('user3', 'user3@example.com', 'password123')
-
         tags = [
-            self.setup_tag(name='shared', user=user1),
-            self.setup_tag(name='shared', user=user2),
-            self.setup_tag(name='shared', user=user3),
+            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user()),
         ]
 
         rendered_template = self.render_template(tags)
@@ -121,6 +117,36 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
                 <span>-tag2</span>
             </a>
         ''', rendered_template)
+
+    def test_selected_tags_ignore_casing_when_removing_query_part(self):
+        tags = [
+            self.setup_tag(name='TEST'),
+        ]
+
+        rendered_template = self.render_template(tags, tags, url='/test?q=%23test')
+
+        self.assertInHTML('''
+            <a href="?q="
+               class="text-bold mr-2">
+                <span>-TEST</span>
+            </a>
+        ''', rendered_template)
+
+    def test_no_duplicate_selected_tags(self):
+        tags = [
+            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user()),
+        ]
+
+        rendered_template = self.render_template(tags, tags, url='/test?q=%23shared')
+
+        self.assertInHTML('''
+            <a href="?q="
+               class="text-bold mr-2">
+                <span>-shared</span>
+            </a>
+        ''', rendered_template, count=1)
 
     def test_selected_tag_url_keeps_other_search_terms(self):
         tag = self.setup_tag(name='tag1')

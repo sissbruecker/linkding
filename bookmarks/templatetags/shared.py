@@ -17,7 +17,7 @@ def update_query_string(context, **kwargs):
 
 
 @register.simple_tag(takes_context=True)
-def append_query_param(context, **kwargs):
+def append_to_query_param(context, **kwargs):
     query = context.request.GET.copy()
 
     # Append to or create query param
@@ -33,18 +33,18 @@ def append_query_param(context, **kwargs):
 
 
 @register.simple_tag(takes_context=True)
-def remove_query_param(context, **kwargs):
+def remove_from_query_param(context, **kwargs):
     query = context.request.GET.copy()
 
     # Remove item from query param
     for key in kwargs:
         if query.__contains__(key):
             value = query.__getitem__(key)
-            cur_values = value.split()
-            if kwargs[key] in cur_values:
-                cur_values.remove(kwargs[key])
-                value = ' '.join(cur_values)
-                query.__setitem__(key, value)
+            parts = value.split()
+            part_to_remove = kwargs[key]
+            updated_parts = [part for part in parts if str.lower(part) != str.lower(part_to_remove)]
+            updated_value = ' '.join(updated_parts)
+            query.__setitem__(key, updated_value)
 
     return query.urlencode()
 

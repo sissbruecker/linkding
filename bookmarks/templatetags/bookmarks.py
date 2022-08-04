@@ -27,13 +27,8 @@ class TagGroup:
 
 
 def create_tag_groups(tags: Set[Tag]):
-    # Only display each tag name once, ignoring casing
-    # This covers cases where the tag cloud contains shared tags with duplicate names
-    # Also means that the cloud can not make assumptions that it will necessarily contain
-    # all tags of the current user
-    unique_tags = unique(tags, key=lambda x: str.lower(x.name))
     # Ensure groups, as well as tags within groups, are ordered alphabetically
-    sorted_tags = sorted(unique_tags, key=lambda x: str.lower(x.name))
+    sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
     group = None
     groups = []
 
@@ -52,12 +47,19 @@ def create_tag_groups(tags: Set[Tag]):
 
 @register.inclusion_tag('bookmarks/tag_cloud.html', name='tag_cloud', takes_context=True)
 def tag_cloud(context, tags: List[Tag], selected_tags: List[Tag]):
-    has_selected_tags = len(selected_tags) > 0
-    unselected_tags = set(tags).symmetric_difference(selected_tags)
+    # Only display each tag name once, ignoring casing
+    # This covers cases where the tag cloud contains shared tags with duplicate names
+    # Also means that the cloud can not make assumptions that it will necessarily contain
+    # all tags of the current user
+    unique_tags = unique(tags, key=lambda x: str.lower(x.name))
+    unique_selected_tags = unique(selected_tags, key=lambda x: str.lower(x.name))
+
+    has_selected_tags = len(unique_selected_tags) > 0
+    unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
     groups = create_tag_groups(unselected_tags)
     return {
         'groups': groups,
-        'selected_tags': selected_tags,
+        'selected_tags': unique_selected_tags,
         'has_selected_tags': has_selected_tags,
     }
 

@@ -4,7 +4,7 @@
     {% if has_selected_tags %}
         <p class="selected-tags">
             {% for tag in selected_tags %}
-                <a href="?{% remove_query_param q=tag.name|hash_tag %}"
+                <a href="?{% remove_from_query_param q=tag.name|hash_tag %}"
                    class="text-bold mr-2">
                     <span>-{{ tag.name }}</span>
                 </a>
@@ -17,13 +17,13 @@
                 {% for tag in group.tags %}
                     {# Highlight first char of first tag in group #}
                     {% if forloop.counter == 1 %}
-                        <a href="?{% append_query_param q=tag.name|hash_tag %}"
+                        <a href="?{% append_to_query_param q=tag.name|hash_tag %}"
                            class="mr-2" data-is-tag-item>
                             <span class="highlight-char">{{ tag.name|first_char }}</span><span>{{ tag.name|remaining_chars:1 }}</span>
                         </a>
                     {% else %}
                         {# Render remaining tags normally #}
-                        <a href="?{% append_query_param q=tag.name|hash_tag %}"
+                        <a href="?{% append_to_query_param q=tag.name|hash_tag %}"
                            class="mr-2" data-is-tag-item>
                             <span>{{ tag.name }}</span>
                         </a>
