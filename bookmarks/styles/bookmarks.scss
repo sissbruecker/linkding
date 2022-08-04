@@ -91,8 +91,18 @@ ul.bookmark-list {
 
 .tag-cloud {
 
-  a, a:visited:hover {
-    color: $alternative-color;
+  .selected-tags {
+    margin-bottom: 0.8rem;
+
+    a, a:visited:hover {
+      color: $error-color;
+    }
+  }
+
+  .unselected-tags {
+    a, a:visited:hover {
+      color: $alternative-color;
+    }
   }
 
   .group {

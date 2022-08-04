@@ -1,27 +1,27 @@
 from typing import List
 
-from bs4 import BeautifulSoup
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
-from bookmarks.models import Tag, User
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.models import Tag
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
-class TagCloudTagTest(TestCase, BookmarkFactoryMixin):
-    def make_soup(self, html: str):
-        return BeautifulSoup(html, features="html.parser")
+class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
+    def render_template(self, tags: List[Tag], selected_tags: List[Tag] = None, url: str = '/test'):
+        if not selected_tags:
+            selected_tags = []
 
-    def render_template(self, tags: List[Tag], url: str = '/test'):
         rf = RequestFactory()
         request = rf.get(url)
         context = RequestContext(request, {
             'request': request,
             'tags': tags,
+            'selected_tags': selected_tags,
         })
         template_to_render = Template(
             '{% load bookmarks %}'
-            '{% tag_cloud tags %}'
+            '{% tag_cloud tags selected_tags %}'
         )
         return template_to_render.render(context)
 
@@ -40,6 +40,11 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin):
             for tag_index, tag in enumerate(tags, start=0):
                 link_element = link_elements[tag_index]
                 self.assertEqual(link_element.text.strip(), tag)
+
+    def assertNumSelectedTags(self, rendered_template: str, count: int):
+        soup = self.make_soup(rendered_template)
+        link_elements = soup.select('p.selected-tags a')
+        self.assertEqual(len(link_elements), count)
 
     def test_group_alphabetically(self):
         tags = [
@@ -75,14 +80,10 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin):
         ])
 
     def test_no_duplicate_tag_names(self):
-        user1 = User.objects.create_user('user1', 'user1@example.com', 'password123')
-        user2 = User.objects.create_user('user2', 'user2@example.com', 'password123')
-        user3 = User.objects.create_user('user3', 'user3@example.com', 'password123')
-
         tags = [
-            self.setup_tag(name='shared', user=user1),
-            self.setup_tag(name='shared', user=user2),
-            self.setup_tag(name='shared', user=user3),
+            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user()),
         ]
 
         rendered_template = self.render_template(tags)
@@ -91,4 +92,89 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin):
             [
                 'shared',
             ],
+        ])
+
+    def test_selected_tags(self):
+        tags = [
+            self.setup_tag(name='tag1'),
+            self.setup_tag(name='tag2'),
+        ]
+
+        rendered_template = self.render_template(tags, tags, url='/test?q=%23tag1 %23tag2')
+
+        self.assertNumSelectedTags(rendered_template, 2)
+
+        self.assertInHTML('''
+            <a href="?q=%23tag2"
+               class="text-bold mr-2">
+                <span>-tag1</span>
+            </a>
+        ''', rendered_template)
+
+        self.assertInHTML('''
+            <a href="?q=%23tag1"
+               class="text-bold mr-2">
+                <span>-tag2</span>
+            </a>
+        ''', rendered_template)
+
+    def test_selected_tags_ignore_casing_when_removing_query_part(self):
+        tags = [
+            self.setup_tag(name='TEST'),
+        ]
+
+        rendered_template = self.render_template(tags, tags, url='/test?q=%23test')
+
+        self.assertInHTML('''
+            <a href="?q="
+               class="text-bold mr-2">
+                <span>-TEST</span>
+            </a>
+        ''', rendered_template)
+
+    def test_no_duplicate_selected_tags(self):
+        tags = [
+            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user()),
+        ]
+
+        rendered_template = self.render_template(tags, tags, url='/test?q=%23shared')
+
+        self.assertInHTML('''
+            <a href="?q="
+               class="text-bold mr-2">
+                <span>-shared</span>
+            </a>
+        ''', rendered_template, count=1)
+
+    def test_selected_tag_url_keeps_other_search_terms(self):
+        tag = self.setup_tag(name='tag1')
+
+        rendered_template = self.render_template([tag], [tag], url='/test?q=term1 %23tag1 term2 %21untagged')
+
+        self.assertInHTML('''
+            <a href="?q=term1+term2+%21untagged"
+               class="text-bold mr-2">
+                <span>-tag1</span>
+            </a>
+        ''', rendered_template)
+
+    def test_selected_tags_are_excluded_from_groups(self):
+        tags = [
+            self.setup_tag(name='tag1'),
+            self.setup_tag(name='tag2'),
+            self.setup_tag(name='tag3'),
+            self.setup_tag(name='tag4'),
+            self.setup_tag(name='tag5'),
+        ]
+        selected_tags = [
+            tags[0],
+            tags[1],
+        ]
+
+        rendered_template = self.render_template(tags, selected_tags)
+
+        self.assertTagGroups(rendered_template, [
+            ['tag3', 'tag4', 'tag5']
         ])
