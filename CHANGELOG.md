@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.13.0 (04/08/2022)
+
+### What's Changed
+* Add bookmark sharing by @sissbruecker in https://github.com/sissbruecker/linkding/pull/311
+* Display selected tags in tag cloud by @sissbruecker and @jhauris in https://github.com/sissbruecker/linkding/pull/307
+* Update unread flag when saving duplicate URL by @sissbruecker in https://github.com/sissbruecker/linkding/pull/306
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.12.0...v1.13.0
+
+---
+
 ## v1.12.0 (23/07/2022)
 
 ### What's Changed
