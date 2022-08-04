@@ -5,23 +5,19 @@
 
 {% block content %}
 
-    {% include 'bookmarks/bulk_edit/state.html' %}
-
     <div class="bookmarks-page columns">
 
         {# Bookmark list #}
         <section class="content-area column col-8 col-md-12">
             <div class="content-area-header">
-                <h2>Bookmarks</h2>
+                <h2>Shared bookmarks</h2>
                 <div class="spacer"></div>
-                {% bookmark_search filters tags %}
-                {% include 'bookmarks/bulk_edit/toggle.html' %}
+                {% bookmark_search filters tags mode='shared' %}
             </div>
 
             <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ return_url }}"
                   method="post">
                 {% csrf_token %}
-                {% include 'bookmarks/bulk_edit/bar.html' with mode='default' %}
 
                 {% if empty %}
                     {% include 'bookmarks/empty_bookmarks.html' %}
@@ -31,8 +27,15 @@
             </form>
         </section>
 
-        {# Tag list #}
+        {# Filters #}
         <section class="content-area column col-4 hide-md">
+            <div class="content-area-header">
+                <h2>User</h2>
+            </div>
+            <div>
+                {% user_select filters users %}
+                <br>
+            </div>
             <div class="content-area-header">
                 <h2>Tags</h2>
             </div>
@@ -42,5 +45,4 @@
 
     <script src="{% static "bundle.js" %}"></script>
     <script src="{% static "shared.js" %}"></script>
-    <script src="{% static "bulk_edit.js" %}"></script>
 {% endblock %}

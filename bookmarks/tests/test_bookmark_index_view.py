@@ -1,3 +1,5 @@
+import urllib.parse
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -156,3 +158,30 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse('bookmarks:index'))
 
         self.assertVisibleBookmarks(response, visible_bookmarks, '_self')
+
+    def test_edit_link_return_url_should_contain_query_params(self):
+        bookmark = self.setup_bookmark(title='foo')
+
+        # without query params
+        url = reverse('bookmarks:index')
+        response = self.client.get(url)
+        html = response.content.decode()
+        edit_url = reverse('bookmarks:edit', args=[bookmark.id])
+        return_url = urllib.parse.quote_plus(url)
+
+        self.assertInHTML(f'''
+            <a href="{edit_url}?return_url={return_url}"
+               class="btn btn-link btn-sm">Edit</a>        
+        ''', html)
+
+        # with query params
+        url = reverse('bookmarks:index') + '?q=foo&user=user'
+        response = self.client.get(url)
+        html = response.content.decode()
+        edit_url = reverse('bookmarks:edit', args=[bookmark.id])
+        return_url = urllib.parse.quote_plus(url)
+
+        self.assertInHTML(f'''
+            <a href="{edit_url}?return_url={return_url}"
+               class="btn btn-link btn-sm">Edit</a>        
+        ''', html)

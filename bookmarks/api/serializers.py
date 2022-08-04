@@ -21,6 +21,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             'website_description',
             'is_archived',
             'unread',
+            'shared',
             'tag_names',
             'date_added',
             'date_modified'
@@ -37,6 +38,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
     description = serializers.CharField(required=False, allow_blank=True, default='')
     is_archived = serializers.BooleanField(required=False, default=False)
     unread = serializers.BooleanField(required=False, default=False)
+    shared = serializers.BooleanField(required=False, default=False)
     # Override readonly tag_names property to allow passing a list of tag names to create/update
     tag_names = TagListField(required=False, default=[])
 
@@ -47,12 +49,13 @@ class BookmarkSerializer(serializers.ModelSerializer):
         bookmark.description = validated_data['description']
         bookmark.is_archived = validated_data['is_archived']
         bookmark.unread = validated_data['unread']
+        bookmark.shared = validated_data['shared']
         tag_string = build_tag_string(validated_data['tag_names'])
         return create_bookmark(bookmark, tag_string, self.context['user'])
 
     def update(self, instance: Bookmark, validated_data):
         # Update fields if they were provided in the payload
-        for key in ['url', 'title', 'description', 'unread']:
+        for key in ['url', 'title', 'description', 'unread', 'shared']:
             if key in validated_data:
                 setattr(instance, key, validated_data[key])
 

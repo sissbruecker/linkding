@@ -1,0 +1,29 @@
+<form id="user-select" action="" method="get">
+  {% if filters.query %}
+    <input type="hidden" name="q" value="{{ filters.query }}">
+  {% endif %}
+  <div class="form-group">
+    <div class="d-flex">
+      <select name="user" class="form-select">
+        <option value="">Everyone</option>
+        {% for user in users %}
+          <option value="{{ user.username }}"
+                  {% if user.username == filters.user %}selected{% endif %}
+                  data-is-user-option>
+            {{ user.username }}
+          </option>
+        {% endfor %}
+      </select>
+      <noscript>
+        <button type="submit" class="btn btn-link ml-2">Apply</button>
+      </noscript>
+    </div>
+  </div>
+</form>
+<script>
+  const form = document.getElementById('user-select');
+  const select = form.querySelector('select');
+  select.addEventListener('change', () => {
+    form.submit();
+  });
+</script>

@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 from bookmarks import queries
 from bookmarks.api.serializers import BookmarkSerializer, TagSerializer
-from bookmarks.models import Bookmark, Tag
+from bookmarks.models import Bookmark, BookmarkFilters, Tag, User
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
 from bookmarks.services.website_loader import load_website_metadata
 
@@ -37,6 +37,16 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         user = request.user
         query_string = request.GET.get('q')
         query_set = queries.query_archived_bookmarks(user, query_string)
+        page = self.paginate_queryset(query_set)
+        serializer = self.get_serializer_class()
+        data = serializer(page, many=True).data
+        return self.get_paginated_response(data)
+
+    @action(methods=['get'], detail=False)
+    def shared(self, request):
+        filters = BookmarkFilters(request)
+        user = User.objects.filter(username=filters.user).first()
+        query_set = queries.query_shared_bookmarks(user, filters.query)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer_class()
         data = serializer(page, many=True).data

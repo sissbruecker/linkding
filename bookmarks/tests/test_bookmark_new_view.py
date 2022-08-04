@@ -20,6 +20,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
             'title': 'test title',
             'description': 'test description',
             'unread': False,
+            'shared': False,
             'auto_close': '',
         }
         return {**form_data, **overrides}
@@ -37,6 +38,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.title, form_data['title'])
         self.assertEqual(bookmark.description, form_data['description'])
         self.assertEqual(bookmark.unread, form_data['unread'])
+        self.assertEqual(bookmark.shared, form_data['shared'])
         self.assertEqual(bookmark.tags.count(), 2)
         self.assertEqual(bookmark.tags.all()[0].name, 'tag1')
         self.assertEqual(bookmark.tags.all()[1].name, 'tag2')
@@ -50,6 +52,16 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
 
         bookmark = Bookmark.objects.first()
         self.assertTrue(bookmark.unread)
+
+    def test_should_create_new_shared_bookmark(self):
+        form_data = self.create_form_data({'shared': True})
+
+        self.client.post(reverse('bookmarks:new'), form_data)
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+
+        bookmark = Bookmark.objects.first()
+        self.assertTrue(bookmark.shared)
 
     def test_should_prefill_url_from_url_parameter(self):
         response = self.client.get(reverse('bookmarks:new') + '?url=http://example.com')
@@ -98,3 +110,30 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.post(reverse('bookmarks:new'), form_data)
 
         self.assertRedirects(response, reverse('bookmarks:close'))
+
+    def test_should_respect_share_profile_setting(self):
+        self.user.profile.enable_sharing = False
+        self.user.profile.save()
+        response = self.client.get(reverse('bookmarks:new'))
+        html = response.content.decode()
+
+        self.assertInHTML('''
+            <label for="id_shared" class="form-checkbox">
+              <input type="checkbox" name="shared" id="id_shared">
+              <i class="form-icon"></i>
+              <span>Share</span>
+            </label>            
+        ''', html, count=0)
+
+        self.user.profile.enable_sharing = True
+        self.user.profile.save()
+        response = self.client.get(reverse('bookmarks:new'))
+        html = response.content.decode()
+
+        self.assertInHTML('''
+            <label for="id_shared" class="form-checkbox">
+              <input type="checkbox" name="shared" id="id_shared">
+              <i class="form-icon"></i>
+              <span>Share</span>
+            </label>            
+        ''', html, count=1)

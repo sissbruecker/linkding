@@ -117,6 +117,7 @@ def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.title = from_bookmark.title
     to_bookmark.description = from_bookmark.description
     to_bookmark.unread = from_bookmark.unread
+    to_bookmark.shared = from_bookmark.shared
 
 
 def _update_website_metadata(bookmark: Bookmark):

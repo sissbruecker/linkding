@@ -5,6 +5,7 @@ from typing import List
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -54,6 +55,7 @@ class Bookmark(models.Model):
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
     unread = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
+    shared = models.BooleanField(default=False)
     date_added = models.DateTimeField()
     date_modified = models.DateTimeField()
     date_accessed = models.DateTimeField(blank=True, null=True)
@@ -100,12 +102,19 @@ class BookmarkForm(forms.ModelForm):
     description = forms.CharField(required=False,
                                   widget=forms.Textarea())
     unread = forms.BooleanField(required=False)
+    shared = forms.BooleanField(required=False)
     # Hidden field that determines whether to close window/tab after saving the bookmark
     auto_close = forms.CharField(required=False)
 
     class Meta:
         model = Bookmark
-        fields = ['url', 'tag_string', 'title', 'description', 'unread', 'auto_close']
+        fields = ['url', 'tag_string', 'title', 'description', 'unread', 'shared', 'auto_close']
+
+
+class BookmarkFilters:
+    def __init__(self, request: WSGIRequest):
+        self.query = request.GET.get('q') or ''
+        self.user = request.GET.get('user') or ''
 
 
 class UserProfile(models.Model):
@@ -145,12 +154,13 @@ class UserProfile(models.Model):
                                             default=BOOKMARK_LINK_TARGET_BLANK)
     web_archive_integration = models.CharField(max_length=10, choices=WEB_ARCHIVE_INTEGRATION_CHOICES, blank=False,
                                                default=WEB_ARCHIVE_INTEGRATION_DISABLED)
+    enable_sharing = models.BooleanField(default=False, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration']
+        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'enable_sharing']
 
 
 @receiver(post_save, sender=get_user_model())

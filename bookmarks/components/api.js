@@ -3,18 +3,19 @@ export class ApiClient {
         this.baseUrl = baseUrl
     }
 
-    getBookmarks(query, options = {limit: 100, offset: 0}) {
-        const encodedQuery = encodeURIComponent(query)
-        const url = `${this.baseUrl}bookmarks/?q=${encodedQuery}&limit=${options.limit}&offset=${options.offset}`
-
-        return fetch(url)
-            .then(response => response.json())
-            .then(data => data.results)
-    }
-
-    getArchivedBookmarks(query, options = {limit: 100, offset: 0}) {
-        const encodedQuery = encodeURIComponent(query)
-        const url = `${this.baseUrl}bookmarks/archived/?q=${encodedQuery}&limit=${options.limit}&offset=${options.offset}`
+    listBookmarks(filters, options = {limit: 100, offset: 0, path: ''}) {
+        const query = [
+          `limit=${options.limit}`,
+          `offset=${options.offset}`,
+        ]
+        Object.keys(filters).forEach(key => {
+            const value = filters[key]
+            if (value) {
+                query.push(`${key}=${encodeURIComponent(value)}`)
+            }
+        })
+        const queryString = query.join('&')
+        const url = `${this.baseUrl}bookmarks${options.path}/?${queryString}`
 
         return fetch(url)
             .then(response => response.json())

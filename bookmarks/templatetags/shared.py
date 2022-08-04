@@ -32,6 +32,18 @@ def append_query_param(context, **kwargs):
     return query.urlencode()
 
 
+@register.simple_tag(takes_context=True)
+def replace_query_param(context, **kwargs):
+    query = context.request.GET.copy()
+
+    # Create query param or replace existing
+    for key in kwargs:
+        value = kwargs[key]
+        query.__setitem__(key, value)
+
+    return query.urlencode()
+
+
 @register.filter(name='hash_tag')
 def hash_tag(tag_name):
     return '#' + tag_name
