@@ -21,7 +21,7 @@ class BookmarkSharedViewPerformanceTestCase(TransactionTestCase, BookmarkFactory
         # create initial users and bookmarks
         num_initial_bookmarks = 10
         for index in range(num_initial_bookmarks):
-            user = User.objects.create_user('user' + str(index), 'user@example.com', 'password123')
+            user = self.setup_user(enable_sharing=True)
             self.setup_bookmark(user=user, shared=True)
 
         # capture number of queries
@@ -35,7 +35,7 @@ class BookmarkSharedViewPerformanceTestCase(TransactionTestCase, BookmarkFactory
         # add more users and bookmarks
         num_additional_bookmarks = 10
         for index in range(num_additional_bookmarks):
-            user = User.objects.create_user('additional_user' + str(index), 'user@example.com', 'password123')
+            user = self.setup_user(enable_sharing=True)
             self.setup_bookmark(user=user, shared=True)
 
         # assert num queries doesn't increase

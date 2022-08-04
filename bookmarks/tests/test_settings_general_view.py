@@ -34,6 +34,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             'bookmark_date_display': UserProfile.BOOKMARK_DATE_DISPLAY_HIDDEN,
             'bookmark_link_target': UserProfile.BOOKMARK_LINK_TARGET_SELF,
             'web_archive_integration': UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED,
+            'enable_sharing': True,
         }
         response = self.client.post(reverse('bookmarks:settings.general'), form_data)
 
@@ -44,6 +45,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(self.user.profile.bookmark_date_display, form_data['bookmark_date_display'])
         self.assertEqual(self.user.profile.bookmark_link_target, form_data['bookmark_link_target'])
         self.assertEqual(self.user.profile.web_archive_integration, form_data['web_archive_integration'])
+        self.assertEqual(self.user.profile.enable_sharing, form_data['enable_sharing'])
 
     def test_about_shows_version_info(self):
         response = self.client.get(reverse('bookmarks:settings.general'))

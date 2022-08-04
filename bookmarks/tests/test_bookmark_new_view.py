@@ -110,3 +110,30 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.post(reverse('bookmarks:new'), form_data)
 
         self.assertRedirects(response, reverse('bookmarks:close'))
+
+    def test_should_respect_share_profile_setting(self):
+        self.user.profile.enable_sharing = False
+        self.user.profile.save()
+        response = self.client.get(reverse('bookmarks:new'))
+        html = response.content.decode()
+
+        self.assertInHTML('''
+            <label for="id_shared" class="form-checkbox">
+              <input type="checkbox" name="shared" id="id_shared">
+              <i class="form-icon"></i>
+              <span>Share</span>
+            </label>            
+        ''', html, count=0)
+
+        self.user.profile.enable_sharing = True
+        self.user.profile.save()
+        response = self.client.get(reverse('bookmarks:new'))
+        html = response.content.decode()
+
+        self.assertInHTML('''
+            <label for="id_shared" class="form-checkbox">
+              <input type="checkbox" name="shared" id="id_shared">
+              <i class="form-icon"></i>
+              <span>Share</span>
+            </label>            
+        ''', html, count=1)

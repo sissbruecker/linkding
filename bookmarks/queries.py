@@ -31,7 +31,8 @@ def query_archived_bookmarks(user: User, query_string: str) -> QuerySet:
 
 def query_shared_bookmarks(user: Optional[User], query_string: str) -> QuerySet:
     return _base_bookmarks_query(user, query_string) \
-        .filter(shared=True)
+        .filter(shared=True) \
+        .filter(owner__profile__enable_sharing=True)
 
 
 def _base_bookmarks_query(user: Optional[User], query_string: str) -> QuerySet:

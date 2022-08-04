@@ -144,3 +144,32 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertNotEqual(bookmark.url, form_data['url'])
         self.assertEqual(response.status_code, 404)
 
+    def test_should_respect_share_profile_setting(self):
+        bookmark = self.setup_bookmark()
+
+        self.user.profile.enable_sharing = False
+        self.user.profile.save()
+        response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
+        html = response.content.decode()
+
+        self.assertInHTML('''
+            <label for="id_shared" class="form-checkbox">
+              <input type="checkbox" name="shared" id="id_shared">
+              <i class="form-icon"></i>
+              <span>Share</span>
+            </label>            
+        ''', html, count=0)
+
+        self.user.profile.enable_sharing = True
+        self.user.profile.save()
+        response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
+        html = response.content.decode()
+
+        self.assertInHTML('''
+            <label for="id_shared" class="form-checkbox">
+              <input type="checkbox" name="shared" id="id_shared">
+              <i class="form-icon"></i>
+              <span>Share</span>
+            </label>            
+        ''', html, count=1)
+

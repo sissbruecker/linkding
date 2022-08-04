@@ -154,12 +154,13 @@ class UserProfile(models.Model):
                                             default=BOOKMARK_LINK_TARGET_BLANK)
     web_archive_integration = models.CharField(max_length=10, choices=WEB_ARCHIVE_INTEGRATION_CHOICES, blank=False,
                                                default=WEB_ARCHIVE_INTEGRATION_DISABLED)
+    enable_sharing = models.BooleanField(default=False, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration']
+        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'enable_sharing']
 
 
 @receiver(post_save, sender=get_user_model())

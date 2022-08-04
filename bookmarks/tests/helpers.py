@@ -71,6 +71,14 @@ class BookmarkFactoryMixin:
         tag.save()
         return tag
 
+    def setup_user(self, name: str = None, enable_sharing: bool = False):
+        if not name:
+            name = get_random_string(length=32)
+        user = User.objects.create_user(name, 'user@example.com', 'password123')
+        user.profile.enable_sharing = enable_sharing
+        user.profile.save()
+        return user
+
 
 class LinkdingApiTestCase(APITestCase):
     def get(self, url, expected_status_code=status.HTTP_200_OK):

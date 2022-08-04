@@ -66,39 +66,64 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertBookmarkListEqual(response.data['results'], [self.archived_bookmark1])
 
     def test_list_shared_bookmarks(self):
-        other_user = User.objects.create_user('otheruser', 'user@example.com', 'password123')
+        user1 = self.setup_user(enable_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+        user3 = self.setup_user(enable_sharing=True)
+        user4 = self.setup_user(enable_sharing=False)
         shared_bookmarks = [
-            self.setup_bookmark(shared=True),
-            self.setup_bookmark(shared=True),
-            self.setup_bookmark(shared=True, user=other_user),
-            self.setup_bookmark(shared=True, user=other_user),
+            self.setup_bookmark(shared=True, user=user1),
+            self.setup_bookmark(shared=True, user=user2),
+            self.setup_bookmark(shared=True, user=user3),
         ]
+        # Unshared bookmarks
+        self.setup_bookmark(shared=False, user=user1)
+        self.setup_bookmark(shared=False, user=user2)
+        self.setup_bookmark(shared=False, user=user3)
+        self.setup_bookmark(shared=True, user=user4)
 
         response = self.get(reverse('bookmarks:bookmark-shared'), expected_status_code=status.HTTP_200_OK)
         self.assertBookmarkListEqual(response.data['results'], shared_bookmarks)
 
     def test_list_shared_bookmarks_should_filter_by_query_and_user(self):
-        other_user = User.objects.create_user('otheruser', 'user@example.com', 'password123')
-        self_shared = [
-            self.setup_bookmark(shared=True, tags=[self.setup_tag(name='shared')]),
-            self.setup_bookmark(shared=True),
+        # Search by query
+        user1 = self.setup_user(enable_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+        user3 = self.setup_user(enable_sharing=True)
+        expected_bookmarks = [
+            self.setup_bookmark(title='searchvalue', shared=True, user=user1),
+            self.setup_bookmark(title='searchvalue', shared=True, user=user2),
+            self.setup_bookmark(title='searchvalue', shared=True, user=user3),
         ]
-        other_shared = [
-            self.setup_bookmark(shared=True, tags=[self.setup_tag(name='shared')], user=other_user),
-            self.setup_bookmark(shared=True, user=other_user),
+        self.setup_bookmark(shared=True, user=user1),
+        self.setup_bookmark(shared=True, user=user2),
+        self.setup_bookmark(shared=True, user=user3),
+
+        response = self.get(reverse('bookmarks:bookmark-shared') + '?q=searchvalue',
+                            expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], expected_bookmarks)
+
+        # Search by user
+        user_search_user = self.setup_user(enable_sharing=True)
+        expected_bookmarks = [
+            self.setup_bookmark(shared=True, user=user_search_user),
+            self.setup_bookmark(shared=True, user=user_search_user),
+            self.setup_bookmark(shared=True, user=user_search_user),
         ]
-
-        response = self.get(reverse('bookmarks:bookmark-shared') + '?q=#shared',
+        response = self.get(reverse('bookmarks:bookmark-shared') + '?user=' + user_search_user.username,
                             expected_status_code=status.HTTP_200_OK)
-        self.assertBookmarkListEqual(response.data['results'], [self_shared[0], other_shared[0]])
+        self.assertBookmarkListEqual(response.data['results'], expected_bookmarks)
 
-        response = self.get(reverse('bookmarks:bookmark-shared') + '?user=otheruser',
-                            expected_status_code=status.HTTP_200_OK)
-        self.assertBookmarkListEqual(response.data['results'], other_shared)
-
-        response = self.get(reverse('bookmarks:bookmark-shared') + '?q=#shared&user=otheruser',
-                            expected_status_code=status.HTTP_200_OK)
-        self.assertBookmarkListEqual(response.data['results'], [other_shared[0]])
+        # Search by query and user
+        combined_search_user = self.setup_user(enable_sharing=True)
+        expected_bookmarks = [
+            self.setup_bookmark(title='searchvalue', shared=True, user=combined_search_user),
+            self.setup_bookmark(title='searchvalue', shared=True, user=combined_search_user),
+            self.setup_bookmark(title='searchvalue', shared=True, user=combined_search_user),
+        ]
+        response = self.get(
+            reverse('bookmarks:bookmark-shared') + '?q=searchvalue&user=' + combined_search_user.username,
+            expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], expected_bookmarks)
 
     def test_create_bookmark(self):
         data = {
