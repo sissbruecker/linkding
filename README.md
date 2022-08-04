@@ -29,18 +29,19 @@ The name comes from:
 - ...so basically something for managing your links
 
 **Feature Overview:**
-- Tags for organizing bookmarks
-- Search by text or tags
+- Organize bookmarks with tags
+- Read it later functionality
+- Share bookmarks with other users
 - Bulk editing
 - Bookmark archive
-- Dark mode
-- Automatically creates snapshots of bookmarked websites on [the Internet Archive Wayback Machine](https://archive.org/web/)
 - Automatically provides titles and descriptions of bookmarked websites
+- Automatically creates snapshots of bookmarked websites on [the Internet Archive Wayback Machine](https://archive.org/web/)
 - Import and export bookmarks in Netscape HTML format
-- Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), and a bookmarklet that should work in most browsers
+- Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a bookmarklet
+- Light and dark themes
 - REST API for developing 3rd party apps
 - Admin panel for user self-service and raw data access
-- Easy to set up using Docker, uses SQLite as database
+- Easy setup using Docker, uses SQLite as database
 
 
 **Demo:** https://demo.linkding.link/ (configured with open registration)
