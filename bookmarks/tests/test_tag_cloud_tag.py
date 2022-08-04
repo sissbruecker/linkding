@@ -8,7 +8,10 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
 class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-    def render_template(self, tags: List[Tag], selected_tags: List[Tag] = [], url: str = '/test'):
+    def render_template(self, tags: List[Tag], selected_tags: List[Tag] = None, url: str = '/test'):
+        if not selected_tags:
+            selected_tags = []
+
         rf = RequestFactory()
         request = rf.get(url)
         context = RequestContext(request, {
