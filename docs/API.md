@@ -49,6 +49,7 @@ Example response:
       "website_description": "Website description",
       "is_archived": false,
       "unread": false,
+      "shared": false,
       "tag_names": [
         "tag1",
         "tag2"
@@ -97,6 +98,7 @@ Example payload:
   "description": "Example description",
   "is_archived": false,
   "unread": false,
+  "shared": false,
   "tag_names": [
     "tag1",
     "tag2"
