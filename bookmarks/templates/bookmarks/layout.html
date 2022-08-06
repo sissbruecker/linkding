@@ -44,7 +44,7 @@
     {% endif %}
     <div class="navbar container grid-lg">
         <section class="navbar-section">
-            <a href="/" class="navbar-brand text-bold">
+            <a href="{% url 'bookmarks:index' %}" class="navbar-brand text-bold">
                 <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
                 <h1>linkding</h1>
             </a>

@@ -107,9 +107,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_URL = '/login'
-LOGIN_REDIRECT_URL = '/bookmarks'
-LOGOUT_REDIRECT_URL = '/login'
+# Website context path.
+LD_CONTEXT_PATH = os.getenv('LD_CONTEXT_PATH', '')
+
+LOGIN_URL = '/' + LD_CONTEXT_PATH + 'login'
+LOGIN_REDIRECT_URL = '/' + LD_CONTEXT_PATH + 'bookmarks'
+LOGOUT_REDIRECT_URL = '/' + LD_CONTEXT_PATH + 'login'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -127,7 +130,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/' + LD_CONTEXT_PATH + 'static/'
 
 # Collect static files in static folder
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')

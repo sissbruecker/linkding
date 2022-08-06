@@ -13,20 +13,24 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
+from django.conf import settings
 
 from bookmarks.admin import linkding_admin_site
 from .settings import ALLOW_REGISTRATION, DEBUG
 
 urlpatterns = [
-    path('admin/', linkding_admin_site.urls),
-    path('login/', auth_views.LoginView.as_view(redirect_authenticated_user=True,
-                                                extra_context=dict(allow_registration=ALLOW_REGISTRATION)),
-         name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('change-password/', auth_views.PasswordChangeView.as_view(), name='change_password'),
-    path('password-change-done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
+    path(settings.LD_CONTEXT_PATH, include([
+        path('admin/', linkding_admin_site.urls),
+        path('login/', auth_views.LoginView.as_view(redirect_authenticated_user=True,
+                                                    extra_context=dict(allow_registration=ALLOW_REGISTRATION)),
+             name='login'),
+        path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+        path('change-password/', auth_views.PasswordChangeView.as_view(), name='change_password'),
+        path('password-change-done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
+    ])),
     path('', include('bookmarks.urls')),
 ]
 
