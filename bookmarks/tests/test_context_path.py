@@ -1,42 +1,53 @@
-import datetime
-import email
 import importlib
-import os
-import urllib.parse
 
 from django.test import TestCase, override_settings
-from django.urls import reverse, include, resolvers
-from django.urls.resolvers import URLResolver, RegexPattern
-from django.conf import settings
+from django.urls import reverse
+
+
+class MockUrlConf:
+    def __init__(self, module):
+        self.urlpatterns = module.urlpatterns
 
 
 class ContextPathTestCase(TestCase):
 
     def setUp(self):
-        self.bookmarks_urls = importlib.import_module('bookmarks.urls')
         self.siteroot_urls = importlib.import_module('siteroot.urls')
 
     @override_settings(LD_CONTEXT_PATH=None)
     def tearDown(self):
-        importlib.reload(self.bookmarks_urls)
         importlib.reload(self.siteroot_urls)
 
     @override_settings(LD_CONTEXT_PATH='linkding/')
     def test_route_with_context_path(self):
-        bookmarks_patterns = importlib.reload(self.bookmarks_urls).urlpatterns
-        bookmarks_match = bookmarks_patterns[0].resolve('linkding/bookmarks')
-        self.assertEqual(bookmarks_match.url_name, 'index')
+        module = importlib.reload(self.siteroot_urls)
+        # pass mock config instead of actual module to prevent caching the
+        # url config in django.urls.reverse
+        urlconf = MockUrlConf(module)
+        test_cases = [
+            ('bookmarks:index', '/linkding/bookmarks'),
+            ('bookmarks:bookmark-list', '/linkding/api/bookmarks/'),
+            ('login', '/linkding/login/'),
+            ('admin:bookmarks_bookmark_changelist', '/linkding/admin/bookmarks/bookmark/'),
+        ]
 
-        siteroot_patterns = importlib.reload(self.siteroot_urls).urlpatterns
-        siteroot_match = siteroot_patterns[0].resolve('linkding/login/')
-        self.assertEqual(siteroot_match.url_name, 'login')
+        for url_name, expected_url in test_cases:
+            url = reverse(url_name, urlconf=urlconf)
+            self.assertEqual(expected_url, url)
 
     @override_settings(LD_CONTEXT_PATH='')
     def test_route_without_context_path(self):
-        bookmarks_patterns = importlib.reload(self.bookmarks_urls).urlpatterns
-        bookmarks_match = bookmarks_patterns[0].resolve('bookmarks')
-        self.assertEqual(bookmarks_match.url_name, 'index')
+        module = importlib.reload(self.siteroot_urls)
+        # pass mock config instead of actual module to prevent caching the
+        # url config in django.urls.reverse
+        urlconf = MockUrlConf(module)
+        test_cases = [
+            ('bookmarks:index', '/bookmarks'),
+            ('bookmarks:bookmark-list', '/api/bookmarks/'),
+            ('login', '/login/'),
+            ('admin:bookmarks_bookmark_changelist', '/admin/bookmarks/bookmark/'),
+        ]
 
-        siteroot_patterns = importlib.reload(self.siteroot_urls).urlpatterns
-        siteroot_match = siteroot_patterns[0].resolve('login/')
-        self.assertEqual(siteroot_match.url_name, 'login')
+        for url_name, expected_url in test_cases:
+            url = reverse(url_name, urlconf=urlconf)
+            self.assertEqual(expected_url, url)

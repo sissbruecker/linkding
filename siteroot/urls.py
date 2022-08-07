@@ -16,23 +16,23 @@ Including another URLconf
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
-from django.conf import settings
 
 from bookmarks.admin import linkding_admin_site
 from .settings import ALLOW_REGISTRATION, DEBUG
 
 urlpatterns = [
-    path(settings.LD_CONTEXT_PATH, include([
-        path('admin/', linkding_admin_site.urls),
-        path('login/', auth_views.LoginView.as_view(redirect_authenticated_user=True,
-                                                    extra_context=dict(allow_registration=ALLOW_REGISTRATION)),
-             name='login'),
-        path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-        path('change-password/', auth_views.PasswordChangeView.as_view(), name='change_password'),
-        path('password-change-done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
-    ])),
+    path('admin/', linkding_admin_site.urls),
+    path('login/', auth_views.LoginView.as_view(redirect_authenticated_user=True,
+                                                extra_context=dict(allow_registration=ALLOW_REGISTRATION)),
+         name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('change-password/', auth_views.PasswordChangeView.as_view(), name='change_password'),
+    path('password-change-done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
     path('', include('bookmarks.urls')),
 ]
+
+if settings.LD_CONTEXT_PATH:
+    urlpatterns = [path(settings.LD_CONTEXT_PATH, include(urlpatterns))]
 
 if DEBUG:
     import debug_toolbar
