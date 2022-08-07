@@ -73,7 +73,7 @@ def get_ttl_hash(seconds=3600):
 
 @login_required
 def integrations(request):
-    application_url = request.build_absolute_uri("/bookmarks/new")
+    application_url = request.build_absolute_uri(reverse('bookmarks:new'))
     api_token = Token.objects.get_or_create(user=request.user)[0]
     feed_token = FeedToken.objects.get_or_create(user=request.user)[0]
     all_feed_url = request.build_absolute_uri(reverse('bookmarks:feeds.all', args=[feed_token.key]))

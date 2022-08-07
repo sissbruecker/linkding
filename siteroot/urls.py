@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
 
@@ -29,6 +30,9 @@ urlpatterns = [
     path('password-change-done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
     path('', include('bookmarks.urls')),
 ]
+
+if settings.LD_CONTEXT_PATH:
+    urlpatterns = [path(settings.LD_CONTEXT_PATH, include(urlpatterns))]
 
 if DEBUG:
     import debug_toolbar

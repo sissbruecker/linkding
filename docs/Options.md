@@ -51,3 +51,10 @@ Configures the request timeout in the uwsgi application server. This can be usef
 Values: Valid port number | Default = `9090`
 
 Allows to set a custom port for the UWSGI server running in the container. While Docker containers have their own IP address namespace and port collisions are impossible to achieve, there are other container solutions that share one. Podman, for example, runs all containers in a pod under one namespace, which results in every port only being allowed to be assigned once. This option allows to set a custom port in order to avoid collisions with other containers.
+
+### `LD_CONTEXT_PATH`
+
+Values: `String` | Default = None
+
+Allows configuring the context path of the website. Useful for setting up Nginx reverse proxy.
+The context path must end with a slash. For example: `linkding/`
