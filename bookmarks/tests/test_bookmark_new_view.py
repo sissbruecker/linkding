@@ -40,8 +40,9 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.unread, form_data['unread'])
         self.assertEqual(bookmark.shared, form_data['shared'])
         self.assertEqual(bookmark.tags.count(), 2)
-        self.assertEqual(bookmark.tags.all()[0].name, 'tag1')
-        self.assertEqual(bookmark.tags.all()[1].name, 'tag2')
+        tags = bookmark.tags.order_by('name').all()
+        self.assertEqual(tags[0].name, 'tag1')
+        self.assertEqual(tags[1].name, 'tag2')
 
     def test_should_create_new_unread_bookmark(self):
         form_data = self.create_form_data({'unread': True})

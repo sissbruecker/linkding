@@ -40,8 +40,9 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.unread, form_data['unread'])
         self.assertEqual(bookmark.shared, form_data['shared'])
         self.assertEqual(bookmark.tags.count(), 2)
-        self.assertEqual(bookmark.tags.all()[0].name, 'editedtag1')
-        self.assertEqual(bookmark.tags.all()[1].name, 'editedtag2')
+        tags = bookmark.tags.order_by('name').all()
+        self.assertEqual(tags[0].name, 'editedtag1')
+        self.assertEqual(tags[1].name, 'editedtag2')
 
     def test_should_edit_unread_state(self):
         bookmark = self.setup_bookmark()
