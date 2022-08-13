@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from bookmarks.models import Bookmark, parse_tag_string
 from bookmarks.services.tags import get_or_create_tags
-from bookmarks.services.website_loader import load_website_metadata
+from bookmarks.services import website_loader
 from bookmarks.services import tasks
 
 
@@ -38,16 +38,16 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     # Detect URL change
     original_bookmark = Bookmark.objects.get(id=bookmark.id)
     has_url_changed = original_bookmark.url != bookmark.url
-    # Update website info
-    _update_website_metadata(bookmark)
     # Update tag list
     _update_bookmark_tags(bookmark, tag_string, current_user)
     # Update dates
     bookmark.date_modified = timezone.now()
     bookmark.save()
-    # Update web archive snapshot, if URL changed
     if has_url_changed:
+        # Update web archive snapshot, if URL changed
         tasks.create_web_archive_snapshot(current_user, bookmark, True)
+        # Only update website metadata if URL changed
+        _update_website_metadata(bookmark)
 
     return bookmark
 
@@ -121,7 +121,7 @@ def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
 
 
 def _update_website_metadata(bookmark: Bookmark):
-    metadata = load_website_metadata(bookmark.url)
+    metadata = website_loader.load_website_metadata(bookmark.url)
     bookmark.website_title = metadata.title
     bookmark.website_description = metadata.description
 
