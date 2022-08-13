@@ -40,8 +40,9 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.unread, form_data['unread'])
         self.assertEqual(bookmark.shared, form_data['shared'])
         self.assertEqual(bookmark.tags.count(), 2)
-        self.assertEqual(bookmark.tags.all()[0].name, 'editedtag1')
-        self.assertEqual(bookmark.tags.all()[1].name, 'editedtag2')
+        tags = bookmark.tags.order_by('name').all()
+        self.assertEqual(tags[0].name, 'editedtag1')
+        self.assertEqual(tags[1].name, 'editedtag2')
 
     def test_should_edit_unread_state(self):
         bookmark = self.setup_bookmark()
@@ -72,32 +73,43 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_should_prefill_bookmark_form_fields(self):
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
-        bookmark = self.setup_bookmark(tags=[tag1, tag2], title='edited title', description='edited description')
+        bookmark = self.setup_bookmark(tags=[tag1, tag2], title='edited title', description='edited description',
+                                       website_title='website title', website_description='website description')
 
         response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
         html = response.content.decode()
 
-        self.assertInHTML('<input type="text" name="url" '
-                          'value="{0}" placeholder=" " '
-                          'autofocus class="form-input" required '
-                          'id="id_url">'.format(bookmark.url),
-                          html)
+        self.assertInHTML(f'''
+            <input type="text" name="url" value="{bookmark.url}" placeholder=" "
+                    autofocus class="form-input" required id="id_url">   
+        ''', html)
 
         tag_string = build_tag_string(bookmark.tag_names, ' ')
-        self.assertInHTML('<input type="text" name="tag_string" '
-                          'value="{0}" autocomplete="off" '
-                          'class="form-input" '
-                          'id="id_tag_string">'.format(tag_string),
-                          html)
+        self.assertInHTML(f'''
+            <input type="text" name="tag_string" value="{tag_string}" 
+                    autocomplete="off" class="form-input" id="id_tag_string">
+        ''', html)
 
-        self.assertInHTML('<input type="text" name="title" maxlength="512" '
-                          'autocomplete="off" class="form-input" '
-                          'value="{0}" id="id_title">'.format(bookmark.title),
-                          html)
+        self.assertInHTML(f'''
+            <input type="text" name="title" value="{bookmark.title}" maxlength="512" autocomplete="off" 
+                    class="form-input" id="id_title">
+        ''', html)
 
-        self.assertInHTML('<textarea name="description" cols="40" rows="2" class="form-input" id="id_description">{0}'
-                          '</textarea>'.format(bookmark.description),
-                          html)
+        self.assertInHTML(f'''
+            <textarea name="description" cols="40" rows="2" class="form-input" id="id_description">
+                {bookmark.description}
+            </textarea>
+        ''', html)
+
+        self.assertInHTML(f'''
+            <input type="hidden" name="website_title"  id="id_website_title"
+                    value="{bookmark.website_title}">
+        ''', html)
+
+        self.assertInHTML(f'''
+            <input type="hidden" name="website_description"  id="id_website_description"
+                    value="{bookmark.website_description}">
+        ''', html)
 
     def test_should_redirect_to_return_url(self):
         bookmark = self.setup_bookmark()
@@ -172,4 +184,3 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
               <span>Share</span>
             </label>            
         ''', html, count=1)
-
