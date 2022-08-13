@@ -101,6 +101,11 @@ class BookmarkForm(forms.ModelForm):
                             required=False)
     description = forms.CharField(required=False,
                                   widget=forms.Textarea())
+    # Include website title and description as hidden field as they only provide info when editing bookmarks
+    website_title = forms.CharField(max_length=512,
+                                    required=False, widget=forms.HiddenInput())
+    website_description = forms.CharField(required=False,
+                                          widget=forms.HiddenInput())
     unread = forms.BooleanField(required=False)
     shared = forms.BooleanField(required=False)
     # Hidden field that determines whether to close window/tab after saving the bookmark
@@ -108,7 +113,17 @@ class BookmarkForm(forms.ModelForm):
 
     class Meta:
         model = Bookmark
-        fields = ['url', 'tag_string', 'title', 'description', 'unread', 'shared', 'auto_close']
+        fields = [
+            'url',
+            'tag_string',
+            'title',
+            'description',
+            'website_title',
+            'website_description',
+            'unread',
+            'shared',
+            'auto_close',
+        ]
 
 
 class BookmarkFilters:
