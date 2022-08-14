@@ -86,3 +86,42 @@
 <div class="bookmark-pagination">
     {% pagination bookmarks %}
 </div>
+
+<script>
+  // Add logic for navigating bookmarks with arrow keys
+  document.addEventListener('keydown', event => {
+    // Skip if event occurred within an input element
+    // or does not use arrow keys
+    const targetNodeName = event.target.nodeName;
+    const isInputTarget = targetNodeName === 'INPUT'
+      || targetNodeName === 'SELECT'
+      || targetNodeName === 'TEXTAREA';
+    const isArrowUp = event.key === 'ArrowUp';
+    const isArrowDown = event.key === 'ArrowDown';
+
+    if (isInputTarget || !(isArrowUp || isArrowDown)) {
+      return;
+    }
+    event.preventDefault();
+
+    // Detect current bookmark list item
+    const path = event.composedPath();
+    const currentItem = path.find(item => item.hasAttribute && item.hasAttribute('data-is-bookmark-item'));
+
+    // Find next item
+    let nextItem;
+    if (currentItem) {
+      nextItem = isArrowUp
+        ? currentItem.previousElementSibling
+        : currentItem.nextElementSibling;
+    } else {
+      // Select first item
+      nextItem = document.querySelector('li[data-is-bookmark-item]');
+    }
+    // Focus first link
+    if (nextItem) {
+      console.log(nextItem)
+      nextItem.querySelector('a').focus();
+    }
+  });
+</script>
