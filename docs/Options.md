@@ -58,3 +58,20 @@ Values: `String` | Default = None
 
 Allows configuring the context path of the website. Useful for setting up Nginx reverse proxy.
 The context path must end with a slash. For example: `linkding/`
+
+### `LD_ENABLE_AUTH_PROXY`
+
+Values: `True`, `False` | Default = `False`
+
+Enables support for authentication proxies such as Authelia.
+This effectively disables credentials-based authentication and instead authenticates users if a specific request header contains a known username.
+
+Note that this does not automatically create new users, you still need to create users as described in the README, and users need to have the same username as in the auth proxy.
+
+Enabling this setting also requires configuring the following options:
+- `LD_AUTH_PROXY_USERNAME_HEADER` - The name of the request header that the auth proxy passes to the proxied application (linkding in this case), so that the application can identify the user. 
+Note that the request headers are rewritten in linkding: all HTTP headers are prefixed with `HTTP`, all letters are in uppercase, and dashes are replaced with underscores.
+For example, for Authelia, which passes the `Remote-User` HTTP header, the `LD_AUTH_PROXY_USERNAME_HEADER` needs to be configured as `HTTP_REMOTE_USER`.
+- `LD_AUTH_PROXY_LOGOUT_URL` - The URL that linkding should redirect to after a logout.
+By default, the logout redirects to the login URL, which means the user will be automatically authenticated again.
+Instead, you might want to configure the logout URL of the auth proxy here.

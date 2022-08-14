@@ -44,12 +44,7 @@ LOGGING = {
             'level': 'ERROR',  # Set to DEBUG to log all SQL calls
             'handlers': ['console'],
         },
-        'bookmarks.services.tasks': {  # Log task output
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'bookmarks.services.importer': {  # Log importer debug output
+        'bookmarks': {  # Log importer debug output
             'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
