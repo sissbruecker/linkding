@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.14.0 (14/08/2022)
+
+### What's Changed
+* Add support for context path by @s2marine in https://github.com/sissbruecker/linkding/pull/313
+* Add support for authentication proxies by @sissbruecker in https://github.com/sissbruecker/linkding/pull/321
+* Add bookmark list keyboard navigation by @sissbruecker in https://github.com/sissbruecker/linkding/pull/320
+* Skip updating website metadata on edit unless URL has changed by @sissbruecker in https://github.com/sissbruecker/linkding/pull/318
+* Add simple docs of the new `shared` API parameter by @bachya in https://github.com/sissbruecker/linkding/pull/312
+* Add project linka to community section in README by @cmsax in https://github.com/sissbruecker/linkding/pull/319
+* Order tags in test_should_create_new_bookmark by @RoGryza in https://github.com/sissbruecker/linkding/pull/310
+* Bump django from 3.2.14 to 3.2.15 by @dependabot in https://github.com/sissbruecker/linkding/pull/316
+
+### New Contributors
+* @s2marine made their first contribution in https://github.com/sissbruecker/linkding/pull/313
+* @RoGryza made their first contribution in https://github.com/sissbruecker/linkding/pull/310
+* @cmsax made their first contribution in https://github.com/sissbruecker/linkding/pull/319
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.13.0...v1.14.0
+
+---
+
 ## v1.13.0 (04/08/2022)
 
 ### What's Changed
