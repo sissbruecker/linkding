@@ -10,6 +10,8 @@ mkdir -p data
 python manage.py migrate
 # Generate secret key file if it does not exist
 python manage.py generate_secret_key
+# Create initial superuser if defined in options / environment variables
+python manage.py create_initial_superuser
 
 # Ensure the DB folder is owned by the right user
 chown -R www-data: /etc/linkding/data
