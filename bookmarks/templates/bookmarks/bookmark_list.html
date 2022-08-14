@@ -8,8 +8,11 @@
                 <input type="checkbox" name="bookmark_id" value="{{ bookmark.id }}">
                 <i class="form-icon"></i>
             </label>
-            <div class="title truncate">
-                <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" class="{% if bookmark.unread %}text-italic{% endif %}">{{ bookmark.resolved_title }}</a>
+            <div class="title">
+                <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener"
+                   class="{% if bookmark.unread %}text-italic{% endif %}">
+                    {{ bookmark.resolved_title }}
+                </a>
             </div>
             <div class="description truncate">
                 {% if bookmark.tag_names %}
@@ -120,7 +123,6 @@
     }
     // Focus first link
     if (nextItem) {
-      console.log(nextItem)
       nextItem.querySelector('a').focus();
     }
   });

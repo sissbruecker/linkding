@@ -49,6 +49,15 @@ ul.bookmark-list {
   margin: 0;
   padding: 0;
 
+  .title a {
+    display: inline-block;
+    vertical-align: top;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .description {
     color: $gray-color-dark;
 
