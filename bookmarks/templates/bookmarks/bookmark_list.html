@@ -1,91 +1,98 @@
 {% load shared %}
 {% load pagination %}
-
-<ul class="bookmark-list">
+{% htmlmin %}
+  <ul class="bookmark-list">
     {% for bookmark in bookmarks %}
-        <li data-is-bookmark-item>
-            <label class="form-checkbox bulk-edit-toggle">
-                <input type="checkbox" name="bookmark_id" value="{{ bookmark.id }}">
-                <i class="form-icon"></i>
-            </label>
-            <div class="title">
-                <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener"
-                   class="{% if bookmark.unread %}text-italic{% endif %}">
-                    {{ bookmark.resolved_title }}
+      <li data-is-bookmark-item>
+        <label class="form-checkbox bulk-edit-toggle">
+          <input type="checkbox" name="bookmark_id" value="{{ bookmark.id }}">
+          <i class="form-icon"></i>
+        </label>
+        <div class="title">
+          <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener"
+             class="{% if bookmark.unread %}text-italic{% endif %}">
+            {{ bookmark.resolved_title }}
+          </a>
+        </div>
+        <div class="description truncate">
+          {% if bookmark.tag_names %}
+            <span>
+              {% for tag_name in bookmark.tag_names %}
+                <a href="?{% append_to_query_param q=tag_name|hash_tag %}">{{ tag_name|hash_tag }}</a>
+              {% endfor %}
+            </span>
+          {% endif %}
+          {% if bookmark.tag_names and bookmark.resolved_description %} | {% endif %}
+          {% if bookmark.resolved_description %}
+            <span>{{ bookmark.resolved_description }}</span>
+          {% endif %}
+        </div>
+        <div class="actions">
+          {% if request.user.profile.bookmark_date_display == 'relative' %}
+            <span class="date-label text-gray text-sm">
+              {% if bookmark.web_archive_snapshot_url %}
+                <a href="{{ bookmark.web_archive_snapshot_url }}"
+                   title="Show snapshot on the Internet Archive Wayback Machine" target="{{ link_target }}"
+                   rel="noopener">
+              {% endif %}
+              <span>{{ bookmark.date_added|humanize_relative_date }}</span>
+              {% if bookmark.web_archive_snapshot_url %}
+                <span>∞</span>
                 </a>
-            </div>
-            <div class="description truncate">
-                {% if bookmark.tag_names %}
-                    <span>
-                            {% for tag_name in bookmark.tag_names %}
-                                <a href="?{% append_to_query_param q=tag_name|hash_tag %}">{{ tag_name|hash_tag }}</a>
-                            {% endfor %}
-                        </span>
-                {% endif %}
-                {% if bookmark.tag_names and bookmark.resolved_description %} | {% endif %}
-
-                {% if bookmark.resolved_description %}
-                    <span>{{ bookmark.resolved_description }}</span>
-                {% endif %}
-            </div>
-            <div class="actions">
-                {% if request.user.profile.bookmark_date_display == 'relative' %}
-                    <span class="date-label text-gray text-sm">
-                        {% if bookmark.web_archive_snapshot_url %}
-                        <a href="{{ bookmark.web_archive_snapshot_url }}"
-                           title="Show snapshot on the Internet Archive Wayback Machine" target="{{ link_target }}" rel="noopener">
-                        {% endif %}
-                        <span>{{ bookmark.date_added|humanize_relative_date }}</span>
-                        {% if bookmark.web_archive_snapshot_url %}
-                        <span>∞</span>
-                        </a>
-                        {% endif %}
-                    </span>
-                    <span class="text-gray text-sm">|</span>
-                {% endif %}
-                {% if request.user.profile.bookmark_date_display == 'absolute' %}
-                    <span class="date-label text-gray text-sm">
-                        {% if bookmark.web_archive_snapshot_url %}
-                        <a href="{{ bookmark.web_archive_snapshot_url }}"
-                           title="Show snapshot on the Internet Archive Wayback Machine" target="{{ link_target }}" rel="noopener">
-                        {% endif %}
-                        <span>{{ bookmark.date_added|humanize_absolute_date }}</span>
-                        {% if bookmark.web_archive_snapshot_url %}
-                        <span>∞</span>
-                        </a>
-                        {% endif %}
-                    </span>
-                    <span class="text-gray text-sm">|</span>
-                {% endif %}
-                {% if bookmark.owner == request.user %}
-                    {# Bookmark owner actions #}
-                    <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
-                       class="btn btn-link btn-sm">Edit</a>
-                    {% if bookmark.is_archived %}
-                        <button type="submit" name="unarchive" value="{{ bookmark.id }}"
-                           class="btn btn-link btn-sm">Unarchive</button>
-                    {% else %}
-                        <button type="submit" name="archive" value="{{ bookmark.id }}"
-                           class="btn btn-link btn-sm">Archive</button>
-                    {% endif %}
-                    <button type="submit" name="remove" value="{{ bookmark.id }}"
-                       class="btn btn-link btn-sm btn-confirmation">Remove</button>
-                    {% if bookmark.unread %}
-                      <span class="text-gray text-sm">|</span>
-                      <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
-                              class="btn btn-link btn-sm">Mark as read</button>
-                    {% endif %}
-                {% else %}
-                    {# Shared bookmark actions #}
-                    <span class="text-gray text-sm">Shared by
-                      <a class="text-gray" href="?{% replace_query_param user=bookmark.owner.username %}">{{ bookmark.owner.username }}</a>
-                    </span>
-                {% endif %}
-            </div>
-        </li>
+              {% endif %}
+            </span>
+            <span class="text-gray text-sm">|</span>
+          {% endif %}
+          {% if request.user.profile.bookmark_date_display == 'absolute' %}
+            <span class="date-label text-gray text-sm">
+              {% if bookmark.web_archive_snapshot_url %}
+                <a href="{{ bookmark.web_archive_snapshot_url }}"
+                   title="Show snapshot on the Internet Archive Wayback Machine" target="{{ link_target }}"
+                   rel="noopener">
+              {% endif %}
+              <span>{{ bookmark.date_added|humanize_absolute_date }}</span>
+              {% if bookmark.web_archive_snapshot_url %}
+                <span>∞</span>
+                </a>
+              {% endif %}
+            </span>
+            <span class="text-gray text-sm">|</span>
+          {% endif %}
+          {% if bookmark.owner == request.user %}
+            {# Bookmark owner actions #}
+            <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
+               class="btn btn-link btn-sm">Edit</a>
+            {% if bookmark.is_archived %}
+              <button type="submit" name="unarchive" value="{{ bookmark.id }}"
+                      class="btn btn-link btn-sm">Unarchive
+              </button>
+            {% else %}
+              <button type="submit" name="archive" value="{{ bookmark.id }}"
+                      class="btn btn-link btn-sm">Archive
+              </button>
+            {% endif %}
+            <button type="submit" name="remove" value="{{ bookmark.id }}"
+                    class="btn btn-link btn-sm btn-confirmation">Remove
+            </button>
+            {% if bookmark.unread %}
+              <span class="text-gray text-sm">|</span>
+              <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
+                      class="btn btn-link btn-sm">Mark as read
+              </button>
+            {% endif %}
+          {% else %}
+            {# Shared bookmark actions #}
+            <span class="text-gray text-sm">Shared by
+              <a class="text-gray"
+                 href="?{% replace_query_param user=bookmark.owner.username %}">{{ bookmark.owner.username }}</a>
+            </span>
+          {% endif %}
+        </div>
+      </li>
     {% endfor %}
-</ul>
+  </ul>
 
-<div class="bookmark-pagination">
+  <div class="bookmark-pagination">
     {% pagination bookmarks %}
-</div>
+  </div>
+{% endhtmlmin %}

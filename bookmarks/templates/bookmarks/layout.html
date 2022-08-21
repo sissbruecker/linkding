@@ -5,61 +5,61 @@
 {# Use data attributes as storage for access in static scripts #}
 <html lang="en" data-api-base-url="{% url 'bookmarks:api-root' %}">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="{% static 'favicon.png' %}"/>
-    <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
-    <meta name="description" content="Self-hosted bookmark service">
-    <meta name="robots" content="index,follow">
-    <meta name="author" content="Sascha Ißbrücker">
-    <title>linkding</title>
-    {# Include SASS styles, files are resolved from bookmarks/styles #}
-    {# Include specific theme variant based on user profile setting #}
-    {% if request.user.profile.theme == 'light' %}
-        <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"/>
-    {% elif request.user.profile.theme == 'dark' %}
-        <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"/>
-    {% else %}
-        {# Use auto theme as fallback #}
-        <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"
-              media="(prefers-color-scheme: dark)"/>
-        <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"
-              media="(prefers-color-scheme: light)"/>
-    {% endif %}
+  <meta charset="UTF-8">
+  <link rel="icon" href="{% static 'favicon.png' %}"/>
+  <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
+  <meta name="description" content="Self-hosted bookmark service">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="Sascha Ißbrücker">
+  <title>linkding</title>
+  {# Include SASS styles, files are resolved from bookmarks/styles #}
+  {# Include specific theme variant based on user profile setting #}
+  {% if request.user.profile.theme == 'light' %}
+    <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"/>
+  {% elif request.user.profile.theme == 'dark' %}
+    <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"/>
+  {% else %}
+    {# Use auto theme as fallback #}
+    <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark)"/>
+    <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: light)"/>
+  {% endif %}
 </head>
 <body>
 <header>
-    {% if has_toasts %}
+  {% if has_toasts %}
     <div class="toasts container grid-lg">
       <form action="{% url 'bookmarks:toasts.acknowledge' %}?return_url={{ request.path | urlencode }}" method="post">
         {% csrf_token %}
         {% for toast in toast_messages %}
-            <div class="toast">
-                {{ toast.message }}
-                <button type="submit" name="toast" value="{{ toast.id }}" class="btn btn-clear float-right"></button>
-            </div>
+          <div class="toast">
+            {{ toast.message }}
+            <button type="submit" name="toast" value="{{ toast.id }}" class="btn btn-clear float-right"></button>
+          </div>
         {% endfor %}
       </form>
     </div>
+  {% endif %}
+  <div class="navbar container grid-lg">
+    <section class="navbar-section">
+      <a href="{% url 'bookmarks:index' %}" class="navbar-brand text-bold">
+        <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
+        <h1>linkding</h1>
+      </a>
+    </section>
+    {# Only show nav items menu when logged in #}
+    {% if request.user.is_authenticated %}
+      <section class="navbar-section">
+        {% include 'bookmarks/nav_menu.html' %}
+      </section>
     {% endif %}
-    <div class="navbar container grid-lg">
-        <section class="navbar-section">
-            <a href="{% url 'bookmarks:index' %}" class="navbar-brand text-bold">
-                <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
-                <h1>linkding</h1>
-            </a>
-        </section>
-        {# Only show nav items menu when logged in #}
-        {% if request.user.is_authenticated %}
-            <section class="navbar-section">
-                {% include 'bookmarks/nav_menu.html' %}
-            </section>
-        {% endif %}
-    </div>
+  </div>
 </header>
 <div class="content container grid-lg">
-    {% block content %}
-    {% endblock %}
+  {% block content %}
+  {% endblock %}
 </div>
 </body>
 </html>
