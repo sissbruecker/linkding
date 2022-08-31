@@ -22,17 +22,17 @@ For more info see here: https://paul.kinlan.me/use-bookmarklets-on-chrome-on-and
 
 ## Using HTTP Shortcuts app on Android
 
-**Note** This allows you to share URL from any app to bookmark it to linkding
+**Note** This allows you to share URL from any app to tag and bookmark it to linkding
 
 - Install HTTP Shortcuts from [Play Store](https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts) or [F-Droid](https://f-droid.org/en/packages/ch.rmy.android.http_shortcuts/).
 
-- Download [linkding_shortcut.json](/docs/linkding_shortcut.json) from this repository.
+- Copy the raw URL of [linkding_shortcut.json](/docs/linkding_shortcut.json) in this repository.
 
-- Open HTTP Shortcuts, tap the 3-dot-button at the top-right corner, tap `Import/Export`, then tap `Import from file`.
+- Open HTTP Shortcuts, tap the 3-dot-button at the top-right corner, tap `Import/Export`, then tap `Import from URL`.
 
-- Select the json file you downloaded earlier, go back, tap the 3-dot-button again, then tap `Variables`.
+- Paste the URL you copied earlier, tap OK, go back, tap the 3-dot-button again, then tap `Variables`.
 
-- Edit the `values` of `linkding_instance`, `linkding_tag` and `linkding_api_token`.
+- Edit the `values` of `linkding_instance` and `linkding_api_token`.
 
 Try using share button on an app, a new item `Send to...` should appear on the share sheet. You can also manually share by tapping the shortcut inside the HTTP Shortcuts app itself.
 
