@@ -35,13 +35,13 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertContains(response, '<title>All bookmarks</title>')
         self.assertContains(response, '<description>All bookmarks</description>')
         self.assertContains(response, f'<link>http://testserver{feed_url}</link>')
-        self.assertContains(response, f'<atom:link href="http://testserver{feed_url}" rel="self"></atom:link>')
+        self.assertContains(response, f'<atom:link href="http://testserver{feed_url}" rel="self"/>')
 
     def test_all_returns_all_unarchived_bookmarks(self):
         bookmarks = [
-            self.setup_bookmark(),
-            self.setup_bookmark(),
-            self.setup_bookmark(unread=True),
+            self.setup_bookmark(description='test description'),
+            self.setup_bookmark(website_description='test website description'),
+            self.setup_bookmark(unread=True, description='test description'),
         ]
         self.setup_bookmark(is_archived=True)
         self.setup_bookmark(is_archived=True)
@@ -117,7 +117,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertContains(response, '<title>Unread bookmarks</title>')
         self.assertContains(response, '<description>All unread bookmarks</description>')
         self.assertContains(response, f'<link>http://testserver{feed_url}</link>')
-        self.assertContains(response, f'<atom:link href="http://testserver{feed_url}" rel="self"></atom:link>')
+        self.assertContains(response, f'<atom:link href="http://testserver{feed_url}" rel="self"/>')
 
     def test_unread_returns_unread_and_unarchived_bookmarks(self):
         self.setup_bookmark(unread=False)
@@ -128,9 +128,9 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(unread=False, is_archived=True)
 
         unread_bookmarks = [
-            self.setup_bookmark(unread=True),
-            self.setup_bookmark(unread=True),
-            self.setup_bookmark(unread=True),
+            self.setup_bookmark(unread=True, description='test description'),
+            self.setup_bookmark(unread=True, website_description='test website description'),
+            self.setup_bookmark(unread=True, description='test description'),
         ]
 
         response = self.client.get(reverse('bookmarks:feeds.unread', args=[self.token.key]))

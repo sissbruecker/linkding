@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 from django.urls import path, include
 from django.views.generic import RedirectView
 
@@ -9,7 +9,7 @@ from bookmarks.feeds import AllBookmarksFeed, UnreadBookmarksFeed
 app_name = 'bookmarks'
 urlpatterns = [
     # Redirect root to bookmarks index
-    url(r'^$', RedirectView.as_view(pattern_name='bookmarks:index', permanent=False)),
+    re_path(r'^$', RedirectView.as_view(pattern_name='bookmarks:index', permanent=False)),
     # Bookmarks
     path('bookmarks', views.bookmarks.index, name='index'),
     path('bookmarks/archived', views.bookmarks.archived, name='archived'),
