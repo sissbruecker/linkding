@@ -1,43 +1,43 @@
 <div class="search">
-    <form action="" method="get" role="search">
-        <div class="input-group">
+  <form action="" method="get" role="search">
+    <div class="input-group">
             <span id="search-input-wrap">
                 <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
                        value="{{ filters.query }}">
             </span>
-            <input type="submit" value="Search" class="btn input-group-btn">
-        </div>
-        {% if filters.user %}
-            <input type="hidden" name="user" value="{{ filters.user }}">
-        {% endif %}
-    </form>
+      <input type="submit" value="Search" class="btn input-group-btn">
+    </div>
+    {% if filters.user %}
+      <input type="hidden" name="user" value="{{ filters.user }}">
+    {% endif %}
+  </form>
 </div>
 
 {# Replace search input with auto-complete component #}
 <script type="application/javascript">
-    window.addEventListener("load", function() {
-        const currentTagsString = '{{ tags_string }}';
-        const currentTags = currentTagsString.split(' ');
-        const uniqueTags = [...new Set(currentTags)]
-        const filters = {
-          q: '{{ filters.query }}',
-          user: '{{ filters.user }}',
-        }
-        const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
-        const wrapper = document.getElementById('search-input-wrap')
-        const newWrapper = document.createElement('div')
-        new linkding.SearchAutoComplete({
-            target: newWrapper,
-            props: {
-                name: 'q',
-                placeholder: 'Search for words or #tags',
-                value: '{{ filters.query }}',
-                tags: uniqueTags,
-                mode: '{{ mode }}',
-                apiClient,
-                filters,
-            }
-        })
-        wrapper.parentElement.replaceChild(newWrapper, wrapper)
-    });
+  window.addEventListener("load", function () {
+    const currentTagsString = '{{ tags_string }}';
+    const currentTags = currentTagsString.split(' ');
+    const uniqueTags = [...new Set(currentTags)]
+    const filters = {
+      q: '{{ filters.query }}',
+      user: '{{ filters.user }}',
+    }
+    const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
+    const wrapper = document.getElementById('search-input-wrap')
+    const newWrapper = document.createElement('div')
+    new linkding.SearchAutoComplete({
+      target: newWrapper,
+      props: {
+        name: 'q',
+        placeholder: 'Search for words or #tags',
+        value: '{{ filters.query }}',
+        tags: uniqueTags,
+        mode: '{{ mode }}',
+        apiClient,
+        filters,
+      }
+    })
+    wrapper.parentElement.replaceChild(newWrapper, wrapper)
+  });
 </script>

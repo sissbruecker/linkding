@@ -5,44 +5,44 @@
 
 {% block content %}
 
-    <div class="bookmarks-page columns">
+  <div class="bookmarks-page columns">
 
-        {# Bookmark list #}
-        <section class="content-area column col-8 col-md-12">
-            <div class="content-area-header">
-                <h2>Shared bookmarks</h2>
-                <div class="spacer"></div>
-                {% bookmark_search filters tags mode='shared' %}
-            </div>
+    {# Bookmark list #}
+    <section class="content-area column col-8 col-md-12">
+      <div class="content-area-header">
+        <h2>Shared bookmarks</h2>
+        <div class="spacer"></div>
+        {% bookmark_search filters tags mode='shared' %}
+      </div>
 
-            <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ return_url }}"
-                  method="post">
-                {% csrf_token %}
+      <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ return_url }}"
+            method="post">
+        {% csrf_token %}
 
-                {% if empty %}
-                    {% include 'bookmarks/empty_bookmarks.html' %}
-                {% else %}
-                    {% bookmark_list bookmarks return_url link_target %}
-                {% endif %}
-            </form>
-        </section>
+        {% if empty %}
+          {% include 'bookmarks/empty_bookmarks.html' %}
+        {% else %}
+          {% bookmark_list bookmarks return_url link_target %}
+        {% endif %}
+      </form>
+    </section>
 
-        {# Filters #}
-        <section class="content-area column col-4 hide-md">
-            <div class="content-area-header">
-                <h2>User</h2>
-            </div>
-            <div>
-                {% user_select filters users %}
-                <br>
-            </div>
-            <div class="content-area-header">
-                <h2>Tags</h2>
-            </div>
-            {% tag_cloud tags selected_tags %}
-        </section>
-    </div>
+    {# Filters #}
+    <section class="content-area column col-4 hide-md">
+      <div class="content-area-header">
+        <h2>User</h2>
+      </div>
+      <div>
+        {% user_select filters users %}
+        <br>
+      </div>
+      <div class="content-area-header">
+        <h2>Tags</h2>
+      </div>
+      {% tag_cloud tags selected_tags %}
+    </section>
+  </div>
 
-    <script src="{% static "bundle.js" %}"></script>
-    <script src="{% static "shared.js" %}"></script>
+  <script src="{% static "bundle.js" %}"></script>
+  <script src="{% static "shared.js" %}"></script>
 {% endblock %}

@@ -1,9 +1,9 @@
-(function() {
-    var bookmarkUrl = window.location;
-    var applicationUrl = '{{ application_url }}';
+(function () {
+  var bookmarkUrl = window.location;
+  var applicationUrl = '{{ application_url }}';
 
-    applicationUrl += '?url=' + encodeURIComponent(bookmarkUrl);
-    applicationUrl += '&auto_close';
+  applicationUrl += '?url=' + encodeURIComponent(bookmarkUrl);
+  applicationUrl += '&auto_close';
 
-    window.open(applicationUrl);
+  window.open(applicationUrl);
 })();

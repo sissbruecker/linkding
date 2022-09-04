@@ -1,3 +1,5 @@
+import re
+
 from django import template
 
 from bookmarks import utils
@@ -48,6 +50,7 @@ def remove_from_query_param(context, **kwargs):
 
     return query.urlencode()
 
+
 @register.simple_tag(takes_context=True)
 def replace_query_param(context, **kwargs):
     query = context.request.GET.copy()
@@ -87,3 +90,22 @@ def humanize_relative_date(value):
     if value in (None, ''):
         return ''
     return utils.humanize_relative_date(value)
+
+
+@register.tag
+def htmlmin(parser, token):
+    nodelist = parser.parse(('endhtmlmin',))
+    parser.delete_first_token()
+    return HtmlMinNode(nodelist)
+
+
+class HtmlMinNode(template.Node):
+    def __init__(self, nodelist):
+        self.nodelist = nodelist
+
+    def render(self, context):
+        output = self.nodelist.render(context)
+
+        output = re.sub(r'\s+', ' ', output)
+
+        return output
