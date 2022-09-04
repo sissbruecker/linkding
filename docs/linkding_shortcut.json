@@ -5,12 +5,12 @@
       "name": "Shortcuts",
       "shortcuts": [
         {
-          "bodyContent": "{ \"url\": \"{{b2953f61-b302-4c79-b90d-39858a06d9a6}}\", \"tag_names\": [ \"{{c360f61f-ce17-47b4-bea3-1d8c3913ca52}}\" ] }",
+          "bodyContent": "{ \"url\": \"{{b2953f61-b302-4c79-b90d-39858a06d9a6}}\", \"tag_names\": [ \"{{7871474b-e325-4ca0-a142-a5ef5d3f7ed8}}\" ] }",
           "contentType": "application/json",
           "description": "Bookmark to linkding",
           "headers": [
             {
-              "id": "d235f7b4-fce2-41f4-a00f-72d5fde9e4b9",
+              "id": "fd6306d7-e09d-4c14-a538-3fc258460028",
               "key": "Authorization",
               "value": "Token {{6a739a16-d16d-4a06-93a5-3457da3c3d20}}"
             }
@@ -23,7 +23,6 @@
           "quickSettingsTileShortcut": true,
           "responseHandling": {
             "failureOutput": "simple",
-            "id": "61fa9fc3-8b7a-47ce-b43c-f24618a65e1e",
             "uiType": "toast"
           },
           "url": "{{ea2db14b-b9ca-45d8-8555-403271a38f5a}}/api/bookmarks/"
@@ -45,15 +44,17 @@
       "type": "text"
     },
     {
-      "id": "c360f61f-ce17-47b4-bea3-1d8c3913ca52",
-      "key": "linkding_tag",
-      "value": "single-tag"
-    },
-    {
       "id": "6a739a16-d16d-4a06-93a5-3457da3c3d20",
       "key": "linkding_api_token",
       "value": "your_token_from_integrations_tab"
+    },
+    {
+      "id": "7871474b-e325-4ca0-a142-a5ef5d3f7ed8",
+      "key": "linkding_custom_tag",
+      "message": "Enter one or more comma separated tags",
+      "title": "Tag",
+      "type": "text"
     }
   ],
-  "version": 45
+  "version": 53
 }
