@@ -93,3 +93,9 @@ For example, for Authelia, which passes the `Remote-User` HTTP header, the `LD_A
 - `LD_AUTH_PROXY_LOGOUT_URL` - The URL that linkding should redirect to after a logout.
 By default, the logout redirects to the login URL, which means the user will be automatically authenticated again.
 Instead, you might want to configure the logout URL of the auth proxy here.
+
+### `LD_DATA_UPLOAD_MAX_NUMBER_FIELDS`
+
+Values: `Integer` | Default = `1000`
+
+Allows to change the maximum number of parameters that may be received via GET or POST before a SuspiciousOperation (TooManyFields) is raised. You can set this to None to disable the check. Applications that are expected to receive an unusually large number of form fields should tune this setting.
