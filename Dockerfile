@@ -9,7 +9,7 @@ COPY . .
 RUN npm run build
 
 
-FROM python:3.9.6-slim-buster AS python-base
+FROM python:3.10.4-slim-buster AS python-base
 RUN apt-get update && apt-get -y install build-essential
 WORKDIR /etc/linkding
 
@@ -33,7 +33,7 @@ RUN mkdir /opt/venv && \
     /opt/venv/bin/pip install -Ur requirements.txt
 
 
-FROM python:3.9.6-slim-buster as final
+FROM python:3.10.4-slim-buster as final
 RUN apt-get update && apt-get -y install mime-support
 WORKDIR /etc/linkding
 # copy prod dependencies

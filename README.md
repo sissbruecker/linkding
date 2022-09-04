@@ -136,10 +136,10 @@ This section lists community projects around using linkding, in alphabetical ord
 
 ## Development
 
-The application is open source, so you are free to modify or contribute. The application is built using the Django web framework. You can get started by checking out the excellent Django docs: https://docs.djangoproject.com/en/3.2/. The `bookmarks` folder contains the actual bookmark application, `siteroot` is the Django root application. Other than that the code should be self-explanatory / standard Django stuff 🙂.
+The application is open source, so you are free to modify or contribute. The application is built using the Django web framework. You can get started by checking out the excellent [Django docs](https://docs.djangoproject.com/en/4.1/). The `bookmarks` folder contains the actual bookmark application, `siteroot` is the Django root application. Other than that the code should be self-explanatory / standard Django stuff 🙂.
 
 ### Prerequisites
-- Python 3
+- Python 3.10
 - Node.js
 
 ### Setup
