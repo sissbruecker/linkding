@@ -1,22 +1,10 @@
 from typing import Optional
 
 from django.contrib.auth.models import User
-from django.db.models import Q, Count, Aggregate, CharField, Value, BooleanField, QuerySet
+from django.db.models import Q, QuerySet
 
 from bookmarks.models import Bookmark, Tag
 from bookmarks.utils import unique
-
-
-class Concat(Aggregate):
-    function = 'GROUP_CONCAT'
-    template = '%(function)s(%(distinct)s%(expressions)s)'
-
-    def __init__(self, expression, distinct=False, **extra):
-        super(Concat, self).__init__(
-            expression,
-            distinct='DISTINCT ' if distinct else '',
-            output_field=CharField(),
-            **extra)
 
 
 def query_bookmarks(user: User, query_string: str) -> QuerySet:
@@ -36,11 +24,7 @@ def query_shared_bookmarks(user: Optional[User], query_string: str) -> QuerySet:
 
 
 def _base_bookmarks_query(user: Optional[User], query_string: str) -> QuerySet:
-    # Add aggregated tag info to bookmark instances
-    query_set = Bookmark.objects \
-        .annotate(tag_count=Count('tags'),
-                  tag_string=Concat('tags__name'),
-                  tag_projection=Value(True, BooleanField()))
+    query_set = Bookmark.objects
 
     # Filter for user
     if user:

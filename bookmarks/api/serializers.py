@@ -1,4 +1,6 @@
+from django.db.models import prefetch_related_objects
 from rest_framework import serializers
+from rest_framework.serializers import ListSerializer
 
 from bookmarks.models import Bookmark, Tag, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
@@ -7,6 +9,14 @@ from bookmarks.services.tags import get_or_create_tag
 
 class TagListField(serializers.ListField):
     child = serializers.CharField()
+
+
+class BookmarkListSerializer(ListSerializer):
+    def to_representation(self, data):
+        # Prefetch nested relations to avoid n+1 queries
+        prefetch_related_objects(data, 'tags')
+
+        return super().to_representation(data)
 
 
 class BookmarkSerializer(serializers.ModelSerializer):
@@ -32,6 +42,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             'date_added',
             'date_modified'
         ]
+        list_serializer_class = BookmarkListSerializer
 
     # Override optional char fields to provide default value
     title = serializers.CharField(required=False, allow_blank=True, default='')

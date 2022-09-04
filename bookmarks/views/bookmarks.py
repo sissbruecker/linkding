@@ -73,8 +73,8 @@ def get_bookmark_view_context(request: WSGIRequest,
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
     selected_tags = _get_selected_tags(tags, filters.query)
-    # Prefetch owner relation, this avoids n+1 queries when using the owner in templates
-    prefetch_related_objects(bookmarks.object_list, 'owner')
+    # Prefetch related objects, this avoids n+1 queries when accessing fields in templates
+    prefetch_related_objects(bookmarks.object_list, 'owner', 'tags')
     return_url = generate_return_url(base_url, page, filters)
     link_target = request.user.profile.bookmark_link_target
 
