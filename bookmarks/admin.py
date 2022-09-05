@@ -23,7 +23,25 @@ class AdminBookmark(admin.ModelAdmin):
     search_fields = ('title', 'description', 'website_title', 'website_description', 'url', 'tags__name')
     list_filter = ('owner__username', 'is_archived', 'unread', 'tags',)
     ordering = ('-date_added',)
-    actions = ['archive_selected_bookmarks', 'unarchive_selected_bookmarks', 'mark_as_read', 'mark_as_unread']
+    actions = ['delete_selected_bookmarks', 'archive_selected_bookmarks', 'unarchive_selected_bookmarks', 'mark_as_read', 'mark_as_unread']
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        # Remove default delete action, which gets replaced by delete_selected_bookmarks below
+        # The default action shows a confirmation page which can fail in production when selecting all bookmarks and the
+        # number of objects to delete exceeds the value in DATA_UPLOAD_MAX_NUMBER_FIELDS (1000 by default)
+        del actions['delete_selected']
+        return actions
+
+    def delete_selected_bookmarks(self, request, queryset: QuerySet):
+        bookmarks_count = queryset.count()
+        for bookmark in queryset:
+            bookmark.delete()
+        self.message_user(request, ngettext(
+            '%d bookmark was successfully deleted.',
+            '%d bookmarks were successfully deleted.',
+            bookmarks_count,
+        ) % bookmarks_count, messages.SUCCESS)
 
     def archive_selected_bookmarks(self, request, queryset: QuerySet):
         for bookmark in queryset:
