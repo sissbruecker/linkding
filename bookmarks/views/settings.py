@@ -5,6 +5,7 @@ from functools import lru_cache
 import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import prefetch_related_objects
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -114,7 +115,9 @@ def bookmark_import(request):
 def bookmark_export(request):
     # noinspection PyBroadException
     try:
-        bookmarks = query_bookmarks(request.user, '')
+        bookmarks = list(query_bookmarks(request.user, ''))
+        # Prefetch tags to prevent n+1 queries
+        prefetch_related_objects(bookmarks, 'tags')
         file_content = exporter.export_netscape_html(bookmarks)
 
         response = HttpResponse(content_type='text/plain; charset=UTF-8')

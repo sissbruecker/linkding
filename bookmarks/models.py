@@ -62,11 +62,6 @@ class Bookmark(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag)
 
-    # Attributes might be calculated in query
-    tag_count = 0  # Projection for number of associated tags
-    tag_string = ''  # Projection for list of tag names, comma-separated
-    tag_projection = False  # Tracks if the above projections were loaded
-
     @property
     def resolved_title(self):
         if self.title:
@@ -82,11 +77,7 @@ class Bookmark(models.Model):
 
     @property
     def tag_names(self):
-        # If tag projections were loaded then avoid querying all tags (=executing further selects)
-        if self.tag_projection:
-            return parse_tag_string(self.tag_string)
-        else:
-            return [tag.name for tag in self.tags.all()]
+        return [tag.name for tag in self.tags.all()]
 
     def __str__(self):
         return self.resolved_title + ' (' + self.url[:30] + '...)'

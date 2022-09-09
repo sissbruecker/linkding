@@ -270,25 +270,6 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertQueryResult(query, [owned_bookmarks])
 
-    def test_query_bookmarks_should_use_tag_projection(self):
-        self.setup_bookmark_search_data()
-
-        # Test projection on bookmarks with tags
-        query = queries.query_bookmarks(self.user, '#tag1 #tag2')
-
-        for bookmark in query:
-            self.assertEqual(bookmark.tag_count, 2)
-            self.assertEqual(bookmark.tag_string, 'tag1,tag2')
-            self.assertTrue(bookmark.tag_projection)
-
-        # Test projection on bookmarks without tags
-        query = queries.query_bookmarks(self.user, 'term2')
-
-        for bookmark in query:
-            self.assertEqual(bookmark.tag_count, 0)
-            self.assertEqual(bookmark.tag_string, None)
-            self.assertTrue(bookmark.tag_projection)
-
     def test_query_bookmarks_untagged_should_return_untagged_bookmarks_only(self):
         tag = self.setup_tag()
         untagged_bookmark = self.setup_bookmark()
