@@ -5,8 +5,9 @@ from background_task import background
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from waybackpy.exceptions import WaybackError
+from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
 
+import bookmarks.services.wayback
 from bookmarks.models import Bookmark, UserProfile
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 
@@ -26,6 +27,32 @@ def create_web_archive_snapshot(user: User, bookmark: Bookmark, force_update: bo
         _create_web_archive_snapshot_task(bookmark.id, force_update)
 
 
+def _load_newest_snapshot(bookmark: Bookmark):
+    try:
+        logger.debug(f'Load existing snapshot for bookmark. url={bookmark.url}')
+        cdx_api = bookmarks.services.wayback.CustomWaybackMachineCDXServerAPI(bookmark.url)
+        existing_snapshot = cdx_api.newest()
+
+        if existing_snapshot:
+            bookmark.web_archive_snapshot_url = existing_snapshot.archive_url
+            bookmark.save()
+            logger.debug(f'Using newest snapshot. url={bookmark.url} from={existing_snapshot.datetime_timestamp}')
+
+    except NoCDXRecordFound:
+        logger.error(f'Could not find any snapshots for bookmark. url={bookmark.url}')
+    except WaybackError as error:
+        logger.error(f'Failed to load existing snapshot. url={bookmark.url}', exc_info=error)
+
+
+def _create_snapshot(bookmark: Bookmark):
+    logger.debug(f'Create new snapshot for bookmark. url={bookmark.url}...')
+    archive = waybackpy.WaybackMachineSaveAPI(bookmark.url, DEFAULT_USER_AGENT, max_tries=1)
+    archive.save()
+    bookmark.web_archive_snapshot_url = archive.archive_url
+    bookmark.save()
+    logger.debug(f'Successfully created new snapshot for bookmark:. url={bookmark.url}')
+
+
 @background()
 def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     try:
@@ -37,19 +64,31 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     if bookmark.web_archive_snapshot_url and not force_update:
         return
 
-    logger.debug(f'Create web archive link for bookmark: {bookmark}...')
-
-    archive = waybackpy.WaybackMachineSaveAPI(bookmark.url, DEFAULT_USER_AGENT)
-
+    # Create new snapshot
     try:
-        archive.save()
-    except WaybackError as error:
-        logger.exception(f'Error creating web archive link for bookmark: {bookmark}...', exc_info=error)
-        raise
+        _create_snapshot(bookmark)
+        return
+    except TooManyRequestsError:
+        logger.error(
+            f'Failed to create snapshot due to rate limiting, trying to load newest snapshot as fallback. url={bookmark.url}')
+    except WaybackError:
+        logger.error(f'Failed to create snapshot, trying to load newest snapshot as fallback. url={bookmark.url}')
 
-    bookmark.web_archive_snapshot_url = archive.archive_url
-    bookmark.save()
-    logger.debug(f'Successfully created web archive link for bookmark: {bookmark}...')
+    # Load the newest snapshot as fallback
+    _load_newest_snapshot(bookmark)
+
+
+@background()
+def _load_web_archive_snapshot_task(bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(id=bookmark_id)
+    except Bookmark.DoesNotExist:
+        return
+    # Skip if snapshot exists
+    if bookmark.web_archive_snapshot_url:
+        return
+    # Load the newest snapshot
+    _load_newest_snapshot(bookmark)
 
 
 def schedule_bookmarks_without_snapshots(user: User):
@@ -63,4 +102,6 @@ def _schedule_bookmarks_without_snapshots_task(user_id: int):
     bookmarks_without_snapshots = Bookmark.objects.filter(web_archive_snapshot_url__exact='', owner=user)
 
     for bookmark in bookmarks_without_snapshots:
-        _create_web_archive_snapshot_task(bookmark.id, False)
+        # To prevent rate limit errors from the Wayback API only try to load the latest snapshots instead of creating
+        # new ones when processing bookmarks in bulk
+        _load_web_archive_snapshot_task(bookmark.id)

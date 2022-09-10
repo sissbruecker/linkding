@@ -2,136 +2,139 @@
 {% load widget_tweaks %}
 
 {% block content %}
-    <div class="settings-page">
+  <div class="settings-page">
 
-        {% include 'settings/nav.html' %}
+    {% include 'settings/nav.html' %}
 
-        {# Profile section #}
-        <section class="content-area">
-            <h2>Profile</h2>
-            <p>
-                <a href="{% url 'change_password' %}">Change password</a>
-            </p>
-            <form action="{% url 'bookmarks:settings.general' %}" method="post" novalidate>
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="{{ form.theme.id_for_label }}" class="form-label">Theme</label>
-                    {{ form.theme|add_class:"form-select col-2 col-sm-12" }}
-                    <div class="form-input-hint">
-                      Whether to use a light or dark theme, or automatically adjust the theme based on your system's settings.
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="{{ form.bookmark_date_display.id_for_label }}" class="form-label">Bookmark date format</label>
-                    {{ form.bookmark_date_display|add_class:"form-select col-2 col-sm-12" }}
-                    <div class="form-input-hint">
-                      Whether to show bookmark dates as relative (how long ago), or as absolute dates. Alternatively the date can be hidden.
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="{{ form.bookmark_link_target.id_for_label }}" class="form-label">Open bookmarks in</label>
-                    {{ form.bookmark_link_target|add_class:"form-select col-2 col-sm-12" }}
-                    <div class="form-input-hint">
-                      Whether to open bookmarks a new page or in the same page.
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
-                        integration</label>
-                    {{ form.web_archive_integration|add_class:"form-select col-2 col-sm-12" }}
-                    <div class="form-input-hint">
-                      Enabling this feature will automatically create snapshots of bookmarked websites on the <a
-                        href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive Wayback
-                      Machine</a>. This allows
-                      to preserve, and later access, the website as it was at the point in time it was bookmarked, in
-                      case it goes offline or its content is modified.
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="{{ form.enable_sharing.id_for_label }}" class="form-checkbox">
-                      {{ form.enable_sharing }}
-                      <i class="form-icon"></i> Enable bookmark sharing
-                    </label>
-                    <div class="form-input-hint">
-                      Allows to share bookmarks with other users, and to view shared bookmarks.
-                      Disabling this feature will hide all previously shared bookmarks from other users.
-                    </div>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-primary mt-2">
-                </div>
-            </form>
-        </section>
+    {# Profile section #}
+    <section class="content-area">
+      <h2>Profile</h2>
+      <p>
+        <a href="{% url 'change_password' %}">Change password</a>
+      </p>
+      <form action="{% url 'bookmarks:settings.general' %}" method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="{{ form.theme.id_for_label }}" class="form-label">Theme</label>
+          {{ form.theme|add_class:"form-select col-2 col-sm-12" }}
+          <div class="form-input-hint">
+            Whether to use a light or dark theme, or automatically adjust the theme based on your system's settings.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.bookmark_date_display.id_for_label }}" class="form-label">Bookmark date format</label>
+          {{ form.bookmark_date_display|add_class:"form-select col-2 col-sm-12" }}
+          <div class="form-input-hint">
+            Whether to show bookmark dates as relative (how long ago), or as absolute dates. Alternatively the date can
+            be hidden.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.bookmark_link_target.id_for_label }}" class="form-label">Open bookmarks in</label>
+          {{ form.bookmark_link_target|add_class:"form-select col-2 col-sm-12" }}
+          <div class="form-input-hint">
+            Whether to open bookmarks a new page or in the same page.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
+            integration</label>
+          {{ form.web_archive_integration|add_class:"form-select col-2 col-sm-12" }}
+          <div class="form-input-hint">
+            Enabling this feature will automatically create snapshots of bookmarked websites on the <a
+              href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive Wayback
+            Machine</a>.
+            This allows to preserve, and later access the website as it was at the point in time it was bookmarked, in
+            case it goes offline or its content is modified.
+            Please consider donating to the <a href="https://archive.org/donate/index.php" target="_blank"
+                                               rel="noopener">Internet Archive</a> if you make use of this feature.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.enable_sharing.id_for_label }}" class="form-checkbox">
+            {{ form.enable_sharing }}
+            <i class="form-icon"></i> Enable bookmark sharing
+          </label>
+          <div class="form-input-hint">
+            Allows to share bookmarks with other users, and to view shared bookmarks.
+            Disabling this feature will hide all previously shared bookmarks from other users.
+          </div>
+        </div>
+        <div class="form-group">
+          <input type="submit" value="Save" class="btn btn-primary mt-2">
+        </div>
+      </form>
+    </section>
 
-        {# Import section #}
-        <section class="content-area">
-            <h2>Import</h2>
-            <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
-                added and existing ones are updated.</p>
-            <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings.import' %}">
-                {% csrf_token %}
-                <div class="form-group">
-                    <div class="input-group col-8 col-md-12">
-                        <input class="form-input" type="file" name="import_file">
-                        <input type="submit" class="input-group-btn col-2 btn btn-primary" value="Upload">
-                    </div>
-                    {% if import_success_message %}
-                        <div class="has-success">
-                            <p class="form-input-hint">
-                                {{ import_success_message }}
-                            </p>
-                        </div>
-                    {% endif %}
-                    {% if import_errors_message %}
-                        <div class="has-error">
-                            <p class="form-input-hint">
-                                {{ import_errors_message }}
-                            </p>
-                        </div>
-                    {% endif %}
-                </div>
-            </form>
-        </section>
+    {# Import section #}
+    <section class="content-area">
+      <h2>Import</h2>
+      <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
+        added and existing ones are updated.</p>
+      <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings.import' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <div class="input-group col-8 col-md-12">
+            <input class="form-input" type="file" name="import_file">
+            <input type="submit" class="input-group-btn col-2 btn btn-primary" value="Upload">
+          </div>
+          {% if import_success_message %}
+            <div class="has-success">
+              <p class="form-input-hint">
+                {{ import_success_message }}
+              </p>
+            </div>
+          {% endif %}
+          {% if import_errors_message %}
+            <div class="has-error">
+              <p class="form-input-hint">
+                {{ import_errors_message }}
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      </form>
+    </section>
 
-        {# Export section #}
-        <section class="content-area">
-            <h2>Export</h2>
-            <p>Export all bookmarks in Netscape HTML format.</p>
-            <a class="btn btn-primary" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
-            {% if export_error %}
-                <div class="has-error">
-                    <p class="form-input-hint">
-                        {{ export_error }}
-                    </p>
-                </div>
-            {% endif %}
-        </section>
+    {# Export section #}
+    <section class="content-area">
+      <h2>Export</h2>
+      <p>Export all bookmarks in Netscape HTML format.</p>
+      <a class="btn btn-primary" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
+      {% if export_error %}
+        <div class="has-error">
+          <p class="form-input-hint">
+            {{ export_error }}
+          </p>
+        </div>
+      {% endif %}
+    </section>
 
-        {# About section #}
-        <section class="content-area about">
-            <h2>About</h2>
-            <table class="table">
-                <tbody>
-                <tr>
-                    <td>Version</td>
-                    <td>{{ version_info }}</td>
-                </tr>
-                <tr>
-                    <td rowspan="3" style="vertical-align: top">Links</td>
-                    <td><a href="https://github.com/sissbruecker/linkding/"
-                           target="_blank">GitHub</a></td>
-                </tr>
-                <tr>
-                    <td><a href="https://github.com/sissbruecker/linkding#documentation"
-                           target="_blank">Documentation</a></td>
-                </tr>
-                <tr>
-                    <td><a href="https://github.com/sissbruecker/linkding/blob/master/CHANGELOG.md"
-                           target="_blank">Changelog</a></td>
-                </tr>
-                </tbody>
-            </table>
-        </section>
-    </div>
+    {# About section #}
+    <section class="content-area about">
+      <h2>About</h2>
+      <table class="table">
+        <tbody>
+        <tr>
+          <td>Version</td>
+          <td>{{ version_info }}</td>
+        </tr>
+        <tr>
+          <td rowspan="3" style="vertical-align: top">Links</td>
+          <td><a href="https://github.com/sissbruecker/linkding/"
+                 target="_blank">GitHub</a></td>
+        </tr>
+        <tr>
+          <td><a href="https://github.com/sissbruecker/linkding#documentation"
+                 target="_blank">Documentation</a></td>
+        </tr>
+        <tr>
+          <td><a href="https://github.com/sissbruecker/linkding/blob/master/CHANGELOG.md"
+                 target="_blank">Changelog</a></td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
 
 {% endblock %}
