@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.15.0 (11/09/2022)
+
+### What's Changed
+* Bump Django and other dependencies by @sissbruecker in https://github.com/sissbruecker/linkding/pull/331
+* Add option to create initial superuser by @sissbruecker in https://github.com/sissbruecker/linkding/pull/323
+* Improved Android HTTP Shortcuts doc by @kzshantonu in https://github.com/sissbruecker/linkding/pull/330
+* Minify bookmark list HTML by @sissbruecker in https://github.com/sissbruecker/linkding/pull/332
+* Bump python version to 3.10 by @sissbruecker in https://github.com/sissbruecker/linkding/pull/333
+* Fix error when deleting all bookmarks in admin by @sissbruecker in https://github.com/sissbruecker/linkding/pull/336
+* Improve bookmark query performance by @sissbruecker in https://github.com/sissbruecker/linkding/pull/334
+* Prevent rate limit errors in wayback machine API by @sissbruecker in https://github.com/sissbruecker/linkding/pull/339
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.14.0...v1.15.0
+
+---
+
 ## v1.14.0 (14/08/2022)
 
 ### What's Changed
