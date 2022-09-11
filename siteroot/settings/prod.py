@@ -28,6 +28,35 @@ if host_name:
 else:
     ALLOWED_HOSTS = ['*']
 
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '{asctime} {levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        }
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARN',
+    },
+    'loggers': {
+        'bookmarks': {
+            'level': 'INFO',
+            'handlers': ['console'],
+            'propagate': False,
+        }
+    }
+}
+
 # Import custom settings
 # noinspection PyUnresolvedReferences
 from .custom import *

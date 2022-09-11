@@ -29,28 +29,28 @@ def create_web_archive_snapshot(user: User, bookmark: Bookmark, force_update: bo
 
 def _load_newest_snapshot(bookmark: Bookmark):
     try:
-        logger.debug(f'Load existing snapshot for bookmark. url={bookmark.url}')
+        logger.info(f'Load existing snapshot for bookmark. url={bookmark.url}')
         cdx_api = bookmarks.services.wayback.CustomWaybackMachineCDXServerAPI(bookmark.url)
         existing_snapshot = cdx_api.newest()
 
         if existing_snapshot:
             bookmark.web_archive_snapshot_url = existing_snapshot.archive_url
             bookmark.save()
-            logger.debug(f'Using newest snapshot. url={bookmark.url} from={existing_snapshot.datetime_timestamp}')
+            logger.info(f'Using newest snapshot. url={bookmark.url} from={existing_snapshot.datetime_timestamp}')
 
     except NoCDXRecordFound:
-        logger.error(f'Could not find any snapshots for bookmark. url={bookmark.url}')
+        logger.info(f'Could not find any snapshots for bookmark. url={bookmark.url}')
     except WaybackError as error:
         logger.error(f'Failed to load existing snapshot. url={bookmark.url}', exc_info=error)
 
 
 def _create_snapshot(bookmark: Bookmark):
-    logger.debug(f'Create new snapshot for bookmark. url={bookmark.url}...')
+    logger.info(f'Create new snapshot for bookmark. url={bookmark.url}...')
     archive = waybackpy.WaybackMachineSaveAPI(bookmark.url, DEFAULT_USER_AGENT, max_tries=1)
     archive.save()
     bookmark.web_archive_snapshot_url = archive.archive_url
     bookmark.save()
-    logger.debug(f'Successfully created new snapshot for bookmark:. url={bookmark.url}')
+    logger.info(f'Successfully created new snapshot for bookmark:. url={bookmark.url}')
 
 
 @background()
@@ -71,8 +71,8 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     except TooManyRequestsError:
         logger.error(
             f'Failed to create snapshot due to rate limiting, trying to load newest snapshot as fallback. url={bookmark.url}')
-    except WaybackError:
-        logger.error(f'Failed to create snapshot, trying to load newest snapshot as fallback. url={bookmark.url}')
+    except WaybackError as error:
+        logger.error(f'Failed to create snapshot, trying to load newest snapshot as fallback. url={bookmark.url}', exc_info=error)
 
     # Load the newest snapshot as fallback
     _load_newest_snapshot(bookmark)
