@@ -12,6 +12,7 @@
     - [Using Docker](#using-docker)
     - [Using Docker Compose](#using-docker-compose)
     - [User Setup](#user-setup)
+    - [Reverse Proxy Setup](#reverse-proxy-setup)
     - [Managed Hosting Options](#managed-hosting-options)
 - [Documentation](#documentation)
 - [Browser Extension](#browser-extension)
@@ -95,6 +96,31 @@ docker-compose exec linkding python manage.py createsuperuser --username=joe --e
 ```
 
 The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
+
+### Reverse Proxy Setup
+
+When using a reverse proxy, such as Nginx or Apache, you may need to configure your proxy to correctly forward the `Host` header to linkding, otherwise certain requests, such as login, might fail.
+
+<details>
+<summary>Nginx</summary>
+
+To forward the headers to linkding, add the following directives to the location block of your Nginx config:
+```
+location /linkding {
+    ...
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+</details>
+
+<details>
+<summary>Others</summary>
+
+If you are unsure how to configure header forwarding for your specific proxy, you can alternatively configure the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
+
+</details>
 
 ### Managed Hosting Options
 

@@ -93,3 +93,18 @@ For example, for Authelia, which passes the `Remote-User` HTTP header, the `LD_A
 - `LD_AUTH_PROXY_LOGOUT_URL` - The URL that linkding should redirect to after a logout.
 By default, the logout redirects to the login URL, which means the user will be automatically authenticated again.
 Instead, you might want to configure the logout URL of the auth proxy here.
+
+### `LD_CSRF_TRUSTED_ORIGINS`
+
+Values: `String` | Default = None
+
+List of trusted origins / host names to allow for `POST` requests, for example when logging in, or saving bookmarks.
+For these type of requests, the `Origin` header must match the `Host` header, otherwise the request will fail with a `403` status code, and the message `CSRF verification failed.`
+
+This option allows to declare a list of trusted origins that will be accepted even if the headers do not match. This can be the case when using a reverse proxy that rewrites the `Host` header, such as Nginx.
+
+For example, to allow requests to https://linkding.mydomain.com, configure the setting to `https://linkding.mydomain.com`.
+Note that the setting **must** include the correct protocol (`https` or `http`), and **must not** include the application / context path.
+Multiple origins can be specified by separating them with a comma (`,`).
+
+This setting is adopted from the Django framework used by linkding, more information on the setting is available in the [Django documentation](https://docs.djangoproject.com/en/4.0/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS).

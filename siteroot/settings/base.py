@@ -199,3 +199,9 @@ if LD_ENABLE_AUTH_PROXY:
     # Configure logout URL
     if LD_AUTH_PROXY_LOGOUT_URL:
         LOGOUT_REDIRECT_URL = LD_AUTH_PROXY_LOGOUT_URL
+
+# CSRF trusted origins
+trusted_origins = os.getenv('LD_CSRF_TRUSTED_ORIGINS', '')
+if trusted_origins:
+    CSRF_TRUSTED_ORIGINS = trusted_origins.split(',')
+
