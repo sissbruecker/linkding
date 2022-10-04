@@ -102,9 +102,29 @@ The command will prompt you for a secure password. After the command has complet
 When using a reverse proxy, such as Nginx or Apache, you may need to configure your proxy to correctly forward the `Host` header to linkding, otherwise certain requests, such as login, might fail.
 
 <details>
+<summary>Apache</summary>
+
+Not tested yet.
+If you figure out a working setup, feel free to contribute it here.
+
+In the meanwhile, use the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
+
+</details>
+
+<details>
+<summary>Caddy 2</summary>
+
+Caddy does not change the headers by default, and should not need any further configuration.
+
+If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
+
+</details>
+
+<details>
 <summary>Nginx</summary>
 
-To forward the headers to linkding, add the following directives to the location block of your Nginx config:
+Nginx by default rewrites the `Host` header to whatever URL is used in the `proxy_pass` directive.
+To forward the correct headers to linkding, add the following directives to the location block of your Nginx config:
 ```
 location /linkding {
     ...
@@ -115,12 +135,7 @@ location /linkding {
 
 </details>
 
-<details>
-<summary>Others</summary>
-
-If you are unsure how to configure header forwarding for your specific proxy, you can alternatively configure the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
-
-</details>
+Instead of configuring header forwarding in your proxy, you can also configure the URL from which you want to access your linkding instance with the  [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
 
 ### Managed Hosting Options
 
