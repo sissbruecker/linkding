@@ -6,7 +6,7 @@ This can be the case when using a reverse proxy that rewrites the `Host` header,
 Since linkding version 1.15, the application includes a CSRF check that verifies that the `Origin` request header matches the `Host` header.
 If the `Host` header is modified by the reverse proxy then this check fails.
 
-To fix this, check the [reverse proxy setup documentation](../README.md#reverse_proxy_setup) on how to configure header forwarding for your proxy server, or alternatively configure the  [`LD_CSRF_TRUSTED_ORIGINS` option](Options.md#LD_CSRF_TRUSTED_ORIGINS) to the URL from which you are accessing your linkding instance.
+To fix this, check the [reverse proxy setup documentation](../README.md#reverse-proxy-setup) on how to configure header forwarding for your proxy server, or alternatively configure the  [`LD_CSRF_TRUSTED_ORIGINS` option](Options.md#LD_CSRF_TRUSTED_ORIGINS) to the URL from which you are accessing your linkding instance.
 
 ## Import fails with `502 Bad Gateway`
 
