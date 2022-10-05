@@ -182,7 +182,9 @@ typings/
 
 ### Custom
 # Rollup compilation output
-/build
+/bookmarks/static/bundle.js*
+# SASS compilation output
+/bookmarks/static/theme-*.css*
 # Collected static files for deployment
 /static
 # Build output, etc.

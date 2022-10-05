@@ -11,7 +11,8 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'linkding',
-		file: 'build/bundle.js'
+		// Generate bundle in static folder to that it is picked up by Django static files finder
+		file: 'bookmarks/static/bundle.js'
 	},
 	plugins: [
 		svelte({
