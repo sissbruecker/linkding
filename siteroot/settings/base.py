@@ -138,7 +138,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Turn off SASS compilation by default
 SASS_PROCESSOR_ENABLED = False
 # Location where generated CSS files are saved
-SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'tmp', 'build', 'styles')
+SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'bookmarks', 'static')
 
 # Add SASS preprocessor finder to resolve generated CSS
 STATICFILES_FINDERS = [
@@ -147,9 +147,8 @@ STATICFILES_FINDERS = [
     'sass_processor.finders.CssFinder',
 ]
 
-# Include SASS styles into static path, otherwise they can not be found by the SASS preprocessor
+# Enable SASS processor to find custom folder for SCSS sources through static file finders
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'build'),
     os.path.join(BASE_DIR, 'bookmarks', 'styles'),
 ]
 
