@@ -1,5 +1,13 @@
 # Troubleshooting
 
+## Login fails with `403 CSRF verfication failed`
+
+This can be the case when using a reverse proxy that rewrites the `Host` header, such as Nginx.
+Since linkding version 1.15, the application includes a CSRF check that verifies that the `Origin` request header matches the `Host` header.
+If the `Host` header is modified by the reverse proxy then this check fails.
+
+To fix this, check the [reverse proxy setup documentation](../README.md#reverse-proxy-setup) on how to configure header forwarding for your proxy server, or alternatively configure the  [`LD_CSRF_TRUSTED_ORIGINS` option](Options.md#LD_CSRF_TRUSTED_ORIGINS) to the URL from which you are accessing your linkding instance.
+
 ## Import fails with `502 Bad Gateway`
 
 The default timeout for requests is 60 seconds, after which the application server will cancel the request and return the above error.
