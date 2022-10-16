@@ -59,13 +59,13 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         ''', html)
 
     def test_get_version_info_just_displays_latest_when_versions_are_equal(self):
-        latest_version_response_mock = Mock(status_code=201, json=lambda: {'name': f'v{app_version}'})
+        latest_version_response_mock = Mock(status_code=200, json=lambda: {'name': f'v{app_version}'})
         with patch.object(requests, 'get', return_value=latest_version_response_mock):
             version_info = get_version_info(random.random())
             self.assertEqual(version_info, f'{app_version} (latest)')
 
     def test_get_version_info_shows_latest_version_when_versions_are_not_equal(self):
-        latest_version_response_mock = Mock(status_code=201, json=lambda: {'name': f'v123.0.1'})
+        latest_version_response_mock = Mock(status_code=200, json=lambda: {'name': f'v123.0.1'})
         with patch.object(requests, 'get', return_value=latest_version_response_mock):
             version_info = get_version_info(random.random())
             self.assertEqual(version_info, f'{app_version} (latest: 123.0.1)')
@@ -74,3 +74,14 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         with patch.object(requests, 'get', side_effect=RequestException()):
             version_info = get_version_info(random.random())
             self.assertEqual(version_info, f'{app_version}')
+
+    def test_get_version_info_handles_invalid_response(self):
+        latest_version_response_mock = Mock(status_code=403, json=lambda: {})
+        with patch.object(requests, 'get', return_value=latest_version_response_mock):
+            version_info = get_version_info(random.random())
+            self.assertEqual(version_info, app_version)
+
+        latest_version_response_mock = Mock(status_code=200, json=lambda: {})
+        with patch.object(requests, 'get', return_value=latest_version_response_mock):
+            version_info = get_version_info(random.random())
+            self.assertEqual(version_info, app_version)

@@ -54,7 +54,8 @@ def get_version_info(ttl_hash=None):
         latest_version_url = 'https://api.github.com/repos/sissbruecker/linkding/releases/latest'
         response = requests.get(latest_version_url, timeout=5)
         json = response.json()
-        latest_version = json['name'][1:]
+        if response.status_code == 200 and 'name' in json:
+            latest_version = json['name'][1:]
     except requests.exceptions.RequestException:
         pass
 
