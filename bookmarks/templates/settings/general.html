@@ -94,6 +94,15 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.display_url.id_for_label }}" class="form-checkbox">
+            {{ form.display_url }}
+            <i class="form-icon"></i> Display URL below title
+          </label>
+          <div class="form-input-hint">
+            When enabled, this setting displays the URL of the entry below the title.
+          </div>
+        </div>
+        <div class="form-group">
           <input type="submit" name="update_profile" value="Save" class="btn btn-primary mt-2">
           {% if update_profile_success_message %}
             <div class="has-success">
