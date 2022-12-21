@@ -120,6 +120,8 @@ An example virtual host that proxies to linkding might look like:
 </VirtualHost>
 ```
 
+For a full example, see the docker-compose configuration in [jhauris/apache2-reverse-proxy](https://github.com/jhauris/linkding/tree/apache2-reverse-proxy)
+
 If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
 
 </details>
