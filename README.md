@@ -104,10 +104,23 @@ When using a reverse proxy, such as Nginx or Apache, you may need to configure y
 <details>
 <summary>Apache</summary>
 
-Not tested yet.
-If you figure out a working setup, feel free to contribute it here.
+Apache2 does not change the headers by default, and should not
+need additional configuration.
 
-In the meanwhile, use the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
+An example virtual host that proxies to linkding might look like:
+```
+<VirtualHost *:9100>
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+    </Proxy>
+
+    ProxyPass / http://linkding:9090/
+    ProxyPassReverse / http://linkding:9090/
+</VirtualHost>
+```
+
+If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
 
 </details>
 
