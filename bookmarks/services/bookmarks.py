@@ -1,5 +1,6 @@
 from typing import Union
 
+from background_task import background
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -17,14 +18,14 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
         _merge_bookmark_data(bookmark, existing_bookmark)
         return update_bookmark(existing_bookmark, tag_string, current_user)
 
-    # Update website info
-    _update_website_metadata(bookmark)
     # Set currently logged in user as owner
     bookmark.owner = current_user
     # Set dates
     bookmark.date_added = timezone.now()
     bookmark.date_modified = timezone.now()
     bookmark.save()
+    # Update website info
+    _update_website_metadata(bookmark.id)
     # Update tag list
     _update_bookmark_tags(bookmark, tag_string, current_user)
     bookmark.save()
@@ -47,7 +48,7 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
         # Update web archive snapshot, if URL changed
         tasks.create_web_archive_snapshot(current_user, bookmark, True)
         # Only update website metadata if URL changed
-        _update_website_metadata(bookmark)
+        _update_website_metadata(bookmark.id)
 
     return bookmark
 
@@ -120,10 +121,13 @@ def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.shared = from_bookmark.shared
 
 
-def _update_website_metadata(bookmark: Bookmark):
+@background
+def _update_website_metadata(bookmark_id: int):
+    bookmark = Bookmark.objects.get(pk=bookmark_id)
     metadata = website_loader.load_website_metadata(bookmark.url)
     bookmark.website_title = metadata.title
     bookmark.website_description = metadata.description
+    bookmark.save()
 
 
 def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):
