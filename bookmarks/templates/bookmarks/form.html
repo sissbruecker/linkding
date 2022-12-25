@@ -139,7 +139,7 @@
 
       function updatePlaceholder(input, value) {
         if (value) {
-          input.setAttribute('placeholder', value);
+          input.setAttribute('placeholder', value.trim());
         } else {
           input.removeAttribute('placeholder');
         }
