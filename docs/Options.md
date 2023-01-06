@@ -111,36 +111,40 @@ This setting is adopted from the Django framework used by linkding, more informa
 
 ### `LD_DB_ENGINE`
 
-Values: `'postgres'` or `'sqlite'` | Default = `'sqlite'`
+Values: `postgres` or `sqlite` | Default = `sqlite`
 
-Database engine can be sqlite (default) or postgres
+Database engine use by linkding to store data. it can be sqlite (default) or postgres
+
+sqlite not use other LD_DB_* variables
+
+postgres use bellow variable LD_DB_DATABASE, LD_DB_LOGIN, LD_DB_PASSWORD, LD_DB_HOST, LD_DB_PORT
 
 ### `LD_DB_DATABASE`
 
-Values: `String` | Default =  `'linkding'`
+Values: `String` | Default =  `linkding`
 
 Database name (default : linkding)
 
-### `LD_DB_LOGIN`
+### `LD_DB_USER`
 
-Values: `String` | Default =  `'linkding'`
+Values: `String` | Default =  `linkding`
 
-username/login for the database
+Username use to connect on the database server (default : linkding)
 
 ### `LD_DB_PASSWORD`
 
 Values: `String` | Default =  None
 
-Password for the database
+Password use to connect on the database server
 
 ### `LD_DB_HOST`
 
-Values: `String` | Default =  `'localhost'`
+Values: `String` | Default =  `localhost`
 
-Database Hostname (default : localhost)
+The hostname or IP where the database is hosted (default : localhost)
 
 ### `LD_DB_PORT`
 
 Values: `Integer` | Default =  None
 
-Database port (if not set, the default database port is used)
+Port use to connect on the database server  (if not set, the default database port is used)

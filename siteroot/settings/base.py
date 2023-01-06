@@ -201,15 +201,15 @@ if trusted_origins:
 LD_DB_ENGINE = os.getenv('LD_DB_ENGINE', 'sqlite')
 LD_DB_HOST = os.getenv('LD_DB_HOST', 'localhost')
 LD_DB_DATABASE = os.getenv('LD_DB_DATABASE', 'linkding')
-LD_DB_LOGIN = os.getenv('LD_DB_LOGIN', 'linkding')
-LD_DB_PASSWORD = os.getenv('LD_DB_PASSWORD', '')
-LD_DB_PORT = os.getenv('LD_DB_PORT', '')
+LD_DB_USER = os.getenv('LD_DB_USER', 'linkding')
+LD_DB_PASSWORD = os.getenv('LD_DB_PASSWORD', None)
+LD_DB_PORT = os.getenv('LD_DB_PORT', None)
 
 if LD_DB_ENGINE == "postgres" :
     default_database = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': LD_DB_DATABASE,
-        'USER': LD_DB_LOGIN,
+        'USER': LD_DB_USER,
         'PASSWORD': LD_DB_PASSWORD,
         'HOST': LD_DB_HOST,
         'PORT': LD_DB_PORT,
