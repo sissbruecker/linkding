@@ -32,7 +32,7 @@ For more info see here: https://paul.kinlan.me/use-bookmarklets-on-chrome-on-and
 
 - Paste the URL you copied earlier, tap OK, go back, tap the 3-dot-button again, then tap `Variables`.
 
-- Edit the `values` of `linkding_instance` and `linkding_api_token`.
+- Edit the `values` of `linkding_instance` and `linkding_api_key`.
 
 Try using share button on an app, a new item `Send to...` should appear on the share sheet. You can also manually share by tapping the shortcut inside the HTTP Shortcuts app itself.
 
