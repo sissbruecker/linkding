@@ -9,6 +9,7 @@
     <li class="tab-item {% if request.get_full_path == integrations_url %}active{% endif %}">
         <a href="{% url 'bookmarks:settings.integrations' %}">Integrations</a>
     </li>
+    {% if request.user.is_superuser %}
     <li class="tab-item tooltip tooltip-bottom" data-tooltip="The admin panel provides additional features &#010; such as user management and bulk operations.">
         <a href="{% url 'admin:index' %}" target="_blank">
             <span>Admin</span>
@@ -18,5 +19,6 @@
             </svg>
         </a>
     </li>
+    {% endif %}
 </ul>
 <br>
