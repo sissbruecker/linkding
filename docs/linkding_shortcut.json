@@ -1,60 +1,95 @@
 {
   "categories": [
     {
-      "id": "8f4299d4-4c30-4a8e-a3f9-c90694011713",
+      "id": "e260b423-db01-4743-a671-2cd38594c63c",
+      "layoutType": "wide_grid",
       "name": "Shortcuts",
       "shortcuts": [
         {
-          "bodyContent": "{ \"url\": \"{{b2953f61-b302-4c79-b90d-39858a06d9a6}}\", \"tag_names\": [ \"{{7871474b-e325-4ca0-a142-a5ef5d3f7ed8}}\" ] }",
+          "bodyContent": "{{7b26d228-4ad6-4b1c-8b7b-076dc03385cc}}",
+          "codeOnPrepare": "const sharedValue \u003d getVariable(\u0027text_and_url\u0027)\nconst matches \u003d sharedValue.match(/\\bhttps?:\\/\\/\\S+/gi);\nconst url \u003d matches[0];\nsetVariable(\u0027cleaned_url\u0027, url);",
           "contentType": "application/json",
-          "description": "Bookmark to linkding",
+          "description": "bookmark link",
           "headers": [
             {
-              "id": "fd6306d7-e09d-4c14-a538-3fc258460028",
+              "id": "b66dd9b9-13e8-4802-b527-6e32f3980f4b",
               "key": "Authorization",
-              "value": "Token {{6a739a16-d16d-4a06-93a5-3457da3c3d20}}"
+              "value": "Token {{908e3a30-ae82-400d-93c8-561c36d11d6d}}"
             }
           ],
-          "iconName": "flat_grey_ribbon",
-          "id": "1e047d02-a4a3-4cad-b4cc-123cc16c8398",
-          "launcherShortcut": true,
+          "iconName": "flat_grey_pin",
+          "id": "871c3219-9e9f-46bb-8a7f-78f1496f78fc",
           "method": "POST",
           "name": "Linkding",
-          "quickSettingsTileShortcut": true,
           "responseHandling": {
             "failureOutput": "simple",
             "uiType": "toast"
           },
-          "url": "{{ea2db14b-b9ca-45d8-8555-403271a38f5a}}/api/bookmarks/"
+          "url": "{{26253fe2-d202-4ce8-acd1-55c1ad3ae7d1}}/api/bookmarks/"
         }
       ]
     }
   ],
   "variables": [
     {
-      "id": "ea2db14b-b9ca-45d8-8555-403271a38f5a",
+      "id": "26253fe2-d202-4ce8-acd1-55c1ad3ae7d1",
       "key": "linkding_instance",
-      "value": "https://your.instance.tld.without.slashed.end"
+      "value": "https://your.linkding.host.no.slashed.end"
+    },
+    {
+      "id": "a3c8efa2-3e3a-4bb4-8919-3e831f95fe6a",
+      "jsonEncode": true,
+      "key": "linkding_tag",
+      "message": "Comma separated",
+      "title": "One or more tags",
+      "type": "text"
+    },
+    {
+      "id": "908e3a30-ae82-400d-93c8-561c36d11d6d",
+      "key": "linkding_api_key",
+      "value": "your_api_key_here"
+    },
+    {
+      "id": "d76696e7-1ee1-4d98-b6f9-b570ec69ef40",
+      "key": "cleaned_url"
     },
     {
       "flags": 1,
-      "id": "b2953f61-b302-4c79-b90d-39858a06d9a6",
-      "key": "linkding_add_url",
-      "title": "Enter URL",
+      "id": "da66cdad-8118-4a87-9581-4db33852b610",
+      "key": "text_and_url",
+      "message": "Any text that contains one URL",
+      "title": "URL",
       "type": "text"
     },
     {
-      "id": "6a739a16-d16d-4a06-93a5-3457da3c3d20",
-      "key": "linkding_api_token",
-      "value": "your_token_from_integrations_tab"
+      "data": "{\"select\":{\"multi_select\":\"false\",\"separator\":\",\"}}",
+      "id": "7b26d228-4ad6-4b1c-8b7b-076dc03385cc",
+      "key": "tag_yes_no_default",
+      "options": [
+        {
+          "id": "9365e43e-0572-4621-ac06-caec1ccff09d",
+          "label": "Tagged",
+          "value": "{{5be61e61-d8f5-475b-b1b1-88ddaebf8fd5}}"
+        },
+        {
+          "id": "9f1caeaf-af57-42b4-8b10-4391354ad0f0",
+          "label": "Untagged and unread",
+          "value": "{{71ac9c4d-c03e-4b6f-ad75-9c112a591c50}}"
+        }
+      ],
+      "title": "Tagged or unread?",
+      "type": "select"
     },
     {
-      "id": "7871474b-e325-4ca0-a142-a5ef5d3f7ed8",
-      "key": "linkding_custom_tag",
-      "message": "Enter one or more comma separated tags",
-      "title": "Tag",
-      "type": "text"
+      "id": "5be61e61-d8f5-475b-b1b1-88ddaebf8fd5",
+      "key": "request_body_tagged",
+      "value": "{ \"url\": \"{{d76696e7-1ee1-4d98-b6f9-b570ec69ef40}}\", \"tag_names\": [ \"{{a3c8efa2-3e3a-4bb4-8919-3e831f95fe6a}}\" ] }"
+    },
+    {
+      "id": "71ac9c4d-c03e-4b6f-ad75-9c112a591c50",
+      "key": "request_body_untagged",
+      "value": "{ \"url\": \"{{d76696e7-1ee1-4d98-b6f9-b570ec69ef40}}\", \"unread\": true }"
     }
   ],
-  "version": 53
+  "version": 56
 }
