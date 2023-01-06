@@ -28,4 +28,4 @@ sqlparse==0.4.2
 typing-extensions==3.10.0.0
 urllib3==1.26.11
 waybackpy==3.0.6
-psycopg2==2.9.5
+psycopg2-binary==2.9.5
