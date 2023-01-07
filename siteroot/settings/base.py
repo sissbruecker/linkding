@@ -79,7 +79,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 WSGI_APPLICATION = 'siteroot.wsgi.application'
 
-
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -205,7 +204,7 @@ LD_DB_USER = os.getenv('LD_DB_USER', 'linkding')
 LD_DB_PASSWORD = os.getenv('LD_DB_PASSWORD', None)
 LD_DB_PORT = os.getenv('LD_DB_PORT', None)
 
-if LD_DB_ENGINE == "postgres" :
+if LD_DB_ENGINE == 'postgres':
     default_database = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': LD_DB_DATABASE,
@@ -223,4 +222,3 @@ else:
 DATABASES = {
     'default': default_database
 }
-

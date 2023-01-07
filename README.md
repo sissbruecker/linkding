@@ -53,7 +53,11 @@ The name comes from:
 
 ## Installation
 
-linkding is designed to be run with container solutions like [Docker](https://docs.docker.com/get-started/).  The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
+linkding is designed to be run with container solutions like [Docker](https://docs.docker.com/get-started/).
+The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
+
+By default, linkding uses SQLite as a database.
+Alternatively linkding supports PostgreSQL, see the [database options](docs/Options.md#LD_DB_ENGINE) for more information.
 
 ###  Using Docker
 
