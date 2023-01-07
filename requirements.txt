@@ -17,6 +17,7 @@ django4-background-tasks==1.2.7
 djangorestframework==3.13.1
 idna==3.3
 libsass==0.21.0
+psycopg2-binary==2.9.5
 python-dateutil==2.8.2
 pytz==2022.2.1
 rcssmin==1.1.0
@@ -28,4 +29,3 @@ sqlparse==0.4.2
 typing-extensions==3.10.0.0
 urllib3==1.26.11
 waybackpy==3.0.6
-psycopg2-binary==2.9.5

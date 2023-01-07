@@ -10,7 +10,7 @@ RUN npm run build
 
 
 FROM python:3.10.6-slim-buster AS python-base
-RUN apt-get update && apt-get -y install build-essential
+RUN apt-get update && apt-get -y install build-essential libpq-dev
 WORKDIR /etc/linkding
 
 
@@ -34,7 +34,7 @@ RUN mkdir /opt/venv && \
 
 
 FROM python:3.10.6-slim-buster as final
-RUN apt-get update && apt-get -y install mime-support
+RUN apt-get update && apt-get -y install mime-support libpq-dev
 WORKDIR /etc/linkding
 # copy prod dependencies
 COPY --from=prod-deps /opt/venv /opt/venv
