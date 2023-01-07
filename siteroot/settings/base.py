@@ -222,3 +222,8 @@ else:
 DATABASES = {
     'default': default_database
 }
+
+# Favicons
+LD_DEFAULT_FAVICON_PROVIDER = 'https://t1.gstatic.com/faviconV2?url={url}&client=SOCIAL&type=FAVICON'
+LD_FAVICON_PROVIDER = os.getenv('LD_FAVICON_PROVIDER', LD_DEFAULT_FAVICON_PROVIDER)
+LD_FAVICON_FOLDER = os.path.join(BASE_DIR, 'data', 'favicons')
