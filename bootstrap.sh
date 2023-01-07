@@ -22,4 +22,4 @@ if [ "$LD_DISABLE_BACKGROUND_TASKS" != "True" ]; then
 fi
 
 # Start uwsgi server
-uwsgi --http :$LD_SERVER_PORT uwsgi.ini
+exec uwsgi --http :$LD_SERVER_PORT uwsgi.ini
