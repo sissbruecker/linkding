@@ -304,3 +304,37 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
             bookmark.refresh_from_db()
             self.assertEqual(bookmark.favicon_file, 'https_example_updated_com.png')
+
+    def test_schedule_bookmarks_without_favicons_should_load_favicon_for_all_bookmarks_without_favicon(self):
+        user = self.get_or_create_test_user()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark(favicon_file='https_example_com.png')
+        self.setup_bookmark(favicon_file='https_example_com.png')
+        self.setup_bookmark(favicon_file='https_example_com.png')
+
+        tasks.schedule_bookmarks_without_favicons(user)
+        self.run_pending_task(tasks._schedule_bookmarks_without_favicons_task)
+
+        task_list = Task.objects.all()
+        self.assertEqual(task_list.count(), 3)
+
+        for task in task_list:
+            self.assertEqual(task.task_name, 'bookmarks.services.tasks._load_favicon_task')
+
+    def test_schedule_bookmarks_without_favicons_should_only_update_user_owned_bookmarks(self):
+        user = self.get_or_create_test_user()
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+
+        tasks.schedule_bookmarks_without_favicons(user)
+        self.run_pending_task(tasks._schedule_bookmarks_without_favicons_task)
+
+        task_list = Task.objects.all()
+        self.assertEqual(task_list.count(), 3)

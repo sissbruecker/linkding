@@ -2,6 +2,7 @@ import logging
 
 import waybackpy
 from background_task import background
+from background_task.models import Task
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
@@ -123,5 +124,26 @@ def _load_favicon_task(bookmark_id: int, force_update: bool):
     if bookmark.favicon_file and not force_update:
         return
 
+    logger.info(f'Load favicon for bookmark. url={bookmark.url}')
+
     bookmark.favicon_file = favicon_loader.load_favicon(bookmark.url)
     bookmark.save()
+
+    logger.info(f'Successfully updated favicon for bookmark. url={bookmark.url}')
+
+
+def schedule_bookmarks_without_favicons(user: User):
+    _schedule_bookmarks_without_favicons_task(user.id)
+
+
+@background()
+def _schedule_bookmarks_without_favicons_task(user_id: int):
+    user = get_user_model().objects.get(id=user_id)
+    bookmarks = Bookmark.objects.filter(favicon_file__exact='', owner=user)
+    tasks = []
+
+    for bookmark in bookmarks:
+        task = Task.objects.new_task(task_name='bookmarks.services.tasks._load_favicon_task', args=(bookmark.id, False))
+        tasks.append(task)
+
+    Task.objects.bulk_create(tasks)
