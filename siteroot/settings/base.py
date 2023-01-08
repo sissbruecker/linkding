@@ -140,6 +140,7 @@ STATICFILES_FINDERS = [
 # Enable SASS processor to find custom folder for SCSS sources through static file finders
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'bookmarks', 'styles'),
+    os.path.join(BASE_DIR, 'data', 'favicons'),
 ]
 
 # REST framework

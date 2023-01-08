@@ -5,6 +5,8 @@ LD_SERVER_PORT="${LD_SERVER_PORT:-9090}"
 
 # Create data folder if it does not exist
 mkdir -p data
+# Create favicon folder if it does not exist
+mkdir -p data/favicons
 
 # Run database migration
 python manage.py migrate

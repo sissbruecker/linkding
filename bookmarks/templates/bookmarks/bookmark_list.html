@@ -1,3 +1,4 @@
+{% load static %}
 {% load shared %}
 {% load pagination %}
 {% htmlmin %}
@@ -11,6 +12,9 @@
         <div class="title">
           <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener"
              class="{% if bookmark.unread %}text-italic{% endif %}">
+            {% if bookmark.favicon_file %}
+              <img src="{% static bookmark.favicon_file %}" alt="">
+            {% endif %}
             {{ bookmark.resolved_title }}
           </a>
         </div>
