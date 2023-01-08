@@ -28,3 +28,4 @@ sqlparse==0.4.2
 typing-extensions==3.10.0.0
 urllib3==1.26.11
 waybackpy==3.0.6
+mozilla-django-oidc==3.0.0

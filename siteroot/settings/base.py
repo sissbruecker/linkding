@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'background_task',
+    'mozilla_django_oidc',
 ]
 
 MIDDLEWARE = [
@@ -187,14 +188,28 @@ LD_ENABLE_AUTH_PROXY = os.getenv('LD_ENABLE_AUTH_PROXY', False) in (True, 'True'
 LD_AUTH_PROXY_USERNAME_HEADER = os.getenv('LD_AUTH_PROXY_USERNAME_HEADER', 'REMOTE_USER')
 LD_AUTH_PROXY_LOGOUT_URL = os.getenv('LD_AUTH_PROXY_LOGOUT_URL', None)
 
+LD_ENABLE_OIDC = os.getenv('LD_ENABLE_OIDC', False) in (True, 'True', '1')
+
+AUTHENTICATION_BACKENDS = []
+
+if LD_ENABLE_OIDC:
+    AUTHENTICATION_BACKENDS.append('mozilla_django_oidc.auth.OIDCAuthenticationBackend')
+    OIDC_RP_SIGN_ALGO = os.getenv("OIDC_RP_SIGN_ALGO")
+    OIDC_OP_JWKS_ENDPOINT= os.getenv("OIDC_OP_JWKS_ENDPOINT")
+    OIDC_OP_AUTHORIZATION_ENDPOINT = os.getenv("OIDC_OP_AUTHORIZATION_ENDPOINT")
+    OIDC_OP_TOKEN_ENDPOINT = os.getenv("OIDC_OP_TOKEN_ENDPOINT")
+    OIDC_OP_USER_ENDPOINT = os.getenv("OIDC_OP_USER_ENDPOINT")
+
+    OIDC_RP_CLIENT_ID = os.getenv('OIDC_RP_CLIENT_ID')
+    OIDC_RP_CLIENT_SECRET = os.getenv('OIDC_RP_CLIENT_SECRET')
+
 if LD_ENABLE_AUTH_PROXY:
     # Add middleware that automatically authenticates requests that have a known username
     # in the LD_AUTH_PROXY_USERNAME_HEADER request header
     MIDDLEWARE.append('bookmarks.middlewares.CustomRemoteUserMiddleware')
     # Configure auth backend that does not require a password credential
-    AUTHENTICATION_BACKENDS = [
-        'django.contrib.auth.backends.RemoteUserBackend',
-    ]
+    AUTHENTICATION_BACKENDS.append(
+        'django.contrib.auth.backends.RemoteUserBackend',)
     # Configure logout URL
     if LD_AUTH_PROXY_LOGOUT_URL:
         LOGOUT_REDIRECT_URL = LD_AUTH_PROXY_LOGOUT_URL

@@ -29,10 +29,15 @@
 
                     <br/>
                     <div class="columns">
-                        <div class="column col-3">
+                        <div class="column col-auto">
                             <input type="submit" value="Login" class="btn btn-primary">
                             <input type="hidden" name="next" value="{{ next }}">
                         </div>
+                        {% if enable_oidc %}
+                        <div class="column col-auto">
+                            <a class="btn btn-link" href="{% url 'oidc_authentication_init' %}">Login with OIDC</a>
+                        </div>
+                        {% endif %}
                         {% if allow_registration %}
                         <div class="column col-auto col-ml-auto">
                             <a href="{% url 'django_registration_register' %}" class="btn btn-link">Register</a>
