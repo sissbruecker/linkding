@@ -10,6 +10,7 @@ from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecord
 import bookmarks.services.wayback
 from bookmarks.models import Bookmark, UserProfile
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT
+from bookmarks.services import favicon_loader
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +73,8 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
         logger.error(
             f'Failed to create snapshot due to rate limiting, trying to load newest snapshot as fallback. url={bookmark.url}')
     except WaybackError as error:
-        logger.error(f'Failed to create snapshot, trying to load newest snapshot as fallback. url={bookmark.url}', exc_info=error)
+        logger.error(f'Failed to create snapshot, trying to load newest snapshot as fallback. url={bookmark.url}',
+                     exc_info=error)
 
     # Load the newest snapshot as fallback
     _load_newest_snapshot(bookmark)
@@ -105,3 +107,21 @@ def _schedule_bookmarks_without_snapshots_task(user_id: int):
         # To prevent rate limit errors from the Wayback API only try to load the latest snapshots instead of creating
         # new ones when processing bookmarks in bulk
         _load_web_archive_snapshot_task(bookmark.id)
+
+
+def load_favicon(bookmark: Bookmark, force_update: bool):
+    _load_favicon_task(bookmark.id, force_update)
+
+
+@background()
+def _load_favicon_task(bookmark_id: int, force_update: bool):
+    try:
+        bookmark = Bookmark.objects.get(id=bookmark_id)
+    except Bookmark.DoesNotExist:
+        return
+    # Skip if favicon exists
+    if bookmark.favicon_file and not force_update:
+        return
+
+    bookmark.favicon_file = favicon_loader.load_favicon(bookmark.url)
+    bookmark.save()

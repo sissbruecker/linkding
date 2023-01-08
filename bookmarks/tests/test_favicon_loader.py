@@ -46,17 +46,6 @@ class FaviconLoaderTestCase(TestCase):
             # should store image data
             self.assertEqual(mock_icon_data, self.get_icon_data('https_example_com.png'))
 
-    def test_load_favicon_updates_icon(self):
-        with mock.patch('requests.get') as mock_get:
-            mock_get.return_value = self.create_mock_response()
-            favicon_loader.load_favicon('https://example.com')
-
-            updated_mock_icon_data = b'updated_mock_icon'
-            mock_get.return_value = self.create_mock_response(icon_data=updated_mock_icon_data)
-            favicon_loader.load_favicon('https://example.com')
-
-            self.assertEqual(updated_mock_icon_data, self.get_icon_data('https_example_com.png'))
-
     def test_load_favicon_creates_folder_if_not_exists(self):
         with mock.patch('requests.get') as mock_get:
             mock_get.return_value = self.create_mock_response()
@@ -92,12 +81,24 @@ class FaviconLoaderTestCase(TestCase):
             self.assertTrue(self.icon_exists('https_sub_example_com.png'))
             self.assertTrue(self.icon_exists('https_other_domain_com.png'))
 
-    def test_check_favicon(self):
+    def test_load_favicon_caches_icons(self):
         with mock.patch('requests.get') as mock_get:
             mock_get.return_value = self.create_mock_response()
 
-            self.assertFalse(favicon_loader.check_favicon('https://example.com'))
+            favicon_loader.load_favicon('https://example.com')
+            mock_get.assert_called()
 
+            mock_get.reset_mock()
+            favicon_loader.load_favicon('https://example.com')
+            mock_get.assert_not_called()
+
+    def test_load_favicon_updates_icon(self):
+        with mock.patch('requests.get') as mock_get:
+            mock_get.return_value = self.create_mock_response()
             favicon_loader.load_favicon('https://example.com')
 
-            self.assertTrue(favicon_loader.check_favicon('https://example.com'))
+            updated_mock_icon_data = b'updated_mock_icon'
+            mock_get.return_value = self.create_mock_response(icon_data=updated_mock_icon_data)
+            favicon_loader.load_favicon('https://example.com', force_update=True)
+
+            self.assertEqual(updated_mock_icon_data, self.get_icon_data('https_example_com.png'))

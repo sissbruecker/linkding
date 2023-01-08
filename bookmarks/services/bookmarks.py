@@ -30,6 +30,8 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     bookmark.save()
     # Create snapshot on web archive
     tasks.create_web_archive_snapshot(current_user, bookmark, False)
+    # Load favicon
+    tasks.load_favicon(bookmark, False)
 
     return bookmark
 
@@ -48,6 +50,8 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
         tasks.create_web_archive_snapshot(current_user, bookmark, True)
         # Only update website metadata if URL changed
         _update_website_metadata(bookmark)
+        # Update favicon if URL changed
+        tasks.load_favicon(bookmark, True)
         bookmark.save()
 
     return bookmark
