@@ -72,7 +72,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark_data = Bookmark(url='https://example.com')
             bookmark = create_bookmark(bookmark_data, 'tag1,tag2', self.user)
 
-            mock_load_favicon.assert_called_once_with(bookmark)
+            mock_load_favicon.assert_called_once_with(self.user, bookmark)
 
     def test_update_should_create_web_archive_snapshot_if_url_did_change(self):
         with patch.object(tasks, 'create_web_archive_snapshot') as mock_create_web_archive_snapshot:
@@ -122,7 +122,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark.title = 'updated title'
             update_bookmark(bookmark, 'tag1,tag2', self.user)
 
-            mock_load_favicon.assert_called_once_with(bookmark)
+            mock_load_favicon.assert_called_once_with(self.user, bookmark)
 
     def test_archive_bookmark(self):
         bookmark = Bookmark(

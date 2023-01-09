@@ -37,6 +37,16 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.enable_favicons.id_for_label }}" class="form-checkbox">
+            {{ form.enable_favicons }}
+            <i class="form-icon"></i> Enable Favicons
+          </label>
+          <div class="form-input-hint">
+            Automatically load favicons from bookmarked websites and display them next to each bookmark.
+            By default, this feature uses a Google service to load favicons, if you don't want to use this service, check the options on how to configure a custom favicon provider.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
             integration</label>
           {{ form.web_archive_integration|add_class:"form-select col-2 col-sm-12" }}

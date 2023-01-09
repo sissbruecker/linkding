@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from waybackpy.exceptions import WaybackError
 
-import bookmarks.services.wayback
 import bookmarks.services.favicon_loader
+import bookmarks.services.wayback
 from bookmarks.models import UserProfile
 from bookmarks.services import tasks
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
@@ -54,6 +54,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def setUp(self):
         user = self.get_or_create_test_user()
         user.profile.web_archive_integration = UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED
+        user.profile.enable_favicons = True
         user.profile.save()
 
     @disable_logging
@@ -270,7 +271,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
             mock_load_favicon.return_value = 'https_example_com.png'
 
-            tasks.load_favicon(bookmark)
+            tasks.load_favicon(self.get_or_create_test_user(), bookmark)
             self.run_pending_task(tasks._load_favicon_task)
             bookmark.refresh_from_db()
 
@@ -281,7 +282,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
             mock_load_favicon.return_value = 'https_example_updated_com.png'
-            tasks.load_favicon(bookmark)
+            tasks.load_favicon(self.get_or_create_test_user(), bookmark)
             self.run_pending_task(tasks._load_favicon_task)
 
             mock_load_favicon.assert_called()
@@ -294,6 +295,22 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.run_pending_task(tasks._load_favicon_task)
 
             mock_load_favicon.assert_not_called()
+
+    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_load_favicon_should_not_run_when_background_tasks_are_disabled(self):
+        bookmark = self.setup_bookmark()
+        tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_load_favicon_should_not_run_when_favicon_feature_is_disabled(self):
+        self.user.profile.enable_favicons = False
+        self.user.profile.save()
+
+        bookmark = self.setup_bookmark()
+        tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+
+        self.assertEqual(Task.objects.count(), 0)
 
     def test_schedule_bookmarks_without_favicons_should_load_favicon_for_all_bookmarks_without_favicon(self):
         user = self.get_or_create_test_user()
@@ -328,3 +345,19 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         task_list = Task.objects.all()
         self.assertEqual(task_list.count(), 3)
+
+    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_schedule_bookmarks_without_favicons_should_not_run_when_background_tasks_are_disabled(self):
+        bookmark = self.setup_bookmark()
+        tasks.schedule_bookmarks_without_favicons(self.get_or_create_test_user())
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_schedule_bookmarks_without_favicons_should_not_run_when_favicon_feature_is_disabled(self):
+        self.user.profile.enable_favicons = False
+        self.user.profile.save()
+
+        bookmark = self.setup_bookmark()
+        tasks.schedule_bookmarks_without_favicons(self.get_or_create_test_user())
+
+        self.assertEqual(Task.objects.count(), 0)

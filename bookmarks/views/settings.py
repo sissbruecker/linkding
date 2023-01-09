@@ -11,9 +11,9 @@ from django.shortcuts import render
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
-from bookmarks.models import UserProfileForm, FeedToken
+from bookmarks.models import UserProfile, UserProfileForm, FeedToken
 from bookmarks.queries import query_bookmarks
-from bookmarks.services import exporter
+from bookmarks.services import exporter, tasks
 from bookmarks.services import importer
 
 logger = logging.getLogger(__name__)
@@ -28,12 +28,18 @@ except Exception as exc:
 
 @login_required
 def general(request):
+    user = request.user
+    profile = user.profile
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user.profile)
+        favicons_were_enabled = profile.enable_favicons
+        form = UserProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
+            if profile.enable_favicons and not favicons_were_enabled:
+                tasks.schedule_bookmarks_without_favicons(request.user)
+
     else:
-        form = UserProfileForm(instance=request.user.profile)
+        form = UserProfileForm(instance=profile)
 
     import_success_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_success')
     import_errors_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_errors')

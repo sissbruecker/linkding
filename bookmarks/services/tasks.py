@@ -110,8 +110,15 @@ def _schedule_bookmarks_without_snapshots_task(user_id: int):
         _load_web_archive_snapshot_task(bookmark.id)
 
 
-def load_favicon(bookmark: Bookmark):
-    _load_favicon_task(bookmark.id)
+def is_favicon_feature_active(user: User) -> bool:
+    background_tasks_enabled = not settings.LD_DISABLE_BACKGROUND_TASKS
+
+    return background_tasks_enabled and user.profile.enable_favicons
+
+
+def load_favicon(user: User, bookmark: Bookmark):
+    if is_favicon_feature_active(user):
+        _load_favicon_task(bookmark.id)
 
 
 @background()
@@ -132,7 +139,8 @@ def _load_favicon_task(bookmark_id: int):
 
 
 def schedule_bookmarks_without_favicons(user: User):
-    _schedule_bookmarks_without_favicons_task(user.id)
+    if is_favicon_feature_active(user):
+        _schedule_bookmarks_without_favicons_task(user.id)
 
 
 @background()
@@ -142,7 +150,7 @@ def _schedule_bookmarks_without_favicons_task(user_id: int):
     tasks = []
 
     for bookmark in bookmarks:
-        task = Task.objects.new_task(task_name='bookmarks.services.tasks._load_favicon_task', args=(bookmark.id, False))
+        task = Task.objects.new_task(task_name='bookmarks.services.tasks._load_favicon_task', args=(bookmark.id,))
         tasks.append(task)
 
     Task.objects.bulk_create(tasks)

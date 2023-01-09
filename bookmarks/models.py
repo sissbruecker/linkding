@@ -162,12 +162,13 @@ class UserProfile(models.Model):
     web_archive_integration = models.CharField(max_length=10, choices=WEB_ARCHIVE_INTEGRATION_CHOICES, blank=False,
                                                default=WEB_ARCHIVE_INTEGRATION_DISABLED)
     enable_sharing = models.BooleanField(default=False, null=False)
+    enable_favicons = models.BooleanField(default=False, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'enable_sharing']
+        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'enable_sharing', 'enable_favicons']
 
 
 @receiver(post_save, sender=get_user_model())

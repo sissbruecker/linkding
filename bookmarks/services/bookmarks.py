@@ -31,7 +31,7 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     # Create snapshot on web archive
     tasks.create_web_archive_snapshot(current_user, bookmark, False)
     # Load favicon
-    tasks.load_favicon(bookmark)
+    tasks.load_favicon(current_user, bookmark)
 
     return bookmark
 
@@ -46,7 +46,7 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     bookmark.date_modified = timezone.now()
     bookmark.save()
     # Update favicon
-    tasks.load_favicon(bookmark)
+    tasks.load_favicon(current_user, bookmark)
 
     if has_url_changed:
         # Update web archive snapshot, if URL changed
