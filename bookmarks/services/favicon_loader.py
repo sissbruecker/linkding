@@ -1,11 +1,14 @@
 import os.path
 import re
 import shutil
+import time
 from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
 from django.conf import settings
+
+max_file_age = 60 * 60 * 24  # 1 day
 
 
 def _ensure_favicon_folder():
@@ -22,18 +25,24 @@ def _get_base_url(url: str) -> str:
     return f'{parsed_uri.scheme}://{parsed_uri.hostname}'
 
 
-def _get_favicon_path(favicon_file: str) -> str:
-    return os.path.join(settings.LD_FAVICON_FOLDER, favicon_file)
+def _get_favicon_path(favicon_file: str) -> Path:
+    return Path(os.path.join(settings.LD_FAVICON_FOLDER, favicon_file))
 
 
-def load_favicon(url: str, force_update=False) -> str:
+def _is_stale(path: Path) -> bool:
+    stat = path.stat()
+    file_age = time.time() - stat.st_mtime
+    return file_age >= max_file_age
+
+
+def load_favicon(url: str) -> str:
     # Get base URL so that we can reuse favicons for multiple bookmarks with the same host
     base_url = _get_base_url(url)
     favicon_name = _url_to_filename(base_url)
     favicon_path = _get_favicon_path(favicon_name)
 
-    # Load icon if it doesn't exist yet
-    if not Path(favicon_path).exists() or force_update:
+    # Load icon if it doesn't exist yet or has become stale
+    if not favicon_path.exists() or _is_stale(favicon_path):
         # Create favicon folder if not exists
         _ensure_favicon_folder()
         # Load favicon from provider, save to file

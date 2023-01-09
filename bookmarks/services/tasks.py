@@ -110,26 +110,25 @@ def _schedule_bookmarks_without_snapshots_task(user_id: int):
         _load_web_archive_snapshot_task(bookmark.id)
 
 
-def load_favicon(bookmark: Bookmark, force_update: bool):
-    _load_favicon_task(bookmark.id, force_update)
+def load_favicon(bookmark: Bookmark):
+    _load_favicon_task(bookmark.id)
 
 
 @background()
-def _load_favicon_task(bookmark_id: int, force_update: bool):
+def _load_favicon_task(bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
     except Bookmark.DoesNotExist:
         return
-    # Skip if favicon exists
-    if bookmark.favicon_file and not force_update:
-        return
 
     logger.info(f'Load favicon for bookmark. url={bookmark.url}')
 
-    bookmark.favicon_file = favicon_loader.load_favicon(bookmark.url)
-    bookmark.save()
+    new_favicon = favicon_loader.load_favicon(bookmark.url)
 
-    logger.info(f'Successfully updated favicon for bookmark. url={bookmark.url}')
+    if new_favicon != bookmark.favicon_file:
+        bookmark.favicon_file = new_favicon
+        bookmark.save()
+        logger.info(f'Successfully updated favicon for bookmark. url={bookmark.url}')
 
 
 def schedule_bookmarks_without_favicons(user: User):

@@ -264,46 +264,36 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(Task.objects.count(), 0)
 
-    def test_load_favicon_should_update_favicon_file(self):
+    def test_load_favicon_should_create_favicon_file(self):
         bookmark = self.setup_bookmark()
 
         with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
             mock_load_favicon.return_value = 'https_example_com.png'
 
-            tasks.load_favicon(bookmark, False)
+            tasks.load_favicon(bookmark)
             self.run_pending_task(tasks._load_favicon_task)
             bookmark.refresh_from_db()
 
             self.assertEqual(bookmark.favicon_file, 'https_example_com.png')
 
-    def test_load_favicon_should_handle_missing_bookmark(self):
-        with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
-            tasks._load_favicon_task(123, False)
-            self.run_pending_task(tasks._load_favicon_task)
-
-            mock_load_favicon.assert_not_called()
-
-    def test_load_favicon_should_skip_if_favicon_exists(self):
-        bookmark = self.setup_bookmark(favicon_file='https_example_com.png')
-
-        with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
-            tasks.load_favicon(bookmark, False)
-            self.run_pending_task(tasks._load_favicon_task)
-
-            mock_load_favicon.assert_not_called()
-
-    def test_load_favicon_should_force_update_favicon(self):
+    def test_load_favicon_should_update_favicon_file(self):
         bookmark = self.setup_bookmark(favicon_file='https_example_com.png')
 
         with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
             mock_load_favicon.return_value = 'https_example_updated_com.png'
-            tasks.load_favicon(bookmark, True)
+            tasks.load_favicon(bookmark)
             self.run_pending_task(tasks._load_favicon_task)
 
             mock_load_favicon.assert_called()
-
             bookmark.refresh_from_db()
             self.assertEqual(bookmark.favicon_file, 'https_example_updated_com.png')
+
+    def test_load_favicon_should_handle_missing_bookmark(self):
+        with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
+            tasks._load_favicon_task(123)
+            self.run_pending_task(tasks._load_favicon_task)
+
+            mock_load_favicon.assert_not_called()
 
     def test_schedule_bookmarks_without_favicons_should_load_favicon_for_all_bookmarks_without_favicon(self):
         user = self.get_or_create_test_user()
