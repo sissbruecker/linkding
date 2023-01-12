@@ -79,16 +79,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 WSGI_APPLICATION = 'siteroot.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3'),
-    }
-}
-
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -204,3 +194,31 @@ trusted_origins = os.getenv('LD_CSRF_TRUSTED_ORIGINS', '')
 if trusted_origins:
     CSRF_TRUSTED_ORIGINS = trusted_origins.split(',')
 
+# Database
+# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+
+LD_DB_ENGINE = os.getenv('LD_DB_ENGINE', 'sqlite')
+LD_DB_HOST = os.getenv('LD_DB_HOST', 'localhost')
+LD_DB_DATABASE = os.getenv('LD_DB_DATABASE', 'linkding')
+LD_DB_USER = os.getenv('LD_DB_USER', 'linkding')
+LD_DB_PASSWORD = os.getenv('LD_DB_PASSWORD', None)
+LD_DB_PORT = os.getenv('LD_DB_PORT', None)
+
+if LD_DB_ENGINE == 'postgres':
+    default_database = {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': LD_DB_DATABASE,
+        'USER': LD_DB_USER,
+        'PASSWORD': LD_DB_PASSWORD,
+        'HOST': LD_DB_HOST,
+        'PORT': LD_DB_PORT,
+    }
+else:
+    default_database = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3'),
+    }
+
+DATABASES = {
+    'default': default_database
+}

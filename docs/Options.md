@@ -108,3 +108,44 @@ Note that the setting **must** include the correct protocol (`https` or `http`),
 Multiple origins can be specified by separating them with a comma (`,`).
 
 This setting is adopted from the Django framework used by linkding, more information on the setting is available in the [Django documentation](https://docs.djangoproject.com/en/4.0/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS).
+
+### `LD_DB_ENGINE`
+
+Values: `postgres` or `sqlite` | Default = `sqlite`
+
+Database engine used by linkding to store data.
+Currently, linkding supports SQLite and PostgreSQL.
+By default, linkding uses SQLite, for which you don't need to configure anything.
+All the other database variables below are only required for configured PostgresSQL.
+
+### `LD_DB_DATABASE`
+
+Values: `String` | Default =  `linkding`
+
+The name of the database. 
+
+### `LD_DB_USER`
+
+Values: `String` | Default =  `linkding`
+
+The name of the user to connect to the database server.
+
+### `LD_DB_PASSWORD`
+
+Values: `String` | Default =  None
+
+The password of the user to connect to the database server.
+The password must be configured when using a database other than SQLite, there is no default value.
+
+### `LD_DB_HOST`
+
+Values: `String` | Default =  `localhost`
+
+The hostname or IP of the database server.
+
+### `LD_DB_PORT`
+
+Values: `Integer` | Default =  None
+
+The port of the database server.
+Should use the default port if left empty, for example `5432` for PostgresSQL.
