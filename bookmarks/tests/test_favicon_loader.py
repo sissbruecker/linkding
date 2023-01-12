@@ -14,12 +14,16 @@ mock_icon_data = b'mock_icon'
 
 class FaviconLoaderTestCase(TestCase):
     def setUp(self) -> None:
+        self.ensure_favicon_folder()
         self.clear_favicon_folder()
 
     def create_mock_response(self, icon_data=mock_icon_data):
         mock_response = mock.Mock()
         mock_response.raw = io.BytesIO(icon_data)
         return mock_response
+
+    def ensure_favicon_folder(self):
+        Path(settings.LD_FAVICON_FOLDER).mkdir(parents=True, exist_ok=True)
 
     def clear_favicon_folder(self):
         folder = Path(settings.LD_FAVICON_FOLDER)
