@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.16.0 (12/01/2023)
+
+### What's Changed
+* Add postgres as database engine by @tomamplius in https://github.com/sissbruecker/linkding/pull/388
+* Gracefully stop docker container when it receives SIGTERM by @mckennajones in https://github.com/sissbruecker/linkding/pull/368
+* Limit document size for website scraper by @sissbruecker in https://github.com/sissbruecker/linkding/pull/354
+* Add error handling for checking latest version by @sissbruecker in https://github.com/sissbruecker/linkding/pull/360
+* Trim website metadata title and description by @luca1197 in https://github.com/sissbruecker/linkding/pull/383
+* Only show admin link for superusers by @AlexanderS in https://github.com/sissbruecker/linkding/pull/384
+* Add apache reverse proxy documentation. by @jhauris in https://github.com/sissbruecker/linkding/pull/371
+* Correct LD_ENABLE_AUTH_PROXY documentation by @jhauris in https://github.com/sissbruecker/linkding/pull/379
+* Android HTTP shortcuts v3 by @kzshantonu in https://github.com/sissbruecker/linkding/pull/387
+
+### New Contributors
+* @jhauris made their first contribution in https://github.com/sissbruecker/linkding/pull/371
+* @AlexanderS made their first contribution in https://github.com/sissbruecker/linkding/pull/384
+* @mckennajones made their first contribution in https://github.com/sissbruecker/linkding/pull/368
+* @tomamplius made their first contribution in https://github.com/sissbruecker/linkding/pull/388
+* @luca1197 made their first contribution in https://github.com/sissbruecker/linkding/pull/383
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.15.1...v1.16.0
+
+---
+
+## v1.15.1 (05/10/2022)
+
+### What's Changed
+* Fix static file dir warning by @sissbruecker in https://github.com/sissbruecker/linkding/pull/350
+* Add setting and documentation for fixing CSRF errors by @sissbruecker in https://github.com/sissbruecker/linkding/pull/349
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.15.0...v1.15.1
+
+---
+
 ## v1.15.0 (11/09/2022)
 
 ### What's Changed
