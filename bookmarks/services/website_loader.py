@@ -31,7 +31,7 @@ def load_website_metadata(url: str):
 
         title = soup.title.string.strip() if soup.title is not None else None
         description_tag = soup.find('meta', attrs={'name': 'description'})
-        description = description_tag['content'].strip() if description_tag is not None else None
+        description = description = description_tag['content'].strip() if description_tag and description_tag['content'] else None
     finally:
         return WebsiteMetadata(url=url, title=title, description=description)
 
