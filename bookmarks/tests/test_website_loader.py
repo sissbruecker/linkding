@@ -25,6 +25,19 @@ class MockStreamingResponse:
 
 
 class WebsiteLoaderTestCase(TestCase):
+    def render_html_document(self, title, description):
+        return f'''
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>{title}</title>
+            <meta name="description" content="{description}">
+        </head>
+        <body></body>
+        </html>
+        '''
+
     def test_load_page_returns_content(self):
         with mock.patch('requests.get') as mock_get:
             mock_get.return_value = MockStreamingResponse(num_chunks=10, chunk_size=1024)
@@ -51,3 +64,17 @@ class WebsiteLoaderTestCase(TestCase):
             # Should have read first chunk, and second chunk containing closing head tag
             expected_content_size = 1 * 1024 * 1000 + len('</head>')
             self.assertEqual(expected_content_size, len(content))
+
+    def test_load_website_metadata(self):
+        with mock.patch('bookmarks.services.website_loader.load_page') as mock_load_page:
+            mock_load_page.return_value = self.render_html_document('test title', 'test description')
+            metadata = website_loader.load_website_metadata('https://example.com')
+            self.assertEqual('test title', metadata.title)
+            self.assertEqual('test description', metadata.description)
+
+    def test_load_website_metadata_trims_title_and_description(self):
+        with mock.patch('bookmarks.services.website_loader.load_page') as mock_load_page:
+            mock_load_page.return_value = self.render_html_document('  test title  ', '  test description  ')
+            metadata = website_loader.load_website_metadata('https://example.com')
+            self.assertEqual('test title', metadata.title)
+            self.assertEqual('test description', metadata.description)
