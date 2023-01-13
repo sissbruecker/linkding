@@ -34,7 +34,7 @@ RUN mkdir /opt/venv && \
 
 
 FROM python:3.10.6-slim-buster as final
-RUN apt-get update && apt-get -y install mime-support libpq-dev
+RUN apt-get update && apt-get -y install mime-support libpq-dev curl
 WORKDIR /etc/linkding
 # copy prod dependencies
 COPY --from=prod-deps /opt/venv /opt/venv
@@ -51,4 +51,8 @@ ENV PATH /opt/venv/bin:$PATH
 RUN ["chmod", "g+w", "."]
 # Run bootstrap logic
 RUN ["chmod", "+x", "./bootstrap.sh"]
+
+HEALTHCHECK --interval=30s --retries=3 --timeout=1s \
+CMD curl -f http://localhost:9090/health || exit 1
+
 CMD ["./bootstrap.sh"]
