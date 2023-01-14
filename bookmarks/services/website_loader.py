@@ -74,7 +74,8 @@ def load_page(url: str):
             if size > MAX_CONTENT_LIMIT:
                 logger.debug(f'Cancel reading document after {size} bytes')
                 break
-        logger.debug(f'Request consumed: {r._content_consumed}')
+        if hasattr(r, '_content_consumed'):
+            logger.debug(f'Request consumed: {r._content_consumed}')
 
     # Use charset_normalizer to determine encoding that best matches the response content
     # Several sites seem to specify the response encoding incorrectly, so we ignore it and use custom logic instead
