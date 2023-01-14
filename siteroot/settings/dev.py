@@ -25,7 +25,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'simple': {
-            'format': '{levelname} {message}',
+            'format': '{levelname} {asctime} {module}: {message}',
             'style': '{',
         },
     },
