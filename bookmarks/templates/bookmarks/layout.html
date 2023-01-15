@@ -1,5 +1,6 @@
 {% load static %}
 {% load sass_tags %}
+{% load opensearch_tags %}
 
 <!DOCTYPE html>
 {# Use data attributes as storage for access in static scripts #}
@@ -26,6 +27,7 @@
     <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"
           media="(prefers-color-scheme: light)"/>
   {% endif %}
+  {% opensearch_meta %}
 </head>
 <body>
 <header>

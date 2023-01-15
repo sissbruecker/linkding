@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib.auth import views as auth_views
-from django.urls import path, include
+from django.urls import path, include, re_path
 
 from bookmarks.admin import linkding_admin_site
 from .settings import ALLOW_REGISTRATION, DEBUG
@@ -29,6 +29,7 @@ urlpatterns = [
     path('change-password/', auth_views.PasswordChangeView.as_view(), name='change_password'),
     path('password-change-done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
     path('', include('bookmarks.urls')),
+    re_path(r"^opensearch/", include("opensearch.urls")),
 ]
 
 if settings.LD_CONTEXT_PATH:

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'background_task',
+    'opensearch',
 ]
 
 MIDDLEWARE = [
@@ -193,6 +194,23 @@ if LD_ENABLE_AUTH_PROXY:
 trusted_origins = os.getenv('LD_CSRF_TRUSTED_ORIGINS', '')
 if trusted_origins:
     CSRF_TRUSTED_ORIGINS = trusted_origins.split(',')
+
+### Opensearch
+
+#Contains a brief human-readable title that identifies this search engine. Force to "Linkding"
+OPENSEARCH_SHORT_NAME = 'Linkding'
+#Contains a human-readable text description of the search engine. Force to "Self-hosted bookmark service"
+OPENSEARCH_DESCRIPTION = 'Self-hosted bookmark service'
+#Contains width of an image that can be used in association with this search content.  Force to 256.
+OPENSEARCH_FAVICON_WIDTH = 256
+#Contains height of an image that can be used in association with this search content. Force to 256.
+OPENSEARCH_FAVICON_HEIGHT = 256
+#Contains mimetype of an image that can be used in association with this search content. Force to "image/png"
+OPENSEARCH_FAVICON_TYPE = 'image/png'
+#Contains a URL that identifies the location of an image that can be used in association with this search content. Force to "static/favicon.png"
+OPENSEARCH_FAVICON_FILE = '/static/favicon.png'
+#Contains a Django URL name to search content. Force to "bookmarks"
+OPENSEARCH_SEARCH_URL = '/bookmarks'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
