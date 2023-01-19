@@ -149,3 +149,9 @@ Values: `Integer` | Default =  None
 
 The port of the database server.
 Should use the default port if left empty, for example `5432` for PostgresSQL.
+
+### `LD_LOG_X_FORWARDED_FOR`
+
+Values: `true` or `false` | Default =  `false`
+
+Set uWSGI [log-x-forwarded-for](https://uwsgi-docs.readthedocs.io/en/latest/Options.html?#log-x-forwarded-for) parameter allowing to keep the real IP of clients in logs when using a reverse proxy.
