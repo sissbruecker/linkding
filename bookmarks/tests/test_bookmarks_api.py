@@ -1,4 +1,6 @@
+import urllib.parse
 from collections import OrderedDict
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -6,6 +8,8 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 
 from bookmarks.models import Bookmark
+from bookmarks.services import website_loader
+from bookmarks.services.website_loader import WebsiteMetadata
 from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
 
 
@@ -353,6 +357,66 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         bookmark = Bookmark.objects.get(id=self.archived_bookmark1.id)
         self.assertFalse(bookmark.is_archived)
 
+    def test_check_returns_no_bookmark_if_url_is_not_bookmarked(self):
+        url = reverse('bookmarks:bookmark-check')
+        check_url = urllib.parse.quote_plus('https://example.com')
+        response = self.get(f'{url}?url={check_url}', expected_status_code=status.HTTP_200_OK)
+        bookmark_data = response.data['bookmark']
+
+        self.assertIsNone(bookmark_data)
+
+    def test_check_returns_scraped_metadata_if_url_is_not_bookmarked(self):
+        with patch.object(website_loader, 'load_website_metadata') as mock_load_website_metadata:
+            expected_metadata = WebsiteMetadata(
+                'https://example.com',
+                'Scraped metadata',
+                'Scraped description'
+            )
+            mock_load_website_metadata.return_value = expected_metadata
+
+            url = reverse('bookmarks:bookmark-check')
+            check_url = urllib.parse.quote_plus('https://example.com')
+            response = self.get(f'{url}?url={check_url}', expected_status_code=status.HTTP_200_OK)
+            metadata = response.data['metadata']
+
+            self.assertIsNotNone(metadata)
+            self.assertIsNotNone(expected_metadata.url, metadata['url'])
+            self.assertIsNotNone(expected_metadata.title, metadata['title'])
+            self.assertIsNotNone(expected_metadata.description, metadata['description'])
+
+    def test_check_returns_bookmark_if_url_is_bookmarked(self):
+        bookmark = self.setup_bookmark(url='https://example.com',
+                                       title='Example title',
+                                       description='Example description')
+
+        url = reverse('bookmarks:bookmark-check')
+        check_url = urllib.parse.quote_plus('https://example.com')
+        response = self.get(f'{url}?url={check_url}', expected_status_code=status.HTTP_200_OK)
+        bookmark_data = response.data['bookmark']
+
+        self.assertIsNotNone(bookmark_data)
+        self.assertEqual(bookmark.id, bookmark_data['id'])
+        self.assertEqual(bookmark.url, bookmark_data['url'])
+        self.assertEqual(bookmark.title, bookmark_data['title'])
+        self.assertEqual(bookmark.description, bookmark_data['description'])
+
+    def test_check_returns_existing_metadata_if_url_is_bookmarked(self):
+        bookmark = self.setup_bookmark(url='https://example.com',
+                                       website_title='Existing title',
+                                       website_description='Existing description')
+
+        with patch.object(website_loader, 'load_website_metadata') as mock_load_website_metadata:
+            url = reverse('bookmarks:bookmark-check')
+            check_url = urllib.parse.quote_plus('https://example.com')
+            response = self.get(f'{url}?url={check_url}', expected_status_code=status.HTTP_200_OK)
+            metadata = response.data['metadata']
+
+            mock_load_website_metadata.assert_not_called()
+            self.assertIsNotNone(metadata)
+            self.assertIsNotNone(bookmark.url, metadata['url'])
+            self.assertIsNotNone(bookmark.website_title, metadata['title'])
+            self.assertIsNotNone(bookmark.website_description, metadata['description'])
+
     def test_can_only_access_own_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
         inaccessible_bookmark = self.setup_bookmark(user=other_user)
@@ -396,3 +460,8 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
         url = reverse('bookmarks:bookmark-unarchive', args=[inaccessible_shared_bookmark.id])
         self.post(url, expected_status_code=status.HTTP_404_NOT_FOUND)
+
+        url = reverse('bookmarks:bookmark-check')
+        check_url = urllib.parse.quote_plus(inaccessible_bookmark.url)
+        response = self.get(f'{url}?url={check_url}', expected_status_code=status.HTTP_200_OK)
+        self.assertIsNone(response.data['bookmark'])
