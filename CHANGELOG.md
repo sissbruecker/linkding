@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.16.1 (20/01/2023)
+
+### What's Changed
+* Fix bookmark website metadata not being updated when URL changes by @sissbruecker in https://github.com/sissbruecker/linkding/pull/400
+* Bump django from 4.1 to 4.1.2 by @dependabot in https://github.com/sissbruecker/linkding/pull/391
+* Bump certifi from 2022.6.15 to 2022.12.7 by @dependabot in https://github.com/sissbruecker/linkding/pull/374
+* Bump minimatch from 3.0.4 to 3.1.2 by @dependabot in https://github.com/sissbruecker/linkding/pull/366
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.16.0...v1.16.1
+
+---
+
 ## v1.16.0 (12/01/2023)
 
 ### What's Changed
