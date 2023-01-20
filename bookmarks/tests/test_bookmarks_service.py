@@ -5,11 +5,12 @@ from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, Tag
+from bookmarks.services import tasks
+from bookmarks.services import website_loader
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, archive_bookmarks, \
     unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks
-from bookmarks.services import website_loader
+from bookmarks.services.website_loader import WebsiteMetadata
 from bookmarks.tests.helpers import BookmarkFactoryMixin
-from bookmarks.services import tasks
 
 User = get_user_model()
 
@@ -18,6 +19,27 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
 
     def setUp(self) -> None:
         self.get_or_create_test_user()
+
+    def test_create_should_update_website_metadata(self):
+        with patch.object(website_loader, 'load_website_metadata') as mock_load_website_metadata:
+            expected_metadata = WebsiteMetadata(
+                'https://example.com',
+                'Website title',
+                'Website description'
+            )
+            mock_load_website_metadata.return_value = expected_metadata
+
+            bookmark_data = Bookmark(url='https://example.com',
+                                     title='Updated Title',
+                                     description='Updated description',
+                                     unread=True,
+                                     shared=True,
+                                     is_archived=True)
+            created_bookmark = create_bookmark(bookmark_data, '', self.get_or_create_test_user())
+
+            created_bookmark.refresh_from_db()
+            self.assertEqual(expected_metadata.title, created_bookmark.website_title)
+            self.assertEqual(expected_metadata.description, created_bookmark.website_description)
 
     def test_create_should_update_existing_bookmark_with_same_url(self):
         original_bookmark = self.setup_bookmark(url='https://example.com', unread=False, shared=False)
@@ -63,11 +85,21 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_update_should_update_website_metadata_if_url_did_change(self):
         with patch.object(website_loader, 'load_website_metadata') as mock_load_website_metadata:
+            expected_metadata = WebsiteMetadata(
+                'https://example.com/updated',
+                'Updated website title',
+                'Updated website description'
+            )
+            mock_load_website_metadata.return_value = expected_metadata
+
             bookmark = self.setup_bookmark()
             bookmark.url = 'https://example.com/updated'
             update_bookmark(bookmark, 'tag1,tag2', self.user)
 
+            bookmark.refresh_from_db()
             mock_load_website_metadata.assert_called_once()
+            self.assertEqual(expected_metadata.title, bookmark.website_title)
+            self.assertEqual(expected_metadata.description, bookmark.website_description)
 
     def test_update_should_not_update_website_metadata_if_url_did_not_change(self):
         with patch.object(website_loader, 'load_website_metadata') as mock_load_website_metadata:
