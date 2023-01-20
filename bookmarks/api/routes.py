@@ -7,8 +7,8 @@ from rest_framework.routers import DefaultRouter
 from bookmarks import queries
 from bookmarks.api.serializers import BookmarkSerializer, TagSerializer
 from bookmarks.models import Bookmark, BookmarkFilters, Tag, User
-from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
-from bookmarks.services.website_loader import load_website_metadata
+from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark, website_loader
+from bookmarks.services.website_loader import WebsiteMetadata
 
 
 class BookmarkViewSet(viewsets.GenericViewSet,
@@ -68,15 +68,13 @@ class BookmarkViewSet(viewsets.GenericViewSet,
     def check(self, request):
         url = request.GET.get('url')
         bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
-        existing_bookmark_data = None
+        existing_bookmark_data = self.get_serializer(bookmark).data if bookmark else None
 
-        if bookmark is not None:
-            existing_bookmark_data = {
-                'id': bookmark.id,
-                'edit_url': reverse('bookmarks:edit', args=[bookmark.id])
-            }
-
-        metadata = load_website_metadata(url)
+        # Either return metadata from existing bookmark, or scrape from URL
+        if bookmark:
+            metadata = WebsiteMetadata(url, bookmark.website_title, bookmark.website_description)
+        else:
+            metadata = website_loader.load_website_metadata(url)
 
         return Response({
             'bookmark': existing_bookmark_data,
