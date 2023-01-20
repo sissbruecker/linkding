@@ -48,6 +48,7 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
         tasks.create_web_archive_snapshot(current_user, bookmark, True)
         # Only update website metadata if URL changed
         _update_website_metadata(bookmark)
+        bookmark.save()
 
     return bookmark
 
