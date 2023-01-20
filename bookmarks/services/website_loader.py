@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from functools import lru_cache
 
 import requests
 from bs4 import BeautifulSoup
@@ -23,6 +24,9 @@ class WebsiteMetadata:
         }
 
 
+# Caching metadata avoids scraping again when saving bookmarks, in case the
+# metadata was already scraped to show preview values in the bookmark form
+@lru_cache(maxsize=10)
 def load_website_metadata(url: str):
     title = None
     description = None

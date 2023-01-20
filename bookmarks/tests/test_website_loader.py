@@ -25,6 +25,10 @@ class MockStreamingResponse:
 
 
 class WebsiteLoaderTestCase(TestCase):
+    def setUp(self):
+        # clear cached metadata before test run
+        website_loader.load_website_metadata.cache_clear()
+
     def render_html_document(self, title, description):
         return f'''
         <!DOCTYPE html>
