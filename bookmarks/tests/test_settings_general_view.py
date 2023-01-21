@@ -2,7 +2,7 @@ import random
 from unittest.mock import patch, Mock
 
 import requests
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from requests import RequestException
 
@@ -43,8 +43,9 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertRedirects(response, reverse('login') + '?next=' + reverse('bookmarks:settings.general'))
 
-    def test_should_save_profile(self):
+    def test_update_profile(self):
         form_data = {
+            'update_profile': '',
             'theme': UserProfile.THEME_DARK,
             'bookmark_date_display': UserProfile.BOOKMARK_DATE_DISPLAY_HIDDEN,
             'bookmark_link_target': UserProfile.BOOKMARK_LINK_TARGET_SELF,
@@ -53,6 +54,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             'enable_favicons': True,
         }
         response = self.client.post(reverse('bookmarks:settings.general'), form_data)
+        html = response.content.decode()
 
         self.user.profile.refresh_from_db()
 
@@ -63,11 +65,30 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(self.user.profile.web_archive_integration, form_data['web_archive_integration'])
         self.assertEqual(self.user.profile.enable_sharing, form_data['enable_sharing'])
         self.assertEqual(self.user.profile.enable_favicons, form_data['enable_favicons'])
+        self.assertInHTML('''
+                <p class="form-input-hint">Profile updated</p>
+            ''', html)
 
-    def test_enable_favicons_schedules_icon_update(self):
+    def test_update_profile_should_not_be_called_without_respective_form_action(self):
+        form_data = {
+            'theme': UserProfile.THEME_DARK,
+        }
+        response = self.client.post(reverse('bookmarks:settings.general'), form_data)
+        html = response.content.decode()
+
+        self.user.profile.refresh_from_db()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.user.profile.theme, UserProfile.THEME_AUTO)
+        self.assertInHTML('''
+                <p class="form-input-hint">Profile updated</p>
+            ''', html, count=0)
+
+    def test_enable_favicons_should_schedule_icon_update(self):
         with patch.object(tasks, 'schedule_bookmarks_without_favicons') as mock_schedule_bookmarks_without_favicons:
             # Enabling favicons schedules update
             form_data = self.create_profile_form_data({
+                'update_profile': '',
                 'enable_favicons': True,
             })
             self.client.post(reverse('bookmarks:settings.general'), form_data)
@@ -89,6 +110,72 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             self.client.post(reverse('bookmarks:settings.general'), form_data)
 
             mock_schedule_bookmarks_without_favicons.assert_not_called()
+
+    def test_refresh_favicons(self):
+        with patch.object(tasks, 'schedule_refresh_favicons') as mock_schedule_refresh_favicons:
+            form_data = {
+                'refresh_favicons': '',
+            }
+            response = self.client.post(reverse('bookmarks:settings.general'), form_data)
+            html = response.content.decode()
+
+            mock_schedule_refresh_favicons.assert_called_once()
+            self.assertInHTML('''
+                <p class="form-input-hint">
+                    Scheduled favicon update. This may take a while...
+                </p>
+            ''', html)
+
+    def test_refresh_favicons_should_not_be_called_without_respective_form_action(self):
+        with patch.object(tasks, 'schedule_refresh_favicons') as mock_schedule_refresh_favicons:
+            form_data = {
+            }
+            response = self.client.post(reverse('bookmarks:settings.general'), form_data)
+            html = response.content.decode()
+
+            mock_schedule_refresh_favicons.assert_not_called()
+            self.assertInHTML('''
+                <p class="form-input-hint">
+                    Scheduled favicon update. This may take a while...
+                </p>
+            ''', html, count=0)
+
+    def test_refresh_favicons_should_be_visible_when_favicons_enabled_in_profile(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = True
+        profile.save()
+
+        response = self.client.get(reverse('bookmarks:settings.general'))
+        html = response.content.decode()
+
+        self.assertInHTML('''
+            <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
+        ''', html, count=1)
+
+    def test_refresh_favicons_should_not_be_visible_when_favicons_disabled_in_profile(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = False
+        profile.save()
+
+        response = self.client.get(reverse('bookmarks:settings.general'))
+        html = response.content.decode()
+
+        self.assertInHTML('''
+            <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
+        ''', html, count=0)
+
+    @override_settings(LD_ENABLE_REFRESH_FAVICONS=False)
+    def test_refresh_favicons_should_not_be_visible_when_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = True
+        profile.save()
+
+        response = self.client.get(reverse('bookmarks:settings.general'))
+        html = response.content.decode()
+
+        self.assertInHTML('''
+            <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
+        ''', html, count=0)
 
     def test_about_shows_version_info(self):
         response = self.client.get(reverse('bookmarks:settings.general'))

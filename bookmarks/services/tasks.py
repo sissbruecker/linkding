@@ -135,7 +135,7 @@ def _load_favicon_task(bookmark_id: int):
     if new_favicon != bookmark.favicon_file:
         bookmark.favicon_file = new_favicon
         bookmark.save()
-        logger.info(f'Successfully updated favicon for bookmark. url={bookmark.url}')
+        logger.info(f'Successfully updated favicon for bookmark. url={bookmark.url} icon={new_favicon}')
 
 
 def schedule_bookmarks_without_favicons(user: User):
@@ -147,6 +147,24 @@ def schedule_bookmarks_without_favicons(user: User):
 def _schedule_bookmarks_without_favicons_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(favicon_file__exact='', owner=user)
+    tasks = []
+
+    for bookmark in bookmarks:
+        task = Task.objects.new_task(task_name='bookmarks.services.tasks._load_favicon_task', args=(bookmark.id,))
+        tasks.append(task)
+
+    Task.objects.bulk_create(tasks)
+
+
+def schedule_refresh_favicons(user: User):
+    if is_favicon_feature_active(user) and settings.LD_ENABLE_REFRESH_FAVICONS:
+        _schedule_refresh_favicons_task(user.id)
+
+
+@background()
+def _schedule_refresh_favicons_task(user_id: int):
+    user = get_user_model().objects.get(id=user_id)
+    bookmarks = Bookmark.objects.filter(owner=user)
     tasks = []
 
     for bookmark in bookmarks:
