@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.17.0 (21/01/2023)
+
+### What's Changed
+* Add Health Check endpoint  by @mckennajones in https://github.com/sissbruecker/linkding/pull/392
+* Cache website metadata to avoid duplicate scraping by @sissbruecker in https://github.com/sissbruecker/linkding/pull/401
+* Prefill form if URL is already bookmarked by @sissbruecker in https://github.com/sissbruecker/linkding/pull/402
+* Add option for showing bookmark favicons by @sissbruecker in https://github.com/sissbruecker/linkding/pull/390
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.16.1...v1.17.0
+
+---
+
 ## v1.16.1 (20/01/2023)
 
 ### What's Changed
