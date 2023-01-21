@@ -15,9 +15,12 @@ django-sass-processor==1.2.1
 django-widget-tweaks==1.4.12
 django4-background-tasks==1.2.7
 djangorestframework==3.13.1
+greenlet==2.0.1
 idna==3.3
 libsass==0.21.0
+playwright==1.29.1
 psycopg2-binary==2.9.5
+pyee==9.0.4
 python-dateutil==2.8.2
 pytz==2022.2.1
 rcssmin==1.1.0
