@@ -16,6 +16,8 @@ from bookmarks.utils import get_safe_return_url
 
 _default_page_size = 30
 
+def opensearch(request):
+    return render(request, 'bookmarks/opensearch.xml')
 
 @login_required
 def index(request):

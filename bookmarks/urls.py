@@ -18,6 +18,7 @@ urlpatterns = [
     path('bookmarks/close', views.bookmarks.close, name='close'),
     path('bookmarks/<int:bookmark_id>/edit', views.bookmarks.edit, name='edit'),
     path('bookmarks/action', views.bookmarks.action, name='action'),
+    path('bookmarks/opensearch.xml', views.bookmarks.opensearch, name='opensearch'),
     # Settings
     path('settings', views.settings.general, name='settings.index'),
     path('settings/general', views.settings.general, name='settings.general'),
