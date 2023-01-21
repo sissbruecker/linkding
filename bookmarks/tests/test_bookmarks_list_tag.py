@@ -79,6 +79,17 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
             </span>
         ''', html, count=count)
 
+    def assertFaviconVisible(self, html: str, bookmark: Bookmark):
+        self.assertFaviconCount(html, bookmark, 1)
+
+    def assertFaviconHidden(self, html: str, bookmark: Bookmark):
+        self.assertFaviconCount(html, bookmark, 0)
+
+    def assertFaviconCount(self, html: str, bookmark: Bookmark, count=1):
+        self.assertInHTML(f'''
+            <img src="/static/{bookmark.favicon_file}" alt="">
+            ''', html, count=count)
+
     def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test') -> str:
         rf = RequestFactory()
         request = rf.get(url)
@@ -211,3 +222,33 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
                 <a class="text-gray" href="?q=foo&user={bookmark.owner.username}">{bookmark.owner.username}</a>
             </span>
         ''', html)
+
+    def test_favicon_should_be_visible_when_favicons_enabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(favicon_file='https_example_com.png')
+        html = self.render_default_template([bookmark])
+
+        self.assertFaviconVisible(html, bookmark)
+
+    def test_favicon_should_be_hidden_when_there_is_no_icon(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(favicon_file='')
+        html = self.render_default_template([bookmark])
+
+        self.assertFaviconHidden(html, bookmark)
+
+    def test_favicon_should_be_hidden_when_favicons_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = False
+        profile.save()
+
+        bookmark = self.setup_bookmark(favicon_file='https_example_com.png')
+        html = self.render_default_template([bookmark])
+
+        self.assertFaviconHidden(html, bookmark)

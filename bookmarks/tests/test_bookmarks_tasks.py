@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import dataclass
-from unittest.mock import patch
+from unittest import mock
 
 import waybackpy
 from background_task.models import Task
@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from waybackpy.exceptions import WaybackError
 
+import bookmarks.services.favicon_loader
 import bookmarks.services.wayback
 from bookmarks.models import UserProfile
 from bookmarks.services import tasks
@@ -53,12 +54,14 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def setUp(self):
         user = self.get_or_create_test_user()
         user.profile.web_archive_integration = UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED
+        user.profile.enable_favicons = True
         user.profile.save()
 
     @disable_logging
     def run_pending_task(self, task_function):
         func = getattr(task_function, 'task_function', None)
         task = Task.objects.all()[0]
+        self.assertEqual(task_function.name, task.task_name)
         args, kwargs = task.params()
         func(*args, **kwargs)
         task.delete()
@@ -69,6 +72,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         tasks = Task.objects.all()
 
         for task in tasks:
+            self.assertEqual(task_function.name, task.task_name)
             args, kwargs = task.params()
             func(*args, **kwargs)
             task.delete()
@@ -76,7 +80,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_update_snapshot_url(self):
         bookmark = self.setup_bookmark()
 
-        with patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI()):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI()):
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
@@ -84,8 +88,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(bookmark.web_archive_snapshot_url, 'https://example.com/created_snapshot')
 
     def test_create_web_archive_snapshot_should_handle_missing_bookmark_id(self):
-        with patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                          return_value=MockWaybackMachineSaveAPI()) as mock_save_api:
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
+                               return_value=MockWaybackMachineSaveAPI()) as mock_save_api:
             tasks._create_web_archive_snapshot_task(123, False)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
@@ -94,8 +98,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_skip_if_snapshot_exists(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
-        with patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                          return_value=MockWaybackMachineSaveAPI()) as mock_save_api:
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
+                               return_value=MockWaybackMachineSaveAPI()) as mock_save_api:
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
@@ -104,8 +108,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_force_update_snapshot(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
-        with patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                          return_value=MockWaybackMachineSaveAPI('https://other.com')):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
+                               return_value=MockWaybackMachineSaveAPI('https://other.com')):
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, True)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
@@ -115,10 +119,10 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_use_newest_snapshot_as_fallback(self):
         bookmark = self.setup_bookmark()
 
-        with patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                          return_value=MockWaybackMachineSaveAPI(fail_on_save=True)):
-            with patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                              return_value=MockWaybackMachineCDXServerAPI()):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
+                               return_value=MockWaybackMachineSaveAPI(fail_on_save=True)):
+            with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
+                                   return_value=MockWaybackMachineCDXServerAPI()):
                 tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
                 self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
@@ -128,10 +132,10 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_ignore_missing_newest_snapshot(self):
         bookmark = self.setup_bookmark()
 
-        with patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                          return_value=MockWaybackMachineSaveAPI(fail_on_save=True)):
-            with patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                              return_value=MockWaybackMachineCDXServerAPI(has_no_snapshot=True)):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
+                               return_value=MockWaybackMachineSaveAPI(fail_on_save=True)):
+            with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
+                                   return_value=MockWaybackMachineCDXServerAPI(has_no_snapshot=True)):
                 tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
                 self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
@@ -141,10 +145,10 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_ignore_newest_snapshot_errors(self):
         bookmark = self.setup_bookmark()
 
-        with patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                          return_value=MockWaybackMachineSaveAPI(fail_on_save=True)):
-            with patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                              return_value=MockWaybackMachineCDXServerAPI(fail_loading_snapshot=True)):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
+                               return_value=MockWaybackMachineSaveAPI(fail_on_save=True)):
+            with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
+                                   return_value=MockWaybackMachineCDXServerAPI(fail_loading_snapshot=True)):
                 tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
                 self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
@@ -154,8 +158,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_load_web_archive_snapshot_should_update_snapshot_url(self):
         bookmark = self.setup_bookmark()
 
-        with patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                          return_value=MockWaybackMachineCDXServerAPI()):
+        with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
+                               return_value=MockWaybackMachineCDXServerAPI()):
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
@@ -163,8 +167,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual('https://example.com/newest_snapshot', bookmark.web_archive_snapshot_url)
 
     def test_load_web_archive_snapshot_should_handle_missing_bookmark_id(self):
-        with patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                          return_value=MockWaybackMachineCDXServerAPI()) as mock_cdx_api:
+        with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
+                               return_value=MockWaybackMachineCDXServerAPI()) as mock_cdx_api:
             tasks._load_web_archive_snapshot_task(123)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
@@ -173,8 +177,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_load_web_archive_snapshot_should_skip_if_snapshot_exists(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
 
-        with patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                          return_value=MockWaybackMachineCDXServerAPI()) as mock_cdx_api:
+        with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
+                               return_value=MockWaybackMachineCDXServerAPI()) as mock_cdx_api:
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
@@ -183,8 +187,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_load_web_archive_snapshot_should_handle_missing_snapshot(self):
         bookmark = self.setup_bookmark()
 
-        with patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                          return_value=MockWaybackMachineCDXServerAPI(has_no_snapshot=True)):
+        with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
+                               return_value=MockWaybackMachineCDXServerAPI(has_no_snapshot=True)):
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
@@ -193,8 +197,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_load_web_archive_snapshot_should_handle_wayback_errors(self):
         bookmark = self.setup_bookmark()
 
-        with patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                          return_value=MockWaybackMachineCDXServerAPI(fail_loading_snapshot=True)):
+        with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
+                               return_value=MockWaybackMachineCDXServerAPI(fail_loading_snapshot=True)):
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
@@ -260,5 +264,159 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.user.profile.web_archive_integration = UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED
         self.user.profile.save()
         tasks.schedule_bookmarks_without_snapshots(self.user)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_load_favicon_should_create_favicon_file(self):
+        bookmark = self.setup_bookmark()
+
+        with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
+            mock_load_favicon.return_value = 'https_example_com.png'
+
+            tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+            self.run_pending_task(tasks._load_favicon_task)
+            bookmark.refresh_from_db()
+
+            self.assertEqual(bookmark.favicon_file, 'https_example_com.png')
+
+    def test_load_favicon_should_update_favicon_file(self):
+        bookmark = self.setup_bookmark(favicon_file='https_example_com.png')
+
+        with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
+            mock_load_favicon.return_value = 'https_example_updated_com.png'
+            tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+            self.run_pending_task(tasks._load_favicon_task)
+
+            mock_load_favicon.assert_called()
+            bookmark.refresh_from_db()
+            self.assertEqual(bookmark.favicon_file, 'https_example_updated_com.png')
+
+    def test_load_favicon_should_handle_missing_bookmark(self):
+        with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
+            tasks._load_favicon_task(123)
+            self.run_pending_task(tasks._load_favicon_task)
+
+            mock_load_favicon.assert_not_called()
+
+    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_load_favicon_should_not_run_when_background_tasks_are_disabled(self):
+        bookmark = self.setup_bookmark()
+        tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_load_favicon_should_not_run_when_favicon_feature_is_disabled(self):
+        self.user.profile.enable_favicons = False
+        self.user.profile.save()
+
+        bookmark = self.setup_bookmark()
+        tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_schedule_bookmarks_without_favicons_should_load_favicon_for_all_bookmarks_without_favicon(self):
+        user = self.get_or_create_test_user()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark(favicon_file='https_example_com.png')
+        self.setup_bookmark(favicon_file='https_example_com.png')
+        self.setup_bookmark(favicon_file='https_example_com.png')
+
+        tasks.schedule_bookmarks_without_favicons(user)
+        self.run_pending_task(tasks._schedule_bookmarks_without_favicons_task)
+
+        task_list = Task.objects.all()
+        self.assertEqual(task_list.count(), 3)
+
+        for task in task_list:
+            self.assertEqual(task.task_name, 'bookmarks.services.tasks._load_favicon_task')
+
+    def test_schedule_bookmarks_without_favicons_should_only_update_user_owned_bookmarks(self):
+        user = self.get_or_create_test_user()
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+
+        tasks.schedule_bookmarks_without_favicons(user)
+        self.run_pending_task(tasks._schedule_bookmarks_without_favicons_task)
+
+        task_list = Task.objects.all()
+        self.assertEqual(task_list.count(), 3)
+
+    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_schedule_bookmarks_without_favicons_should_not_run_when_background_tasks_are_disabled(self):
+        bookmark = self.setup_bookmark()
+        tasks.schedule_bookmarks_without_favicons(self.get_or_create_test_user())
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_schedule_bookmarks_without_favicons_should_not_run_when_favicon_feature_is_disabled(self):
+        self.user.profile.enable_favicons = False
+        self.user.profile.save()
+
+        bookmark = self.setup_bookmark()
+        tasks.schedule_bookmarks_without_favicons(self.get_or_create_test_user())
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_schedule_refresh_favicons_should_update_favicon_for_all_bookmarks(self):
+        user = self.get_or_create_test_user()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark(favicon_file='https_example_com.png')
+        self.setup_bookmark(favicon_file='https_example_com.png')
+        self.setup_bookmark(favicon_file='https_example_com.png')
+
+        tasks.schedule_refresh_favicons(user)
+        self.run_pending_task(tasks._schedule_refresh_favicons_task)
+
+        task_list = Task.objects.all()
+        self.assertEqual(task_list.count(), 6)
+
+        for task in task_list:
+            self.assertEqual(task.task_name, 'bookmarks.services.tasks._load_favicon_task')
+
+    def test_schedule_refresh_favicons_should_only_update_user_owned_bookmarks(self):
+        user = self.get_or_create_test_user()
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+
+        tasks.schedule_refresh_favicons(user)
+        self.run_pending_task(tasks._schedule_refresh_favicons_task)
+
+        task_list = Task.objects.all()
+        self.assertEqual(task_list.count(), 3)
+
+    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_schedule_refresh_favicons_should_not_run_when_background_tasks_are_disabled(self):
+        self.setup_bookmark()
+        tasks.schedule_refresh_favicons(self.get_or_create_test_user())
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    @override_settings(LD_ENABLE_REFRESH_FAVICONS=False)
+    def test_schedule_refresh_favicons_should_not_run_when_refresh_is_disabled(self):
+        self.setup_bookmark()
+        tasks.schedule_refresh_favicons(self.get_or_create_test_user())
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    def test_schedule_refresh_favicons_should_not_run_when_favicon_feature_is_disabled(self):
+        self.user.profile.enable_favicons = False
+        self.user.profile.save()
+
+        self.setup_bookmark()
+        tasks.schedule_refresh_favicons(self.get_or_create_test_user())
 
         self.assertEqual(Task.objects.count(), 0)

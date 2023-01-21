@@ -3,6 +3,7 @@ import time
 from functools import lru_cache
 
 import requests
+from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import prefetch_related_objects
@@ -13,7 +14,7 @@ from rest_framework.authtoken.models import Token
 
 from bookmarks.models import UserProfileForm, FeedToken
 from bookmarks.queries import query_bookmarks
-from bookmarks.services import exporter
+from bookmarks.services import exporter, tasks
 from bookmarks.services import importer
 
 logger = logging.getLogger(__name__)
@@ -28,22 +29,46 @@ except Exception as exc:
 
 @login_required
 def general(request):
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user.profile)
-        if form.is_valid():
-            form.save()
-    else:
-        form = UserProfileForm(instance=request.user.profile)
-
+    profile_form = None
+    enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
+    update_profile_success_message = None
+    refresh_favicons_success_message = None
     import_success_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_success')
     import_errors_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_errors')
     version_info = get_version_info(get_ttl_hash())
+
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:
+            profile_form = update_profile(request)
+            update_profile_success_message = 'Profile updated'
+        if 'refresh_favicons' in request.POST:
+            tasks.schedule_refresh_favicons(request.user)
+            refresh_favicons_success_message = 'Scheduled favicon update. This may take a while...'
+
+    if not profile_form:
+        profile_form = UserProfileForm(instance=request.user.profile)
+
     return render(request, 'settings/general.html', {
-        'form': form,
+        'form': profile_form,
+        'enable_refresh_favicons': enable_refresh_favicons,
+        'update_profile_success_message': update_profile_success_message,
+        'refresh_favicons_success_message': refresh_favicons_success_message,
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
         'version_info': version_info,
     })
+
+
+def update_profile(request):
+    user = request.user
+    profile = user.profile
+    favicons_were_enabled = profile.enable_favicons
+    form = UserProfileForm(request.POST, instance=profile)
+    if form.is_valid():
+        form.save()
+        if profile.enable_favicons and not favicons_were_enabled:
+            tasks.schedule_bookmarks_without_favicons(request.user)
+    return form
 
 
 # Cache API call response, for one hour when using get_ttl_hash with default params

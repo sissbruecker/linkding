@@ -140,6 +140,7 @@ STATICFILES_FINDERS = [
 # Enable SASS processor to find custom folder for SCSS sources through static file finders
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'bookmarks', 'styles'),
+    os.path.join(BASE_DIR, 'data', 'favicons'),
 ]
 
 # REST framework
@@ -222,3 +223,9 @@ else:
 DATABASES = {
     'default': default_database
 }
+
+# Favicons
+LD_DEFAULT_FAVICON_PROVIDER = 'https://t1.gstatic.com/faviconV2?url={url}&client=SOCIAL&type=FAVICON'
+LD_FAVICON_PROVIDER = os.getenv('LD_FAVICON_PROVIDER', LD_DEFAULT_FAVICON_PROVIDER)
+LD_FAVICON_FOLDER = os.path.join(BASE_DIR, 'data', 'favicons')
+LD_ENABLE_REFRESH_FAVICONS = os.getenv('LD_ENABLE_REFRESH_FAVICONS', True) in (True, 'True', '1')

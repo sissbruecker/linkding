@@ -33,6 +33,7 @@ class BookmarkFactoryMixin:
                        website_title: str = '',
                        website_description: str = '',
                        web_archive_snapshot_url: str = '',
+                       favicon_file: str = '',
                        ):
         if not title:
             title = get_random_string(length=32)
@@ -56,6 +57,7 @@ class BookmarkFactoryMixin:
             unread=unread,
             shared=shared,
             web_archive_snapshot_url=web_archive_snapshot_url,
+            favicon_file=favicon_file,
         )
         bookmark.save()
         for tag in tags:

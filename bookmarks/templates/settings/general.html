@@ -37,6 +37,30 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.enable_favicons.id_for_label }}" class="form-checkbox">
+            {{ form.enable_favicons }}
+            <i class="form-icon"></i> Enable Favicons
+          </label>
+          <div class="form-input-hint">
+            Automatically loads favicons for bookmarked websites and displays them next to each bookmark.
+            By default, this feature uses a <b>Google service</b> to download favicons.
+            If you don't want to use this service, check the <a
+              href="https://github.com/sissbruecker/linkding/blob/master/docs/Options.md" target="_blank">options
+            documentation</a> on how to configure a custom favicon provider.
+            Icons are downloaded in the background, and it may take a while for them to show up.
+          </div>
+          {% if request.user.profile.enable_favicons and enable_refresh_favicons %}
+            <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
+          {% endif %}
+          {% if refresh_favicons_success_message %}
+            <div class="has-success">
+              <p class="form-input-hint">
+                {{ refresh_favicons_success_message }}
+              </p>
+            </div>
+          {% endif %}
+        </div>
+        <div class="form-group">
           <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
             integration</label>
           {{ form.web_archive_integration|add_class:"form-select col-2 col-sm-12" }}
@@ -61,7 +85,14 @@
           </div>
         </div>
         <div class="form-group">
-          <input type="submit" value="Save" class="btn btn-primary mt-2">
+          <input type="submit" name="update_profile" value="Save" class="btn btn-primary mt-2">
+          {% if update_profile_success_message %}
+            <div class="has-success">
+              <p class="form-input-hint">
+                {{ update_profile_success_message }}
+              </p>
+            </div>
+          {% endif %}
         </div>
       </form>
     </section>

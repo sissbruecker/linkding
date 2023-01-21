@@ -149,3 +149,15 @@ Values: `Integer` | Default =  None
 
 The port of the database server.
 Should use the default port if left empty, for example `5432` for PostgresSQL.
+
+### `LD_FAVICON_PROVIDER`
+
+Values: `String` | Default =  `https://t1.gstatic.com/faviconV2?url={url}&client=SOCIAL&type=FAVICON`
+
+The favicon provider used for downloading icons if they are enabled in the user profile settings.
+The default provider is a Google service that automatically detects the correct favicon for a website, and provides icons in consistent image format (PNG) and in a consistent image size.
+
+This setting allows to configure a custom provider in form of a URL.
+When calling the provider with the URL of a website, it must return the image data for the favicon of that website.
+The configured favicon provider URL must contain a `{url}` placeholder that will be replaced with the URL of the website for which to download the favicon.
+See the default URL for an example.
