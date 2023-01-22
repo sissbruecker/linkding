@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass
+from typing import Any
 from unittest import mock
 
 import waybackpy
@@ -15,15 +16,14 @@ from bookmarks.services import tasks
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
-class MockWaybackMachineSaveAPI:
-    def __init__(self, archive_url: str = 'https://example.com/created_snapshot', fail_on_save: bool = False):
-        self.archive_url = archive_url
-        self.fail_on_save = fail_on_save
+def create_wayback_machine_save_api_mock(archive_url: str = 'https://example.com/created_snapshot',
+                                         fail_on_save: bool = False):
+    mock_api = mock.Mock(archive_url=archive_url)
 
-    def save(self):
-        if self.fail_on_save:
-            raise WaybackError
-        return self
+    if fail_on_save:
+        mock_api.save.side_effect = WaybackError
+
+    return mock_api
 
 
 @dataclass
@@ -32,21 +32,18 @@ class MockCdxSnapshot:
     datetime_timestamp: datetime.datetime
 
 
-class MockWaybackMachineCDXServerAPI:
-    def __init__(self,
-                 archive_url: str = 'https://example.com/newest_snapshot',
-                 has_no_snapshot=False,
-                 fail_loading_snapshot=False):
-        self.archive_url = archive_url
-        self.has_no_snapshot = has_no_snapshot
-        self.fail_loading_snapshot = fail_loading_snapshot
+def create_cdx_server_api_mock(archive_url: str | None = 'https://example.com/newest_snapshot',
+                               fail_loading_snapshot=False):
+    mock_api = mock.Mock()
 
-    def newest(self):
-        if self.has_no_snapshot:
-            return None
-        if self.fail_loading_snapshot:
-            raise WaybackError
-        return MockCdxSnapshot(self.archive_url, datetime.datetime.now())
+    if fail_loading_snapshot:
+        mock_api.newest.side_effect = WaybackError
+    elif archive_url:
+        mock_api.newest.return_value = MockCdxSnapshot(archive_url, datetime.datetime.now())
+    else:
+        mock_api.newest.return_value = None
+
+    return mock_api
 
 
 class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
@@ -58,7 +55,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         user.profile.save()
 
     @disable_logging
-    def run_pending_task(self, task_function):
+    def run_pending_task(self, task_function: Any):
         func = getattr(task_function, 'task_function', None)
         task = Task.objects.all()[0]
         self.assertEqual(task_function.name, task.task_name)
@@ -67,7 +64,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         task.delete()
 
     @disable_logging
-    def run_all_pending_tasks(self, task_function):
+    def run_all_pending_tasks(self, task_function: Any):
         func = getattr(task_function, 'task_function', None)
         tasks = Task.objects.all()
 
@@ -79,27 +76,30 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_create_web_archive_snapshot_should_update_snapshot_url(self):
         bookmark = self.setup_bookmark()
+        mock_save_api = create_wayback_machine_save_api_mock()
 
-        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=MockWaybackMachineSaveAPI()):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=mock_save_api):
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
 
+            mock_save_api.save.assert_called_once()
             self.assertEqual(bookmark.web_archive_snapshot_url, 'https://example.com/created_snapshot')
 
     def test_create_web_archive_snapshot_should_handle_missing_bookmark_id(self):
-        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                               return_value=MockWaybackMachineSaveAPI()) as mock_save_api:
+        mock_save_api = create_wayback_machine_save_api_mock()
+
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=mock_save_api):
             tasks._create_web_archive_snapshot_task(123, False)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
-            mock_save_api.assert_not_called()
+            mock_save_api.save.assert_not_called()
 
     def test_create_web_archive_snapshot_should_skip_if_snapshot_exists(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
+        mock_save_api = create_wayback_machine_save_api_mock()
 
-        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                               return_value=MockWaybackMachineSaveAPI()) as mock_save_api:
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=mock_save_api):
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
@@ -107,9 +107,9 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_create_web_archive_snapshot_should_force_update_snapshot(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
+        mock_save_api = create_wayback_machine_save_api_mock(archive_url='https://other.com')
 
-        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                               return_value=MockWaybackMachineSaveAPI('https://other.com')):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=mock_save_api):
             tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, True)
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
@@ -118,24 +118,27 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_create_web_archive_snapshot_should_use_newest_snapshot_as_fallback(self):
         bookmark = self.setup_bookmark()
+        mock_save_api = create_wayback_machine_save_api_mock(fail_on_save=True)
+        mock_cdx_api = create_cdx_server_api_mock()
 
-        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                               return_value=MockWaybackMachineSaveAPI(fail_on_save=True)):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=mock_save_api):
             with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                                   return_value=MockWaybackMachineCDXServerAPI()):
+                                   return_value=mock_cdx_api):
                 tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
                 self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
                 bookmark.refresh_from_db()
+                mock_cdx_api.newest.assert_called_once()
                 self.assertEqual('https://example.com/newest_snapshot', bookmark.web_archive_snapshot_url)
 
     def test_create_web_archive_snapshot_should_ignore_missing_newest_snapshot(self):
         bookmark = self.setup_bookmark()
+        mock_save_api = create_wayback_machine_save_api_mock(fail_on_save=True)
+        mock_cdx_api = create_cdx_server_api_mock(archive_url=None)
 
-        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                               return_value=MockWaybackMachineSaveAPI(fail_on_save=True)):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=mock_save_api):
             with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                                   return_value=MockWaybackMachineCDXServerAPI(has_no_snapshot=True)):
+                                   return_value=mock_cdx_api):
                 tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
                 self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
@@ -144,51 +147,78 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_create_web_archive_snapshot_should_ignore_newest_snapshot_errors(self):
         bookmark = self.setup_bookmark()
+        mock_save_api = create_wayback_machine_save_api_mock(fail_on_save=True)
+        mock_cdx_api = create_cdx_server_api_mock(fail_loading_snapshot=True)
 
-        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI',
-                               return_value=MockWaybackMachineSaveAPI(fail_on_save=True)):
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=mock_save_api):
             with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                                   return_value=MockWaybackMachineCDXServerAPI(fail_loading_snapshot=True)):
+                                   return_value=mock_cdx_api):
                 tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
                 self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
                 bookmark.refresh_from_db()
                 self.assertEqual('', bookmark.web_archive_snapshot_url)
 
+    def test_create_web_archive_snapshot_should_not_save_stale_bookmark_data(self):
+        bookmark = self.setup_bookmark()
+        mock_save_api = create_wayback_machine_save_api_mock()
+
+        # update bookmark during API call to check that saving
+        # the snapshot does not overwrite updated bookmark data
+        def mock_save_impl():
+            bookmark.title = 'Updated title'
+            bookmark.save()
+
+        mock_save_api.save.side_effect = mock_save_impl
+
+        with mock.patch.object(waybackpy, 'WaybackMachineSaveAPI', return_value=mock_save_api):
+            tasks.create_web_archive_snapshot(self.get_or_create_test_user(), bookmark, False)
+            self.run_pending_task(tasks._create_web_archive_snapshot_task)
+            bookmark.refresh_from_db()
+
+            self.assertEqual(bookmark.title, 'Updated title')
+            self.assertEqual('https://example.com/created_snapshot', bookmark.web_archive_snapshot_url)
+
     def test_load_web_archive_snapshot_should_update_snapshot_url(self):
         bookmark = self.setup_bookmark()
+        mock_cdx_api = create_cdx_server_api_mock()
 
         with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                               return_value=MockWaybackMachineCDXServerAPI()):
+                               return_value=mock_cdx_api):
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
             bookmark.refresh_from_db()
+            mock_cdx_api.newest.assert_called_once()
             self.assertEqual('https://example.com/newest_snapshot', bookmark.web_archive_snapshot_url)
 
     def test_load_web_archive_snapshot_should_handle_missing_bookmark_id(self):
+        mock_cdx_api = create_cdx_server_api_mock()
+
         with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                               return_value=MockWaybackMachineCDXServerAPI()) as mock_cdx_api:
+                               return_value=mock_cdx_api):
             tasks._load_web_archive_snapshot_task(123)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
-            mock_cdx_api.assert_not_called()
+            mock_cdx_api.newest.assert_not_called()
 
     def test_load_web_archive_snapshot_should_skip_if_snapshot_exists(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url='https://example.com')
+        mock_cdx_api = create_cdx_server_api_mock()
 
         with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                               return_value=MockWaybackMachineCDXServerAPI()) as mock_cdx_api:
+                               return_value=mock_cdx_api):
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
-            mock_cdx_api.assert_not_called()
+            mock_cdx_api.newest.assert_not_called()
 
     def test_load_web_archive_snapshot_should_handle_missing_snapshot(self):
         bookmark = self.setup_bookmark()
+        mock_cdx_api = create_cdx_server_api_mock(archive_url=None)
 
         with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                               return_value=MockWaybackMachineCDXServerAPI(has_no_snapshot=True)):
+                               return_value=mock_cdx_api):
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
@@ -196,13 +226,36 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_load_web_archive_snapshot_should_handle_wayback_errors(self):
         bookmark = self.setup_bookmark()
+        mock_cdx_api = create_cdx_server_api_mock(fail_loading_snapshot=True)
 
         with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
-                               return_value=MockWaybackMachineCDXServerAPI(fail_loading_snapshot=True)):
+                               return_value=mock_cdx_api):
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
             self.assertEqual('', bookmark.web_archive_snapshot_url)
+
+    def test_load_web_archive_snapshot_should_not_save_stale_bookmark_data(self):
+        bookmark = self.setup_bookmark()
+        mock_cdx_api = create_cdx_server_api_mock()
+
+        # update bookmark during API call to check that saving
+        # the snapshot does not overwrite updated bookmark data
+        def mock_newest_impl():
+            bookmark.title = 'Updated title'
+            bookmark.save()
+            return mock.DEFAULT
+
+        mock_cdx_api.newest.side_effect = mock_newest_impl
+
+        with mock.patch.object(bookmarks.services.wayback, 'CustomWaybackMachineCDXServerAPI',
+                               return_value=mock_cdx_api):
+            tasks._load_web_archive_snapshot_task(bookmark.id)
+            self.run_pending_task(tasks._load_web_archive_snapshot_task)
+            bookmark.refresh_from_db()
+
+            self.assertEqual('Updated title', bookmark.title)
+            self.assertEqual('https://example.com/newest_snapshot', bookmark.web_archive_snapshot_url)
 
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
     def test_create_web_archive_snapshot_should_not_run_when_background_tasks_are_disabled(self):
@@ -297,6 +350,26 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.run_pending_task(tasks._load_favicon_task)
 
             mock_load_favicon.assert_not_called()
+
+    def test_load_favicon_should_not_save_stale_bookmark_data(self):
+        bookmark = self.setup_bookmark()
+
+        # update bookmark during API call to check that saving
+        # the favicon does not overwrite updated bookmark data
+        def mock_load_favicon_impl(url):
+            bookmark.title = 'Updated title'
+            bookmark.save()
+            return 'https_example_com.png'
+
+        with mock.patch('bookmarks.services.favicon_loader.load_favicon') as mock_load_favicon:
+            mock_load_favicon.side_effect = mock_load_favicon_impl
+
+            tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+            self.run_pending_task(tasks._load_favicon_task)
+            bookmark.refresh_from_db()
+
+            self.assertEqual(bookmark.title, 'Updated title')
+            self.assertEqual(bookmark.favicon_file, 'https_example_com.png')
 
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
     def test_load_favicon_should_not_run_when_background_tasks_are_disabled(self):

@@ -10,8 +10,8 @@ from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecord
 
 import bookmarks.services.wayback
 from bookmarks.models import Bookmark, UserProfile
-from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 from bookmarks.services import favicon_loader
+from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ def _load_newest_snapshot(bookmark: Bookmark):
 
         if existing_snapshot:
             bookmark.web_archive_snapshot_url = existing_snapshot.archive_url
-            bookmark.save()
+            bookmark.save(update_fields=['web_archive_snapshot_url'])
             logger.info(f'Using newest snapshot. url={bookmark.url} from={existing_snapshot.datetime_timestamp}')
 
     except NoCDXRecordFound:
@@ -51,7 +51,7 @@ def _create_snapshot(bookmark: Bookmark):
     archive = waybackpy.WaybackMachineSaveAPI(bookmark.url, DEFAULT_USER_AGENT, max_tries=1)
     archive.save()
     bookmark.web_archive_snapshot_url = archive.archive_url
-    bookmark.save()
+    bookmark.save(update_fields=['web_archive_snapshot_url'])
     logger.info(f'Successfully created new snapshot for bookmark:. url={bookmark.url}')
 
 
@@ -134,7 +134,7 @@ def _load_favicon_task(bookmark_id: int):
 
     if new_favicon != bookmark.favicon_file:
         bookmark.favicon_file = new_favicon
-        bookmark.save()
+        bookmark.save(update_fields=['favicon_file'])
         logger.info(f'Successfully updated favicon for bookmark. url={bookmark.url} icon={new_favicon}')
 
 
