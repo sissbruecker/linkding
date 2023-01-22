@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.17.1 (22/01/2023)
+
+### What's Changed
+* Fix favicon being cleared by web archive snapshot task by @sissbruecker in https://github.com/sissbruecker/linkding/pull/405
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.17.0...v1.17.1
+
+---
+
 ## v1.17.0 (21/01/2023)
 
 ### What's Changed
