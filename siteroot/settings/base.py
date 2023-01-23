@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import json
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -204,6 +205,7 @@ LD_DB_DATABASE = os.getenv('LD_DB_DATABASE', 'linkding')
 LD_DB_USER = os.getenv('LD_DB_USER', 'linkding')
 LD_DB_PASSWORD = os.getenv('LD_DB_PASSWORD', None)
 LD_DB_PORT = os.getenv('LD_DB_PORT', None)
+LD_DB_OPTIONS = json.loads(os.getenv('LD_DB_OPTIONS', '{}'))
 
 if LD_DB_ENGINE == 'postgres':
     default_database = {
@@ -213,11 +215,13 @@ if LD_DB_ENGINE == 'postgres':
         'PASSWORD': LD_DB_PASSWORD,
         'HOST': LD_DB_HOST,
         'PORT': LD_DB_PORT,
+        'OPTIONS': LD_DB_OPTIONS,
     }
 else:
     default_database = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3'),
+        'OPTIONS': LD_DB_OPTIONS,
     }
 
 DATABASES = {

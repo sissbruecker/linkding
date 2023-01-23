@@ -150,6 +150,12 @@ Values: `Integer` | Default =  None
 The port of the database server.
 Should use the default port if left empty, for example `5432` for PostgresSQL.
 
+### `LD_DB_OPTIONS`
+
+Values: `String` | Default = `{}`
+
+A json string with additional options for the database. Passed directly to OPTIONS.
+
 ### `LD_FAVICON_PROVIDER`
 
 Values: `String` | Default =  `https://t1.gstatic.com/faviconV2?url={url}&client=SOCIAL&type=FAVICON`
