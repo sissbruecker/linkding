@@ -205,7 +205,7 @@ LD_DB_DATABASE = os.getenv('LD_DB_DATABASE', 'linkding')
 LD_DB_USER = os.getenv('LD_DB_USER', 'linkding')
 LD_DB_PASSWORD = os.getenv('LD_DB_PASSWORD', None)
 LD_DB_PORT = os.getenv('LD_DB_PORT', None)
-LD_DB_OPTIONS = json.loads(os.getenv('LD_DB_OPTIONS', '{}'))
+LD_DB_OPTIONS = json.loads(os.getenv('LD_DB_OPTIONS') or '{}')
 
 if LD_DB_ENGINE == 'postgres':
     default_database = {
