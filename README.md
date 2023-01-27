@@ -83,6 +83,13 @@ To install linkding using [Docker Compose](https://docs.docker.com/compose/), yo
 docker-compose up -d
 ```
 
+###  Using Docker Compose for postgres as DB
+
+Copy the [`docker-compose.postgres.yml`](docker-compose.postgres.yml) file to `docker-compose.yml` and copy the [`.env.postgres.sample`](.env.postgres.sample) to `.env`, configure the parameters, and then run:
+```shell
+docker-compose up -d
+```
+
 To complete the setup, you still have to [create an initial user](#user-setup), so that you can access your installation.
 
 ### User setup
