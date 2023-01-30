@@ -61,6 +61,20 @@
           {% endif %}
         </div>
         <div class="form-group">
+          <label for="{{ form.refresh_descriptions.id_for_label }}" class="form-label">Refresh Descriptions</label>
+          <div class="form-input-hint">
+            Automatically loads descriptions for bookmarked websites and displays them next to each bookmark.
+          </div>
+          <button class="btn mt-2" name="refresh_descriptions">Refresh Descriptions</button>
+          {% if refresh_descriptions_success_message %}
+            <div class="has-success">
+              <p class="form-input-hint">
+                {{ refresh_descriptions_success_message }}
+              </p>
+            </div>
+          {% endif %}
+        </div>
+        <div class="form-group">
           <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
             integration</label>
           {{ form.web_archive_integration|add_class:"form-select col-2 col-sm-12" }}

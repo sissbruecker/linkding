@@ -33,6 +33,7 @@ def general(request):
     enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
     update_profile_success_message = None
     refresh_favicons_success_message = None
+    refresh_descriptions_success_message = None
     import_success_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_success')
     import_errors_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_errors')
     version_info = get_version_info(get_ttl_hash())
@@ -44,6 +45,9 @@ def general(request):
         if 'refresh_favicons' in request.POST:
             tasks.schedule_refresh_favicons(request.user)
             refresh_favicons_success_message = 'Scheduled favicon update. This may take a while...'
+        if 'refresh_descriptions' in request.POST:
+            tasks.schedule_refresh_descriptions(request.user)
+            refresh_descriptions_success_message = 'Scheduled descriptions update. This may take a while...'
 
     if not profile_form:
         profile_form = UserProfileForm(instance=request.user.profile)
@@ -53,6 +57,7 @@ def general(request):
         'enable_refresh_favicons': enable_refresh_favicons,
         'update_profile_success_message': update_profile_success_message,
         'refresh_favicons_success_message': refresh_favicons_success_message,
+        'refresh_descriptions_success_message': refresh_descriptions_success_message,
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
         'version_info': version_info,

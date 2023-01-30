@@ -177,6 +177,21 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
         ''', html, count=0)
 
+    def test_refresh_description(self):
+        with patch.object(task, 'schedule_refresh_descriptions') as mock_schedule_refresh_description:
+            form_data = {
+              'refresh_descriptions': '',
+            }
+            response = self.client.post(reverse('bookmarks:settings.general'), form_data)
+            html = response.content.decode()
+
+            mock_schedule_refresh_favicons.assert_called_once()
+            self.assertInHTML('''
+                <p class="form-input-hint">
+                    Scheduled descriptions update. This may take a while...
+                </p>
+            ''', html)
+
     def test_about_shows_version_info(self):
         response = self.client.get(reverse('bookmarks:settings.general'))
         html = response.content.decode()

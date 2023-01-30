@@ -11,7 +11,7 @@ from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecord
 import bookmarks.services.wayback
 from bookmarks.models import Bookmark, UserProfile
 from bookmarks.services import favicon_loader
-from bookmarks.services.website_loader import DEFAULT_USER_AGENT
+from bookmarks.services.website_loader import DEFAULT_USER_AGENT, load_website_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +159,40 @@ def _schedule_bookmarks_without_favicons_task(user_id: int):
 def schedule_refresh_favicons(user: User):
     if is_favicon_feature_active(user) and settings.LD_ENABLE_REFRESH_FAVICONS:
         _schedule_refresh_favicons_task(user.id)
+
+
+def schedule_refresh_descriptions(user: User):
+    _schedule_refresh_descriptions_task(user.id)
+
+
+@background()
+def _schedule_refresh_descriptions_task(user_id: int):
+    user = get_user_model().objects.get(id=user_id)
+    bookmarks = Bookmark.objects.filter(owner=user)
+    tasks = []
+
+    for bookmark in bookmarks:
+        task = Task.objects.new_task(task_name='bookmarks.services.tasks._load_description_task', args=(bookmark.id,))
+        tasks.append(task)
+
+    Task.objects.bulk_create(tasks)
+
+
+@background()
+def _load_description_task(bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(id=bookmark_id)
+    except Bookmark.DoesNotExist:
+        return
+
+    logger.info(f'Load description for bookmark. url={bookmark.url}')
+
+    description = load_website_metadata(bookmark.url).description
+
+    if description is not None and description != bookmark.description:
+        bookmark.description = metadata.description
+        bookmark.save(update_fields=['description'])
+        logger.info(f'Successfully updated description for bookmark. url={bookmark.url} description={metadata.description}')
 
 
 @background()
