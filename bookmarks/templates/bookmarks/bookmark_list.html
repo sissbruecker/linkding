@@ -20,7 +20,10 @@
         </div>
         {% if request.user.profile.display_url %}
         <div class="url-path truncate">
-          <span class="url-display text-sm">{{ bookmark.url }}</span>
+          <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" 
+          class="url-display text-sm">
+            {{ bookmark.url }}
+          </a>
         </div>
         {% endif %}
         <div class="description truncate">

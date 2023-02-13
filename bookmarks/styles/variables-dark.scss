@@ -21,12 +21,10 @@ $link-color: $primary-color !default;
 $link-color-dark: darken($link-color, 5%) !default;
 $link-color-light: $link-color !default;
 
+$secondary-link-color: rgba(168, 177, 255, 0.73);
+
 $alternative-color: #59bdb9;
 $alternative-color-dark: #73f1eb;
-
-$green-color: #8aaa7c;
-$green-color-dark: #4a912b;
-
 
 /* Dark theme specific */
 $dt-primary-button-color: #5761cb !default;
