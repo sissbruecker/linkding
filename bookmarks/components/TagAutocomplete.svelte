@@ -119,7 +119,7 @@
     <div class="form-autocomplete-input form-input" class:is-focused={isFocus}>
         <!-- autocomplete real input box -->
         <input id="{id}" name="{name}" value="{value ||''}" placeholder="&nbsp;"
-               class="form-input" type="text" autocomplete="off"
+               class="form-input" type="text" autocomplete="off" autocapitalize="off"
                on:input={handleInput} on:keydown={handleKeyDown}
                on:focus={handleFocus} on:blur={handleBlur}>
     </div>
