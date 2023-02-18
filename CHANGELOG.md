@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.17.2 (18/02/2023)
+
+### What's Changed
+* Escape texts in exported HTML by @sissbruecker in https://github.com/sissbruecker/linkding/pull/429
+* Bump django from 4.1.2 to 4.1.7 by @dependabot in https://github.com/sissbruecker/linkding/pull/427
+* Make health check in Dockerfile honor context path setting by @mrex in https://github.com/sissbruecker/linkding/pull/407
+* Disable autocapitalization for tag input form by @joshdick in https://github.com/sissbruecker/linkding/pull/395
+
+### New Contributors
+* @mrex made their first contribution in https://github.com/sissbruecker/linkding/pull/407
+* @joshdick made their first contribution in https://github.com/sissbruecker/linkding/pull/395
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.17.1...v1.17.2
+
+---
+
 ## v1.17.1 (22/01/2023)
 
 ### What's Changed
