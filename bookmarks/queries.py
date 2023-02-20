@@ -36,11 +36,11 @@ def _base_bookmarks_query(user: Optional[User], query_string: str) -> QuerySet:
     # Filter for search terms and tags
     for term in query['search_terms']:
         query_set = query_set.filter(
-            Q(title__contains=term)
-            | Q(description__contains=term)
-            | Q(website_title__contains=term)
-            | Q(website_description__contains=term)
-            | Q(url__contains=term)
+            Q(title__icontains=term)
+            | Q(description__icontains=term)
+            | Q(website_title__icontains=term)
+            | Q(website_description__icontains=term)
+            | Q(url__icontains=term)
         )
 
     for tag_name in query['tag_names']:
