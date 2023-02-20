@@ -27,9 +27,13 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.term1_bookmarks = [
             self.setup_bookmark(url='http://example.com/term1'),
             self.setup_bookmark(title=random_sentence(including_word='term1')),
+            self.setup_bookmark(title=random_sentence(including_word='TERM1')),
             self.setup_bookmark(description=random_sentence(including_word='term1')),
+            self.setup_bookmark(description=random_sentence(including_word='TERM1')),
             self.setup_bookmark(website_title=random_sentence(including_word='term1')),
+            self.setup_bookmark(website_title=random_sentence(including_word='TERM1')),
             self.setup_bookmark(website_description=random_sentence(including_word='term1')),
+            self.setup_bookmark(website_description=random_sentence(including_word='TERM1')),
         ]
         self.term1_term2_bookmarks = [
             self.setup_bookmark(url='http://example.com/term1/term2'),
@@ -76,9 +80,13 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.term1_bookmarks = [
             self.setup_bookmark(url='http://example.com/term1', tags=[self.setup_tag()]),
             self.setup_bookmark(title=random_sentence(including_word='term1'), tags=[self.setup_tag()]),
+            self.setup_bookmark(title=random_sentence(including_word='TERM1'), tags=[self.setup_tag()]),
             self.setup_bookmark(description=random_sentence(including_word='term1'), tags=[self.setup_tag()]),
+            self.setup_bookmark(description=random_sentence(including_word='TERM1'), tags=[self.setup_tag()]),
             self.setup_bookmark(website_title=random_sentence(including_word='term1'), tags=[self.setup_tag()]),
+            self.setup_bookmark(website_title=random_sentence(including_word='TERM1'), tags=[self.setup_tag()]),
             self.setup_bookmark(website_description=random_sentence(including_word='term1'), tags=[self.setup_tag()]),
+            self.setup_bookmark(website_description=random_sentence(including_word='TERM1'), tags=[self.setup_tag()]),
         ]
         self.term1_term2_bookmarks = [
             self.setup_bookmark(url='http://example.com/term1/term2', tags=[self.setup_tag()]),
