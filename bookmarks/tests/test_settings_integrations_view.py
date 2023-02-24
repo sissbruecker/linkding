@@ -64,3 +64,4 @@ class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
         token = FeedToken.objects.first()
         self.assertInHTML(f'<a href="http://testserver/feeds/{token.key}/all">All bookmarks</a>', html)
         self.assertInHTML(f'<a href="http://testserver/feeds/{token.key}/unread">Unread bookmarks</a>', html)
+        self.assertInHTML(f'<a href="http://testserver/feeds/{token.key}/archived">Archived bookmarks</a>', html)

@@ -18,7 +18,7 @@ class BaseBookmarksFeed(Feed):
     def get_object(self, request, feed_key: str):
         feed_token = FeedToken.objects.get(key__exact=feed_key)
         query_string = request.GET.get('q')
-        query_set = queries.query_bookmarks(feed_token.user, query_string)
+        query_set = queries._base_bookmarks_query(feed_token.user, query_string)
         return FeedContext(feed_token, query_set)
 
     def item_title(self, item: Bookmark):
@@ -42,7 +42,7 @@ class AllBookmarksFeed(BaseBookmarksFeed):
         return reverse('bookmarks:feeds.all', args=[context.feed_token.key])
 
     def items(self, context: FeedContext):
-        return context.query_set
+        return context.query_set.filter(is_archived=False)
 
 
 class UnreadBookmarksFeed(BaseBookmarksFeed):
@@ -53,4 +53,14 @@ class UnreadBookmarksFeed(BaseBookmarksFeed):
         return reverse('bookmarks:feeds.unread', args=[context.feed_token.key])
 
     def items(self, context: FeedContext):
-        return context.query_set.filter(unread=True)
+        return context.query_set.filter(is_archived=False, unread=True)
+
+class ArchivedBookmarksFeed(BaseBookmarksFeed):
+    title = 'Archived bookmarks'
+    description = 'All archived bookmarks'
+
+    def link(self, context: FeedContext):
+        return reverse('bookmarks:feeds.archived', args=[context.feed_token.key])
+
+    def items(self, context: FeedContext):
+        return context.query_set.filter(is_archived=True)

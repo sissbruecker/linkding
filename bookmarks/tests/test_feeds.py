@@ -62,6 +62,28 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
                             '</item>'
             self.assertContains(response, expected_item, count=1)
 
+    def test_all_archived_bookmarks(self):
+        bookmarks = [
+            self.setup_bookmark(is_archived=True, description='test description'),
+            self.setup_bookmark(is_archived=True, website_description='test website description'),
+            self.setup_bookmark(is_archived=True, description='test description'),
+        ]
+
+        response = self.client.get(reverse('bookmarks:feeds.archived', args=[self.token.key]))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, '<item>', count=len(bookmarks))
+
+        for bookmark in bookmarks:
+            expected_item = '<item>' \
+                            f'<title>{bookmark.resolved_title}</title>' \
+                            f'<link>{bookmark.url}</link>' \
+                            f'<description>{bookmark.resolved_description}</description>' \
+                            f'<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>' \
+                            f'<guid>{bookmark.url}</guid>' \
+                            '</item>'
+            self.assertContains(response, expected_item, count=1)
+
     def test_all_with_query(self):
         tag1 = self.setup_tag()
         bookmark1 = self.setup_bookmark()
