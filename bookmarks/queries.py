@@ -41,6 +41,7 @@ def _base_bookmarks_query(user: Optional[User], query_string: str) -> QuerySet:
             | Q(website_title__icontains=term)
             | Q(website_description__icontains=term)
             | Q(url__icontains=term)
+            | Q(tags__name__icontains=term)
         )
 
     for tag_name in query['tag_names']:
