@@ -17,6 +17,8 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def setup_bookmark_search_data(self) -> None:
         tag1 = self.setup_tag(name='tag1')
         tag2 = self.setup_tag(name='tag2')
+        tag3 = self.setup_tag(name='tag3')
+
         self.setup_tag(name='unused_tag1')
 
         self.other_bookmarks = [
@@ -65,6 +67,15 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         ]
         self.tag1_tag2_bookmarks = [
             self.setup_bookmark(tags=[tag1, tag2]),
+        ]
+        self.tag1_as_term_bookmark = [
+            self.setup_bookmark(url='http://example.com/tag1')
+        ]
+        self.same_term_and_tag_bookmarks = [
+            self.setup_bookmark(url='http://example.com/tag3'),
+            self.setup_bookmark(tags=[tag3]),
+            self.setup_bookmark(title=random_sentence(including_word='tag3'), tags=[tag3]),
+            self.setup_bookmark(description=random_sentence(including_word="tag3"))
         ]
 
     def setup_tag_search_data(self):
@@ -151,7 +162,9 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.tag1_bookmarks,
             self.term1_tag1_bookmarks,
             self.tag2_bookmarks,
-            self.tag1_tag2_bookmarks
+            self.tag1_tag2_bookmarks,
+            self.same_term_and_tag_bookmarks,
+            self.tag1_as_term_bookmark
         ])
 
     def test_query_bookmarks_should_search_single_term(self):
@@ -211,7 +224,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_bookmarks(self.get_or_create_test_user(), 'term1 #tag2')
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmarks(self.get_or_create_test_user(), '#tag3')
+        query = queries.query_bookmarks(self.get_or_create_test_user(), '#tag4')
         self.assertQueryResult(query, [])
 
         # Unused tag
@@ -262,6 +275,24 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_bookmarks(self.user, '')
 
         self.assertQueryResult(query, [owned_bookmarks])
+
+    def test_query_bookmarks_should_search_tags_and_fields(self):
+        self.setup_bookmark_search_data()
+
+        query = queries.query_bookmarks(self.get_or_create_test_user(), 'tag3')
+        self.assertQueryResult(query, [
+            self.same_term_and_tag_bookmarks
+        ])
+
+    def test_query_bookmarks_should_only_return_tagged(self):
+        self.setup_bookmark_search_data()
+
+        query = queries.query_bookmarks(self.get_or_create_test_user(), '#tag1')
+        self.assertQueryResult(query, [
+            self.tag1_bookmarks,
+            self.term1_tag1_bookmarks,
+            self.tag1_tag2_bookmarks
+        ])
 
     def test_query_archived_bookmarks_should_only_return_user_owned_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
