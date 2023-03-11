@@ -102,3 +102,12 @@ a:visited:hover {
     font-weight: bold;
   }
 }
+
+// Increase input font size on small viewports to prevent zooming on focus the input
+// on mobile devices. 430px relates to the "normalized" iPhone 14 Pro Max
+// viewport size
+@media screen and (max-width: 430px) {
+  .form-input {
+    font-size: 1rem;
+  }
+}
