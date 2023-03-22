@@ -193,6 +193,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [aiolinkding](https://github.com/bachya/aiolinkding) A Python3, async library to interact with the linkding REST API. By [bachya](https://github.com/bachya)
 - [linkding-cli](https://github.com/bachya/linkding-cli) A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). By [bachya](https://github.com/bachya)
 - [Open all links bookmarklet](https://gist.github.com/ukcuddlyguy/336dd7339e6d35fc64a75ccfc9323c66) A browser bookmarklet to open all links on the current Linkding page in new tabs. By [ukcuddlyguy](https://github.com/ukcuddlyguy)
+- [LinkThing](https://apps.apple.com/us/app/linkthing/id1666031776) An iOS client for linkding. By [amoscardino](https://github.com/amoscardino)
 
 ## Acknowledgements
 
