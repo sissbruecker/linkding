@@ -31,6 +31,10 @@ Parameters:
 - `q` - Filters results using a search phrase using the same logic as through the UI
 - `limit` - Limits the max. number of results. Default is `100`.
 - `offset` - Index from which to start returning results
+- `since_added` - Filter results that were added on or after the specified timestamp.  Accepted values include `YYYY-MM-dd`, `YYYY-MM-ddTHH:mm`, and `YYYY-MM-ddTHH:mm:ss`.
+- `until_added` - Filter results that were added on or before the specified timestamp.  Accepted values match `since_added`.
+- `since_modified` - Filter results that were modified on or after the specified timestamp.  Accepted values match `since_added`.
+- `until_modified` - Filter results that were modified on or before the specified timestamp.  Accepted values match `since_added`.
 
 Example response:
 
@@ -70,7 +74,7 @@ GET /api/bookmarks/archived/
 
 List archived bookmarks.
 
-Parameters and response are the same as for the regular list endpoint.
+Parameters and response are the same as for the regular list endpoint, excluding timestamp parameters (`since_added`, `until_added`, `since_modified`, and `until_modified`).
 
 **Retrieve**
 
