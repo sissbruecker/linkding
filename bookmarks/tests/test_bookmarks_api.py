@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
@@ -25,6 +26,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.bookmark3 = self.setup_bookmark(tags=[self.tag2])
         self.archived_bookmark1 = self.setup_bookmark(is_archived=True, tags=[self.tag1, self.tag2])
         self.archived_bookmark2 = self.setup_bookmark(is_archived=True)
+        self.setup_time = timezone.now()
 
     def assertBookmarkListEqual(self, data_list, bookmarks):
         expectations = []
@@ -58,6 +60,22 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_list_bookmarks_should_filter_by_query(self):
         response = self.get(reverse('bookmarks:bookmark-list') + '?q=#' + self.tag1.name,
                             expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], [self.bookmark1])
+
+    def test_list_bookmarks_should_filter_by_timestamp(self):
+        hour_back = (self.setup_time - timezone.timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')
+        hour_forward = (self.setup_time + timezone.timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')
+
+        # Validate bookmarks within past hour are returned
+        response = self.get(reverse('bookmarks:bookmark-list') + f'?since_added={hour_back}&until_added={hour_forward}', expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], [self.bookmark1, self.bookmark2, self.bookmark3])
+
+        # Validate no booksmarks are returned outside this window
+        response = self.get(reverse('bookmarks:bookmark-list') + f'?until_added={hour_back}', expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], [])
+
+        # Validate bookmark within past hour and matching `tag1` are returned (query) 
+        response = self.get(reverse('bookmarks:bookmark-list') + f'?since_added={hour_back}&q=#{self.tag1.name}', expected_status_code=status.HTTP_200_OK)
         self.assertBookmarkListEqual(response.data['results'], [self.bookmark1])
 
     def test_list_archived_bookmarks_does_not_return_unarchived_bookmarks(self):
