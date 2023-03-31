@@ -23,7 +23,11 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         # For list action, use query set that applies search and tag projections
         if self.action == 'list':
             query_string = self.request.GET.get('q')
-            return queries.query_bookmarks(user, query_string)
+            query_date_keys = ['since_added', 'until_added', 'since_modified', 'until_modified']
+            query_dates = {
+                key: value for key, value in self.request.GET.items() if key in query_date_keys and value is not None
+            }
+            return queries.query_bookmarks(user, query_string, query_dates)
 
         # For single entity actions use default query set without projections
         return Bookmark.objects.all().filter(owner=user)

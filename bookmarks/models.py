@@ -123,6 +123,11 @@ class BookmarkFilters:
         self.query = request.GET.get('q') or ''
         self.user = request.GET.get('user') or ''
 
+        query_date_keys = ['since_added', 'until_added', 'since_modified', 'until_modified']
+        self.query_dates = {
+            key: value for key, value in request.GET.items() if key in query_date_keys and value is not None
+        }
+
 
 class UserProfile(models.Model):
     THEME_AUTO = 'auto'

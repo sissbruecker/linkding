@@ -2,29 +2,32 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
+from django.utils import timezone
 
 from bookmarks.models import Bookmark, Tag
 from bookmarks.utils import unique
 
 
-def query_bookmarks(user: User, query_string: str) -> QuerySet:
-    return _base_bookmarks_query(user, query_string) \
+def query_bookmarks(user: User, query_string: str, query_dates: Optional[dict[str, str]]=None) -> QuerySet:
+    return _base_bookmarks_query(user, query_string, query_dates) \
         .filter(is_archived=False)
 
 
-def query_archived_bookmarks(user: User, query_string: str) -> QuerySet:
-    return _base_bookmarks_query(user, query_string) \
+def query_archived_bookmarks(user: User, query_string: str, query_dates: Optional[dict[str, str]]=None) -> QuerySet:
+    return _base_bookmarks_query(user, query_string, query_dates) \
         .filter(is_archived=True)
 
 
-def query_shared_bookmarks(user: Optional[User], query_string: str) -> QuerySet:
-    return _base_bookmarks_query(user, query_string) \
+def query_shared_bookmarks(user: Optional[User], query_string: str, query_dates: Optional[dict[str, str]]=None) -> QuerySet:
+    return _base_bookmarks_query(user, query_string, query_dates) \
         .filter(shared=True) \
         .filter(owner__profile__enable_sharing=True)
 
 
-def _base_bookmarks_query(user: Optional[User], query_string: str) -> QuerySet:
+def _base_bookmarks_query(user: Optional[User], query_string: str, query_dates: Optional[dict[str, str]]=None) -> QuerySet:
     query_set = Bookmark.objects
+    if not query_dates:
+        query_dates = {}
 
     # Filter for user
     if user:
@@ -58,6 +61,24 @@ def _base_bookmarks_query(user: Optional[User], query_string: str) -> QuerySet:
         query_set = query_set.filter(
             unread=True
         )
+
+    # Ensure dates are converted to correct `datetime` representation
+    dates = parse_query_dates(query_dates)
+
+    # Filter by dates
+    date_filters = {
+        'since_added': 'date_added__gte',
+        'until_added': 'date_added__lte',
+        'since_modified': 'date_modified__gte',
+        'until_modified': 'date_modified__lte'
+    }
+
+    for field_name, comparison_operator in date_filters.items():
+        if dates.get(field_name):
+            query = {
+                comparison_operator: query_dates[field_name]
+            }
+            query_set = query_set.filter(**query)
 
     # Sort by date added
     query_set = query_set.order_by('-date_added')
@@ -124,3 +145,16 @@ def parse_query_string(query_string):
         'untagged': untagged,
         'unread': unread,
     }
+
+
+def parse_query_dates(query_dates: dict[str, str]):
+    # Convert timestamps, dropping any invalid formatted dates
+    format_patterns = ["%Y-%m-%d", "%Y-%m-%dT%H:%M", "%Y-%m-%dT%H:%M:%S"]
+    dates = {}
+    for query_date, value in query_dates.items():
+        for pattern in format_patterns:
+            try:
+                dates[query_date] = timezone.datetime.strptime(value, pattern)
+            except:
+                pass
+    return dates
