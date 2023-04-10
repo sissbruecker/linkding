@@ -1,4 +1,5 @@
 import urllib.parse
+from typing import List
 
 from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
@@ -9,7 +10,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkForm, BookmarkFilters, User, Tag, build_tag_string
+from bookmarks.models import Bookmark, BookmarkForm, BookmarkFilters, User, UserProfile, Tag, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, archive_bookmarks, \
     unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks
 from bookmarks.utils import get_safe_return_url
@@ -20,8 +21,8 @@ _default_page_size = 30
 @login_required
 def index(request):
     filters = BookmarkFilters(request)
-    query_set = queries.query_bookmarks(request.user, filters.query)
-    tags = queries.query_bookmark_tags(request.user, filters.query)
+    query_set = queries.query_bookmarks(request.user, request.user.profile, filters.query)
+    tags = queries.query_bookmark_tags(request.user, request.user.profile, filters.query)
     base_url = reverse('bookmarks:index')
     context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
     return render(request, 'bookmarks/index.html', context)
@@ -30,8 +31,8 @@ def index(request):
 @login_required
 def archived(request):
     filters = BookmarkFilters(request)
-    query_set = queries.query_archived_bookmarks(request.user, filters.query)
-    tags = queries.query_archived_bookmark_tags(request.user, filters.query)
+    query_set = queries.query_archived_bookmarks(request.user, request.user.profile, filters.query)
+    tags = queries.query_archived_bookmark_tags(request.user, request.user.profile, filters.query)
     base_url = reverse('bookmarks:archived')
     context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
     return render(request, 'bookmarks/archive.html', context)
@@ -41,27 +42,23 @@ def archived(request):
 def shared(request):
     filters = BookmarkFilters(request)
     user = User.objects.filter(username=filters.user).first()
-    query_set = queries.query_shared_bookmarks(user, filters.query)
-    tags = queries.query_shared_bookmark_tags(user, filters.query)
-    users = queries.query_shared_bookmark_users(filters.query)
+    query_set = queries.query_shared_bookmarks(user, request.user.profile, filters.query)
+    tags = queries.query_shared_bookmark_tags(user, request.user.profile, filters.query)
+    users = queries.query_shared_bookmark_users(request.user.profile, filters.query)
     base_url = reverse('bookmarks:shared')
     context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
     context['users'] = users
     return render(request, 'bookmarks/shared.html', context)
 
 
-def _get_selected_tags(tags: QuerySet[Tag], query_string: str):
+def _get_selected_tags(tags: List[Tag], query_string: str, profile: UserProfile):
     parsed_query = queries.parse_query_string(query_string)
     tag_names = parsed_query['tag_names']
+    if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+        tag_names = tag_names + parsed_query['search_terms']
+    tag_names = [tag_name.lower() for tag_name in tag_names]
 
-    if len(tag_names) == 0:
-        return []
-
-    condition = Q()
-    for tag_name in parsed_query['tag_names']:
-        condition = condition | Q(name__iexact=tag_name)
-
-    return list(tags.filter(condition))
+    return [tag for tag in tags if tag.name.lower() in tag_names]
 
 
 def get_bookmark_view_context(request: WSGIRequest,
@@ -72,7 +69,8 @@ def get_bookmark_view_context(request: WSGIRequest,
     page = request.GET.get('page')
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
-    selected_tags = _get_selected_tags(tags, filters.query)
+    tags = list(tags)
+    selected_tags = _get_selected_tags(tags, filters.query, request.user.profile)
     # Prefetch related objects, this avoids n+1 queries when accessing fields in templates
     prefetch_related_objects(bookmarks.object_list, 'owner', 'tags')
     return_url = generate_return_url(base_url, page, filters)

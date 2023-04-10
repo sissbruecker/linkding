@@ -18,7 +18,7 @@ class BaseBookmarksFeed(Feed):
     def get_object(self, request, feed_key: str):
         feed_token = FeedToken.objects.get(key__exact=feed_key)
         query_string = request.GET.get('q')
-        query_set = queries.query_bookmarks(feed_token.user, query_string)
+        query_set = queries.query_bookmarks(feed_token.user, feed_token.user.profile, query_string)
         return FeedContext(feed_token, query_set)
 
     def item_title(self, item: Bookmark):
