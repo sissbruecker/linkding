@@ -486,6 +486,44 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.get_tags_from_bookmarks(self.term1_tag1_bookmarks),
         ])
 
+    def test_query_bookmark_tags_in_strict_mode_should_not_search_tags_as_terms(self):
+        self.setup_tag_search_data()
+
+        self.profile.tag_search = UserProfile.TAG_SEARCH_STRICT
+        self.profile.save()
+
+        query = queries.query_bookmark_tags(self.user, self.profile, 'tag1')
+        self.assertQueryResult(query, self.get_tags_from_bookmarks(self.tag1_as_term_bookmarks))
+
+    def test_query_bookmark_tags_in_lax_mode_should_search_tags_as_terms(self):
+        self.setup_tag_search_data()
+
+        self.profile.tag_search = UserProfile.TAG_SEARCH_LAX
+        self.profile.save()
+
+        query = queries.query_bookmark_tags(self.user, self.profile, 'tag1')
+        self.assertQueryResult(query, [
+            self.get_tags_from_bookmarks(self.tag1_bookmarks),
+            self.get_tags_from_bookmarks(self.tag1_as_term_bookmarks),
+            self.get_tags_from_bookmarks(self.tag1_tag2_bookmarks),
+            self.get_tags_from_bookmarks(self.term1_tag1_bookmarks)
+        ])
+
+        query = queries.query_bookmark_tags(self.user, self.profile, 'tag1 term1')
+        self.assertQueryResult(query, [
+            self.get_tags_from_bookmarks(self.term1_tag1_bookmarks),
+        ])
+
+        query = queries.query_bookmark_tags(self.user, self.profile, 'tag1 tag2')
+        self.assertQueryResult(query, [
+            self.get_tags_from_bookmarks(self.tag1_tag2_bookmarks),
+        ])
+
+        query = queries.query_bookmark_tags(self.user, self.profile, 'tag1 #tag2')
+        self.assertQueryResult(query, [
+            self.get_tags_from_bookmarks(self.tag1_tag2_bookmarks),
+        ])
+
     def test_query_bookmark_tags_should_return_no_matches(self):
         self.setup_tag_search_data()
 

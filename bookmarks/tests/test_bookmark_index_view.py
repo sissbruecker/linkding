@@ -147,8 +147,8 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_should_display_selected_tags_from_query(self):
         tags = [
-            self.setup_tag(name='Tag1'),
-            self.setup_tag(name='tag2'),
+            self.setup_tag(),
+            self.setup_tag(),
             self.setup_tag(),
             self.setup_tag(),
             self.setup_tag(),
@@ -161,8 +161,8 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_should_not_display_search_terms_from_query_as_selected_tags_in_strict_mode(self):
         tags = [
-            self.setup_tag(name='Tag1'),
-            self.setup_tag(name='tag2'),
+            self.setup_tag(),
+            self.setup_tag(),
             self.setup_tag(),
             self.setup_tag(),
             self.setup_tag(),
@@ -178,8 +178,8 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.user.profile.save()
 
         tags = [
-            self.setup_tag(name='Tag1'),
-            self.setup_tag(name='tag2'),
+            self.setup_tag(),
+            self.setup_tag(),
             self.setup_tag(),
             self.setup_tag(),
             self.setup_tag(),
