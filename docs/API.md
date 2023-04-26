@@ -236,3 +236,24 @@ Example payload:
   "name": "example"
 }
 ```
+
+### User
+
+**Profile**
+
+```
+GET /api/user/profile/
+```
+
+User preferences.
+
+```json
+{
+  "theme": "auto",
+  "bookmark_date_display": "relative",
+  "bookmark_link_target": "_blank",
+  "web_archive_integration": "disabled",
+  "enable_sharing": false,
+  "enable_favicons": false
+}
+```
