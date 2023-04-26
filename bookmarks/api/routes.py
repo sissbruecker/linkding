@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
 
 from bookmarks import queries
-from bookmarks.api.serializers import BookmarkSerializer, TagSerializer
+from bookmarks.api.serializers import BookmarkSerializer, TagSerializer, UserProfileSerializer
 from bookmarks.models import Bookmark, BookmarkSearch, Tag, User
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark, website_loader
 from bookmarks.services.website_loader import WebsiteMetadata
@@ -107,7 +107,17 @@ class TagViewSet(viewsets.GenericViewSet,
     def get_serializer_context(self):
         return {'user': self.request.user}
 
+class UserViewSet(viewsets.GenericViewSet):
+    def get_serializer_context(self):
+        return {'user': self.request.user}
+
+    @action(methods=['get'], detail=False)
+    def profile(self, request):
+            return Response(UserProfileSerializer(request.user.profile).data)
+
+
 
 router = DefaultRouter()
 router.register(r'bookmarks', BookmarkViewSet, basename='bookmark')
 router.register(r'tags', TagViewSet, basename='tag')
+router.register(r'user', UserViewSet, basename='user')
