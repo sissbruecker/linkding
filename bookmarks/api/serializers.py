@@ -1,4 +1,5 @@
 from django.db.models import prefetch_related_objects
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
@@ -19,7 +20,16 @@ class BookmarkListSerializer(ListSerializer):
         return super().to_representation(data)
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
+        read_only_fields = []
+
+
 class BookmarkSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(read_only=True)
+    is_mine = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Bookmark
         fields = [
@@ -29,18 +39,26 @@ class BookmarkSerializer(serializers.ModelSerializer):
             'description',
             'website_title',
             'website_description',
+            'web_archive_snapshot_url',
+            'favicon_file',
             'is_archived',
             'unread',
             'shared',
+            'is_mine',
+            'owner',
             'tag_names',
             'date_added',
-            'date_modified'
+            'date_modified',
         ]
         read_only_fields = [
             'website_title',
             'website_description',
+            'favicon_file',
+            'web_archive_snapshot_url',
+            'owner',
+            'is_mine',
             'date_added',
-            'date_modified'
+            'date_modified',
         ]
         list_serializer_class = BookmarkListSerializer
 
@@ -52,6 +70,13 @@ class BookmarkSerializer(serializers.ModelSerializer):
     shared = serializers.BooleanField(required=False, default=False)
     # Override readonly tag_names property to allow passing a list of tag names to create/update
     tag_names = TagListField(required=False, default=[])
+
+    def get_is_mine(self, obj):
+        owner = getattr(obj, 'owner', None)
+        if owner:
+            return owner.id == self.context['user'].id if self.context['user'] else False
+        else:
+            return False
 
     def create(self, validated_data):
         bookmark = Bookmark()

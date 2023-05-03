@@ -47,9 +47,16 @@ Example response:
       "description": "Example description",
       "website_title": "Website title",
       "website_description": "Website description",
+      "favicon_file": "https_example_com.png",
+      "web_archive_snapshot_url": "https://web.archive.org/web/20230503135413/https://example.com?gi=22f80cef5487",
       "is_archived": false,
       "unread": false,
       "shared": false,
+      "is_mine": true,
+      "owner": {
+        "id": 1, 
+        "username": "example"
+      },
       "tag_names": [
         "tag1",
         "tag2"
@@ -71,6 +78,17 @@ GET /api/bookmarks/archived/
 List archived bookmarks.
 
 Parameters and response are the same as for the regular list endpoint.
+
+**List Shared**
+
+```
+GET /api/bookmarks/shared/
+```
+
+List shared bookmarks.
+
+Parameters and response are the same as for the regular list endpoint.
+
 
 **Retrieve**
 

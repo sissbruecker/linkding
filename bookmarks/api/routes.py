@@ -48,7 +48,7 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         query_set = queries.query_shared_bookmarks(user, filters.query)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer_class()
-        data = serializer(page, many=True).data
+        data = serializer(page, many=True, context={'user': request.user}).data
         return self.get_paginated_response(data)
 
     @action(methods=['post'], detail=True)
