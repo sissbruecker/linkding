@@ -4,7 +4,7 @@ certifi==2022.12.7
 charset-normalizer==2.1.1
 click==8.1.3
 confusable-homoglyphs==3.2.0
-Django==4.1.7
+Django==4.1.9
 django-generate-secret-key==1.0.2
 django-registration==3.3
 django-sass-processor==1.2.1
