@@ -167,9 +167,10 @@ class UserProfile(models.Model):
                                             default=BOOKMARK_LINK_TARGET_BLANK)
     web_archive_integration = models.CharField(max_length=10, choices=WEB_ARCHIVE_INTEGRATION_CHOICES, blank=False,
                                                default=WEB_ARCHIVE_INTEGRATION_DISABLED)
+    tag_search = models.CharField(max_length=10, choices=TAG_SEARCH_CHOICES, blank=False,
+                                  default=TAG_SEARCH_STRICT)
     enable_sharing = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
-
     display_url = models.BooleanField(default=False, null=False)
 
 
