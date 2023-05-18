@@ -109,6 +109,12 @@ Multiple origins can be specified by separating them with a comma (`,`).
 
 This setting is adopted from the Django framework used by linkding, more information on the setting is available in the [Django documentation](https://docs.djangoproject.com/en/4.0/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS).
 
+### `LD_LOG_X_FORWARDED_FOR`
+
+Values: `true` or `false` | Default =  `false`
+
+Set uWSGI [log-x-forwarded-for](https://uwsgi-docs.readthedocs.io/en/latest/Options.html?#log-x-forwarded-for) parameter allowing to keep the real IP of clients in logs when using a reverse proxy.
+
 ### `LD_DB_ENGINE`
 
 Values: `postgres` or `sqlite` | Default = `sqlite`
