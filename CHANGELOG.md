@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.18.0 (18/05/2023)
+
+### What's Changed
+* Make search case-insensitive on Postgres by @sissbruecker in https://github.com/sissbruecker/linkding/pull/432
+* Allow searching for tags without hash character by @sissbruecker in https://github.com/sissbruecker/linkding/pull/449
+* Prevent zoom-in after focusing an input on small viewports on iOS devices by @puresick in https://github.com/sissbruecker/linkding/pull/440
+* Add database options by @plockaby in https://github.com/sissbruecker/linkding/pull/406
+* Allow to log real client ip in logs when using a reverse proxy by @fmenabe in https://github.com/sissbruecker/linkding/pull/398
+* Add option to display URL below title by @bah0 in https://github.com/sissbruecker/linkding/pull/365
+* Add LinkThing iOS app to community section by @amoscardino in https://github.com/sissbruecker/linkding/pull/446
+* Bump django from 4.1.7 to 4.1.9 by @dependabot in https://github.com/sissbruecker/linkding/pull/466
+* Bump sqlparse from 0.4.2 to 0.4.4 by @dependabot in https://github.com/sissbruecker/linkding/pull/455
+
+### New Contributors
+* @amoscardino made their first contribution in https://github.com/sissbruecker/linkding/pull/446
+* @puresick made their first contribution in https://github.com/sissbruecker/linkding/pull/440
+* @plockaby made their first contribution in https://github.com/sissbruecker/linkding/pull/406
+* @fmenabe made their first contribution in https://github.com/sissbruecker/linkding/pull/398
+* @bah0 made their first contribution in https://github.com/sissbruecker/linkding/pull/365
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.17.2...v1.18.0
+
+---
+
 ## v1.17.2 (18/02/2023)
 
 ### What's Changed
