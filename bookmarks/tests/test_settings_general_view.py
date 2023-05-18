@@ -29,6 +29,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             'enable_sharing': False,
             'enable_favicons': False,
             'tag_search': UserProfile.TAG_SEARCH_STRICT,
+            'display_url': False,
         }
 
         return {**form_data, **overrides}
@@ -54,6 +55,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             'enable_sharing': True,
             'enable_favicons': True,
             'tag_search': UserProfile.TAG_SEARCH_LAX,
+            'display_url': True,
         }
         response = self.client.post(reverse('bookmarks:settings.general'), form_data)
         html = response.content.decode()
@@ -68,6 +70,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(self.user.profile.enable_sharing, form_data['enable_sharing'])
         self.assertEqual(self.user.profile.enable_favicons, form_data['enable_favicons'])
         self.assertEqual(self.user.profile.tag_search, form_data['tag_search'])
+        self.assertEqual(self.user.profile.display_url, form_data['display_url'])
         self.assertInHTML('''
                 <p class="form-input-hint">Profile updated</p>
             ''', html)

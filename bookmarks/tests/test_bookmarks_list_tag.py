@@ -90,6 +90,25 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
             <img src="/static/{bookmark.favicon_file}" alt="">
             ''', html, count=count)
 
+    def assertBookmarkURLCount(self, html: str, bookmark: Bookmark, link_target: str = '_blank', count=0):
+        self.assertInHTML(f'''
+        <div class="url-path truncate">
+          <a href="{ bookmark.url }" target="{ link_target }" rel="noopener" 
+          class="url-display text-sm">
+            { bookmark.url }
+          </a>
+        </div>
+        ''', html, count)
+
+    def assertBookmarkURLVisible(self, html: str, bookmark: Bookmark):
+        self.assertBookmarkURLCount(html, bookmark, count=1)
+        
+
+    def assertBookmarkURLHidden(self, html: str, bookmark: Bookmark, link_target: str = '_blank'):
+        self.assertBookmarkURLCount(html, bookmark, count=0)
+        
+
+
     def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test') -> str:
         rf = RequestFactory()
         request = rf.get(url)
@@ -252,3 +271,34 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         html = self.render_default_template([bookmark])
 
         self.assertFaviconHidden(html, bookmark)
+
+    def test_bookmark_url_should_be_hidden_by_default(self):
+        profile = self.get_or_create_test_user().profile
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        html = self.render_default_template([bookmark])
+
+        self.assertBookmarkURLHidden(html,bookmark)
+    
+    def test_show_bookmark_url_when_enabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.display_url = True
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        html = self.render_default_template([bookmark])
+
+        self.assertBookmarkURLVisible(html,bookmark)
+
+    def test_hide_bookmark_url_when_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.display_url = False
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        html = self.render_default_template([bookmark])
+
+        self.assertBookmarkURLHidden(html,bookmark)
+
+

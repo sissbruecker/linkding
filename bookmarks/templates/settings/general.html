@@ -30,6 +30,15 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.display_url.id_for_label }}" class="form-checkbox">
+            {{ form.display_url }}
+            <i class="form-icon"></i> Show bookmark URL
+          </label>
+          <div class="form-input-hint">
+            When enabled, this setting displays the bookmark URL below the title.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.bookmark_link_target.id_for_label }}" class="form-label">Open bookmarks in</label>
           {{ form.bookmark_link_target|add_class:"form-select col-2 col-sm-12" }}
           <div class="form-input-hint">
