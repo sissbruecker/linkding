@@ -158,6 +158,37 @@ class BookmarkArchivedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         self.assertSelectedTags(response, [tags[0], tags[1]])
 
+    def test_should_not_display_search_terms_from_query_as_selected_tags_in_strict_mode(self):
+        tags = [
+            self.setup_tag(),
+            self.setup_tag(),
+            self.setup_tag(),
+            self.setup_tag(),
+            self.setup_tag(),
+        ]
+        self.setup_bookmark(title=tags[0].name, tags=tags, is_archived=True)
+
+        response = self.client.get(reverse('bookmarks:archived') + f'?q={tags[0].name}+%23{tags[1].name.upper()}')
+
+        self.assertSelectedTags(response, [tags[1]])
+
+    def test_should_display_search_terms_from_query_as_selected_tags_in_lax_mode(self):
+        self.user.profile.tag_search = UserProfile.TAG_SEARCH_LAX
+        self.user.profile.save()
+
+        tags = [
+            self.setup_tag(),
+            self.setup_tag(),
+            self.setup_tag(),
+            self.setup_tag(),
+            self.setup_tag(),
+        ]
+        self.setup_bookmark(tags=tags, is_archived=True)
+
+        response = self.client.get(reverse('bookmarks:archived') + f'?q={tags[0].name}+%23{tags[1].name.upper()}')
+
+        self.assertSelectedTags(response, [tags[0], tags[1]])
+
     def test_should_open_bookmarks_in_new_page_by_default(self):
         visible_bookmarks = [
             self.setup_bookmark(is_archived=True),

@@ -141,7 +141,7 @@ def bookmark_import(request):
 def bookmark_export(request):
     # noinspection PyBroadException
     try:
-        bookmarks = list(query_bookmarks(request.user, ''))
+        bookmarks = list(query_bookmarks(request.user, request.user.profile, ''))
         # Prefetch tags to prevent n+1 queries
         prefetch_related_objects(bookmarks, 'tags')
         file_content = exporter.export_netscape_html(bookmarks)

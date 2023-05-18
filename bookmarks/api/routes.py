@@ -23,7 +23,7 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         # For list action, use query set that applies search and tag projections
         if self.action == 'list':
             query_string = self.request.GET.get('q')
-            return queries.query_bookmarks(user, query_string)
+            return queries.query_bookmarks(user, user.profile, query_string)
 
         # For single entity actions use default query set without projections
         return Bookmark.objects.all().filter(owner=user)
@@ -35,7 +35,7 @@ class BookmarkViewSet(viewsets.GenericViewSet,
     def archived(self, request):
         user = request.user
         query_string = request.GET.get('q')
-        query_set = queries.query_archived_bookmarks(user, query_string)
+        query_set = queries.query_archived_bookmarks(user, user.profile, query_string)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer_class()
         data = serializer(page, many=True).data
@@ -45,7 +45,7 @@ class BookmarkViewSet(viewsets.GenericViewSet,
     def shared(self, request):
         filters = BookmarkFilters(request)
         user = User.objects.filter(username=filters.user).first()
-        query_set = queries.query_shared_bookmarks(user, filters.query)
+        query_set = queries.query_shared_bookmarks(user, request.user.profile, filters.query)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer_class()
         data = serializer(page, many=True).data

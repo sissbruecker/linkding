@@ -28,6 +28,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             'web_archive_integration': UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED,
             'enable_sharing': False,
             'enable_favicons': False,
+            'tag_search': UserProfile.TAG_SEARCH_STRICT,
         }
 
         return {**form_data, **overrides}
@@ -52,6 +53,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             'web_archive_integration': UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED,
             'enable_sharing': True,
             'enable_favicons': True,
+            'tag_search': UserProfile.TAG_SEARCH_LAX,
         }
         response = self.client.post(reverse('bookmarks:settings.general'), form_data)
         html = response.content.decode()
@@ -65,6 +67,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(self.user.profile.web_archive_integration, form_data['web_archive_integration'])
         self.assertEqual(self.user.profile.enable_sharing, form_data['enable_sharing'])
         self.assertEqual(self.user.profile.enable_favicons, form_data['enable_favicons'])
+        self.assertEqual(self.user.profile.tag_search, form_data['tag_search'])
         self.assertInHTML('''
                 <p class="form-input-hint">Profile updated</p>
             ''', html)
