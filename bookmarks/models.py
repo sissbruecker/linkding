@@ -53,6 +53,7 @@ class Bookmark(models.Model):
     website_title = models.CharField(max_length=512, blank=True, null=True)
     website_description = models.TextField(blank=True, null=True)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
+    favicon_file = models.CharField(max_length=512, blank=True)
     unread = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     shared = models.BooleanField(default=False)
@@ -152,6 +153,12 @@ class UserProfile(models.Model):
         (WEB_ARCHIVE_INTEGRATION_DISABLED, 'Disabled'),
         (WEB_ARCHIVE_INTEGRATION_ENABLED, 'Enabled'),
     ]
+    TAG_SEARCH_STRICT = 'strict'
+    TAG_SEARCH_LAX = 'lax'
+    TAG_SEARCH_CHOICES = [
+        (TAG_SEARCH_STRICT, 'Strict'),
+        (TAG_SEARCH_LAX, 'Lax'),
+    ]
     user = models.OneToOneField(get_user_model(), related_name='profile', on_delete=models.CASCADE)
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, blank=False, default=THEME_AUTO)
     bookmark_date_display = models.CharField(max_length=10, choices=BOOKMARK_DATE_DISPLAY_CHOICES, blank=False,
@@ -160,13 +167,18 @@ class UserProfile(models.Model):
                                             default=BOOKMARK_LINK_TARGET_BLANK)
     web_archive_integration = models.CharField(max_length=10, choices=WEB_ARCHIVE_INTEGRATION_CHOICES, blank=False,
                                                default=WEB_ARCHIVE_INTEGRATION_DISABLED)
+    tag_search = models.CharField(max_length=10, choices=TAG_SEARCH_CHOICES, blank=False,
+                                  default=TAG_SEARCH_STRICT)
     enable_sharing = models.BooleanField(default=False, null=False)
+    enable_favicons = models.BooleanField(default=False, null=False)
+    display_url = models.BooleanField(default=False, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'enable_sharing']
+        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'tag_search',
+                  'enable_sharing', 'enable_favicons', 'display_url']
 
 
 @receiver(post_save, sender=get_user_model())

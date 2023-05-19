@@ -58,6 +58,16 @@ ul.bookmark-list {
     text-overflow: ellipsis;
   }
 
+  .title img {
+    width: 16px;
+    height: 16px;
+    vertical-align: text-top;
+  }
+
+  .url-display {
+    color: $secondary-link-color;
+  }
+
   .description {
     color: $gray-color-dark;
 

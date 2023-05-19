@@ -79,6 +79,36 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
             </span>
         ''', html, count=count)
 
+    def assertFaviconVisible(self, html: str, bookmark: Bookmark):
+        self.assertFaviconCount(html, bookmark, 1)
+
+    def assertFaviconHidden(self, html: str, bookmark: Bookmark):
+        self.assertFaviconCount(html, bookmark, 0)
+
+    def assertFaviconCount(self, html: str, bookmark: Bookmark, count=1):
+        self.assertInHTML(f'''
+            <img src="/static/{bookmark.favicon_file}" alt="">
+            ''', html, count=count)
+
+    def assertBookmarkURLCount(self, html: str, bookmark: Bookmark, link_target: str = '_blank', count=0):
+        self.assertInHTML(f'''
+        <div class="url-path truncate">
+          <a href="{ bookmark.url }" target="{ link_target }" rel="noopener" 
+          class="url-display text-sm">
+            { bookmark.url }
+          </a>
+        </div>
+        ''', html, count)
+
+    def assertBookmarkURLVisible(self, html: str, bookmark: Bookmark):
+        self.assertBookmarkURLCount(html, bookmark, count=1)
+        
+
+    def assertBookmarkURLHidden(self, html: str, bookmark: Bookmark, link_target: str = '_blank'):
+        self.assertBookmarkURLCount(html, bookmark, count=0)
+        
+
+
     def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test') -> str:
         rf = RequestFactory()
         request = rf.get(url)
@@ -211,3 +241,64 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
                 <a class="text-gray" href="?q=foo&user={bookmark.owner.username}">{bookmark.owner.username}</a>
             </span>
         ''', html)
+
+    def test_favicon_should_be_visible_when_favicons_enabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(favicon_file='https_example_com.png')
+        html = self.render_default_template([bookmark])
+
+        self.assertFaviconVisible(html, bookmark)
+
+    def test_favicon_should_be_hidden_when_there_is_no_icon(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(favicon_file='')
+        html = self.render_default_template([bookmark])
+
+        self.assertFaviconHidden(html, bookmark)
+
+    def test_favicon_should_be_hidden_when_favicons_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = False
+        profile.save()
+
+        bookmark = self.setup_bookmark(favicon_file='https_example_com.png')
+        html = self.render_default_template([bookmark])
+
+        self.assertFaviconHidden(html, bookmark)
+
+    def test_bookmark_url_should_be_hidden_by_default(self):
+        profile = self.get_or_create_test_user().profile
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        html = self.render_default_template([bookmark])
+
+        self.assertBookmarkURLHidden(html,bookmark)
+    
+    def test_show_bookmark_url_when_enabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.display_url = True
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        html = self.render_default_template([bookmark])
+
+        self.assertBookmarkURLVisible(html,bookmark)
+
+    def test_hide_bookmark_url_when_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.display_url = False
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        html = self.render_default_template([bookmark])
+
+        self.assertBookmarkURLHidden(html,bookmark)
+
+

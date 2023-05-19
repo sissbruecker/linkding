@@ -3,6 +3,7 @@ import re
 from django import template
 
 from bookmarks import utils
+from bookmarks.models import UserProfile
 
 register = template.Library()
 
@@ -19,36 +20,39 @@ def update_query_string(context, **kwargs):
 
 
 @register.simple_tag(takes_context=True)
-def append_to_query_param(context, **kwargs):
-    query = context.request.GET.copy()
+def add_tag_to_query(context, tag_name: str):
+    params = context.request.GET.copy()
 
-    # Append to or create query param
-    for key in kwargs:
-        if query.__contains__(key):
-            value = query.__getitem__(key) + ' '
-        else:
-            value = ''
-        value = value + kwargs[key]
-        query.__setitem__(key, value)
+    # Append to or create query string
+    if params.__contains__('q'):
+        query_string = params.__getitem__('q') + ' '
+    else:
+        query_string = ''
+    query_string = query_string + '#' + tag_name
+    params.__setitem__('q', query_string)
 
-    return query.urlencode()
+    return params.urlencode()
 
 
 @register.simple_tag(takes_context=True)
-def remove_from_query_param(context, **kwargs):
-    query = context.request.GET.copy()
+def remove_tag_from_query(context, tag_name: str):
+    params = context.request.GET.copy()
+    if params.__contains__('q'):
+        # Split query string into parts
+        query_string = params.__getitem__('q')
+        query_parts = query_string.split()
+        # Remove tag with hash
+        tag_name_with_hash = '#' + tag_name
+        query_parts = [part for part in query_parts if str.lower(part) != str.lower(tag_name_with_hash)]
+        # When using lax tag search, also remove tag without hash
+        profile = context.request.user.profile
+        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+            query_parts = [part for part in query_parts if str.lower(part) != str.lower(tag_name)]
+        # Rebuild query string
+        query_string = ' '.join(query_parts)
+        params.__setitem__('q', query_string)
 
-    # Remove item from query param
-    for key in kwargs:
-        if query.__contains__(key):
-            value = query.__getitem__(key)
-            parts = value.split()
-            part_to_remove = kwargs[key]
-            updated_parts = [part for part in parts if str.lower(part) != str.lower(part_to_remove)]
-            updated_value = ' '.join(updated_parts)
-            query.__setitem__(key, updated_value)
-
-    return query.urlencode()
+    return params.urlencode()
 
 
 @register.simple_tag(takes_context=True)

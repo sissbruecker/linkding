@@ -1,4 +1,4 @@
-FROM node:current-alpine AS node-build
+FROM node:18.13.0-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY package.json package-lock.json ./
@@ -10,7 +10,7 @@ RUN npm run build
 
 
 FROM python:3.10.6-slim-buster AS python-base
-RUN apt-get update && apt-get -y install build-essential
+RUN apt-get update && apt-get -y install build-essential libpq-dev
 WORKDIR /etc/linkding
 
 
@@ -34,7 +34,7 @@ RUN mkdir /opt/venv && \
 
 
 FROM python:3.10.6-slim-buster as final
-RUN apt-get update && apt-get -y install mime-support
+RUN apt-get update && apt-get -y install mime-support libpq-dev curl
 WORKDIR /etc/linkding
 # copy prod dependencies
 COPY --from=prod-deps /opt/venv /opt/venv
@@ -51,4 +51,8 @@ ENV PATH /opt/venv/bin:$PATH
 RUN ["chmod", "g+w", "."]
 # Run bootstrap logic
 RUN ["chmod", "+x", "./bootstrap.sh"]
+
+HEALTHCHECK --interval=30s --retries=3 --timeout=1s \
+CMD curl -f http://localhost:${LD_SERVER_PORT:-9090}/${LD_CONTEXT_PATH}health || exit 1
+
 CMD ["./bootstrap.sh"]

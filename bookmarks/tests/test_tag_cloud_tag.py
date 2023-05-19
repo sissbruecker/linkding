@@ -3,7 +3,7 @@ from typing import List
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
-from bookmarks.models import Tag
+from bookmarks.models import Tag, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
@@ -14,6 +14,7 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         rf = RequestFactory()
         request = rf.get(url)
+        request.user = self.get_or_create_test_user()
         context = RequestContext(request, {
             'request': request,
             'tags': tags,
@@ -113,6 +114,36 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertInHTML('''
             <a href="?q=%23tag1"
+               class="text-bold mr-2">
+                <span>-tag2</span>
+            </a>
+        ''', rendered_template)
+
+    def test_selected_tags_with_lax_tag_search(self):
+        profile = self.get_or_create_test_user().profile
+        profile.tag_search = UserProfile.TAG_SEARCH_LAX
+        profile.save()
+
+        tags = [
+            self.setup_tag(name='tag1'),
+            self.setup_tag(name='tag2'),
+        ]
+
+        # Filter by tag name without hash
+        rendered_template = self.render_template(tags, tags, url='/test?q=tag1 %23tag2')
+
+        self.assertNumSelectedTags(rendered_template, 2)
+
+        # Tag name should still be removed from query string
+        self.assertInHTML('''
+            <a href="?q=%23tag2"
+               class="text-bold mr-2">
+                <span>-tag1</span>
+            </a>
+        ''', rendered_template)
+
+        self.assertInHTML('''
+            <a href="?q=tag1"
                class="text-bold mr-2">
                 <span>-tag2</span>
             </a>

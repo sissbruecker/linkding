@@ -1,4 +1,3 @@
-from django.urls import reverse
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,8 +6,8 @@ from rest_framework.routers import DefaultRouter
 from bookmarks import queries
 from bookmarks.api.serializers import BookmarkSerializer, TagSerializer
 from bookmarks.models import Bookmark, BookmarkFilters, Tag, User
-from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
-from bookmarks.services.website_loader import load_website_metadata
+from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark, website_loader
+from bookmarks.services.website_loader import WebsiteMetadata
 
 
 class BookmarkViewSet(viewsets.GenericViewSet,
@@ -24,7 +23,7 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         # For list action, use query set that applies search and tag projections
         if self.action == 'list':
             query_string = self.request.GET.get('q')
-            return queries.query_bookmarks(user, query_string)
+            return queries.query_bookmarks(user, user.profile, query_string)
 
         # For single entity actions use default query set without projections
         return Bookmark.objects.all().filter(owner=user)
@@ -36,7 +35,7 @@ class BookmarkViewSet(viewsets.GenericViewSet,
     def archived(self, request):
         user = request.user
         query_string = request.GET.get('q')
-        query_set = queries.query_archived_bookmarks(user, query_string)
+        query_set = queries.query_archived_bookmarks(user, user.profile, query_string)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer_class()
         data = serializer(page, many=True).data
@@ -46,7 +45,7 @@ class BookmarkViewSet(viewsets.GenericViewSet,
     def shared(self, request):
         filters = BookmarkFilters(request)
         user = User.objects.filter(username=filters.user).first()
-        query_set = queries.query_shared_bookmarks(user, filters.query)
+        query_set = queries.query_shared_bookmarks(user, request.user.profile, filters.query)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer_class()
         data = serializer(page, many=True).data
@@ -68,15 +67,13 @@ class BookmarkViewSet(viewsets.GenericViewSet,
     def check(self, request):
         url = request.GET.get('url')
         bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
-        existing_bookmark_data = None
+        existing_bookmark_data = self.get_serializer(bookmark).data if bookmark else None
 
-        if bookmark is not None:
-            existing_bookmark_data = {
-                'id': bookmark.id,
-                'edit_url': reverse('bookmarks:edit', args=[bookmark.id])
-            }
-
-        metadata = load_website_metadata(url)
+        # Either return metadata from existing bookmark, or scrape from URL
+        if bookmark:
+            metadata = WebsiteMetadata(url, bookmark.website_title, bookmark.website_description)
+        else:
+            metadata = website_loader.load_website_metadata(url)
 
         return Response({
             'bookmark': existing_bookmark_data,

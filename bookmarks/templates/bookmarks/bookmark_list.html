@@ -1,3 +1,4 @@
+{% load static %}
 {% load shared %}
 {% load pagination %}
 {% htmlmin %}
@@ -11,14 +12,25 @@
         <div class="title">
           <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener"
              class="{% if bookmark.unread %}text-italic{% endif %}">
+            {% if bookmark.favicon_file and request.user.profile.enable_favicons %}
+              <img src="{% static bookmark.favicon_file %}" alt="">
+            {% endif %}
             {{ bookmark.resolved_title }}
           </a>
         </div>
+        {% if request.user.profile.display_url %}
+        <div class="url-path truncate">
+          <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" 
+          class="url-display text-sm">
+            {{ bookmark.url }}
+          </a>
+        </div>
+        {% endif %}
         <div class="description truncate">
           {% if bookmark.tag_names %}
             <span>
               {% for tag_name in bookmark.tag_names %}
-                <a href="?{% append_to_query_param q=tag_name|hash_tag %}">{{ tag_name|hash_tag }}</a>
+                <a href="?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
               {% endfor %}
             </span>
           {% endif %}

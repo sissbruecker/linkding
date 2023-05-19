@@ -262,3 +262,12 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
             import_netscape_html(test_html, user)
 
             mock_schedule_bookmarks_without_snapshots.assert_called_once_with(user)
+
+    def test_schedule_favicon_loading(self):
+        user = self.get_or_create_test_user()
+        test_html = self.render_html(tags_html='')
+
+        with patch.object(tasks, 'schedule_bookmarks_without_favicons') as mock_schedule_bookmarks_without_favicons:
+            import_netscape_html(test_html, user)
+
+            mock_schedule_bookmarks_without_favicons.assert_called_once_with(user)

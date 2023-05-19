@@ -1,5 +1,116 @@
 # Changelog
 
+## v1.18.0 (18/05/2023)
+
+### What's Changed
+* Make search case-insensitive on Postgres by @sissbruecker in https://github.com/sissbruecker/linkding/pull/432
+* Allow searching for tags without hash character by @sissbruecker in https://github.com/sissbruecker/linkding/pull/449
+* Prevent zoom-in after focusing an input on small viewports on iOS devices by @puresick in https://github.com/sissbruecker/linkding/pull/440
+* Add database options by @plockaby in https://github.com/sissbruecker/linkding/pull/406
+* Allow to log real client ip in logs when using a reverse proxy by @fmenabe in https://github.com/sissbruecker/linkding/pull/398
+* Add option to display URL below title by @bah0 in https://github.com/sissbruecker/linkding/pull/365
+* Add LinkThing iOS app to community section by @amoscardino in https://github.com/sissbruecker/linkding/pull/446
+* Bump django from 4.1.7 to 4.1.9 by @dependabot in https://github.com/sissbruecker/linkding/pull/466
+* Bump sqlparse from 0.4.2 to 0.4.4 by @dependabot in https://github.com/sissbruecker/linkding/pull/455
+
+### New Contributors
+* @amoscardino made their first contribution in https://github.com/sissbruecker/linkding/pull/446
+* @puresick made their first contribution in https://github.com/sissbruecker/linkding/pull/440
+* @plockaby made their first contribution in https://github.com/sissbruecker/linkding/pull/406
+* @fmenabe made their first contribution in https://github.com/sissbruecker/linkding/pull/398
+* @bah0 made their first contribution in https://github.com/sissbruecker/linkding/pull/365
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.17.2...v1.18.0
+
+---
+
+## v1.17.2 (18/02/2023)
+
+### What's Changed
+* Escape texts in exported HTML by @sissbruecker in https://github.com/sissbruecker/linkding/pull/429
+* Bump django from 4.1.2 to 4.1.7 by @dependabot in https://github.com/sissbruecker/linkding/pull/427
+* Make health check in Dockerfile honor context path setting by @mrex in https://github.com/sissbruecker/linkding/pull/407
+* Disable autocapitalization for tag input form by @joshdick in https://github.com/sissbruecker/linkding/pull/395
+
+### New Contributors
+* @mrex made their first contribution in https://github.com/sissbruecker/linkding/pull/407
+* @joshdick made their first contribution in https://github.com/sissbruecker/linkding/pull/395
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.17.1...v1.17.2
+
+---
+
+## v1.17.1 (22/01/2023)
+
+### What's Changed
+* Fix favicon being cleared by web archive snapshot task by @sissbruecker in https://github.com/sissbruecker/linkding/pull/405
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.17.0...v1.17.1
+
+---
+
+## v1.17.0 (21/01/2023)
+
+### What's Changed
+* Add Health Check endpoint  by @mckennajones in https://github.com/sissbruecker/linkding/pull/392
+* Cache website metadata to avoid duplicate scraping by @sissbruecker in https://github.com/sissbruecker/linkding/pull/401
+* Prefill form if URL is already bookmarked by @sissbruecker in https://github.com/sissbruecker/linkding/pull/402
+* Add option for showing bookmark favicons by @sissbruecker in https://github.com/sissbruecker/linkding/pull/390
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.16.1...v1.17.0
+
+---
+
+## v1.16.1 (20/01/2023)
+
+### What's Changed
+* Fix bookmark website metadata not being updated when URL changes by @sissbruecker in https://github.com/sissbruecker/linkding/pull/400
+* Bump django from 4.1 to 4.1.2 by @dependabot in https://github.com/sissbruecker/linkding/pull/391
+* Bump certifi from 2022.6.15 to 2022.12.7 by @dependabot in https://github.com/sissbruecker/linkding/pull/374
+* Bump minimatch from 3.0.4 to 3.1.2 by @dependabot in https://github.com/sissbruecker/linkding/pull/366
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.16.0...v1.16.1
+
+---
+
+## v1.16.0 (12/01/2023)
+
+### What's Changed
+* Add postgres as database engine by @tomamplius in https://github.com/sissbruecker/linkding/pull/388
+* Gracefully stop docker container when it receives SIGTERM by @mckennajones in https://github.com/sissbruecker/linkding/pull/368
+* Limit document size for website scraper by @sissbruecker in https://github.com/sissbruecker/linkding/pull/354
+* Add error handling for checking latest version by @sissbruecker in https://github.com/sissbruecker/linkding/pull/360
+* Trim website metadata title and description by @luca1197 in https://github.com/sissbruecker/linkding/pull/383
+* Only show admin link for superusers by @AlexanderS in https://github.com/sissbruecker/linkding/pull/384
+* Add apache reverse proxy documentation. by @jhauris in https://github.com/sissbruecker/linkding/pull/371
+* Correct LD_ENABLE_AUTH_PROXY documentation by @jhauris in https://github.com/sissbruecker/linkding/pull/379
+* Android HTTP shortcuts v3 by @kzshantonu in https://github.com/sissbruecker/linkding/pull/387
+
+### New Contributors
+* @jhauris made their first contribution in https://github.com/sissbruecker/linkding/pull/371
+* @AlexanderS made their first contribution in https://github.com/sissbruecker/linkding/pull/384
+* @mckennajones made their first contribution in https://github.com/sissbruecker/linkding/pull/368
+* @tomamplius made their first contribution in https://github.com/sissbruecker/linkding/pull/388
+* @luca1197 made their first contribution in https://github.com/sissbruecker/linkding/pull/383
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.15.1...v1.16.0
+
+---
+
+## v1.15.1 (05/10/2022)
+
+### What's Changed
+* Fix static file dir warning by @sissbruecker in https://github.com/sissbruecker/linkding/pull/350
+* Add setting and documentation for fixing CSRF errors by @sissbruecker in https://github.com/sissbruecker/linkding/pull/349
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.15.0...v1.15.1
+
+---
+
 ## v1.15.0 (11/09/2022)
 
 ### What's Changed

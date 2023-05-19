@@ -53,7 +53,11 @@ The name comes from:
 
 ## Installation
 
-linkding is designed to be run with container solutions like [Docker](https://docs.docker.com/get-started/).  The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
+linkding is designed to be run with container solutions like [Docker](https://docs.docker.com/get-started/).
+The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
+
+By default, linkding uses SQLite as a database.
+Alternatively linkding supports PostgreSQL, see the [database options](docs/Options.md#LD_DB_ENGINE) for more information.
 
 ###  Using Docker
 
@@ -104,10 +108,25 @@ When using a reverse proxy, such as Nginx or Apache, you may need to configure y
 <details>
 <summary>Apache</summary>
 
-Not tested yet.
-If you figure out a working setup, feel free to contribute it here.
+Apache2 does not change the headers by default, and should not
+need additional configuration.
 
-In the meanwhile, use the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
+An example virtual host that proxies to linkding might look like:
+```
+<VirtualHost *:9100>
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+    </Proxy>
+
+    ProxyPass / http://linkding:9090/
+    ProxyPassReverse / http://linkding:9090/
+</VirtualHost>
+```
+
+For a full example, see the docker-compose configuration in [jhauris/apache2-reverse-proxy](https://github.com/jhauris/linkding/tree/apache2-reverse-proxy)
+
+If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
 
 </details>
 
@@ -174,6 +193,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [aiolinkding](https://github.com/bachya/aiolinkding) A Python3, async library to interact with the linkding REST API. By [bachya](https://github.com/bachya)
 - [linkding-cli](https://github.com/bachya/linkding-cli) A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). By [bachya](https://github.com/bachya)
 - [Open all links bookmarklet](https://gist.github.com/ukcuddlyguy/336dd7339e6d35fc64a75ccfc9323c66) A browser bookmarklet to open all links on the current Linkding page in new tabs. By [ukcuddlyguy](https://github.com/ukcuddlyguy)
+- [LinkThing](https://apps.apple.com/us/app/linkthing/id1666031776) An iOS client for linkding. By [amoscardino](https://github.com/amoscardino)
 
 ## Acknowledgements
 

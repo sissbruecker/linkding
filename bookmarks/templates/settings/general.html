@@ -30,11 +30,53 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.display_url.id_for_label }}" class="form-checkbox">
+            {{ form.display_url }}
+            <i class="form-icon"></i> Show bookmark URL
+          </label>
+          <div class="form-input-hint">
+            When enabled, this setting displays the bookmark URL below the title.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.bookmark_link_target.id_for_label }}" class="form-label">Open bookmarks in</label>
           {{ form.bookmark_link_target|add_class:"form-select col-2 col-sm-12" }}
           <div class="form-input-hint">
             Whether to open bookmarks a new page or in the same page.
           </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.tag_search.id_for_label }}" class="form-label">Tag search</label>
+          {{ form.tag_search|add_class:"form-select col-2 col-sm-12" }}
+          <div class="form-input-hint">
+            In strict mode, tags must be prefixed with a hash character (#).
+            In lax mode, tags can also be searched without the hash character.
+            Note that tags without the hash character are indistinguishable from search terms, which means the search result will also include bookmarks where a search term matches otherwise.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.enable_favicons.id_for_label }}" class="form-checkbox">
+            {{ form.enable_favicons }}
+            <i class="form-icon"></i> Enable Favicons
+          </label>
+          <div class="form-input-hint">
+            Automatically loads favicons for bookmarked websites and displays them next to each bookmark.
+            By default, this feature uses a <b>Google service</b> to download favicons.
+            If you don't want to use this service, check the <a
+              href="https://github.com/sissbruecker/linkding/blob/master/docs/Options.md" target="_blank">options
+            documentation</a> on how to configure a custom favicon provider.
+            Icons are downloaded in the background, and it may take a while for them to show up.
+          </div>
+          {% if request.user.profile.enable_favicons and enable_refresh_favicons %}
+            <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
+          {% endif %}
+          {% if refresh_favicons_success_message %}
+            <div class="has-success">
+              <p class="form-input-hint">
+                {{ refresh_favicons_success_message }}
+              </p>
+            </div>
+          {% endif %}
         </div>
         <div class="form-group">
           <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
@@ -61,7 +103,14 @@
           </div>
         </div>
         <div class="form-group">
-          <input type="submit" value="Save" class="btn btn-primary mt-2">
+          <input type="submit" name="update_profile" value="Save" class="btn btn-primary mt-2">
+          {% if update_profile_success_message %}
+            <div class="has-success">
+              <p class="form-input-hint">
+                {{ update_profile_success_message }}
+              </p>
+            </div>
+          {% endif %}
         </div>
       </form>
     </section>
