@@ -199,6 +199,10 @@ ul.bookmark-list li {
       font-weight: bold;
     }
   }
+
+  details.notes textarea {
+    box-sizing: border-box;
+  }
 }
 
 /* Bookmark notes */

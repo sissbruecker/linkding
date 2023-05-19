@@ -119,6 +119,10 @@ class BookmarkForm(forms.ModelForm):
             'auto_close',
         ]
 
+    @property
+    def has_notes(self):
+        return self.instance and self.instance.notes
+
 
 class BookmarkFilters:
     def __init__(self, request: WSGIRequest):

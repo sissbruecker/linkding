@@ -19,6 +19,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
             'tag_string': 'tag1 tag2',
             'title': 'test title',
             'description': 'test description',
+            'notes': 'test notes',
             'unread': False,
             'shared': False,
             'auto_close': '',
@@ -37,6 +38,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.url, form_data['url'])
         self.assertEqual(bookmark.title, form_data['title'])
         self.assertEqual(bookmark.description, form_data['description'])
+        self.assertEqual(bookmark.notes, form_data['notes'])
         self.assertEqual(bookmark.unread, form_data['unread'])
         self.assertEqual(bookmark.shared, form_data['shared'])
         self.assertEqual(bookmark.tags.count(), 2)
@@ -138,3 +140,9 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
               <span>Share</span>
             </label>            
         ''', html, count=1)
+
+    def test_should_hide_notes_if_there_are_no_notes(self):
+        bookmark = self.setup_bookmark()
+        response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
+
+        self.assertContains(response, '<details class="notes">', count=1)
