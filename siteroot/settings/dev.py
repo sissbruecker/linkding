@@ -19,6 +19,9 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
+# Allow access through ngrok
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']
+
 # Enable debug logging
 LOGGING = {
     'version': 1,
