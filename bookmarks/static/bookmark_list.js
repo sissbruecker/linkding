@@ -121,7 +121,39 @@
     });
   }
 
+  function setupNotes() {
+    // Shortcut for toggling all notes
+    document.addEventListener('keydown', function(event) {
+      // Filter for shortcut key
+      if (event.key !== 'c') return;
+      // Skip if event occurred within an input element
+      const targetNodeName = event.target.nodeName;
+      const isInputTarget = targetNodeName === 'INPUT'
+        || targetNodeName === 'SELECT'
+        || targetNodeName === 'TEXTAREA';
+
+      if (isInputTarget) return;
+
+      const list = document.querySelector('.bookmark-list');
+      list.classList.toggle('show-notes');
+    });
+
+    // Toggle notes for single bookmark
+    const bookmarks = document.querySelectorAll('.bookmark-list li');
+    bookmarks.forEach(bookmark => {
+      const toggleButton = bookmark.querySelector('.toggle-notes');
+      if (toggleButton) {
+        toggleButton.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          bookmark.classList.toggle('show-notes');
+        });
+      }
+    });
+  }
+
   setupBulkEdit();
   setupBulkEditTagAutoComplete();
   setupListNavigation();
+  setupNotes();
 })()

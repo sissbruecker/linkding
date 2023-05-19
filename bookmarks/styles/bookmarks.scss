@@ -182,6 +182,93 @@ ul.bookmark-list {
   }
 }
 
+/* Bookmark notes */
+ul.bookmark-list {
+  .notes {
+    max-height: 0;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0.1rem;
+    transition: max-height 0.4s ease-in-out, margin 0.4s ease-in-out;
+  }
+
+  &.show-notes .notes,
+  li.show-notes .notes {
+    max-height: 300px;
+    margin: 4px 0;
+    overflow: auto;
+  }
+}
+
+/* Bookmark notes content */
+ul.bookmark-list .notes-content {
+  & {
+    padding: 0.4rem 0.6rem;
+  }
+
+  p, ul, ol, pre, blockquote {
+    margin: 0 0 0.4rem 0;
+  }
+
+  > *:first-child {
+    margin-top: 0;
+  }
+  > *:last-child {
+    margin-bottom: 0;
+  }
+
+  ul, ol {
+    margin-left: 0.8rem;
+  }
+
+  ul li, ol li {
+    margin-top: 0.2rem;
+  }
+
+  pre {
+    padding: 0.2rem 0.4rem;
+    background: rgba(0, 0, 0, 0.045);
+    border-radius: 0.2rem;
+  }
+
+  code {
+    background: rgba(0, 0, 0, 0.045);
+    color: inherit;
+  }
+
+  pre code {
+    background: none;
+  }
+
+  > pre:first-child:last-child {
+    padding: 0;
+    background: none;
+    border-radius: 0;
+  }
+}
+
+/* Bookmark actions */
+ul.bookmark-list li .actions {
+  display: flex;
+  align-items: baseline;
+}
+
+ul.bookmark-list li .actions {
+
+  *:not(:last-child) {
+    margin-right: 0.4rem;
+  }
+
+  .separator {
+    align-self: flex-start;
+  }
+
+  .toggle-notes {
+    height: 16px;
+    align-self: center;
+  }
+}
+
 /* Bookmark actions / bulk edit */
 $bulk-edit-toggle-width: 16px;
 $bulk-edit-toggle-offset: 8px;

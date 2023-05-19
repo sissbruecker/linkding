@@ -1,7 +1,6 @@
 {% load static %}
 {% load shared %}
 {% load pagination %}
-{% htmlmin %}
   <ul class="bookmark-list">
     {% for bookmark in bookmarks %}
       <li data-is-bookmark-item>
@@ -20,7 +19,7 @@
         </div>
         {% if request.user.profile.display_url %}
         <div class="url-path truncate">
-          <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener" 
+          <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener"
           class="url-display text-sm">
             {{ bookmark.url }}
           </a>
@@ -39,6 +38,13 @@
             <span>{{ bookmark.resolved_description }}</span>
           {% endif %}
         </div>
+        {% if bookmark.notes %}
+        <div class="notes bg-gray text-gray-dark">
+          <div class="notes-content">
+            {% markdown bookmark.notes %}
+          </div>
+        </div>
+        {% endif %}
         <div class="actions">
           {% if request.user.profile.bookmark_date_display == 'relative' %}
             <span class="date-label text-gray text-sm">
@@ -49,11 +55,11 @@
               {% endif %}
               <span>{{ bookmark.date_added|humanize_relative_date }}</span>
               {% if bookmark.web_archive_snapshot_url %}
-                <span>∞</span>
+                ∞
                 </a>
               {% endif %}
             </span>
-            <span class="text-gray text-sm">|</span>
+            <span class="separator text-gray text-sm">|</span>
           {% endif %}
           {% if request.user.profile.bookmark_date_display == 'absolute' %}
             <span class="date-label text-gray text-sm">
@@ -64,11 +70,11 @@
               {% endif %}
               <span>{{ bookmark.date_added|humanize_absolute_date }}</span>
               {% if bookmark.web_archive_snapshot_url %}
-                <span>∞</span>
+                ∞
                 </a>
               {% endif %}
             </span>
-            <span class="text-gray text-sm">|</span>
+            <span class="separator text-gray text-sm">|</span>
           {% endif %}
           {% if bookmark.owner == request.user %}
             {# Bookmark owner actions #}
@@ -87,7 +93,7 @@
                     class="btn btn-link btn-sm btn-confirmation">Remove
             </button>
             {% if bookmark.unread %}
-              <span class="text-gray text-sm">|</span>
+              <span class="separator text-gray text-sm">|</span>
               <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
                       class="btn btn-link btn-sm">Mark as read
               </button>
@@ -99,6 +105,17 @@
                  href="?{% replace_query_param user=bookmark.owner.username %}">{{ bookmark.owner.username }}</a>
             </span>
           {% endif %}
+          {% if bookmark.notes %}
+            <span class="separator text-gray text-sm">|</span>
+            <button class="btn btn-link toggle-notes" >
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message text-gray" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M8 9h8"></path>
+                <path d="M8 13h6"></path>
+                <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z"></path>
+              </svg>
+            </button>
+          {% endif %}
         </div>
       </li>
     {% endfor %}
@@ -107,4 +124,3 @@
   <div class="bookmark-pagination">
     {% pagination bookmarks %}
   </div>
-{% endhtmlmin %}

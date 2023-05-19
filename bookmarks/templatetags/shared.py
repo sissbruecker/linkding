@@ -1,6 +1,10 @@
 import re
 
+import bleach
+import markdown
+from bleach_allowlist import markdown_tags, markdown_attrs
 from django import template
+from django.utils.safestring import mark_safe
 
 from bookmarks import utils
 from bookmarks.models import UserProfile
@@ -113,3 +117,19 @@ class HtmlMinNode(template.Node):
         output = re.sub(r'\s+', ' ', output)
 
         return output
+
+
+@register.simple_tag(name="markdown", takes_context=True)
+def render_markdown(context, markdown_text):
+    # naive approach to reusing the renderer for a single request
+    # works for bookmark list for now
+    if not ('markdown_renderer' in context):
+        renderer = markdown.Markdown(extensions=['fenced_code', 'nl2br'])
+        context['markdown_renderer'] = renderer
+    else:
+        renderer = context['markdown_renderer']
+
+    as_html = renderer.convert(markdown_text)
+    sanitized_html = bleach.clean(as_html, markdown_tags, markdown_attrs)
+
+    return mark_safe(sanitized_html)

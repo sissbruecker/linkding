@@ -50,6 +50,7 @@ class Bookmark(models.Model):
     url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     title = models.CharField(max_length=512, blank=True)
     description = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
     website_title = models.CharField(max_length=512, blank=True, null=True)
     website_description = models.TextField(blank=True, null=True)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
@@ -110,6 +111,7 @@ class BookmarkForm(forms.ModelForm):
             'tag_string',
             'title',
             'description',
+            'notes',
             'website_title',
             'website_description',
             'unread',
