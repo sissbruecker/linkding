@@ -137,7 +137,7 @@
     // Shortcut for toggling all notes
     document.addEventListener('keydown', function(event) {
       // Filter for shortcut key
-      if (event.key !== 'c') return;
+      if (event.key !== 'e') return;
       // Skip if event occurred within an input element
       const targetNodeName = event.target.nodeName;
       const isInputTarget = targetNodeName === 'INPUT'
