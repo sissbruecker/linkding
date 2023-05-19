@@ -24,7 +24,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
     def assertDateLabel(self, html: str, label_content: str):
         self.assertInHTML(f'''
-        <span class="date-label text-gray text-sm">
+        <span class="text-gray text-sm">
             <span>{label_content}</span>
         </span>
         <span class="text-gray text-sm">|</span>
@@ -32,7 +32,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
     def assertWebArchiveLink(self, html: str, label_content: str, url: str, link_target: str = '_blank'):
         self.assertInHTML(f'''
-        <span class="date-label text-gray text-sm">
+        <span class="text-gray text-sm">
             <a href="{url}"
                title="Show snapshot on the Internet Archive Wayback Machine" target="{link_target}" rel="noopener">
                 <span>{label_content}</span>
@@ -102,11 +102,11 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
     def assertBookmarkURLVisible(self, html: str, bookmark: Bookmark):
         self.assertBookmarkURLCount(html, bookmark, count=1)
-        
+
 
     def assertBookmarkURLHidden(self, html: str, bookmark: Bookmark, link_target: str = '_blank'):
         self.assertBookmarkURLCount(html, bookmark, count=0)
-        
+
 
 
     def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test') -> str:
@@ -280,7 +280,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         html = self.render_default_template([bookmark])
 
         self.assertBookmarkURLHidden(html,bookmark)
-    
+
     def test_show_bookmark_url_when_enabled(self):
         profile = self.get_or_create_test_user().profile
         profile.display_url = True

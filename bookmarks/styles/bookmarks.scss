@@ -43,11 +43,19 @@
   }
 }
 
+/* Bookmark list */
 ul.bookmark-list {
-
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+/* Bookmarks */
+ul.bookmark-list li {
+
+  .bulk-edit-toggle {
+    display: none;
+  }
 
   .title a {
     display: inline-block;
@@ -76,31 +84,42 @@ ul.bookmark-list {
     }
   }
 
-  .actions > *:not(:last-child) {
-    margin-right: 0.1rem;
+  .actions {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
   }
 
-  .actions .date-label a {
-    color: $gray-color;
-  }
-
-  .actions .btn-link {
-    color: $gray-color;
-    padding: 0;
-    height: auto;
-    vertical-align: unset;
-    border: none;
-
-    &:focus,
-    &:hover,
-    &:active,
-    &.active {
-      color: $gray-color-dark;
+  .actions {
+    *:not(:last-child) {
+      margin-right: 0.4rem;
     }
-  }
 
-  .bulk-edit-toggle {
-    display: none;
+    a, button {
+      color: $gray-color;
+      padding: 0;
+      height: auto;
+      vertical-align: unset;
+      border: none;
+      transition: none;
+      text-decoration: none;
+
+      &:focus,
+      &:hover,
+      &:active,
+      &.active {
+        color: $gray-color-dark;
+      }
+    }
+
+    .separator {
+      align-self: flex-start;
+    }
+
+    .toggle-notes {
+      height: 16px;
+      align-self: center;
+    }
   }
 }
 
@@ -244,28 +263,6 @@ ul.bookmark-list .notes-content {
     padding: 0;
     background: none;
     border-radius: 0;
-  }
-}
-
-/* Bookmark actions */
-ul.bookmark-list li .actions {
-  display: flex;
-  align-items: baseline;
-}
-
-ul.bookmark-list li .actions {
-
-  *:not(:last-child) {
-    margin-right: 0.4rem;
-  }
-
-  .separator {
-    align-self: flex-start;
-  }
-
-  .toggle-notes {
-    height: 16px;
-    align-self: center;
   }
 }
 

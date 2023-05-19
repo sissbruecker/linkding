@@ -45,9 +45,9 @@
           </div>
         </div>
         {% endif %}
-        <div class="actions">
+        <div class="actions text-gray text-sm">
           {% if request.user.profile.bookmark_date_display == 'relative' %}
-            <span class="date-label text-gray text-sm">
+            <span>
               {% if bookmark.web_archive_snapshot_url %}
                 <a href="{{ bookmark.web_archive_snapshot_url }}"
                    title="Show snapshot on the Internet Archive Wayback Machine" target="{{ link_target }}"
@@ -59,10 +59,10 @@
                 </a>
               {% endif %}
             </span>
-            <span class="separator text-gray text-sm">|</span>
+            <span class="separator">|</span>
           {% endif %}
           {% if request.user.profile.bookmark_date_display == 'absolute' %}
-            <span class="date-label text-gray text-sm">
+            <span>
               {% if bookmark.web_archive_snapshot_url %}
                 <a href="{{ bookmark.web_archive_snapshot_url }}"
                    title="Show snapshot on the Internet Archive Wayback Machine" target="{{ link_target }}"
@@ -74,12 +74,12 @@
                 </a>
               {% endif %}
             </span>
-            <span class="separator text-gray text-sm">|</span>
+            <span class="separator">|</span>
           {% endif %}
           {% if bookmark.owner == request.user %}
             {# Bookmark owner actions #}
             <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
-               class="btn btn-link btn-sm">Edit</a>
+               class="text-sm">Edit</a>
             {% if bookmark.is_archived %}
               <button type="submit" name="unarchive" value="{{ bookmark.id }}"
                       class="btn btn-link btn-sm">Unarchive
@@ -93,22 +93,21 @@
                     class="btn btn-link btn-sm btn-confirmation">Remove
             </button>
             {% if bookmark.unread %}
-              <span class="separator text-gray text-sm">|</span>
+              <span class="separator">|</span>
               <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
                       class="btn btn-link btn-sm">Mark as read
               </button>
             {% endif %}
           {% else %}
             {# Shared bookmark actions #}
-            <span class="text-gray text-sm">Shared by
-              <a class="text-gray"
-                 href="?{% replace_query_param user=bookmark.owner.username %}">{{ bookmark.owner.username }}</a>
+            <span>Shared by
+              <a href="?{% replace_query_param user=bookmark.owner.username %}">{{ bookmark.owner.username }}</a>
             </span>
           {% endif %}
           {% if bookmark.notes %}
-            <span class="separator text-gray text-sm">|</span>
-            <button class="btn btn-link toggle-notes" >
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message text-gray" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <span class="separator">|</span>
+            <button class="btn btn-link toggle-notes" title="Toggle notes">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M8 9h8"></path>
                 <path d="M8 13h6"></path>
