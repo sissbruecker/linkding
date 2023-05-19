@@ -1,5 +1,13 @@
 (function () {
+  function allowBulkEdit() {
+    return !!document.getElementById('bulk-edit-mode');
+  }
+
   function setupBulkEdit() {
+    if (!allowBulkEdit()) {
+      return;
+    }
+
     const bulkEditToggle = document.getElementById('bulk-edit-mode')
     const bulkEditBar = document.querySelector('.bulk-edit-bar')
     const singleToggles = document.querySelectorAll('.bulk-edit-toggle input')
@@ -64,6 +72,10 @@
   }
 
   function setupBulkEditTagAutoComplete() {
+    if (!allowBulkEdit()) {
+      return;
+    }
+
     const wrapper = document.createElement('div');
     const tagInput = document.getElementById('bulk-edit-tags-input');
     const apiBaseUrl = document.documentElement.dataset.apiBaseUrl || '';
