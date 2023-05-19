@@ -210,22 +210,19 @@ ul.bookmark-list li {
 /* Bookmark notes */
 ul.bookmark-list {
   .notes {
-    max-height: 0;
-    margin: 0;
-    overflow: hidden;
-    border-radius: 0.1rem;
-    transition: max-height 0.4s ease-in-out, margin 0.4s ease-in-out;
-  }
-
-  &.show-notes .notes,
-  li.show-notes .notes {
+    display: none;
     max-height: 300px;
     margin: 4px 0;
     overflow: auto;
   }
+
+  &.show-notes .notes,
+  li.show-notes .notes {
+    display: block;
+  }
 }
 
-/* Bookmark notes content */
+/* Bookmark notes markdown styles */
 ul.bookmark-list .notes-content {
   & {
     padding: 0.4rem 0.6rem;
