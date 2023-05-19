@@ -91,7 +91,7 @@ ul.bookmark-list li {
   }
 
   .actions {
-    *:not(:last-child) {
+    > *:not(:last-child) {
       margin-right: 0.4rem;
     }
 
@@ -117,8 +117,10 @@ ul.bookmark-list li {
     }
 
     .toggle-notes {
-      height: 16px;
       align-self: center;
+      display: flex;
+      align-items: center;
+      gap: 0.1rem;
     }
   }
 }
