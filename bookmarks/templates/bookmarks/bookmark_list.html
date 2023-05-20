@@ -1,7 +1,7 @@
 {% load static %}
 {% load shared %}
 {% load pagination %}
-<ul class="bookmark-list">
+<ul class="bookmark-list{% if  request.user.profile.permanent_notes %} show-notes{% endif %}">
   {% for bookmark in bookmarks %}
     <li data-is-bookmark-item>
       <label class="form-checkbox bulk-edit-toggle">
@@ -103,7 +103,7 @@
               <a href="?{% replace_query_param user=bookmark.owner.username %}">{{ bookmark.owner.username }}</a>
             </span>
         {% endif %}
-        {% if bookmark.notes %}
+        {% if bookmark.notes and not request.user.profile.permanent_notes %}
           <span class="separator">|</span>
           <button class="btn btn-link btn-sm toggle-notes" title="Toggle notes">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-notes" width="16" height="16"

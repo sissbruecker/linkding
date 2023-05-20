@@ -249,17 +249,13 @@ ul.bookmark-list .notes-content {
 
   pre {
     padding: 0.2rem 0.4rem;
-    background: rgba(0, 0, 0, 0.045);
+    background-color: $code-bg-color;
     border-radius: 0.2rem;
-  }
-
-  code {
-    background: rgba(0, 0, 0, 0.045);
-    color: inherit;
   }
 
   pre code {
     background: none;
+    box-shadow: none;
   }
 
   > pre:first-child:last-child {

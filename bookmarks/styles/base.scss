@@ -72,6 +72,12 @@ a:visited:hover {
   color: $link-color-dark;
 }
 
+code {
+  color: $gray-color-dark;
+  background-color: $code-bg-color;
+  box-shadow: 1px 1px 0 $code-shadow-color;
+}
+
 // Increase spacing between columns
 .container > .columns > .column:not(:first-child) {
   padding-left: 2rem;

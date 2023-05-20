@@ -39,6 +39,16 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.permanent_notes.id_for_label }}" class="form-checkbox">
+            {{ form.permanent_notes }}
+            <i class="form-icon"></i> Show notes permanently
+          </label>
+          <div class="form-input-hint">
+            Whether to show bookmark notes permanently, without having to toggle them individually.
+            Alternatively the keyboard shortcut <code>e</code> can be used to temporarily show all notes.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.bookmark_link_target.id_for_label }}" class="form-label">Open bookmarks in</label>
           {{ form.bookmark_link_target|add_class:"form-select col-2 col-sm-12" }}
           <div class="form-input-hint">

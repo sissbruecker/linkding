@@ -127,7 +127,8 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
               <path d="M9 15l4 0"></path>
             </svg>
             <span>Notes</span>
-          </button>        ''', html, count=count)
+          </button>        
+          ''', html, count=count)
 
     def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test') -> str:
         rf = RequestFactory()
@@ -334,7 +335,6 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
         note_html = '<p>Test note</p>'
         self.assertNotes(html, note_html, 1)
-        self.assertNotesToggle(html, 1)
 
     def test_note_renders_markdown(self):
         bookmark = self.setup_bookmark(notes='**Example:** `print("Hello world!")`')
@@ -342,7 +342,6 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
         note_html = '<p><strong>Example:</strong> <code>print("Hello world!")</code></p>'
         self.assertNotes(html, note_html, 1)
-        self.assertNotesToggle(html, 1)
 
     def test_note_cleans_html(self):
         bookmark = self.setup_bookmark(notes='<script>alert("test")</script>')
@@ -350,3 +349,56 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
         note_html = '&lt;script&gt;alert("test")&lt;/script&gt;'
         self.assertNotes(html, note_html, 1)
+
+    def test_notes_are_hidden_initially_by_default(self):
+        html = self.render_default_template([])
+
+        self.assertInHTML("""
+        <ul class="bookmark-list"></ul>
+        """, html)
+
+    def test_notes_are_hidden_initially_with_permanent_notes_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.permanent_notes = False
+        profile.save()
+        html = self.render_default_template([])
+
+        self.assertInHTML("""
+        <ul class="bookmark-list"></ul>
+        """, html)
+
+    def test_notes_are_visible_initially_with_permanent_notes_enabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.permanent_notes = True
+        profile.save()
+        html = self.render_default_template([])
+
+        self.assertInHTML("""
+        <ul class="bookmark-list show-notes"></ul>
+        """, html)
+
+    def test_toggle_notes_is_visible_by_default(self):
+        bookmark = self.setup_bookmark(notes='Test note')
+        html = self.render_default_template([bookmark])
+
+        self.assertNotesToggle(html, 1)
+
+    def test_toggle_notes_is_visible_with_permanent_notes_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.permanent_notes = False
+        profile.save()
+
+        bookmark = self.setup_bookmark(notes='Test note')
+        html = self.render_default_template([bookmark])
+
+        self.assertNotesToggle(html, 1)
+
+    def test_toggle_notes_is_hidden_with_permanent_notes_enabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.permanent_notes = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(notes='Test note')
+        html = self.render_default_template([bookmark])
+
+        self.assertNotesToggle(html, 0)
