@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.19.0 (20/05/2023)
+
+### What's Changed
+* Add notes to bookmarks by @sissbruecker in https://github.com/sissbruecker/linkding/pull/472
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.18.0...v1.19.0
+
+---
+
 ## v1.18.0 (18/05/2023)
 
 ### What's Changed
