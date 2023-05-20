@@ -50,6 +50,7 @@ class Bookmark(models.Model):
     url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     title = models.CharField(max_length=512, blank=True)
     description = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
     website_title = models.CharField(max_length=512, blank=True, null=True)
     website_description = models.TextField(blank=True, null=True)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
@@ -110,12 +111,17 @@ class BookmarkForm(forms.ModelForm):
             'tag_string',
             'title',
             'description',
+            'notes',
             'website_title',
             'website_description',
             'unread',
             'shared',
             'auto_close',
         ]
+
+    @property
+    def has_notes(self):
+        return self.instance and self.instance.notes
 
 
 class BookmarkFilters:
@@ -172,13 +178,14 @@ class UserProfile(models.Model):
     enable_sharing = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
     display_url = models.BooleanField(default=False, null=False)
+    permanent_notes = models.BooleanField(default=False, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'tag_search',
-                  'enable_sharing', 'enable_favicons', 'display_url']
+                  'enable_sharing', 'enable_favicons', 'display_url', 'permanent_notes']
 
 
 @receiver(post_save, sender=get_user_model())

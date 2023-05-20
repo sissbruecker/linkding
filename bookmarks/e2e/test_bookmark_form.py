@@ -1,5 +1,5 @@
 from django.urls import reverse
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 from bookmarks.e2e.helpers import LinkdingE2ETestCase
 
@@ -8,6 +8,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
     def test_create_should_check_for_existing_bookmark(self):
         existing_bookmark = self.setup_bookmark(title='Existing title',
                                                 description='Existing description',
+                                                notes='Existing notes',
                                                 tags=[self.setup_tag(name='tag1'), self.setup_tag(name='tag2')],
                                                 website_title='Existing website title',
                                                 website_description='Existing website description',
@@ -26,6 +27,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
             # Form should be pre-filled with data from existing bookmark
             self.assertEqual(existing_bookmark.title, page.get_by_label('Title').input_value())
             self.assertEqual(existing_bookmark.description, page.get_by_label('Description').input_value())
+            self.assertEqual(existing_bookmark.notes, page.get_by_label('Notes').input_value())
             self.assertEqual(existing_bookmark.website_title, page.get_by_label('Title').get_attribute('placeholder'))
             self.assertEqual(existing_bookmark.website_description,
                              page.get_by_label('Description').get_attribute('placeholder'))
@@ -49,3 +51,17 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
 
             page.wait_for_timeout(timeout=1000)
             page.get_by_text('This URL is already bookmarked.').wait_for(state='hidden')
+
+    def test_enter_url_of_existing_bookmark_should_show_notes(self):
+        bookmark = self.setup_bookmark(notes='Existing notes', description='Existing description')
+
+        with sync_playwright() as p:
+            browser = self.setup_browser(p)
+            page = browser.new_page()
+            page.goto(self.live_server_url + reverse('bookmarks:new'))
+
+            details = page.locator('details.notes')
+            expect(details).not_to_have_attribute('open', value='')
+
+            page.get_by_label('URL').fill(bookmark.url)
+            expect(details).to_have_attribute('open', value='')

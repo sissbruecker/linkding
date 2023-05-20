@@ -20,7 +20,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.api_token.key)
         self.tag1 = self.setup_tag()
         self.tag2 = self.setup_tag()
-        self.bookmark1 = self.setup_bookmark(tags=[self.tag1, self.tag2])
+        self.bookmark1 = self.setup_bookmark(tags=[self.tag1, self.tag2], notes='Test notes')
         self.bookmark2 = self.setup_bookmark()
         self.bookmark3 = self.setup_bookmark(tags=[self.tag2])
         self.archived_bookmark1 = self.setup_bookmark(is_archived=True, tags=[self.tag1, self.tag2])
@@ -36,6 +36,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             expectation['url'] = bookmark.url
             expectation['title'] = bookmark.title
             expectation['description'] = bookmark.description
+            expectation['notes'] = bookmark.notes
             expectation['website_title'] = bookmark.website_title
             expectation['website_description'] = bookmark.website_description
             expectation['is_archived'] = bookmark.is_archived
@@ -134,6 +135,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             'url': 'https://example.com/',
             'title': 'Test title',
             'description': 'Test description',
+            'notes': 'Test notes',
             'is_archived': False,
             'unread': False,
             'shared': False,
@@ -144,6 +146,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.url, data['url'])
         self.assertEqual(bookmark.title, data['title'])
         self.assertEqual(bookmark.description, data['description'])
+        self.assertEqual(bookmark.notes, data['notes'])
         self.assertFalse(bookmark.is_archived, data['is_archived'])
         self.assertFalse(bookmark.unread, data['unread'])
         self.assertFalse(bookmark.shared, data['shared'])
@@ -157,6 +160,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             'url': original_bookmark.url,
             'title': 'Updated title',
             'description': 'Updated description',
+            'notes': 'Updated notes',
             'unread': True,
             'shared': True,
             'is_archived': True,
@@ -168,6 +172,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.url, data['url'])
         self.assertEqual(bookmark.title, data['title'])
         self.assertEqual(bookmark.description, data['description'])
+        self.assertEqual(bookmark.notes, data['notes'])
         # Saving a duplicate bookmark should not modify archive flag - right?
         self.assertFalse(bookmark.is_archived)
         self.assertEqual(bookmark.unread, data['unread'])
@@ -265,6 +270,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(updated_bookmark.url, data['url'])
         self.assertEqual(updated_bookmark.title, '')
         self.assertEqual(updated_bookmark.description, '')
+        self.assertEqual(updated_bookmark.notes, '')
         self.assertEqual(updated_bookmark.tag_names, [])
 
     def test_update_bookmark_unread_flag(self):
@@ -299,6 +305,12 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.patch(url, data, expected_status_code=status.HTTP_200_OK)
         self.bookmark1.refresh_from_db()
         self.assertEqual(self.bookmark1.description, data['description'])
+
+        data = {'notes': 'Updated notes'}
+        url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])
+        self.patch(url, data, expected_status_code=status.HTTP_200_OK)
+        self.bookmark1.refresh_from_db()
+        self.assertEqual(self.bookmark1.notes, data['notes'])
 
         data = {'unread': True}
         url = reverse('bookmarks:bookmark-detail', args=[self.bookmark1.id])

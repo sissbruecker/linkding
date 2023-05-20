@@ -1,5 +1,7 @@
 asgiref==3.5.2
 beautifulsoup4==4.11.1
+bleach==6.0.0
+bleach-allowlist==1.0.3
 certifi==2022.12.7
 charset-normalizer==2.1.1
 click==8.1.3
@@ -12,6 +14,7 @@ django-widget-tweaks==1.4.12
 django4-background-tasks==1.2.7
 djangorestframework==3.13.1
 idna==3.3
+Markdown==3.4.3
 psycopg2==2.9.5
 python-dateutil==2.8.2
 pytz==2022.2.1
@@ -23,3 +26,4 @@ typing-extensions==3.10.0.0
 urllib3==1.26.11
 uWSGI==2.0.20
 waybackpy==3.0.6
+webencodings==0.5.1

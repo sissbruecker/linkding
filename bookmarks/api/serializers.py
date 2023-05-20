@@ -27,6 +27,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             'url',
             'title',
             'description',
+            'notes',
             'website_title',
             'website_description',
             'is_archived',
@@ -47,6 +48,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
     # Override optional char fields to provide default value
     title = serializers.CharField(required=False, allow_blank=True, default='')
     description = serializers.CharField(required=False, allow_blank=True, default='')
+    notes = serializers.CharField(required=False, allow_blank=True, default='')
     is_archived = serializers.BooleanField(required=False, default=False)
     unread = serializers.BooleanField(required=False, default=False)
     shared = serializers.BooleanField(required=False, default=False)
@@ -58,6 +60,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
         bookmark.url = validated_data['url']
         bookmark.title = validated_data['title']
         bookmark.description = validated_data['description']
+        bookmark.notes = validated_data['notes']
         bookmark.is_archived = validated_data['is_archived']
         bookmark.unread = validated_data['unread']
         bookmark.shared = validated_data['shared']
@@ -66,7 +69,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
 
     def update(self, instance: Bookmark, validated_data):
         # Update fields if they were provided in the payload
-        for key in ['url', 'title', 'description', 'unread', 'shared']:
+        for key in ['url', 'title', 'description', 'notes', 'unread', 'shared']:
             if key in validated_data:
                 setattr(instance, key, validated_data[key])
 
