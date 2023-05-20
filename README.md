@@ -173,6 +173,7 @@ Self-hosting web applications still requires a lot of technical know-how, and co
 | [Backups](https://github.com/sissbruecker/linkding/blob/master/docs/backup.md)                  | How to backup the linkding database                      |
 | [Troubleshooting](https://github.com/sissbruecker/linkding/blob/master/docs/troubleshooting.md) | Advice for troubleshooting common problems               |
 | [How To](https://github.com/sissbruecker/linkding/blob/master/docs/how-to.md)                   | Tips and tricks around using linking                     |
+| [Keyboard shortcuts](https://github.com/sissbruecker/linkding/blob/master/docs/shortcuts.md)    | List of available keyboard shortcuts                     |
 | [Admin documentation](https://github.com/sissbruecker/linkding/blob/master/docs/Admin.md)       | User documentation for the Admin UI                      |
 | [API documentation](https://github.com/sissbruecker/linkding/blob/master/docs/API.md)           | Documentation for the REST API                           |
 
