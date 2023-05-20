@@ -78,8 +78,7 @@
         {% endif %}
         {% if bookmark.owner == request.user %}
           {# Bookmark owner actions #}
-          <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}"
-             class="text-sm">Edit</a>
+          <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ return_url }}">Edit</a>
           {% if bookmark.is_archived %}
             <button type="submit" name="unarchive" value="{{ bookmark.id }}"
                     class="btn btn-link btn-sm">Unarchive

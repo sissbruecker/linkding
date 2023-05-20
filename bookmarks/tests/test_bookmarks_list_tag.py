@@ -24,22 +24,22 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
     def assertDateLabel(self, html: str, label_content: str):
         self.assertInHTML(f'''
-        <span class="text-gray text-sm">
+        <span>
             <span>{label_content}</span>
         </span>
-        <span class="text-gray text-sm">|</span>
+        <span class="separator">|</span>
         ''', html)
 
     def assertWebArchiveLink(self, html: str, label_content: str, url: str, link_target: str = '_blank'):
         self.assertInHTML(f'''
-        <span class="text-gray text-sm">
+        <span>
             <a href="{url}"
                title="Show snapshot on the Internet Archive Wayback Machine" target="{link_target}" rel="noopener">
                 <span>{label_content}</span>
-                <span>∞</span>
+                ∞
             </a>
         </span>
-        <span class="text-gray text-sm">|</span>
+        <span class="separator">|</span>
         ''', html)
 
     def assertBookmarkActions(self, html: str, bookmark: Bookmark):
@@ -52,8 +52,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         # Edit link
         edit_url = reverse('bookmarks:edit', args=[bookmark.id])
         self.assertInHTML(f'''
-            <a href="{edit_url}?return_url=/test"
-               class="btn btn-link btn-sm">Edit</a>
+            <a href="{edit_url}?return_url=/test">Edit</a>
         ''', html, count=count)
         # Archive link
         self.assertInHTML(f'''
@@ -74,8 +73,8 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
     def assertShareInfoCount(self, html: str, bookmark: Bookmark, count=1):
         self.assertInHTML(f'''
-            <span class="text-gray text-sm">Shared by 
-                <a class="text-gray" href="?user={bookmark.owner.username}">{bookmark.owner.username}</a>
+            <span>Shared by 
+                <a href="?user={bookmark.owner.username}">{bookmark.owner.username}</a>
             </span>
         ''', html, count=count)
 
@@ -93,9 +92,9 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
     def assertBookmarkURLCount(self, html: str, bookmark: Bookmark, link_target: str = '_blank', count=0):
         self.assertInHTML(f'''
         <div class="url-path truncate">
-          <a href="{ bookmark.url }" target="{ link_target }" rel="noopener" 
+          <a href="{bookmark.url}" target="{link_target}" rel="noopener" 
           class="url-display text-sm">
-            { bookmark.url }
+            {bookmark.url}
           </a>
         </div>
         ''', html, count)
@@ -103,11 +102,32 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
     def assertBookmarkURLVisible(self, html: str, bookmark: Bookmark):
         self.assertBookmarkURLCount(html, bookmark, count=1)
 
-
     def assertBookmarkURLHidden(self, html: str, bookmark: Bookmark, link_target: str = '_blank'):
         self.assertBookmarkURLCount(html, bookmark, count=0)
 
+    def assertNotes(self, html: str, notes_html: str, count=1):
+        self.assertInHTML(f'''
+        <div class="notes bg-gray text-gray-dark">
+          <div class="notes-content">
+            {notes_html}
+          </div>
+        </div>
+        ''', html, count=count)
 
+    def assertNotesToggle(self, html: str, count=1):
+        self.assertInHTML(f'''
+          <button class="btn btn-link btn-sm toggle-notes" title="Toggle notes">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-notes" width="16" height="16"
+                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                 stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
+              <path d="M9 7l6 0"></path>
+              <path d="M9 11l6 0"></path>
+              <path d="M9 15l4 0"></path>
+            </svg>
+            <span>Notes</span>
+          </button>        ''', html, count=count)
 
     def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test') -> str:
         rf = RequestFactory()
@@ -237,8 +257,8 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         html = self.render_default_template([bookmark], url='/test?q=foo')
 
         self.assertInHTML(f'''
-            <span class="text-gray text-sm">Shared by 
-                <a class="text-gray" href="?q=foo&user={bookmark.owner.username}">{bookmark.owner.username}</a>
+            <span>Shared by 
+                <a href="?q=foo&user={bookmark.owner.username}">{bookmark.owner.username}</a>
             </span>
         ''', html)
 
@@ -279,7 +299,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         html = self.render_default_template([bookmark])
 
-        self.assertBookmarkURLHidden(html,bookmark)
+        self.assertBookmarkURLHidden(html, bookmark)
 
     def test_show_bookmark_url_when_enabled(self):
         profile = self.get_or_create_test_user().profile
@@ -289,7 +309,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         html = self.render_default_template([bookmark])
 
-        self.assertBookmarkURLVisible(html,bookmark)
+        self.assertBookmarkURLVisible(html, bookmark)
 
     def test_hide_bookmark_url_when_disabled(self):
         profile = self.get_or_create_test_user().profile
@@ -299,6 +319,34 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         html = self.render_default_template([bookmark])
 
-        self.assertBookmarkURLHidden(html,bookmark)
+        self.assertBookmarkURLHidden(html, bookmark)
 
+    def test_without_notes(self):
+        bookmark = self.setup_bookmark()
+        html = self.render_default_template([bookmark])
 
+        self.assertNotes(html, '', 0)
+        self.assertNotesToggle(html, 0)
+
+    def test_with_notes(self):
+        bookmark = self.setup_bookmark(notes='Test note')
+        html = self.render_default_template([bookmark])
+
+        note_html = '<p>Test note</p>'
+        self.assertNotes(html, note_html, 1)
+        self.assertNotesToggle(html, 1)
+
+    def test_note_renders_markdown(self):
+        bookmark = self.setup_bookmark(notes='**Example:** `print("Hello world!")`')
+        html = self.render_default_template([bookmark])
+
+        note_html = '<p><strong>Example:</strong> <code>print("Hello world!")</code></p>'
+        self.assertNotes(html, note_html, 1)
+        self.assertNotesToggle(html, 1)
+
+    def test_note_cleans_html(self):
+        bookmark = self.setup_bookmark(notes='<script>alert("test")</script>')
+        html = self.render_default_template([bookmark])
+
+        note_html = '&lt;script&gt;alert("test")&lt;/script&gt;'
+        self.assertNotes(html, note_html, 1)
