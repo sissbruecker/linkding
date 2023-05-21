@@ -247,3 +247,23 @@ Start the Django development server with:
 python3 manage.py runserver
 ```
 The frontend is now available under http://localhost:8000
+
+### DevContainers
+
+This repository also supports DevContainers: [![Open in Remote - Containers](https://img.shields.io/static/v1?label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=git@github.com:sissbruecker/linkding.git)
+
+Once checked out, only the following commands are required to get started:
+
+Create a user for the frontend:
+```
+python3 manage.py createsuperuser --username=joe --email=joe@example.com
+```
+Start the Node.js development server (used for compiling JavaScript components like tag auto-completion) with:
+```
+npm run dev
+```
+Start the Django development server with:
+```
+python3 manage.py runserver
+```
+The frontend is now available under http://localhost:8000

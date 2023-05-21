@@ -9,9 +9,11 @@
 /build
 /out
 /.git
+/.devcontainer
 
 /.dockerignore
 /.gitignore
+/.gitattributes
 /Dockerfile
 /docker-compose.yml
 /*.sh
