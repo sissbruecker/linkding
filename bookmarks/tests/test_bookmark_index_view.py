@@ -227,8 +227,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         return_url = urllib.parse.quote_plus(url)
 
         self.assertInHTML(f'''
-            <a href="{edit_url}?return_url={return_url}"
-               class="btn btn-link btn-sm">Edit</a>        
+            <a href="{edit_url}?return_url={return_url}">Edit</a>        
         ''', html)
 
         # with query params
@@ -239,6 +238,5 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         return_url = urllib.parse.quote_plus(url)
 
         self.assertInHTML(f'''
-            <a href="{edit_url}?return_url={return_url}"
-               class="btn btn-link btn-sm">Edit</a>        
+            <a href="{edit_url}?return_url={return_url}">Edit</a>        
         ''', html)

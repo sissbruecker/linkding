@@ -46,6 +46,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         bookmark_data = Bookmark(url='https://example.com',
                                  title='Updated Title',
                                  description='Updated description',
+                                 notes='Updated notes',
                                  unread=True,
                                  shared=True,
                                  is_archived=True)
@@ -55,6 +56,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(updated_bookmark.id, original_bookmark.id)
         self.assertEqual(updated_bookmark.title, bookmark_data.title)
         self.assertEqual(updated_bookmark.description, bookmark_data.description)
+        self.assertEqual(updated_bookmark.notes, bookmark_data.notes)
         self.assertEqual(updated_bookmark.unread, bookmark_data.unread)
         self.assertEqual(updated_bookmark.shared, bookmark_data.shared)
         # Saving a duplicate bookmark should not modify archive flag - right?

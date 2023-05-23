@@ -37,6 +37,7 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, query_stri
     for term in query['search_terms']:
         conditions = Q(title__icontains=term) \
                      | Q(description__icontains=term) \
+                     | Q(notes__icontains=term) \
                      | Q(website_title__icontains=term) \
                      | Q(website_description__icontains=term) \
                      | Q(url__icontains=term)

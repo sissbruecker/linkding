@@ -20,6 +20,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
             'tag_string': 'editedtag1 editedtag2',
             'title': 'edited title',
             'description': 'edited description',
+            'notes': 'edited notes',
             'unread': False,
             'shared': False,
         }
@@ -37,6 +38,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.url, form_data['url'])
         self.assertEqual(bookmark.title, form_data['title'])
         self.assertEqual(bookmark.description, form_data['description'])
+        self.assertEqual(bookmark.notes, form_data['notes'])
         self.assertEqual(bookmark.unread, form_data['unread'])
         self.assertEqual(bookmark.shared, form_data['shared'])
         self.assertEqual(bookmark.tags.count(), 2)
@@ -74,7 +76,8 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
         bookmark = self.setup_bookmark(tags=[tag1, tag2], title='edited title', description='edited description',
-                                       website_title='website title', website_description='website description')
+                                       notes='edited notes', website_title='website title',
+                                       website_description='website description')
 
         response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
         html = response.content.decode()
@@ -98,6 +101,12 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(f'''
             <textarea name="description" cols="40" rows="2" class="form-input" id="id_description">
                 {bookmark.description}
+            </textarea>
+        ''', html)
+
+        self.assertInHTML(f'''
+            <textarea name="notes" cols="40" rows="8" class="form-input" id="id_notes">
+                {bookmark.notes}
             </textarea>
         ''', html)
 
@@ -184,3 +193,15 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
               <span>Share</span>
             </label>            
         ''', html, count=1)
+
+    def test_should_hide_notes_if_there_are_no_notes(self):
+        bookmark = self.setup_bookmark()
+        response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
+
+        self.assertContains(response, '<details class="notes">', count=1)
+
+    def test_should_show_notes_if_there_are_notes(self):
+        bookmark = self.setup_bookmark(notes='test notes')
+        response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
+
+        self.assertContains(response, '<details class="notes" open>', count=1)

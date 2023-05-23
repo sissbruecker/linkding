@@ -68,6 +68,19 @@
     {{ form.description.errors }}
   </div>
   <div class="form-group">
+    <details class="notes"{% if form.has_notes %} open{% endif %}>
+      <summary>
+        <span class="form-label d-inline-block">Notes</span>
+      </summary>
+      <label for="{{ form.notes.id_for_label }}" class="text-assistive">Notes</label>
+      {{ form.notes|add_class:"form-input"|attr:"rows:8" }}
+      <div class="form-input-hint">
+        Additional notes, supports Markdown.
+      </div>
+      {{ form.notes.errors }}
+    </details>
+  </div>
+  <div class="form-group">
     <label for="{{ form.unread.id_for_label }}" class="form-checkbox">
       {{ form.unread }}
       <i class="form-icon"></i>
@@ -128,6 +141,8 @@
       const urlInput = document.getElementById('{{ form.url.id_for_label }}');
       const titleInput = document.getElementById('{{ form.title.id_for_label }}');
       const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+      const notesDetails = document.querySelector('form details.notes');
+      const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
       const tagsInput = document.getElementById('{{ form.tag_string.id_for_label }}');
       const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
@@ -149,11 +164,17 @@
       }
 
       function updateInput(input, value) {
-          input.value = value;
+        if (!input) {
+          return;
+        }
+        input.value = value;
       }
 
       function updateCheckbox(input, value) {
-          input.checked = value;
+        if (!input) {
+          return;
+        }
+        input.checked = value;
       }
 
       function checkUrl() {
@@ -179,8 +200,10 @@
 
             if (existingBookmark && !editedBookmarkId) {
               bookmarkExistsHint.style['display'] = 'block';
+              notesDetails.open = !!existingBookmark.notes;
               updateInput(titleInput, existingBookmark.title);
               updateInput(descriptionInput, existingBookmark.description);
+              updateInput(notesInput, existingBookmark.notes);
               updateInput(tagsInput, existingBookmark.tag_names.join(" "));
               updateCheckbox(unreadCheckbox, existingBookmark.unread);
               updateCheckbox(sharedCheckbox, existingBookmark.shared);
@@ -201,6 +224,9 @@
         });
       }
 
+      setupEditAutoValueButton(titleInput);
+      setupEditAutoValueButton(descriptionInput);
+
       // Fetch initial website data if we have a URL, and we are not editing an existing bookmark
       // For existing bookmarks we get the website metadata through hidden inputs
       if (urlInput.value && !editedBookmarkId) {
@@ -213,9 +239,6 @@
         updatePlaceholder(titleInput, websiteTitleInput.value);
         updatePlaceholder(descriptionInput, websiteDescriptionInput.value);
       }
-
-      setupEditAutoValueButton(titleInput);
-      setupEditAutoValueButton(descriptionInput);
     })();
   </script>
 </div>

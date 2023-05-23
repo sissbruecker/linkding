@@ -43,11 +43,19 @@
   }
 }
 
+/* Bookmark list */
 ul.bookmark-list {
-
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+/* Bookmarks */
+ul.bookmark-list li {
+
+  .bulk-edit-toggle {
+    display: none;
+  }
 
   .title a {
     display: inline-block;
@@ -76,31 +84,44 @@ ul.bookmark-list {
     }
   }
 
-  .actions > *:not(:last-child) {
-    margin-right: 0.1rem;
+  .actions {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
   }
 
-  .actions .date-label a {
-    color: $gray-color;
-  }
-
-  .actions .btn-link {
-    color: $gray-color;
-    padding: 0;
-    height: auto;
-    vertical-align: unset;
-    border: none;
-
-    &:focus,
-    &:hover,
-    &:active,
-    &.active {
-      color: $gray-color-dark;
+  .actions {
+    > *:not(:last-child) {
+      margin-right: 0.4rem;
     }
-  }
 
-  .bulk-edit-toggle {
-    display: none;
+    a, button {
+      color: $gray-color;
+      padding: 0;
+      height: auto;
+      vertical-align: unset;
+      border: none;
+      transition: none;
+      text-decoration: none;
+
+      &:focus,
+      &:hover,
+      &:active,
+      &.active {
+        color: $gray-color-dark;
+      }
+    }
+
+    .separator {
+      align-self: flex-start;
+    }
+
+    .toggle-notes {
+      align-self: center;
+      display: flex;
+      align-items: center;
+      gap: 0.1rem;
+    }
   }
 }
 
@@ -179,6 +200,68 @@ ul.bookmark-list {
       text-decoration: underline;
       font-weight: bold;
     }
+  }
+
+  details.notes textarea {
+    box-sizing: border-box;
+  }
+}
+
+/* Bookmark notes */
+ul.bookmark-list {
+  .notes {
+    display: none;
+    max-height: 300px;
+    margin: 4px 0;
+    overflow: auto;
+  }
+
+  &.show-notes .notes,
+  li.show-notes .notes {
+    display: block;
+  }
+}
+
+/* Bookmark notes markdown styles */
+ul.bookmark-list .notes-content {
+  & {
+    padding: 0.4rem 0.6rem;
+  }
+
+  p, ul, ol, pre, blockquote {
+    margin: 0 0 0.4rem 0;
+  }
+
+  > *:first-child {
+    margin-top: 0;
+  }
+  > *:last-child {
+    margin-bottom: 0;
+  }
+
+  ul, ol {
+    margin-left: 0.8rem;
+  }
+
+  ul li, ol li {
+    margin-top: 0.2rem;
+  }
+
+  pre {
+    padding: 0.2rem 0.4rem;
+    background-color: $code-bg-color;
+    border-radius: 0.2rem;
+  }
+
+  pre code {
+    background: none;
+    box-shadow: none;
+  }
+
+  > pre:first-child:last-child {
+    padding: 0;
+    background: none;
+    border-radius: 0;
   }
 }
 
