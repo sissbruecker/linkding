@@ -1,13 +1,13 @@
 from django.http import JsonResponse
-from siteroot.settings import LD_CONTEXT_PATH
+from django.conf import settings
+
 
 def manifest(request):
-    code = 200
     response = {
         "short_name": "linkding",
         "start_url": "bookmarks",
         "display": "standalone",
-        "scope": "/" + LD_CONTEXT_PATH
+        "scope": "/" + settings.LD_CONTEXT_PATH
     }
 
-    return JsonResponse(response, status=code)
+    return JsonResponse(response, status=200)
