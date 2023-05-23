@@ -32,5 +32,7 @@ urlpatterns = [
     path('feeds/<str:feed_key>/all', AllBookmarksFeed(), name='feeds.all'),
     path('feeds/<str:feed_key>/unread', UnreadBookmarksFeed(), name='feeds.unread'),
     # Health check
-    path('health', views.health, name='health')
+    path('health', views.health, name='health'),
+    # Manifest
+    path("manifest.json", views.manifest, name='manifest')
 ]
