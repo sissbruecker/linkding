@@ -1,7 +1,6 @@
 from django.urls import re_path
 from django.urls import path, include
 from django.views.generic import RedirectView
-from django.views.generic.base import TemplateView
 
 from bookmarks.api.routes import router
 from bookmarks import views
@@ -35,5 +34,5 @@ urlpatterns = [
     # Health check
     path('health', views.health, name='health'),
     # Manifest
-    path("manifest.json", TemplateView.as_view(template_name="metadata/manifest.json", content_type="application/json"), )
+    path("manifest.json", views.manifest, name='manifest')
 ]
