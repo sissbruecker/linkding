@@ -71,8 +71,10 @@ def load_page(url: str):
             logger.debug(f'Loaded chunk (iteration={iteration}, total={size / 1024})')
 
             # Stop reading if we have parsed end of head tag
-            if '</head>'.encode('utf-8') in content:
+            end_of_head = '</head>'.encode('utf-8')
+            if end_of_head in content:
                 logger.debug(f'Found closing head tag after {size} bytes')
+                content = content.split(end_of_head)[0] + end_of_head
                 break
             # Stop reading if we exceed limit
             if size > MAX_CONTENT_LIMIT:

@@ -59,7 +59,7 @@ class WebsiteLoaderTestCase(TestCase):
             expected_content_size = 6 * 1024 * 1000
             self.assertEqual(expected_content_size, len(content))
 
-    def test_load_page_stops_reading_at_closing_head_tag(self):
+    def test_load_page_stops_reading_at_end_of_head(self):
         with mock.patch('requests.get') as mock_get:
             mock_get.return_value = MockStreamingResponse(num_chunks=10, chunk_size=1024 * 1000,
                                                           insert_head_after_chunk=0)
@@ -68,6 +68,18 @@ class WebsiteLoaderTestCase(TestCase):
             # Should have read first chunk, and second chunk containing closing head tag
             expected_content_size = 1 * 1024 * 1000 + len('</head>')
             self.assertEqual(expected_content_size, len(content))
+
+    def test_load_page_removes_bytes_after_end_of_head(self):
+        with mock.patch('requests.get') as mock_get:
+            mock_response = MockStreamingResponse(num_chunks=1, chunk_size=0)
+            mock_response.chunks[0] = '<head>人</head>'.encode('utf-8')
+            # add a single byte that can't be decoded to utf-8
+            mock_response.chunks[0] += 0xff.to_bytes(1, 'big')
+            mock_get.return_value = mock_response
+            content = website_loader.load_page('https://example.com')
+
+            # verify that byte after head was removed, content parsed as utf-8
+            self.assertEqual(content, '<head>人</head>')
 
     def test_load_website_metadata(self):
         with mock.patch('bookmarks.services.website_loader.load_page') as mock_load_page:
