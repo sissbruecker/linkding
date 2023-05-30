@@ -10,6 +10,8 @@ mkdir -p data/favicons
 
 # Run database migration
 python manage.py migrate
+# Enable WAL journal mode for SQLite databases
+python manage.py enable_wal
 # Generate secret key file if it does not exist
 python manage.py generate_secret_key
 # Create initial superuser if defined in options / environment variables
