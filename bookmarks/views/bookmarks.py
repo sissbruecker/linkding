@@ -114,6 +114,8 @@ def convert_tag_string(tag_string: str):
 @login_required
 def new(request):
     initial_url = request.GET.get('url')
+    initial_title = request.GET.get('title')
+    initial_description = request.GET.get('description')
     initial_auto_close = 'auto_close' in request.GET
 
     if request.method == 'POST':
@@ -131,6 +133,10 @@ def new(request):
         form = BookmarkForm()
         if initial_url:
             form.initial['url'] = initial_url
+        if initial_title:
+            form.initial['title'] = initial_title
+        if initial_description:
+            form.initial['description'] = initial_description
         if initial_auto_close:
             form.initial['auto_close'] = 'true'
 

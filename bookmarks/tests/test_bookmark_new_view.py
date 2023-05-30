@@ -75,6 +75,25 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
             'placeholder=" " autofocus class="form-input" required '
             'id="id_url">',
             html)
+    
+    def test_should_prefill_title_from_url_parameter(self):
+        response = self.client.get(reverse('bookmarks:new') + '?title=Example%20Title')
+        html = response.content.decode()
+
+        self.assertInHTML(
+            '<input type="text" name="title" value="Example Title" '
+            'class="form-input" maxlength="512" autocomplete="off" '
+            'id="id_title">',
+            html)
+        
+    def test_should_prefill_description_from_url_parameter(self):
+        response = self.client.get(reverse('bookmarks:new') + '?description=Example%20Site%20Description')
+        html = response.content.decode()
+
+        self.assertInHTML(
+            '<textarea name="description" class="form-input" cols="40" '
+            'rows="2" id="id_description">Example Site Description</textarea>',
+            html)
 
     def test_should_enable_auto_close_when_specified_in_url_parameter(self):
         response = self.client.get(
