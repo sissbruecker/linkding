@@ -1,5 +1,6 @@
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
 
@@ -17,6 +18,17 @@ class BookmarkViewSet(viewsets.GenericViewSet,
                       mixins.UpdateModelMixin,
                       mixins.DestroyModelMixin):
     serializer_class = BookmarkSerializer
+
+    def get_permissions(self):
+        # Allow unauthenticated access to shared bookmarks.
+        # The shared action should still filter bookmarks so that
+        # unauthenticated users only see bookmarks from users that have public
+        # sharing explicitly enabled
+        if self.action == 'shared':
+            return [AllowAny()]
+
+        # Otherwise use default permissions which should require authentication
+        return super().get_permissions()
 
     def get_queryset(self):
         user = self.request.user
