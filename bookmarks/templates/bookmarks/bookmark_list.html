@@ -1,7 +1,7 @@
 {% load static %}
 {% load shared %}
 {% load pagination %}
-<ul class="bookmark-list{% if  request.user.profile.permanent_notes %} show-notes{% endif %}">
+<ul class="bookmark-list{% if  request.user_profile.permanent_notes %} show-notes{% endif %}">
   {% for bookmark in bookmarks %}
     <li data-is-bookmark-item>
       <label class="form-checkbox bulk-edit-toggle">
@@ -11,13 +11,13 @@
       <div class="title">
         <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener"
            class="{% if bookmark.unread %}text-italic{% endif %}">
-          {% if bookmark.favicon_file and request.user.profile.enable_favicons %}
+          {% if bookmark.favicon_file and request.user_profile.enable_favicons %}
             <img src="{% static bookmark.favicon_file %}" alt="">
           {% endif %}
           {{ bookmark.resolved_title }}
         </a>
       </div>
-      {% if request.user.profile.display_url %}
+      {% if request.user_profile.display_url %}
         <div class="url-path truncate">
           <a href="{{ bookmark.url }}" target="{{ link_target }}" rel="noopener"
              class="url-display text-sm">
@@ -46,7 +46,7 @@
         </div>
       {% endif %}
       <div class="actions text-gray text-sm">
-        {% if request.user.profile.bookmark_date_display == 'relative' %}
+        {% if request.user_profile.bookmark_date_display == 'relative' %}
           <span>
               {% if bookmark.web_archive_snapshot_url %}
                 <a href="{{ bookmark.web_archive_snapshot_url }}"
@@ -61,7 +61,7 @@
             </span>
           <span class="separator">|</span>
         {% endif %}
-        {% if request.user.profile.bookmark_date_display == 'absolute' %}
+        {% if request.user_profile.bookmark_date_display == 'absolute' %}
           <span>
               {% if bookmark.web_archive_snapshot_url %}
                 <a href="{{ bookmark.web_archive_snapshot_url }}"
@@ -103,7 +103,7 @@
               <a href="?{% replace_query_param user=bookmark.owner.username %}">{{ bookmark.owner.username }}</a>
             </span>
         {% endif %}
-        {% if bookmark.notes and not request.user.profile.permanent_notes %}
+        {% if bookmark.notes and not request.user_profile.permanent_notes %}
           <span class="separator">|</span>
           <button class="btn btn-link btn-sm toggle-notes" title="Toggle notes">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-notes" width="16" height="16"

@@ -20,7 +20,7 @@
       <li>
         <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archived</a>
       </li>
-      {% if request.user.profile.enable_sharing %}
+      {% if request.user_profile.enable_sharing %}
         <li>
           <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared</a>
         </li>
@@ -59,7 +59,7 @@
       <li style="padding-left: 1rem">
         <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archived</a>
       </li>
-      {% if request.user.profile.enable_sharing %}
+      {% if request.user_profile.enable_sharing %}
         <li style="padding-left: 1rem">
           <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared</a>
         </li>

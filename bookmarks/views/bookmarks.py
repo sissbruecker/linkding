@@ -21,8 +21,8 @@ _default_page_size = 30
 @login_required
 def index(request):
     filters = BookmarkFilters(request)
-    query_set = queries.query_bookmarks(request.user, request.user.profile, filters.query)
-    tags = queries.query_bookmark_tags(request.user, request.user.profile, filters.query)
+    query_set = queries.query_bookmarks(request.user, request.user_profile, filters.query)
+    tags = queries.query_bookmark_tags(request.user, request.user_profile, filters.query)
     base_url = reverse('bookmarks:index')
     context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
     return render(request, 'bookmarks/index.html', context)
@@ -31,20 +31,19 @@ def index(request):
 @login_required
 def archived(request):
     filters = BookmarkFilters(request)
-    query_set = queries.query_archived_bookmarks(request.user, request.user.profile, filters.query)
-    tags = queries.query_archived_bookmark_tags(request.user, request.user.profile, filters.query)
+    query_set = queries.query_archived_bookmarks(request.user, request.user_profile, filters.query)
+    tags = queries.query_archived_bookmark_tags(request.user, request.user_profile, filters.query)
     base_url = reverse('bookmarks:archived')
     context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
     return render(request, 'bookmarks/archive.html', context)
 
 
-@login_required
 def shared(request):
     filters = BookmarkFilters(request)
     user = User.objects.filter(username=filters.user).first()
-    query_set = queries.query_shared_bookmarks(user, request.user.profile, filters.query)
-    tags = queries.query_shared_bookmark_tags(user, request.user.profile, filters.query)
-    users = queries.query_shared_bookmark_users(request.user.profile, filters.query)
+    query_set = queries.query_shared_bookmarks(user, request.user_profile, filters.query)
+    tags = queries.query_shared_bookmark_tags(user, request.user_profile, filters.query)
+    users = queries.query_shared_bookmark_users(request.user_profile, filters.query)
     base_url = reverse('bookmarks:shared')
     context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
     context['users'] = users
@@ -70,11 +69,11 @@ def get_bookmark_view_context(request: WSGIRequest,
     paginator = Paginator(query_set, _default_page_size)
     bookmarks = paginator.get_page(page)
     tags = list(tags)
-    selected_tags = _get_selected_tags(tags, filters.query, request.user.profile)
+    selected_tags = _get_selected_tags(tags, filters.query, request.user_profile)
     # Prefetch related objects, this avoids n+1 queries when accessing fields in templates
     prefetch_related_objects(bookmarks.object_list, 'owner', 'tags')
     return_url = generate_return_url(base_url, page, filters)
-    link_target = request.user.profile.bookmark_link_target
+    link_target = request.user_profile.bookmark_link_target
 
     if request.GET.get('tag'):
         mod = request.GET.copy()

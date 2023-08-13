@@ -17,9 +17,9 @@
   <title>linkding</title>
   {# Include SASS styles, files are resolved from bookmarks/styles #}
   {# Include specific theme variant based on user profile setting #}
-  {% if request.user.profile.theme == 'light' %}
+  {% if request.user_profile.theme == 'light' %}
     <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"/>
-  {% elif request.user.profile.theme == 'dark' %}
+  {% elif request.user_profile.theme == 'dark' %}
     <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"/>
   {% else %}
     {# Use auto theme as fallback #}

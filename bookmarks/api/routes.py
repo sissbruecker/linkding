@@ -45,7 +45,7 @@ class BookmarkViewSet(viewsets.GenericViewSet,
     def shared(self, request):
         filters = BookmarkFilters(request)
         user = User.objects.filter(username=filters.user).first()
-        query_set = queries.query_shared_bookmarks(user, request.user.profile, filters.query)
+        query_set = queries.query_shared_bookmarks(user, request.user_profile, filters.query)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer_class()
         data = serializer(page, many=True).data

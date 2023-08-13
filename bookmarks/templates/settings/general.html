@@ -77,7 +77,7 @@
             documentation</a> on how to configure a custom favicon provider.
             Icons are downloaded in the background, and it may take a while for them to show up.
           </div>
-          {% if request.user.profile.enable_favicons and enable_refresh_favicons %}
+          {% if request.user_profile.enable_favicons and enable_refresh_favicons %}
             <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
           {% endif %}
           {% if refresh_favicons_success_message %}
