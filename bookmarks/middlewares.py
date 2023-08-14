@@ -17,6 +17,7 @@ class UserProfileMiddleware:
             request.user_profile = request.user.profile
         else:
             request.user_profile = UserProfile()
+            request.user_profile.enable_favicons = True
 
         response = self.get_response(request)
 

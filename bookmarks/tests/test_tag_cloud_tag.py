@@ -1,21 +1,26 @@
 from typing import List
 
+from django.contrib.auth.models import User, AnonymousUser
+from django.http import HttpResponse
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
+from bookmarks.middlewares import UserProfileMiddleware
 from bookmarks.models import Tag, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
 class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-    def render_template(self, tags: List[Tag], selected_tags: List[Tag] = None, url: str = '/test'):
+    def render_template(self, tags: List[Tag], selected_tags: List[Tag] = None, url: str = '/test',
+                        user: User | AnonymousUser = None):
         if not selected_tags:
             selected_tags = []
 
         rf = RequestFactory()
         request = rf.get(url)
-        request.user = self.get_or_create_test_user()
-        request.user_profile = self.get_or_create_test_user().profile
+        request.user = user or self.get_or_create_test_user()
+        middleware = UserProfileMiddleware(lambda r: HttpResponse())
+        middleware(request)
         context = RequestContext(request, {
             'request': request,
             'tags': tags,
@@ -210,3 +215,37 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertTagGroups(rendered_template, [
             ['tag3', 'tag4', 'tag5']
         ])
+
+    def test_with_anonymous_user(self):
+        tags = [
+            self.setup_tag(name='tag1'),
+            self.setup_tag(name='tag2'),
+            self.setup_tag(name='tag3'),
+            self.setup_tag(name='tag4'),
+            self.setup_tag(name='tag5'),
+        ]
+        selected_tags = [
+            tags[0],
+            tags[1],
+        ]
+
+        rendered_template = self.render_template(tags, selected_tags, url='/test?q=%23tag1 %23tag2',
+                                                 user=AnonymousUser())
+
+        self.assertTagGroups(rendered_template, [
+            ['tag3', 'tag4', 'tag5']
+        ])
+        self.assertNumSelectedTags(rendered_template, 2)
+        self.assertInHTML('''
+            <a href="?q=%23tag2"
+               class="text-bold mr-2">
+                <span>-tag1</span>
+            </a>
+        ''', rendered_template)
+
+        self.assertInHTML('''
+            <a href="?q=%23tag1"
+               class="text-bold mr-2">
+                <span>-tag2</span>
+            </a>
+        ''', rendered_template)
