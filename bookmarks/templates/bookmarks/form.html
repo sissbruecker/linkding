@@ -98,7 +98,11 @@
         <span>Share</span>
       </label>
       <div class="form-input-hint">
-        Share this bookmark with other users.
+        {% if request.user_profile.enable_public_sharing %}
+          Share this bookmark with other registered users and anonymous users.
+        {% else %}
+          Share this bookmark with other registered users.
+        {% endif %}
       </div>
     </div>
   {% endif %}
