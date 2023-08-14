@@ -51,10 +51,15 @@
         <h1>linkding</h1>
       </a>
     </section>
-    {# Only show nav items menu when logged in #}
     {% if request.user.is_authenticated %}
+      {# Only show nav items menu when logged in #}
       <section class="navbar-section">
         {% include 'bookmarks/nav_menu.html' %}
+      </section>
+    {% else %}
+      {# Otherwise show link to shared bookmarks #}
+      <section class="navbar-section">
+        <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared bookmarks</a>
       </section>
     {% endif %}
   </div>
