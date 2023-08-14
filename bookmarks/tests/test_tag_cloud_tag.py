@@ -15,6 +15,7 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         rf = RequestFactory()
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
+        request.user_profile = self.get_or_create_test_user().profile
         context = RequestContext(request, {
             'request': request,
             'tags': tags,

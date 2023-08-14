@@ -41,9 +41,10 @@ def archived(request):
 def shared(request):
     filters = BookmarkFilters(request)
     user = User.objects.filter(username=filters.user).first()
-    query_set = queries.query_shared_bookmarks(user, request.user_profile, filters.query)
-    tags = queries.query_shared_bookmark_tags(user, request.user_profile, filters.query)
-    users = queries.query_shared_bookmark_users(request.user_profile, filters.query)
+    public_only = not request.user.is_authenticated
+    query_set = queries.query_shared_bookmarks(user, request.user_profile, filters.query, public_only)
+    tags = queries.query_shared_bookmark_tags(user, request.user_profile, filters.query, public_only)
+    users = queries.query_shared_bookmark_users(request.user_profile, filters.query, public_only)
     base_url = reverse('bookmarks:shared')
     context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
     context['users'] = users

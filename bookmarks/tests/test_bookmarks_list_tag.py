@@ -134,6 +134,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         rf = RequestFactory()
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
+        request.user_profile = self.get_or_create_test_user().profile
         paginator = Paginator(bookmarks, 10)
         page = paginator.page(1)
 
