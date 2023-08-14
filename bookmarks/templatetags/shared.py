@@ -49,7 +49,7 @@ def remove_tag_from_query(context, tag_name: str):
         tag_name_with_hash = '#' + tag_name
         query_parts = [part for part in query_parts if str.lower(part) != str.lower(tag_name_with_hash)]
         # When using lax tag search, also remove tag without hash
-        profile = context.request.user.profile
+        profile = context.request.user_profile
         if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
             query_parts = [part for part in query_parts if str.lower(part) != str.lower(tag_name)]
         # Rebuild query string

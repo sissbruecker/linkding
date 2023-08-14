@@ -90,7 +90,7 @@
       Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them.
     </div>
   </div>
-  {% if request.user.profile.enable_sharing %}
+  {% if request.user_profile.enable_sharing %}
     <div class="form-group">
       <label for="{{ form.shared.id_for_label }}" class="form-checkbox">
         {{ form.shared }}
@@ -98,7 +98,11 @@
         <span>Share</span>
       </label>
       <div class="form-input-hint">
-        Share this bookmark with other users.
+        {% if request.user_profile.enable_public_sharing %}
+          Share this bookmark with other registered users and anonymous users.
+        {% else %}
+          Share this bookmark with other registered users.
+        {% endif %}
       </div>
     </div>
   {% endif %}

@@ -17,10 +17,13 @@ def query_archived_bookmarks(user: User, profile: UserProfile, query_string: str
         .filter(is_archived=True)
 
 
-def query_shared_bookmarks(user: Optional[User], profile: UserProfile, query_string: str) -> QuerySet:
-    return _base_bookmarks_query(user, profile, query_string) \
-        .filter(shared=True) \
-        .filter(owner__profile__enable_sharing=True)
+def query_shared_bookmarks(user: Optional[User], profile: UserProfile, query_string: str,
+                           public_only: bool) -> QuerySet:
+    conditions = Q(shared=True) & Q(owner__profile__enable_sharing=True)
+    if public_only:
+        conditions = conditions & Q(owner__profile__enable_public_sharing=True)
+
+    return _base_bookmarks_query(user, profile, query_string).filter(conditions)
 
 
 def _base_bookmarks_query(user: Optional[User], profile: UserProfile, query_string: str) -> QuerySet:
@@ -85,16 +88,17 @@ def query_archived_bookmark_tags(user: User, profile: UserProfile, query_string:
     return query_set.distinct()
 
 
-def query_shared_bookmark_tags(user: Optional[User], profile: UserProfile, query_string: str) -> QuerySet:
-    bookmarks_query = query_shared_bookmarks(user, profile, query_string)
+def query_shared_bookmark_tags(user: Optional[User], profile: UserProfile, query_string: str,
+                               public_only: bool) -> QuerySet:
+    bookmarks_query = query_shared_bookmarks(user, profile, query_string, public_only)
 
     query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
 
     return query_set.distinct()
 
 
-def query_shared_bookmark_users(profile: UserProfile, query_string: str) -> QuerySet:
-    bookmarks_query = query_shared_bookmarks(None, profile, query_string)
+def query_shared_bookmark_users(profile: UserProfile, query_string: str, public_only: bool) -> QuerySet:
+    bookmarks_query = query_shared_bookmarks(None, profile, query_string, public_only)
 
     query_set = User.objects.filter(bookmark__in=bookmarks_query)
 

@@ -679,15 +679,25 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=user4, shared=True, tags=[tag]),
 
         # Should return shared bookmarks from all users
-        query_set = queries.query_shared_bookmarks(None, self.profile, '')
+        query_set = queries.query_shared_bookmarks(None, self.profile, '', False)
         self.assertQueryResult(query_set, [shared_bookmarks])
 
         # Should respect search query
-        query_set = queries.query_shared_bookmarks(None, self.profile, 'test title')
+        query_set = queries.query_shared_bookmarks(None, self.profile, 'test title', False)
         self.assertQueryResult(query_set, [[shared_bookmarks[0]]])
 
-        query_set = queries.query_shared_bookmarks(None, self.profile, '#' + tag.name)
+        query_set = queries.query_shared_bookmarks(None, self.profile, '#' + tag.name, False)
         self.assertQueryResult(query_set, [[shared_bookmarks[2]]])
+
+    def test_query_publicly_shared_bookmarks(self):
+        user1 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+
+        bookmark1 = self.setup_bookmark(user=user1, shared=True)
+        self.setup_bookmark(user=user2, shared=True)
+
+        query_set = queries.query_shared_bookmarks(None, self.profile, '', True)
+        self.assertQueryResult(query_set, [[bookmark1]])
 
     def test_query_shared_bookmark_tags(self):
         user1 = self.setup_user(enable_sharing=True)
@@ -710,9 +720,23 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=user3, shared=False, tags=[self.setup_tag(user=user3)]),
         self.setup_bookmark(user=user4, shared=True, tags=[self.setup_tag(user=user4)]),
 
-        query_set = queries.query_shared_bookmark_tags(None, self.profile, '')
+        query_set = queries.query_shared_bookmark_tags(None, self.profile, '', False)
 
         self.assertQueryResult(query_set, [shared_tags])
+
+    def test_query_publicly_shared_bookmark_tags(self):
+        user1 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+
+        tag1 = self.setup_tag(user=user1)
+        tag2 = self.setup_tag(user=user2)
+
+        self.setup_bookmark(user=user1, shared=True, tags=[tag1]),
+        self.setup_bookmark(user=user2, shared=True, tags=[tag2]),
+
+        query_set = queries.query_shared_bookmark_tags(None, self.profile, '', True)
+
+        self.assertQueryResult(query_set, [[tag1]])
 
     def test_query_shared_bookmark_users(self):
         users_with_shared_bookmarks = [
@@ -735,9 +759,19 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=users_without_shared_bookmarks[2], shared=True),
 
         # Should return users with shared bookmarks
-        query_set = queries.query_shared_bookmark_users(self.profile, '')
+        query_set = queries.query_shared_bookmark_users(self.profile, '', False)
         self.assertQueryResult(query_set, [users_with_shared_bookmarks])
 
         # Should respect search query
-        query_set = queries.query_shared_bookmark_users(self.profile, 'test title')
+        query_set = queries.query_shared_bookmark_users(self.profile, 'test title', False)
         self.assertQueryResult(query_set, [[users_with_shared_bookmarks[0]]])
+
+    def test_query_publicly_shared_bookmark_users(self):
+        user1 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+
+        self.setup_bookmark(user=user1, shared=True)
+        self.setup_bookmark(user=user2, shared=True)
+
+        query_set = queries.query_shared_bookmark_users(self.profile, '', True)
+        self.assertQueryResult(query_set, [[user1]])

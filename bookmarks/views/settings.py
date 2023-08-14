@@ -46,7 +46,7 @@ def general(request):
             refresh_favicons_success_message = 'Scheduled favicon update. This may take a while...'
 
     if not profile_form:
-        profile_form = UserProfileForm(instance=request.user.profile)
+        profile_form = UserProfileForm(instance=request.user_profile)
 
     return render(request, 'settings/general.html', {
         'form': profile_form,
@@ -141,7 +141,7 @@ def bookmark_import(request):
 def bookmark_export(request):
     # noinspection PyBroadException
     try:
-        bookmarks = list(query_bookmarks(request.user, request.user.profile, ''))
+        bookmarks = list(query_bookmarks(request.user, request.user_profile, ''))
         # Prefetch tags to prevent n+1 queries
         prefetch_related_objects(bookmarks, 'tags')
         file_content = exporter.export_netscape_html(bookmarks)

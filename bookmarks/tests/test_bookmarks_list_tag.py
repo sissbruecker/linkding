@@ -1,5 +1,7 @@
 from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import AnonymousUser
 from django.core.paginator import Paginator
+from django.http import HttpResponse
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
@@ -7,17 +9,23 @@ from django.utils import timezone, formats
 
 from bookmarks.models import Bookmark, UserProfile, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.middlewares import UserProfileMiddleware
 
 
 class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
-    def assertBookmarksLink(self, html: str, bookmark: Bookmark, link_target: str = '_blank', unread: bool = False):
+    def assertBookmarksLink(self, html: str, bookmark: Bookmark, link_target: str = '_blank'):
+        unread = bookmark.unread
+        favicon_img = f'<img src="/static/{bookmark.favicon_file}" alt="">' if bookmark.favicon_file else ''
         self.assertInHTML(
             f'''
             <a href="{bookmark.url}" 
                 target="{link_target}" 
                 rel="noopener" 
-                class="{'text-italic' if unread else ''}">{bookmark.resolved_title}</a>
+                class="{'text-italic' if unread else ''}">
+                {favicon_img}
+                {bookmark.resolved_title}
+            </a>
             ''',
             html
         )
@@ -130,22 +138,26 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
           </button>        
           ''', html, count=count)
 
-    def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test') -> str:
+    def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test',
+                        user: User | AnonymousUser = None) -> str:
         rf = RequestFactory()
         request = rf.get(url)
-        request.user = self.get_or_create_test_user()
+        request.user = user or self.get_or_create_test_user()
+        middleware = UserProfileMiddleware(lambda r: HttpResponse())
+        middleware(request)
         paginator = Paginator(bookmarks, 10)
         page = paginator.page(1)
 
         context = RequestContext(request, {'bookmarks': page, 'return_url': '/test'})
         return template.render(context)
 
-    def render_default_template(self, bookmarks: [Bookmark], url: str = '/test') -> str:
+    def render_default_template(self, bookmarks: [Bookmark], url: str = '/test',
+                                user: User | AnonymousUser = None) -> str:
         template = Template(
             '{% load bookmarks %}'
             '{% bookmark_list bookmarks return_url %}'
         )
-        return self.render_template(bookmarks, template, url)
+        return self.render_template(bookmarks, template, url, user)
 
     def render_template_with_link_target(self, bookmarks: [Bookmark], link_target: str) -> str:
         template = Template(
@@ -211,11 +223,11 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
     def test_bookmark_link_target_should_respect_unread_flag(self):
         bookmark = self.setup_bookmark()
         html = self.render_template_with_link_target([bookmark], '_self')
-        self.assertBookmarksLink(html, bookmark, link_target='_self', unread=False)
+        self.assertBookmarksLink(html, bookmark, link_target='_self')
 
         bookmark = self.setup_bookmark(unread=True)
         html = self.render_template_with_link_target([bookmark], '_self')
-        self.assertBookmarksLink(html, bookmark, link_target='_self', unread=True)
+        self.assertBookmarksLink(html, bookmark, link_target='_self')
 
     def test_web_archive_link_target_should_be_blank_by_default(self):
         bookmark = self.setup_bookmark()
@@ -402,3 +414,20 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         html = self.render_default_template([bookmark])
 
         self.assertNotesToggle(html, 0)
+
+    def test_with_anonymous_user(self):
+        bookmark = self.setup_bookmark()
+        bookmark.date_added = timezone.now() - relativedelta(days=8)
+        bookmark.web_archive_snapshot_url = 'https://web.archive.org/web/20230531200136/https://example.com'
+        bookmark.notes = '**Example:** `print("Hello world!")`'
+        bookmark.favicon_file = 'https_example_com.png'
+        bookmark.save()
+
+        html = self.render_default_template([bookmark], '/test', AnonymousUser())
+        self.assertBookmarksLink(html, bookmark, link_target='_blank')
+        self.assertWebArchiveLink(html, '1 week ago', bookmark.web_archive_snapshot_url, link_target='_blank')
+        self.assertNoBookmarkActions(html, bookmark)
+        self.assertShareInfo(html, bookmark)
+        note_html = '<p><strong>Example:</strong> <code>print("Hello world!")</code></p>'
+        self.assertNotes(html, note_html, 1)
+        self.assertFaviconVisible(html, bookmark)

@@ -61,7 +61,8 @@
           <div class="form-input-hint">
             In strict mode, tags must be prefixed with a hash character (#).
             In lax mode, tags can also be searched without the hash character.
-            Note that tags without the hash character are indistinguishable from search terms, which means the search result will also include bookmarks where a search term matches otherwise.
+            Note that tags without the hash character are indistinguishable from search terms, which means the search
+            result will also include bookmarks where a search term matches otherwise.
           </div>
         </div>
         <div class="form-group">
@@ -77,7 +78,7 @@
             documentation</a> on how to configure a custom favicon provider.
             Icons are downloaded in the background, and it may take a while for them to show up.
           </div>
-          {% if request.user.profile.enable_favicons and enable_refresh_favicons %}
+          {% if request.user_profile.enable_favicons and enable_refresh_favicons %}
             <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
           {% endif %}
           {% if refresh_favicons_success_message %}
@@ -110,6 +111,17 @@
           <div class="form-input-hint">
             Allows to share bookmarks with other users, and to view shared bookmarks.
             Disabling this feature will hide all previously shared bookmarks from other users.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.enable_public_sharing.id_for_label }}" class="form-checkbox">
+            {{ form.enable_public_sharing }}
+            <i class="form-icon"></i> Enable public bookmark sharing
+          </label>
+          <div class="form-input-hint">
+            Makes shared bookmarks publicly accessible, without requiring a login.
+            That means that anyone with a link to this instance can view shared bookmarks via the <a
+              href="{% url 'bookmarks:shared' %}">shared bookmarks page</a>.
           </div>
         </div>
         <div class="form-group">
@@ -195,5 +207,23 @@
       </table>
     </section>
   </div>
+
+  <script>
+    // Automatically disable public bookmark sharing if bookmark sharing is disabled
+    const enableSharing = document.getElementById("{{ form.enable_sharing.id_for_label }}");
+    const enablePublicSharing = document.getElementById("{{ form.enable_public_sharing.id_for_label }}");
+
+    function updatePublicSharing() {
+      if (enableSharing.checked) {
+        enablePublicSharing.disabled = false;
+      } else {
+        enablePublicSharing.disabled = true;
+        enablePublicSharing.checked = false;
+      }
+    }
+
+    updatePublicSharing();
+    enableSharing.addEventListener("change", updatePublicSharing);
+  </script>
 
 {% endblock %}

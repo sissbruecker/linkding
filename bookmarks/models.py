@@ -176,6 +176,7 @@ class UserProfile(models.Model):
     tag_search = models.CharField(max_length=10, choices=TAG_SEARCH_CHOICES, blank=False,
                                   default=TAG_SEARCH_STRICT)
     enable_sharing = models.BooleanField(default=False, null=False)
+    enable_public_sharing = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
     display_url = models.BooleanField(default=False, null=False)
     permanent_notes = models.BooleanField(default=False, null=False)
@@ -185,7 +186,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'tag_search',
-                  'enable_sharing', 'enable_favicons', 'display_url', 'permanent_notes']
+                  'enable_sharing', 'enable_public_sharing', 'enable_favicons', 'display_url', 'permanent_notes']
 
 
 @receiver(post_save, sender=get_user_model())

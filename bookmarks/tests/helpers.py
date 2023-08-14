@@ -76,11 +76,12 @@ class BookmarkFactoryMixin:
         tag.save()
         return tag
 
-    def setup_user(self, name: str = None, enable_sharing: bool = False):
+    def setup_user(self, name: str = None, enable_sharing: bool = False, enable_public_sharing: bool = False):
         if not name:
             name = get_random_string(length=32)
         user = User.objects.create_user(name, 'user@example.com', 'password123')
         user.profile.enable_sharing = enable_sharing
+        user.profile.enable_public_sharing = enable_public_sharing
         user.profile.save()
         return user
 

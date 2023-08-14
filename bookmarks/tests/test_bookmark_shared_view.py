@@ -10,7 +10,7 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
 
-    def setUp(self) -> None:
+    def authenticate(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
 
@@ -65,6 +65,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
             ''', html, count=0)
 
     def test_should_list_shared_bookmarks_from_all_users_that_have_sharing_enabled(self):
+        self.authenticate()
         user1 = self.setup_user(enable_sharing=True)
         user2 = self.setup_user(enable_sharing=True)
         user3 = self.setup_user(enable_sharing=True)
@@ -89,6 +90,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
     def test_should_list_shared_bookmarks_from_selected_user(self):
+        self.authenticate()
         user1 = self.setup_user(enable_sharing=True)
         user2 = self.setup_user(enable_sharing=True)
         user3 = self.setup_user(enable_sharing=True)
@@ -108,6 +110,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
     def test_should_list_bookmarks_matching_query(self):
+        self.authenticate()
         user = self.setup_user(enable_sharing=True)
         visible_bookmarks = [
             self.setup_bookmark(shared=True, title='searchvalue', user=user),
@@ -126,7 +129,29 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
+    def test_should_list_only_publicly_shared_bookmarks_without_login(self):
+        user1 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+
+        visible_bookmarks = [
+            self.setup_bookmark(shared=True, user=user1),
+            self.setup_bookmark(shared=True, user=user1),
+            self.setup_bookmark(shared=True, user=user1),
+        ]
+        invisible_bookmarks = [
+            self.setup_bookmark(shared=True, user=user2),
+            self.setup_bookmark(shared=True, user=user2),
+            self.setup_bookmark(shared=True, user=user2),
+        ]
+
+        response = self.client.get(reverse('bookmarks:shared'))
+
+        self.assertContains(response, '<ul class="bookmark-list">')  # Should render list
+        self.assertVisibleBookmarks(response, visible_bookmarks)
+        self.assertInvisibleBookmarks(response, invisible_bookmarks)
+
     def test_should_list_tags_for_shared_bookmarks_from_all_users_that_have_sharing_enabled(self):
+        self.authenticate()
         user1 = self.setup_user(enable_sharing=True)
         user2 = self.setup_user(enable_sharing=True)
         user3 = self.setup_user(enable_sharing=True)
@@ -158,6 +183,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInvisibleTags(response, invisible_tags)
 
     def test_should_list_tags_for_shared_bookmarks_from_selected_user(self):
+        self.authenticate()
         user1 = self.setup_user(enable_sharing=True)
         user2 = self.setup_user(enable_sharing=True)
         user3 = self.setup_user(enable_sharing=True)
@@ -180,6 +206,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInvisibleTags(response, invisible_tags)
 
     def test_should_list_tags_for_bookmarks_matching_query(self):
+        self.authenticate()
         user1 = self.setup_user(enable_sharing=True)
         user2 = self.setup_user(enable_sharing=True)
         user3 = self.setup_user(enable_sharing=True)
@@ -207,7 +234,32 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)
 
+    def test_should_list_only_tags_for_publicly_shared_bookmarks_without_login(self):
+        user1 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+
+        visible_tags = [
+            self.setup_tag(user=user1),
+            self.setup_tag(user=user1),
+        ]
+        invisible_tags = [
+            self.setup_tag(user=user2),
+            self.setup_tag(user=user2),
+        ]
+
+        self.setup_bookmark(shared=True, user=user1, tags=[visible_tags[0]])
+        self.setup_bookmark(shared=True, user=user1, tags=[visible_tags[1]])
+
+        self.setup_bookmark(shared=True, user=user2, tags=[invisible_tags[0]])
+        self.setup_bookmark(shared=True, user=user2, tags=[invisible_tags[1]])
+
+        response = self.client.get(reverse('bookmarks:shared'))
+
+        self.assertVisibleTags(response, visible_tags)
+        self.assertInvisibleTags(response, invisible_tags)
+
     def test_should_list_users_with_shared_bookmarks_if_sharing_is_enabled(self):
+        self.authenticate()
         expected_visible_users = [
             self.setup_user(enable_sharing=True),
             self.setup_user(enable_sharing=True),
@@ -226,30 +278,53 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertVisibleUserOptions(response, expected_visible_users)
         self.assertInvisibleUserOptions(response, expected_invisible_users)
 
+    def test_should_list_only_users_with_publicly_shared_bookmarks_without_login(self):
+        expected_visible_users = [
+            self.setup_user(enable_sharing=True, enable_public_sharing=True),
+            self.setup_user(enable_sharing=True, enable_public_sharing=True),
+        ]
+        self.setup_bookmark(shared=True, user=expected_visible_users[0])
+        self.setup_bookmark(shared=True, user=expected_visible_users[1])
 
-def test_should_open_bookmarks_in_new_page_by_default(self):
-    visible_bookmarks = [
-        self.setup_bookmark(shared=True),
-        self.setup_bookmark(shared=True),
-        self.setup_bookmark(shared=True)
-    ]
+        expected_invisible_users = [
+            self.setup_user(enable_sharing=True),
+            self.setup_user(enable_sharing=True),
+        ]
+        self.setup_bookmark(shared=True, user=expected_invisible_users[0])
+        self.setup_bookmark(shared=True, user=expected_invisible_users[1])
 
-    response = self.client.get(reverse('bookmarks:shared'))
+        response = self.client.get(reverse('bookmarks:shared'))
+        self.assertVisibleUserOptions(response, expected_visible_users)
+        self.assertInvisibleUserOptions(response, expected_invisible_users)
 
-    self.assertVisibleBookmarks(response, visible_bookmarks, '_blank')
+    def test_should_open_bookmarks_in_new_page_by_default(self):
+        self.authenticate()
+        user = self.get_or_create_test_user()
+        user.profile.enable_sharing = True
+        user.profile.save()
+        visible_bookmarks = [
+            self.setup_bookmark(shared=True),
+            self.setup_bookmark(shared=True),
+            self.setup_bookmark(shared=True)
+        ]
 
+        response = self.client.get(reverse('bookmarks:shared'))
 
-def test_should_open_bookmarks_in_same_page_if_specified_in_user_profile(self):
-    user = self.get_or_create_test_user()
-    user.profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_SELF
-    user.profile.save()
+        self.assertVisibleBookmarks(response, visible_bookmarks, '_blank')
 
-    visible_bookmarks = [
-        self.setup_bookmark(shared=True),
-        self.setup_bookmark(shared=True),
-        self.setup_bookmark(shared=True)
-    ]
+    def test_should_open_bookmarks_in_same_page_if_specified_in_user_profile(self):
+        self.authenticate()
+        user = self.get_or_create_test_user()
+        user.profile.enable_sharing = True
+        user.profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_SELF
+        user.profile.save()
 
-    response = self.client.get(reverse('bookmarks:shared'))
+        visible_bookmarks = [
+            self.setup_bookmark(shared=True),
+            self.setup_bookmark(shared=True),
+            self.setup_bookmark(shared=True)
+        ]
 
-    self.assertVisibleBookmarks(response, visible_bookmarks, '_self')
+        response = self.client.get(reverse('bookmarks:shared'))
+
+        self.assertVisibleBookmarks(response, visible_bookmarks, '_self')

@@ -10,6 +10,8 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin):
     def render_template(self, url: str, tags: QuerySet[Tag] = Tag.objects.all()):
         rf = RequestFactory()
         request = rf.get(url)
+        request.user = self.get_or_create_test_user()
+        request.user_profile = self.get_or_create_test_user().profile
         filters = BookmarkFilters(request)
         context = RequestContext(request, {
             'request': request,

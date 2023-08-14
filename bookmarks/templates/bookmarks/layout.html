@@ -17,9 +17,9 @@
   <title>linkding</title>
   {# Include SASS styles, files are resolved from bookmarks/styles #}
   {# Include specific theme variant based on user profile setting #}
-  {% if request.user.profile.theme == 'light' %}
+  {% if request.user_profile.theme == 'light' %}
     <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"/>
-  {% elif request.user.profile.theme == 'dark' %}
+  {% elif request.user_profile.theme == 'dark' %}
     <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"/>
   {% else %}
     {# Use auto theme as fallback #}
@@ -51,10 +51,15 @@
         <h1>linkding</h1>
       </a>
     </section>
-    {# Only show nav items menu when logged in #}
     {% if request.user.is_authenticated %}
+      {# Only show nav items menu when logged in #}
       <section class="navbar-section">
         {% include 'bookmarks/nav_menu.html' %}
+      </section>
+    {% elif has_public_shares %}
+      {# Otherwise show link to shared bookmarks if there are publicly shared bookmarks #}
+      <section class="navbar-section">
+        <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared bookmarks</a>
       </section>
     {% endif %}
   </div>

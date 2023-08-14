@@ -75,7 +75,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
             'placeholder=" " autofocus class="form-input" required '
             'id="id_url">',
             html)
-    
+
     def test_should_prefill_title_from_url_parameter(self):
         response = self.client.get(reverse('bookmarks:new') + '?title=Example%20Title')
         html = response.content.decode()
@@ -85,7 +85,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
             'class="form-input" maxlength="512" autocomplete="off" '
             'id="id_title">',
             html)
-        
+
     def test_should_prefill_description_from_url_parameter(self):
         response = self.client.get(reverse('bookmarks:new') + '?description=Example%20Site%20Description')
         html = response.content.decode()
@@ -160,8 +160,32 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
             </label>            
         ''', html, count=1)
 
-    def test_should_hide_notes_if_there_are_no_notes(self):
-        bookmark = self.setup_bookmark()
-        response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
+    def test_should_show_respective_share_hint(self):
+        self.user.profile.enable_sharing = True
+        self.user.profile.save()
 
-        self.assertContains(response, '<details class="notes">', count=1)
+        response = self.client.get(reverse('bookmarks:new'))
+        html = response.content.decode()
+        self.assertInHTML('''
+          <div class="form-input-hint">
+              Share this bookmark with other registered users.
+          </div>
+        ''', html)
+
+        self.user.profile.enable_public_sharing = True
+        self.user.profile.save()
+
+        response = self.client.get(reverse('bookmarks:new'))
+        html = response.content.decode()
+        self.assertInHTML('''
+          <div class="form-input-hint">
+              Share this bookmark with other registered users and anonymous users.
+          </div>
+        ''', html)
+
+
+def test_should_hide_notes_if_there_are_no_notes(self):
+    bookmark = self.setup_bookmark()
+    response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
+
+    self.assertContains(response, '<details class="notes">', count=1)
