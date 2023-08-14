@@ -56,8 +56,8 @@
       <section class="navbar-section">
         {% include 'bookmarks/nav_menu.html' %}
       </section>
-    {% else %}
-      {# Otherwise show link to shared bookmarks #}
+    {% elif has_public_shares %}
+      {# Otherwise show link to shared bookmarks if there are publicly shared bookmarks #}
       <section class="navbar-section">
         <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared bookmarks</a>
       </section>

@@ -1,3 +1,4 @@
+from bookmarks import queries
 from bookmarks.models import Toast
 
 
@@ -10,3 +11,15 @@ def toasts(request):
         'has_toasts': has_toasts,
         'toast_messages': toast_messages,
     }
+
+
+def public_shares(request):
+    # Only check for public shares for anonymous users
+    if not request.user.is_authenticated:
+        query_set = queries.query_shared_bookmarks(None, request.user_profile, '', True)
+        has_public_shares = query_set.count() > 0
+        return {
+            'has_public_shares': has_public_shares,
+        }
+
+    return {}
