@@ -10,6 +10,8 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
     def render_template(self, url: str, users: QuerySet[User] = User.objects.all()):
         rf = RequestFactory()
         request = rf.get(url)
+        request.user = self.get_or_create_test_user()
+        request.user_profile = self.get_or_create_test_user().profile
         filters = BookmarkFilters(request)
         context = RequestContext(request, {
             'request': request,

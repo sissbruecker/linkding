@@ -27,6 +27,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             'bookmark_link_target': UserProfile.BOOKMARK_LINK_TARGET_BLANK,
             'web_archive_integration': UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED,
             'enable_sharing': False,
+            'enable_public_sharing': False,
             'enable_favicons': False,
             'tag_search': UserProfile.TAG_SEARCH_STRICT,
             'display_url': False,
@@ -54,6 +55,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             'bookmark_link_target': UserProfile.BOOKMARK_LINK_TARGET_SELF,
             'web_archive_integration': UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED,
             'enable_sharing': True,
+            'enable_public_sharing': True,
             'enable_favicons': True,
             'tag_search': UserProfile.TAG_SEARCH_LAX,
             'display_url': True,
@@ -70,6 +72,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(self.user.profile.bookmark_link_target, form_data['bookmark_link_target'])
         self.assertEqual(self.user.profile.web_archive_integration, form_data['web_archive_integration'])
         self.assertEqual(self.user.profile.enable_sharing, form_data['enable_sharing'])
+        self.assertEqual(self.user.profile.enable_public_sharing, form_data['enable_public_sharing'])
         self.assertEqual(self.user.profile.enable_favicons, form_data['enable_favicons'])
         self.assertEqual(self.user.profile.tag_search, form_data['tag_search'])
         self.assertEqual(self.user.profile.display_url, form_data['display_url'])

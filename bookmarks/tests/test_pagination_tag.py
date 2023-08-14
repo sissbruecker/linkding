@@ -1,13 +1,17 @@
 from django.core.paginator import Paginator
 from django.template import Template, RequestContext
-from django.test import SimpleTestCase, RequestFactory
+from django.test import TestCase, RequestFactory
+
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
-class PaginationTagTest(SimpleTestCase):
+class PaginationTagTest(TestCase, BookmarkFactoryMixin):
 
     def render_template(self, num_items: int, page_size: int, current_page: int, url: str = '/test') -> str:
         rf = RequestFactory()
         request = rf.get(url)
+        request.user = self.get_or_create_test_user()
+        request.user_profile = self.get_or_create_test_user().profile
         paginator = Paginator(range(0, num_items), page_size)
         page = paginator.page(current_page)
 
