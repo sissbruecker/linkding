@@ -61,7 +61,8 @@
           <div class="form-input-hint">
             In strict mode, tags must be prefixed with a hash character (#).
             In lax mode, tags can also be searched without the hash character.
-            Note that tags without the hash character are indistinguishable from search terms, which means the search result will also include bookmarks where a search term matches otherwise.
+            Note that tags without the hash character are indistinguishable from search terms, which means the search
+            result will also include bookmarks where a search term matches otherwise.
           </div>
         </div>
         <div class="form-group">
@@ -204,5 +205,23 @@
       </table>
     </section>
   </div>
+
+  <script>
+    // Automatically disable public bookmark sharing if bookmark sharing is disabled
+    const enableSharing = document.getElementById("{{ form.enable_sharing.id_for_label }}");
+    const enablePublicSharing = document.getElementById("{{ form.enable_public_sharing.id_for_label }}");
+
+    function updatePublicSharing() {
+      if (enableSharing.checked) {
+        enablePublicSharing.disabled = false;
+      } else {
+        enablePublicSharing.disabled = true;
+        enablePublicSharing.checked = false;
+      }
+    }
+
+    updatePublicSharing();
+    enableSharing.addEventListener("change", updatePublicSharing);
+  </script>
 
 {% endblock %}
