@@ -1,7 +1,6 @@
 import logging
 import os.path
 import re
-import shutil
 import time
 from pathlib import Path
 from urllib.parse import urlparse
@@ -57,12 +56,10 @@ def load_favicon(url: str) -> str:
         # Load favicon from provider, save to file
         favicon_url = settings.LD_FAVICON_PROVIDER.format(**url_parameters)
         logger.debug(f'Loading favicon from: {favicon_url}')
-        response = requests.get(favicon_url, stream=True)
-
-        with open(favicon_path, 'wb') as file:
-            shutil.copyfileobj(response.raw, file)
-            logger.debug(f'Saved favicon as: {favicon_path}')
-
-        del response
+        with requests.get(favicon_url, stream=True) as response:
+            with open(favicon_path, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+        logger.debug(f'Saved favicon as: {favicon_path}')
 
     return favicon_name

@@ -12,6 +12,20 @@ from bookmarks.services import favicon_loader
 mock_icon_data = b'mock_icon'
 
 
+class MockStreamingResponse:
+    def __init__(self, data=mock_icon_data):
+        self.chunks = [data]
+
+    def iter_content(self, **kwargs):
+        return self.chunks
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+
 class FaviconLoaderTestCase(TestCase):
     def setUp(self) -> None:
         self.ensure_favicon_folder()
@@ -20,7 +34,7 @@ class FaviconLoaderTestCase(TestCase):
     def create_mock_response(self, icon_data=mock_icon_data):
         mock_response = mock.Mock()
         mock_response.raw = io.BytesIO(icon_data)
-        return mock_response
+        return MockStreamingResponse(icon_data)
 
     def ensure_favicon_folder(self):
         Path(settings.LD_FAVICON_FOLDER).mkdir(parents=True, exist_ok=True)
@@ -141,4 +155,3 @@ class FaviconLoaderTestCase(TestCase):
 
             favicon_loader.load_favicon('https://example.com/foo?bar=baz')
             mock_get.assert_called_with('https://custom.icons.com/?url=example.com', stream=True)
-
