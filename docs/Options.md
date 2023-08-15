@@ -171,5 +171,13 @@ The default provider is a Google service that automatically detects the correct 
 
 This setting allows to configure a custom provider in form of a URL.
 When calling the provider with the URL of a website, it must return the image data for the favicon of that website.
-The configured favicon provider URL must contain a `{url}` placeholder that will be replaced with the URL of the website for which to download the favicon.
-See the default URL for an example.
+The configured favicon provider URL must contain a placeholder that will be replaced with the URL of the website for which to download the favicon.
+The available placeholders are:
+- `{url}` - Includes the scheme and hostname of the website, for example `https://example.com`
+- `{domain}` - Includes only the hostname of the website, for example `example.com`
+
+Which placeholder you need to use depends on the respective favicon provider, please check their documentation or usage examples.
+See the default URL for how to insert the placeholder to the favicon provider URL.
+
+Alternative favicon providers:
+- DuckDuckGo: `https://icons.duckduckgo.com/ip3/{domain}.ico`
