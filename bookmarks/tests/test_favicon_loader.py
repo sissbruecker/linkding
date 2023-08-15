@@ -159,7 +159,6 @@ class FaviconLoaderTestCase(TestCase):
             favicon_loader.load_favicon('https://example.com/foo?bar=baz')
             mock_get.assert_called_with('https://custom.icons.com/?url=example.com', stream=True)
 
-    @skip("Fails in CI, probably missing some dependency for mime types")
     def test_guess_file_extension(self):
         with mock.patch('requests.get') as mock_get:
             mock_get.return_value = self.create_mock_response(content_type='image/png')

@@ -13,6 +13,10 @@ max_file_age = 60 * 60 * 24  # 1 day
 
 logger = logging.getLogger(__name__)
 
+# register mime type for .ico files, which is not included in the default
+# mimetypes of the Docker image
+mimetypes.add_type('image/x-icon', '.ico')
+
 
 def _ensure_favicon_folder():
     Path(settings.LD_FAVICON_FOLDER).mkdir(parents=True, exist_ok=True)
