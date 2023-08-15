@@ -130,12 +130,12 @@ def _load_favicon_task(bookmark_id: int):
 
     logger.info(f'Load favicon for bookmark. url={bookmark.url}')
 
-    new_favicon = favicon_loader.load_favicon(bookmark.url)
+    new_favicon_file = favicon_loader.load_favicon(bookmark.url)
 
-    if new_favicon != bookmark.favicon_file:
-        bookmark.favicon_file = new_favicon
+    if new_favicon_file != bookmark.favicon_file:
+        bookmark.favicon_file = new_favicon_file
         bookmark.save(update_fields=['favicon_file'])
-        logger.info(f'Successfully updated favicon for bookmark. url={bookmark.url} icon={new_favicon}')
+        logger.info(f'Successfully updated favicon for bookmark. url={bookmark.url} icon={new_favicon_file}')
 
 
 def schedule_bookmarks_without_favicons(user: User):
