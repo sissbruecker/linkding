@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest import mock
 
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from bookmarks.services import favicon_loader
 
@@ -125,3 +125,20 @@ class FaviconLoaderTestCase(TestCase):
             favicon_loader.load_favicon('https://example.com')
             mock_get.assert_called()
             self.assertEqual(updated_mock_icon_data, self.get_icon_data('https_example_com.png'))
+
+    @override_settings(LD_FAVICON_PROVIDER='https://custom.icons.com/?url={url}')
+    def test_custom_provider_with_url_param(self):
+        with mock.patch('requests.get') as mock_get:
+            mock_get.return_value = self.create_mock_response()
+
+            favicon_loader.load_favicon('https://example.com/foo?bar=baz')
+            mock_get.assert_called_with('https://custom.icons.com/?url=https://example.com', stream=True)
+
+    @override_settings(LD_FAVICON_PROVIDER='https://custom.icons.com/?url={domain}')
+    def test_custom_provider_with_domain_param(self):
+        with mock.patch('requests.get') as mock_get:
+            mock_get.return_value = self.create_mock_response()
+
+            favicon_loader.load_favicon('https://example.com/foo?bar=baz')
+            mock_get.assert_called_with('https://custom.icons.com/?url=example.com', stream=True)
+
