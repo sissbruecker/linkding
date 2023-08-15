@@ -164,7 +164,7 @@ A json string with additional options for the database. Passed directly to OPTIO
 
 ### `LD_FAVICON_PROVIDER`
 
-Values: `String` | Default =  `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url={url}&size=64`
+Values: `String` | Default =  `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url={url}&size=32`
 
 The favicon provider used for downloading icons if they are enabled in the user profile settings.
 The default provider is a Google service that automatically detects the correct favicon for a website, and provides icons in consistent image format (PNG) and in a consistent image size.
