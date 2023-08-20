@@ -47,6 +47,30 @@ class ConfirmButton extends HTMLElement {
 
 customElements.define("ld-confirm-button", ConfirmButton);
 
+class TagAutocomplete extends HTMLElement {
+  connectedCallback() {
+    const wrapper = document.createElement("div");
+    const tagInput = this.querySelector("input");
+    const apiBaseUrl = document.documentElement.dataset.apiBaseUrl || "";
+    const apiClient = new linkding.ApiClient(apiBaseUrl);
+
+    new linkding.TagAutoComplete({
+      target: wrapper,
+      props: {
+        id: tagInput.id,
+        name: tagInput.name,
+        value: tagInput.value,
+        apiClient: apiClient,
+        variant: this.getAttribute("variant"),
+      },
+    });
+
+    tagInput.parentElement.replaceChild(wrapper, tagInput);
+  }
+}
+
+customElements.define("ld-tag-autocomplete", TagAutocomplete);
+
 (function () {
   function initGlobalShortcuts() {
     // Focus search button

@@ -29,8 +29,9 @@
       </ld-confirm-button>
       <span class="text-sm text-gray-dark">•</span>
       <span class="text-sm text-gray-dark"><label for="bulk-edit-tags-input">Tags:</label></span>
-      <input id="bulk-edit-tags-input" name="bulk_tag_string" class="form-input input-sm"
-             placeholder="&nbsp;">
+      <ld-tag-autocomplete variant="small">
+        <input name="bulk_tag_string" class="form-input input-sm" placeholder="&nbsp;">
+      </ld-tag-autocomplete>
       <button type="submit" name="bulk_tag" class="btn btn-link btn-sm"
               title="Add tags to selected bookmarks">Add
       </button>

@@ -24,8 +24,14 @@ ld-confirm-button {
 
   span.confirmation .btn {
     color: $error-color !important;
+
     &:hover {
       text-decoration: underline;
     }
   }
+}
+
+// Tag autocomplete component
+ld-tag-autocomplete {
+  display: contents;
 }

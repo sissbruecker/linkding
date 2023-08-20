@@ -28,28 +28,6 @@ class BulkEdit extends HTMLElement {
       "bookmark-actions-form-submit",
       this.onFormSubmit.bind(this),
     );
-
-    this.initTagAutoComplete();
-  }
-
-  initTagAutoComplete() {
-    const wrapper = document.createElement("div");
-    const tagInput = this.querySelector("#bulk-edit-tags-input");
-    const apiBaseUrl = document.documentElement.dataset.apiBaseUrl || "";
-    const apiClient = new linkding.ApiClient(apiBaseUrl);
-
-    new linkding.TagAutoComplete({
-      target: wrapper,
-      props: {
-        id: "bulk-edit-tags-input",
-        name: tagInput.name,
-        value: tagInput.value,
-        apiClient: apiClient,
-        variant: "small",
-      },
-    });
-
-    tagInput.parentElement.replaceChild(wrapper, tagInput);
   }
 
   onToggleMode() {
