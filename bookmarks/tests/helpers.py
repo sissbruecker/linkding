@@ -147,7 +147,8 @@ class ImportTestMixin:
         <A {f'HREF="{tag.href}"' if tag.href else ''}
            {f'ADD_DATE="{tag.add_date}"' if tag.add_date else ''}
            {f'TAGS="{tag.tags}"' if tag.tags else ''}
-           TOREAD="{1 if tag.to_read else 0}">
+           TOREAD="{1 if tag.to_read else 0}"
+           PRIVATE="{1 if tag.private else 0}">
            {tag.title if tag.title else ''}
         </A>
         {f'<DD>{tag.description}' if tag.description else ''}
