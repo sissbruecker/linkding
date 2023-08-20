@@ -162,6 +162,21 @@ class BookmarkPage extends HTMLElement {
       const list = document.querySelector(".bookmark-list");
       list.classList.toggle("show-notes");
     }
+
+    // Handle shortcut for focusing search input
+    if (event.key === "s") {
+      const searchInput = document.querySelector('input[type="search"]');
+
+      if (searchInput) {
+        searchInput.focus();
+        event.preventDefault();
+      }
+    }
+
+    // Handle shortcut for adding new bookmark
+    if (event.key === "n") {
+      window.location.assign("/bookmarks/new");
+    }
   }
 
   async refresh() {
