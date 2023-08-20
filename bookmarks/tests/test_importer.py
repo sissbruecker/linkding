@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from bookmarks.models import Bookmark, Tag, parse_tag_string
 from bookmarks.services import tasks
-from bookmarks.services.importer import import_netscape_html
+from bookmarks.services.importer import import_netscape_html, ImportOptions
 from bookmarks.tests.helpers import BookmarkFactoryMixin, ImportTestMixin, BookmarkHtmlTag, disable_logging
 from bookmarks.utils import parse_timestamp
 
@@ -22,6 +22,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
             self.assertEqual(bookmark.description, html_tag.description)
             self.assertEqual(bookmark.date_added, parse_timestamp(html_tag.add_date))
             self.assertEqual(bookmark.unread, html_tag.to_read)
+            self.assertEqual(bookmark.shared, not html_tag.private)
 
             tag_names = parse_tag_string(html_tag.tags)
 
@@ -66,35 +67,46 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                             add_date='3', tags='bar-tag, other-tag'),
             BookmarkHtmlTag(href='https://example.com/unread', title='Unread title', description='Unread description',
                             add_date='3', to_read=True),
+            BookmarkHtmlTag(href='https://example.com/private', title='Private title', description='Private description',
+                            add_date='4', private=True),
         ]
         import_html = self.render_html(tags=html_tags)
         import_netscape_html(import_html, self.get_or_create_test_user())
+
+        # Check bookmarks
+        bookmarks = Bookmark.objects.all()
+        self.assertEqual(len(bookmarks), 5)
+        self.assertBookmarksImported(html_tags)
 
         # Change data, add some new data
         html_tags = [
             BookmarkHtmlTag(href='https://example.com', title='Updated Example title',
                             description='Updated Example description', add_date='111', tags='updated-example-tag'),
-            BookmarkHtmlTag(href='https://example.com/foo', title='Updated Foo title', description='Updated Foo description',
+            BookmarkHtmlTag(href='https://example.com/foo', title='Updated Foo title',
+                            description='Updated Foo description',
                             add_date='222', tags='new-tag'),
-            BookmarkHtmlTag(href='https://example.com/bar', title='Updated Bar title', description='Updated Bar description',
+            BookmarkHtmlTag(href='https://example.com/bar', title='Updated Bar title',
+                            description='Updated Bar description',
                             add_date='333', tags='updated-bar-tag, updated-other-tag'),
             BookmarkHtmlTag(href='https://example.com/unread', title='Unread title', description='Unread description',
                             add_date='3', to_read=False),
+            BookmarkHtmlTag(href='https://example.com/private', title='Private title', description='Private description',
+                            add_date='4', private=False),
             BookmarkHtmlTag(href='https://baz.com', add_date='444', tags='baz-tag')
         ]
 
         # Import updated data
         import_html = self.render_html(tags=html_tags)
-        result = import_netscape_html(import_html, self.get_or_create_test_user())
+        result = import_netscape_html(import_html, self.get_or_create_test_user(), ImportOptions(map_private_flag=True))
 
         # Check result
-        self.assertEqual(result.total, 5)
-        self.assertEqual(result.success, 5)
+        self.assertEqual(result.total, 6)
+        self.assertEqual(result.success, 6)
         self.assertEqual(result.failed, 0)
 
         # Check bookmarks
         bookmarks = Bookmark.objects.all()
-        self.assertEqual(len(bookmarks), 5)
+        self.assertEqual(len(bookmarks), 6)
         self.assertBookmarksImported(html_tags)
 
     def test_import_with_some_invalid_bookmarks(self):
@@ -253,6 +265,33 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         self.assertEqual(Bookmark.objects.count(), 0)
         self.assertEqual(import_result.success, 0)
         self.assertEqual(import_result.failed, 2)
+
+    def test_private_flag(self):
+        # does not map private flag if not enabled in options
+        test_html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com/1" ADD_DATE="1">Example title 1</A>
+        <DD>Example description 1</DD>
+        <DT><A HREF="https://example.com/2" ADD_DATE="1" PRIVATE="1">Example title 2</A>
+        <DD>Example description 2</DD>
+        <DT><A HREF="https://example.com/3" ADD_DATE="1" PRIVATE="0">Example title 3</A>
+        <DD>Example description 3</DD>
+        ''')
+        import_netscape_html(test_html, self.get_or_create_test_user(), ImportOptions())
+
+        self.assertEqual(Bookmark.objects.count(), 3)
+        self.assertEqual(Bookmark.objects.all()[0].shared, False)
+        self.assertEqual(Bookmark.objects.all()[1].shared, False)
+        self.assertEqual(Bookmark.objects.all()[2].shared, False)
+
+        # does map private flag if enabled in options
+        Bookmark.objects.all().delete()
+        import_netscape_html(test_html, self.get_or_create_test_user(), ImportOptions(map_private_flag=True))
+        bookmark1 = Bookmark.objects.get(url='https://example.com/1')
+        bookmark2 = Bookmark.objects.get(url='https://example.com/2')
+        bookmark3 = Bookmark.objects.get(url='https://example.com/3')
+        self.assertEqual(bookmark1.shared, False)
+        self.assertEqual(bookmark2.shared, False)
+        self.assertEqual(bookmark3.shared, True)
 
     def test_schedule_snapshot_creation(self):
         user = self.get_or_create_test_user()

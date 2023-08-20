@@ -20,6 +20,11 @@ class ImportResult:
     failed: int = 0
 
 
+@dataclass
+class ImportOptions:
+    map_private_flag: bool = False
+
+
 class TagCache:
     def __init__(self, user: User):
         self.user = user
@@ -50,7 +55,7 @@ class TagCache:
         self.cache[tag.name.lower()] = tag
 
 
-def import_netscape_html(html: str, user: User):
+def import_netscape_html(html: str, user: User, options: ImportOptions = ImportOptions()) -> ImportResult:
     result = ImportResult()
     import_start = timezone.now()
 
@@ -70,7 +75,7 @@ def import_netscape_html(html: str, user: User):
     # Split bookmarks to import into batches, to keep memory usage for bulk operations manageable
     batches = _get_batches(netscape_bookmarks, 200)
     for batch in batches:
-        _import_batch(batch, user, tag_cache, result)
+        _import_batch(batch, user, options, tag_cache, result)
 
     # Create snapshots for newly imported bookmarks
     tasks.schedule_bookmarks_without_snapshots(user)
@@ -114,7 +119,11 @@ def _get_batches(items: List, batch_size: int):
     return batches
 
 
-def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_cache: TagCache, result: ImportResult):
+def _import_batch(netscape_bookmarks: List[NetscapeBookmark],
+                  user: User,
+                  options: ImportOptions,
+                  tag_cache: TagCache,
+                  result: ImportResult):
     # Query existing bookmarks
     batch_urls = [bookmark.href for bookmark in netscape_bookmarks]
     existing_bookmarks = Bookmark.objects.filter(owner=user, url__in=batch_urls)
@@ -135,7 +144,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
             else:
                 is_update = True
             # Copy data from parsed bookmark
-            _copy_bookmark_data(netscape_bookmark, bookmark)
+            _copy_bookmark_data(netscape_bookmark, bookmark, options)
             # Validate bookmark fields, exclude owner to prevent n+1 database query,
             # also there is no specific validation on owner
             bookmark.clean_fields(exclude=['owner'])
@@ -152,8 +161,14 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
             result.failed = result.failed + 1
 
     # Bulk update bookmarks in DB
-    Bookmark.objects.bulk_update(bookmarks_to_update,
-                                 ['url', 'date_added', 'date_modified', 'unread', 'title', 'description', 'owner'])
+    Bookmark.objects.bulk_update(bookmarks_to_update, ['url',
+                                                       'date_added',
+                                                       'date_modified',
+                                                       'unread',
+                                                       'shared',
+                                                       'title',
+                                                       'description',
+                                                       'owner'])
     # Bulk insert new bookmarks into DB
     Bookmark.objects.bulk_create(bookmarks_to_create)
 
@@ -187,7 +202,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
     BookmarkToTagRelationShip.objects.bulk_create(relationships, ignore_conflicts=True)
 
 
-def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark):
+def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark, options: ImportOptions):
     bookmark.url = netscape_bookmark.href
     if netscape_bookmark.date_added:
         bookmark.date_added = parse_timestamp(netscape_bookmark.date_added)
@@ -199,3 +214,5 @@ def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark)
         bookmark.title = netscape_bookmark.title
     if netscape_bookmark.description:
         bookmark.description = netscape_bookmark.description
+    if options.map_private_flag and not netscape_bookmark.private:
+        bookmark.shared = True

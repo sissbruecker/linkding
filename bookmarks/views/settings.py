@@ -116,6 +116,7 @@ def integrations(request):
 @login_required
 def bookmark_import(request):
     import_file = request.FILES.get('import_file')
+    import_options = importer.ImportOptions(map_private_flag=request.POST.get('map_private_flag') == 'on')
 
     if import_file is None:
         messages.error(request, 'Please select a file to import.', 'bookmark_import_errors')
@@ -123,7 +124,7 @@ def bookmark_import(request):
 
     try:
         content = import_file.read().decode()
-        result = importer.import_netscape_html(content, request.user)
+        result = importer.import_netscape_html(content, request.user, import_options)
         success_msg = str(result.success) + ' bookmarks were successfully imported.'
         messages.success(request, success_msg, 'bookmark_import_success')
         if result.failed > 0:
