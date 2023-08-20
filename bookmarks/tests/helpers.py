@@ -125,13 +125,15 @@ class BookmarkHtmlTag:
                  description: str = '',
                  add_date: str = '',
                  tags: str = '',
-                 to_read: bool = False):
+                 to_read: bool = False,
+                 private: bool = True):
         self.href = href
         self.title = title
         self.description = description
         self.add_date = add_date
         self.tags = tags
         self.to_read = to_read
+        self.private = private
 
 
 class ImportTestMixin:

@@ -145,6 +145,16 @@
       <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings.import' %}">
         {% csrf_token %}
         <div class="form-group">
+          <label for="import_map_private_flag" class="form-checkbox">
+            <input type="checkbox" id="import_map_private_flag" name="map_private_flag">
+            <i class="form-icon"></i> Import public bookmarks as shared
+          </label>
+          <div class="form-input-hint">
+            When importing bookmarks from a service that supports marking bookmarks as public or private (using the <code>PRIVATE</code> attribute), enabling this option will import all bookmarks that are marked as not private as shared bookmarks.
+            Otherwise, all bookmarks will be imported as private bookmarks.
+          </div>
+        </div>
+        <div class="form-group">
           <div class="input-group col-8 col-md-12">
             <input class="form-input" type="file" name="import_file">
             <input type="submit" class="input-group-btn col-2 btn btn-primary" value="Upload">

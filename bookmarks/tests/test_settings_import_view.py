@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from bookmarks.models import Bookmark
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
@@ -77,3 +78,30 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             self.assertRedirects(response, reverse('bookmarks:settings.general'))
             self.assertFormSuccessHint(response, '2 bookmarks were successfully imported')
             self.assertFormErrorHint(response, '1 bookmarks could not be imported')
+
+    def test_should_respect_map_private_flag_option(self):
+        with open('bookmarks/tests/resources/simple_valid_import_file.html') as import_file:
+            self.client.post(
+                reverse('bookmarks:settings.import'),
+                {'import_file': import_file},
+                follow=True
+            )
+
+            self.assertEqual(Bookmark.objects.count(), 3)
+            self.assertEqual(Bookmark.objects.all()[0].shared, False)
+            self.assertEqual(Bookmark.objects.all()[1].shared, False)
+            self.assertEqual(Bookmark.objects.all()[2].shared, False)
+
+        Bookmark.objects.all().delete()
+
+        with open('bookmarks/tests/resources/simple_valid_import_file.html') as import_file:
+            self.client.post(
+                reverse('bookmarks:settings.import'),
+                {'import_file': import_file, 'map_private_flag': 'on'},
+                follow=True
+            )
+
+            self.assertEqual(Bookmark.objects.count(), 3)
+            self.assertEqual(Bookmark.objects.all()[0].shared, True)
+            self.assertEqual(Bookmark.objects.all()[1].shared, True)
+            self.assertEqual(Bookmark.objects.all()[2].shared, True)

@@ -18,6 +18,7 @@ class ParserTestCase(TestCase, ImportTestMixin):
             self.assertEqual(bookmark.description, html_tag.description)
             self.assertEqual(bookmark.tag_string, html_tag.tags)
             self.assertEqual(bookmark.to_read, html_tag.to_read)
+            self.assertEqual(bookmark.private, html_tag.private)
 
     def test_parse_bookmarks(self):
         html_tags = [
@@ -123,3 +124,28 @@ class ParserTestCase(TestCase, ImportTestMixin):
         bookmarks = parse(html)
 
         self.assertTagsEqual(bookmarks, html_tags)
+
+    def test_private_flag(self):
+        # is private by default
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
+        <DD>Example description</DD>
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].private, True)
+
+        # explicitly marked as private
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1" PRIVATE="1">Example title</A>
+        <DD>Example description</DD>
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].private, True)
+
+        # explicitly marked as public
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1" PRIVATE="0">Example title</A>
+        <DD>Example description</DD>
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].private, False)
