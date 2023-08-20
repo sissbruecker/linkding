@@ -15,14 +15,17 @@
             const confirmEl = document.createElement(buttonEl.nodeName);
             confirmEl.innerText = 'Confirm';
             confirmEl.className = 'btn btn-link btn-delete btn-sm btn-confirmation-action';
+            confirmEl.addEventListener('click', function () {
+                setTimeout(() => {
+                    container.remove();
+                    buttonEl.style = '';
+                });
+            });
 
             if (buttonEl.nodeName === 'BUTTON') {
-                confirmEl.type = buttonEl.type;
-                confirmEl.name = buttonEl.name;
-                confirmEl.value = buttonEl.value;
-            }
-            if (buttonEl.nodeName === 'A') {
-                confirmEl.href = buttonEl.href;
+                confirmEl.type = buttonEl.dataset.type;
+                confirmEl.name = buttonEl.dataset.name;
+                confirmEl.value = buttonEl.dataset.value;
             }
 
             const container = document.createElement('span');
@@ -33,10 +36,16 @@
             buttonEl.style = 'display: none';
         }
 
-        buttonEls.forEach(function (linkEl) {
-            linkEl.addEventListener('click', function (e) {
+        buttonEls.forEach(function (buttonEl) {
+            buttonEl.dataset.type = buttonEl.type;
+            buttonEl.dataset.name = buttonEl.name;
+            buttonEl.dataset.value = buttonEl.value;
+            buttonEl.removeAttribute('type');
+            buttonEl.removeAttribute('name');
+            buttonEl.removeAttribute('value');
+            buttonEl.addEventListener('click', function (e) {
                 e.preventDefault();
-                showConfirmation(linkEl);
+                showConfirmation(buttonEl);
             });
         });
     }

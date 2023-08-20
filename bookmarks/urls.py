@@ -1,10 +1,11 @@
-from django.urls import re_path
 from django.urls import path, include
+from django.urls import re_path
 from django.views.generic import RedirectView
 
-from bookmarks.api.routes import router
 from bookmarks import views
+from bookmarks.api.routes import router
 from bookmarks.feeds import AllBookmarksFeed, UnreadBookmarksFeed
+from bookmarks.views import partials
 
 app_name = 'bookmarks'
 urlpatterns = [
@@ -18,6 +19,9 @@ urlpatterns = [
     path('bookmarks/close', views.bookmarks.close, name='close'),
     path('bookmarks/<int:bookmark_id>/edit', views.bookmarks.edit, name='edit'),
     path('bookmarks/action', views.bookmarks.action, name='action'),
+    # Partials
+    path('bookmarks/partials/bookmark-list', partials.bookmark_list, name='partials.bookmark_list'),
+    path('bookmarks/partials/tag-cloud', partials.tag_cloud, name='partials.tag_cloud'),
     # Settings
     path('settings', views.settings.general, name='settings.index'),
     path('settings/general', views.settings.general, name='settings.general'),

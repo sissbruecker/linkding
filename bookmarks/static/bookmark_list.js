@@ -135,7 +135,7 @@
 
   function setupNotes() {
     // Shortcut for toggling all notes
-    document.addEventListener('keydown', function(event) {
+    document.addEventListener('keydown', function (event) {
       // Filter for shortcut key
       if (event.key !== 'e') return;
       // Skip if event occurred within an input element
@@ -164,8 +164,46 @@
     });
   }
 
+  function setupPartialUpdate() {
+    // Avoid full page reload and losing scroll position when triggering
+    // bookmark actions and only do partial updates of the bookmark list and tag
+    // cloud
+    const form = document.querySelector('form.bookmark-actions');
+    const bookmarkListContainer = document.querySelector('.bookmark-list-container');
+    const tagCloudContainer = document.querySelector('.tag-cloud-container');
+    if (!form || !bookmarkListContainer || !tagCloudContainer) {
+      return;
+    }
+
+    form.addEventListener('submit', async function (event) {
+      const url = form.action;
+      const formData = new FormData(form, event.submitter);
+
+      event.preventDefault();
+      await fetch(url, {
+        method: 'POST',
+        body: formData,
+        redirect: 'manual', // ignore redirect
+      });
+
+      const queryParams = window.location.search;
+      Promise.all([
+        fetch(`/bookmarks/partials/bookmark-list${queryParams}`).then((response) =>
+          response.text()
+        ),
+        fetch(`/bookmarks/partials/tag-cloud${queryParams}`).then((response) =>
+          response.text()
+        ),
+      ]).then(([bookmarkListHtml, tagCloudHtml]) => {
+        bookmarkListContainer.innerHTML = bookmarkListHtml;
+        tagCloudContainer.innerHTML = tagCloudHtml;
+      });
+    });
+  }
+
   setupBulkEdit();
   setupBulkEditTagAutoComplete();
   setupListNavigation();
   setupNotes();
+  setupPartialUpdate();
 })()
