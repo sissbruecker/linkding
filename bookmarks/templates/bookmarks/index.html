@@ -4,40 +4,42 @@
 {% load bookmarks %}
 
 {% block content %}
-  <div class="bookmarks-page columns">
+  <ld-bookmark-page>
+    <div class="bookmarks-page columns">
 
-    {# Bookmark list #}
-    <section class="content-area column col-8 col-md-12">
-      <ld-bulk-edit>
-        <div class="content-area-header">
-          <h2>Bookmarks</h2>
-          <div class="spacer"></div>
-          {% bookmark_search bookmark_list.filters tag_cloud.tags %}
-          {% include 'bookmarks/bulk_edit/toggle.html' %}
-        </div>
-
-        <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ bookmark_list.return_url }}"
-              method="post">
-          {% csrf_token %}
-          {% include 'bookmarks/bulk_edit/bar.html' with mode='default' %}
-
-          <div class="bookmark-list-container">
-            {% include 'bookmarks/bookmark_list.html' %}
+      {# Bookmark list #}
+      <section class="content-area column col-8 col-md-12">
+        <ld-bulk-edit>
+          <div class="content-area-header">
+            <h2>Bookmarks</h2>
+            <div class="spacer"></div>
+            {% bookmark_search bookmark_list.filters tag_cloud.tags %}
+            {% include 'bookmarks/bulk_edit/toggle.html' %}
           </div>
-        </form>
-      </ld-bulk-edit>
-    </section>
 
-    {# Tag cloud #}
-    <section class="content-area column col-4 hide-md">
-      <div class="content-area-header">
-        <h2>Tags</h2>
-      </div>
-      <div class="tag-cloud-container">
-        {% include 'bookmarks/tag_cloud.html' %}
-      </div>
-    </section>
-  </div>
+          <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ bookmark_list.return_url }}"
+                method="post">
+            {% csrf_token %}
+            {% include 'bookmarks/bulk_edit/bar.html' with mode='default' %}
+
+            <div class="bookmark-list-container">
+              {% include 'bookmarks/bookmark_list.html' %}
+            </div>
+          </form>
+        </ld-bulk-edit>
+      </section>
+
+      {# Tag cloud #}
+      <section class="content-area column col-4 hide-md">
+        <div class="content-area-header">
+          <h2>Tags</h2>
+        </div>
+        <div class="tag-cloud-container">
+          {% include 'bookmarks/tag_cloud.html' %}
+        </div>
+      </section>
+    </div>
+  </ld-bookmark-page>
 
   <script src="{% static "bundle.js" %}"></script>
   <script src="{% static "shared.js" %}"></script>

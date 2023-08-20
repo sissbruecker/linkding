@@ -24,10 +24,6 @@ class BulkEdit extends HTMLElement {
       "bulk-edit-toggle-single",
       this.onToggleSingle.bind(this),
     );
-    this.addEventListener(
-      "bookmark-actions-form-submit",
-      this.onFormSubmit.bind(this),
-    );
   }
 
   onToggleMode() {
@@ -55,7 +51,7 @@ class BulkEdit extends HTMLElement {
     });
   }
 
-  onFormSubmit() {
+  reset() {
     this.allCheckbox.checked = false;
     this.bookmarkCheckboxes.forEach((checkbox) => {
       checkbox.checked = false;
@@ -94,31 +90,56 @@ customElements.define("ld-bulk-edit", BulkEdit);
 customElements.define("ld-bulk-edit-toggle", BulkEditToggle);
 customElements.define("ld-bulk-edit-checkbox", BulkEditCheckbox);
 
-(function () {
-  function setupListNavigation() {
-    // Add logic for navigating bookmarks with arrow keys
-    document.addEventListener("keydown", (event) => {
-      // Skip if event occurred within an input element
-      // or does not use arrow keys
-      const targetNodeName = event.target.nodeName;
-      const isInputTarget =
-        targetNodeName === "INPUT" ||
-        targetNodeName === "SELECT" ||
-        targetNodeName === "TEXTAREA";
-      const isArrowUp = event.key === "ArrowUp";
-      const isArrowDown = event.key === "ArrowDown";
+class BookmarkPage extends HTMLElement {
+  connectedCallback() {
+    this.form = this.querySelector("form.bookmark-actions");
+    this.form.addEventListener("submit", this.onFormSubmit.bind(this));
 
-      if (isInputTarget || !(isArrowUp || isArrowDown)) {
-        return;
-      }
+    this.bulkEdit = this.querySelector("ld-bulk-edit");
+    this.bookmarkList = this.querySelector(".bookmark-list-container");
+    this.tagCloud = this.querySelector(".tag-cloud-container");
+
+    document.addEventListener("keydown", this.onKeyDown.bind(this));
+  }
+
+  async onFormSubmit(event) {
+    event.preventDefault();
+
+    const url = this.form.action;
+    const formData = new FormData(this.form, event.submitter);
+    await fetch(url, {
+      method: "POST",
+      body: formData,
+      redirect: "manual", // ignore redirect
+    });
+    await this.refresh();
+
+    if (this.bulkEdit) {
+      this.bulkEdit.reset();
+    }
+  }
+
+  onKeyDown(event) {
+    // Skip if event occurred within an input element
+    const targetNodeName = event.target.nodeName;
+    const isInputTarget =
+      targetNodeName === "INPUT" ||
+      targetNodeName === "SELECT" ||
+      targetNodeName === "TEXTAREA";
+
+    if (isInputTarget) {
+      return;
+    }
+
+    // Handle shortcuts for navigating bookmarks with arrow keys
+    const isArrowUp = event.key === "ArrowUp";
+    const isArrowDown = event.key === "ArrowDown";
+    if (isArrowUp || isArrowDown) {
       event.preventDefault();
 
       // Detect current bookmark list item
       const path = event.composedPath();
-      const currentItem = path.find(
-        (item) =>
-          item.hasAttribute && item.hasAttribute("data-is-bookmark-item"),
-      );
+      const currentItem = path.find((item) => item instanceof BookmarkItem);
 
       // Find next item
       let nextItem;
@@ -128,90 +149,54 @@ customElements.define("ld-bulk-edit-checkbox", BulkEditCheckbox);
           : currentItem.nextElementSibling;
       } else {
         // Select first item
-        nextItem = document.querySelector("li[data-is-bookmark-item]");
+        nextItem = document.querySelector("ld-bookmark-item");
       }
       // Focus first link
       if (nextItem) {
         nextItem.querySelector("a").focus();
       }
-    });
-  }
-
-  function setupNotes() {
-    // Shortcut for toggling all notes
-    document.addEventListener("keydown", function (event) {
-      // Filter for shortcut key
-      if (event.key !== "e") return;
-      // Skip if event occurred within an input element
-      const targetNodeName = event.target.nodeName;
-      const isInputTarget =
-        targetNodeName === "INPUT" ||
-        targetNodeName === "SELECT" ||
-        targetNodeName === "TEXTAREA";
-
-      if (isInputTarget) return;
-
-      const list = document.querySelector(".bookmark-list");
-      list.classList.toggle("show-notes");
-    });
-
-    // Toggle notes for single bookmark
-    const bookmarks = document.querySelectorAll(".bookmark-list li");
-    bookmarks.forEach((bookmark) => {
-      const toggleButton = bookmark.querySelector(".toggle-notes");
-      if (toggleButton) {
-        toggleButton.addEventListener("click", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          bookmark.classList.toggle("show-notes");
-        });
-      }
-    });
-  }
-
-  function setupPartialUpdate() {
-    // Avoid full page reload and losing scroll position when triggering
-    // bookmark actions and only do partial updates of the bookmark list and tag
-    // cloud
-    const form = document.querySelector("form.bookmark-actions");
-    const bookmarkListContainer = document.querySelector(
-      ".bookmark-list-container",
-    );
-    const tagCloudContainer = document.querySelector(".tag-cloud-container");
-    if (!form || !bookmarkListContainer || !tagCloudContainer) {
-      return;
     }
 
-    form.addEventListener("submit", async function (event) {
-      const url = form.action;
-      const formData = new FormData(form, event.submitter);
-
-      event.preventDefault();
-      await fetch(url, {
-        method: "POST",
-        body: formData,
-        redirect: "manual", // ignore redirect
-      });
-      form.dispatchEvent(
-        new CustomEvent("bookmark-actions-form-submit", { bubbles: true }),
-      );
-
-      const queryParams = window.location.search;
-      Promise.all([
-        fetch(`/bookmarks/partials/bookmark-list${queryParams}`).then(
-          (response) => response.text(),
-        ),
-        fetch(`/bookmarks/partials/tag-cloud${queryParams}`).then((response) =>
-          response.text(),
-        ),
-      ]).then(([bookmarkListHtml, tagCloudHtml]) => {
-        bookmarkListContainer.innerHTML = bookmarkListHtml;
-        tagCloudContainer.innerHTML = tagCloudHtml;
-      });
-    });
+    // Handle shortcut for toggling all notes
+    if (event.key === "e") {
+      const list = document.querySelector(".bookmark-list");
+      list.classList.toggle("show-notes");
+    }
   }
 
-  setupListNavigation();
-  setupNotes();
-  setupPartialUpdate();
-})();
+  async refresh() {
+    const queryParams = window.location.search;
+    Promise.all([
+      fetch(`/bookmarks/partials/bookmark-list${queryParams}`).then(
+        (response) => response.text(),
+      ),
+      fetch(`/bookmarks/partials/tag-cloud${queryParams}`).then((response) =>
+        response.text(),
+      ),
+    ]).then(([bookmarkListHtml, tagCloudHtml]) => {
+      this.bookmarkList.innerHTML = bookmarkListHtml;
+      this.tagCloud.innerHTML = tagCloudHtml;
+    });
+  }
+}
+
+customElements.define("ld-bookmark-page", BookmarkPage);
+
+class BookmarkItem extends HTMLElement {
+  connectedCallback() {
+    this.bookmark = this.querySelector("li");
+
+    const notesToggle = this.querySelector(".toggle-notes");
+    if (notesToggle) {
+      notesToggle.addEventListener("click", this.onToggleNotes.bind(this));
+    }
+  }
+
+  onToggleNotes(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.bookmark.classList.toggle("show-notes");
+  }
+}
+
+customElements.define("ld-bookmark-item", BookmarkItem);
