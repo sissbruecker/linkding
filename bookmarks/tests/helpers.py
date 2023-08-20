@@ -1,5 +1,6 @@
 import random
 import logging
+import datetime
 from typing import List
 
 from bs4 import BeautifulSoup
@@ -35,6 +36,7 @@ class BookmarkFactoryMixin:
                        website_description: str = '',
                        web_archive_snapshot_url: str = '',
                        favicon_file: str = '',
+                       added: datetime = None,
                        ):
         if not title:
             title = get_random_string(length=32)
@@ -45,6 +47,8 @@ class BookmarkFactoryMixin:
         if not url:
             unique_id = get_random_string(length=32)
             url = 'https://example.com/' + unique_id
+        if added is None:
+            added = timezone.now()
         bookmark = Bookmark(
             url=url,
             title=title,
@@ -52,7 +56,7 @@ class BookmarkFactoryMixin:
             notes=notes,
             website_title=website_title,
             website_description=website_description,
-            date_added=timezone.now(),
+            date_added=added,
             date_modified=timezone.now(),
             owner=user,
             is_archived=is_archived,

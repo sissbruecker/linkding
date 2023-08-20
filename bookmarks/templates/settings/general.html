@@ -181,6 +181,10 @@
     <section class="content-area">
       <h2>Export</h2>
       <p>Export all bookmarks in Netscape HTML format.</p>
+      <p>
+        Note that exporting bookmark notes is currently not supported due to limitations of the format.
+        For proper backups please use a database backup as described in the documentation.
+      </p>
       <a class="btn btn-primary" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
       {% if export_error %}
         <div class="has-error">
