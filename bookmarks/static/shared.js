@@ -17,7 +17,7 @@ class ConfirmButton extends HTMLElement {
     const cancelButton = document.createElement(this.button.nodeName);
     cancelButton.type = "button";
     cancelButton.innerText = "Cancel";
-    cancelButton.className = "btn btn-link btn-sm btn-confirmation-action mr-1";
+    cancelButton.className = "btn btn-link btn-sm mr-1";
     cancelButton.addEventListener("click", this.reset.bind(this));
 
     const confirmButton = document.createElement(this.button.nodeName);
@@ -25,8 +25,7 @@ class ConfirmButton extends HTMLElement {
     confirmButton.name = this.button.dataset.name;
     confirmButton.value = this.button.dataset.value;
     confirmButton.innerText = "Confirm";
-    confirmButton.className =
-      "btn btn-link btn-delete btn-sm btn-confirmation-action";
+    confirmButton.className = "btn btn-link btn-sm";
     confirmButton.addEventListener("click", this.reset.bind(this));
 
     const container = document.createElement("span");

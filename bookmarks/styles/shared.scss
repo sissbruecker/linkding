@@ -17,7 +17,12 @@ section.content-area {
 ld-confirm-button {
   display: contents;
 
-  .btn-confirmation-action {
+  span.confirmation {
+    display: flex;
+    align-items: baseline;
+  }
+
+  span.confirmation .btn {
     color: $error-color !important;
     &:hover {
       text-decoration: underline;

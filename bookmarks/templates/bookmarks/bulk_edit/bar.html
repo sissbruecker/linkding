@@ -2,10 +2,12 @@
 {% htmlmin %}
   <div class="bulk-edit-bar">
     <div class="bulk-edit-actions bg-gray">
-      <label class="form-checkbox bulk-edit-all-toggle">
-        <input type="checkbox" style="display: none">
-        <i class="form-icon"></i>
-      </label>
+      <ld-bulk-edit-checkbox type="all">
+        <label class="form-checkbox">
+          <input type="checkbox" style="display: none">
+          <i class="form-icon"></i>
+        </label>
+      </ld-bulk-edit-checkbox>
       {% if mode == 'archive' %}
         <ld-confirm-button>
           <button type="submit" name="bulk_unarchive" class="btn btn-link btn-sm"
