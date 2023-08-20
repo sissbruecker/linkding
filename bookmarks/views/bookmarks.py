@@ -1,108 +1,49 @@
-import urllib.parse
-from typing import List
-
 from django.contrib.auth.decorators import login_required
-from django.core.handlers.wsgi import WSGIRequest
-from django.core.paginator import Paginator
-from django.db.models import QuerySet, Q, prefetch_related_objects
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkForm, BookmarkFilters, User, UserProfile, Tag, build_tag_string
+from bookmarks.models import Bookmark, BookmarkForm, BookmarkFilters, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, archive_bookmarks, \
     unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks
 from bookmarks.utils import get_safe_return_url
+from bookmarks.views.partials import contexts
 
 _default_page_size = 30
 
 
 @login_required
 def index(request):
-    filters = BookmarkFilters(request)
-    query_set = queries.query_bookmarks(request.user, request.user_profile, filters.query)
-    tags = queries.query_bookmark_tags(request.user, request.user_profile, filters.query)
-    base_url = reverse('bookmarks:index')
-    context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
-    return render(request, 'bookmarks/index.html', context)
+    bookmark_list = contexts.ActiveBookmarkListContext(request)
+    tag_cloud = contexts.ActiveTagCloudContext(request)
+    return render(request, 'bookmarks/index.html', {
+        'bookmark_list': bookmark_list,
+        'tag_cloud': tag_cloud,
+    })
 
 
 @login_required
 def archived(request):
-    filters = BookmarkFilters(request)
-    query_set = queries.query_archived_bookmarks(request.user, request.user_profile, filters.query)
-    tags = queries.query_archived_bookmark_tags(request.user, request.user_profile, filters.query)
-    base_url = reverse('bookmarks:archived')
-    context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
-    return render(request, 'bookmarks/archive.html', context)
+    bookmark_list = contexts.ArchivedBookmarkListContext(request)
+    tag_cloud = contexts.ArchivedTagCloudContext(request)
+    return render(request, 'bookmarks/archive.html', {
+        'bookmark_list': bookmark_list,
+        'tag_cloud': tag_cloud,
+    })
 
 
 def shared(request):
     filters = BookmarkFilters(request)
-    user = User.objects.filter(username=filters.user).first()
+    bookmark_list = contexts.SharedBookmarkListContext(request)
+    tag_cloud = contexts.SharedTagCloudContext(request)
     public_only = not request.user.is_authenticated
-    query_set = queries.query_shared_bookmarks(user, request.user_profile, filters.query, public_only)
-    tags = queries.query_shared_bookmark_tags(user, request.user_profile, filters.query, public_only)
     users = queries.query_shared_bookmark_users(request.user_profile, filters.query, public_only)
-    base_url = reverse('bookmarks:shared')
-    context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
-    context['users'] = users
-    return render(request, 'bookmarks/shared.html', context)
-
-
-def _get_selected_tags(tags: List[Tag], query_string: str, profile: UserProfile):
-    parsed_query = queries.parse_query_string(query_string)
-    tag_names = parsed_query['tag_names']
-    if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
-        tag_names = tag_names + parsed_query['search_terms']
-    tag_names = [tag_name.lower() for tag_name in tag_names]
-
-    return [tag for tag in tags if tag.name.lower() in tag_names]
-
-
-def get_bookmark_view_context(request: WSGIRequest,
-                              filters: BookmarkFilters,
-                              query_set: QuerySet[Bookmark],
-                              tags: QuerySet[Tag],
-                              base_url: str):
-    page = request.GET.get('page')
-    paginator = Paginator(query_set, _default_page_size)
-    bookmarks = paginator.get_page(page)
-    tags = list(tags)
-    selected_tags = _get_selected_tags(tags, filters.query, request.user_profile)
-    # Prefetch related objects, this avoids n+1 queries when accessing fields in templates
-    prefetch_related_objects(bookmarks.object_list, 'owner', 'tags')
-    return_url = generate_return_url(base_url, page, filters)
-    link_target = request.user_profile.bookmark_link_target
-
-    if request.GET.get('tag'):
-        mod = request.GET.copy()
-        mod.pop('tag')
-        request.GET = mod
-
-    return {
-        'bookmarks': bookmarks,
-        'tags': tags,
-        'selected_tags': selected_tags,
-        'filters': filters,
-        'empty': paginator.count == 0,
-        'return_url': return_url,
-        'link_target': link_target,
-    }
-
-
-def generate_return_url(base_url: str, page: int, filters: BookmarkFilters):
-    url_query = {}
-    if filters.query:
-        url_query['q'] = filters.query
-    if filters.user:
-        url_query['user'] = filters.user
-    if page is not None:
-        url_query['page'] = page
-    url_params = urllib.parse.urlencode(url_query)
-    return_url = base_url if url_params == '' else base_url + '?' + url_params
-    return urllib.parse.quote_plus(return_url)
+    return render(request, 'bookmarks/shared.html', {
+        'bookmark_list': bookmark_list,
+        'tag_cloud': tag_cloud,
+        'users': users
+    })
 
 
 def convert_tag_string(tag_string: str):

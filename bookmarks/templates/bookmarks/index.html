@@ -14,29 +14,25 @@
       <div class="content-area-header">
         <h2>Bookmarks</h2>
         <div class="spacer"></div>
-        {% bookmark_search filters tags %}
+        {% bookmark_search bookmark_list.filters tag_cloud.tags %}
         {% include 'bookmarks/bulk_edit/toggle.html' %}
       </div>
 
-      <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ return_url }}"
+      <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ bookmark_list.return_url }}"
             method="post">
         {% csrf_token %}
         {% include 'bookmarks/bulk_edit/bar.html' with mode='default' %}
 
-        {% if empty %}
-          {% include 'bookmarks/empty_bookmarks.html' %}
-        {% else %}
-          {% bookmark_list bookmarks return_url link_target %}
-        {% endif %}
+        {% include 'bookmarks/bookmark_list.html' %}
       </form>
     </section>
 
-    {# Tag list #}
+    {# Tag cloud #}
     <section class="content-area column col-4 hide-md">
       <div class="content-area-header">
         <h2>Tags</h2>
       </div>
-      {% tag_cloud tags selected_tags %}
+      {% include 'bookmarks/tag_cloud.html' %}
     </section>
   </div>
 
