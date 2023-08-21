@@ -22,7 +22,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def assertVisibleBookmarks(self, response, bookmarks: List[Bookmark], link_target: str = '_blank'):
         html = response.content.decode()
-        self.assertContains(response, 'data-is-bookmark-item', count=len(bookmarks))
+        self.assertContains(response, '<ld-bookmark-item>', count=len(bookmarks))
 
         for bookmark in bookmarks:
             self.assertBookmarkCount(html, bookmark, 1, link_target)

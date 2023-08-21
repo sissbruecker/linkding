@@ -72,7 +72,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         # Delete link
         self.assertInHTML(f'''
             <button type="submit" name="remove" value="{bookmark.id}"
-               class="btn btn-link btn-sm btn-confirmation">Remove</button>
+               class="btn btn-link btn-sm">Remove</button>
         ''', html, count=count)
 
     def assertShareInfo(self, html: str, bookmark: Bookmark):

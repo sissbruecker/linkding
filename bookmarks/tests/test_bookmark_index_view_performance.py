@@ -27,7 +27,7 @@ class BookmarkIndexViewPerformanceTestCase(TransactionTestCase, BookmarkFactoryM
         context = CaptureQueriesContext(self.get_connection())
         with context:
             response = self.client.get(reverse('bookmarks:index'))
-            self.assertContains(response, 'data-is-bookmark-item', num_initial_bookmarks)
+            self.assertContains(response, '<ld-bookmark-item>', num_initial_bookmarks)
 
         number_of_queries = context.final_queries
 
@@ -39,4 +39,4 @@ class BookmarkIndexViewPerformanceTestCase(TransactionTestCase, BookmarkFactoryM
         # assert num queries doesn't increase
         with self.assertNumQueries(number_of_queries):
             response = self.client.get(reverse('bookmarks:index'))
-            self.assertContains(response, 'data-is-bookmark-item', num_initial_bookmarks + num_additional_bookmarks)
+            self.assertContains(response, '<ld-bookmark-item>', num_initial_bookmarks + num_additional_bookmarks)

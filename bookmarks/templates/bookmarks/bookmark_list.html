@@ -5,10 +5,10 @@
 {% if bookmark_list.is_empty %}
   {% include 'bookmarks/empty_bookmarks.html' %}
 {% else %}
-  <ul class="bookmark-list{% if  bookmark_list.show_notes %} show-notes{% endif %}">
+  <ul class="bookmark-list{% if bookmark_list.show_notes %} show-notes{% endif %}">
     {% for bookmark in bookmark_list.bookmarks_page %}
       <ld-bookmark-item>
-        <li data-is-bookmark-item>
+        <li>
           <ld-bulk-edit-checkbox type="single">
             <label class="form-checkbox">
               <input type="checkbox" name="bookmark_id" value="{{ bookmark.id }}">
