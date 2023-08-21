@@ -22,7 +22,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
                                       user=self.setup_user(enable_sharing=True))
 
     def assertVisibleBookmarks(self, titles: List[str]):
-        bookmark_tags = self.page.locator('ld-bookmark-item')
+        bookmark_tags = self.page.locator('li[ld-bookmark-item]')
         expect(bookmark_tags).to_have_count(len(titles))
 
         for title in titles:
@@ -66,6 +66,24 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             expected_titles = [f'foo {i}-' for i in range(1, 20)]
             self.assertVisibleBookmarks(expected_titles)
+
+    def test_multiple_partial_updates(self):
+        self.setup_numbered_bookmarks(5)
+
+        with sync_playwright() as p:
+            url = reverse('bookmarks:index')
+            self.open(url, p)
+
+            self.locate_bookmark('Bookmark 1').get_by_text('Archive').click()
+            self.assertVisibleBookmarks(['Bookmark 2', 'Bookmark 3', 'Bookmark 4', 'Bookmark 5'])
+
+            self.locate_bookmark('Bookmark 2').get_by_text('Archive').click()
+            self.assertVisibleBookmarks(['Bookmark 3', 'Bookmark 4', 'Bookmark 5'])
+
+            self.locate_bookmark('Bookmark 3').get_by_text('Archive').click()
+            self.assertVisibleBookmarks(['Bookmark 4', 'Bookmark 5'])
+
+            self.assertReloads(0)
 
     def test_active_bookmarks_partial_update_on_archive(self):
         self.setup_fixture()
@@ -114,7 +132,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse('bookmarks:index'), p)
 
             self.locate_bulk_edit_toggle().click()
-            self.locate_bookmark('Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
+            self.locate_bookmark('Bookmark 2').locator('label[ld-bulk-edit-checkbox]').click()
             self.locate_bulk_edit_bar().get_by_text('Archive').click()
             self.locate_bulk_edit_bar().get_by_text('Confirm').click()
 
@@ -129,7 +147,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse('bookmarks:index'), p)
 
             self.locate_bulk_edit_toggle().click()
-            self.locate_bookmark('Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
+            self.locate_bookmark('Bookmark 2').locator('label[ld-bulk-edit-checkbox]').click()
             self.locate_bulk_edit_bar().get_by_text('Delete').click()
             self.locate_bulk_edit_bar().get_by_text('Confirm').click()
 
@@ -169,7 +187,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse('bookmarks:archived'), p)
 
             self.locate_bulk_edit_toggle().click()
-            self.locate_bookmark('Archived Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
+            self.locate_bookmark('Archived Bookmark 2').locator('label[ld-bulk-edit-checkbox]').click()
             self.locate_bulk_edit_bar().get_by_text('Archive').click()
             self.locate_bulk_edit_bar().get_by_text('Confirm').click()
 
@@ -184,7 +202,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse('bookmarks:archived'), p)
 
             self.locate_bulk_edit_toggle().click()
-            self.locate_bookmark('Archived Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
+            self.locate_bookmark('Archived Bookmark 2').locator('label[ld-bulk-edit-checkbox]').click()
             self.locate_bulk_edit_bar().get_by_text('Delete').click()
             self.locate_bulk_edit_bar().get_by_text('Confirm').click()
 

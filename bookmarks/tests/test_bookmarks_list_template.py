@@ -71,7 +71,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         ''', html, count=count)
         # Delete link
         self.assertInHTML(f'''
-            <button type="submit" name="remove" value="{bookmark.id}"
+            <button ld-confirm-button type="submit" name="remove" value="{bookmark.id}"
                class="btn btn-link btn-sm">Remove</button>
         ''', html, count=count)
 

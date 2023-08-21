@@ -35,7 +35,7 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         self.assertEqual(self.num_loads, count)
 
     def locate_bookmark(self, title: str):
-        bookmark_tags = self.page.locator('ld-bookmark-item')
+        bookmark_tags = self.page.locator('li[ld-bookmark-item]')
         return bookmark_tags.filter(has_text=title)
 
     def locate_bulk_edit_bar(self):

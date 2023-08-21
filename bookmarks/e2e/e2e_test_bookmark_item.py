@@ -14,7 +14,7 @@ class BookmarkItemE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             page = self.open(reverse('bookmarks:index'), p)
 
-            notes = self.bookmark_by_title(bookmark.title).locator('.notes')
+            notes = self.locate_bookmark(bookmark.title).locator('.notes')
             expect(notes).to_be_hidden()
 
             toggle_notes = page.locator('li button.toggle-notes')
