@@ -9,12 +9,10 @@
     {% for bookmark in bookmark_list.bookmarks_page %}
       <ld-bookmark-item>
         <li>
-          <ld-bulk-edit-checkbox type="single">
-            <label class="form-checkbox">
-              <input type="checkbox" name="bookmark_id" value="{{ bookmark.id }}">
-              <i class="form-icon"></i>
-            </label>
-          </ld-bulk-edit-checkbox>
+          <label ld-bulk-edit-checkbox class="form-checkbox">
+            <input type="checkbox" name="bookmark_id" value="{{ bookmark.id }}">
+            <i class="form-icon"></i>
+          </label>
           <div class="title">
             <a href="{{ bookmark.url }}" target="{{ bookmark_list.link_target }}" rel="noopener"
                class="{% if bookmark.unread %}text-italic{% endif %}">
@@ -93,7 +91,7 @@
                         class="btn btn-link btn-sm">Unarchive
                 </button>
               {% else %}
-                <button ld-confirm-button type="submit" name="archive" value="{{ bookmark.id }}"
+                <button type="submit" name="archive" value="{{ bookmark.id }}"
                         class="btn btn-link btn-sm">Archive
                 </button>
               {% endif %}

@@ -53,7 +53,7 @@ ul.bookmark-list {
 ld-bookmark-item {
   display: contents;
 
-  ld-bulk-edit-checkbox label.form-checkbox {
+  [ld-bulk-edit-checkbox].form-checkbox {
     display: none;
   }
 
@@ -274,13 +274,7 @@ $bulk-edit-toggle-offset: 8px;
 $bulk-edit-bar-offset: $bulk-edit-toggle-width + (2 * $bulk-edit-toggle-offset);
 $bulk-edit-transition-duration: 400ms;
 
-ld-bulk-edit,
-ld-bulk-edit-toggle,
-ld-bulk-edit-checkbox {
-  display: contents;
-}
-
-ld-bulk-edit {
+[ld-bulk-edit] {
   .bulk-edit-bar {
     margin-top: -17px;
     margin-bottom: 16px;
@@ -301,7 +295,7 @@ ld-bulk-edit {
   }
 
   /* All checkbox */
-  ld-bulk-edit-checkbox[all] label.form-checkbox {
+  [ld-bulk-edit-checkbox][all].form-checkbox {
     display: block;
     width: $bulk-edit-toggle-width;
     margin: 0 0 0 $bulk-edit-toggle-offset;
@@ -310,7 +304,7 @@ ld-bulk-edit {
   }
 
   /* Bookmark checkboxes */
-  ld-bookmark-item ld-bulk-edit-checkbox label.form-checkbox {
+  ld-bookmark-item [ld-bulk-edit-checkbox].form-checkbox {
     display: block;
     position: absolute;
     width: $bulk-edit-toggle-width;
@@ -327,7 +321,7 @@ ld-bulk-edit {
     }
   }
 
-  &.active ld-bookmark-item ld-bulk-edit-checkbox label.form-checkbox {
+  &.active ld-bookmark-item [ld-bulk-edit-checkbox].form-checkbox {
     visibility: visible;
     opacity: 1;
   }

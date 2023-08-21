@@ -1,38 +1,43 @@
-class BulkEdit extends HTMLElement {
-  constructor() {
-    super();
+class BulkEdit {
+  constructor(element) {
+    this.element = element;
     this.active = false;
-  }
 
-  get allCheckbox() {
-    return this.querySelector("ld-bulk-edit-checkbox[all] input");
-  }
-
-  get bookmarkCheckboxes() {
-    return [...this.querySelectorAll("ld-bulk-edit-checkbox:not([all]) input")];
-  }
-
-  connectedCallback() {
-    this.addEventListener(
+    element.addEventListener(
       "bulk-edit-toggle-active",
       this.onToggleActive.bind(this),
     );
-    this.addEventListener("bulk-edit-toggle-all", this.onToggleAll.bind(this));
-    this.addEventListener(
+    element.addEventListener(
+      "bulk-edit-toggle-all",
+      this.onToggleAll.bind(this),
+    );
+    element.addEventListener(
       "bulk-edit-toggle-bookmark",
       this.onToggleBookmark.bind(this),
     );
   }
 
+  get allCheckbox() {
+    return this.element.querySelector("[ld-bulk-edit-checkbox][all] input");
+  }
+
+  get bookmarkCheckboxes() {
+    return [
+      ...this.element.querySelectorAll(
+        "[ld-bulk-edit-checkbox]:not([all]) input",
+      ),
+    ];
+  }
+
   onToggleActive() {
     this.active = !this.active;
     if (this.active) {
-      this.classList.add("active", "activating");
+      this.element.classList.add("active", "activating");
       setTimeout(() => {
-        this.classList.remove("activating");
+        this.element.classList.remove("activating");
       }, 500);
     } else {
-      this.classList.remove("active");
+      this.element.classList.remove("active");
     }
   }
 
@@ -57,36 +62,36 @@ class BulkEdit extends HTMLElement {
   }
 }
 
-class BulkEditActiveToggle extends HTMLElement {
-  connectedCallback() {
-    const button = this.querySelector("button");
-    button.addEventListener("click", this.onClick.bind(this));
+class BulkEditActiveToggle {
+  constructor(element) {
+    this.element = element;
+    element.addEventListener("click", this.onClick.bind(this));
   }
 
   onClick() {
-    this.dispatchEvent(
+    this.element.dispatchEvent(
       new CustomEvent("bulk-edit-toggle-active", { bubbles: true }),
     );
   }
 }
 
-class BulkEditCheckbox extends HTMLElement {
-  connectedCallback() {
-    const checkbox = this.querySelector("input");
-    checkbox.addEventListener("change", this.onChange.bind(this));
+class BulkEditCheckbox {
+  constructor(element) {
+    this.element = element;
+    element.addEventListener("change", this.onChange.bind(this));
   }
 
   onChange() {
-    const type = this.hasAttribute("all") ? "all" : "bookmark";
-    this.dispatchEvent(
+    const type = this.element.hasAttribute("all") ? "all" : "bookmark";
+    this.element.dispatchEvent(
       new CustomEvent(`bulk-edit-toggle-${type}`, { bubbles: true }),
     );
   }
 }
 
-customElements.define("ld-bulk-edit", BulkEdit);
-customElements.define("ld-bulk-edit-active-toggle", BulkEditActiveToggle);
-customElements.define("ld-bulk-edit-checkbox", BulkEditCheckbox);
+linkding.registerBehavior("ld-bulk-edit", BulkEdit);
+linkding.registerBehavior("ld-bulk-edit-active-toggle", BulkEditActiveToggle);
+linkding.registerBehavior("ld-bulk-edit-checkbox", BulkEditCheckbox);
 
 class BookmarkPage extends HTMLElement {
   connectedCallback() {
