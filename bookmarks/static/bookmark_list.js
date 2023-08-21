@@ -183,13 +183,13 @@ class BookmarkPage extends HTMLElement {
 
   async refresh() {
     const queryParams = window.location.search;
+    const bookmarkListUrl = this.getAttribute("bookmark-list-url");
+    const tagCloudUrl = this.getAttribute("tag-cloud-url");
     Promise.all([
-      fetch(`/bookmarks/partials/bookmark-list${queryParams}`).then(
-        (response) => response.text(),
-      ),
-      fetch(`/bookmarks/partials/tag-cloud${queryParams}`).then((response) =>
+      fetch(`${bookmarkListUrl}${queryParams}`).then((response) =>
         response.text(),
       ),
+      fetch(`${tagCloudUrl}${queryParams}`).then((response) => response.text()),
     ]).then(([bookmarkListHtml, tagCloudHtml]) => {
       this.bookmarkList.innerHTML = bookmarkListHtml;
       this.tagCloud.innerHTML = tagCloudHtml;

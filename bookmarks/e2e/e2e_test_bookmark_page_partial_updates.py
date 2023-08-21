@@ -30,76 +30,6 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             matching_tag = tag_tags.filter(has_text=title)
             expect(matching_tag).to_be_visible()
 
-    def test_partial_update_on_archive(self):
-        self.setup_fixture()
-
-        with sync_playwright() as p:
-            self.open(reverse('bookmarks:index'), p)
-
-            self.locate_bookmark('Bookmark 2').get_by_text('Archive').click()
-
-            self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
-            self.assertVisibleTags(['Tag 1', 'Tag 3'])
-            self.assertReloads(0)
-
-    def test_partial_update_on_delete(self):
-        self.setup_fixture()
-
-        with sync_playwright() as p:
-            self.open(reverse('bookmarks:index'), p)
-
-            self.locate_bookmark('Bookmark 2').get_by_text('Remove').click()
-            self.locate_bookmark('Bookmark 2').get_by_text('Confirm').click()
-
-            self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
-            self.assertVisibleTags(['Tag 1', 'Tag 3'])
-            self.assertReloads(0)
-
-    def test_partial_update_on_mark_as_read(self):
-        self.setup_fixture()
-        bookmark2 = self.get_numbered_bookmark('Bookmark 2')
-        bookmark2.unread = True
-        bookmark2.save()
-
-        with sync_playwright() as p:
-            self.open(reverse('bookmarks:index'), p)
-
-            expect(self.locate_bookmark('Bookmark 2').get_by_text('Bookmark 2')).to_have_class('text-italic')
-            self.locate_bookmark('Bookmark 2').get_by_text('Mark as read').click()
-
-            expect(self.locate_bookmark('Bookmark 2').get_by_text('Bookmark 2')).not_to_have_class('text-italic')
-            self.assertReloads(0)
-
-    def test_partial_update_on_bulk_archive(self):
-        self.setup_fixture()
-
-        with sync_playwright() as p:
-            self.open(reverse('bookmarks:index'), p)
-
-            self.locate_bulk_edit_toggle().click()
-            self.locate_bookmark('Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
-            self.locate_bulk_edit_bar().get_by_text('Archive').click()
-            self.locate_bulk_edit_bar().get_by_text('Confirm').click()
-
-            self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
-            self.assertVisibleTags(['Tag 1', 'Tag 3'])
-            self.assertReloads(0)
-
-    def test_partial_update_on_bulk_delete(self):
-        self.setup_fixture()
-
-        with sync_playwright() as p:
-            self.open(reverse('bookmarks:index'), p)
-
-            self.locate_bulk_edit_toggle().click()
-            self.locate_bookmark('Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
-            self.locate_bulk_edit_bar().get_by_text('Delete').click()
-            self.locate_bulk_edit_bar().get_by_text('Confirm').click()
-
-            self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
-            self.assertVisibleTags(['Tag 1', 'Tag 3'])
-            self.assertReloads(0)
-
     def test_partial_update_respects_query(self):
         self.setup_numbered_bookmarks(5, prefix='foo')
         self.setup_numbered_bookmarks(5, prefix='bar')
@@ -129,3 +59,128 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             expected_titles = [f'foo {i}-' for i in range(1, 20)]
             self.assertVisibleBookmarks(expected_titles)
+
+    def test_active_bookmarks_partial_update_on_archive(self):
+        self.setup_fixture()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:index'), p)
+
+            self.locate_bookmark('Bookmark 2').get_by_text('Archive').click()
+
+            self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
+            self.assertVisibleTags(['Tag 1', 'Tag 3'])
+            self.assertReloads(0)
+
+    def test_active_bookmarks_partial_update_on_delete(self):
+        self.setup_fixture()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:index'), p)
+
+            self.locate_bookmark('Bookmark 2').get_by_text('Remove').click()
+            self.locate_bookmark('Bookmark 2').get_by_text('Confirm').click()
+
+            self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
+            self.assertVisibleTags(['Tag 1', 'Tag 3'])
+            self.assertReloads(0)
+
+    def test_active_bookmarks_partial_update_on_mark_as_read(self):
+        self.setup_fixture()
+        bookmark2 = self.get_numbered_bookmark('Bookmark 2')
+        bookmark2.unread = True
+        bookmark2.save()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:index'), p)
+
+            expect(self.locate_bookmark('Bookmark 2').get_by_text('Bookmark 2')).to_have_class('text-italic')
+            self.locate_bookmark('Bookmark 2').get_by_text('Mark as read').click()
+
+            expect(self.locate_bookmark('Bookmark 2').get_by_text('Bookmark 2')).not_to_have_class('text-italic')
+            self.assertReloads(0)
+
+    def test_active_bookmarks_partial_update_on_bulk_archive(self):
+        self.setup_fixture()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:index'), p)
+
+            self.locate_bulk_edit_toggle().click()
+            self.locate_bookmark('Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
+            self.locate_bulk_edit_bar().get_by_text('Archive').click()
+            self.locate_bulk_edit_bar().get_by_text('Confirm').click()
+
+            self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
+            self.assertVisibleTags(['Tag 1', 'Tag 3'])
+            self.assertReloads(0)
+
+    def test_active_bookmarks_partial_update_on_bulk_delete(self):
+        self.setup_fixture()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:index'), p)
+
+            self.locate_bulk_edit_toggle().click()
+            self.locate_bookmark('Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
+            self.locate_bulk_edit_bar().get_by_text('Delete').click()
+            self.locate_bulk_edit_bar().get_by_text('Confirm').click()
+
+            self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
+            self.assertVisibleTags(['Tag 1', 'Tag 3'])
+            self.assertReloads(0)
+
+    def test_archived_bookmarks_partial_update_on_unarchive(self):
+        self.setup_fixture()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:archived'), p)
+
+            self.locate_bookmark('Archived Bookmark 2').get_by_text('Unarchive').click()
+
+            self.assertVisibleBookmarks(['Archived Bookmark 1', 'Archived Bookmark 3'])
+            self.assertVisibleTags(['Archived Tag 1', 'Archived Tag 3'])
+            self.assertReloads(0)
+
+    def test_archived_bookmarks_partial_update_on_delete(self):
+        self.setup_fixture()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:archived'), p)
+
+            self.locate_bookmark('Archived Bookmark 2').get_by_text('Remove').click()
+            self.locate_bookmark('Archived Bookmark 2').get_by_text('Confirm').click()
+
+            self.assertVisibleBookmarks(['Archived Bookmark 1', 'Archived Bookmark 3'])
+            self.assertVisibleTags(['Archived Tag 1', 'Archived Tag 3'])
+            self.assertReloads(0)
+
+    def test_archived_bookmarks_partial_update_on_bulk_archive(self):
+        self.setup_fixture()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:archived'), p)
+
+            self.locate_bulk_edit_toggle().click()
+            self.locate_bookmark('Archived Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
+            self.locate_bulk_edit_bar().get_by_text('Archive').click()
+            self.locate_bulk_edit_bar().get_by_text('Confirm').click()
+
+            self.assertVisibleBookmarks(['Archived Bookmark 1', 'Archived Bookmark 3'])
+            self.assertVisibleTags(['Archived Tag 1', 'Archived Tag 3'])
+            self.assertReloads(0)
+
+    def test_archived_bookmarks_partial_update_on_bulk_delete(self):
+        self.setup_fixture()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:archived'), p)
+
+            self.locate_bulk_edit_toggle().click()
+            self.locate_bookmark('Archived Bookmark 2').locator('ld-bulk-edit-checkbox label').click()
+            self.locate_bulk_edit_bar().get_by_text('Delete').click()
+            self.locate_bulk_edit_bar().get_by_text('Confirm').click()
+
+            self.assertVisibleBookmarks(['Archived Bookmark 1', 'Archived Bookmark 3'])
+            self.assertVisibleTags(['Archived Tag 1', 'Archived Tag 3'])
+            self.assertReloads(0)

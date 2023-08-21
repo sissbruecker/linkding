@@ -85,17 +85,17 @@ class BookmarkFactoryMixin:
 
         if not prefix:
             if archived:
-                prefix = 'Archived bookmark'
+                prefix = 'Archived Bookmark'
             elif shared:
-                prefix = 'Shared bookmark'
+                prefix = 'Shared Bookmark'
             else:
                 prefix = 'Bookmark'
 
         if not tag_prefix:
             if archived:
-                tag_prefix = 'Archived tag'
+                tag_prefix = 'Archived Tag'
             elif shared:
-                tag_prefix = 'Shared tag'
+                tag_prefix = 'Shared Tag'
             else:
                 tag_prefix = 'Tag'
 

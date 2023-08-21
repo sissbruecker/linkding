@@ -4,7 +4,8 @@
 {% load bookmarks %}
 
 {% block content %}
-  <ld-bookmark-page>
+  <ld-bookmark-page bookmark-list-url="{% url 'bookmarks:partials.bookmark_list.active' %}"
+                    tag-cloud-url="{% url 'bookmarks:partials.tag_cloud.active' %}">
     <div class="bookmarks-page columns">
 
       {# Bookmark list #}
