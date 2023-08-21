@@ -39,10 +39,6 @@
 }
 
 /* Bookmark list */
-ld-bookmark-page {
-  display: contents;
-}
-
 ul.bookmark-list {
   list-style: none;
   margin: 0;
@@ -50,15 +46,11 @@ ul.bookmark-list {
 }
 
 /* Bookmarks */
-ld-bookmark-item {
-  display: contents;
+li[ld-bookmark-item] {
+  position: relative;
 
   [ld-bulk-edit-checkbox].form-checkbox {
     display: none;
-  }
-
-  li {
-    position: relative;
   }
 
   .title a {
@@ -304,7 +296,7 @@ $bulk-edit-transition-duration: 400ms;
   }
 
   /* Bookmark checkboxes */
-  ld-bookmark-item [ld-bulk-edit-checkbox].form-checkbox {
+  li[ld-bookmark-item] [ld-bulk-edit-checkbox].form-checkbox {
     display: block;
     position: absolute;
     width: $bulk-edit-toggle-width;
@@ -321,7 +313,7 @@ $bulk-edit-transition-duration: 400ms;
     }
   }
 
-  &.active ld-bookmark-item [ld-bulk-edit-checkbox].form-checkbox {
+  &.active li[ld-bookmark-item] [ld-bulk-edit-checkbox].form-checkbox {
     visibility: visible;
     opacity: 1;
   }

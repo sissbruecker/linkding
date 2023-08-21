@@ -15,6 +15,10 @@ class BulkEdit {
       "bulk-edit-toggle-bookmark",
       this.onToggleBookmark.bind(this),
     );
+    element.addEventListener(
+      "bookmark-list-updated",
+      this.onListUpdated.bind(this),
+    );
   }
 
   get allCheckbox() {
@@ -54,7 +58,7 @@ class BulkEdit {
     });
   }
 
-  reset() {
+  onListUpdated() {
     this.allCheckbox.checked = false;
     this.bookmarkCheckboxes.forEach((checkbox) => {
       checkbox.checked = false;
@@ -93,16 +97,14 @@ linkding.registerBehavior("ld-bulk-edit", BulkEdit);
 linkding.registerBehavior("ld-bulk-edit-active-toggle", BulkEditActiveToggle);
 linkding.registerBehavior("ld-bulk-edit-checkbox", BulkEditCheckbox);
 
-class BookmarkPage extends HTMLElement {
-  connectedCallback() {
-    this.form = this.querySelector("form.bookmark-actions");
+class BookmarkPage {
+  constructor(element) {
+    this.element = element;
+    this.form = element.querySelector("form.bookmark-actions");
     this.form.addEventListener("submit", this.onFormSubmit.bind(this));
 
-    this.bulkEdit = this.querySelector("ld-bulk-edit");
-    this.bookmarkList = this.querySelector(".bookmark-list-container");
-    this.tagCloud = this.querySelector(".tag-cloud-container");
-
-    document.addEventListener("keydown", this.onKeyDown.bind(this));
+    this.bookmarkList = element.querySelector(".bookmark-list-container");
+    this.tagCloud = element.querySelector(".tag-cloud-container");
   }
 
   async onFormSubmit(event) {
@@ -118,10 +120,50 @@ class BookmarkPage extends HTMLElement {
       redirect: "manual", // ignore redirect
     });
     await this.refresh();
+  }
 
-    if (this.bulkEdit) {
-      this.bulkEdit.reset();
+  async refresh() {
+    const query = window.location.search;
+    const bookmarksUrl = this.element.getAttribute("bookmarks-url");
+    const tagsUrl = this.element.getAttribute("tags-url");
+    Promise.all([
+      fetch(`${bookmarksUrl}${query}`).then((response) => response.text()),
+      fetch(`${tagsUrl}${query}`).then((response) => response.text()),
+    ]).then(([bookmarkListHtml, tagCloudHtml]) => {
+      linkding.swap(this.bookmarkList, bookmarkListHtml);
+      linkding.swap(this.tagCloud, tagCloudHtml);
+
+      this.bookmarkList.dispatchEvent(
+        new CustomEvent("bookmark-list-updated", { bubbles: true }),
+      );
+    });
+  }
+}
+
+linkding.registerBehavior("ld-bookmark-page", BookmarkPage);
+
+class BookmarkItem {
+  constructor(element) {
+    this.element = element;
+
+    const notesToggle = element.querySelector(".toggle-notes");
+    if (notesToggle) {
+      notesToggle.addEventListener("click", this.onToggleNotes.bind(this));
     }
+  }
+
+  onToggleNotes(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.element.classList.toggle("show-notes");
+  }
+}
+
+linkding.registerBehavior("ld-bookmark-item", BookmarkItem);
+
+class GlobalShortcuts {
+  constructor() {
+    document.addEventListener("keydown", this.onKeyDown.bind(this));
   }
 
   onKeyDown(event) {
@@ -144,7 +186,9 @@ class BookmarkPage extends HTMLElement {
 
       // Detect current bookmark list item
       const path = event.composedPath();
-      const currentItem = path.find((item) => item instanceof BookmarkItem);
+      const currentItem = path.find(
+        (item) => item.hasAttribute && item.hasAttribute("ld-bookmark-item"),
+      );
 
       // Find next item
       let nextItem;
@@ -154,7 +198,7 @@ class BookmarkPage extends HTMLElement {
           : currentItem.nextElementSibling;
       } else {
         // Select first item
-        nextItem = document.querySelector("ld-bookmark-item");
+        nextItem = document.querySelector("[ld-bookmark-item]");
       }
       // Focus first link
       if (nextItem) {
@@ -165,7 +209,9 @@ class BookmarkPage extends HTMLElement {
     // Handle shortcut for toggling all notes
     if (event.key === "e") {
       const list = document.querySelector(".bookmark-list");
-      list.classList.toggle("show-notes");
+      if (list) {
+        list.classList.toggle("show-notes");
+      }
     }
 
     // Handle shortcut for focusing search input
@@ -183,43 +229,6 @@ class BookmarkPage extends HTMLElement {
       window.location.assign("/bookmarks/new");
     }
   }
-
-  async refresh() {
-    const queryParams = window.location.search;
-    const bookmarkListUrl = this.getAttribute("bookmark-list-url");
-    const tagCloudUrl = this.getAttribute("tag-cloud-url");
-    Promise.all([
-      fetch(`${bookmarkListUrl}${queryParams}`).then((response) =>
-        response.text(),
-      ),
-      fetch(`${tagCloudUrl}${queryParams}`).then((response) => response.text()),
-    ]).then(([bookmarkListHtml, tagCloudHtml]) => {
-      this.bookmarkList.innerHTML = bookmarkListHtml;
-      this.tagCloud.innerHTML = tagCloudHtml;
-
-      linkding.swap(this.bookmarkList, bookmarkListHtml);
-      linkding.swap(this.tagCloud, tagCloudHtml);
-    });
-  }
 }
 
-customElements.define("ld-bookmark-page", BookmarkPage);
-
-class BookmarkItem extends HTMLElement {
-  connectedCallback() {
-    this.bookmark = this.querySelector("li");
-
-    const notesToggle = this.querySelector(".toggle-notes");
-    if (notesToggle) {
-      notesToggle.addEventListener("click", this.onToggleNotes.bind(this));
-    }
-  }
-
-  onToggleNotes(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.bookmark.classList.toggle("show-notes");
-  }
-}
-
-customElements.define("ld-bookmark-item", BookmarkItem);
+linkding.registerBehavior("ld-global-shortcuts", GlobalShortcuts);

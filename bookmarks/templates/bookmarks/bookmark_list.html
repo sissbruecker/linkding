@@ -7,128 +7,126 @@
 {% else %}
   <ul class="bookmark-list{% if bookmark_list.show_notes %} show-notes{% endif %}">
     {% for bookmark in bookmark_list.bookmarks_page %}
-      <ld-bookmark-item>
-        <li>
-          <label ld-bulk-edit-checkbox class="form-checkbox">
-            <input type="checkbox" name="bookmark_id" value="{{ bookmark.id }}">
-            <i class="form-icon"></i>
-          </label>
-          <div class="title">
+      <li ld-bookmark-item>
+        <label ld-bulk-edit-checkbox class="form-checkbox">
+          <input type="checkbox" name="bookmark_id" value="{{ bookmark.id }}">
+          <i class="form-icon"></i>
+        </label>
+        <div class="title">
+          <a href="{{ bookmark.url }}" target="{{ bookmark_list.link_target }}" rel="noopener"
+             class="{% if bookmark.unread %}text-italic{% endif %}">
+            {% if bookmark.favicon_file and bookmark_list.show_favicons %}
+              <img src="{% static bookmark.favicon_file %}" alt="">
+            {% endif %}
+            {{ bookmark.resolved_title }}
+          </a>
+        </div>
+        {% if bookmark_list.show_url %}
+          <div class="url-path truncate">
             <a href="{{ bookmark.url }}" target="{{ bookmark_list.link_target }}" rel="noopener"
-               class="{% if bookmark.unread %}text-italic{% endif %}">
-              {% if bookmark.favicon_file and bookmark_list.show_favicons %}
-                <img src="{% static bookmark.favicon_file %}" alt="">
-              {% endif %}
-              {{ bookmark.resolved_title }}
+               class="url-display text-sm">
+              {{ bookmark.url }}
             </a>
           </div>
-          {% if bookmark_list.show_url %}
-            <div class="url-path truncate">
-              <a href="{{ bookmark.url }}" target="{{ bookmark_list.link_target }}" rel="noopener"
-                 class="url-display text-sm">
-                {{ bookmark.url }}
-              </a>
-            </div>
-          {% endif %}
-          <div class="description truncate">
-            {% if bookmark.tag_names %}
-              <span>
+        {% endif %}
+        <div class="description truncate">
+          {% if bookmark.tag_names %}
+            <span>
               {% for tag_name in bookmark.tag_names %}
                 <a href="?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
               {% endfor %}
             </span>
-            {% endif %}
-            {% if bookmark.tag_names and bookmark.resolved_description %} | {% endif %}
-            {% if bookmark.resolved_description %}
-              <span>{{ bookmark.resolved_description }}</span>
-            {% endif %}
-          </div>
-          {% if bookmark.notes %}
-            <div class="notes bg-gray text-gray-dark">
-              <div class="notes-content">
-                {% markdown bookmark.notes %}
-              </div>
-            </div>
           {% endif %}
-          <div class="actions text-gray text-sm">
-            {% if bookmark_list.date_display == 'relative' %}
-              <span>
+          {% if bookmark.tag_names and bookmark.resolved_description %} | {% endif %}
+          {% if bookmark.resolved_description %}
+            <span>{{ bookmark.resolved_description }}</span>
+          {% endif %}
+        </div>
+        {% if bookmark.notes %}
+          <div class="notes bg-gray text-gray-dark">
+            <div class="notes-content">
+              {% markdown bookmark.notes %}
+            </div>
+          </div>
+        {% endif %}
+        <div class="actions text-gray text-sm">
+          {% if bookmark_list.date_display == 'relative' %}
+            <span>
               {% if bookmark.web_archive_snapshot_url %}
                 <a href="{{ bookmark.web_archive_snapshot_url }}"
                    title="Show snapshot on the Internet Archive Wayback Machine"
                    target="{{ bookmark_list.link_target }}"
                    rel="noopener">
               {% endif %}
-                <span>{{ bookmark.date_added|humanize_relative_date }}</span>
-                {% if bookmark.web_archive_snapshot_url %}
-                  ∞
-                  </a>
-                {% endif %}
+              <span>{{ bookmark.date_added|humanize_relative_date }}</span>
+              {% if bookmark.web_archive_snapshot_url %}
+                ∞
+                </a>
+              {% endif %}
             </span>
-              <span class="separator">|</span>
-            {% endif %}
-            {% if bookmark_list.date_display == 'absolute' %}
-              <span>
+            <span class="separator">|</span>
+          {% endif %}
+          {% if bookmark_list.date_display == 'absolute' %}
+            <span>
               {% if bookmark.web_archive_snapshot_url %}
                 <a href="{{ bookmark.web_archive_snapshot_url }}"
                    title="Show snapshot on the Internet Archive Wayback Machine"
                    target="{{ bookmark_list.link_target }}"
                    rel="noopener">
               {% endif %}
-                <span>{{ bookmark.date_added|humanize_absolute_date }}</span>
-                {% if bookmark.web_archive_snapshot_url %}
-                  ∞
-                  </a>
-                {% endif %}
-            </span>
-              <span class="separator">|</span>
-            {% endif %}
-            {% if bookmark.owner == request.user %}
-              {# Bookmark owner actions #}
-              <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ bookmark_list.return_url }}">Edit</a>
-              {% if bookmark.is_archived %}
-                <button type="submit" name="unarchive" value="{{ bookmark.id }}"
-                        class="btn btn-link btn-sm">Unarchive
-                </button>
-              {% else %}
-                <button type="submit" name="archive" value="{{ bookmark.id }}"
-                        class="btn btn-link btn-sm">Archive
-                </button>
+              <span>{{ bookmark.date_added|humanize_absolute_date }}</span>
+              {% if bookmark.web_archive_snapshot_url %}
+                ∞
+                </a>
               {% endif %}
-              <button ld-confirm-button type="submit" name="remove" value="{{ bookmark.id }}"
-                      class="btn btn-link btn-sm">Remove
+            </span>
+            <span class="separator">|</span>
+          {% endif %}
+          {% if bookmark.owner == request.user %}
+            {# Bookmark owner actions #}
+            <a href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ bookmark_list.return_url }}">Edit</a>
+            {% if bookmark.is_archived %}
+              <button type="submit" name="unarchive" value="{{ bookmark.id }}"
+                      class="btn btn-link btn-sm">Unarchive
               </button>
-              {% if bookmark.unread %}
-                <span class="separator">|</span>
-                <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
-                        class="btn btn-link btn-sm">Mark as read
-                </button>
-              {% endif %}
             {% else %}
-              {# Shared bookmark actions #}
-              <span>Shared by
+              <button type="submit" name="archive" value="{{ bookmark.id }}"
+                      class="btn btn-link btn-sm">Archive
+              </button>
+            {% endif %}
+            <button ld-confirm-button type="submit" name="remove" value="{{ bookmark.id }}"
+                    class="btn btn-link btn-sm">Remove
+            </button>
+            {% if bookmark.unread %}
+              <span class="separator">|</span>
+              <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"
+                      class="btn btn-link btn-sm">Mark as read
+              </button>
+            {% endif %}
+          {% else %}
+            {# Shared bookmark actions #}
+            <span>Shared by
               <a href="?{% replace_query_param user=bookmark.owner.username %}">{{ bookmark.owner.username }}</a>
             </span>
-            {% endif %}
-            {% if bookmark.notes and not bookmark_list.show_notes %}
-              <span class="separator">|</span>
-              <button class="btn btn-link btn-sm toggle-notes" title="Toggle notes">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-notes" width="16"
-                     height="16"
-                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                     stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
-                  <path d="M9 7l6 0"></path>
-                  <path d="M9 11l6 0"></path>
-                  <path d="M9 15l4 0"></path>
-                </svg>
-                <span>Notes</span>
-              </button>
-            {% endif %}
-          </div>
-        </li>
-      </ld-bookmark-item>
+          {% endif %}
+          {% if bookmark.notes and not bookmark_list.show_notes %}
+            <span class="separator">|</span>
+            <button class="btn btn-link btn-sm toggle-notes" title="Toggle notes">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-notes" width="16"
+                   height="16"
+                   viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                   stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
+                <path d="M9 7l6 0"></path>
+                <path d="M9 11l6 0"></path>
+                <path d="M9 15l4 0"></path>
+              </svg>
+              <span>Notes</span>
+            </button>
+          {% endif %}
+        </div>
+      </li>
     {% endfor %}
   </ul>
 
