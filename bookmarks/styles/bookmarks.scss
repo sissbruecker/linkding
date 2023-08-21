@@ -52,10 +52,14 @@ ul.bookmark-list {
 /* Bookmarks */
 ld-bookmark-item {
   display: contents;
-}
 
-ul.bookmark-list li {
-  position: relative;
+  ld-bulk-edit-checkbox label.form-checkbox {
+    display: none;
+  }
+
+  li {
+    position: relative;
+  }
 
   .title a {
     display: inline-block;
@@ -92,7 +96,7 @@ ul.bookmark-list li {
   }
 
   .actions {
-    a, button {
+    a, button.btn-link {
       color: $gray-color;
       padding: 0;
       height: auto;
@@ -276,10 +280,6 @@ ld-bulk-edit-checkbox {
   display: contents;
 }
 
-ld-bulk-edit-checkbox label.form-checkbox {
-  display: none;
-}
-
 ld-bulk-edit {
   .bulk-edit-bar {
     margin-top: -17px;
@@ -290,18 +290,18 @@ ld-bulk-edit {
     transition: max-height $bulk-edit-transition-duration;
   }
 
-  &.editing .bulk-edit-bar {
+  &.active .bulk-edit-bar {
     max-height: 37px;
     border-bottom: solid 1px $border-color;
   }
 
   /* remove overflow after opening animation, otherwise tag autocomplete overlay gets cut off */
-  &.editing:not(.opening) .bulk-edit-bar {
+  &.active:not(.activating) .bulk-edit-bar {
     overflow: visible;
   }
 
   /* All checkbox */
-  ld-bulk-edit-checkbox[type='all'] label.form-checkbox {
+  ld-bulk-edit-checkbox[all] label.form-checkbox {
     display: block;
     width: $bulk-edit-toggle-width;
     margin: 0 0 0 $bulk-edit-toggle-offset;
@@ -310,7 +310,7 @@ ld-bulk-edit {
   }
 
   /* Bookmark checkboxes */
-  ld-bulk-edit-checkbox[type='single'] label.form-checkbox {
+  ld-bookmark-item ld-bulk-edit-checkbox label.form-checkbox {
     display: block;
     position: absolute;
     width: $bulk-edit-toggle-width;
@@ -327,7 +327,7 @@ ld-bulk-edit {
     }
   }
 
-  &.editing ld-bulk-edit-checkbox[type='single'] label.form-checkbox {
+  &.active ld-bookmark-item ld-bulk-edit-checkbox label.form-checkbox {
     visibility: visible;
     opacity: 1;
   }
