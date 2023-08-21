@@ -14,24 +14,15 @@ section.content-area {
 }
 
 // Confirm button component
-ld-confirm-button {
-  display: contents;
-
-  span.confirmation {
-    display: flex;
-    align-items: baseline;
-  }
-
-  span.confirmation .btn {
-    color: $error-color !important;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
+span.confirmation {
+  display: flex;
+  align-items: baseline;
 }
 
-// Tag autocomplete component
-ld-tag-autocomplete {
-  display: contents;
+span.confirmation .btn.btn-link {
+  color: $error-color !important;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }

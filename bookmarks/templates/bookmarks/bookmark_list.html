@@ -93,15 +93,13 @@
                         class="btn btn-link btn-sm">Unarchive
                 </button>
               {% else %}
-                <button type="submit" name="archive" value="{{ bookmark.id }}"
+                <button ld-confirm-button type="submit" name="archive" value="{{ bookmark.id }}"
                         class="btn btn-link btn-sm">Archive
                 </button>
               {% endif %}
-              <ld-confirm-button>
-                <button type="submit" name="remove" value="{{ bookmark.id }}"
-                        class="btn btn-link btn-sm">Remove
-                </button>
-              </ld-confirm-button>
+              <button ld-confirm-button type="submit" name="remove" value="{{ bookmark.id }}"
+                      class="btn btn-link btn-sm">Remove
+              </button>
               {% if bookmark.unread %}
                 <span class="separator">|</span>
                 <button type="submit" name="mark_as_read" value="{{ bookmark.id }}"

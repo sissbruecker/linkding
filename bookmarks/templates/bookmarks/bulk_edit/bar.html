@@ -9,29 +9,22 @@
         </label>
       </ld-bulk-edit-checkbox>
       {% if mode == 'archive' %}
-        <ld-confirm-button>
-          <button type="submit" name="bulk_unarchive" class="btn btn-link btn-sm"
-                  title="Unarchive selected bookmarks">Unarchive
-          </button>
-        </ld-confirm-button>
+        <button ld-confirm-button type="submit" name="bulk_unarchive" class="btn btn-link btn-sm"
+                title="Unarchive selected bookmarks">Unarchive
+        </button>
       {% else %}
-        <ld-confirm-button>
-          <button type="submit" name="bulk_archive" class="btn btn-link btn-sm"
-                  title="Archive selected bookmarks">Archive
-          </button>
-        </ld-confirm-button>
+        <button ld-confirm-button type="submit" name="bulk_archive" class="btn btn-link btn-sm"
+                title="Archive selected bookmarks">Archive
+        </button>
       {% endif %}
       <span class="text-sm text-gray-dark">•</span>
-      <ld-confirm-button>
-        <button type="submit" name="bulk_delete" class="btn btn-link btn-sm"
-                title="Delete selected bookmarks">Delete
-        </button>
-      </ld-confirm-button>
+      <button ld-confirm-button type="submit" name="bulk_delete" class="btn btn-link btn-sm"
+              title="Delete selected bookmarks">Delete
+      </button>
       <span class="text-sm text-gray-dark">•</span>
       <span class="text-sm text-gray-dark"><label for="bulk-edit-tags-input">Tags:</label></span>
-      <ld-tag-autocomplete variant="small">
-        <input name="bulk_tag_string" class="form-input input-sm" placeholder="&nbsp;">
-      </ld-tag-autocomplete>
+      <input ld-tag-autocomplete variant="small"
+             name="bulk_tag_string" class="form-input input-sm" placeholder="&nbsp;">
       <button type="submit" name="bulk_tag" class="btn btn-link btn-sm"
               title="Add tags to selected bookmarks">Add
       </button>

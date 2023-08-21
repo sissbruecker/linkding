@@ -191,6 +191,9 @@ class BookmarkPage extends HTMLElement {
     ]).then(([bookmarkListHtml, tagCloudHtml]) => {
       this.bookmarkList.innerHTML = bookmarkListHtml;
       this.tagCloud.innerHTML = tagCloudHtml;
+
+      linkding.swap(this.bookmarkList, bookmarkListHtml);
+      linkding.swap(this.tagCloud, tagCloudHtml);
     });
   }
 }

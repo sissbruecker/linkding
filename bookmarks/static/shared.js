@@ -1,6 +1,48 @@
-class ConfirmButton extends HTMLElement {
-  connectedCallback() {
-    const button = this.querySelector("button");
+const behaviorRegistry = {};
+
+function registerBehavior(name, behavior) {
+  behaviorRegistry[name] = behavior;
+  applyBehaviors(document, [name]);
+}
+
+function applyBehaviors(container, behaviorNames = null) {
+  if (!behaviorNames) {
+    behaviorNames = Object.keys(behaviorRegistry);
+  }
+
+  behaviorNames.forEach((behaviorName) => {
+    const behavior = behaviorRegistry[behaviorName];
+    const elements = container.querySelectorAll(`[${behaviorName}]`);
+
+    elements.forEach((element) => {
+      element.__behaviors = element.__behaviors || [];
+      const hasBehavior = element.__behaviors.some(
+        (b) => b instanceof behavior,
+      );
+
+      if (hasBehavior) {
+        return;
+      }
+
+      const behaviorInstance = new behavior(element);
+      element.__behaviors.push(behaviorInstance);
+    });
+  });
+}
+
+function swap(element, html) {
+  element.innerHTML = html;
+  applyBehaviors(element);
+}
+
+linkding = linkding || {};
+linkding.registerBehavior = registerBehavior;
+linkding.applyBehaviors = applyBehaviors;
+linkding.swap = swap;
+
+class ConfirmButtonBehavior {
+  constructor(element) {
+    const button = element;
     button.dataset.type = button.type;
     button.dataset.name = button.name;
     button.dataset.value = button.value;
@@ -45,28 +87,27 @@ class ConfirmButton extends HTMLElement {
   }
 }
 
-customElements.define("ld-confirm-button", ConfirmButton);
+registerBehavior("ld-confirm-button", ConfirmButtonBehavior);
 
-class TagAutocomplete extends HTMLElement {
-  connectedCallback() {
+class TagAutocomplete {
+  constructor(element) {
     const wrapper = document.createElement("div");
-    const tagInput = this.querySelector("input");
     const apiBaseUrl = document.documentElement.dataset.apiBaseUrl || "";
     const apiClient = new linkding.ApiClient(apiBaseUrl);
 
     new linkding.TagAutoComplete({
       target: wrapper,
       props: {
-        id: tagInput.id,
-        name: tagInput.name,
-        value: tagInput.value,
+        id: element.id,
+        name: element.name,
+        value: element.value,
         apiClient: apiClient,
-        variant: this.getAttribute("variant"),
+        variant: element.getAttribute("variant"),
       },
     });
 
-    tagInput.parentElement.replaceChild(wrapper, tagInput);
+    element.replaceWith(wrapper);
   }
 }
 
-customElements.define("ld-tag-autocomplete", TagAutocomplete);
+registerBehavior("ld-tag-autocomplete", TagAutocomplete);
