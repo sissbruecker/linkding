@@ -78,10 +78,9 @@ class BookmarkFactoryMixin:
                                  tag_prefix: str = '',
                                  archived: bool = False,
                                  shared: bool = False,
-                                 with_tags: bool = False):
-        user = self.get_or_create_test_user()
-        if shared:
-            user = self.setup_user(enable_sharing=True)
+                                 with_tags: bool = False,
+                                 user: User = None):
+        user = user or self.get_or_create_test_user()
 
         if not prefix:
             if archived:

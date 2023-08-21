@@ -26,6 +26,9 @@ urlpatterns = [
     path('bookmarks/partials/bookmark-list/archived', partials.archived_bookmark_list,
          name='partials.bookmark_list.archived'),
     path('bookmarks/partials/tag-cloud/archived', partials.archived_tag_cloud, name='partials.tag_cloud.archived'),
+    path('bookmarks/partials/bookmark-list/shared', partials.shared_bookmark_list,
+         name='partials.bookmark_list.shared'),
+    path('bookmarks/partials/tag-cloud/shared', partials.shared_tag_cloud, name='partials.tag_cloud.shared'),
     # Settings
     path('settings', views.settings.general, name='settings.index'),
     path('settings/general', views.settings.general, name='settings.general'),

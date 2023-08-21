@@ -38,3 +38,21 @@ def archived_tag_cloud(request):
     return render(request, 'bookmarks/tag_cloud.html', {
         'tag_cloud': tag_cloud_context
     })
+
+
+@login_required
+def shared_bookmark_list(request):
+    bookmark_list_context = contexts.SharedBookmarkListContext(request)
+
+    return render(request, 'bookmarks/bookmark_list.html', {
+        'bookmark_list': bookmark_list_context
+    })
+
+
+@login_required
+def shared_tag_cloud(request):
+    tag_cloud_context = contexts.SharedTagCloudContext(request)
+
+    return render(request, 'bookmarks/tag_cloud.html', {
+        'tag_cloud': tag_cloud_context
+    })

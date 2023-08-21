@@ -8,11 +8,18 @@ from bookmarks.e2e.helpers import LinkdingE2ETestCase
 
 class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
     def setup_fixture(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+
         # create a number of bookmarks with different states / visibility to
         # verify correct data is loaded on update
         self.setup_numbered_bookmarks(3, with_tags=True)
         self.setup_numbered_bookmarks(3, with_tags=True, archived=True)
-        self.setup_numbered_bookmarks(3, with_tags=True, shared=True)
+        self.setup_numbered_bookmarks(3,
+                                      shared=True,
+                                      prefix="Joe's Bookmark",
+                                      user=self.setup_user(enable_sharing=True))
 
     def assertVisibleBookmarks(self, titles: List[str]):
         bookmark_tags = self.page.locator('ld-bookmark-item')
@@ -183,4 +190,45 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.assertVisibleBookmarks(['Archived Bookmark 1', 'Archived Bookmark 3'])
             self.assertVisibleTags(['Archived Tag 1', 'Archived Tag 3'])
+            self.assertReloads(0)
+
+    def test_shared_bookmarks_partial_update_on_unarchive(self):
+        self.setup_fixture()
+        self.setup_numbered_bookmarks(3, shared=True, prefix="My Bookmark", with_tags=True)
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:shared'), p)
+
+            self.locate_bookmark('My Bookmark 2').get_by_text('Archive').click()
+
+            # Shared bookmarks page also shows archived bookmarks, though it probably shouldn't
+            self.assertVisibleBookmarks([
+                'My Bookmark 1',
+                'My Bookmark 2',
+                'My Bookmark 3',
+                "Joe's Bookmark 1",
+                "Joe's Bookmark 2",
+                "Joe's Bookmark 3",
+            ])
+            self.assertVisibleTags(['Shared Tag 1', 'Shared Tag 2', 'Shared Tag 3'])
+            self.assertReloads(0)
+
+    def test_shared_bookmarks_partial_update_on_delete(self):
+        self.setup_fixture()
+        self.setup_numbered_bookmarks(3, shared=True, prefix="My Bookmark", with_tags=True)
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:shared'), p)
+
+            self.locate_bookmark('My Bookmark 2').get_by_text('Remove').click()
+            self.locate_bookmark('My Bookmark 2').get_by_text('Confirm').click()
+
+            self.assertVisibleBookmarks([
+                'My Bookmark 1',
+                'My Bookmark 3',
+                "Joe's Bookmark 1",
+                "Joe's Bookmark 2",
+                "Joe's Bookmark 3",
+            ])
+            self.assertVisibleTags(['Shared Tag 1', 'Shared Tag 3'])
             self.assertReloads(0)
