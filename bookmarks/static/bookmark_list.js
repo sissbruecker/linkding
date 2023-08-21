@@ -106,7 +106,9 @@ class BookmarkPage extends HTMLElement {
     event.preventDefault();
 
     const url = this.form.action;
-    const formData = new FormData(this.form, event.submitter);
+    const formData = new FormData(this.form);
+    formData.append(event.submitter.name, event.submitter.value);
+
     await fetch(url, {
       method: "POST",
       body: formData,

@@ -6,17 +6,15 @@ from playwright.sync_api import sync_playwright, expect
 from bookmarks.e2e.helpers import LinkdingE2ETestCase
 
 
-@skip("Fails in CI, needs investigation")
-class BookmarkListE2ETestCase(LinkdingE2ETestCase):
+class BookmarkItemE2ETestCase(LinkdingE2ETestCase):
+    @skip("Fails in CI, needs investigation")
     def test_toggle_notes_should_show_hide_notes(self):
-        self.setup_bookmark(notes='Test notes')
+        bookmark = self.setup_bookmark(notes='Test notes')
 
         with sync_playwright() as p:
-            browser = self.setup_browser(p)
-            page = browser.new_page()
-            page.goto(self.live_server_url + reverse('bookmarks:index'))
+            page = self.open(reverse('bookmarks:index'), p)
 
-            notes = page.locator('li .notes')
+            notes = self.bookmark_by_title(bookmark.title).locator('.notes')
             expect(notes).to_be_hidden()
 
             toggle_notes = page.locator('li button.toggle-notes')
