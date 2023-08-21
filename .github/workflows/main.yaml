@@ -41,6 +41,9 @@ jobs:
         run: |
           pip install -r requirements.txt
           playwright install chromium
+      - name: Run build
+        run: |
+          npm run build
           python manage.py compilescss
           python manage.py collectstatic --ignore=*.scss
       - name: Run tests
