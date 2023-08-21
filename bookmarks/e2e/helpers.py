@@ -4,15 +4,6 @@ from playwright.sync_api import BrowserContext, Playwright, Page
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
-class LoadCounter:
-    def __init__(self, page: Page):
-        self.count = 0
-        page.on('load', self.on_load)
-
-    def on_load(self):
-        self.count += 1
-
-
 class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
     def setUp(self) -> None:
         self.client.force_login(self.get_or_create_test_user())
