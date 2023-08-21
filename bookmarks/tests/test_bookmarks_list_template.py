@@ -1,18 +1,20 @@
+from typing import Type
+
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import AnonymousUser
-from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils import timezone, formats
 
+from bookmarks.middlewares import UserProfileMiddleware
 from bookmarks.models import Bookmark, UserProfile, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin
-from bookmarks.middlewares import UserProfileMiddleware
+from bookmarks.views.partials import contexts
 
 
-class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
+class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
     def assertBookmarksLink(self, html: str, bookmark: Bookmark, link_target: str = '_blank'):
         unread = bookmark.unread
@@ -60,7 +62,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         # Edit link
         edit_url = reverse('bookmarks:edit', args=[bookmark.id])
         self.assertInHTML(f'''
-            <a href="{edit_url}?return_url=/test">Edit</a>
+            <a href="{edit_url}?return_url=%2Fbookmarks">Edit</a>
         ''', html, count=count)
         # Archive link
         self.assertInHTML(f'''
@@ -69,8 +71,8 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         ''', html, count=count)
         # Delete link
         self.assertInHTML(f'''
-            <button type="submit" name="remove" value="{bookmark.id}"
-               class="btn btn-link btn-sm btn-confirmation">Remove</button>
+            <button ld-confirm-button type="submit" name="remove" value="{bookmark.id}"
+               class="btn btn-link btn-sm">Remove</button>
         ''', html, count=count)
 
     def assertShareInfo(self, html: str, bookmark: Bookmark):
@@ -138,35 +140,23 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
           </button>        
           ''', html, count=count)
 
-    def render_template(self, bookmarks: [Bookmark], template: Template, url: str = '/test',
+    def render_template(self,
+                        url='/bookmarks',
+                        context_type: Type[contexts.BookmarkListContext] = contexts.ActiveBookmarkListContext,
                         user: User | AnonymousUser = None) -> str:
         rf = RequestFactory()
         request = rf.get(url)
         request.user = user or self.get_or_create_test_user()
         middleware = UserProfileMiddleware(lambda r: HttpResponse())
         middleware(request)
-        paginator = Paginator(bookmarks, 10)
-        page = paginator.page(1)
 
-        context = RequestContext(request, {'bookmarks': page, 'return_url': '/test'})
+        bookmark_list_context = context_type(request)
+        context = RequestContext(request, {'bookmark_list': bookmark_list_context})
+
+        template = Template(
+            "{% include 'bookmarks/bookmark_list.html' %}"
+        )
         return template.render(context)
-
-    def render_default_template(self, bookmarks: [Bookmark], url: str = '/test',
-                                user: User | AnonymousUser = None) -> str:
-        template = Template(
-            '{% load bookmarks %}'
-            '{% bookmark_list bookmarks return_url %}'
-        )
-        return self.render_template(bookmarks, template, url, user)
-
-    def render_template_with_link_target(self, bookmarks: [Bookmark], link_target: str) -> str:
-        template = Template(
-            f'''
-            {{% load bookmarks %}}
-            {{% bookmark_list bookmarks return_url '{link_target}' %}}
-            '''
-        )
-        return self.render_template(bookmarks, template)
 
     def setup_date_format_test(self, date_display_setting: str, web_archive_url: str = ''):
         bookmark = self.setup_bookmark()
@@ -180,7 +170,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
 
     def test_should_respect_absolute_date_setting(self):
         bookmark = self.setup_date_format_test(UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE)
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
         formatted_date = formats.date_format(bookmark.date_added, 'SHORT_DATE_FORMAT')
 
         self.assertDateLabel(html, formatted_date)
@@ -188,45 +178,38 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
     def test_should_render_web_archive_link_with_absolute_date_setting(self):
         bookmark = self.setup_date_format_test(UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE,
                                                'https://web.archive.org/web/20210811214511/https://wanikani.com/')
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
         formatted_date = formats.date_format(bookmark.date_added, 'SHORT_DATE_FORMAT')
 
         self.assertWebArchiveLink(html, formatted_date, bookmark.web_archive_snapshot_url)
 
     def test_should_respect_relative_date_setting(self):
-        bookmark = self.setup_date_format_test(UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE)
-        html = self.render_default_template([bookmark])
+        self.setup_date_format_test(UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE)
+        html = self.render_template()
 
         self.assertDateLabel(html, '1 week ago')
 
     def test_should_render_web_archive_link_with_relative_date_setting(self):
         bookmark = self.setup_date_format_test(UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE,
                                                'https://web.archive.org/web/20210811214511/https://wanikani.com/')
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertWebArchiveLink(html, '1 week ago', bookmark.web_archive_snapshot_url)
 
     def test_bookmark_link_target_should_be_blank_by_default(self):
         bookmark = self.setup_bookmark()
-
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertBookmarksLink(html, bookmark, link_target='_blank')
 
-    def test_bookmark_link_target_should_respect_link_target_parameter(self):
+    def test_bookmark_link_target_should_respect_user_profile(self):
+        profile = self.get_or_create_test_user().profile
+        profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_SELF
+        profile.save()
+
         bookmark = self.setup_bookmark()
+        html = self.render_template()
 
-        html = self.render_template_with_link_target([bookmark], '_self')
-
-        self.assertBookmarksLink(html, bookmark, link_target='_self')
-
-    def test_bookmark_link_target_should_respect_unread_flag(self):
-        bookmark = self.setup_bookmark()
-        html = self.render_template_with_link_target([bookmark], '_self')
-        self.assertBookmarksLink(html, bookmark, link_target='_self')
-
-        bookmark = self.setup_bookmark(unread=True)
-        html = self.render_template_with_link_target([bookmark], '_self')
         self.assertBookmarksLink(html, bookmark, link_target='_self')
 
     def test_web_archive_link_target_should_be_blank_by_default(self):
@@ -235,39 +218,55 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         bookmark.web_archive_snapshot_url = 'https://example.com'
         bookmark.save()
 
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertWebArchiveLink(html, '1 week ago', bookmark.web_archive_snapshot_url, link_target='_blank')
 
-    def test_web_archive_link_target_respect_link_target_parameter(self):
+    def test_web_archive_link_target_should_respect_user_profile(self):
+        profile = self.get_or_create_test_user().profile
+        profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_SELF
+        profile.save()
+
         bookmark = self.setup_bookmark()
         bookmark.date_added = timezone.now() - relativedelta(days=8)
         bookmark.web_archive_snapshot_url = 'https://example.com'
         bookmark.save()
 
-        html = self.render_template_with_link_target([bookmark], '_self')
+        html = self.render_template()
 
         self.assertWebArchiveLink(html, '1 week ago', bookmark.web_archive_snapshot_url, link_target='_self')
 
+    def test_should_respect_unread_flag(self):
+        bookmark = self.setup_bookmark(unread=True)
+        html = self.render_template()
+
+        self.assertBookmarksLink(html, bookmark)
+
     def test_show_bookmark_actions_for_owned_bookmarks(self):
         bookmark = self.setup_bookmark()
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertBookmarkActions(html, bookmark)
         self.assertNoShareInfo(html, bookmark)
 
     def test_show_share_info_for_non_owned_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
-        bookmark = self.setup_bookmark(user=other_user)
-        html = self.render_default_template([bookmark])
+        other_user.profile.enable_sharing = True
+        other_user.profile.save()
+
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+        html = self.render_template(context_type=contexts.SharedBookmarkListContext)
 
         self.assertNoBookmarkActions(html, bookmark)
         self.assertShareInfo(html, bookmark)
 
     def test_share_info_user_link_keeps_query_params(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
-        bookmark = self.setup_bookmark(user=other_user)
-        html = self.render_default_template([bookmark], url='/test?q=foo')
+        other_user.profile.enable_sharing = True
+        other_user.profile.save()
+
+        bookmark = self.setup_bookmark(user=other_user, shared=True, title='foo')
+        html = self.render_template(url='/bookmarks?q=foo', context_type=contexts.SharedBookmarkListContext)
 
         self.assertInHTML(f'''
             <span>Shared by 
@@ -281,7 +280,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         bookmark = self.setup_bookmark(favicon_file='https_example_com.png')
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertFaviconVisible(html, bookmark)
 
@@ -291,7 +290,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         bookmark = self.setup_bookmark(favicon_file='')
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertFaviconHidden(html, bookmark)
 
@@ -301,7 +300,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         bookmark = self.setup_bookmark(favicon_file='https_example_com.png')
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertFaviconHidden(html, bookmark)
 
@@ -310,7 +309,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         bookmark = self.setup_bookmark()
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertBookmarkURLHidden(html, bookmark)
 
@@ -320,7 +319,7 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         bookmark = self.setup_bookmark()
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertBookmarkURLVisible(html, bookmark)
 
@@ -330,68 +329,67 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         bookmark = self.setup_bookmark()
-        html = self.render_default_template([bookmark])
+        html = self.render_template()
 
         self.assertBookmarkURLHidden(html, bookmark)
 
     def test_without_notes(self):
-        bookmark = self.setup_bookmark()
-        html = self.render_default_template([bookmark])
+        self.setup_bookmark()
+        html = self.render_template()
 
         self.assertNotes(html, '', 0)
         self.assertNotesToggle(html, 0)
 
     def test_with_notes(self):
-        bookmark = self.setup_bookmark(notes='Test note')
-        html = self.render_default_template([bookmark])
+        self.setup_bookmark(notes='Test note')
+        html = self.render_template()
 
         note_html = '<p>Test note</p>'
         self.assertNotes(html, note_html, 1)
 
     def test_note_renders_markdown(self):
-        bookmark = self.setup_bookmark(notes='**Example:** `print("Hello world!")`')
-        html = self.render_default_template([bookmark])
+        self.setup_bookmark(notes='**Example:** `print("Hello world!")`')
+        html = self.render_template()
 
         note_html = '<p><strong>Example:</strong> <code>print("Hello world!")</code></p>'
         self.assertNotes(html, note_html, 1)
 
     def test_note_cleans_html(self):
-        bookmark = self.setup_bookmark(notes='<script>alert("test")</script>')
-        html = self.render_default_template([bookmark])
+        self.setup_bookmark(notes='<script>alert("test")</script>')
+        html = self.render_template()
 
         note_html = '&lt;script&gt;alert("test")&lt;/script&gt;'
         self.assertNotes(html, note_html, 1)
 
     def test_notes_are_hidden_initially_by_default(self):
-        html = self.render_default_template([])
+        self.setup_bookmark(notes='Test note')
+        html = self.render_template()
 
-        self.assertInHTML("""
-        <ul class="bookmark-list"></ul>
-        """, html)
+        self.assertIn('<ul class="bookmark-list">', html)
 
     def test_notes_are_hidden_initially_with_permanent_notes_disabled(self):
         profile = self.get_or_create_test_user().profile
         profile.permanent_notes = False
         profile.save()
-        html = self.render_default_template([])
 
-        self.assertInHTML("""
-        <ul class="bookmark-list"></ul>
-        """, html)
+        self.setup_bookmark(notes='Test note')
+        html = self.render_template()
+
+        self.assertIn('<ul class="bookmark-list">', html)
 
     def test_notes_are_visible_initially_with_permanent_notes_enabled(self):
         profile = self.get_or_create_test_user().profile
         profile.permanent_notes = True
         profile.save()
-        html = self.render_default_template([])
 
-        self.assertInHTML("""
-        <ul class="bookmark-list show-notes"></ul>
-        """, html)
+        self.setup_bookmark(notes='Test note')
+        html = self.render_template()
+
+        self.assertIn('<ul class="bookmark-list show-notes">', html)
 
     def test_toggle_notes_is_visible_by_default(self):
-        bookmark = self.setup_bookmark(notes='Test note')
-        html = self.render_default_template([bookmark])
+        self.setup_bookmark(notes='Test note')
+        html = self.render_template()
 
         self.assertNotesToggle(html, 1)
 
@@ -400,8 +398,8 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         profile.permanent_notes = False
         profile.save()
 
-        bookmark = self.setup_bookmark(notes='Test note')
-        html = self.render_default_template([bookmark])
+        self.setup_bookmark(notes='Test note')
+        html = self.render_template()
 
         self.assertNotesToggle(html, 1)
 
@@ -410,20 +408,26 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         profile.permanent_notes = True
         profile.save()
 
-        bookmark = self.setup_bookmark(notes='Test note')
-        html = self.render_default_template([bookmark])
+        self.setup_bookmark(notes='Test note')
+        html = self.render_template()
 
         self.assertNotesToggle(html, 0)
 
     def test_with_anonymous_user(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.enable_public_sharing = True
+        profile.save()
+
         bookmark = self.setup_bookmark()
         bookmark.date_added = timezone.now() - relativedelta(days=8)
         bookmark.web_archive_snapshot_url = 'https://web.archive.org/web/20230531200136/https://example.com'
         bookmark.notes = '**Example:** `print("Hello world!")`'
         bookmark.favicon_file = 'https_example_com.png'
+        bookmark.shared = True
         bookmark.save()
 
-        html = self.render_default_template([bookmark], '/test', AnonymousUser())
+        html = self.render_template(context_type=contexts.SharedBookmarkListContext, user=AnonymousUser())
         self.assertBookmarksLink(html, bookmark, link_target='_blank')
         self.assertWebArchiveLink(html, '1 week ago', bookmark.web_archive_snapshot_url, link_target='_blank')
         self.assertNoBookmarkActions(html, bookmark)
@@ -431,3 +435,8 @@ class BookmarkListTagTest(TestCase, BookmarkFactoryMixin):
         note_html = '<p><strong>Example:</strong> <code>print("Hello world!")</code></p>'
         self.assertNotes(html, note_html, 1)
         self.assertFaviconVisible(html, bookmark)
+
+    def test_empty_state(self):
+        html = self.render_template()
+
+        self.assertInHTML('<p class="empty-title h5">You have no bookmarks yet</p>', html)

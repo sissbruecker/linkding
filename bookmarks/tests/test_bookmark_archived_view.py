@@ -16,7 +16,7 @@ class BookmarkArchivedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
     def assertVisibleBookmarks(self, response, bookmarks: List[Bookmark], link_target: str = '_blank'):
         html = response.content.decode()
-        self.assertContains(response, 'data-is-bookmark-item', count=len(bookmarks))
+        self.assertContains(response, '<li ld-bookmark-item>', count=len(bookmarks))
 
         for bookmark in bookmarks:
             self.assertInHTML(

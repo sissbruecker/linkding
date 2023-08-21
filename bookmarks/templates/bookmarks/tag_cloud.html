@@ -1,9 +1,9 @@
 {% load shared %}
 {% htmlmin %}
   <div class="tag-cloud">
-    {% if has_selected_tags %}
+    {% if tag_cloud.has_selected_tags %}
       <p class="selected-tags">
-        {% for tag in selected_tags %}
+        {% for tag in tag_cloud.selected_tags %}
           <a href="?{% remove_tag_from_query tag.name %}"
              class="text-bold mr-2">
             <span>-{{ tag.name }}</span>
@@ -12,7 +12,7 @@
       </p>
     {% endif %}
     <div class="unselected-tags">
-      {% for group in groups %}
+      {% for group in tag_cloud.groups %}
         <p class="group">
           {% for tag in group.tags %}
             {# Highlight first char of first tag in group #}

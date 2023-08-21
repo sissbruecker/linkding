@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Type
 
 from django.contrib.auth.models import User, AnonymousUser
 from django.http import HttpResponse
@@ -6,29 +6,26 @@ from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
 from bookmarks.middlewares import UserProfileMiddleware
-from bookmarks.models import Tag, UserProfile
+from bookmarks.models import UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
+from bookmarks.views.partials import contexts
 
 
-class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-    def render_template(self, tags: List[Tag], selected_tags: List[Tag] = None, url: str = '/test',
+class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
+    def render_template(self,
+                        context_type: Type[contexts.TagCloudContext] = contexts.ActiveTagCloudContext,
+                        url: str = '/test',
                         user: User | AnonymousUser = None):
-        if not selected_tags:
-            selected_tags = []
-
         rf = RequestFactory()
         request = rf.get(url)
         request.user = user or self.get_or_create_test_user()
         middleware = UserProfileMiddleware(lambda r: HttpResponse())
         middleware(request)
-        context = RequestContext(request, {
-            'request': request,
-            'tags': tags,
-            'selected_tags': selected_tags,
-        })
+
+        tag_cloud_context = context_type(request)
+        context = RequestContext(request, {'tag_cloud': tag_cloud_context})
         template_to_render = Template(
-            '{% load bookmarks %}'
-            '{% tag_cloud tags selected_tags %}'
+            "{% include 'bookmarks/tag_cloud.html' %}"
         )
         return template_to_render.render(context)
 
@@ -54,7 +51,7 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertEqual(len(link_elements), count)
 
     def test_group_alphabetically(self):
-        tags = [
+        tags = ([
             self.setup_tag(name='Cockatoo'),
             self.setup_tag(name='Badger'),
             self.setup_tag(name='Buffalo'),
@@ -64,9 +61,10 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             self.setup_tag(name='Aardvark'),
             self.setup_tag(name='Bumblebee'),
             self.setup_tag(name='Armadillo'),
-        ]
+        ])
+        self.setup_bookmark(tags=tags)
 
-        rendered_template = self.render_template(tags)
+        rendered_template = self.render_template()
 
         self.assertTagGroups(rendered_template, [
             [
@@ -88,12 +86,14 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_no_duplicate_tag_names(self):
         tags = [
-            self.setup_tag(name='shared', user=self.setup_user()),
-            self.setup_tag(name='shared', user=self.setup_user()),
-            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user(enable_sharing=True)),
+            self.setup_tag(name='shared', user=self.setup_user(enable_sharing=True)),
+            self.setup_tag(name='shared', user=self.setup_user(enable_sharing=True)),
         ]
+        for tag in tags:
+            self.setup_bookmark(tags=[tag], user=tag.owner, shared=True)
 
-        rendered_template = self.render_template(tags)
+        rendered_template = self.render_template(context_type=contexts.SharedTagCloudContext)
 
         self.assertTagGroups(rendered_template, [
             [
@@ -106,8 +106,9 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             self.setup_tag(name='tag1'),
             self.setup_tag(name='tag2'),
         ]
+        self.setup_bookmark(tags=tags)
 
-        rendered_template = self.render_template(tags, tags, url='/test?q=%23tag1 %23tag2')
+        rendered_template = self.render_template(url='/test?q=%23tag1 %23tag2')
 
         self.assertNumSelectedTags(rendered_template, 2)
 
@@ -134,9 +135,10 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             self.setup_tag(name='tag1'),
             self.setup_tag(name='tag2'),
         ]
+        self.setup_bookmark(tags=tags)
 
         # Filter by tag name without hash
-        rendered_template = self.render_template(tags, tags, url='/test?q=tag1 %23tag2')
+        rendered_template = self.render_template(url='/test?q=tag1 %23tag2')
 
         self.assertNumSelectedTags(rendered_template, 2)
 
@@ -159,8 +161,9 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         tags = [
             self.setup_tag(name='TEST'),
         ]
+        self.setup_bookmark(tags=tags)
 
-        rendered_template = self.render_template(tags, tags, url='/test?q=%23test')
+        rendered_template = self.render_template(url='/test?q=%23test')
 
         self.assertInHTML('''
             <a href="?q="
@@ -171,12 +174,15 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_no_duplicate_selected_tags(self):
         tags = [
-            self.setup_tag(name='shared', user=self.setup_user()),
-            self.setup_tag(name='shared', user=self.setup_user()),
-            self.setup_tag(name='shared', user=self.setup_user()),
+            self.setup_tag(name='shared', user=self.setup_user(enable_sharing=True)),
+            self.setup_tag(name='shared', user=self.setup_user(enable_sharing=True)),
+            self.setup_tag(name='shared', user=self.setup_user(enable_sharing=True)),
         ]
+        for tag in tags:
+            self.setup_bookmark(tags=[tag], shared=True, user=tag.owner)
 
-        rendered_template = self.render_template(tags, tags, url='/test?q=%23shared')
+        rendered_template = self.render_template(context_type=contexts.SharedTagCloudContext,
+                                                 url='/test?q=%23shared')
 
         self.assertInHTML('''
             <a href="?q="
@@ -187,11 +193,12 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_selected_tag_url_keeps_other_search_terms(self):
         tag = self.setup_tag(name='tag1')
+        self.setup_bookmark(tags=[tag], title='term1', description='term2')
 
-        rendered_template = self.render_template([tag], [tag], url='/test?q=term1 %23tag1 term2 %21untagged')
+        rendered_template = self.render_template(url='/test?q=term1 %23tag1 term2')
 
         self.assertInHTML('''
-            <a href="?q=term1+term2+%21untagged"
+            <a href="?q=term1+term2"
                class="text-bold mr-2">
                 <span>-tag1</span>
             </a>
@@ -205,18 +212,20 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             self.setup_tag(name='tag4'),
             self.setup_tag(name='tag5'),
         ]
-        selected_tags = [
-            tags[0],
-            tags[1],
-        ]
+        self.setup_bookmark(tags=tags)
 
-        rendered_template = self.render_template(tags, selected_tags)
+        rendered_template = self.render_template(url='/test?q=%23tag1 %23tag2')
 
         self.assertTagGroups(rendered_template, [
             ['tag3', 'tag4', 'tag5']
         ])
 
     def test_with_anonymous_user(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.enable_public_sharing = True
+        profile.save()
+
         tags = [
             self.setup_tag(name='tag1'),
             self.setup_tag(name='tag2'),
@@ -224,12 +233,10 @@ class TagCloudTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             self.setup_tag(name='tag4'),
             self.setup_tag(name='tag5'),
         ]
-        selected_tags = [
-            tags[0],
-            tags[1],
-        ]
+        self.setup_bookmark(tags=tags, shared=True)
 
-        rendered_template = self.render_template(tags, selected_tags, url='/test?q=%23tag1 %23tag2',
+        rendered_template = self.render_template(context_type=contexts.SharedTagCloudContext,
+                                                 url='/test?q=%23tag1 %23tag2',
                                                  user=AnonymousUser())
 
         self.assertTagGroups(rendered_template, [

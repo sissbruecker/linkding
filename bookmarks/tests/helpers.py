@@ -71,6 +71,44 @@ class BookmarkFactoryMixin:
         bookmark.save()
         return bookmark
 
+    def setup_numbered_bookmarks(self,
+                                 count: int,
+                                 prefix: str = '',
+                                 suffix: str = '',
+                                 tag_prefix: str = '',
+                                 archived: bool = False,
+                                 shared: bool = False,
+                                 with_tags: bool = False,
+                                 user: User = None):
+        user = user or self.get_or_create_test_user()
+
+        if not prefix:
+            if archived:
+                prefix = 'Archived Bookmark'
+            elif shared:
+                prefix = 'Shared Bookmark'
+            else:
+                prefix = 'Bookmark'
+
+        if not tag_prefix:
+            if archived:
+                tag_prefix = 'Archived Tag'
+            elif shared:
+                tag_prefix = 'Shared Tag'
+            else:
+                tag_prefix = 'Tag'
+
+        for i in range(1, count + 1):
+            title = f'{prefix} {i}{suffix}'
+            tags = []
+            if with_tags:
+                tag_name = f'{tag_prefix} {i}{suffix}'
+                tags = [self.setup_tag(name=tag_name)]
+            self.setup_bookmark(title=title, is_archived=archived, shared=shared, tags=tags, user=user)
+
+    def get_numbered_bookmark(self, title: str):
+        return Bookmark.objects.get(title=title)
+
     def setup_tag(self, user: User = None, name: str = ''):
         if user is None:
             user = self.get_or_create_test_user()

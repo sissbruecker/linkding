@@ -14,8 +14,14 @@ section.content-area {
 }
 
 // Confirm button component
-.btn-confirmation-action {
+span.confirmation {
+  display: flex;
+  align-items: baseline;
+}
+
+span.confirmation .btn.btn-link {
   color: $error-color !important;
+
   &:hover {
     text-decoration: underline;
   }
