@@ -1,0 +1,62 @@
+{% extends 'bookmarks/layout.html' %}
+{% load static %}
+{% load shared %}
+
+{% block content %}
+  <h2 class="text-dark text-large d-flex" style="align-items: center; gap: .4rem">
+    {% if bookmark.favicon_file and request.user_profile.enable_favicons %}
+      <img style="width: 16px; height: 16px;" src="{% static bookmark.favicon_file %}" alt="">
+    {% endif %}
+    {{ bookmark.resolved_title }}
+  </h2>
+  <a href="{{ bookmark.url }}" rel="noopener">
+    {{ bookmark.url }}
+  </a>
+  <dl class="mt-4">
+    <dt>Date added</dt>
+    <dd>
+      {{ bookmark.date_added }}
+      <br>
+      <a class="text-sm" href="{{ bookmark.web_archive_snapshot_url }}">View snapshot on Internet Archive</a>
+    </dd>
+    <dt>Tags</dt>
+    <dd>
+      {% if bookmark.tag_names %}
+        {% for tag_name in bookmark.tag_names %}
+          <a style="color: #05a6a3" href="?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
+        {% endfor %}
+      {% endif %}
+    </dd>
+    <dt>Description</dt>
+    <dd>{{ bookmark.resolved_description }}</dd>
+    <dt>Notes</dt>
+    <dd class="markdown" style="padding: 0">{% markdown bookmark.notes %}</dd>
+    <dt>Quick settings</dt>
+    <dd class="d-flex" style="gap: .8rem">
+      <div class="form-group">
+        <label class="form-switch">
+          <input type="checkbox">
+          <i class="form-icon"></i> Archived
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="form-switch">
+          <input type="checkbox">
+          <i class="form-icon"></i> Unread
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="form-switch">
+          <input type="checkbox">
+          <i class="form-icon"></i> Shared
+        </label>
+      </div>
+    </dd>
+  </dl>
+  <div class="mt-4 d-flex" style="gap: .4rem">
+    <a class="btn btn-primary">Back</a>
+    <a class="btn">Edit</a>
+    <button ld-confirm-button class="btn">Delete</button>
+  </div>
+  <script src="{% static "bundle.js" %}"></script>
+{% endblock %}

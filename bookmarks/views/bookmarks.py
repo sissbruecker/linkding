@@ -104,6 +104,18 @@ def search_action(request):
     return HttpResponseRedirect(url)
 
 
+@login_required
+def details(request, bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404('Bookmark does not exist')
+
+    return render(request, 'bookmarks/details.html', {
+        'bookmark': bookmark,
+    })
+
+
 def convert_tag_string(tag_string: str):
     # Tag strings coming from inputs are space-separated, however services.bookmarks functions expect comma-separated
     # strings

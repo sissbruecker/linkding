@@ -275,7 +275,7 @@ ul.bookmark-list {
 }
 
 /* Bookmark notes markdown styles */
-ul.bookmark-list .notes-content {
+.markdown, ul.bookmark-list .notes-content {
   & {
     padding: $unit-2 $unit-3;
   }
