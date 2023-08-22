@@ -301,6 +301,37 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertCountEqual(bookmark2.tags.all(), [tag1, tag2])
         self.assertCountEqual(bookmark3.tags.all(), [tag1, tag2])
 
+    def test_bulk_mark_as_read(self):
+        bookmark1 = self.setup_bookmark(unread=True)
+        bookmark2 = self.setup_bookmark(unread=True)
+        bookmark3 = self.setup_bookmark(unread=True)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'bulk_action': ['bulk_read'],
+            'bulk_execute': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertFalse(Bookmark.objects.get(id=bookmark1.id).unread)
+        self.assertFalse(Bookmark.objects.get(id=bookmark2.id).unread)
+        self.assertFalse(Bookmark.objects.get(id=bookmark3.id).unread)
+
+    def test_can_only_bulk_mark_as_read_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(unread=True, user=other_user)
+        bookmark2 = self.setup_bookmark(unread=True, user=other_user)
+        bookmark3 = self.setup_bookmark(unread=True, user=other_user)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'bulk_action': ['bulk_read'],
+            'bulk_execute': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertTrue(Bookmark.objects.get(id=bookmark1.id).unread)
+        self.assertTrue(Bookmark.objects.get(id=bookmark2.id).unread)
+        self.assertTrue(Bookmark.objects.get(id=bookmark3.id).unread)
+
     def test_handles_empty_bookmark_id(self):
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()
