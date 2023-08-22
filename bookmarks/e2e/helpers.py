@@ -43,3 +43,6 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
 
     def locate_bulk_edit_toggle(self):
         return self.page.get_by_title('Bulk edit')
+
+    def select_bulk_action(self, value: str):
+        return self.locate_bulk_edit_bar().locator('select[name="bulk_action"]').select_option(value)

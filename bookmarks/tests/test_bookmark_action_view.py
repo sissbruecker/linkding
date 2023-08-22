@@ -124,7 +124,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark()
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_archive': [''],
+            'bulk_action': ['bulk_archive'],
+            'bulk_execute': [''],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
 
@@ -139,7 +140,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark(user=other_user)
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_archive': [''],
+            'bulk_action': ['bulk_archive'],
+            'bulk_execute': [''],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
 
@@ -153,7 +155,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark(is_archived=True)
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_unarchive': [''],
+            'bulk_action': ['bulk_unarchive'],
+            'bulk_execute': [''],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
 
@@ -168,7 +171,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark(is_archived=True, user=other_user)
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_unarchive': [''],
+            'bulk_action': ['bulk_unarchive'],
+            'bulk_execute': [''],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
 
@@ -182,7 +186,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark()
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_delete': [''],
+            'bulk_action': ['bulk_delete'],
+            'bulk_execute': [''],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
 
@@ -197,7 +202,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark(user=other_user)
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_delete': [''],
+            'bulk_action': ['bulk_delete'],
+            'bulk_execute': [''],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
 
@@ -213,7 +219,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         tag2 = self.setup_tag()
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_tag': [''],
+            'bulk_action': ['bulk_tag'],
+            'bulk_execute': [''],
             'bulk_tag_string': [f'{tag1.name} {tag2.name}'],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
@@ -235,7 +242,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         tag2 = self.setup_tag()
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_tag': [''],
+            'bulk_action': ['bulk_tag'],
+            'bulk_execute': [''],
             'bulk_tag_string': [f'{tag1.name} {tag2.name}'],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
@@ -256,7 +264,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark(tags=[tag1, tag2])
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_untag': [''],
+            'bulk_action': ['bulk_untag'],
+            'bulk_execute': [''],
             'bulk_tag_string': [f'{tag1.name} {tag2.name}'],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
@@ -278,7 +287,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark(tags=[tag1, tag2], user=other_user)
 
         self.client.post(reverse('bookmarks:action'), {
-            'bulk_untag': [''],
+            'bulk_action': ['bulk_untag'],
+            'bulk_execute': [''],
             'bulk_tag_string': [f'{tag1.name} {tag2.name}'],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
@@ -297,12 +307,14 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark()
 
         response = self.client.post(reverse('bookmarks:action'), {
-            'bulk_archive': [''],
+            'bulk_action': ['bulk_archive'],
+            'bulk_execute': [''],
         })
         self.assertEqual(response.status_code, 302)
 
         response = self.client.post(reverse('bookmarks:action'), {
-            'bulk_archive': [''],
+            'bulk_action': ['bulk_archive'],
+            'bulk_execute': [''],
             'bookmark_id': [],
         })
         self.assertEqual(response.status_code, 302)
@@ -327,7 +339,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
 
         url = reverse('bookmarks:action') + '?return_url=' + reverse('bookmarks:settings.index')
         response = self.client.post(url, {
-            'bulk_archive': [''],
+            'bulk_action': ['bulk_archive'],
+            'bulk_execute': [''],
             'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
         })
 
@@ -341,7 +354,8 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         def post_with(return_url, follow=None):
             url = reverse('bookmarks:action') + f'?return_url={return_url}'
             return self.client.post(url, {
-                'bulk_archive': [''],
+                'bulk_action': ['bulk_archive'],
+                'bulk_execute': [''],
                 'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
             }, follow=follow)
 
