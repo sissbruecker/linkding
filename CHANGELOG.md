@@ -1,5 +1,39 @@
 # Changelog
 
+## v1.20.0 (22/08/2023)
+
+### What's Changed
+* Add option to share bookmarks publicly by @sissbruecker in https://github.com/sissbruecker/linkding/pull/503
+* Various improvements to favicons by @sissbruecker in https://github.com/sissbruecker/linkding/pull/504
+* Add support for PRIVATE flag in import and export by @sissbruecker in https://github.com/sissbruecker/linkding/pull/505
+* Avoid page reload when triggering actions in bookmark list by @sissbruecker in https://github.com/sissbruecker/linkding/pull/506
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.19.1...v1.20.0
+
+---
+
+## v1.19.1 (29/07/2023)
+
+### What's Changed
+* Add Postman Collection to Community section of README by @gingerbeardman in https://github.com/sissbruecker/linkding/pull/476
+* Added Dev Container support by @acbgbca in https://github.com/sissbruecker/linkding/pull/474
+* Added Apple web-app meta tag #358 by @acbgbca in https://github.com/sissbruecker/linkding/pull/359
+* Bump requests from 2.28.1 to 2.31.0 by @dependabot in https://github.com/sissbruecker/linkding/pull/478
+* Allow passing title and description to new bookmark form by @acbgbca in https://github.com/sissbruecker/linkding/pull/479
+* Enable WAL to avoid locked database lock errors by @sissbruecker in https://github.com/sissbruecker/linkding/pull/480
+* Fix website loader content encoding detection by @sissbruecker in https://github.com/sissbruecker/linkding/pull/482
+* Bump certifi from 2022.12.7 to 2023.7.22 by @dependabot in https://github.com/sissbruecker/linkding/pull/497
+* Bump django from 4.1.9 to 4.1.10 by @dependabot in https://github.com/sissbruecker/linkding/pull/494
+
+### New Contributors
+* @gingerbeardman made their first contribution in https://github.com/sissbruecker/linkding/pull/476
+* @acbgbca made their first contribution in https://github.com/sissbruecker/linkding/pull/474
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.19.0...v1.19.1
+
+---
+
 ## v1.19.0 (20/05/2023)
 
 ### What's Changed
