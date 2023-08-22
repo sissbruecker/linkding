@@ -292,10 +292,20 @@ $bulk-edit-transition-duration: 400ms;
       text-decoration: underline;
     }
 
-    > input, .form-autocomplete {
+    > input, .form-autocomplete, select {
       width: auto;
       max-width: 200px;
       -webkit-appearance: none;
+    }
+
+    input[name='bulk_tag_string'], .form-autocomplete {
+      display: none;
+    }
+
+    &.bulk-tag-action {
+      input[name='bulk_tag_string'], .form-autocomplete {
+        display: initial;
+      }
     }
   }
 }

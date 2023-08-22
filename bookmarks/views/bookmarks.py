@@ -167,7 +167,7 @@ def mark_as_read(request, bookmark_id: int):
 
 @login_required
 def action(request):
-    # Determine action
+    # Single bookmark actions
     if 'archive' in request.POST:
         archive(request, request.POST['archive'])
     if 'unarchive' in request.POST:
@@ -178,23 +178,27 @@ def action(request):
         mark_as_read(request, request.POST['mark_as_read'])
     if 'unshare' in request.POST:
         unshare(request, request.POST['unshare'])
-    if 'bulk_archive' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        archive_bookmarks(bookmark_ids, request.user)
-    if 'bulk_unarchive' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        unarchive_bookmarks(bookmark_ids, request.user)
-    if 'bulk_delete' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        delete_bookmarks(bookmark_ids, request.user)
-    if 'bulk_tag' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        tag_string = convert_tag_string(request.POST['bulk_tag_string'])
-        tag_bookmarks(bookmark_ids, tag_string, request.user)
-    if 'bulk_untag' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        tag_string = convert_tag_string(request.POST['bulk_tag_string'])
-        untag_bookmarks(bookmark_ids, tag_string, request.user)
+
+    # Bulk actions
+    if 'bulk_execute' in request.POST:
+        bulk_action = request.POST['bulk_action']
+        if 'bulk_archive' == bulk_action:
+            bookmark_ids = request.POST.getlist('bookmark_id')
+            archive_bookmarks(bookmark_ids, request.user)
+        if 'bulk_unarchive' == bulk_action:
+            bookmark_ids = request.POST.getlist('bookmark_id')
+            unarchive_bookmarks(bookmark_ids, request.user)
+        if 'bulk_delete' == bulk_action:
+            bookmark_ids = request.POST.getlist('bookmark_id')
+            delete_bookmarks(bookmark_ids, request.user)
+        if 'bulk_tag' == bulk_action:
+            bookmark_ids = request.POST.getlist('bookmark_id')
+            tag_string = convert_tag_string(request.POST['bulk_tag_string'])
+            tag_bookmarks(bookmark_ids, tag_string, request.user)
+        if 'bulk_untag' == bulk_action:
+            bookmark_ids = request.POST.getlist('bookmark_id')
+            tag_string = convert_tag_string(request.POST['bulk_tag_string'])
+            untag_bookmarks(bookmark_ids, tag_string, request.user)
 
     return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
     return HttpResponseRedirect(return_url)

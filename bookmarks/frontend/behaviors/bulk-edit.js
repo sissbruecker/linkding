@@ -4,6 +4,8 @@ class BulkEdit {
   constructor(element) {
     this.element = element;
     this.active = false;
+    this.actionSelect = element.querySelector("select[name='bulk_action']");
+    this.bulkActions = element.querySelector(".bulk-edit-actions");
 
     element.addEventListener(
       "bulk-edit-toggle-active",
@@ -20,6 +22,11 @@ class BulkEdit {
     element.addEventListener(
       "bookmark-list-updated",
       this.onListUpdated.bind(this),
+    );
+
+    this.actionSelect.addEventListener(
+      "change",
+      this.onActionSelected.bind(this),
     );
   }
 
@@ -58,6 +65,16 @@ class BulkEdit {
     this.bookmarkCheckboxes.forEach((checkbox) => {
       checkbox.checked = checked;
     });
+  }
+
+  onActionSelected() {
+    const action = this.actionSelect.value;
+
+    if (action === "bulk_tag" || action === "bulk_untag") {
+      this.bulkActions.classList.add("bulk-tag-action");
+    } else {
+      this.bulkActions.classList.remove("bulk-tag-action");
+    }
   }
 
   onListUpdated() {
