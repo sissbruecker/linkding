@@ -73,6 +73,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'bookmarks.context_processors.toasts',
                 'bookmarks.context_processors.public_shares',
+                'bookmarks.context_processors.app_version',
             ],
         },
     },

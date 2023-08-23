@@ -1,5 +1,6 @@
 from bookmarks import queries
 from bookmarks.models import Toast
+from bookmarks import utils
 
 
 def toasts(request):
@@ -23,3 +24,9 @@ def public_shares(request):
         }
 
     return {}
+
+
+def app_version(request):
+    return {
+        'app_version': utils.app_version
+    }
