@@ -88,6 +88,11 @@ code {
   border-bottom: solid 1px $border-color;
 }
 
+// Fix padding for first menu item
+ul.menu li:first-child {
+  margin-top: 0;
+}
+
 // Form auto-complete menu
 .form-autocomplete .menu {
   .menu-item.selected > a, .menu-item > a:hover {
