@@ -11,6 +11,10 @@
   grid-gap: $unit-4;
 }
 
+.grid-no-gap {
+  grid-gap: 0;
+}
+
 .show-sm,
 .show-md {
   display: none !important;
