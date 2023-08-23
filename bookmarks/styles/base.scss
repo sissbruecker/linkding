@@ -23,26 +23,19 @@ header .toasts {
   }
 }
 
-.navbar {
-
-  .navbar-brand {
-
-    display: flex;
-    align-items: center;
-
-    .logo {
-      width: 28px;
-      height: 28px;
-    }
-
-    h1 {
-      text-transform: uppercase;
-      display: inline-block;
-      margin: 0 0 0 8px;
-    }
+header {
+  .logo {
+    width: 28px;
+    height: 28px;
   }
 
-  .dropdown-toggle {
+  a:hover {
+    text-decoration: none;
+  }
+
+  h1 {
+    margin: 0 0 0 $unit-3;
+    font-size: $font-size-lg;
   }
 }
 
@@ -62,12 +55,15 @@ h2 {
 a:visited {
   color: $link-color;
 }
+
 a:visited:hover {
   color: $link-color-dark;
 }
+
 .btn-link:visited:not(.btn-primary) {
   color: $link-color;
 }
+
 .btn-link:visited:not(.btn-primary):hover {
   color: $link-color-dark;
 }

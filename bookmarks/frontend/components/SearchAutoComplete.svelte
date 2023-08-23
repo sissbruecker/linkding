@@ -209,11 +209,7 @@
     {#each suggestions.tags as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
         <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
-          <div class="tile tile-centered">
-            <div class="tile-content">
-              {suggestion.label}
-            </div>
-          </div>
+          {suggestion.label}
         </a>
       </li>
     {/each}
@@ -224,11 +220,7 @@
     {#each suggestions.search as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
         <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
-          <div class="tile tile-centered">
-            <div class="tile-content">
-              {suggestion.label}
-            </div>
-          </div>
+          {suggestion.label}
         </a>
       </li>
     {/each}
@@ -239,11 +231,7 @@
     {#each suggestions.bookmarks as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
         <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
-          <div class="tile tile-centered">
-            <div class="tile-content">
-              {suggestion.label}
-            </div>
-          </div>
+          {suggestion.label}
         </a>
       </li>
     {/each}
