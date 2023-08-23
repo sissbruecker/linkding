@@ -16,15 +16,9 @@ from bookmarks.models import UserProfileForm, FeedToken
 from bookmarks.queries import query_bookmarks
 from bookmarks.services import exporter, tasks
 from bookmarks.services import importer
+from bookmarks.utils import app_version
 
 logger = logging.getLogger(__name__)
-
-try:
-    with open("version.txt", "r") as f:
-        app_version = f.read().strip("\n")
-except Exception as exc:
-    logging.exception(exc)
-    pass
 
 
 @login_required
