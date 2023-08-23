@@ -102,6 +102,10 @@
     width: 100%;
   }
 
+  .grid-md-no-gap {
+    grid-gap: 0 !important;
+  }
+
   .col-md-1 {
     grid-column: span 1;
   }
@@ -159,6 +163,10 @@
   }
   .width-sm-100 {
     width: 100%;
+  }
+
+  .grid-sm-no-gap {
+    grid-gap: 0 !important;
   }
 
   .col-sm-1 {

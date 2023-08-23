@@ -4,7 +4,7 @@
 {% load bookmarks %}
 
 {% block content %}
-  <div class="bookmarks-page grid"
+  <div class="bookmarks-page grid grid-md-no-gap"
        ld-bookmark-page
        bookmarks-url="{% url 'bookmarks:partials.bookmark_list.shared' %}"
        tags-url="{% url 'bookmarks:partials.tag_cloud.shared' %}">
