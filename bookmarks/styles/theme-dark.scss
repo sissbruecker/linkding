@@ -2,11 +2,11 @@
 @import "variables-dark";
 
 // Import Spectre CSS lib
-@import "../../node_modules/spectre.css/src/spectre";
-@import "../../node_modules/spectre.css/src/autocomplete";
+@import "spectre";
 
 // Import style modules
 @import "base";
+@import "grid";
 @import "util";
 @import "shared";
 @import "bookmarks";

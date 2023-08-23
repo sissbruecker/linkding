@@ -1,3 +1,7 @@
+.bookmarks-page.grid {
+  grid-gap: $unit-12;
+}
+
 /* Bookmark search box */
 .bookmarks-page .search {
   $searchbox-width: 180px;

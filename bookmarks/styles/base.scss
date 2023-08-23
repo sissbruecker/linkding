@@ -2,13 +2,13 @@ body {
   margin: 20px 10px;
 
   @media (min-width: $size-sm) {
-    // High horizontal padding accounts for checkboxes that show up in bulk edit mode
-    margin: 20px 24px;
+    // Horizontal padding accounts for checkboxes that show up in bulk edit mode
+    margin: 20px 32px;
   }
 }
 
 header {
-  margin-bottom: 40px;
+  margin-bottom: $unit-12;
 }
 
 header .toasts {
@@ -76,11 +76,6 @@ code {
   color: $gray-color-dark;
   background-color: $code-bg-color;
   box-shadow: 1px 1px 0 $code-shadow-color;
-}
-
-// Increase spacing between columns
-.container > .columns > .column:not(:first-child) {
-  padding-left: 2rem;
 }
 
 // Remove left padding from first pagination link

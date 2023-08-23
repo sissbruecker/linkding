@@ -1,0 +1,54 @@
+// Customized Spectre CSS imports, removing modules that are not used
+// See node_modules/spectre.css/src/spectre.scss for the original version
+
+// Variables and mixins
+@import "../../node_modules/spectre.css/src/variables";
+@import "../../node_modules/spectre.css/src/mixins";
+
+/*! Spectre.css v#{$version} | MIT License | github.com/picturepan2/spectre */
+// Reset and dependencies
+@import "../../node_modules/spectre.css/src/normalize";
+@import "../../node_modules/spectre.css/src/base";
+
+// Elements
+@import "../../node_modules/spectre.css/src/typography";
+@import "../../node_modules/spectre.css/src/asian";
+@import "../../node_modules/spectre.css/src/tables";
+@import "../../node_modules/spectre.css/src/buttons";
+@import "../../node_modules/spectre.css/src/forms";
+@import "../../node_modules/spectre.css/src/labels";
+@import "../../node_modules/spectre.css/src/codes";
+@import "../../node_modules/spectre.css/src/media";
+
+// Layout
+@import "../../node_modules/spectre.css/src/hero";
+@import "../../node_modules/spectre.css/src/navbar";
+
+// Components
+@import "../../node_modules/spectre.css/src/accordions";
+@import "../../node_modules/spectre.css/src/avatars";
+@import "../../node_modules/spectre.css/src/badges";
+@import "../../node_modules/spectre.css/src/breadcrumbs";
+@import "../../node_modules/spectre.css/src/bars";
+@import "../../node_modules/spectre.css/src/cards";
+@import "../../node_modules/spectre.css/src/chips";
+@import "../../node_modules/spectre.css/src/dropdowns";
+@import "../../node_modules/spectre.css/src/empty";
+@import "../../node_modules/spectre.css/src/menus";
+@import "../../node_modules/spectre.css/src/modals";
+@import "../../node_modules/spectre.css/src/navs";
+@import "../../node_modules/spectre.css/src/pagination";
+@import "../../node_modules/spectre.css/src/panels";
+@import "../../node_modules/spectre.css/src/popovers";
+@import "../../node_modules/spectre.css/src/steps";
+@import "../../node_modules/spectre.css/src/tabs";
+@import "../../node_modules/spectre.css/src/tiles";
+@import "../../node_modules/spectre.css/src/toasts";
+@import "../../node_modules/spectre.css/src/tooltips";
+
+// Utility classes
+@import "../../node_modules/spectre.css/src/animations";
+@import "../../node_modules/spectre.css/src/utilities";
+
+// Auto-complete component
+@import "../../node_modules/spectre.css/src/autocomplete";

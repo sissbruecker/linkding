@@ -30,9 +30,9 @@
   {% endif %}
 </head>
 <body ld-global-shortcuts>
-<header>
+<header class="container">
   {% if has_toasts %}
-    <div class="toasts container grid-lg">
+    <div class="toasts">
       <form action="{% url 'bookmarks:toasts.acknowledge' %}?return_url={{ request.path | urlencode }}" method="post">
         {% csrf_token %}
         {% for toast in toast_messages %}
@@ -44,7 +44,7 @@
       </form>
     </div>
   {% endif %}
-  <div class="navbar container grid-lg">
+  <div class="navbar">
     <section class="navbar-section">
       <a href="{% url 'bookmarks:index' %}" class="navbar-brand text-bold">
         <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
@@ -64,7 +64,7 @@
     {% endif %}
   </div>
 </header>
-<div class="content container grid-lg">
+<div class="content container">
   {% block content %}
   {% endblock %}
 </div>
