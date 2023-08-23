@@ -19,3 +19,17 @@
 .align-baseline {
   align-items: baseline;
 }
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn.btn-wide {
+  padding-left: $unit-6;
+  padding-right: $unit-6;
+}

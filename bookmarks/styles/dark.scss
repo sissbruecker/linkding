@@ -17,7 +17,12 @@ a:focus, .btn:focus {
 }
 
 /* Forms */
-.has-error .form-input, .form-input.is-error, .has-error .form-select, .form-select.is-error {
+.form-input:not(:placeholder-shown):invalid,
+.form-input:not(:placeholder-shown):invalid:focus,
+.has-error .form-input,
+.form-input.is-error,
+.has-error .form-select,
+.form-select.is-error {
   background: darken($error-color, 40%);
 }
 
