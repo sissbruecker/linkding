@@ -8,7 +8,7 @@ body {
 }
 
 header {
-  margin-bottom: $unit-12;
+  margin-bottom: $unit-10;
 }
 
 header .toasts {
@@ -47,7 +47,7 @@ h1 {
 }
 
 h2 {
-  font-size: .85rem;
+  font-size: $font-size-lg;
   color: $gray-color-dark;
 }
 

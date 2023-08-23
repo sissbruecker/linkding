@@ -1,5 +1,5 @@
 .bookmarks-page.grid {
-  grid-gap: $unit-12;
+  grid-gap: $unit-10;
 }
 
 /* Bookmark search box */
@@ -69,6 +69,7 @@ li[ld-bookmark-item] {
   .title img {
     width: 16px;
     height: 16px;
+    margin-right: $unit-h;
     vertical-align: text-top;
   }
 
@@ -88,7 +89,7 @@ li[ld-bookmark-item] {
     display: flex;
     align-items: baseline;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: $unit-2;
   }
 
   .actions {
@@ -117,19 +118,19 @@ li[ld-bookmark-item] {
       align-self: center;
       display: flex;
       align-items: center;
-      gap: 0.1rem;
+      gap: $unit-h;
     }
   }
 }
 
 .bookmark-pagination {
-  margin-top: 1rem;
+  margin-top: $unit-4;
 }
 
 .tag-cloud {
 
   .selected-tags {
-    margin-bottom: 0.8rem;
+    margin-bottom: $unit-4;
 
     a, a:visited:hover {
       color: $error-color;
@@ -143,7 +144,7 @@ li[ld-bookmark-item] {
   }
 
   .group {
-    margin-bottom: 0.4rem;
+    margin-bottom: $unit-2;
   }
 
   .highlight-char {
@@ -209,7 +210,7 @@ ul.bookmark-list {
   .notes {
     display: none;
     max-height: 300px;
-    margin: 4px 0;
+    margin: $unit-1 0;
     overflow: auto;
   }
 
@@ -222,11 +223,11 @@ ul.bookmark-list {
 /* Bookmark notes markdown styles */
 ul.bookmark-list .notes-content {
   & {
-    padding: 0.4rem 0.6rem;
+    padding: $unit-2 $unit-3;
   }
 
   p, ul, ol, pre, blockquote {
-    margin: 0 0 0.4rem 0;
+    margin: 0 0 $unit-2 0;
   }
 
   > *:first-child {
@@ -238,17 +239,17 @@ ul.bookmark-list .notes-content {
   }
 
   ul, ol {
-    margin-left: 0.8rem;
+    margin-left: $unit-4;
   }
 
   ul li, ol li {
-    margin-top: 0.2rem;
+    margin-top: $unit-1;
   }
 
   pre {
-    padding: 0.2rem 0.4rem;
+    padding: $unit-1 $unit-2;
     background-color: $code-bg-color;
-    border-radius: 0.2rem;
+    border-radius: $unit-1;
   }
 
   pre code {
@@ -313,7 +314,7 @@ $bulk-edit-transition-duration: 400ms;
     transition: all $bulk-edit-transition-duration;
 
     .form-icon {
-      top: 0.2rem;
+      top: $unit-1;
     }
   }
 
@@ -326,9 +327,9 @@ $bulk-edit-transition-duration: 400ms;
   .bulk-edit-actions {
     display: flex;
     align-items: baseline;
-    padding: 4px 0;
+    padding: $unit-1 0;
     border-top: solid 1px $border-color;
-    gap: 8px;
+    gap: $unit-2;
 
     button {
       padding: 0 !important;
