@@ -32,6 +32,14 @@ class BookmarkItem:
         self.unread = bookmark.unread
         self.owner = bookmark.owner
 
+        css_classes = []
+        if bookmark.unread:
+            css_classes.append('unread')
+        if bookmark.shared:
+            css_classes.append('shared')
+
+        self.css_classes = ' '.join(css_classes)
+
         if profile.bookmark_date_display == UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE:
             self.display_date = utils.humanize_relative_date(bookmark.date_added)
         elif profile.bookmark_date_display == UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE:

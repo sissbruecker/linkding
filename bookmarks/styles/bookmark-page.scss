@@ -66,6 +66,10 @@ li[ld-bookmark-item] {
     text-overflow: ellipsis;
   }
 
+  &.unread .title a {
+    font-style: italic;
+  }
+
   .title img {
     width: 16px;
     height: 16px;

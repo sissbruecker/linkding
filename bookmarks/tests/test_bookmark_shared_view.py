@@ -16,13 +16,13 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def assertBookmarkCount(self, html: str, bookmark: Bookmark, count: int, link_target: str = '_blank'):
         self.assertInHTML(
-            f'<a href="{bookmark.url}" target="{link_target}" rel="noopener" class="">{bookmark.resolved_title}</a>',
+            f'<a href="{bookmark.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
             html, count=count
         )
 
     def assertVisibleBookmarks(self, response, bookmarks: List[Bookmark], link_target: str = '_blank'):
         html = response.content.decode()
-        self.assertContains(response, '<li ld-bookmark-item>', count=len(bookmarks))
+        self.assertContains(response, '<li ld-bookmark-item class="shared">', count=len(bookmarks))
 
         for bookmark in bookmarks:
             self.assertBookmarkCount(html, bookmark, 1, link_target)

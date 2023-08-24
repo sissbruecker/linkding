@@ -17,14 +17,12 @@ from bookmarks.views.partials import contexts
 class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
     def assertBookmarksLink(self, html: str, bookmark: Bookmark, link_target: str = '_blank'):
-        unread = bookmark.unread
         favicon_img = f'<img src="/static/{bookmark.favicon_file}" alt="">' if bookmark.favicon_file else ''
         self.assertInHTML(
             f'''
             <a href="{bookmark.url}" 
                 target="{link_target}" 
-                rel="noopener" 
-                class="{'text-italic' if unread else ''}">
+                rel="noopener">
                 {favicon_img}
                 {bookmark.resolved_title}
             </a>
@@ -249,11 +247,31 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
         self.assertWebArchiveLink(html, '1 week ago', bookmark.web_archive_snapshot_url, link_target='_self')
 
-    def test_should_respect_unread_flag(self):
-        bookmark = self.setup_bookmark(unread=True)
+    def test_should_reflect_unread_state_as_css_class(self):
+        self.setup_bookmark(unread=True)
         html = self.render_template()
 
-        self.assertBookmarksLink(html, bookmark)
+        self.assertIn('<li ld-bookmark-item class="unread">', html)
+
+    def test_should_reflect_shared_state_as_css_class(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+
+        self.setup_bookmark(shared=True)
+        html = self.render_template()
+
+        self.assertIn('<li ld-bookmark-item class="shared">', html)
+
+    def test_should_reflect_both_unread_and_shared_state_as_css_class(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+
+        self.setup_bookmark(unread=True, shared=True)
+        html = self.render_template()
+
+        self.assertIn('<li ld-bookmark-item class="unread shared">', html)
 
     def test_show_bookmark_actions_for_owned_bookmarks(self):
         bookmark = self.setup_bookmark()
