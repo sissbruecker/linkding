@@ -273,9 +273,9 @@ $bulk-edit-transition-duration: 400ms;
 
 [ld-bulk-edit] {
   .bulk-edit-bar {
-    margin-top: -17px;
-    margin-bottom: 16px;
+    margin-top: -1px;
     margin-left: -$bulk-edit-bar-offset;
+    margin-bottom: $unit-4;
     max-height: 0;
     overflow: hidden;
     transition: max-height $bulk-edit-transition-duration;

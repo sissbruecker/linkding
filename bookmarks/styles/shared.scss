@@ -4,11 +4,14 @@ section.content-area {
   .content-area-header {
     border-bottom: solid 1px $border-color;
     display: flex;
-    flex-direction: row;
-    margin-bottom: 16px;
+    flex-wrap: wrap;
+    padding-bottom: $unit-2;
+    margin-bottom: $unit-4;
 
     h2 {
       line-height: 1.8rem;
+      margin-right: auto;
+      margin-bottom: 0;
     }
   }
 }

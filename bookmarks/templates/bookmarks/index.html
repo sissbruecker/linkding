@@ -12,11 +12,12 @@
 
     {# Bookmark list #}
     <section class="content-area col-2">
-      <div class="content-area-header">
+      <div class="content-area-header mb-0">
         <h2>Bookmarks</h2>
-        <div class="spacer"></div>
-        {% bookmark_search bookmark_list.filters tag_cloud.tags %}
-        {% include 'bookmarks/bulk_edit/toggle.html' %}
+        <div class="d-flex">
+          {% bookmark_search bookmark_list.filters tag_cloud.tags %}
+          {% include 'bookmarks/bulk_edit/toggle.html' %}
+        </div>
       </div>
 
       <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ bookmark_list.return_url }}"
@@ -32,7 +33,7 @@
 
     {# Tag cloud #}
     <section class="content-area col-1 hide-md">
-      <div class="content-area-header">
+      <div class="content-area-header mb-4">
         <h2>Tags</h2>
       </div>
       <div class="tag-cloud-container">
