@@ -10,21 +10,7 @@ body {
 
 header {
   margin-bottom: $unit-10;
-}
 
-header .toasts {
-  margin-bottom: 20px;
-
-  .toast {
-    margin-bottom: 0.4rem;
-  }
-
-  .toast a.btn-clear:visited {
-    color: currentColor;
-  }
-}
-
-header {
   .logo {
     width: 28px;
     height: 28px;
@@ -37,6 +23,18 @@ header {
   h1 {
     margin: 0 0 0 $unit-3;
     font-size: $font-size-lg;
+  }
+}
+
+header .toasts {
+  margin-bottom: 20px;
+
+  .toast {
+    margin-bottom: 0.4rem;
+  }
+
+  .toast a.btn-clear:visited {
+    color: currentColor;
   }
 }
 
