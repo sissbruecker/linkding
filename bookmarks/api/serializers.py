@@ -2,7 +2,7 @@ from django.db.models import prefetch_related_objects
 from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
-from bookmarks.models import Bookmark, Tag, build_tag_string
+from bookmarks.models import UserProfile, Bookmark, Tag, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
 from bookmarks.services.tags import get_or_create_tag
 
@@ -89,3 +89,9 @@ class TagSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return get_or_create_tag(validated_data['name'], self.context['user'])
+
+
+class SettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = '__all__'

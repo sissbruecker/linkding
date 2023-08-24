@@ -15,12 +15,14 @@
   let isFocus = false;
   let isOpen = false;
   let suggestions = []
+  let settings = undefined;
   let selectedIndex = undefined;
   let input = null;
 
-  // Track current search query after loading the page
+  // Track current search query and get user settings after loading the page
   searchHistory.pushCurrent()
   updateSuggestions()
+  getSettings()
 
   function handleFocus() {
     isFocus = true;
@@ -164,7 +166,7 @@
       close()
     }
     if (suggestion.type === 'bookmark') {
-      window.open(suggestion.bookmark.url, '_blank')
+      window.open(suggestion.bookmark.url, settings.bookmark_link_target)
       close()
     }
     if (suggestion.type === 'tag') {
@@ -192,6 +194,11 @@
     if (newIndex >= length) newIndex = 0;
 
     selectedIndex = newIndex;
+  }
+
+  async function getSettings() {
+    const fetchedSettings = await apiClient.getSettings();
+    settings = fetchedSettings[0];
   }
 </script>
 

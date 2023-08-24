@@ -26,4 +26,12 @@ export class ApiClient {
       .then((response) => response.json())
       .then((data) => data.results);
   }
+
+  getSettings() {
+    const url = `${this.baseUrl}settings/`;
+
+    return fetch(url)
+      .then((response) => response.json())
+      .then((data) => data.results);
+  }
 }
