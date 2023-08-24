@@ -1,3 +1,4 @@
+/* Main layout */
 body {
   margin: 20px 10px;
 
@@ -39,77 +40,81 @@ header {
   }
 }
 
-/* Overrides */
+/* Shared components */
 
-// Reduce heading sizes
-h1 {
-  font-size: inherit;
+// Content area component
+section.content-area {
+  h2 {
+    font-size: $font-size-lg;
+  }
+
+  .content-area-header {
+    border-bottom: solid 1px $border-color;
+    display: flex;
+    flex-wrap: wrap;
+    padding-bottom: $unit-2;
+    margin-bottom: $unit-4;
+
+    h2 {
+      line-height: 1.8rem;
+      margin-right: auto;
+      margin-bottom: 0;
+    }
+  }
 }
 
-h2 {
-  font-size: $font-size-lg;
+// Confirm button component
+span.confirmation {
+  display: flex;
+  align-items: baseline;
+}
+
+span.confirmation .btn.btn-link {
+  color: $error-color !important;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Additional utilities */
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-sm {
+  font-size: 0.7rem;
+}
+
+.text-gray-dark {
   color: $gray-color-dark;
 }
 
-// Fix up visited styles
-a:visited {
-  color: $link-color;
+.align-baseline {
+  align-items: baseline;
 }
 
-a:visited:hover {
-  color: $link-color-dark;
+.align-center {
+  align-items: center;
 }
 
-.btn-link:visited:not(.btn-primary) {
-  color: $link-color;
+.justify-between {
+  justify-content: space-between;
 }
 
-.btn-link:visited:not(.btn-primary):hover {
-  color: $link-color-dark;
+.mb-4 {
+  margin-bottom: $unit-4;
 }
 
-code {
-  color: $gray-color-dark;
-  background-color: $code-bg-color;
-  box-shadow: 1px 1px 0 $code-shadow-color;
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
 }
 
-// Remove left padding from first pagination link
-.pagination .page-item:first-child a {
-  padding-left: 0;
-}
-
-// Override border color for tab block
-.tab-block {
-  border-bottom: solid 1px $border-color;
-}
-
-// Fix padding for first menu item
-ul.menu li:first-child {
-  margin-top: 0;
-}
-
-// Form auto-complete menu
-.form-autocomplete .menu {
-  .menu-item.selected > a, .menu-item > a:hover {
-    background: $secondary-color;
-    color: $primary-color;
-  }
-
-  .group-item, .group-item:hover {
-    color: $gray-color;
-    text-transform: uppercase;
-    background: none;
-    font-size: 0.6rem;
-    font-weight: bold;
-  }
-}
-
-// Increase input font size on small viewports to prevent zooming on focus the input
-// on mobile devices. 430px relates to the "normalized" iPhone 14 Pro Max
-// viewport size
-@media screen and (max-width: 430px) {
-  .form-input {
-    font-size: 16px;
-  }
+.btn.btn-wide {
+  padding-left: $unit-6;
+  padding-right: $unit-6;
 }

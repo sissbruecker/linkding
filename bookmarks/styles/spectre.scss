@@ -35,3 +35,76 @@
 
 // Auto-complete component
 @import "../../node_modules/spectre.css/src/autocomplete";
+
+
+/* Spectre overrides / fixes */
+
+// Fix up visited styles
+a:visited {
+  color: $link-color;
+}
+
+a:visited:hover {
+  color: $link-color-dark;
+}
+
+.btn-link:visited:not(.btn-primary) {
+  color: $link-color;
+}
+
+.btn-link:visited:not(.btn-primary):hover {
+  color: $link-color-dark;
+}
+
+// Disable transitions on buttons, which can otherwise flicker while loading CSS file
+// something to do with .btn applying a transition for background, and then .btn-link setting a different background
+.btn {
+  transition: none !important;
+}
+
+// Make code work with light and dark theme
+code {
+  color: $gray-color-dark;
+  background-color: $code-bg-color;
+  box-shadow: 1px 1px 0 $code-shadow-color;
+}
+
+// Remove left padding from first pagination link
+.pagination .page-item:first-child a {
+  padding-left: 0;
+}
+
+// Override border color for tab block
+.tab-block {
+  border-bottom: solid 1px $border-color;
+}
+
+// Fix padding for first menu item
+ul.menu li:first-child {
+  margin-top: 0;
+}
+
+// Form auto-complete menu
+.form-autocomplete .menu {
+  .menu-item.selected > a, .menu-item > a:hover {
+    background: $secondary-color;
+    color: $primary-color;
+  }
+
+  .group-item, .group-item:hover {
+    color: $gray-color;
+    text-transform: uppercase;
+    background: none;
+    font-size: 0.6rem;
+    font-weight: bold;
+  }
+}
+
+// Increase input font size on small viewports to prevent zooming on focus the input
+// on mobile devices. 430px relates to the "normalized" iPhone 14 Pro Max
+// viewport size
+@media screen and (max-width: 430px) {
+  .form-input {
+    font-size: 16px;
+  }
+}
