@@ -30,7 +30,7 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse('bookmarks:index'))
 
         # Should render toasts container
-        self.assertContains(response, '<div class="toasts container grid-lg">')
+        self.assertContains(response, '<div class="toasts">')
         # Should render two toasts
         self.assertContains(response, '<div class="toast">', count=2)
 

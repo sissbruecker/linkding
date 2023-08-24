@@ -131,11 +131,7 @@
     {#each suggestions as tag,i}
       <li class="menu-item" class:selected={selectedIndex === i}>
         <a href="#" on:mousedown|preventDefault={() => complete(tag)}>
-          <div class="tile tile-centered">
-            <div class="tile-content">
-              {tag.name}
-            </div>
-          </div>
+          {tag.name}
         </a>
       </li>
     {/each}

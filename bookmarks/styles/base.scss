@@ -1,14 +1,29 @@
+/* Main layout */
 body {
   margin: 20px 10px;
 
   @media (min-width: $size-sm) {
-    // High horizontal padding accounts for checkboxes that show up in bulk edit mode
-    margin: 20px 24px;
+    // Horizontal padding accounts for checkboxes that show up in bulk edit mode
+    margin: 20px 32px;
   }
 }
 
 header {
-  margin-bottom: 40px;
+  margin-bottom: $unit-10;
+
+  .logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+  h1 {
+    margin: 0 0 0 $unit-3;
+    font-size: $font-size-lg;
+  }
 }
 
 header .toasts {
@@ -23,97 +38,81 @@ header .toasts {
   }
 }
 
-.navbar {
+/* Shared components */
 
-  .navbar-brand {
+// Content area component
+section.content-area {
+  h2 {
+    font-size: $font-size-lg;
+  }
 
+  .content-area-header {
+    border-bottom: solid 1px $border-color;
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
+    padding-bottom: $unit-2;
+    margin-bottom: $unit-4;
 
-    .logo {
-      width: 28px;
-      height: 28px;
+    h2 {
+      line-height: 1.8rem;
+      margin-right: auto;
+      margin-bottom: 0;
     }
-
-    h1 {
-      text-transform: uppercase;
-      display: inline-block;
-      margin: 0 0 0 8px;
-    }
-  }
-
-  .dropdown-toggle {
   }
 }
 
-/* Overrides */
-
-// Reduce heading sizes
-h1 {
-  font-size: inherit;
+// Confirm button component
+span.confirmation {
+  display: flex;
+  align-items: baseline;
 }
 
-h2 {
-  font-size: .85rem;
+span.confirmation .btn.btn-link {
+  color: $error-color !important;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Additional utilities */
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-sm {
+  font-size: 0.7rem;
+}
+
+.text-gray-dark {
   color: $gray-color-dark;
 }
 
-// Fix up visited styles
-a:visited {
-  color: $link-color;
-}
-a:visited:hover {
-  color: $link-color-dark;
-}
-.btn-link:visited:not(.btn-primary) {
-  color: $link-color;
-}
-.btn-link:visited:not(.btn-primary):hover {
-  color: $link-color-dark;
+.align-baseline {
+  align-items: baseline;
 }
 
-code {
-  color: $gray-color-dark;
-  background-color: $code-bg-color;
-  box-shadow: 1px 1px 0 $code-shadow-color;
+.align-center {
+  align-items: center;
 }
 
-// Increase spacing between columns
-.container > .columns > .column:not(:first-child) {
-  padding-left: 2rem;
+.justify-between {
+  justify-content: space-between;
 }
 
-// Remove left padding from first pagination link
-.pagination .page-item:first-child a {
-  padding-left: 0;
+.mb-4 {
+  margin-bottom: $unit-4;
 }
 
-// Override border color for tab block
-.tab-block {
-  border-bottom: solid 1px $border-color;
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
 }
 
-// Form auto-complete menu
-.form-autocomplete .menu {
-  .menu-item.selected > a, .menu-item > a:hover {
-    background: $secondary-color;
-    color: $primary-color;
-  }
-
-  .group-item, .group-item:hover {
-    color: $gray-color;
-    text-transform: uppercase;
-    background: none;
-    font-size: 0.6rem;
-    font-weight: bold;
-  }
-}
-
-// Increase input font size on small viewports to prevent zooming on focus the input
-// on mobile devices. 430px relates to the "normalized" iPhone 14 Pro Max
-// viewport size
-@media screen and (max-width: 430px) {
-  .form-input {
-    font-size: 16px;
-  }
+.btn.btn-wide {
+  padding-left: $unit-6;
+  padding-right: $unit-6;
 }

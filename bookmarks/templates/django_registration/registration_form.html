@@ -4,41 +4,35 @@
 {% block title %}Registration{% endblock %}
 
 {% block content %}
-
-    <div class="auth-page">
-        <div class="columns">
-            <section class="content-area column col-5 col-md-12">
-                <div class="content-area-header">
-                    <h2>Register</h2>
-                </div>
-                <form method="post" action="{% url 'django_registration_register' %}">
-                    {% csrf_token %}
-                    <div class="form-group  {% if form.errors.username %}has-error{% endif %}">
-                        <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
-                        {{ form.username|add_class:'form-input' }}
-                        <div class="form-input-hint">{{ form.errors.username }}</div>
-                    </div>
-                    <div class="form-group {% if form.errors.email %}has-error{% endif %}">
-                        <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
-                        {{ form.email|add_class:'form-input' }}
-                        <div class="form-input-hint">{{ form.errors.email }}</div>
-                    </div>
-                    <div class="form-group {% if form.errors.password1 %}has-error{% endif %}">
-                        <label class="form-label" for="{{ form.password1.id_for_label }}">Password</label>
-                        {{ form.password1|add_class:'form-input' }}
-                        <div class="form-input-hint">{{ form.errors.password1 }}</div>
-                    </div>
-                    <div class="form-group {% if form.errors.password2 %}has-error{% endif %}">
-                        <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm Password</label>
-                        {{ form.password2|add_class:'form-input' }}
-                        <div class="form-input-hint">{{ form.errors.password2 }}</div>
-                    </div>
-                    <br/>
-                    <input type="submit" value="Register" class="btn btn-primary col-md-12">
-                    <input type="hidden" name="next" value="{{ next }}">
-                </form>
-            </section>
-        </div>
+  <section class="content-area mx-auto width-50 width-md-100">
+    <div class="content-area-header">
+      <h2>Register</h2>
     </div>
-
+    <form method="post" action="{% url 'django_registration_register' %}" novalidate>
+      {% csrf_token %}
+      <div class="form-group  {% if form.errors.username %}has-error{% endif %}">
+        <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username|add_class:'form-input'|attr:"placeholder: " }}
+        <div class="form-input-hint">{{ form.errors.username }}</div>
+      </div>
+      <div class="form-group {% if form.errors.email %}has-error{% endif %}">
+        <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email|add_class:'form-input'|attr:"placeholder: " }}
+        <div class="form-input-hint">{{ form.errors.email }}</div>
+      </div>
+      <div class="form-group {% if form.errors.password1 %}has-error{% endif %}">
+        <label class="form-label" for="{{ form.password1.id_for_label }}">Password</label>
+        {{ form.password1|add_class:'form-input'|attr:"placeholder: " }}
+        <div class="form-input-hint">{{ form.errors.password1 }}</div>
+      </div>
+      <div class="form-group {% if form.errors.password2 %}has-error{% endif %}">
+        <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm Password</label>
+        {{ form.password2|add_class:'form-input'|attr:"placeholder: " }}
+        <div class="form-input-hint">{{ form.errors.password2 }}</div>
+      </div>
+      <br/>
+      <input type="submit" value="Register" class="btn btn-primary btn-wide">
+      <input type="hidden" name="next" value="{{ next }}">
+    </form>
+  </section>
 {% endblock %}
