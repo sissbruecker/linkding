@@ -145,6 +145,16 @@ def unarchive(request, bookmark_id: int):
     unarchive_bookmark(bookmark)
 
 
+def unshare(request, bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404('Bookmark does not exist')
+
+    bookmark.shared = False
+    bookmark.save()
+
+
 def mark_as_read(request, bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
@@ -166,6 +176,8 @@ def action(request):
         remove(request, request.POST['remove'])
     if 'mark_as_read' in request.POST:
         mark_as_read(request, request.POST['mark_as_read'])
+    if 'unshare' in request.POST:
+        unshare(request, request.POST['unshare'])
     if 'bulk_archive' in request.POST:
         bookmark_ids = request.POST.getlist('bookmark_id')
         archive_bookmarks(bookmark_ids, request.user)
