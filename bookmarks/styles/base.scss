@@ -65,13 +65,19 @@ section.content-area {
 span.confirmation {
   display: flex;
   align-items: baseline;
-}
-
-span.confirmation .btn.btn-link {
+  gap: $unit-1;
   color: $error-color !important;
 
-  &:hover {
-    text-decoration: underline;
+  svg {
+    align-self: center;
+  }
+
+  .btn.btn-link {
+    color: $error-color !important;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -115,4 +121,14 @@ span.confirmation .btn.btn-link {
 .btn.btn-wide {
   padding-left: $unit-6;
   padding-right: $unit-6;
+}
+
+.btn.btn-sm.btn-icon {
+  display: inline-flex;
+  align-items: baseline;
+  gap: $unit-h;
+
+  svg {
+    align-self: center;
+  }
 }

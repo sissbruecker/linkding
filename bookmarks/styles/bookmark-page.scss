@@ -85,11 +85,18 @@ li[ld-bookmark-item] {
     }
   }
 
-  .actions {
+  .actions, .extra-actions {
     display: flex;
     align-items: baseline;
     flex-wrap: wrap;
-    gap: $unit-2;
+    column-gap: $unit-2;
+  }
+
+  @media (max-width: $size-sm) {
+    .extra-actions {
+      width: 100%;
+      margin-top: $unit-1;
+    }
   }
 
   .actions {
@@ -112,13 +119,6 @@ li[ld-bookmark-item] {
 
     .separator {
       align-self: flex-start;
-    }
-
-    .toggle-notes {
-      align-self: center;
-      display: flex;
-      align-items: center;
-      gap: $unit-h;
     }
   }
 }
