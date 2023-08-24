@@ -11,6 +11,7 @@
   export let mode = '';
   export let apiClient;
   export let filters;
+  export let linkTarget = '_blank';
 
   let isFocus = false;
   let isOpen = false;
@@ -164,7 +165,7 @@
       close()
     }
     if (suggestion.type === 'bookmark') {
-      window.open(suggestion.bookmark.url, '_blank')
+      window.open(suggestion.bookmark.url, linkTarget)
       close()
     }
     if (suggestion.type === 'tag') {

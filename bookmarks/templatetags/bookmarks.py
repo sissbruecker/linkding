@@ -23,6 +23,7 @@ def bookmark_search(context, filters: BookmarkFilters, tags: [Tag], mode: str = 
     tag_names = [tag.name for tag in tags]
     tags_string = build_tag_string(tag_names, ' ')
     return {
+        'request': context['request'],
         'filters': filters,
         'tags_string': tags_string,
         'mode': mode,
