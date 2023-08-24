@@ -6,11 +6,9 @@
     <div class="content-area-header">
       <h2>Edit bookmark</h2>
     </div>
-    <div class="grid grid-no-gap">
-      <form action="{% url 'bookmarks:edit' bookmark_id %}?return_url={{ return_url|urlencode }}" method="post"
-            class="col-6 col-md-12" novalidate>
-        {% bookmark_form form return_url bookmark_id %}
-      </form>
-    </div>
+    <form action="{% url 'bookmarks:edit' bookmark_id %}?return_url={{ return_url|urlencode }}" method="post"
+          class="width-50 width-md-100" novalidate>
+      {% bookmark_form form return_url bookmark_id %}
+    </form>
   </section>
 {% endblock %}

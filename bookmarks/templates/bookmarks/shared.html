@@ -4,13 +4,13 @@
 {% load bookmarks %}
 
 {% block content %}
-  <div class="bookmarks-page grid grid-md-no-gap"
+  <div class="bookmarks-page grid columns-md-1"
        ld-bookmark-page
        bookmarks-url="{% url 'bookmarks:partials.bookmark_list.shared' %}"
        tags-url="{% url 'bookmarks:partials.tag_cloud.shared' %}">
 
     {# Bookmark list #}
-    <section class="content-area col-8 col-md-12">
+    <section class="content-area col-2">
       <div class="content-area-header">
         <h2>Shared bookmarks</h2>
         <div class="spacer"></div>
@@ -28,7 +28,7 @@
     </section>
 
     {# Filters #}
-    <section class="content-area col-4 hide-md">
+    <section class="content-area col-1 hide-md">
       <div class="content-area-header">
         <h2>User</h2>
       </div>
