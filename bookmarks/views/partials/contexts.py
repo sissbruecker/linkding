@@ -14,10 +14,10 @@ DEFAULT_PAGE_SIZE = 30
 
 
 class BookmarkItem:
-    def __init__(self, bookmark: Bookmark, profile: UserProfile) -> None:
+    def __init__(self, bookmark: Bookmark, user: User, profile: UserProfile) -> None:
         self.bookmark = bookmark
 
-        is_editable = bookmark.owner == profile.user
+        is_editable = bookmark.owner == user
         self.is_editable = is_editable
 
         self.id = bookmark.id
@@ -49,6 +49,7 @@ class BookmarkListContext:
         self.request = request
         self.filters = BookmarkFilters(self.request)
 
+        user = request.user
         user_profile = request.user_profile
         query_set = self.get_bookmark_query_set()
         page_number = request.GET.get('page')
@@ -57,7 +58,7 @@ class BookmarkListContext:
         # Prefetch related objects, this avoids n+1 queries when accessing fields in templates
         models.prefetch_related_objects(bookmarks_page.object_list, 'owner', 'tags')
 
-        self.items = [BookmarkItem(bookmark, user_profile) for bookmark in bookmarks_page]
+        self.items = [BookmarkItem(bookmark, user, user_profile) for bookmark in bookmarks_page]
 
         self.is_empty = paginator.count == 0
         self.bookmarks_page = bookmarks_page

@@ -120,7 +120,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse('bookmarks:index'), p)
 
             expect(self.locate_bookmark('Bookmark 2').get_by_text('Bookmark 2')).to_have_class('text-italic')
-            self.locate_bookmark('Bookmark 2').get_by_text('Mark as read').click()
+            self.locate_bookmark('Bookmark 2').get_by_text('Unread').click()
+            self.locate_bookmark('Bookmark 2').get_by_text('Yes').click()
 
             expect(self.locate_bookmark('Bookmark 2').get_by_text('Bookmark 2')).not_to_have_class('text-italic')
             self.assertReloads(0)
