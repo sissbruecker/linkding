@@ -7,10 +7,49 @@ from django.db import models
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import BookmarkFilters, User, UserProfile, Tag
-from bookmarks.utils import unique
+from bookmarks.models import Bookmark, BookmarkFilters, User, UserProfile, Tag
+from bookmarks import utils
 
 DEFAULT_PAGE_SIZE = 30
+
+
+class BookmarkItem:
+    def __init__(self, bookmark: Bookmark, user: User, profile: UserProfile) -> None:
+        self.bookmark = bookmark
+
+        is_editable = bookmark.owner == user
+        self.is_editable = is_editable
+
+        self.id = bookmark.id
+        self.url = bookmark.url
+        self.title = bookmark.resolved_title
+        self.description = bookmark.resolved_description
+        self.notes = bookmark.notes
+        self.tag_names = bookmark.tag_names
+        self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url
+        self.favicon_file = bookmark.favicon_file
+        self.is_archived = bookmark.is_archived
+        self.unread = bookmark.unread
+        self.owner = bookmark.owner
+
+        css_classes = []
+        if bookmark.unread:
+            css_classes.append('unread')
+        if bookmark.shared:
+            css_classes.append('shared')
+
+        self.css_classes = ' '.join(css_classes)
+
+        if profile.bookmark_date_display == UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE:
+            self.display_date = utils.humanize_relative_date(bookmark.date_added)
+        elif profile.bookmark_date_display == UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE:
+            self.display_date = utils.humanize_absolute_date(bookmark.date_added)
+
+        self.show_notes_button = bookmark.notes and not profile.permanent_notes
+        self.show_mark_as_read = is_editable and bookmark.unread
+        self.show_unshare = is_editable and bookmark.shared and profile.enable_sharing
+
+        self.has_extra_actions = self.show_notes_button or self.show_mark_as_read or self.show_unshare
 
 
 class BookmarkListContext:
@@ -18,6 +57,8 @@ class BookmarkListContext:
         self.request = request
         self.filters = BookmarkFilters(self.request)
 
+        user = request.user
+        user_profile = request.user_profile
         query_set = self.get_bookmark_query_set()
         page_number = request.GET.get('page')
         paginator = Paginator(query_set, DEFAULT_PAGE_SIZE)
@@ -25,14 +66,16 @@ class BookmarkListContext:
         # Prefetch related objects, this avoids n+1 queries when accessing fields in templates
         models.prefetch_related_objects(bookmarks_page.object_list, 'owner', 'tags')
 
+        self.items = [BookmarkItem(bookmark, user, user_profile) for bookmark in bookmarks_page]
+
         self.is_empty = paginator.count == 0
         self.bookmarks_page = bookmarks_page
         self.return_url = self.generate_return_url(page_number)
-        self.link_target = request.user_profile.bookmark_link_target
-        self.date_display = request.user_profile.bookmark_date_display
-        self.show_url = request.user_profile.display_url
-        self.show_favicons = request.user_profile.enable_favicons
-        self.show_notes = request.user_profile.permanent_notes
+        self.link_target = user_profile.bookmark_link_target
+        self.date_display = user_profile.bookmark_date_display
+        self.show_url = user_profile.display_url
+        self.show_favicons = user_profile.enable_favicons
+        self.show_notes = user_profile.permanent_notes
 
     def generate_return_url(self, page: int):
         base_url = self.get_base_url()
@@ -120,8 +163,8 @@ class TagCloudContext:
         query_set = self.get_tag_query_set()
         tags = list(query_set)
         selected_tags = self.get_selected_tags(tags)
-        unique_tags = unique(tags, key=lambda x: str.lower(x.name))
-        unique_selected_tags = unique(selected_tags, key=lambda x: str.lower(x.name))
+        unique_tags = utils.unique(tags, key=lambda x: str.lower(x.name))
+        unique_selected_tags = utils.unique(selected_tags, key=lambda x: str.lower(x.name))
         has_selected_tags = len(unique_selected_tags) > 0
         unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
         groups = TagGroup.create_tag_groups(unselected_tags)

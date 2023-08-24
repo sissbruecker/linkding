@@ -16,9 +16,31 @@ class ConfirmButtonBehavior {
   onClick(event) {
     event.preventDefault();
 
+    const container = document.createElement("span");
+    container.className = "confirmation";
+
+    const icon = this.button.getAttribute("confirm-icon");
+    if (icon) {
+      const iconElement = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg",
+      );
+      iconElement.style.width = "16px";
+      iconElement.style.height = "16px";
+      iconElement.innerHTML = `<use xlink:href="#${icon}"></use>`;
+      container.append(iconElement);
+    }
+
+    const question = this.button.getAttribute("confirm-question");
+    if (question) {
+      const questionElement = document.createElement("span");
+      questionElement.innerText = question;
+      container.append(question);
+    }
+
     const cancelButton = document.createElement(this.button.nodeName);
     cancelButton.type = "button";
-    cancelButton.innerText = "Cancel";
+    cancelButton.innerText = question ? "No" : "Cancel";
     cancelButton.className = "btn btn-link btn-sm mr-1";
     cancelButton.addEventListener("click", this.reset.bind(this));
 
@@ -26,12 +48,10 @@ class ConfirmButtonBehavior {
     confirmButton.type = this.button.dataset.type;
     confirmButton.name = this.button.dataset.name;
     confirmButton.value = this.button.dataset.value;
-    confirmButton.innerText = "Confirm";
+    confirmButton.innerText = question ? "Yes" : "Confirm";
     confirmButton.className = "btn btn-link btn-sm";
     confirmButton.addEventListener("click", this.reset.bind(this));
 
-    const container = document.createElement("span");
-    container.className = "confirmation";
     container.append(cancelButton, confirmButton);
     this.container = container;
 

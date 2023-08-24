@@ -119,10 +119,27 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse('bookmarks:index'), p)
 
-            expect(self.locate_bookmark('Bookmark 2').get_by_text('Bookmark 2')).to_have_class('text-italic')
-            self.locate_bookmark('Bookmark 2').get_by_text('Mark as read').click()
+            expect(self.locate_bookmark('Bookmark 2')).to_have_class('unread')
+            self.locate_bookmark('Bookmark 2').get_by_text('Unread').click()
+            self.locate_bookmark('Bookmark 2').get_by_text('Yes').click()
 
-            expect(self.locate_bookmark('Bookmark 2').get_by_text('Bookmark 2')).not_to_have_class('text-italic')
+            expect(self.locate_bookmark('Bookmark 2')).not_to_have_class('unread')
+            self.assertReloads(0)
+
+    def test_active_bookmarks_partial_update_on_unshare(self):
+        self.setup_fixture()
+        bookmark2 = self.get_numbered_bookmark('Bookmark 2')
+        bookmark2.shared = True
+        bookmark2.save()
+
+        with sync_playwright() as p:
+            self.open(reverse('bookmarks:index'), p)
+
+            expect(self.locate_bookmark('Bookmark 2')).to_have_class('shared')
+            self.locate_bookmark('Bookmark 2').get_by_text('Shared').click()
+            self.locate_bookmark('Bookmark 2').get_by_text('Yes').click()
+
+            expect(self.locate_bookmark('Bookmark 2')).not_to_have_class('shared')
             self.assertReloads(0)
 
     def test_active_bookmarks_partial_update_on_bulk_archive(self):

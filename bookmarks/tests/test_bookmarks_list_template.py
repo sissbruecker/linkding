@@ -17,14 +17,12 @@ from bookmarks.views.partials import contexts
 class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
     def assertBookmarksLink(self, html: str, bookmark: Bookmark, link_target: str = '_blank'):
-        unread = bookmark.unread
         favicon_img = f'<img src="/static/{bookmark.favicon_file}" alt="">' if bookmark.favicon_file else ''
         self.assertInHTML(
             f'''
             <a href="{bookmark.url}" 
                 target="{link_target}" 
-                rel="noopener" 
-                class="{'text-italic' if unread else ''}">
+                rel="noopener">
                 {favicon_img}
                 {bookmark.resolved_title}
             </a>
@@ -34,21 +32,16 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
     def assertDateLabel(self, html: str, label_content: str):
         self.assertInHTML(f'''
-        <span>
-            <span>{label_content}</span>
-        </span>
+        <span>{label_content}</span>
         <span class="separator">|</span>
         ''', html)
 
     def assertWebArchiveLink(self, html: str, label_content: str, url: str, link_target: str = '_blank'):
         self.assertInHTML(f'''
-        <span>
-            <a href="{url}"
-               title="Show snapshot on the Internet Archive Wayback Machine" target="{link_target}" rel="noopener">
-                <span>{label_content}</span>
-                ∞
-            </a>
-        </span>
+        <a href="{url}"
+           title="Show snapshot on the Internet Archive Wayback Machine" target="{link_target}" rel="noopener">
+            {label_content} ∞
+        </a>
         <span class="separator">|</span>
         ''', html)
 
@@ -126,18 +119,36 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
     def assertNotesToggle(self, html: str, count=1):
         self.assertInHTML(f'''
-          <button class="btn btn-link btn-sm toggle-notes" title="Toggle notes">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-notes" width="16" height="16"
-                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                 stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
-              <path d="M9 7l6 0"></path>
-              <path d="M9 11l6 0"></path>
-              <path d="M9 15l4 0"></path>
-            </svg>
-            <span>Notes</span>
-          </button>        
+        <button type="button" class="btn btn-link btn-sm btn-icon toggle-notes">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <use xlink:href="#ld-icon-note"></use>
+          </svg>
+          Notes
+        </button>      
+          ''', html, count=count)
+
+    def assertUnshareButton(self, html: str, bookmark: Bookmark, count=1):
+        self.assertInHTML(f'''
+        <button type="submit" name="unshare" value="{bookmark.id}"
+                class="btn btn-link btn-sm btn-icon"
+                ld-confirm-button confirm-icon="ld-icon-unshare" confirm-question="Unshare?">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <use xlink:href="#ld-icon-share"></use>
+          </svg>
+          Shared
+        </button>    
+          ''', html, count=count)
+
+    def assertMarkAsReadButton(self, html: str, bookmark: Bookmark, count=1):
+        self.assertInHTML(f'''
+        <button type="submit" name="mark_as_read" value="{bookmark.id}"
+                class="btn btn-link btn-sm btn-icon"
+                ld-confirm-button confirm-icon="ld-icon-read" confirm-question="Mark as read?">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <use xlink:href="#ld-icon-unread"></use>
+          </svg>
+          Unread
+        </button>   
           ''', html, count=count)
 
     def render_template(self,
@@ -236,11 +247,31 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
         self.assertWebArchiveLink(html, '1 week ago', bookmark.web_archive_snapshot_url, link_target='_self')
 
-    def test_should_respect_unread_flag(self):
-        bookmark = self.setup_bookmark(unread=True)
+    def test_should_reflect_unread_state_as_css_class(self):
+        self.setup_bookmark(unread=True)
         html = self.render_template()
 
-        self.assertBookmarksLink(html, bookmark)
+        self.assertIn('<li ld-bookmark-item class="unread">', html)
+
+    def test_should_reflect_shared_state_as_css_class(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+
+        self.setup_bookmark(shared=True)
+        html = self.render_template()
+
+        self.assertIn('<li ld-bookmark-item class="shared">', html)
+
+    def test_should_reflect_both_unread_and_shared_state_as_css_class(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+
+        self.setup_bookmark(unread=True, shared=True)
+        html = self.render_template()
+
+        self.assertIn('<li ld-bookmark-item class="unread shared">', html)
 
     def test_show_bookmark_actions_for_owned_bookmarks(self):
         bookmark = self.setup_bookmark()
@@ -332,6 +363,66 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         html = self.render_template()
 
         self.assertBookmarkURLHidden(html, bookmark)
+
+    def test_show_mark_as_read_when_unread(self):
+        bookmark = self.setup_bookmark(unread=True)
+        html = self.render_template()
+
+        self.assertMarkAsReadButton(html, bookmark)
+
+    def test_hide_mark_as_read_when_read(self):
+        bookmark = self.setup_bookmark(unread=False)
+        html = self.render_template()
+
+        self.assertMarkAsReadButton(html, bookmark, count=0)
+
+    def test_hide_mark_as_read_for_non_owned_bookmarks(self):
+        other_user = self.setup_user(enable_sharing=True)
+
+        bookmark = self.setup_bookmark(user=other_user, shared=True, unread=True)
+        html = self.render_template(context_type=contexts.SharedBookmarkListContext)
+
+        self.assertBookmarksLink(html, bookmark)
+        self.assertMarkAsReadButton(html, bookmark, count=0)
+
+    def test_show_unshare_button_when_shared(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(shared=True)
+        html = self.render_template()
+
+        self.assertUnshareButton(html, bookmark)
+
+    def test_hide_unshare_button_when_not_shared(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(shared=False)
+        html = self.render_template()
+
+        self.assertUnshareButton(html, bookmark, count=0)
+
+    def test_hide_unshare_button_when_sharing_is_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = False
+        profile.save()
+
+        bookmark = self.setup_bookmark(shared=True)
+        html = self.render_template()
+
+        self.assertUnshareButton(html, bookmark, count=0)
+
+    def test_hide_unshare_for_non_owned_bookmarks(self):
+        other_user = self.setup_user(enable_sharing=True)
+
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+        html = self.render_template(context_type=contexts.SharedBookmarkListContext)
+
+        self.assertBookmarksLink(html, bookmark)
+        self.assertUnshareButton(html, bookmark, count=0)
 
     def test_without_notes(self):
         self.setup_bookmark()
@@ -425,6 +516,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         bookmark.notes = '**Example:** `print("Hello world!")`'
         bookmark.favicon_file = 'https_example_com.png'
         bookmark.shared = True
+        bookmark.unread = True
         bookmark.save()
 
         html = self.render_template(context_type=contexts.SharedBookmarkListContext, user=AnonymousUser())
@@ -432,6 +524,8 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         self.assertWebArchiveLink(html, '1 week ago', bookmark.web_archive_snapshot_url, link_target='_blank')
         self.assertNoBookmarkActions(html, bookmark)
         self.assertShareInfo(html, bookmark)
+        self.assertMarkAsReadButton(html, bookmark, count=0)
+        self.assertUnshareButton(html, bookmark, count=0)
         note_html = '<p><strong>Example:</strong> <code>print("Hello world!")</code></p>'
         self.assertNotes(html, note_html, 1)
         self.assertFaviconVisible(html, bookmark)

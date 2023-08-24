@@ -94,6 +94,30 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertFalse(bookmark.unread)
 
+    def test_unshare_should_unshare_bookmark(self):
+        bookmark = self.setup_bookmark(shared=True)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'unshare': [bookmark.id],
+        })
+
+        bookmark.refresh_from_db()
+
+        self.assertFalse(bookmark.shared)
+
+    def test_can_only_unshare_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+
+        response = self.client.post(reverse('bookmarks:action'), {
+            'unshare': [bookmark.id],
+        })
+
+        bookmark.refresh_from_db()
+
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(bookmark.shared)
+
     def test_bulk_archive(self):
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()
