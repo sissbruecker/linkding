@@ -7,7 +7,7 @@ from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkForm, BookmarkFilters, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, archive_bookmarks, \
     unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks, mark_bookmarks_as_read, \
-    mark_bookmarks_as_unread
+    mark_bookmarks_as_unread, share_bookmarks, unshare_bookmarks
 from bookmarks.utils import get_safe_return_url
 from bookmarks.views.partials import contexts
 
@@ -206,6 +206,12 @@ def action(request):
         if 'bulk_unread' == bulk_action:
             bookmark_ids = request.POST.getlist('bookmark_id')
             mark_bookmarks_as_unread(bookmark_ids, request.user)
+        if 'bulk_share' == bulk_action:
+            bookmark_ids = request.POST.getlist('bookmark_id')
+            share_bookmarks(bookmark_ids, request.user)
+        if 'bulk_unshare' == bulk_action:
+            bookmark_ids = request.POST.getlist('bookmark_id')
+            unshare_bookmarks(bookmark_ids, request.user)
 
     return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
     return HttpResponseRedirect(return_url)

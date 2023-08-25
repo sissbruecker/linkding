@@ -332,6 +332,99 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(Bookmark.objects.get(id=bookmark2.id).unread)
         self.assertTrue(Bookmark.objects.get(id=bookmark3.id).unread)
 
+    def test_bulk_mark_as_unread(self):
+        bookmark1 = self.setup_bookmark(unread=False)
+        bookmark2 = self.setup_bookmark(unread=False)
+        bookmark3 = self.setup_bookmark(unread=False)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'bulk_action': ['bulk_unread'],
+            'bulk_execute': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertTrue(Bookmark.objects.get(id=bookmark1.id).unread)
+        self.assertTrue(Bookmark.objects.get(id=bookmark2.id).unread)
+        self.assertTrue(Bookmark.objects.get(id=bookmark3.id).unread)
+
+    def test_can_only_bulk_mark_as_unread_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(unread=False, user=other_user)
+        bookmark2 = self.setup_bookmark(unread=False, user=other_user)
+        bookmark3 = self.setup_bookmark(unread=False, user=other_user)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'bulk_action': ['bulk_unread'],
+            'bulk_execute': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertFalse(Bookmark.objects.get(id=bookmark1.id).unread)
+        self.assertFalse(Bookmark.objects.get(id=bookmark2.id).unread)
+        self.assertFalse(Bookmark.objects.get(id=bookmark3.id).unread)
+
+    def test_bulk_share(self):
+        bookmark1 = self.setup_bookmark(shared=False)
+        bookmark2 = self.setup_bookmark(shared=False)
+        bookmark3 = self.setup_bookmark(shared=False)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'bulk_action': ['bulk_share'],
+            'bulk_execute': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertTrue(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark3.id).shared)
+
+    def test_can_only_bulk_share_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(shared=False, user=other_user)
+        bookmark2 = self.setup_bookmark(shared=False, user=other_user)
+        bookmark3 = self.setup_bookmark(shared=False, user=other_user)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'bulk_action': ['bulk_share'],
+            'bulk_execute': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertFalse(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark3.id).shared)
+
+    def test_bulk_unshare(self):
+        bookmark1 = self.setup_bookmark(shared=True)
+        bookmark2 = self.setup_bookmark(shared=True)
+        bookmark3 = self.setup_bookmark(shared=True)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'bulk_action': ['bulk_unshare'],
+            'bulk_execute': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertFalse(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark3.id).shared)
+
+    def test_can_only_bulk_unshare_own_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(shared=True, user=other_user)
+        bookmark2 = self.setup_bookmark(shared=True, user=other_user)
+        bookmark3 = self.setup_bookmark(shared=True, user=other_user)
+
+        self.client.post(reverse('bookmarks:action'), {
+            'bulk_action': ['bulk_unshare'],
+            'bulk_execute': [''],
+            'bookmark_id': [str(bookmark1.id), str(bookmark2.id), str(bookmark3.id)],
+        })
+
+        self.assertTrue(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark3.id).shared)
+
     def test_handles_empty_bookmark_id(self):
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()

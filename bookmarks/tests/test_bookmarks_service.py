@@ -9,7 +9,7 @@ from bookmarks.services import tasks
 from bookmarks.services import website_loader
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, archive_bookmarks, \
     unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks, mark_bookmarks_as_read, \
-    mark_bookmarks_as_unread
+    mark_bookmarks_as_unread, share_bookmarks, unshare_bookmarks
 from bookmarks.services.website_loader import WebsiteMetadata
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
@@ -543,3 +543,93 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(Bookmark.objects.get(id=bookmark1.id).unread)
         self.assertTrue(Bookmark.objects.get(id=bookmark2.id).unread)
         self.assertTrue(Bookmark.objects.get(id=bookmark3.id).unread)
+
+    def test_share_bookmarks(self):
+        bookmark1 = self.setup_bookmark(shared=False)
+        bookmark2 = self.setup_bookmark(shared=False)
+        bookmark3 = self.setup_bookmark(shared=False)
+
+        share_bookmarks([bookmark1.id, bookmark2.id, bookmark3.id], self.get_or_create_test_user())
+
+        self.assertTrue(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark3.id).shared)
+
+    def test_share_bookmarks_should_only_update_specified_bookmarks(self):
+        bookmark1 = self.setup_bookmark(shared=False)
+        bookmark2 = self.setup_bookmark(shared=False)
+        bookmark3 = self.setup_bookmark(shared=False)
+
+        share_bookmarks([bookmark1.id, bookmark3.id], self.get_or_create_test_user())
+
+        self.assertTrue(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark3.id).shared)
+
+    def test_share_bookmarks_should_only_update_user_owned_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(shared=False)
+        bookmark2 = self.setup_bookmark(shared=False)
+        inaccessible_bookmark = self.setup_bookmark(shared=False, user=other_user)
+
+        share_bookmarks([bookmark1.id, bookmark2.id, inaccessible_bookmark.id], self.get_or_create_test_user())
+
+        self.assertTrue(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=inaccessible_bookmark.id).shared)
+
+    def test_share_bookmarks_should_accept_mix_of_int_and_string_ids(self):
+        bookmark1 = self.setup_bookmark(shared=False)
+        bookmark2 = self.setup_bookmark(shared=False)
+        bookmark3 = self.setup_bookmark(shared=False)
+
+        share_bookmarks([str(bookmark1.id), bookmark2.id, str(bookmark3.id)], self.get_or_create_test_user())
+
+        self.assertTrue(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark3.id).shared)
+
+    def test_unshare_bookmarks(self):
+        bookmark1 = self.setup_bookmark(shared=True)
+        bookmark2 = self.setup_bookmark(shared=True)
+        bookmark3 = self.setup_bookmark(shared=True)
+
+        unshare_bookmarks([bookmark1.id, bookmark2.id, bookmark3.id], self.get_or_create_test_user())
+
+        self.assertFalse(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark3.id).shared)
+
+    def test_unshare_bookmarks_should_only_update_specified_bookmarks(self):
+        bookmark1 = self.setup_bookmark(shared=True)
+        bookmark2 = self.setup_bookmark(shared=True)
+        bookmark3 = self.setup_bookmark(shared=True)
+
+        unshare_bookmarks([bookmark1.id, bookmark3.id], self.get_or_create_test_user())
+
+        self.assertFalse(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark3.id).shared)
+
+    def test_unshare_bookmarks_should_only_update_user_owned_bookmarks(self):
+        other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
+        bookmark1 = self.setup_bookmark(shared=True)
+        bookmark2 = self.setup_bookmark(shared=True)
+        inaccessible_bookmark = self.setup_bookmark(shared=True, user=other_user)
+
+        unshare_bookmarks([bookmark1.id, bookmark2.id, inaccessible_bookmark.id], self.get_or_create_test_user())
+
+        self.assertFalse(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertTrue(Bookmark.objects.get(id=inaccessible_bookmark.id).shared)
+
+    def test_unshare_bookmarks_should_accept_mix_of_int_and_string_ids(self):
+        bookmark1 = self.setup_bookmark(shared=True)
+        bookmark2 = self.setup_bookmark(shared=True)
+        bookmark3 = self.setup_bookmark(shared=True)
+
+        unshare_bookmarks([str(bookmark1.id), bookmark2.id, str(bookmark3.id)], self.get_or_create_test_user())
+
+        self.assertFalse(Bookmark.objects.get(id=bookmark1.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark2.id).shared)
+        self.assertFalse(Bookmark.objects.get(id=bookmark3.id).shared)
