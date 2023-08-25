@@ -218,3 +218,41 @@ class BookmarkArchivedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         response = self.client.get(reverse('bookmarks:archived'))
 
         self.assertVisibleBookmarks(response, visible_bookmarks, '_self')
+
+    def test_allowed_bulk_actions(self):
+        url = reverse('bookmarks:archived')
+        response = self.client.get(url)
+        html = response.content.decode()
+
+        self.assertInHTML(f'''
+          <select name="bulk_action" class="form-select select-sm">
+            <option value="bulk_unarchive">Unarchive</option>
+            <option value="bulk_delete">Delete</option>
+            <option value="bulk_tag">Add tags</option>
+            <option value="bulk_untag">Remove tags</option>
+            <option value="bulk_read">Mark as read</option>
+            <option value="bulk_unread">Mark as unread</option>
+          </select>
+        ''', html)
+
+    def test_allowed_bulk_actions_with_sharing_enabled(self):
+        user_profile = self.user.profile
+        user_profile.enable_sharing = True
+        user_profile.save()
+
+        url = reverse('bookmarks:archived')
+        response = self.client.get(url)
+        html = response.content.decode()
+
+        self.assertInHTML(f'''
+          <select name="bulk_action" class="form-select select-sm">
+            <option value="bulk_unarchive">Unarchive</option>
+            <option value="bulk_delete">Delete</option>
+            <option value="bulk_tag">Add tags</option>
+            <option value="bulk_untag">Remove tags</option>
+            <option value="bulk_read">Mark as read</option>
+            <option value="bulk_unread">Mark as unread</option>
+            <option value="bulk_share">Share</option>
+            <option value="bulk_unshare">Unshare</option>
+          </select>
+        ''', html)
