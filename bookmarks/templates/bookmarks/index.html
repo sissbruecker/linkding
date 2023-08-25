@@ -23,7 +23,7 @@
       <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ bookmark_list.return_url }}"
             method="post">
         {% csrf_token %}
-        {% include 'bookmarks/bulk_edit/bar.html' with mode='default' %}
+        {% include 'bookmarks/bulk_edit/bar.html' with disable_actions='bulk_unarchive' %}
 
         <div class="bookmark-list-container">
           {% include 'bookmarks/bookmark_list.html' %}
