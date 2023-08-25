@@ -307,5 +307,10 @@ $bulk-edit-transition-duration: 400ms;
         display: initial;
       }
     }
+
+    .select-across {
+      margin: 0 0 0 auto;
+      font-size: $font-size-sm;
+    }
   }
 }

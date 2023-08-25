@@ -100,11 +100,12 @@ class BookmarkFactoryMixin:
 
         for i in range(1, count + 1):
             title = f'{prefix} {i}{suffix}'
+            url = f'https://example.com/{prefix}/{i}'
             tags = []
             if with_tags:
                 tag_name = f'{tag_prefix} {i}{suffix}'
                 tags = [self.setup_tag(name=tag_name)]
-            self.setup_bookmark(title=title, is_archived=archived, shared=shared, tags=tags, user=user)
+            self.setup_bookmark(url=url, title=title, is_archived=archived, shared=shared, tags=tags, user=user)
 
     def get_numbered_bookmark(self, title: str):
         return Bookmark.objects.get(title=title)

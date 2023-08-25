@@ -70,6 +70,7 @@ class BookmarkListContext:
 
         self.is_empty = paginator.count == 0
         self.bookmarks_page = bookmarks_page
+        self.bookmarks_total = paginator.count
         self.return_url = self.generate_return_url(page_number)
         self.link_target = user_profile.bookmark_link_target
         self.date_display = user_profile.bookmark_date_display

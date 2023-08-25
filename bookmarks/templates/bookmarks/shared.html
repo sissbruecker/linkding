@@ -16,7 +16,7 @@
         {% bookmark_search bookmark_list.filters tag_cloud.tags mode='shared' %}
       </div>
 
-      <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ bookmark_list.return_url }}"
+      <form class="bookmark-actions" action="{% url 'bookmarks:shared.action' %}?return_url={{ bookmark_list.return_url }}"
             method="post">
         {% csrf_token %}
 

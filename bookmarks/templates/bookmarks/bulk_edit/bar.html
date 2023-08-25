@@ -3,7 +3,7 @@
   <div class="bulk-edit-bar">
     <div class="bulk-edit-actions bg-gray">
       <label ld-bulk-edit-checkbox all class="form-checkbox">
-        <input type="checkbox" style="display: none">
+        <input type="checkbox">
         <i class="form-icon"></i>
       </label>
       <select name="bulk_action" class="form-select select-sm">
@@ -24,6 +24,12 @@
       <input ld-tag-autocomplete variant="small"
              name="bulk_tag_string" class="form-input input-sm" placeholder="Tag names...">
       <button ld-confirm-button type="submit" name="bulk_execute" class="btn btn-link btn-sm">Execute</button>
+
+      <label class="form-checkbox select-across">
+        <input type="checkbox" name="bulk_select_across">
+        <i class="form-icon"></i>
+        All pages ({{ bookmark_list.bookmarks_total }} bookmarks)
+      </label>
     </div>
   </div>
 {% endhtmlmin %}

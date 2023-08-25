@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, Http404
+from django.db.models import QuerySet
+from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -167,7 +168,25 @@ def mark_as_read(request, bookmark_id: int):
 
 
 @login_required
-def action(request):
+def index_action(request):
+    filters = BookmarkFilters(request)
+    query = queries.query_bookmarks(request.user, request.user_profile, filters.query)
+    return action(request, query)
+
+
+@login_required
+def archived_action(request):
+    filters = BookmarkFilters(request)
+    query = queries.query_archived_bookmarks(request.user, request.user_profile, filters.query)
+    return action(request, query)
+
+
+@login_required
+def shared_action(request):
+    return action(request)
+
+
+def action(request, query: QuerySet[Bookmark] = None):
     # Single bookmark actions
     if 'archive' in request.POST:
         archive(request, request.POST['archive'])
@@ -182,35 +201,38 @@ def action(request):
 
     # Bulk actions
     if 'bulk_execute' in request.POST:
+        if query is None:
+            return HttpResponseBadRequest('View does not support bulk actions')
+
         bulk_action = request.POST['bulk_action']
-        if 'bulk_archive' == bulk_action:
+
+        # Determine set of bookmarks
+        if request.POST.get('bulk_select_across') == 'on':
+            # Query full list of bookmarks across all pages
+            bookmark_ids = query.only('id').values_list('id', flat=True)
+        else:
+            # Use only selected bookmarks
             bookmark_ids = request.POST.getlist('bookmark_id')
+
+        if 'bulk_archive' == bulk_action:
             archive_bookmarks(bookmark_ids, request.user)
         if 'bulk_unarchive' == bulk_action:
-            bookmark_ids = request.POST.getlist('bookmark_id')
             unarchive_bookmarks(bookmark_ids, request.user)
         if 'bulk_delete' == bulk_action:
-            bookmark_ids = request.POST.getlist('bookmark_id')
             delete_bookmarks(bookmark_ids, request.user)
         if 'bulk_tag' == bulk_action:
-            bookmark_ids = request.POST.getlist('bookmark_id')
             tag_string = convert_tag_string(request.POST['bulk_tag_string'])
             tag_bookmarks(bookmark_ids, tag_string, request.user)
         if 'bulk_untag' == bulk_action:
-            bookmark_ids = request.POST.getlist('bookmark_id')
             tag_string = convert_tag_string(request.POST['bulk_tag_string'])
             untag_bookmarks(bookmark_ids, tag_string, request.user)
         if 'bulk_read' == bulk_action:
-            bookmark_ids = request.POST.getlist('bookmark_id')
             mark_bookmarks_as_read(bookmark_ids, request.user)
         if 'bulk_unread' == bulk_action:
-            bookmark_ids = request.POST.getlist('bookmark_id')
             mark_bookmarks_as_unread(bookmark_ids, request.user)
         if 'bulk_share' == bulk_action:
-            bookmark_ids = request.POST.getlist('bookmark_id')
             share_bookmarks(bookmark_ids, request.user)
         if 'bulk_unshare' == bulk_action:
-            bookmark_ids = request.POST.getlist('bookmark_id')
             unshare_bookmarks(bookmark_ids, request.user)
 
     return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
