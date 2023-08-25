@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.21.0 (25/08/2023)
+
+### What's Changed
+* Make search autocomplete respect link target setting by @sissbruecker in https://github.com/sissbruecker/linkding/pull/513
+* Various CSS improvements by @sissbruecker in https://github.com/sissbruecker/linkding/pull/514
+* Display shared state in bookmark list by @sissbruecker in https://github.com/sissbruecker/linkding/pull/515
+* Allow bulk editing unread and shared state of bookmarks by @sissbruecker in https://github.com/sissbruecker/linkding/pull/517
+* Bump uwsgi from 2.0.20 to 2.0.22 by @dependabot in https://github.com/sissbruecker/linkding/pull/516
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.20.1...v1.21.0
+
+---
+
+## v1.20.1 (23/08/2023)
+
+### What's Changed
+* Update cached styles and scripts after version change by @sissbruecker in https://github.com/sissbruecker/linkding/pull/510
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.20.0...v1.20.1
+
+---
+
 ## v1.20.0 (22/08/2023)
 
 ### What's Changed
