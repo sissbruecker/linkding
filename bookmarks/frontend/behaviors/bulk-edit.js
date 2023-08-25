@@ -6,6 +6,7 @@ class BulkEdit {
     this.active = false;
     this.actionSelect = element.querySelector("select[name='bulk_action']");
     this.bulkActions = element.querySelector(".bulk-edit-actions");
+    this.selectAcross = element.querySelector("label.select-across");
 
     element.addEventListener(
       "bulk-edit-toggle-active",
@@ -55,16 +56,19 @@ class BulkEdit {
   }
 
   onToggleBookmark() {
-    this.allCheckbox.checked = this.bookmarkCheckboxes.every((checkbox) => {
+    const allChecked = this.bookmarkCheckboxes.every((checkbox) => {
       return checkbox.checked;
     });
+    this.allCheckbox.checked = allChecked;
+    this.updateSelectAcross(allChecked);
   }
 
   onToggleAll() {
-    const checked = this.allCheckbox.checked;
+    const allChecked = this.allCheckbox.checked;
     this.bookmarkCheckboxes.forEach((checkbox) => {
-      checkbox.checked = checked;
+      checkbox.checked = allChecked;
     });
+    this.updateSelectAcross(allChecked);
   }
 
   onActionSelected() {
@@ -77,11 +81,31 @@ class BulkEdit {
     }
   }
 
-  onListUpdated() {
+  onListUpdated(event) {
+    // Reset checkbox states
+    this.reset();
+
+    // Update total number of bookmarks
+    const total = event.detail.bookmarksTotal;
+    const totalSpan = this.selectAcross.querySelector("span.total");
+    totalSpan.textContent = total;
+  }
+
+  updateSelectAcross(allChecked) {
+    if (allChecked) {
+      this.selectAcross.classList.remove("d-none");
+    } else {
+      this.selectAcross.classList.add("d-none");
+      this.selectAcross.querySelector("input").checked = false;
+    }
+  }
+
+  reset() {
     this.allCheckbox.checked = false;
     this.bookmarkCheckboxes.forEach((checkbox) => {
       checkbox.checked = false;
     });
+    this.updateSelectAcross(false);
   }
 }
 

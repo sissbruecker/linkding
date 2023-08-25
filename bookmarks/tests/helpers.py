@@ -252,3 +252,8 @@ def disable_logging(f):
         return result
 
     return wrapper
+
+
+def collapse_whitespace(text: str):
+    text = text.replace('\n', '').replace('\r', '')
+    return ' '.join(text.split())

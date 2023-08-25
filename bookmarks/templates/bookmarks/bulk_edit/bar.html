@@ -25,10 +25,10 @@
              name="bulk_tag_string" class="form-input input-sm" placeholder="Tag names...">
       <button ld-confirm-button type="submit" name="bulk_execute" class="btn btn-link btn-sm">Execute</button>
 
-      <label class="form-checkbox select-across">
+      <label class="form-checkbox select-across d-none">
         <input type="checkbox" name="bulk_select_across">
         <i class="form-icon"></i>
-        All pages ({{ bookmark_list.bookmarks_total }} bookmarks)
+        All pages (<span class="total">{{ bookmark_list.bookmarks_total }}</span> bookmarks)
       </label>
     </div>
   </div>

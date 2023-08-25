@@ -36,8 +36,18 @@ class BookmarkPage {
       swap(this.bookmarkList, bookmarkListHtml);
       swap(this.tagCloud, tagCloudHtml);
 
+      // Dispatch list updated event
+      const listElement = this.bookmarkList.querySelector(
+        "ul[data-bookmarks-total]",
+      );
+      const bookmarksTotal =
+        (listElement && listElement.dataset.bookmarksTotal) || 0;
+
       this.bookmarkList.dispatchEvent(
-        new CustomEvent("bookmark-list-updated", { bubbles: true }),
+        new CustomEvent("bookmark-list-updated", {
+          bubbles: true,
+          detail: { bookmarksTotal },
+        }),
       );
     });
   }

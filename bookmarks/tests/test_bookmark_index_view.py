@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from bookmarks.models import Bookmark, Tag, UserProfile
-from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin, collapse_whitespace
 
 
 class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
@@ -69,8 +69,10 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         ]
 
         response = self.client.get(reverse('bookmarks:index'))
+        html = collapse_whitespace(response.content.decode())
 
-        self.assertContains(response, '<ul class="bookmark-list">')  # Should render list
+        # Should render list
+        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
@@ -87,8 +89,10 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         ]
 
         response = self.client.get(reverse('bookmarks:index') + '?q=searchvalue')
+        html = collapse_whitespace(response.content.decode())
 
-        self.assertContains(response, '<ul class="bookmark-list">')  # Should render list
+        # Should render list
+        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 

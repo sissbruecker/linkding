@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from bookmarks.models import Bookmark, Tag, UserProfile
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, collapse_whitespace
 
 
 class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
@@ -84,8 +84,10 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         ]
 
         response = self.client.get(reverse('bookmarks:shared'))
+        html = collapse_whitespace(response.content.decode())
 
-        self.assertContains(response, '<ul class="bookmark-list">')  # Should render list
+        # Should render list
+        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
@@ -124,8 +126,10 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         ]
 
         response = self.client.get(reverse('bookmarks:shared') + '?q=searchvalue')
+        html = collapse_whitespace(response.content.decode())
 
-        self.assertContains(response, '<ul class="bookmark-list">')  # Should render list
+        # Should render list
+        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
@@ -145,8 +149,10 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         ]
 
         response = self.client.get(reverse('bookmarks:shared'))
+        html = collapse_whitespace(response.content.decode())
 
-        self.assertContains(response, '<ul class="bookmark-list">')  # Should render list
+        # Should render list
+        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
