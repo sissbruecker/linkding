@@ -10,7 +10,7 @@ from django.utils import timezone, formats
 
 from bookmarks.middlewares import UserProfileMiddleware
 from bookmarks.models import Bookmark, UserProfile, User
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, collapse_whitespace
 from bookmarks.views.partials import contexts
 
 
@@ -454,9 +454,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
     def test_notes_are_hidden_initially_by_default(self):
         self.setup_bookmark(notes='Test note')
-        html = self.render_template()
+        html = collapse_whitespace(self.render_template())
 
-        self.assertIn('<ul class="bookmark-list">', html)
+        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="1">', html)
 
     def test_notes_are_hidden_initially_with_permanent_notes_disabled(self):
         profile = self.get_or_create_test_user().profile
@@ -464,9 +464,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         self.setup_bookmark(notes='Test note')
-        html = self.render_template()
+        html = collapse_whitespace(self.render_template())
 
-        self.assertIn('<ul class="bookmark-list">', html)
+        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="1">', html)
 
     def test_notes_are_visible_initially_with_permanent_notes_enabled(self):
         profile = self.get_or_create_test_user().profile
@@ -474,9 +474,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         self.setup_bookmark(notes='Test note')
-        html = self.render_template()
+        html = collapse_whitespace(self.render_template())
 
-        self.assertIn('<ul class="bookmark-list show-notes">', html)
+        self.assertIn('<ul class="bookmark-list show-notes" data-bookmarks-total="1">', html)
 
     def test_toggle_notes_is_visible_by_default(self):
         self.setup_bookmark(notes='Test note')

@@ -150,7 +150,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark('Bookmark 2').locator('label[ld-bulk-edit-checkbox]').click()
-            self.locate_bulk_edit_bar().get_by_text('Archive').click()
+            self.select_bulk_action('Archive')
+            self.locate_bulk_edit_bar().get_by_text('Execute').click()
             self.locate_bulk_edit_bar().get_by_text('Confirm').click()
 
             self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
@@ -165,7 +166,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark('Bookmark 2').locator('label[ld-bulk-edit-checkbox]').click()
-            self.locate_bulk_edit_bar().get_by_text('Delete').click()
+            self.select_bulk_action('Delete')
+            self.locate_bulk_edit_bar().get_by_text('Execute').click()
             self.locate_bulk_edit_bar().get_by_text('Confirm').click()
 
             self.assertVisibleBookmarks(['Bookmark 1', 'Bookmark 3'])
@@ -197,7 +199,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.assertVisibleTags(['Archived Tag 1', 'Archived Tag 3'])
             self.assertReloads(0)
 
-    def test_archived_bookmarks_partial_update_on_bulk_archive(self):
+    def test_archived_bookmarks_partial_update_on_bulk_unarchive(self):
         self.setup_fixture()
 
         with sync_playwright() as p:
@@ -205,7 +207,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark('Archived Bookmark 2').locator('label[ld-bulk-edit-checkbox]').click()
-            self.locate_bulk_edit_bar().get_by_text('Archive').click()
+            self.select_bulk_action('Unarchive')
+            self.locate_bulk_edit_bar().get_by_text('Execute').click()
             self.locate_bulk_edit_bar().get_by_text('Confirm').click()
 
             self.assertVisibleBookmarks(['Archived Bookmark 1', 'Archived Bookmark 3'])
@@ -220,7 +223,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark('Archived Bookmark 2').locator('label[ld-bulk-edit-checkbox]').click()
-            self.locate_bulk_edit_bar().get_by_text('Delete').click()
+            self.select_bulk_action('Delete')
+            self.locate_bulk_edit_bar().get_by_text('Execute').click()
             self.locate_bulk_edit_bar().get_by_text('Confirm').click()
 
             self.assertVisibleBookmarks(['Archived Bookmark 1', 'Archived Bookmark 3'])

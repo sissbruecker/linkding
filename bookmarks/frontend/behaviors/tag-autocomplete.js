@@ -14,12 +14,13 @@ class TagAutocomplete {
         id: element.id,
         name: element.name,
         value: element.value,
+        placeholder: element.getAttribute("placeholder") || "",
         apiClient: apiClient,
         variant: element.getAttribute("variant"),
       },
     });
 
-    element.replaceWith(wrapper);
+    element.replaceWith(wrapper.firstElementChild);
   }
 }
 

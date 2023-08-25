@@ -119,6 +119,34 @@ def untag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_us
     Bookmark.objects.bulk_update(bookmarks, ['date_modified'])
 
 
+def mark_bookmarks_as_read(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(unread=False, date_modified=timezone.now())
+
+
+def mark_bookmarks_as_unread(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(unread=True, date_modified=timezone.now())
+
+
+def share_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(shared=True, date_modified=timezone.now())
+
+
+def unshare_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(shared=False, date_modified=timezone.now())
+
+
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.title = from_bookmark.title
     to_bookmark.description = from_bookmark.description

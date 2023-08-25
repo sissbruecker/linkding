@@ -292,10 +292,15 @@ $bulk-edit-transition-duration: 400ms;
       text-decoration: underline;
     }
 
-    > input, .form-autocomplete {
+    > input, .form-autocomplete, select {
       width: auto;
-      max-width: 200px;
+      max-width: 140px;
       -webkit-appearance: none;
+    }
+
+    .select-across {
+      margin: 0 0 0 auto;
+      font-size: $font-size-sm;
     }
   }
 }

@@ -4,6 +4,7 @@
   export let id;
   export let name;
   export let value;
+  export let placeholder;
   export let apiClient;
   export let variant = 'default';
 
@@ -118,7 +119,7 @@
   <!-- autocomplete input container -->
   <div class="form-autocomplete-input form-input" class:is-focused={isFocus}>
     <!-- autocomplete real input box -->
-    <input id="{id}" name="{name}" value="{value ||''}" placeholder="&nbsp;"
+    <input id="{id}" name="{name}" value="{value ||''}" placeholder="{placeholder || ' '}"
            class="form-input" type="text" autocomplete="off" autocapitalize="off"
            on:input={handleInput} on:keydown={handleKeyDown}
            on:focus={handleFocus} on:blur={handleBlur}>
@@ -152,6 +153,7 @@
     .form-autocomplete.small .form-autocomplete-input {
         height: 1.4rem;
         min-height: 1.4rem;
+        padding: 0.05rem 0.3rem;
     }
 
     .form-autocomplete.small .form-autocomplete-input input {

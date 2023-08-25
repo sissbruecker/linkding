@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from bookmarks.models import Bookmark, Tag, UserProfile
-from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin, collapse_whitespace
 
 
 class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
@@ -69,8 +69,10 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         ]
 
         response = self.client.get(reverse('bookmarks:index'))
+        html = collapse_whitespace(response.content.decode())
 
-        self.assertContains(response, '<ul class="bookmark-list">')  # Should render list
+        # Should render list
+        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
@@ -87,8 +89,10 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         ]
 
         response = self.client.get(reverse('bookmarks:index') + '?q=searchvalue')
+        html = collapse_whitespace(response.content.decode())
 
-        self.assertContains(response, '<ul class="bookmark-list">')  # Should render list
+        # Should render list
+        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
@@ -239,4 +243,42 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertInHTML(f'''
             <a href="{edit_url}?return_url={return_url}">Edit</a>        
+        ''', html)
+
+    def test_allowed_bulk_actions(self):
+        url = reverse('bookmarks:index')
+        response = self.client.get(url)
+        html = response.content.decode()
+
+        self.assertInHTML(f'''
+          <select name="bulk_action" class="form-select select-sm">
+            <option value="bulk_archive">Archive</option>
+            <option value="bulk_delete">Delete</option>
+            <option value="bulk_tag">Add tags</option>
+            <option value="bulk_untag">Remove tags</option>
+            <option value="bulk_read">Mark as read</option>
+            <option value="bulk_unread">Mark as unread</option>
+          </select>
+        ''', html)
+
+    def test_allowed_bulk_actions_with_sharing_enabled(self):
+        user_profile = self.user.profile
+        user_profile.enable_sharing = True
+        user_profile.save()
+
+        url = reverse('bookmarks:index')
+        response = self.client.get(url)
+        html = response.content.decode()
+
+        self.assertInHTML(f'''
+          <select name="bulk_action" class="form-select select-sm">
+            <option value="bulk_archive">Archive</option>
+            <option value="bulk_delete">Delete</option>
+            <option value="bulk_tag">Add tags</option>
+            <option value="bulk_untag">Remove tags</option>
+            <option value="bulk_read">Mark as read</option>
+            <option value="bulk_unread">Mark as unread</option>
+            <option value="bulk_share">Share</option>
+            <option value="bulk_unshare">Unshare</option>
+          </select>
         ''', html)

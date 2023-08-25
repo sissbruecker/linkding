@@ -13,12 +13,14 @@ urlpatterns = [
     re_path(r'^$', RedirectView.as_view(pattern_name='bookmarks:index', permanent=False)),
     # Bookmarks
     path('bookmarks', views.bookmarks.index, name='index'),
+    path('bookmarks/action', views.bookmarks.index_action, name='index.action'),
     path('bookmarks/archived', views.bookmarks.archived, name='archived'),
+    path('bookmarks/archived/action', views.bookmarks.archived_action, name='archived.action'),
     path('bookmarks/shared', views.bookmarks.shared, name='shared'),
+    path('bookmarks/shared/action', views.bookmarks.shared_action, name='shared.action'),
     path('bookmarks/new', views.bookmarks.new, name='new'),
     path('bookmarks/close', views.bookmarks.close, name='close'),
     path('bookmarks/<int:bookmark_id>/edit', views.bookmarks.edit, name='edit'),
-    path('bookmarks/action', views.bookmarks.action, name='action'),
     # Partials
     path('bookmarks/partials/bookmark-list/active', partials.active_bookmark_list,
          name='partials.bookmark_list.active'),
