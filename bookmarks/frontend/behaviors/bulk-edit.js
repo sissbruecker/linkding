@@ -5,7 +5,7 @@ class BulkEdit {
     this.element = element;
     this.active = false;
     this.actionSelect = element.querySelector("select[name='bulk_action']");
-    this.bulkActions = element.querySelector(".bulk-edit-actions");
+    this.tagAutoComplete = element.querySelector(".tag-autocomplete");
     this.selectAcross = element.querySelector("label.select-across");
 
     element.addEventListener(
@@ -75,9 +75,9 @@ class BulkEdit {
     const action = this.actionSelect.value;
 
     if (action === "bulk_tag" || action === "bulk_untag") {
-      this.bulkActions.classList.add("bulk-tag-action");
+      this.tagAutoComplete.classList.remove("d-none");
     } else {
-      this.bulkActions.classList.remove("bulk-tag-action");
+      this.tagAutoComplete.classList.add("d-none");
     }
   }
 

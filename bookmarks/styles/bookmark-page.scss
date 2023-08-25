@@ -294,18 +294,8 @@ $bulk-edit-transition-duration: 400ms;
 
     > input, .form-autocomplete, select {
       width: auto;
-      max-width: 200px;
+      max-width: 140px;
       -webkit-appearance: none;
-    }
-
-    input[name='bulk_tag_string'], .form-autocomplete {
-      display: none;
-    }
-
-    &.bulk-tag-action {
-      input[name='bulk_tag_string'], .form-autocomplete {
-        display: initial;
-      }
     }
 
     .select-across {
