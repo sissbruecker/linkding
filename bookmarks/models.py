@@ -125,9 +125,15 @@ class BookmarkForm(forms.ModelForm):
 
 
 class BookmarkSearch:
-    def __init__(self, query='', user=''):
+    SORT_ADDED_ASC = 'added_asc'
+    SORT_ADDED_DESC = 'added_desc'
+    SORT_TITLE_ASC = 'title_asc'
+    SORT_TITLE_DESC = 'title_desc'
+
+    def __init__(self, query='', user='', sort=SORT_ADDED_DESC):
         self.query = query
         self.user = user
+        self.sort = sort
 
     @staticmethod
     def from_request(request: WSGIRequest):
@@ -139,6 +145,8 @@ class BookmarkSearch:
             init_values['query'] = request.GET['q']
         if 'user' in request.GET:
             init_values['user'] = request.GET['user']
+        if 'sort' in request.GET:
+            init_values['sort'] = request.GET['sort']
         return BookmarkSearch(**init_values)
 
 

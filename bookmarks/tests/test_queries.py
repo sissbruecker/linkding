@@ -3,6 +3,7 @@ import operator
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.test import TestCase
+from django.utils import timezone
 
 from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkSearch, UserProfile
@@ -777,3 +778,89 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
         query_set = queries.query_shared_bookmark_users(self.profile, BookmarkSearch(query=''), True)
         self.assertQueryResult(query_set, [[user1]])
+
+    def test_sorty_by_date_added_asc(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_ADDED_ASC)
+
+        bookmarks = [
+            self.setup_bookmark(added=timezone.datetime(2020, 1, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2021, 2, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2022, 3, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2023, 4, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2022, 5, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2021, 6, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2020, 7, 1, tzinfo=timezone.utc)),
+        ]
+        sorted_bookmarks = sorted(bookmarks, key=lambda b: b.date_added)
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertEqual(list(query), sorted_bookmarks)
+
+    def test_sorty_by_date_added_desc(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_ADDED_DESC)
+
+        bookmarks = [
+            self.setup_bookmark(added=timezone.datetime(2020, 1, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2021, 2, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2022, 3, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2023, 4, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2022, 5, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2021, 6, 1, tzinfo=timezone.utc)),
+            self.setup_bookmark(added=timezone.datetime(2020, 7, 1, tzinfo=timezone.utc)),
+        ]
+        sorted_bookmarks = sorted(bookmarks, key=lambda b: b.date_added, reverse=True)
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertEqual(list(query), sorted_bookmarks)
+
+    def setup_title_sort_data(self):
+        # lots of combinations to test effective title logic
+        bookmarks = [
+            self.setup_bookmark(title='a_1_1'),
+            self.setup_bookmark(title='A_1_2'),
+            self.setup_bookmark(title='b_1_1'),
+            self.setup_bookmark(title='B_1_2'),
+            self.setup_bookmark(title='', website_title='a_2_1'),
+            self.setup_bookmark(title='', website_title='A_2_2'),
+            self.setup_bookmark(title='', website_title='b_2_1'),
+            self.setup_bookmark(title='', website_title='B_2_2'),
+            self.setup_bookmark(title='', website_title='', url='a_3_1'),
+            self.setup_bookmark(title='', website_title='', url='A_3_2'),
+            self.setup_bookmark(title='', website_title='', url='b_3_1'),
+            self.setup_bookmark(title='', website_title='', url='B_3_2'),
+            self.setup_bookmark(title='a_4_1', website_title='0'),
+            self.setup_bookmark(title='A_4_2', website_title='0'),
+            self.setup_bookmark(title='b_4_1', website_title='0'),
+            self.setup_bookmark(title='B_4_2', website_title='0'),
+            self.setup_bookmark(title='a_5_1', url='0'),
+            self.setup_bookmark(title='A_5_2', url='0'),
+            self.setup_bookmark(title='b_5_1', url='0'),
+            self.setup_bookmark(title='B_5_2', url='0'),
+            self.setup_bookmark(title='', website_title='a_6_1', url='0'),
+            self.setup_bookmark(title='', website_title='A_6_2', url='0'),
+            self.setup_bookmark(title='', website_title='b_6_1', url='0'),
+            self.setup_bookmark(title='', website_title='B_6_2', url='0'),
+            self.setup_bookmark(title='a_7_1', website_title='0', url='0'),
+            self.setup_bookmark(title='A_7_2', website_title='0', url='0'),
+            self.setup_bookmark(title='b_7_1', website_title='0', url='0'),
+            self.setup_bookmark(title='B_7_2', website_title='0', url='0'),
+        ]
+        return bookmarks
+
+    def test_sort_by_title_asc(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_TITLE_ASC)
+
+        bookmarks = self.setup_title_sort_data()
+        sorted_bookmarks = sorted(bookmarks, key=lambda b: b.resolved_title.lower())
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertEqual(list(query), sorted_bookmarks)
+
+    def test_sort_by_title_desc(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_TITLE_DESC)
+
+        bookmarks = self.setup_title_sort_data()
+        sorted_bookmarks = sorted(bookmarks, key=lambda b: b.resolved_title.lower(), reverse=True)
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertEqual(list(query), sorted_bookmarks)

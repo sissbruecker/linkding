@@ -1,7 +1,8 @@
 from typing import Optional
 
 from django.contrib.auth.models import User
-from django.db.models import Q, QuerySet, Exists, OuterRef
+from django.db.models import Q, QuerySet, Exists, OuterRef, Case, When, F, CharField
+from django.db.models.functions import Lower
 
 from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
 from bookmarks.utils import unique
@@ -67,7 +68,27 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, search: Bo
         )
 
     # Sort by date added
-    query_set = query_set.order_by('-date_added')
+    if search.sort == BookmarkSearch.SORT_ADDED_ASC:
+        query_set = query_set.order_by('date_added')
+    elif search.sort == BookmarkSearch.SORT_ADDED_DESC:
+        query_set = query_set.order_by('-date_added')
+
+    # Sort by title
+    if search.sort == BookmarkSearch.SORT_TITLE_ASC or search.sort == BookmarkSearch.SORT_TITLE_DESC:
+        # For the title, the resolved_title logic from the Bookmark entity needs
+        # to be replicated as there is no corresponding database field
+        query_set = query_set.annotate(
+            effective_title=Case(
+                When(Q(title__isnull=False) & ~Q(title__exact=''), then=Lower('title')),
+                When(Q(website_title__isnull=False) & ~Q(website_title__exact=''), then=Lower('website_title')),
+                default=Lower('url'),
+                output_field=CharField()
+            ))
+
+        if search.sort == BookmarkSearch.SORT_TITLE_ASC:
+            query_set = query_set.order_by('effective_title')
+        elif search.sort == BookmarkSearch.SORT_TITLE_DESC:
+            query_set = query_set.order_by('-effective_title')
 
     return query_set
 

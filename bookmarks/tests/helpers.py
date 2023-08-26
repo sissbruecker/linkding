@@ -29,7 +29,7 @@ class BookmarkFactoryMixin:
                        tags=None,
                        user: User = None,
                        url: str = '',
-                       title: str = '',
+                       title: str = None,
                        description: str = '',
                        notes: str = '',
                        website_title: str = '',
@@ -38,7 +38,7 @@ class BookmarkFactoryMixin:
                        favicon_file: str = '',
                        added: datetime = None,
                        ):
-        if not title:
+        if title is None:
             title = get_random_string(length=32)
         if tags is None:
             tags = []
