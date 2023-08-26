@@ -101,6 +101,18 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             ],
         ])
 
+    def test_tag_url_respects_search_options(self):
+        tag = self.setup_tag(name='tag1')
+        self.setup_bookmark(tags=[tag], title='term1')
+
+        rendered_template = self.render_template(url='/test?q=term1&sort=title_asc&page=2')
+
+        self.assertInHTML('''
+            <a href="?q=term1+%23tag1&sort=title_asc&page=2" class="mr-2" data-is-tag-item>
+              <span class="highlight-char">t</span><span>ag1</span>
+            </a>
+        ''', rendered_template)
+
     def test_selected_tags(self):
         tags = [
             self.setup_tag(name='tag1'),
@@ -191,7 +203,7 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             </a>
         ''', rendered_template, count=1)
 
-    def test_selected_tag_url_keeps_other_search_terms(self):
+    def test_selected_tag_url_keeps_other_query_terms(self):
         tag = self.setup_tag(name='tag1')
         self.setup_bookmark(tags=[tag], title='term1', description='term2')
 
@@ -199,6 +211,19 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertInHTML('''
             <a href="?q=term1+term2"
+               class="text-bold mr-2">
+                <span>-tag1</span>
+            </a>
+        ''', rendered_template)
+
+    def test_selected_tag_url_respects_search_options(self):
+        tag = self.setup_tag(name='tag1')
+        self.setup_bookmark(tags=[tag], title='term1', description='term2')
+
+        rendered_template = self.render_template(url='/test?q=term1 %23tag1 term2&sort=title_asc&page=2')
+
+        self.assertInHTML('''
+            <a href="?q=term1+term2&sort=title_asc&page=2"
                class="text-bold mr-2">
                 <span>-tag1</span>
             </a>
