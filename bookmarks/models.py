@@ -163,11 +163,11 @@ class BookmarkSearch:
         # constructor, leaving out empty values so that default constructor
         # values are used
         init_values = {}
-        if 'q' in request.GET:
+        if 'q' in request.GET and request.GET['q']:
             init_values['query'] = request.GET['q']
-        if 'user' in request.GET:
+        if 'user' in request.GET and request.GET['user']:
             init_values['user'] = request.GET['user']
-        if 'sort' in request.GET:
+        if 'sort' in request.GET and request.GET['sort']:
             init_values['sort'] = request.GET['sort']
         return BookmarkSearch(**init_values)
 
