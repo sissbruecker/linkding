@@ -2,7 +2,7 @@ from django.db.models import QuerySet
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
-from bookmarks.models import BookmarkFilters, User
+from bookmarks.models import BookmarkSearch, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -12,15 +12,15 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
         request.user_profile = self.get_or_create_test_user().profile
-        filters = BookmarkFilters(request)
+        search = BookmarkSearch(request)
         context = RequestContext(request, {
             'request': request,
-            'filters': filters,
+            'search': search,
             'users': users,
         })
         template_to_render = Template(
             '{% load bookmarks %}'
-            '{% user_select filters users %}'
+            '{% user_select search users %}'
         )
         return template_to_render.render(context)
 

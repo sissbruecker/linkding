@@ -3,12 +3,12 @@
     <div class="input-group">
             <span id="search-input-wrap">
                 <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
-                       value="{{ filters.query }}">
+                       value="{{ search.query }}">
             </span>
       <input type="submit" value="Search" class="btn input-group-btn">
     </div>
-    {% if filters.user %}
-      <input type="hidden" name="user" value="{{ filters.user }}">
+    {% if search.user %}
+      <input type="hidden" name="user" value="{{ search.user }}">
     {% endif %}
   </form>
 </div>
@@ -19,9 +19,9 @@
     const currentTagsString = '{{ tags_string }}';
     const currentTags = currentTagsString.split(' ');
     const uniqueTags = [...new Set(currentTags)]
-    const filters = {
-      q: '{{ filters.query }}',
-      user: '{{ filters.user }}',
+    const search = {
+      q: '{{ search.query }}',
+      user: '{{ search.user }}',
     }
     const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
     const wrapper = document.getElementById('search-input-wrap')
@@ -31,12 +31,12 @@
       props: {
         name: 'q',
         placeholder: 'Search for words or #tags',
-        value: '{{ filters.query }}',
+        value: '{{ search.query }}',
         tags: uniqueTags,
         mode: '{{ mode }}',
         linkTarget: '{{ request.user_profile.bookmark_link_target }}',
         apiClient,
-        filters,
+        search,
       }
     })
     wrapper.parentElement.replaceChild(newWrapper, wrapper)

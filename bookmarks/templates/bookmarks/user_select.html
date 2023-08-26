@@ -1,6 +1,6 @@
 <form id="user-select" action="" method="get">
-  {% if filters.query %}
-    <input type="hidden" name="q" value="{{ filters.query }}">
+  {% if search.query %}
+    <input type="hidden" name="q" value="{{ search.query }}">
   {% endif %}
   <div class="form-group">
     <div class="d-flex">
@@ -8,7 +8,7 @@
         <option value="">Everyone</option>
         {% for user in users %}
           <option value="{{ user.username }}"
-                  {% if user.username == filters.user %}selected{% endif %}
+                  {% if user.username == search.user %}selected{% endif %}
                   data-is-user-option>
             {{ user.username }}
           </option>

@@ -124,7 +124,7 @@ class BookmarkForm(forms.ModelForm):
         return self.instance and self.instance.notes
 
 
-class BookmarkFilters:
+class BookmarkSearch:
     def __init__(self, request: WSGIRequest):
         self.query = request.GET.get('q') or ''
         self.user = request.GET.get('user') or ''
