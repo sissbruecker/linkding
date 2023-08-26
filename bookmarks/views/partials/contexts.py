@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from bookmarks import queries
 from bookmarks import utils
-from bookmarks.models import Bookmark, BookmarkSearch, User, UserProfile, Tag
+from bookmarks.models import Bookmark, BookmarkSearch, BookmarkSearchForm, User, UserProfile, Tag
 
 DEFAULT_PAGE_SIZE = 30
 

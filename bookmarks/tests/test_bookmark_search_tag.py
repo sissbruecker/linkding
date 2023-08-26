@@ -24,19 +24,33 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin):
         )
         return template_to_render.render(context)
 
-    def test_render_hidden_inputs_for_filter_params(self):
-        # Should render hidden inputs if query param exists
-        url = '/test?q=foo&user=john'
+    def assertHiddenInput(self, html: str, name: str, value: str = None):
+        needle = f'<input type="hidden" name="{name}"'
+        if value is not None:
+            needle += f' value="{value}"'
+
+        self.assertIn(needle, html)
+
+    def assertNoHiddenInput(self, html: str, name: str, value: str = None):
+        needle = f'<input type="hidden" name="{name}"'
+        if value is not None:
+            needle += f' value="{value}"'
+
+        self.assertNotIn(needle, html)
+
+    def test_hidden_inputs(self):
+        # Without params
+        url = '/test'
         rendered_template = self.render_template(url)
 
-        self.assertInHTML('''
-            <input type="hidden" name="user" value="john">
-        ''', rendered_template)
+        self.assertNoHiddenInput(rendered_template, 'user')
+        self.assertNoHiddenInput(rendered_template, 'q')
+        self.assertNoHiddenInput(rendered_template, 'sort')
 
-        # Should not render hidden inputs if query param does not exist
-        url = '/test?q=foo'
+        # With params
+        url = '/test?q=foo&user=john&sort=title_asc'
         rendered_template = self.render_template(url)
 
-        self.assertInHTML('''
-            <input type="hidden" name="user" value="john">
-        ''', rendered_template, count=0)
+        self.assertHiddenInput(rendered_template, 'user')
+        self.assertNoHiddenInput(rendered_template, 'q', 'foo')
+        self.assertHiddenInput(rendered_template, 'sort', 'title_asc')

@@ -1,20 +1,12 @@
+{% load widget_tweaks %}
+
 <form id="user-select" action="" method="get">
-  {% if search.query %}
-    <input type="hidden" name="q" value="{{ search.query }}">
-  {% endif %}
-  <input type="hidden" name="sort" value="{{ search.sort }}">
+  {% for hidden_field in form.hidden_fields %}
+    {{ hidden_field }}
+  {% endfor %}
   <div class="form-group">
     <div class="d-flex">
-      <select name="user" class="form-select">
-        <option value="">Everyone</option>
-        {% for user in users %}
-          <option value="{{ user.username }}"
-                  {% if user.username == search.user %}selected{% endif %}
-                  data-is-user-option>
-            {{ user.username }}
-          </option>
-        {% endfor %}
-      </select>
+      {{ form.user|add_class:"form-select" }}
       <noscript>
         <button type="submit" class="btn btn-link ml-2">Apply</button>
       </noscript>

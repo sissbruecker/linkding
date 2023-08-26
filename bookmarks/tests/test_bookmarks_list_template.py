@@ -55,7 +55,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         # Edit link
         edit_url = reverse('bookmarks:edit', args=[bookmark.id])
         self.assertInHTML(f'''
-            <a href="{edit_url}?return_url=%2Fbookmarks">Edit</a>
+            <a href="{edit_url}?return_url=/bookmarks">Edit</a>
         ''', html, count=count)
         # Archive link
         self.assertInHTML(f'''

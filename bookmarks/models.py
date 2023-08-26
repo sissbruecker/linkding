@@ -130,46 +130,73 @@ class BookmarkSearch:
     SORT_TITLE_ASC = 'title_asc'
     SORT_TITLE_DESC = 'title_desc'
 
+    params = ['q', 'user', 'sort']
     defaults = {
-        'query': '',
+        'q': '',
         'user': '',
         'sort': SORT_ADDED_DESC,
     }
 
-    def __init__(self, query='', user='', sort=SORT_ADDED_DESC):
-        self.query = query
+    def __init__(self,
+                 q: str = defaults['q'],
+                 query: str = defaults['q'],  # alias for q
+                 user: str = defaults['user'],
+                 sort: str = defaults['sort']):
+        self.q = q or query
         self.user = user
         self.sort = sort
 
-    def is_modified(self, attribute):
-        value = self.__dict__[attribute]
-        return value and value != BookmarkSearch.defaults[attribute]
+    @property
+    def query(self):
+        return self.q
+
+    def is_modified(self, param):
+        value = self.__dict__[param]
+        return value and value != BookmarkSearch.defaults[param]
+
+    @property
+    def modified_params(self):
+        return [field for field in self.params if self.is_modified(field)]
 
     @property
     def query_params(self):
-        params = {}
-        if self.is_modified('query'):
-            params['q'] = self.query
-        if self.is_modified('user'):
-            params['user'] = self.user
-        if self.is_modified('sort'):
-            params['sort'] = self.sort
-
-        return params
+        return {param: self.__dict__[param] for param in self.modified_params}
 
     @staticmethod
     def from_request(request: WSGIRequest):
-        # create dictionary from request.GET for initializing BookmarkSearch
-        # constructor, leaving out empty values so that default constructor
-        # values are used
-        init_values = {}
-        if 'q' in request.GET and request.GET['q']:
-            init_values['query'] = request.GET['q']
-        if 'user' in request.GET and request.GET['user']:
-            init_values['user'] = request.GET['user']
-        if 'sort' in request.GET and request.GET['sort']:
-            init_values['sort'] = request.GET['sort']
-        return BookmarkSearch(**init_values)
+        initial_values = {}
+        for param in BookmarkSearch.params:
+            value = request.GET.get(param)
+            if value:
+                initial_values[param] = value
+
+        return BookmarkSearch(**initial_values)
+
+
+class BookmarkSearchForm(forms.Form):
+    q = forms.CharField()
+    user = forms.ChoiceField()
+    sort = forms.CharField()
+
+    def __init__(self, search: BookmarkSearch, editable_fields: List[str] = None, users: List[User] = None):
+        super().__init__()
+        editable_fields = editable_fields or []
+
+        # set choices for user field if users are provided
+        if users:
+            user_choices = [(user.username, user.username) for user in users]
+            user_choices.insert(0, ('', 'Everyone'))
+            self.fields['user'].choices = user_choices
+
+        for param in search.modified_params:
+            # set initial values for modified params
+            self.fields[param].initial = search.__dict__[param]
+
+            # Mark non-editable modified fields as hidden. That way, templates
+            # rendering a form can just loop over hidden_fields to ensure that
+            # all necessary search options are kept when submitting the form.
+            if param not in editable_fields:
+                self.fields[param].widget = forms.HiddenInput()
 
 
 class UserProfile(models.Model):

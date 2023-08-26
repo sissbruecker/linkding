@@ -7,9 +7,9 @@
             </span>
       <input type="submit" value="Search" class="btn input-group-btn">
     </div>
-    {% if search.user %}
-      <input type="hidden" name="user" value="{{ search.user }}">
-    {% endif %}
+    {% for hidden_field in form.hidden_fields %}
+      {{ hidden_field }}
+    {% endfor %}
   </form>
 </div>
 

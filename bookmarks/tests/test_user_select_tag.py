@@ -26,18 +26,30 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
 
     def assertUserOption(self, html: str, user: User, selected: bool = False):
         self.assertInHTML(f'''
-          <option value="{user.username}"
-                  {'selected' if selected else ''}
-                  data-is-user-option>
+          <option value="{user.username}" {'selected' if selected else ''}>
             {user.username}
           </option>        
         ''', html)
+
+    def assertHiddenInput(self, html: str, name: str, value: str = None):
+        needle = f'<input type="hidden" name="{name}"'
+        if value is not None:
+            needle += f' value="{value}"'
+
+        self.assertIn(needle, html)
+
+    def assertNoHiddenInput(self, html: str, name: str, value: str = None):
+        needle = f'<input type="hidden" name="{name}"'
+        if value is not None:
+            needle += f' value="{value}"'
+
+        self.assertNotIn(needle, html)
 
     def test_empty_option(self):
         rendered_template = self.render_template('/test')
 
         self.assertInHTML(f'''
-          <option value="">Everyone</option>        
+          <option value="" selected="">Everyone</option>        
         ''', rendered_template)
 
     def test_render_user_options(self):
@@ -60,14 +72,19 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
 
         self.assertUserOption(rendered_template, user1, True)
 
-    def test_respects_search_options(self):
-        # Should render hidden inputs if query param exists
+    def test_hidden_inputs(self):
+        # Without params
+        url = '/test'
+        rendered_template = self.render_template(url)
+
+        self.assertNoHiddenInput(rendered_template, 'user')
+        self.assertNoHiddenInput(rendered_template, 'q')
+        self.assertNoHiddenInput(rendered_template, 'sort')
+
+        # With params
         url = '/test?q=foo&user=john&sort=title_asc'
         rendered_template = self.render_template(url)
 
-        self.assertInHTML('''
-            <input type="hidden" name="q" value="foo">
-        ''', rendered_template)
-        self.assertInHTML('''
-            <input type="hidden" name="sort" value="title_asc">
-        ''', rendered_template)
+        self.assertNoHiddenInput(rendered_template, 'user')
+        self.assertHiddenInput(rendered_template, 'q', 'foo')
+        self.assertHiddenInput(rendered_template, 'sort', 'title_asc')
