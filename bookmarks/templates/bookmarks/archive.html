@@ -21,8 +21,8 @@
       </div>
 
       <form class="bookmark-actions"
-            action="{% url 'bookmarks:archived.action' %}?q={{ bookmark_list.search.query }}&return_url={{ bookmark_list.return_url }}"
-            method="post">
+            action="{{ bookmark_list.action_url|safe }}"
+            method="post" autocomplete="off">
         {% csrf_token %}
         {% include 'bookmarks/bulk_edit/bar.html' with disable_actions='bulk_archive' %}
 

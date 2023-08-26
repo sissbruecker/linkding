@@ -1,3 +1,4 @@
+import urllib.parse
 from typing import List
 
 from django.contrib.auth.models import User
@@ -63,6 +64,12 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
                 {user.username}
               </option>        
             ''', html, count=0)
+
+    def assertEditLink(self, response, url):
+        html = response.content.decode()
+        self.assertInHTML(f'''
+            <a href="{url}">Edit</a>        
+        ''', html)
 
     def test_should_list_shared_bookmarks_from_all_users_that_have_sharing_enabled(self):
         self.authenticate()
@@ -334,3 +341,44 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse('bookmarks:shared'))
 
         self.assertVisibleBookmarks(response, visible_bookmarks, '_self')
+
+    def test_edit_link_return_url_respects_search_options(self):
+        self.authenticate()
+        user = self.get_or_create_test_user()
+        user.profile.enable_sharing = True
+        user.profile.save()
+
+        bookmark = self.setup_bookmark(title='foo', shared=True, user=user)
+        edit_url = reverse('bookmarks:edit', args=[bookmark.id])
+        base_url = reverse('bookmarks:shared')
+
+        # without query params
+        return_url = urllib.parse.quote(base_url)
+        url = f'{edit_url}?return_url={return_url}'
+
+        response = self.client.get(base_url)
+        self.assertEditLink(response, url)
+
+        # with query
+        url_params = '?q=foo'
+        return_url = urllib.parse.quote(base_url + url_params)
+        url = f'{edit_url}?return_url={return_url}'
+
+        response = self.client.get(base_url + url_params)
+        self.assertEditLink(response, url)
+
+        # with query and user
+        url_params = f'?q=foo&user={user.username}'
+        return_url = urllib.parse.quote(base_url + url_params)
+        url = f'{edit_url}?return_url={return_url}'
+
+        response = self.client.get(base_url + url_params)
+        self.assertEditLink(response, url)
+
+        # with query and sort and page
+        url_params = '?q=foo&sort=title_asc&page=2'
+        return_url = urllib.parse.quote(base_url + url_params)
+        url = f'{edit_url}?return_url={return_url}'
+
+        response = self.client.get(base_url + url_params)
+        self.assertEditLink(response, url)

@@ -7,8 +7,8 @@ from django.db import models
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkSearch, User, UserProfile, Tag
 from bookmarks import utils
+from bookmarks.models import Bookmark, BookmarkSearch, User, UserProfile, Tag
 
 DEFAULT_PAGE_SIZE = 30
 
@@ -71,27 +71,35 @@ class BookmarkListContext:
         self.is_empty = paginator.count == 0
         self.bookmarks_page = bookmarks_page
         self.bookmarks_total = paginator.count
-        self.return_url = self.generate_return_url(page_number)
+        self.return_url = self.generate_return_url(self.search, self.get_base_url(), page_number)
+        self.action_url = self.generate_action_url(self.search, self.get_base_action_url(), self.return_url)
         self.link_target = user_profile.bookmark_link_target
         self.date_display = user_profile.bookmark_date_display
         self.show_url = user_profile.display_url
         self.show_favicons = user_profile.enable_favicons
         self.show_notes = user_profile.permanent_notes
 
-    def generate_return_url(self, page: int):
-        base_url = self.get_base_url()
-        url_query = {}
-        if self.search.query:
-            url_query['q'] = self.search.query
-        if self.search.user:
-            url_query['user'] = self.search.user
+    @staticmethod
+    def generate_return_url(search: BookmarkSearch, base_url: str, page: int = None):
+        query_params = search.query_params
         if page is not None:
-            url_query['page'] = page
-        url_params = urllib.parse.urlencode(url_query)
-        return_url = base_url if url_params == '' else base_url + '?' + url_params
-        return urllib.parse.quote_plus(return_url)
+            query_params['page'] = page
+        query_string = urllib.parse.urlencode(query_params)
+
+        return base_url if query_string == '' else base_url + '?' + query_string
+
+    @staticmethod
+    def generate_action_url(search: BookmarkSearch, base_action_url: str, return_url: str):
+        query_params = search.query_params
+        query_params['return_url'] = return_url
+        query_string = urllib.parse.urlencode(query_params)
+
+        return base_action_url if query_string == '' else base_action_url + '?' + query_string
 
     def get_base_url(self):
+        raise Exception(f'Must be implemented by subclass')
+
+    def get_base_action_url(self):
         raise Exception(f'Must be implemented by subclass')
 
     def get_bookmark_query_set(self):
@@ -101,6 +109,9 @@ class BookmarkListContext:
 class ActiveBookmarkListContext(BookmarkListContext):
     def get_base_url(self):
         return reverse('bookmarks:index')
+
+    def get_base_action_url(self):
+        return reverse('bookmarks:index.action')
 
     def get_bookmark_query_set(self):
         return queries.query_bookmarks(self.request.user,
@@ -112,6 +123,9 @@ class ArchivedBookmarkListContext(BookmarkListContext):
     def get_base_url(self):
         return reverse('bookmarks:archived')
 
+    def get_base_action_url(self):
+        return reverse('bookmarks:archived.action')
+
     def get_bookmark_query_set(self):
         return queries.query_archived_bookmarks(self.request.user,
                                                 self.request.user_profile,
@@ -121,6 +135,9 @@ class ArchivedBookmarkListContext(BookmarkListContext):
 class SharedBookmarkListContext(BookmarkListContext):
     def get_base_url(self):
         return reverse('bookmarks:shared')
+
+    def get_base_action_url(self):
+        return reverse('bookmarks:shared.action')
 
     def get_bookmark_query_set(self):
         user = User.objects.filter(username=self.search.user).first()

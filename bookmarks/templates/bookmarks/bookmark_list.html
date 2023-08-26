@@ -65,7 +65,7 @@
           {% endif %}
           {% if bookmark_item.is_editable %}
             {# Bookmark owner actions #}
-            <a href="{% url 'bookmarks:edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url }}">Edit</a>
+            <a href="{% url 'bookmarks:edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">Edit</a>
             {% if bookmark_item.is_archived %}
               <button type="submit" name="unarchive" value="{{ bookmark_item.id }}"
                       class="btn btn-link btn-sm">Unarchive

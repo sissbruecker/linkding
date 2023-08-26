@@ -130,10 +130,32 @@ class BookmarkSearch:
     SORT_TITLE_ASC = 'title_asc'
     SORT_TITLE_DESC = 'title_desc'
 
+    defaults = {
+        'query': '',
+        'user': '',
+        'sort': SORT_ADDED_DESC,
+    }
+
     def __init__(self, query='', user='', sort=SORT_ADDED_DESC):
         self.query = query
         self.user = user
         self.sort = sort
+
+    def is_modified(self, attribute):
+        value = self.__dict__[attribute]
+        return value and value != BookmarkSearch.defaults[attribute]
+
+    @property
+    def query_params(self):
+        params = {}
+        if self.is_modified('query'):
+            params['q'] = self.query
+        if self.is_modified('user'):
+            params['user'] = self.user
+        if self.is_modified('sort'):
+            params['sort'] = self.sort
+
+        return params
 
     @staticmethod
     def from_request(request: WSGIRequest):
