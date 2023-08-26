@@ -3,30 +3,30 @@ from typing import Optional
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet, Exists, OuterRef
 
-from bookmarks.models import Bookmark, Tag, UserProfile
+from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
 from bookmarks.utils import unique
 
 
-def query_bookmarks(user: User, profile: UserProfile, query_string: str) -> QuerySet:
-    return _base_bookmarks_query(user, profile, query_string) \
+def query_bookmarks(user: User, profile: UserProfile, search: BookmarkSearch) -> QuerySet:
+    return _base_bookmarks_query(user, profile, search) \
         .filter(is_archived=False)
 
 
-def query_archived_bookmarks(user: User, profile: UserProfile, query_string: str) -> QuerySet:
-    return _base_bookmarks_query(user, profile, query_string) \
+def query_archived_bookmarks(user: User, profile: UserProfile, search: BookmarkSearch) -> QuerySet:
+    return _base_bookmarks_query(user, profile, search) \
         .filter(is_archived=True)
 
 
-def query_shared_bookmarks(user: Optional[User], profile: UserProfile, query_string: str,
+def query_shared_bookmarks(user: Optional[User], profile: UserProfile, search: BookmarkSearch,
                            public_only: bool) -> QuerySet:
     conditions = Q(shared=True) & Q(owner__profile__enable_sharing=True)
     if public_only:
         conditions = conditions & Q(owner__profile__enable_public_sharing=True)
 
-    return _base_bookmarks_query(user, profile, query_string).filter(conditions)
+    return _base_bookmarks_query(user, profile, search).filter(conditions)
 
 
-def _base_bookmarks_query(user: Optional[User], profile: UserProfile, query_string: str) -> QuerySet:
+def _base_bookmarks_query(user: Optional[User], profile: UserProfile, search: BookmarkSearch) -> QuerySet:
     query_set = Bookmark.objects
 
     # Filter for user
@@ -34,7 +34,7 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, query_stri
         query_set = query_set.filter(owner=user)
 
     # Split query into search terms and tags
-    query = parse_query_string(query_string)
+    query = parse_query_string(search.query)
 
     # Filter for search terms and tags
     for term in query['search_terms']:
@@ -72,33 +72,33 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, query_stri
     return query_set
 
 
-def query_bookmark_tags(user: User, profile: UserProfile, query_string: str) -> QuerySet:
-    bookmarks_query = query_bookmarks(user, profile, query_string)
+def query_bookmark_tags(user: User, profile: UserProfile, search: BookmarkSearch) -> QuerySet:
+    bookmarks_query = query_bookmarks(user, profile, search)
 
     query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
 
     return query_set.distinct()
 
 
-def query_archived_bookmark_tags(user: User, profile: UserProfile, query_string: str) -> QuerySet:
-    bookmarks_query = query_archived_bookmarks(user, profile, query_string)
+def query_archived_bookmark_tags(user: User, profile: UserProfile, search: BookmarkSearch) -> QuerySet:
+    bookmarks_query = query_archived_bookmarks(user, profile, search)
 
     query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
 
     return query_set.distinct()
 
 
-def query_shared_bookmark_tags(user: Optional[User], profile: UserProfile, query_string: str,
+def query_shared_bookmark_tags(user: Optional[User], profile: UserProfile, search: BookmarkSearch,
                                public_only: bool) -> QuerySet:
-    bookmarks_query = query_shared_bookmarks(user, profile, query_string, public_only)
+    bookmarks_query = query_shared_bookmarks(user, profile, search, public_only)
 
     query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
 
     return query_set.distinct()
 
 
-def query_shared_bookmark_users(profile: UserProfile, query_string: str, public_only: bool) -> QuerySet:
-    bookmarks_query = query_shared_bookmarks(None, profile, query_string, public_only)
+def query_shared_bookmark_users(profile: UserProfile, search: BookmarkSearch, public_only: bool) -> QuerySet:
+    bookmarks_query = query_shared_bookmarks(None, profile, search, public_only)
 
     query_set = User.objects.filter(bookmark__in=bookmarks_query)
 

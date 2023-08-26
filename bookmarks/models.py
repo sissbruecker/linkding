@@ -125,9 +125,21 @@ class BookmarkForm(forms.ModelForm):
 
 
 class BookmarkSearch:
-    def __init__(self, request: WSGIRequest):
-        self.query = request.GET.get('q') or ''
-        self.user = request.GET.get('user') or ''
+    def __init__(self, query='', user=''):
+        self.query = query
+        self.user = user
+
+    @staticmethod
+    def from_request(request: WSGIRequest):
+        # create dictionary from request.GET for initializing BookmarkSearch
+        # constructor, leaving out empty values so that default constructor
+        # values are used
+        init_values = {}
+        if 'q' in request.GET:
+            init_values['query'] = request.GET['q']
+        if 'user' in request.GET:
+            init_values['user'] = request.GET['user']
+        return BookmarkSearch(**init_values)
 
 
 class UserProfile(models.Model):

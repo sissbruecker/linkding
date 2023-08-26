@@ -12,7 +12,7 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin):
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
         request.user_profile = self.get_or_create_test_user().profile
-        search = BookmarkSearch(request)
+        search = BookmarkSearch.from_request(request)
         context = RequestContext(request, {
             'request': request,
             'search': search,

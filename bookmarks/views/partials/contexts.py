@@ -55,7 +55,7 @@ class BookmarkItem:
 class BookmarkListContext:
     def __init__(self, request: WSGIRequest) -> None:
         self.request = request
-        self.search = BookmarkSearch(self.request)
+        self.search = BookmarkSearch.from_request(self.request)
 
         user = request.user
         user_profile = request.user_profile
@@ -105,7 +105,7 @@ class ActiveBookmarkListContext(BookmarkListContext):
     def get_bookmark_query_set(self):
         return queries.query_bookmarks(self.request.user,
                                        self.request.user_profile,
-                                       self.search.query)
+                                       self.search)
 
 
 class ArchivedBookmarkListContext(BookmarkListContext):
@@ -115,7 +115,7 @@ class ArchivedBookmarkListContext(BookmarkListContext):
     def get_bookmark_query_set(self):
         return queries.query_archived_bookmarks(self.request.user,
                                                 self.request.user_profile,
-                                                self.search.query)
+                                                self.search)
 
 
 class SharedBookmarkListContext(BookmarkListContext):
@@ -127,7 +127,7 @@ class SharedBookmarkListContext(BookmarkListContext):
         public_only = not self.request.user.is_authenticated
         return queries.query_shared_bookmarks(user,
                                               self.request.user_profile,
-                                              self.search.query,
+                                              self.search,
                                               public_only)
 
 
@@ -159,7 +159,7 @@ class TagGroup:
 class TagCloudContext:
     def __init__(self, request: WSGIRequest) -> None:
         self.request = request
-        self.search = BookmarkSearch(self.request)
+        self.search = BookmarkSearch.from_request(self.request)
 
         query_set = self.get_tag_query_set()
         tags = list(query_set)
@@ -192,14 +192,14 @@ class ActiveTagCloudContext(TagCloudContext):
     def get_tag_query_set(self):
         return queries.query_bookmark_tags(self.request.user,
                                            self.request.user_profile,
-                                           self.search.query)
+                                           self.search)
 
 
 class ArchivedTagCloudContext(TagCloudContext):
     def get_tag_query_set(self):
         return queries.query_archived_bookmark_tags(self.request.user,
                                                     self.request.user_profile,
-                                                    self.search.query)
+                                                    self.search)
 
 
 class SharedTagCloudContext(TagCloudContext):
@@ -208,5 +208,5 @@ class SharedTagCloudContext(TagCloudContext):
         public_only = not self.request.user.is_authenticated
         return queries.query_shared_bookmark_tags(user,
                                                   self.request.user_profile,
-                                                  self.search.query,
+                                                  self.search,
                                                   public_only)

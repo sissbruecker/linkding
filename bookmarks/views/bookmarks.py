@@ -36,11 +36,11 @@ def archived(request):
 
 
 def shared(request):
-    search = BookmarkSearch(request)
+    search = BookmarkSearch.from_request(request)
     bookmark_list = contexts.SharedBookmarkListContext(request)
     tag_cloud = contexts.SharedTagCloudContext(request)
     public_only = not request.user.is_authenticated
-    users = queries.query_shared_bookmark_users(request.user_profile, search.query, public_only)
+    users = queries.query_shared_bookmark_users(request.user_profile, search, public_only)
     return render(request, 'bookmarks/shared.html', {
         'bookmark_list': bookmark_list,
         'tag_cloud': tag_cloud,
@@ -169,15 +169,15 @@ def mark_as_read(request, bookmark_id: int):
 
 @login_required
 def index_action(request):
-    search = BookmarkSearch(request)
-    query = queries.query_bookmarks(request.user, request.user_profile, search.query)
+    search = BookmarkSearch.from_request(request)
+    query = queries.query_bookmarks(request.user, request.user_profile, search)
     return action(request, query)
 
 
 @login_required
 def archived_action(request):
-    search = BookmarkSearch(request)
-    query = queries.query_archived_bookmarks(request.user, request.user_profile, search.query)
+    search = BookmarkSearch.from_request(request)
+    query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
     return action(request, query)
 
 
