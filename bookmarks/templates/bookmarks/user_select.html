@@ -2,6 +2,7 @@
   {% if search.query %}
     <input type="hidden" name="q" value="{{ search.query }}">
   {% endif %}
+  <input type="hidden" name="sort" value="{{ search.sort }}">
   <div class="form-group">
     <div class="d-flex">
       <select name="user" class="form-select">

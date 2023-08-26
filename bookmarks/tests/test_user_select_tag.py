@@ -60,19 +60,14 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
 
         self.assertUserOption(rendered_template, user1, True)
 
-    def test_render_hidden_inputs_for_filter_params(self):
+    def test_respects_search_options(self):
         # Should render hidden inputs if query param exists
-        url = '/test?q=foo&user=john'
+        url = '/test?q=foo&user=john&sort=title_asc'
         rendered_template = self.render_template(url)
 
         self.assertInHTML('''
             <input type="hidden" name="q" value="foo">
         ''', rendered_template)
-
-        # Should not render hidden inputs if query param does not exist
-        url = '/test?user=john'
-        rendered_template = self.render_template(url)
-
         self.assertInHTML('''
-            <input type="hidden" name="q" value="foo">
-        ''', rendered_template, count=0)
+            <input type="hidden" name="sort" value="title_asc">
+        ''', rendered_template)
