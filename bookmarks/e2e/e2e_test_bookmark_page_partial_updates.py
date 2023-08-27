@@ -50,6 +50,21 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.locate_bookmark('foo 2').get_by_text('Archive').click()
             self.assertVisibleBookmarks(['foo 1', 'foo 3', 'foo 4', 'foo 5'])
 
+    def test_partial_update_respects_sort(self):
+        self.setup_numbered_bookmarks(5, prefix='foo')
+
+        with sync_playwright() as p:
+            url = reverse('bookmarks:index') + '?sort=title_asc'
+            page = self.open(url, p)
+
+            first_item = page.locator('li[ld-bookmark-item]').first
+            expect(first_item).to_contain_text('foo 1')
+
+            first_item.get_by_text('Archive').click()
+
+            first_item = page.locator('li[ld-bookmark-item]').first
+            expect(first_item).to_contain_text('foo 2')
+
     def test_partial_update_respects_page(self):
         # add a suffix, otherwise 'foo 1' also matches 'foo 10'
         self.setup_numbered_bookmarks(50, prefix='foo', suffix='-')
