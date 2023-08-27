@@ -231,6 +231,10 @@ DATABASES = {
     'default': default_database
 }
 
+SQLITE_ICU_EXTENSION_PATH = './libicu.so'
+USE_SQLITE = default_database['ENGINE'] == 'django.db.backends.sqlite3'
+USE_SQLITE_ICU_EXTENSION = USE_SQLITE and os.path.exists(SQLITE_ICU_EXTENSION_PATH)
+
 # Favicons
 LD_DEFAULT_FAVICON_PROVIDER = 'https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url={url}&size=32'
 LD_FAVICON_PROVIDER = os.getenv('LD_FAVICON_PROVIDER', LD_DEFAULT_FAVICON_PROVIDER)

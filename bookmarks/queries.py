@@ -1,7 +1,9 @@
 from typing import Optional
 
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Q, QuerySet, Exists, OuterRef, Case, When, F, CharField
+from django.db.models import Q, QuerySet, Exists, OuterRef, Case, When, CharField
+from django.db.models.expressions import RawSQL
 from django.db.models.functions import Lower
 
 from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
@@ -85,10 +87,18 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, search: Bo
                 output_field=CharField()
             ))
 
+        # For SQLite, if the ICU extension is loaded, use the custom collation
+        # loaded into the connection. This results in an improved sort order for
+        # unicode characters (umlauts, etc.)
+        if settings.USE_SQLITE and settings.USE_SQLITE_ICU_EXTENSION:
+            order_field = RawSQL('effective_title COLLATE ICU', ())
+        else:
+            order_field = 'effective_title'
+
         if search.sort == BookmarkSearch.SORT_TITLE_ASC:
-            query_set = query_set.order_by('effective_title')
+            query_set = query_set.order_by(order_field)
         elif search.sort == BookmarkSearch.SORT_TITLE_DESC:
-            query_set = query_set.order_by('-effective_title')
+            query_set = query_set.order_by(order_field).reverse()
 
     return query_set
 
