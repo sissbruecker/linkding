@@ -9,9 +9,9 @@ class BookmarkSearchFormTest(TestCase, BookmarkFactoryMixin):
         # no params
         search = BookmarkSearch()
         form = BookmarkSearchForm(search)
-        self.assertIsNone(form['q'].initial)
-        self.assertIsNone(form['sort'].initial)
-        self.assertIsNone(form['user'].initial)
+        self.assertEqual(form['q'].initial, '')
+        self.assertEqual(form['sort'].initial, BookmarkSearch.SORT_ADDED_DESC)
+        self.assertEqual(form['user'].initial, '')
 
         # with params
         search = BookmarkSearch(q='search query', sort=BookmarkSearch.SORT_ADDED_ASC, user='user123')

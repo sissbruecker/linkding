@@ -31,10 +31,8 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin):
 
         self.assertIn(needle, html)
 
-    def assertNoHiddenInput(self, html: str, name: str, value: str = None):
+    def assertNoHiddenInput(self, html: str, name: str):
         needle = f'<input type="hidden" name="{name}"'
-        if value is not None:
-            needle += f' value="{value}"'
 
         self.assertNotIn(needle, html)
 
@@ -51,6 +49,6 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin):
         url = '/test?q=foo&user=john&sort=title_asc'
         rendered_template = self.render_template(url)
 
-        self.assertHiddenInput(rendered_template, 'user')
-        self.assertNoHiddenInput(rendered_template, 'q', 'foo')
-        self.assertHiddenInput(rendered_template, 'sort', 'title_asc')
+        self.assertHiddenInput(rendered_template, 'user', 'john')
+        self.assertNoHiddenInput(rendered_template, 'q')
+        self.assertNoHiddenInput(rendered_template, 'sort')

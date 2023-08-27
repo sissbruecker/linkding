@@ -174,9 +174,16 @@ class BookmarkSearch:
 
 
 class BookmarkSearchForm(forms.Form):
+    SORT_CHOICES = [
+        (BookmarkSearch.SORT_ADDED_ASC, 'Added ↑'),
+        (BookmarkSearch.SORT_ADDED_DESC, 'Added ↓'),
+        (BookmarkSearch.SORT_TITLE_ASC, 'Title ↑'),
+        (BookmarkSearch.SORT_TITLE_DESC, 'Title ↓'),
+    ]
+
     q = forms.CharField()
     user = forms.ChoiceField()
-    sort = forms.CharField()
+    sort = forms.ChoiceField(choices=SORT_CHOICES)
 
     def __init__(self, search: BookmarkSearch, editable_fields: List[str] = None, users: List[User] = None):
         super().__init__()
@@ -188,14 +195,14 @@ class BookmarkSearchForm(forms.Form):
             user_choices.insert(0, ('', 'Everyone'))
             self.fields['user'].choices = user_choices
 
-        for param in search.modified_params:
+        for param in search.params:
             # set initial values for modified params
             self.fields[param].initial = search.__dict__[param]
 
             # Mark non-editable modified fields as hidden. That way, templates
             # rendering a form can just loop over hidden_fields to ensure that
             # all necessary search options are kept when submitting the form.
-            if param not in editable_fields:
+            if search.is_modified(param) and param not in editable_fields:
                 self.fields[param].widget = forms.HiddenInput()
 
 

@@ -38,10 +38,8 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
 
         self.assertIn(needle, html)
 
-    def assertNoHiddenInput(self, html: str, name: str, value: str = None):
+    def assertNoHiddenInput(self, html: str, name: str):
         needle = f'<input type="hidden" name="{name}"'
-        if value is not None:
-            needle += f' value="{value}"'
 
         self.assertNotIn(needle, html)
 

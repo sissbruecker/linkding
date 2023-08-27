@@ -40,6 +40,41 @@
       }
     }
   }
+
+  // Group search options button with search button
+  .input-group input[type='submit'] {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .dropdown button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .dropdown {
+    margin-left: -1px;
+  }
+
+  // Search option menu styles
+  .dropdown {
+    .menu {
+      padding: $unit-4;
+      min-width: 220px;
+    }
+
+    &:focus-within {
+      .menu {
+        display: block;
+      }
+    }
+
+    .menu .actions {
+      margin-top: $unit-4;
+      display: flex;
+      justify-content: space-between;
+    }
+  }
 }
 
 /* Bookmark list */
