@@ -33,13 +33,39 @@ RUN mkdir /opt/venv && \
     /opt/venv/bin/pip install -Ur requirements.txt
 
 
+FROM python-base AS compile-icu
+RUN apt-get update && apt-get -y install libicu-dev libsqlite3-dev wget unzip
+WORKDIR /etc/linkding
+
+# Defines SQLite version
+# Since this is only needed for downloading the header files this probably
+# doesn't need to be up-to-date, assuming the SQLite APIs used by the ICU
+# extension do not change
+ARG SQLITE_RELEASE_YEAR=2023
+ARG SQLITE_RELEASE=3430000
+
+# Compile the ICU extension needed for case-insensitive search and ordering
+# with SQLite. This does:
+# - Download SQLite amalgamation for header files
+# - Download ICU extension source file
+# - Compile ICU extension
+RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQLITE_RELEASE}.zip && \
+    unzip sqlite-amalgamation-${SQLITE_RELEASE}.zip && \
+    cp sqlite-amalgamation-${SQLITE_RELEASE}/sqlite3.h ./sqlite3.h && \
+    cp sqlite-amalgamation-${SQLITE_RELEASE}/sqlite3ext.h ./sqlite3ext.h && \
+    wget https://www.sqlite.org/src/raw/ext/icu/icu.c?name=91c021c7e3e8bbba286960810fa303295c622e323567b2e6def4ce58e4466e60 -O icu.c && \
+    gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
+
+
 FROM python:3.10.6-slim-buster as final
-RUN apt-get update && apt-get -y install mime-support libpq-dev curl
+RUN apt-get update && apt-get -y install mime-support libpq-dev libicu-dev curl
 WORKDIR /etc/linkding
 # copy prod dependencies
 COPY --from=prod-deps /opt/venv /opt/venv
 # copy output from build stage
 COPY --from=python-build /etc/linkding/static static/
+# copy compiled icu extension
+COPY --from=compile-icu /etc/linkding/libicu.so libicu.so
 # copy application code
 COPY . .
 # Expose uwsgi server at port 9090
