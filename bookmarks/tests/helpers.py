@@ -81,6 +81,7 @@ class BookmarkFactoryMixin:
                                  with_tags: bool = False,
                                  user: User = None):
         user = user or self.get_or_create_test_user()
+        bookmarks = []
 
         if not prefix:
             if archived:
@@ -105,7 +106,11 @@ class BookmarkFactoryMixin:
             if with_tags:
                 tag_name = f'{tag_prefix} {i}{suffix}'
                 tags = [self.setup_tag(name=tag_name)]
-            self.setup_bookmark(url=url, title=title, is_archived=archived, shared=shared, tags=tags, user=user)
+            bookmark = self.setup_bookmark(url=url, title=title, is_archived=archived, shared=shared, tags=tags,
+                                           user=user)
+            bookmarks.append(bookmark)
+
+        return bookmarks
 
     def get_numbered_bookmark(self, title: str):
         return Bookmark.objects.get(title=title)
@@ -127,6 +132,9 @@ class BookmarkFactoryMixin:
         user.profile.enable_public_sharing = enable_public_sharing
         user.profile.save()
         return user
+
+    def get_random_string(self, length: int = 32):
+        return get_random_string(length=length)
 
 
 class HtmlTestMixin:
