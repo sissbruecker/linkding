@@ -419,6 +419,25 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(query='!unread'))
         self.assertCountEqual(list(query), unread_bookmarks)
 
+    def test_query_bookmarks_filter_shared(self):
+        unshared_bookmarks = self.setup_numbered_bookmarks(5)
+        shared_bookmarks = self.setup_numbered_bookmarks(5, shared=True)
+
+        # Filter is off
+        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_OFF)
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), unshared_bookmarks + shared_bookmarks)
+
+        # Filter for shared
+        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_YES)
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), shared_bookmarks)
+
+        # Filter for unshared
+        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_NO)
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), unshared_bookmarks)
+
     def test_query_bookmark_tags_should_return_all_tags_for_empty_query(self):
         self.setup_tag_search_data()
 
@@ -661,6 +680,29 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_archived_bookmark_tags(self.user, self.profile,
                                                      BookmarkSearch(query=f'!untagged #{tag.name}'))
         self.assertCountEqual(list(query), [])
+
+    def test_query_bookmark_tags_filter_shared(self):
+        unshared_bookmarks = self.setup_numbered_bookmarks(5, with_tags=True)
+        shared_bookmarks = self.setup_numbered_bookmarks(5, with_tags=True, shared=True)
+
+        unshared_tags = self.get_tags_from_bookmarks(unshared_bookmarks)
+        shared_tags = self.get_tags_from_bookmarks(shared_bookmarks)
+        all_tags = unshared_tags + shared_tags
+
+        # Filter is off
+        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_OFF)
+        query = queries.query_bookmark_tags(self.user, self.profile, search)
+        self.assertCountEqual(list(query), all_tags)
+
+        # Filter for shared
+        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_YES)
+        query = queries.query_bookmark_tags(self.user, self.profile, search)
+        self.assertCountEqual(list(query), shared_tags)
+
+        # Filter for unshared
+        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_NO)
+        query = queries.query_bookmark_tags(self.user, self.profile, search)
+        self.assertCountEqual(list(query), unshared_tags)
 
     def test_query_shared_bookmarks(self):
         user1 = self.setup_user(enable_sharing=True)
