@@ -1,13 +1,9 @@
-from os import path
-
+from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
 
 from bookmarks.services import tasks
-
-icu_extension_path = './libicu.so'
-icu_extension_exists = path.exists(icu_extension_path)
 
 
 @receiver(user_logged_in)
@@ -19,9 +15,9 @@ def user_logged_in(sender, request, user, **kwargs):
 def extend_sqlite(connection=None, **kwargs):
     # Load ICU extension into Sqlite connection to support case-insensitive
     # comparisons with unicode characters
-    if connection.vendor == 'sqlite' and icu_extension_exists:
+    if connection.vendor == 'sqlite' and settings.USE_SQLITE_ICU_EXTENSION:
         connection.connection.enable_load_extension(True)
-        connection.connection.load_extension('./libicu')
+        connection.connection.load_extension(settings.SQLITE_ICU_EXTENSION_PATH.rstrip('.so'))
 
         with connection.cursor() as cursor:
             # Load an ICU collation for case-insensitive ordering.

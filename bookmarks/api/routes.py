@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 from bookmarks import queries
 from bookmarks.api.serializers import BookmarkSerializer, TagSerializer
-from bookmarks.models import Bookmark, BookmarkFilters, Tag, User
+from bookmarks.models import Bookmark, BookmarkSearch, Tag, User
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark, website_loader
 from bookmarks.services.website_loader import WebsiteMetadata
 
@@ -34,8 +34,8 @@ class BookmarkViewSet(viewsets.GenericViewSet,
         user = self.request.user
         # For list action, use query set that applies search and tag projections
         if self.action == 'list':
-            query_string = self.request.GET.get('q')
-            return queries.query_bookmarks(user, user.profile, query_string)
+            search = BookmarkSearch.from_request(self.request)
+            return queries.query_bookmarks(user, user.profile, search)
 
         # For single entity actions use default query set without projections
         return Bookmark.objects.all().filter(owner=user)
@@ -46,8 +46,8 @@ class BookmarkViewSet(viewsets.GenericViewSet,
     @action(methods=['get'], detail=False)
     def archived(self, request):
         user = request.user
-        query_string = request.GET.get('q')
-        query_set = queries.query_archived_bookmarks(user, user.profile, query_string)
+        search = BookmarkSearch.from_request(request)
+        query_set = queries.query_archived_bookmarks(user, user.profile, search)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer_class()
         data = serializer(page, many=True).data
@@ -55,10 +55,10 @@ class BookmarkViewSet(viewsets.GenericViewSet,
 
     @action(methods=['get'], detail=False)
     def shared(self, request):
-        filters = BookmarkFilters(request)
-        user = User.objects.filter(username=filters.user).first()
+        search = BookmarkSearch.from_request(request)
+        user = User.objects.filter(username=search.user).first()
         public_only = not request.user.is_authenticated
-        query_set = queries.query_shared_bookmarks(user, request.user_profile, filters.query, public_only)
+        query_set = queries.query_shared_bookmarks(user, request.user_profile, search, public_only)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer_class()
         data = serializer(page, many=True).data

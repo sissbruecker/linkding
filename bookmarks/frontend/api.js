@@ -3,10 +3,10 @@ export class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  listBookmarks(filters, options = { limit: 100, offset: 0, path: "" }) {
+  listBookmarks(search, options = { limit: 100, offset: 0, path: "" }) {
     const query = [`limit=${options.limit}`, `offset=${options.offset}`];
-    Object.keys(filters).forEach((key) => {
-      const value = filters[key];
+    Object.keys(search).forEach((key) => {
+      const value = search[key];
       if (value) {
         query.push(`${key}=${encodeURIComponent(value)}`);
       }

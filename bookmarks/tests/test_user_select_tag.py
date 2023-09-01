@@ -2,7 +2,7 @@ from django.db.models import QuerySet
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
-from bookmarks.models import BookmarkFilters, User
+from bookmarks.models import BookmarkSearch, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -12,32 +12,42 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
         request.user_profile = self.get_or_create_test_user().profile
-        filters = BookmarkFilters(request)
+        search = BookmarkSearch.from_request(request)
         context = RequestContext(request, {
             'request': request,
-            'filters': filters,
+            'search': search,
             'users': users,
         })
         template_to_render = Template(
             '{% load bookmarks %}'
-            '{% user_select filters users %}'
+            '{% user_select search users %}'
         )
         return template_to_render.render(context)
 
     def assertUserOption(self, html: str, user: User, selected: bool = False):
         self.assertInHTML(f'''
-          <option value="{user.username}"
-                  {'selected' if selected else ''}
-                  data-is-user-option>
+          <option value="{user.username}" {'selected' if selected else ''}>
             {user.username}
           </option>        
         ''', html)
+
+    def assertHiddenInput(self, html: str, name: str, value: str = None):
+        needle = f'<input type="hidden" name="{name}"'
+        if value is not None:
+            needle += f' value="{value}"'
+
+        self.assertIn(needle, html)
+
+    def assertNoHiddenInput(self, html: str, name: str):
+        needle = f'<input type="hidden" name="{name}"'
+
+        self.assertNotIn(needle, html)
 
     def test_empty_option(self):
         rendered_template = self.render_template('/test')
 
         self.assertInHTML(f'''
-          <option value="">Everyone</option>        
+          <option value="" selected="">Everyone</option>        
         ''', rendered_template)
 
     def test_render_user_options(self):
@@ -60,19 +70,19 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
 
         self.assertUserOption(rendered_template, user1, True)
 
-    def test_render_hidden_inputs_for_filter_params(self):
-        # Should render hidden inputs if query param exists
-        url = '/test?q=foo&user=john'
+    def test_hidden_inputs(self):
+        # Without params
+        url = '/test'
         rendered_template = self.render_template(url)
 
-        self.assertInHTML('''
-            <input type="hidden" name="q" value="foo">
-        ''', rendered_template)
+        self.assertNoHiddenInput(rendered_template, 'user')
+        self.assertNoHiddenInput(rendered_template, 'q')
+        self.assertNoHiddenInput(rendered_template, 'sort')
 
-        # Should not render hidden inputs if query param does not exist
-        url = '/test?user=john'
+        # With params
+        url = '/test?q=foo&user=john&sort=title_asc'
         rendered_template = self.render_template(url)
 
-        self.assertInHTML('''
-            <input type="hidden" name="q" value="foo">
-        ''', rendered_template, count=0)
+        self.assertNoHiddenInput(rendered_template, 'user')
+        self.assertHiddenInput(rendered_template, 'q', 'foo')
+        self.assertHiddenInput(rendered_template, 'sort', 'title_asc')

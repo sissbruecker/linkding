@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = "Enable WAL journal mode when using an SQLite database"
 
     def handle(self, *args, **options):
-        if settings.DATABASES['default']['ENGINE'] != 'django.db.backends.sqlite3':
+        if not settings.USE_SQLITE:
             return
 
         connection = connections['default']

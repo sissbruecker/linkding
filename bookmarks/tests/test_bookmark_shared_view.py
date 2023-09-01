@@ -1,3 +1,4 @@
+import urllib.parse
 from typing import List
 
 from django.contrib.auth.models import User
@@ -45,24 +46,25 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def assertVisibleUserOptions(self, response, users: List[User]):
         html = response.content.decode()
-        self.assertContains(response, 'data-is-user-option', count=len(users))
 
+        user_options = [
+            '<option value="" selected="">Everyone</option>'
+        ]
         for user in users:
-            self.assertInHTML(f'''
-              <option value="{user.username}" data-is-user-option>
-                {user.username}
-              </option>        
-            ''', html)
+            user_options.append(f'<option value="{user.username}">{user.username}</option>')
+        user_select_html = f'''
+        <select name="user" class="form-select" required="" id="id_user">
+            {''.join(user_options)}
+        </select>
+        '''
 
-    def assertInvisibleUserOptions(self, response, users: List[User]):
+        self.assertInHTML(user_select_html, html)
+
+    def assertEditLink(self, response, url):
         html = response.content.decode()
-
-        for user in users:
-            self.assertInHTML(f'''
-              <option value="{user.username}" data-is-user-option>
-                {user.username}
-              </option>        
-            ''', html, count=0)
+        self.assertInHTML(f'''
+            <a href="{url}">Edit</a>        
+        ''', html)
 
     def test_should_list_shared_bookmarks_from_all_users_that_have_sharing_enabled(self):
         self.authenticate()
@@ -267,41 +269,33 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_should_list_users_with_shared_bookmarks_if_sharing_is_enabled(self):
         self.authenticate()
         expected_visible_users = [
-            self.setup_user(enable_sharing=True),
-            self.setup_user(enable_sharing=True),
+            self.setup_user(name='user_a', enable_sharing=True),
+            self.setup_user(name='user_b', enable_sharing=True),
         ]
         self.setup_bookmark(shared=True, user=expected_visible_users[0])
         self.setup_bookmark(shared=True, user=expected_visible_users[1])
 
-        expected_invisible_users = [
-            self.setup_user(enable_sharing=True),
-            self.setup_user(enable_sharing=False),
-        ]
-        self.setup_bookmark(shared=False, user=expected_invisible_users[0])
-        self.setup_bookmark(shared=True, user=expected_invisible_users[1])
+        self.setup_bookmark(shared=False, user=self.setup_user(enable_sharing=True))
+        self.setup_bookmark(shared=True, user=self.setup_user(enable_sharing=False))
 
         response = self.client.get(reverse('bookmarks:shared'))
         self.assertVisibleUserOptions(response, expected_visible_users)
-        self.assertInvisibleUserOptions(response, expected_invisible_users)
 
     def test_should_list_only_users_with_publicly_shared_bookmarks_without_login(self):
+        # users with public sharing enabled
         expected_visible_users = [
-            self.setup_user(enable_sharing=True, enable_public_sharing=True),
-            self.setup_user(enable_sharing=True, enable_public_sharing=True),
+            self.setup_user(name='user_a', enable_sharing=True, enable_public_sharing=True),
+            self.setup_user(name='user_b', enable_sharing=True, enable_public_sharing=True),
         ]
         self.setup_bookmark(shared=True, user=expected_visible_users[0])
         self.setup_bookmark(shared=True, user=expected_visible_users[1])
 
-        expected_invisible_users = [
-            self.setup_user(enable_sharing=True),
-            self.setup_user(enable_sharing=True),
-        ]
-        self.setup_bookmark(shared=True, user=expected_invisible_users[0])
-        self.setup_bookmark(shared=True, user=expected_invisible_users[1])
+        # users with public sharing disabled
+        self.setup_bookmark(shared=True, user=self.setup_user(enable_sharing=True))
+        self.setup_bookmark(shared=True, user=self.setup_user(enable_sharing=True))
 
         response = self.client.get(reverse('bookmarks:shared'))
         self.assertVisibleUserOptions(response, expected_visible_users)
-        self.assertInvisibleUserOptions(response, expected_invisible_users)
 
     def test_should_open_bookmarks_in_new_page_by_default(self):
         self.authenticate()
@@ -334,3 +328,44 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse('bookmarks:shared'))
 
         self.assertVisibleBookmarks(response, visible_bookmarks, '_self')
+
+    def test_edit_link_return_url_respects_search_options(self):
+        self.authenticate()
+        user = self.get_or_create_test_user()
+        user.profile.enable_sharing = True
+        user.profile.save()
+
+        bookmark = self.setup_bookmark(title='foo', shared=True, user=user)
+        edit_url = reverse('bookmarks:edit', args=[bookmark.id])
+        base_url = reverse('bookmarks:shared')
+
+        # without query params
+        return_url = urllib.parse.quote(base_url)
+        url = f'{edit_url}?return_url={return_url}'
+
+        response = self.client.get(base_url)
+        self.assertEditLink(response, url)
+
+        # with query
+        url_params = '?q=foo'
+        return_url = urllib.parse.quote(base_url + url_params)
+        url = f'{edit_url}?return_url={return_url}'
+
+        response = self.client.get(base_url + url_params)
+        self.assertEditLink(response, url)
+
+        # with query and user
+        url_params = f'?q=foo&user={user.username}'
+        return_url = urllib.parse.quote(base_url + url_params)
+        url = f'{edit_url}?return_url={return_url}'
+
+        response = self.client.get(base_url + url_params)
+        self.assertEditLink(response, url)
+
+        # with query and sort and page
+        url_params = '?q=foo&sort=title_asc&page=2'
+        return_url = urllib.parse.quote(base_url + url_params)
+        url = f'{edit_url}?return_url={return_url}'
+
+        response = self.client.get(base_url + url_params)
+        self.assertEditLink(response, url)

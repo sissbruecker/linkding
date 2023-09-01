@@ -113,9 +113,9 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
             self.assertPageLink(rendered_template, page_number, page_number == current_page, expected_occurrences)
         self.assertTruncationIndicators(rendered_template, 1)
 
-    def test_extend_existing_query(self):
-        rendered_template = self.render_template(100, 10, 2, url='/test?q=cake')
-        self.assertPrevLink(rendered_template, 1, href='?q=cake&page=1')
-        self.assertPageLink(rendered_template, 1, False, href='?q=cake&page=1')
-        self.assertPageLink(rendered_template, 2, True, href='?q=cake&page=2')
-        self.assertNextLink(rendered_template, 3, href='?q=cake&page=3')
+    def test_respects_search_parameters(self):
+        rendered_template = self.render_template(100, 10, 2, url='/test?q=cake&sort=title_asc&page=2')
+        self.assertPrevLink(rendered_template, 1, href='?q=cake&sort=title_asc&page=1')
+        self.assertPageLink(rendered_template, 1, False, href='?q=cake&sort=title_asc&page=1')
+        self.assertPageLink(rendered_template, 2, True, href='?q=cake&sort=title_asc&page=2')
+        self.assertNextLink(rendered_template, 3, href='?q=cake&sort=title_asc&page=3')

@@ -1,32 +1,35 @@
 from typing import Optional
 
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Q, QuerySet, Exists, OuterRef
+from django.db.models import Q, QuerySet, Exists, OuterRef, Case, When, CharField
+from django.db.models.expressions import RawSQL
+from django.db.models.functions import Lower
 
-from bookmarks.models import Bookmark, Tag, UserProfile
+from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
 from bookmarks.utils import unique
 
 
-def query_bookmarks(user: User, profile: UserProfile, query_string: str) -> QuerySet:
-    return _base_bookmarks_query(user, profile, query_string) \
+def query_bookmarks(user: User, profile: UserProfile, search: BookmarkSearch) -> QuerySet:
+    return _base_bookmarks_query(user, profile, search) \
         .filter(is_archived=False)
 
 
-def query_archived_bookmarks(user: User, profile: UserProfile, query_string: str) -> QuerySet:
-    return _base_bookmarks_query(user, profile, query_string) \
+def query_archived_bookmarks(user: User, profile: UserProfile, search: BookmarkSearch) -> QuerySet:
+    return _base_bookmarks_query(user, profile, search) \
         .filter(is_archived=True)
 
 
-def query_shared_bookmarks(user: Optional[User], profile: UserProfile, query_string: str,
+def query_shared_bookmarks(user: Optional[User], profile: UserProfile, search: BookmarkSearch,
                            public_only: bool) -> QuerySet:
     conditions = Q(shared=True) & Q(owner__profile__enable_sharing=True)
     if public_only:
         conditions = conditions & Q(owner__profile__enable_public_sharing=True)
 
-    return _base_bookmarks_query(user, profile, query_string).filter(conditions)
+    return _base_bookmarks_query(user, profile, search).filter(conditions)
 
 
-def _base_bookmarks_query(user: Optional[User], profile: UserProfile, query_string: str) -> QuerySet:
+def _base_bookmarks_query(user: Optional[User], profile: UserProfile, search: BookmarkSearch) -> QuerySet:
     query_set = Bookmark.objects
 
     # Filter for user
@@ -34,7 +37,7 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, query_stri
         query_set = query_set.filter(owner=user)
 
     # Split query into search terms and tags
-    query = parse_query_string(query_string)
+    query = parse_query_string(search.query)
 
     # Filter for search terms and tags
     for term in query['search_terms']:
@@ -67,38 +70,66 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, query_stri
         )
 
     # Sort by date added
-    query_set = query_set.order_by('-date_added')
+    if search.sort == BookmarkSearch.SORT_ADDED_ASC:
+        query_set = query_set.order_by('date_added')
+    elif search.sort == BookmarkSearch.SORT_ADDED_DESC:
+        query_set = query_set.order_by('-date_added')
+
+    # Sort by title
+    if search.sort == BookmarkSearch.SORT_TITLE_ASC or search.sort == BookmarkSearch.SORT_TITLE_DESC:
+        # For the title, the resolved_title logic from the Bookmark entity needs
+        # to be replicated as there is no corresponding database field
+        query_set = query_set.annotate(
+            effective_title=Case(
+                When(Q(title__isnull=False) & ~Q(title__exact=''), then=Lower('title')),
+                When(Q(website_title__isnull=False) & ~Q(website_title__exact=''), then=Lower('website_title')),
+                default=Lower('url'),
+                output_field=CharField()
+            ))
+
+        # For SQLite, if the ICU extension is loaded, use the custom collation
+        # loaded into the connection. This results in an improved sort order for
+        # unicode characters (umlauts, etc.)
+        if settings.USE_SQLITE and settings.USE_SQLITE_ICU_EXTENSION:
+            order_field = RawSQL('effective_title COLLATE ICU', ())
+        else:
+            order_field = 'effective_title'
+
+        if search.sort == BookmarkSearch.SORT_TITLE_ASC:
+            query_set = query_set.order_by(order_field)
+        elif search.sort == BookmarkSearch.SORT_TITLE_DESC:
+            query_set = query_set.order_by(order_field).reverse()
 
     return query_set
 
 
-def query_bookmark_tags(user: User, profile: UserProfile, query_string: str) -> QuerySet:
-    bookmarks_query = query_bookmarks(user, profile, query_string)
+def query_bookmark_tags(user: User, profile: UserProfile, search: BookmarkSearch) -> QuerySet:
+    bookmarks_query = query_bookmarks(user, profile, search)
 
     query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
 
     return query_set.distinct()
 
 
-def query_archived_bookmark_tags(user: User, profile: UserProfile, query_string: str) -> QuerySet:
-    bookmarks_query = query_archived_bookmarks(user, profile, query_string)
+def query_archived_bookmark_tags(user: User, profile: UserProfile, search: BookmarkSearch) -> QuerySet:
+    bookmarks_query = query_archived_bookmarks(user, profile, search)
 
     query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
 
     return query_set.distinct()
 
 
-def query_shared_bookmark_tags(user: Optional[User], profile: UserProfile, query_string: str,
+def query_shared_bookmark_tags(user: Optional[User], profile: UserProfile, search: BookmarkSearch,
                                public_only: bool) -> QuerySet:
-    bookmarks_query = query_shared_bookmarks(user, profile, query_string, public_only)
+    bookmarks_query = query_shared_bookmarks(user, profile, search, public_only)
 
     query_set = Tag.objects.filter(bookmark__in=bookmarks_query)
 
     return query_set.distinct()
 
 
-def query_shared_bookmark_users(profile: UserProfile, query_string: str, public_only: bool) -> QuerySet:
-    bookmarks_query = query_shared_bookmarks(None, profile, query_string, public_only)
+def query_shared_bookmark_users(profile: UserProfile, search: BookmarkSearch, public_only: bool) -> QuerySet:
+    bookmarks_query = query_shared_bookmarks(None, profile, search, public_only)
 
     query_set = User.objects.filter(bookmark__in=bookmarks_query)
 

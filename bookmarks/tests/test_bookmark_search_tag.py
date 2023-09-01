@@ -2,7 +2,7 @@ from django.db.models import QuerySet
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
-from bookmarks.models import BookmarkFilters, Tag
+from bookmarks.models import BookmarkSearch, Tag
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -12,31 +12,43 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin):
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
         request.user_profile = self.get_or_create_test_user().profile
-        filters = BookmarkFilters(request)
+        search = BookmarkSearch.from_request(request)
         context = RequestContext(request, {
             'request': request,
-            'filters': filters,
+            'search': search,
             'tags': tags,
         })
         template_to_render = Template(
             '{% load bookmarks %}'
-            '{% bookmark_search filters tags %}'
+            '{% bookmark_search search tags %}'
         )
         return template_to_render.render(context)
 
-    def test_render_hidden_inputs_for_filter_params(self):
-        # Should render hidden inputs if query param exists
-        url = '/test?q=foo&user=john'
+    def assertHiddenInput(self, html: str, name: str, value: str = None):
+        needle = f'<input type="hidden" name="{name}"'
+        if value is not None:
+            needle += f' value="{value}"'
+
+        self.assertIn(needle, html)
+
+    def assertNoHiddenInput(self, html: str, name: str):
+        needle = f'<input type="hidden" name="{name}"'
+
+        self.assertNotIn(needle, html)
+
+    def test_hidden_inputs(self):
+        # Without params
+        url = '/test'
         rendered_template = self.render_template(url)
 
-        self.assertInHTML('''
-            <input type="hidden" name="user" value="john">
-        ''', rendered_template)
+        self.assertNoHiddenInput(rendered_template, 'user')
+        self.assertNoHiddenInput(rendered_template, 'q')
+        self.assertNoHiddenInput(rendered_template, 'sort')
 
-        # Should not render hidden inputs if query param does not exist
-        url = '/test?q=foo'
+        # With params
+        url = '/test?q=foo&user=john&sort=title_asc'
         rendered_template = self.render_template(url)
 
-        self.assertInHTML('''
-            <input type="hidden" name="user" value="john">
-        ''', rendered_template, count=0)
+        self.assertHiddenInput(rendered_template, 'user', 'john')
+        self.assertNoHiddenInput(rendered_template, 'q')
+        self.assertNoHiddenInput(rendered_template, 'sort')

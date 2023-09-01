@@ -13,10 +13,10 @@
     <section class="content-area col-2">
       <div class="content-area-header">
         <h2>Shared bookmarks</h2>
-        {% bookmark_search bookmark_list.filters tag_cloud.tags mode='shared' %}
+        {% bookmark_search bookmark_list.search tag_cloud.tags mode='shared' %}
       </div>
 
-      <form class="bookmark-actions" action="{% url 'bookmarks:shared.action' %}?return_url={{ bookmark_list.return_url }}"
+      <form class="bookmark-actions" action="{{ bookmark_list.action_url|safe }}"
             method="post">
         {% csrf_token %}
 
@@ -32,7 +32,7 @@
         <h2>User</h2>
       </div>
       <div>
-        {% user_select filters users %}
+        {% user_select bookmark_list.search users %}
         <br>
       </div>
       <div class="content-area-header">

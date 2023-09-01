@@ -10,7 +10,7 @@
   export let tags;
   export let mode = '';
   export let apiClient;
-  export let filters;
+  export let search;
   export let linkTarget = '_blank';
 
   let isFocus = false;
@@ -115,11 +115,11 @@
 
     if (value && value.length >= 3) {
       const path = mode ? `/${mode}` : ''
-      const suggestionFilters = {
-        ...filters,
+      const suggestionSearch = {
+        ...search,
         q: value
       }
-      const fetchedBookmarks = await apiClient.listBookmarks(suggestionFilters, {limit: 5, offset: 0, path})
+      const fetchedBookmarks = await apiClient.listBookmarks(suggestionSearch, {limit: 5, offset: 0, path})
       bookmarks = fetchedBookmarks.map(bookmark => {
         const fullLabel = bookmark.title || bookmark.website_title || bookmark.url
         const label = clampText(fullLabel, 60)

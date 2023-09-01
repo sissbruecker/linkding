@@ -1,5 +1,5 @@
-from typing import List
 import urllib.parse
+from typing import List
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -55,6 +55,21 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         for tag in tags:
             self.assertTrue(tag.name in selected_tags.text, msg=f'Selected tags do not contain: {tag.name}')
+
+    def assertEditLink(self, response, url):
+        html = response.content.decode()
+        self.assertInHTML(f'''
+            <a href="{url}">Edit</a>        
+        ''', html)
+
+    def assertBulkActionForm(self, response, url: str):
+        html = collapse_whitespace(response.content.decode())
+        needle = collapse_whitespace(f'''
+            <form class="bookmark-actions"
+                action="{url}"
+                method="post" autocomplete="off">
+        ''')
+        self.assertIn(needle, html)
 
     def test_should_list_unarchived_and_user_owned_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
@@ -220,30 +235,60 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertVisibleBookmarks(response, visible_bookmarks, '_self')
 
-    def test_edit_link_return_url_should_contain_query_params(self):
+    def test_edit_link_return_url_respects_search_options(self):
         bookmark = self.setup_bookmark(title='foo')
+        edit_url = reverse('bookmarks:edit', args=[bookmark.id])
+        base_url = reverse('bookmarks:index')
 
         # without query params
-        url = reverse('bookmarks:index')
-        response = self.client.get(url)
-        html = response.content.decode()
-        edit_url = reverse('bookmarks:edit', args=[bookmark.id])
-        return_url = urllib.parse.quote_plus(url)
+        return_url = urllib.parse.quote(base_url)
+        url = f'{edit_url}?return_url={return_url}'
 
-        self.assertInHTML(f'''
-            <a href="{edit_url}?return_url={return_url}">Edit</a>        
-        ''', html)
+        response = self.client.get(base_url)
+        self.assertEditLink(response, url)
 
-        # with query params
-        url = reverse('bookmarks:index') + '?q=foo&user=user'
-        response = self.client.get(url)
-        html = response.content.decode()
-        edit_url = reverse('bookmarks:edit', args=[bookmark.id])
-        return_url = urllib.parse.quote_plus(url)
+        # with query
+        url_params = '?q=foo'
+        return_url = urllib.parse.quote(base_url + url_params)
+        url = f'{edit_url}?return_url={return_url}'
 
-        self.assertInHTML(f'''
-            <a href="{edit_url}?return_url={return_url}">Edit</a>        
-        ''', html)
+        response = self.client.get(base_url + url_params)
+        self.assertEditLink(response, url)
+
+        # with query and sort and page
+        url_params = '?q=foo&sort=title_asc&page=2'
+        return_url = urllib.parse.quote(base_url + url_params)
+        url = f'{edit_url}?return_url={return_url}'
+
+        response = self.client.get(base_url + url_params)
+        self.assertEditLink(response, url)
+
+    def test_bulk_edit_respects_search_options(self):
+        action_url = reverse('bookmarks:index.action')
+        base_url = reverse('bookmarks:index')
+
+        # without params
+        return_url = urllib.parse.quote_plus(base_url)
+        url = f'{action_url}?return_url={return_url}'
+
+        response = self.client.get(base_url)
+        self.assertBulkActionForm(response, url)
+
+        # with query
+        url_params = '?q=foo'
+        return_url = urllib.parse.quote_plus(base_url + url_params)
+        url = f'{action_url}?q=foo&return_url={return_url}'
+
+        response = self.client.get(base_url + url_params)
+        self.assertBulkActionForm(response, url)
+
+        # with query and sort
+        url_params = '?q=foo&sort=title_asc'
+        return_url = urllib.parse.quote_plus(base_url + url_params)
+        url = f'{action_url}?q=foo&sort=title_asc&return_url={return_url}'
+
+        response = self.client.get(base_url + url_params)
+        self.assertBulkActionForm(response, url)
 
     def test_allowed_bulk_actions(self):
         url = reverse('bookmarks:index')
