@@ -70,6 +70,25 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
                             expected_status_code=status.HTTP_200_OK)
         self.assertBookmarkListEqual(response.data['results'], bookmarks)
 
+    def test_list_bookmarks_filter_shared(self):
+        self.authenticate()
+        unshared_bookmarks = self.setup_numbered_bookmarks(5)
+        shared_bookmarks = self.setup_numbered_bookmarks(5, shared=True)
+
+        # Filter off
+        response = self.get(reverse('bookmarks:bookmark-list'), expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], unshared_bookmarks + shared_bookmarks)
+
+        # Filter shared
+        response = self.get(reverse('bookmarks:bookmark-list') + '?filter_shared=yes',
+                            expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], shared_bookmarks)
+
+        # Filter unshared
+        response = self.get(reverse('bookmarks:bookmark-list') + '?filter_shared=no',
+                            expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual(response.data['results'], unshared_bookmarks)
+
     def test_list_bookmarks_should_respect_sort(self):
         self.authenticate()
         bookmarks = self.setup_numbered_bookmarks(5)
