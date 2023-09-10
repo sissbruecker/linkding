@@ -8,6 +8,13 @@ class ModalBehavior {
   }
 
   onToggleClick() {
+    const contentSelector = this.toggle.getAttribute("modal-content");
+    const content = document.querySelector(contentSelector);
+    if (!content) {
+      return;
+    }
+
+    // Create modal
     const modal = document.createElement("div");
     modal.classList.add("modal", "active");
     modal.innerHTML = `
@@ -30,13 +37,9 @@ class ModalBehavior {
     `;
 
     // Teleport content element
-    const contentSelector = this.toggle.getAttribute("modal-content");
-    const content = document.querySelector(contentSelector);
     const contentOwner = content.parentElement;
-    if (content) {
-      const contentContainer = modal.querySelector(".content");
-      contentContainer.append(content);
-    }
+    const contentContainer = modal.querySelector(".content");
+    contentContainer.append(content);
     this.content = content;
     this.contentOwner = contentOwner;
 
