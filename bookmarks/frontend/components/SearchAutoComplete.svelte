@@ -103,7 +103,7 @@
     }
 
     // Recent search suggestions
-    const search = searchHistory.getRecentSearches(value, 5).map(value => ({
+    const recentSearches = searchHistory.getRecentSearches(value, 5).map(value => ({
       type: 'search',
       index: nextIndex(),
       label: value,
@@ -132,7 +132,7 @@
       })
     }
 
-    updateSuggestions(search, bookmarks, tagSuggestions)
+    updateSuggestions(recentSearches, bookmarks, tagSuggestions)
 
     if (hasSuggestions()) {
       open()
@@ -143,17 +143,17 @@
 
   const debouncedLoadSuggestions = debounce(loadSuggestions)
 
-  function updateSuggestions(search, bookmarks, tagSuggestions) {
-    search = search || []
+  function updateSuggestions(recentSearches, bookmarks, tagSuggestions) {
+    recentSearches = recentSearches || []
     bookmarks = bookmarks || []
     tagSuggestions = tagSuggestions || []
     suggestions = {
-      search,
+      recentSearches,
       bookmarks,
       tags: tagSuggestions,
       total: [
         ...tagSuggestions,
-        ...search,
+        ...recentSearches,
         ...bookmarks,
       ]
     }
@@ -215,10 +215,10 @@
       </li>
     {/each}
 
-    {#if suggestions.search.length > 0}
+    {#if suggestions.recentSearches.length > 0}
       <li class="menu-item group-item">Recent Searches</li>
     {/if}
-    {#each suggestions.search as suggestion}
+    {#each suggestions.recentSearches as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
         <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
           {suggestion.label}

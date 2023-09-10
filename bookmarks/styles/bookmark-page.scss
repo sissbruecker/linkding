@@ -58,7 +58,7 @@
     border-bottom-right-radius: 0;
   }
 
-  .dropdown button {
+  .dropdown-toggle {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
@@ -71,7 +71,7 @@
   .dropdown {
     .menu {
       padding: $unit-4;
-      min-width: 220px;
+      min-width: 250px;
     }
 
     &:focus-within {
@@ -84,6 +84,23 @@
       margin-top: $unit-4;
       display: flex;
       justify-content: space-between;
+    }
+
+    .radio-group {
+      .form-label {
+        padding-bottom: 0;
+      }
+      .form-radio.form-inline {
+        margin: 0 $unit-2 0 0;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        column-gap: $unit-1;
+      }
+      .form-icon {
+        top: 0;
+        position: relative;
+      }
     }
   }
 }

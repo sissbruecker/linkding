@@ -130,21 +130,28 @@ class BookmarkSearch:
     SORT_TITLE_ASC = 'title_asc'
     SORT_TITLE_DESC = 'title_desc'
 
-    params = ['q', 'user', 'sort']
+    FILTER_SHARED_OFF = ''
+    FILTER_SHARED_SHARED = 'shared'
+    FILTER_SHARED_UNSHARED = 'unshared'
+
+    params = ['q', 'user', 'sort', 'shared']
     defaults = {
         'q': '',
         'user': '',
         'sort': SORT_ADDED_DESC,
+        'shared': FILTER_SHARED_OFF,
     }
 
     def __init__(self,
                  q: str = defaults['q'],
                  query: str = defaults['q'],  # alias for q
                  user: str = defaults['user'],
-                 sort: str = defaults['sort']):
+                 sort: str = defaults['sort'],
+                 shared: str = defaults['shared']):
         self.q = q or query
         self.user = user
         self.sort = sort
+        self.shared = shared
 
     @property
     def query(self):
@@ -180,10 +187,16 @@ class BookmarkSearchForm(forms.Form):
         (BookmarkSearch.SORT_TITLE_ASC, 'Title ↑'),
         (BookmarkSearch.SORT_TITLE_DESC, 'Title ↓'),
     ]
+    FILTER_SHARED_CHOICES = [
+        (BookmarkSearch.FILTER_SHARED_OFF, 'Off'),
+        (BookmarkSearch.FILTER_SHARED_SHARED, 'Shared'),
+        (BookmarkSearch.FILTER_SHARED_UNSHARED, 'Unshared'),
+    ]
 
     q = forms.CharField()
     user = forms.ChoiceField()
     sort = forms.ChoiceField(choices=SORT_CHOICES)
+    shared = forms.ChoiceField(choices=FILTER_SHARED_CHOICES, widget=forms.RadioSelect)
 
     def __init__(self, search: BookmarkSearch, editable_fields: List[str] = None, users: List[User] = None):
         super().__init__()

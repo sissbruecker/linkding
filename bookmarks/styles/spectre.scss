@@ -63,6 +63,19 @@ a:visited:hover {
   transition: none !important;
 }
 
+// Fix radio button sub-pixel size
+.form-radio .form-icon {
+  width: 14px;
+  height: 14px;
+  border-width: 1px;
+}
+
+.form-radio input:checked + .form-icon::before {
+  top: 3px;
+  left: 3px;
+  transform: unset;
+}
+
 // Make code work with light and dark theme
 code {
   color: $gray-color-dark;

@@ -27,6 +27,16 @@
         <label for="{{ form.sort.id_for_label }}" class="form-label">Sort by</label>
         {{ form.sort|add_class:"form-select select-sm" }}
       </div>
+      <div class="form-group radio-group">
+        <div class="form-label">Shared filter</div>
+        {% for radio in form.shared %}
+          <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
+            {{ radio.tag }}
+            <i class="form-icon"></i>
+            {{ radio.choice_label }}
+          </label>
+        {% endfor %}
+      </div>
       <div class="actions">
         <button type="submit" class="btn btn-sm btn-primary">Apply</button>
       </div>
@@ -47,6 +57,7 @@
     const search = {
       q: '{{ search.query }}',
       user: '{{ search.user }}',
+      shared: '{{ search.shared }}',
     }
     const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
     const input = document.querySelector('#search input[name="q"]')
