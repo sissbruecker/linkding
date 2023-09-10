@@ -210,7 +210,7 @@ ul.bookmark-list {
     display: none;
     max-height: 300px;
     margin: $unit-1 0;
-    overflow: auto;
+    overflow-y: auto;
   }
 
   &.show-notes .notes,
@@ -249,6 +249,7 @@ ul.bookmark-list .notes-content {
     padding: $unit-1 $unit-2;
     background-color: $code-bg-color;
     border-radius: $unit-1;
+    overflow-x: auto;
   }
 
   pre code {
