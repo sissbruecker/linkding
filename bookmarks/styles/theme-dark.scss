@@ -44,6 +44,10 @@ a:focus, .btn:focus {
   border-color: $dt-primary-button-color;
 }
 
+.form-radio input:checked + .form-icon::before {
+  background: $light-color;
+}
+
 // Pagination
 .pagination .page-item.active a {
   background: $dt-primary-button-color;

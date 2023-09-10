@@ -196,7 +196,7 @@ class BookmarkSearchForm(forms.Form):
     q = forms.CharField()
     user = forms.ChoiceField()
     sort = forms.ChoiceField(choices=SORT_CHOICES)
-    filter_shared = forms.ChoiceField(choices=FILTER_SHARED_CHOICES)
+    filter_shared = forms.ChoiceField(choices=FILTER_SHARED_CHOICES, widget=forms.RadioSelect)
 
     def __init__(self, search: BookmarkSearch, editable_fields: List[str] = None, users: List[User] = None):
         super().__init__()

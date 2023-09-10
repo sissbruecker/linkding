@@ -58,7 +58,7 @@
     border-bottom-right-radius: 0;
   }
 
-  .dropdown button {
+  .dropdown-toggle {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
@@ -71,7 +71,7 @@
   .dropdown {
     .menu {
       padding: $unit-4;
-      min-width: 220px;
+      min-width: 250px;
     }
 
     &:focus-within {
