@@ -78,13 +78,13 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
         self.assertNoHiddenInput(rendered_template, 'user')
         self.assertNoHiddenInput(rendered_template, 'q')
         self.assertNoHiddenInput(rendered_template, 'sort')
-        self.assertNoHiddenInput(rendered_template, 'filter_shared')
+        self.assertNoHiddenInput(rendered_template, 'shared')
 
         # With params
-        url = '/test?q=foo&user=john&sort=title_asc&filter_shared=yes'
+        url = '/test?q=foo&user=john&sort=title_asc&shared=shared'
         rendered_template = self.render_template(url)
 
         self.assertNoHiddenInput(rendered_template, 'user')
         self.assertHiddenInput(rendered_template, 'q', 'foo')
         self.assertHiddenInput(rendered_template, 'sort', 'title_asc')
-        self.assertHiddenInput(rendered_template, 'filter_shared', 'yes')
+        self.assertHiddenInput(rendered_template, 'shared', 'shared')

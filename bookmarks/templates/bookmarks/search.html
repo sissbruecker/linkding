@@ -29,7 +29,7 @@
       </div>
       <div class="form-group radio-group">
         <div class="form-label">Shared filter</div>
-        {% for radio in form.filter_shared %}
+        {% for radio in form.shared %}
           <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
             {{ radio.tag }}
             <i class="form-icon"></i>
@@ -57,6 +57,7 @@
     const search = {
       q: '{{ search.query }}',
       user: '{{ search.user }}',
+      shared: '{{ search.shared }}',
     }
     const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
     const input = document.querySelector('#search input[name="q"]')

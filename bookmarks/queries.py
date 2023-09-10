@@ -70,9 +70,9 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, search: Bo
         )
 
     # Shared filter
-    if search.filter_shared == BookmarkSearch.FILTER_SHARED_YES:
+    if search.shared == BookmarkSearch.FILTER_SHARED_SHARED:
         query_set = query_set.filter(shared=True)
-    elif search.filter_shared == BookmarkSearch.FILTER_SHARED_NO:
+    elif search.shared == BookmarkSearch.FILTER_SHARED_UNSHARED:
         query_set = query_set.filter(shared=False)
 
     # Sort by date added

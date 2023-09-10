@@ -12,18 +12,18 @@ class BookmarkSearchFormTest(TestCase, BookmarkFactoryMixin):
         self.assertEqual(form['q'].initial, '')
         self.assertEqual(form['sort'].initial, BookmarkSearch.SORT_ADDED_DESC)
         self.assertEqual(form['user'].initial, '')
-        self.assertEqual(form['filter_shared'].initial, '')
+        self.assertEqual(form['shared'].initial, '')
 
         # with params
         search = BookmarkSearch(q='search query',
                                 sort=BookmarkSearch.SORT_ADDED_ASC,
                                 user='user123',
-                                filter_shared=BookmarkSearch.FILTER_SHARED_YES)
+                                shared=BookmarkSearch.FILTER_SHARED_SHARED)
         form = BookmarkSearchForm(search)
         self.assertEqual(form['q'].initial, 'search query')
         self.assertEqual(form['sort'].initial, BookmarkSearch.SORT_ADDED_ASC)
         self.assertEqual(form['user'].initial, 'user123')
-        self.assertEqual(form['filter_shared'].initial, BookmarkSearch.FILTER_SHARED_YES)
+        self.assertEqual(form['shared'].initial, BookmarkSearch.FILTER_SHARED_SHARED)
 
     def test_user_options(self):
         users = [
@@ -57,9 +57,9 @@ class BookmarkSearchFormTest(TestCase, BookmarkFactoryMixin):
         search = BookmarkSearch(q='search query',
                                 sort=BookmarkSearch.SORT_ADDED_ASC,
                                 user='user123',
-                                filter_shared=BookmarkSearch.FILTER_SHARED_YES)
+                                shared=BookmarkSearch.FILTER_SHARED_SHARED)
         form = BookmarkSearchForm(search)
-        self.assertCountEqual(form.hidden_fields(), [form['q'], form['sort'], form['user'], form['filter_shared']])
+        self.assertCountEqual(form.hidden_fields(), [form['q'], form['sort'], form['user'], form['shared']])
 
         # some modified params are editable fields
         search = BookmarkSearch(q='search query',

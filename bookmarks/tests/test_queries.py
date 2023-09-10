@@ -424,17 +424,17 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         shared_bookmarks = self.setup_numbered_bookmarks(5, shared=True)
 
         # Filter is off
-        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_OFF)
+        search = BookmarkSearch(shared=BookmarkSearch.FILTER_SHARED_OFF)
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertCountEqual(list(query), unshared_bookmarks + shared_bookmarks)
 
         # Filter for shared
-        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_YES)
+        search = BookmarkSearch(shared=BookmarkSearch.FILTER_SHARED_SHARED)
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertCountEqual(list(query), shared_bookmarks)
 
         # Filter for unshared
-        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_NO)
+        search = BookmarkSearch(shared=BookmarkSearch.FILTER_SHARED_UNSHARED)
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertCountEqual(list(query), unshared_bookmarks)
 
@@ -690,17 +690,17 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         all_tags = unshared_tags + shared_tags
 
         # Filter is off
-        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_OFF)
+        search = BookmarkSearch(shared=BookmarkSearch.FILTER_SHARED_OFF)
         query = queries.query_bookmark_tags(self.user, self.profile, search)
         self.assertCountEqual(list(query), all_tags)
 
         # Filter for shared
-        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_YES)
+        search = BookmarkSearch(shared=BookmarkSearch.FILTER_SHARED_SHARED)
         query = queries.query_bookmark_tags(self.user, self.profile, search)
         self.assertCountEqual(list(query), shared_tags)
 
         # Filter for unshared
-        search = BookmarkSearch(filter_shared=BookmarkSearch.FILTER_SHARED_NO)
+        search = BookmarkSearch(shared=BookmarkSearch.FILTER_SHARED_UNSHARED)
         query = queries.query_bookmark_tags(self.user, self.profile, search)
         self.assertCountEqual(list(query), unshared_tags)
 
