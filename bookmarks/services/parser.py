@@ -8,6 +8,7 @@ class NetscapeBookmark:
     href: str
     title: str
     description: str
+    notes: str
     date_added: str
     tag_string: str
     to_read: bool
@@ -26,6 +27,7 @@ class BookmarkParser(HTMLParser):
         self.tags = ''
         self.title = ''
         self.description = ''
+        self.notes = ''
         self.toread = ''
         self.private = ''
 
@@ -58,6 +60,7 @@ class BookmarkParser(HTMLParser):
             href=self.href,
             title='',
             description='',
+            notes='',
             date_added=self.add_date,
             tag_string=self.tags,
             to_read=self.toread == '1',
@@ -69,12 +72,16 @@ class BookmarkParser(HTMLParser):
         self.title = data.strip()
 
     def handle_dd_data(self, data):
-        self.description = data.strip()
+        desc = data.strip()
+        if '[linkding-notes]' in desc:
+            self.notes = desc.split('[linkding-notes]')[1].split('[/linkding-notes]')[0]
+        self.description = desc.split('[linkding-notes]')[0]
 
     def add_bookmark(self):
         if self.bookmark:
             self.bookmark.title = self.title
             self.bookmark.description = self.description
+            self.bookmark.notes = self.notes
             self.bookmarks.append(self.bookmark)
         self.bookmark = None
         self.href = ''
@@ -82,6 +89,7 @@ class BookmarkParser(HTMLParser):
         self.tags = ''
         self.title = ''
         self.description = ''
+        self.notes = ''
         self.toread = ''
         self.private = ''
 

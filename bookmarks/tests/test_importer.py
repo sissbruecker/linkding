@@ -67,7 +67,8 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                             add_date='3', tags='bar-tag, other-tag'),
             BookmarkHtmlTag(href='https://example.com/unread', title='Unread title', description='Unread description',
                             add_date='3', to_read=True),
-            BookmarkHtmlTag(href='https://example.com/private', title='Private title', description='Private description',
+            BookmarkHtmlTag(href='https://example.com/private', title='Private title',
+                            description='Private description',
                             add_date='4', private=True),
         ]
         import_html = self.render_html(tags=html_tags)
@@ -90,7 +91,8 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                             add_date='333', tags='updated-bar-tag, updated-other-tag'),
             BookmarkHtmlTag(href='https://example.com/unread', title='Unread title', description='Unread description',
                             add_date='3', to_read=False),
-            BookmarkHtmlTag(href='https://example.com/private', title='Private title', description='Private description',
+            BookmarkHtmlTag(href='https://example.com/private', title='Private title',
+                            description='Private description',
                             add_date='4', private=False),
             BookmarkHtmlTag(href='https://baz.com', add_date='444', tags='baz-tag')
         ]
@@ -292,6 +294,40 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         self.assertEqual(bookmark1.shared, False)
         self.assertEqual(bookmark2.shared, False)
         self.assertEqual(bookmark3.shared, True)
+
+    def test_notes(self):
+        # initial notes
+        test_html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
+        <DD>Example description[linkding-notes]Example notes[/linkding-notes]
+        ''')
+        import_netscape_html(test_html, self.get_or_create_test_user(), ImportOptions())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(Bookmark.objects.all()[0].description, 'Example description')
+        self.assertEqual(Bookmark.objects.all()[0].notes, 'Example notes')
+
+        # update notes
+        test_html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
+        <DD>Example description[linkding-notes]Updated notes[/linkding-notes]
+        ''')
+        import_netscape_html(test_html, self.get_or_create_test_user(), ImportOptions())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(Bookmark.objects.all()[0].description, 'Example description')
+        self.assertEqual(Bookmark.objects.all()[0].notes, 'Updated notes')
+
+        # does not override existing notes if empty
+        test_html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
+        <DD>Example description
+        ''')
+        import_netscape_html(test_html, self.get_or_create_test_user(), ImportOptions())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(Bookmark.objects.all()[0].description, 'Example description')
+        self.assertEqual(Bookmark.objects.all()[0].notes, 'Updated notes')
 
     def test_schedule_snapshot_creation(self):
         user = self.get_or_create_test_user()
