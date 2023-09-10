@@ -24,6 +24,7 @@
 @import "../../node_modules/spectre.css/src/dropdowns";
 @import "../../node_modules/spectre.css/src/empty";
 @import "../../node_modules/spectre.css/src/menus";
+@import "../../node_modules/spectre.css/src/modals";
 @import "../../node_modules/spectre.css/src/pagination";
 @import "../../node_modules/spectre.css/src/tabs";
 @import "../../node_modules/spectre.css/src/toasts";
@@ -97,6 +98,18 @@ ul.menu li:first-child {
     background: none;
     font-size: 0.6rem;
     font-weight: bold;
+  }
+}
+
+.modal {
+  // Add border to separate from background in dark mode
+  .modal-container {
+    border: solid 1px $border-color;
+  }
+
+  // Fix modal header to use default color
+  .modal-header {
+    color: inherit;
   }
 }
 

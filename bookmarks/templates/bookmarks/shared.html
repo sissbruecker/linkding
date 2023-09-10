@@ -13,7 +13,10 @@
     <section class="content-area col-2">
       <div class="content-area-header">
         <h2>Shared bookmarks</h2>
-        {% bookmark_search bookmark_list.search tag_cloud.tags mode='shared' %}
+        <div class="header-controls">
+          {% bookmark_search bookmark_list.search tag_cloud.tags mode='shared' %}
+          <button ld-modal modal-content=".tag-cloud" class="btn ml-2 show-md">Tags</button>
+        </div>
       </div>
 
       <form class="bookmark-actions" action="{{ bookmark_list.action_url|safe }}"

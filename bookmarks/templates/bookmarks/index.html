@@ -14,9 +14,10 @@
     <section class="content-area col-2">
       <div class="content-area-header mb-0">
         <h2>Bookmarks</h2>
-        <div class="d-flex">
+        <div class="header-controls">
           {% bookmark_search bookmark_list.search tag_cloud.tags %}
           {% include 'bookmarks/bulk_edit/toggle.html' %}
+          <button ld-modal modal-content=".tag-cloud" class="btn ml-2 show-md">Tags</button>
         </div>
       </div>
 
