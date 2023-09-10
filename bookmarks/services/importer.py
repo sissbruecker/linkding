@@ -168,6 +168,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark],
                                                        'shared',
                                                        'title',
                                                        'description',
+                                                       'notes',
                                                        'owner'])
     # Bulk insert new bookmarks into DB
     Bookmark.objects.bulk_create(bookmarks_to_create)
@@ -214,5 +215,7 @@ def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark,
         bookmark.title = netscape_bookmark.title
     if netscape_bookmark.description:
         bookmark.description = netscape_bookmark.description
+    if netscape_bookmark.notes:
+        bookmark.notes = netscape_bookmark.notes
     if options.map_private_flag and not netscape_bookmark.private:
         bookmark.shared = True

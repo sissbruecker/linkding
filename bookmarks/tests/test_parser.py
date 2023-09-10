@@ -149,3 +149,73 @@ class ParserTestCase(TestCase, ImportTestMixin):
         ''')
         bookmarks = parse(html)
         self.assertEqual(bookmarks[0].private, False)
+
+    def test_notes(self):
+        # no description, no notes
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].description, '')
+        self.assertEqual(bookmarks[0].notes, '')
+
+        # description, no notes
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
+        <DD>Example description
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].description, 'Example description')
+        self.assertEqual(bookmarks[0].notes, '')
+
+        # description, notes
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
+        <DD>Example description[linkding-notes]Example notes[/linkding-notes]
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].description, 'Example description')
+        self.assertEqual(bookmarks[0].notes, 'Example notes')
+
+        # description, notes without closing tag
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
+        <DD>Example description[linkding-notes]Example notes
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].description, 'Example description')
+        self.assertEqual(bookmarks[0].notes, 'Example notes')
+
+        # no description, notes
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
+        <DD>[linkding-notes]Example notes[/linkding-notes]
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].description, '')
+        self.assertEqual(bookmarks[0].notes, 'Example notes')
+
+        # notes reset between bookmarks
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com/1" ADD_DATE="1">Example title</A>
+        <DD>[linkding-notes]Example notes[/linkding-notes]
+        <DT><A HREF="https://example.com/2" ADD_DATE="1">Example title</A>
+        <DD>Example description
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].description, '')
+        self.assertEqual(bookmarks[0].notes, 'Example notes')
+        self.assertEqual(bookmarks[1].description, 'Example description')
+        self.assertEqual(bookmarks[1].notes, '')
+
+    def test_unescape_content(self):
+        html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com" ADD_DATE="1">&lt;style&gt;: The Style Information element</A>
+        <DD>The &lt;style&gt; HTML element contains style information for a document, or part of a document.[linkding-notes]Interesting notes about the &lt;style&gt; HTML element.[/linkding-notes]
+        ''')
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].title,
+                         '<style>: The Style Information element')
+        self.assertEqual(bookmarks[0].description,
+                         'The <style> HTML element contains style information for a document, or part of a document.')
+        self.assertEqual(bookmarks[0].notes, 'Interesting notes about the <style> HTML element.')
