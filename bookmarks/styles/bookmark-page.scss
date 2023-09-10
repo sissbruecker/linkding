@@ -2,31 +2,36 @@
   grid-gap: $unit-10;
 }
 
-/* Bookmark search box */
-.bookmarks-page .search {
-  $searchbox-width: 180px;
-  $searchbox-width-md: 300px;
-  $searchbox-height: 1.8rem;
+/* Bookmark area header controls */
+.bookmarks-page .content-area-header {
+  --searchbox-max-width: 350px;
+  --searchbox-height: 1.8rem;
+
+  @media (max-width: $size-sm) {
+    --searchbox-max-width: initial;
+    flex-direction: column;
+  }
+}
+
+.bookmarks-page #search {
+  flex: 1 1 0;
+  display: flex;
+  justify-content: flex-end;
 
   // Regular input
   input[type='search'] {
-    width: $searchbox-width;
-    height: $searchbox-height;
+    height: var(--searchbox-height);
     -webkit-appearance: none;
-
-    @media (min-width: $control-width-md) {
-      width: $searchbox-width-md;
-    }
   }
 
   // Enhanced auto-complete input
   // This needs a bit more wrangling to make the CSS component align with the attached button
   .form-autocomplete {
-    height: $searchbox-height;
+    height: var(--searchbox-height);
 
     .form-autocomplete-input {
-      width: $searchbox-width;
-      height: $searchbox-height;
+      width: 100%;
+      height: var(--searchbox-height);
 
       input[type='search'] {
         width: 100%;
@@ -34,11 +39,17 @@
         margin: 0;
         border: none;
       }
-
-      @media (min-width: $control-width-md) {
-        width: $searchbox-width-md;
-      }
     }
+  }
+
+  .input-group {
+    flex: 1 1 0;
+    min-width: var(--searchbox-min-width);
+    max-width: var(--searchbox-max-width);
+  }
+
+  .input-group > :first-child {
+    flex: 1 1 0;
   }
 
   // Group search options button with search button

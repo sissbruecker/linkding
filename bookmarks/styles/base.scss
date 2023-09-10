@@ -50,13 +50,19 @@ section.content-area {
     border-bottom: solid 1px $border-color;
     display: flex;
     flex-wrap: wrap;
+    column-gap: $unit-6;
     padding-bottom: $unit-2;
     margin-bottom: $unit-4;
 
     h2 {
+      flex: 0 0 auto;
       line-height: 1.8rem;
-      margin-right: auto;
       margin-bottom: 0;
+    }
+
+    .header-controls {
+      flex: 1 1 0;
+      display: flex;
     }
   }
 }
