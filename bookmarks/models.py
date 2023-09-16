@@ -173,6 +173,10 @@ class BookmarkSearch:
         return [field for field in self.params if self.is_modified(field)]
 
     @property
+    def has_modifications(self):
+        return len(self.modified_params) > 0
+
+    @property
     def query_params(self):
         return {param: self.__dict__[param] for param in self.modified_params}
 

@@ -69,3 +69,16 @@ class BookmarkSearchModelTest(TestCase):
                                          unread=BookmarkSearch.FILTER_UNREAD_YES)
         modified_params = bookmark_search.modified_params
         self.assertCountEqual(modified_params, ['q', 'sort', 'user', 'shared', 'unread'])
+
+    def test_has_modifications(self):
+        # no params
+        bookmark_search = BookmarkSearch()
+        self.assertFalse(bookmark_search.has_modifications)
+
+        # params are default values
+        bookmark_search = BookmarkSearch(q='', sort=BookmarkSearch.SORT_ADDED_DESC, user='', shared='')
+        self.assertFalse(bookmark_search.has_modifications)
+
+        # modified params
+        bookmark_search = BookmarkSearch(q='search query', sort=BookmarkSearch.SORT_ADDED_ASC)
+        self.assertTrue(bookmark_search.has_modifications)
