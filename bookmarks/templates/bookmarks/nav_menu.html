@@ -26,7 +26,7 @@
         </li>
       {% endif %}
       <li>
-        <a href="{% url 'bookmarks:index' %}?q=!unread" class="btn btn-link">Unread</a>
+        <a href="{% url 'bookmarks:index' %}?unread=yes" class="btn btn-link">Unread</a>
       </li>
       <li>
         <a href="{% url 'bookmarks:index' %}?q=!untagged" class="btn btn-link">Untagged</a>
@@ -65,7 +65,7 @@
         </li>
       {% endif %}
       <li style="padding-left: 1rem">
-        <a href="{% url 'bookmarks:index' %}?q=!unread" class="btn btn-link">Unread</a>
+        <a href="{% url 'bookmarks:index' %}?unread=yes" class="btn btn-link">Unread</a>
       </li>
       <li style="padding-left: 1rem">
         <a href="{% url 'bookmarks:index' %}?q=!untagged" class="btn btn-link">Untagged</a>

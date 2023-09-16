@@ -37,6 +37,16 @@
           </label>
         {% endfor %}
       </div>
+      <div class="form-group radio-group">
+        <div class="form-label">Unread filter</div>
+        {% for radio in form.unread %}
+          <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
+            {{ radio.tag }}
+            <i class="form-icon"></i>
+            {{ radio.choice_label }}
+          </label>
+        {% endfor %}
+      </div>
       <div class="actions">
         <button type="submit" class="btn btn-sm btn-primary">Apply</button>
       </div>
@@ -58,6 +68,7 @@
       q: '{{ search.query }}',
       user: '{{ search.user }}',
       shared: '{{ search.shared }}',
+      unread: '{{ search.unread }}',
     }
     const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
     const input = document.querySelector('#search input[name="q"]')

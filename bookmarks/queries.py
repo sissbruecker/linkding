@@ -63,11 +63,17 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, search: Bo
         query_set = query_set.filter(
             tags=None
         )
-    # Unread bookmarks
+    # Legacy unread bookmarks filter from query
     if query['unread']:
         query_set = query_set.filter(
             unread=True
         )
+
+    # Unread filter from bookmark search
+    if search.unread == BookmarkSearch.FILTER_UNREAD_YES:
+        query_set = query_set.filter(unread=True)
+    elif search.unread == BookmarkSearch.FILTER_UNREAD_NO:
+        query_set = query_set.filter(unread=False)
 
     # Shared filter
     if search.shared == BookmarkSearch.FILTER_SHARED_SHARED:
