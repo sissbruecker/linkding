@@ -13,17 +13,20 @@ class BookmarkSearchFormTest(TestCase, BookmarkFactoryMixin):
         self.assertEqual(form['sort'].initial, BookmarkSearch.SORT_ADDED_DESC)
         self.assertEqual(form['user'].initial, '')
         self.assertEqual(form['shared'].initial, '')
+        self.assertEqual(form['unread'].initial, '')
 
         # with params
         search = BookmarkSearch(q='search query',
                                 sort=BookmarkSearch.SORT_ADDED_ASC,
                                 user='user123',
-                                shared=BookmarkSearch.FILTER_SHARED_SHARED)
+                                shared=BookmarkSearch.FILTER_SHARED_SHARED,
+                                unread=BookmarkSearch.FILTER_UNREAD_YES)
         form = BookmarkSearchForm(search)
         self.assertEqual(form['q'].initial, 'search query')
         self.assertEqual(form['sort'].initial, BookmarkSearch.SORT_ADDED_ASC)
         self.assertEqual(form['user'].initial, 'user123')
         self.assertEqual(form['shared'].initial, BookmarkSearch.FILTER_SHARED_SHARED)
+        self.assertEqual(form['unread'].initial, BookmarkSearch.FILTER_UNREAD_YES)
 
     def test_user_options(self):
         users = [
@@ -57,9 +60,11 @@ class BookmarkSearchFormTest(TestCase, BookmarkFactoryMixin):
         search = BookmarkSearch(q='search query',
                                 sort=BookmarkSearch.SORT_ADDED_ASC,
                                 user='user123',
-                                shared=BookmarkSearch.FILTER_SHARED_SHARED)
+                                shared=BookmarkSearch.FILTER_SHARED_SHARED,
+                                unread=BookmarkSearch.FILTER_UNREAD_YES)
         form = BookmarkSearchForm(search)
-        self.assertCountEqual(form.hidden_fields(), [form['q'], form['sort'], form['user'], form['shared']])
+        self.assertCountEqual(form.hidden_fields(),
+                              [form['q'], form['sort'], form['user'], form['shared'], form['unread']])
 
         # some modified params are editable fields
         search = BookmarkSearch(q='search query',

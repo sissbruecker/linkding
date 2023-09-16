@@ -22,7 +22,7 @@ def bookmark_form(context, form: BookmarkForm, cancel_url: str, bookmark_id: int
 def bookmark_search(context, search: BookmarkSearch, tags: [Tag], mode: str = ''):
     tag_names = [tag.name for tag in tags]
     tags_string = build_tag_string(tag_names, ' ')
-    form = BookmarkSearchForm(search, editable_fields=['q', 'sort', 'shared'])
+    form = BookmarkSearchForm(search, editable_fields=['q', 'sort', 'shared', 'unread'])
     return {
         'request': context['request'],
         'search': search,

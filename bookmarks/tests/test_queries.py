@@ -394,30 +394,50 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.assertCountEqual(list(query), [])
 
     def test_query_bookmarks_unread_should_return_unread_bookmarks_only(self):
-        unread_bookmarks = [
-            self.setup_bookmark(unread=True),
-            self.setup_bookmark(unread=True),
-            self.setup_bookmark(unread=True),
-        ]
-        self.setup_bookmark()
-        self.setup_bookmark()
-        self.setup_bookmark()
+        unread_bookmarks = self.setup_numbered_bookmarks(5, unread=True)
+        read_bookmarks = self.setup_numbered_bookmarks(5, unread=False)
 
+        # Legacy query filter
         query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='!unread'))
         self.assertCountEqual(list(query), unread_bookmarks)
 
-    def test_query_archived_bookmarks_unread_should_return_unread_bookmarks_only(self):
-        unread_bookmarks = [
-            self.setup_bookmark(is_archived=True, unread=True),
-            self.setup_bookmark(is_archived=True, unread=True),
-            self.setup_bookmark(is_archived=True, unread=True),
-        ]
-        self.setup_bookmark(is_archived=True)
-        self.setup_bookmark(is_archived=True)
-        self.setup_bookmark(is_archived=True)
+        # Bookmark search filter - off
+        query = queries.query_bookmarks(self.user, self.profile,
+                                        BookmarkSearch(unread=BookmarkSearch.FILTER_UNREAD_OFF))
+        self.assertCountEqual(list(query), read_bookmarks + unread_bookmarks)
 
+        # Bookmark search filter - yes
+        query = queries.query_bookmarks(self.user, self.profile,
+                                        BookmarkSearch(unread=BookmarkSearch.FILTER_UNREAD_YES))
+        self.assertCountEqual(list(query), unread_bookmarks)
+
+        # Bookmark search filter - no
+        query = queries.query_bookmarks(self.user, self.profile,
+                                        BookmarkSearch(unread=BookmarkSearch.FILTER_UNREAD_NO))
+        self.assertCountEqual(list(query), read_bookmarks)
+
+    def test_query_archived_bookmarks_unread_should_return_unread_bookmarks_only(self):
+        unread_bookmarks = self.setup_numbered_bookmarks(5, unread=True, archived=True)
+        read_bookmarks = self.setup_numbered_bookmarks(5, unread=False, archived=True)
+
+        # Legacy query filter
         query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(query='!unread'))
         self.assertCountEqual(list(query), unread_bookmarks)
+
+        # Bookmark search filter - off
+        query = queries.query_archived_bookmarks(self.user, self.profile,
+                                                 BookmarkSearch(unread=BookmarkSearch.FILTER_UNREAD_OFF))
+        self.assertCountEqual(list(query), read_bookmarks + unread_bookmarks)
+
+        # Bookmark search filter - yes
+        query = queries.query_archived_bookmarks(self.user, self.profile,
+                                                 BookmarkSearch(unread=BookmarkSearch.FILTER_UNREAD_YES))
+        self.assertCountEqual(list(query), unread_bookmarks)
+
+        # Bookmark search filter - no
+        query = queries.query_archived_bookmarks(self.user, self.profile,
+                                                 BookmarkSearch(unread=BookmarkSearch.FILTER_UNREAD_NO))
+        self.assertCountEqual(list(query), read_bookmarks)
 
     def test_query_bookmarks_filter_shared(self):
         unshared_bookmarks = self.setup_numbered_bookmarks(5)
@@ -680,6 +700,31 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_archived_bookmark_tags(self.user, self.profile,
                                                      BookmarkSearch(query=f'!untagged #{tag.name}'))
         self.assertCountEqual(list(query), [])
+
+    def test_query_bookmark_tags_filter_unread(self):
+        unread_bookmarks = self.setup_numbered_bookmarks(5, unread=True, with_tags=True)
+        read_bookmarks = self.setup_numbered_bookmarks(5, unread=False, with_tags=True)
+        unread_tags = self.get_tags_from_bookmarks(unread_bookmarks)
+        read_tags = self.get_tags_from_bookmarks(read_bookmarks)
+
+        # Legacy query filter
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='!unread'))
+        self.assertCountEqual(list(query), unread_tags)
+
+        # Bookmark search filter - off
+        query = queries.query_bookmark_tags(self.user, self.profile,
+                                            BookmarkSearch(unread=BookmarkSearch.FILTER_UNREAD_OFF))
+        self.assertCountEqual(list(query), read_tags + unread_tags)
+
+        # Bookmark search filter - yes
+        query = queries.query_bookmark_tags(self.user, self.profile,
+                                            BookmarkSearch(unread=BookmarkSearch.FILTER_UNREAD_YES))
+        self.assertCountEqual(list(query), unread_tags)
+
+        # Bookmark search filter - no
+        query = queries.query_bookmark_tags(self.user, self.profile,
+                                            BookmarkSearch(unread=BookmarkSearch.FILTER_UNREAD_NO))
+        self.assertCountEqual(list(query), read_tags)
 
     def test_query_bookmark_tags_filter_shared(self):
         unshared_bookmarks = self.setup_numbered_bookmarks(5, with_tags=True)

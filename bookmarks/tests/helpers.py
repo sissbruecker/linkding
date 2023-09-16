@@ -77,6 +77,7 @@ class BookmarkFactoryMixin:
                                  suffix: str = '',
                                  tag_prefix: str = '',
                                  archived: bool = False,
+                                 unread: bool = False,
                                  shared: bool = False,
                                  with_tags: bool = False,
                                  user: User = None):
@@ -106,7 +107,12 @@ class BookmarkFactoryMixin:
             if with_tags:
                 tag_name = f'{tag_prefix} {i}{suffix}'
                 tags = [self.setup_tag(name=tag_name)]
-            bookmark = self.setup_bookmark(url=url, title=title, is_archived=archived, shared=shared, tags=tags,
+            bookmark = self.setup_bookmark(url=url,
+                                           title=title,
+                                           is_archived=archived,
+                                           unread=unread,
+                                           shared=shared,
+                                           tags=tags,
                                            user=user)
             bookmarks.append(bookmark)
 
