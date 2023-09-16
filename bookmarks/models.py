@@ -131,8 +131,8 @@ class BookmarkSearch:
     SORT_TITLE_DESC = 'title_desc'
 
     FILTER_SHARED_OFF = ''
-    FILTER_SHARED_SHARED = 'shared'
-    FILTER_SHARED_UNSHARED = 'unshared'
+    FILTER_SHARED_SHARED = 'yes'
+    FILTER_SHARED_UNSHARED = 'no'
 
     FILTER_UNREAD_OFF = ''
     FILTER_UNREAD_YES = 'yes'

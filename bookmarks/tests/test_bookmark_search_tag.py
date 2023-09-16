@@ -62,7 +62,7 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin):
         self.assertNoHiddenInput(rendered_template, 'unread')
 
         # With params
-        url = '/test?q=foo&user=john&sort=title_asc&shared=shared&unread=yes'
+        url = '/test?q=foo&user=john&sort=title_asc&shared=yes&unread=yes'
         rendered_template = self.render_template(url)
 
         self.assertHiddenInput(rendered_template, 'user', 'john')
@@ -101,7 +101,7 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin):
         self.assertUnmodifiedLabel(rendered_template, 'Unread filter')
 
         # Modified shared
-        url = '/test?shared=shared'
+        url = '/test?shared=yes'
         rendered_template = self.render_template(url)
         self.assertUnmodifiedLabel(rendered_template, 'Sort by', 'id_sort')
         self.assertModifiedLabel(rendered_template, 'Shared filter')
