@@ -1,6 +1,7 @@
 {% load widget_tweaks %}
 
 <form id="search" action="" method="get" role="search">
+  {% csrf_token %}
   <div class="input-group">
     <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
            value="{{ search.query }}">
@@ -24,7 +25,8 @@
     </button>
     <div class="menu text-sm" tabindex="0">
       <div class="form-group">
-        <label for="{{ form.sort.id_for_label }}" class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">Sort by</label>
+        <label for="{{ form.sort.id_for_label }}"
+               class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">Sort by</label>
         {{ form.sort|add_class:"form-select select-sm" }}
       </div>
       <div class="form-group radio-group">
@@ -49,6 +51,8 @@
       </div>
       <div class="actions">
         <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+        <button type="submit" class="btn btn-sm" formmethod="post" name="update_search_preferences">Save as default
+        </button>
       </div>
     </div>
   </div>

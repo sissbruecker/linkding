@@ -1,6 +1,8 @@
+import urllib.parse
+
 from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
-from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -17,6 +19,9 @@ _default_page_size = 30
 
 @login_required
 def index(request):
+    if request.method == 'POST':
+        return search_action(request)
+
     bookmark_list = contexts.ActiveBookmarkListContext(request)
     tag_cloud = contexts.ActiveTagCloudContext(request)
     return render(request, 'bookmarks/index.html', {
@@ -27,6 +32,9 @@ def index(request):
 
 @login_required
 def archived(request):
+    if request.method == 'POST':
+        return search_action(request)
+
     bookmark_list = contexts.ArchivedBookmarkListContext(request)
     tag_cloud = contexts.ArchivedTagCloudContext(request)
     return render(request, 'bookmarks/archive.html', {
@@ -36,6 +44,9 @@ def archived(request):
 
 
 def shared(request):
+    if request.method == 'POST':
+        return search_action(request)
+
     search = BookmarkSearch.from_request(request)
     bookmark_list = contexts.SharedBookmarkListContext(request)
     tag_cloud = contexts.SharedTagCloudContext(request)
@@ -46,6 +57,23 @@ def shared(request):
         'tag_cloud': tag_cloud,
         'users': users
     })
+
+
+def search_action(request):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
+    if 'update_search_preferences' in request.POST:
+        search = BookmarkSearch.from_request(request)
+        print('update_search_preferences', search)
+        # redirect to base url including new query params
+        base_url = request.path
+        query_params = search.query_params
+        query_string = urllib.parse.urlencode(query_params)
+        url = base_url if not query_string else base_url + '?' + query_string
+        return HttpResponseRedirect(url)
+
+    return HttpResponseBadRequest()
 
 
 def convert_tag_string(tag_string: str):

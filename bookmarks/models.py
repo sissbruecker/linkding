@@ -183,8 +183,9 @@ class BookmarkSearch:
     @staticmethod
     def from_request(request: WSGIRequest):
         initial_values = {}
+        query_dict = request.POST if request.method == 'POST' else request.GET
         for param in BookmarkSearch.params:
-            value = request.GET.get(param)
+            value = query_dict.get(param)
             if value:
                 initial_values[param] = value
 
