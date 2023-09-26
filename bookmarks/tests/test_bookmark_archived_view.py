@@ -327,3 +327,13 @@ class BookmarkArchivedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             <option value="bulk_unshare">Unshare</option>
           </select>
         ''', html)
+
+    def test_url_encode_bookmark_actions_url(self):
+        url = reverse('bookmarks:archived') + '?q=%23foo'
+        response = self.client.get(url)
+        html = response.content.decode()
+        soup = self.make_soup(html)
+        actions_form = soup.select('form.bookmark-actions')[0]
+
+        self.assertEqual(actions_form.attrs['action'],
+                         '/bookmarks/archived/action?q=%23foo&return_url=%2Fbookmarks%2Farchived%3Fq%3D%2523foo')
