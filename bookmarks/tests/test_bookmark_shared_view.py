@@ -5,10 +5,10 @@ from django.test import TestCase
 from django.urls import reverse
 
 from bookmarks.models import Bookmark, Tag, UserProfile
-from bookmarks.tests.helpers import BookmarkFactoryMixin, collapse_whitespace
+from bookmarks.tests.helpers import BookmarkFactoryMixin, collapse_whitespace, HtmlTestMixin
 
 
-class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
+class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def authenticate(self) -> None:
         user = self.get_or_create_test_user()
@@ -334,3 +334,13 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse('bookmarks:shared'))
 
         self.assertVisibleBookmarks(response, visible_bookmarks, '_self')
+
+    def test_url_encode_bookmark_actions_url(self):
+        url = reverse('bookmarks:shared') + '?q=%23foo'
+        response = self.client.get(url)
+        html = response.content.decode()
+        soup = self.make_soup(html)
+        actions_form = soup.select('form.bookmark-actions')[0]
+
+        self.assertEqual(actions_form.attrs['action'],
+                         '/bookmarks/shared/action?q=%23foo&return_url=%2Fbookmarks%2Fshared%3Fq%3D%2523foo')
