@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.21.1 (26/09/2023)
+
+### What's Changed
+* Fix bulk edit to respect searched tags by @sissbruecker in https://github.com/sissbruecker/linkding/pull/537
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.21.0...v1.21.1
+
+---
+
 ## v1.21.0 (25/08/2023)
 
 ### What's Changed
