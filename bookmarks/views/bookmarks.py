@@ -59,7 +59,7 @@ def shared(request):
 
 
 def search_action(request):
-    search = BookmarkSearch.from_request(request)
+    search = BookmarkSearch.from_request(request.POST)
 
     if 'save' in request.POST:
         if not request.user.is_authenticated:
@@ -195,14 +195,14 @@ def mark_as_read(request, bookmark_id: int):
 
 @login_required
 def index_action(request):
-    search = BookmarkSearch.from_request(request)
+    search = BookmarkSearch.from_request(request.GET)
     query = queries.query_bookmarks(request.user, request.user_profile, search)
     return action(request, query)
 
 
 @login_required
 def archived_action(request):
-    search = BookmarkSearch.from_request(request)
+    search = BookmarkSearch.from_request(request.GET)
     query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
     return action(request, query)
 

@@ -5,10 +5,10 @@ from typing import List
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.http import QueryDict
 
 from bookmarks.utils import unique
 from bookmarks.validators import BookmarkURLValidator
@@ -181,9 +181,8 @@ class BookmarkSearch:
         return {param: self.__dict__[param] for param in self.modified_params}
 
     @staticmethod
-    def from_request(request: WSGIRequest):
+    def from_request(query_dict: QueryDict):
         initial_values = {}
-        query_dict = request.POST if request.method == 'POST' else request.GET
         for param in BookmarkSearch.params:
             value = query_dict.get(param)
             if value:

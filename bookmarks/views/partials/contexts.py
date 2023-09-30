@@ -55,7 +55,7 @@ class BookmarkItem:
 class BookmarkListContext:
     def __init__(self, request: WSGIRequest) -> None:
         self.request = request
-        self.search = BookmarkSearch.from_request(self.request)
+        self.search = BookmarkSearch.from_request(self.request.GET)
 
         user = request.user
         user_profile = request.user_profile
@@ -176,7 +176,7 @@ class TagGroup:
 class TagCloudContext:
     def __init__(self, request: WSGIRequest) -> None:
         self.request = request
-        self.search = BookmarkSearch.from_request(self.request)
+        self.search = BookmarkSearch.from_request(self.request.GET)
 
         query_set = self.get_tag_query_set()
         tags = list(query_set)

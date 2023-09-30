@@ -6,10 +6,9 @@ from django.test import TestCase
 class BookmarkSearchModelTest(TestCase):
     def test_from_request(self):
         # no params
-        mock_request = Mock()
-        mock_request.GET = {}
+        query_dict = {}
 
-        search = BookmarkSearch.from_request(mock_request)
+        search = BookmarkSearch.from_request(query_dict)
         self.assertEqual(search.q, '')
         self.assertEqual(search.sort, BookmarkSearch.SORT_ADDED_DESC)
         self.assertEqual(search.user, '')
@@ -17,12 +16,12 @@ class BookmarkSearchModelTest(TestCase):
         self.assertEqual(search.unread, '')
 
         # some params
-        mock_request.GET = {
+        query_dict = {
             'q': 'search query',
             'user': 'user123',
         }
 
-        bookmark_search = BookmarkSearch.from_request(mock_request)
+        bookmark_search = BookmarkSearch.from_request(query_dict)
         self.assertEqual(bookmark_search.q, 'search query')
         self.assertEqual(bookmark_search.sort, BookmarkSearch.SORT_ADDED_DESC)
         self.assertEqual(bookmark_search.user, 'user123')
@@ -30,7 +29,7 @@ class BookmarkSearchModelTest(TestCase):
         self.assertEqual(bookmark_search.unread, '')
 
         # all params
-        mock_request.GET = {
+        query_dict = {
             'q': 'search query',
             'user': 'user123',
             'sort': BookmarkSearch.SORT_TITLE_ASC,
@@ -38,7 +37,7 @@ class BookmarkSearchModelTest(TestCase):
             'unread': BookmarkSearch.FILTER_UNREAD_YES,
         }
 
-        search = BookmarkSearch.from_request(mock_request)
+        search = BookmarkSearch.from_request(query_dict)
         self.assertEqual(search.q, 'search query')
         self.assertEqual(search.user, 'user123')
         self.assertEqual(search.sort, BookmarkSearch.SORT_TITLE_ASC)
