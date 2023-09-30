@@ -369,3 +369,37 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
 
         response = self.client.get(base_url + url_params)
         self.assertEditLink(response, url)
+
+    def test_apply_search_preferences(self):
+        # no params
+        response = self.client.post(reverse('bookmarks:shared'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('bookmarks:shared'))
+
+        # some params
+        response = self.client.post(reverse('bookmarks:shared'), {
+            'q': 'foo',
+            'sort': 'title_asc',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('bookmarks:shared') + '?q=foo&sort=title_asc')
+
+        # params with default value are removed
+        response = self.client.post(reverse('bookmarks:shared'), {
+            'q': 'foo',
+            'sort': 'added_desc',
+            'shared': '',
+            'unread': 'yes',
+            'user': '',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('bookmarks:shared') + '?q=foo&unread=yes')
+
+        # page is removed
+        response = self.client.post(reverse('bookmarks:shared'), {
+            'q': 'foo',
+            'sort': 'title_asc',
+            'page': '2',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('bookmarks:shared') + '?q=foo&sort=title_asc')

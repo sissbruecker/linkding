@@ -327,3 +327,37 @@ class BookmarkArchivedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             <option value="bulk_unshare">Unshare</option>
           </select>
         ''', html)
+
+    def test_apply_search_preferences(self):
+        # no params
+        response = self.client.post(reverse('bookmarks:archived'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('bookmarks:archived'))
+
+        # some params
+        response = self.client.post(reverse('bookmarks:archived'), {
+            'q': 'foo',
+            'sort': 'title_asc',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('bookmarks:archived') + '?q=foo&sort=title_asc')
+
+        # params with default value are removed
+        response = self.client.post(reverse('bookmarks:archived'), {
+            'q': 'foo',
+            'sort': 'added_desc',
+            'shared': '',
+            'unread': 'yes',
+            'user': '',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('bookmarks:archived') + '?q=foo&unread=yes')
+
+        # page is removed
+        response = self.client.post(reverse('bookmarks:archived'), {
+            'q': 'foo',
+            'sort': 'title_asc',
+            'page': '2',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('bookmarks:archived') + '?q=foo&sort=title_asc')
