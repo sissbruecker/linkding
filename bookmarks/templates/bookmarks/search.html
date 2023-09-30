@@ -1,12 +1,14 @@
 {% load widget_tweaks %}
 
-<form id="search" action="" method="get" role="search">
-  {% csrf_token %}
-  <div class="input-group">
+<div class="search-container">
+  <form id="search" class="input-group" action="" method="get" role="search">
     <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
            value="{{ search.query }}">
     <input type="submit" value="Search" class="btn input-group-btn">
-  </div>
+    {% for hidden_field in search_form.hidden_fields %}
+      {{ hidden_field }}
+    {% endfor %}
+  </form>
   <div class="search-options dropdown dropdown-right">
     <button type="button" class="btn dropdown-toggle {% if search.has_modifications %}badge{% endif %}">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2"
@@ -24,43 +26,47 @@
       </svg>
     </button>
     <div class="menu text-sm" tabindex="0">
-      <div class="form-group">
-        <label for="{{ form.sort.id_for_label }}"
-               class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">Sort by</label>
-        {{ form.sort|add_class:"form-select select-sm" }}
-      </div>
-      <div class="form-group radio-group">
-        <div class="form-label{% if 'shared' in search.modified_params %} text-bold{% endif %}">Shared filter</div>
-        {% for radio in form.shared %}
-          <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
-            {{ radio.tag }}
-            <i class="form-icon"></i>
-            {{ radio.choice_label }}
-          </label>
+      <form id="search_preferences" action="" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="{{ preferences_form.sort.id_for_label }}"
+                 class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">Sort by</label>
+          {{ preferences_form.sort|add_class:"form-select select-sm" }}
+        </div>
+        <div class="form-group radio-group">
+          <div class="form-label{% if 'shared' in search.modified_params %} text-bold{% endif %}">Shared filter</div>
+          {% for radio in preferences_form.shared %}
+            <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
+              {{ radio.tag }}
+              <i class="form-icon"></i>
+              {{ radio.choice_label }}
+            </label>
+          {% endfor %}
+        </div>
+        <div class="form-group radio-group">
+          <div class="form-label{% if 'unread' in search.modified_params %} text-bold{% endif %}">Unread filter</div>
+          {% for radio in preferences_form.unread %}
+            <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
+              {{ radio.tag }}
+              <i class="form-icon"></i>
+              {{ radio.choice_label }}
+            </label>
+          {% endfor %}
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn btn-sm btn-primary" name="apply">Apply</button>
+          <button type="submit" class="btn btn-sm" name="save">Save as default
+          </button>
+        </div>
+
+        {% for hidden_field in preferences_form.hidden_fields %}
+          {{ hidden_field }}
         {% endfor %}
-      </div>
-      <div class="form-group radio-group">
-        <div class="form-label{% if 'unread' in search.modified_params %} text-bold{% endif %}">Unread filter</div>
-        {% for radio in form.unread %}
-          <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
-            {{ radio.tag }}
-            <i class="form-icon"></i>
-            {{ radio.choice_label }}
-          </label>
-        {% endfor %}
-      </div>
-      <div class="actions">
-        <button type="submit" class="btn btn-sm btn-primary">Apply</button>
-        <button type="submit" class="btn btn-sm" formmethod="post" name="update_search_preferences">Save as default
-        </button>
-      </div>
+      </form>
     </div>
   </div>
+</div>
 
-  {% for hidden_field in form.hidden_fields %}
-    {{ hidden_field }}
-  {% endfor %}
-</form>
 
 {# Replace search input with auto-complete component #}
 <script type="application/javascript">
