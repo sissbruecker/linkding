@@ -1,12 +1,13 @@
-from unittest.mock import Mock
-from bookmarks.models import BookmarkSearch
+from django.http import QueryDict
 from django.test import TestCase
+
+from bookmarks.models import BookmarkSearch
 
 
 class BookmarkSearchModelTest(TestCase):
     def test_from_request(self):
         # no params
-        query_dict = {}
+        query_dict = QueryDict()
 
         search = BookmarkSearch.from_request(query_dict)
         self.assertEqual(search.q, '')
@@ -16,10 +17,7 @@ class BookmarkSearchModelTest(TestCase):
         self.assertEqual(search.unread, '')
 
         # some params
-        query_dict = {
-            'q': 'search query',
-            'user': 'user123',
-        }
+        query_dict = QueryDict('q=search query&user=user123')
 
         bookmark_search = BookmarkSearch.from_request(query_dict)
         self.assertEqual(bookmark_search.q, 'search query')
@@ -29,13 +27,7 @@ class BookmarkSearchModelTest(TestCase):
         self.assertEqual(bookmark_search.unread, '')
 
         # all params
-        query_dict = {
-            'q': 'search query',
-            'user': 'user123',
-            'sort': BookmarkSearch.SORT_TITLE_ASC,
-            'shared': BookmarkSearch.FILTER_SHARED_SHARED,
-            'unread': BookmarkSearch.FILTER_UNREAD_YES,
-        }
+        query_dict = QueryDict('q=search query&sort=title_asc&user=user123&shared=yes&unread=yes')
 
         search = BookmarkSearch.from_request(query_dict)
         self.assertEqual(search.q, 'search query')
@@ -81,3 +73,28 @@ class BookmarkSearchModelTest(TestCase):
         # modified params
         bookmark_search = BookmarkSearch(q='search query', sort=BookmarkSearch.SORT_ADDED_ASC)
         self.assertTrue(bookmark_search.has_modifications)
+
+    def test_preferences(self):
+        # no params
+        bookmark_search = BookmarkSearch()
+        self.assertEqual(bookmark_search.preferences, {
+            'sort': BookmarkSearch.SORT_ADDED_DESC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_OFF,
+        })
+
+        # with params
+        bookmark_search = BookmarkSearch(sort=BookmarkSearch.SORT_TITLE_DESC, unread=BookmarkSearch.FILTER_UNREAD_YES)
+        self.assertEqual(bookmark_search.preferences, {
+            'sort': BookmarkSearch.SORT_TITLE_DESC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        })
+
+        # only returns preferences
+        bookmark_search = BookmarkSearch(query='search query', user='user123')
+        self.assertEqual(bookmark_search.preferences, {
+            'sort': BookmarkSearch.SORT_ADDED_DESC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_OFF,
+        })

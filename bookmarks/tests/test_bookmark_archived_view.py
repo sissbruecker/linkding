@@ -361,3 +361,57 @@ class BookmarkArchivedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('bookmarks:archived') + '?q=foo&sort=title_asc')
+
+    def test_save_search_preferences(self):
+        user_profile = self.user.profile
+
+        # no params
+        self.client.post(reverse('bookmarks:archived'), {
+            'save': '',
+        })
+        user_profile.refresh_from_db()
+        self.assertEqual(user_profile.search_preferences, {
+            'sort': 'added_desc',
+            'shared': '',
+            'unread': '',
+        })
+
+        # with param
+        self.client.post(reverse('bookmarks:archived'), {
+            'save': '',
+            'sort': 'title_asc',
+        })
+        user_profile.refresh_from_db()
+        self.assertEqual(user_profile.search_preferences, {
+            'sort': 'title_asc',
+            'shared': '',
+            'unread': '',
+        })
+
+        # add a param
+        self.client.post(reverse('bookmarks:archived'), {
+            'save': '',
+            'sort': 'title_asc',
+            'unread': 'yes',
+        })
+        user_profile.refresh_from_db()
+        self.assertEqual(user_profile.search_preferences, {
+            'sort': 'title_asc',
+            'shared': '',
+            'unread': 'yes',
+        })
+
+        # ignores non-preferences
+        self.client.post(reverse('bookmarks:archived'), {
+            'save': '',
+            'sort': 'title_asc',
+            'q': 'foo',
+            'user': 'john',
+            'page': '3',
+        })
+        user_profile.refresh_from_db()
+        self.assertEqual(user_profile.search_preferences, {
+            'sort': 'title_asc',
+            'shared': '',
+            'unread': '',
+        })

@@ -180,6 +180,10 @@ class BookmarkSearch:
     def query_params(self):
         return {param: self.__dict__[param] for param in self.modified_params}
 
+    @property
+    def preferences(self):
+        return {param: self.__dict__[param] for param in self.params if param != 'q' and param != 'user'}
+
     @staticmethod
     def from_request(query_dict: QueryDict):
         initial_values = {}
@@ -286,6 +290,7 @@ class UserProfile(models.Model):
     enable_favicons = models.BooleanField(default=False, null=False)
     display_url = models.BooleanField(default=False, null=False)
     permanent_notes = models.BooleanField(default=False, null=False)
+    search_preferences = models.JSONField(default=dict, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
