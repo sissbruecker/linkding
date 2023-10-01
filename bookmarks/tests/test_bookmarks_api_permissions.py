@@ -111,3 +111,11 @@ class BookmarksApiPermissionsTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
 
         self.authenticate()
         self.get(f'{url}?url={check_url}', expected_status_code=status.HTTP_200_OK)
+
+    def test_user_profile_requires_authentication(self):
+        url = reverse('bookmarks:user-profile')
+
+        self.get(url, expected_status_code=status.HTTP_401_UNAUTHORIZED)
+
+        self.authenticate()
+        self.get(url, expected_status_code=status.HTTP_200_OK)
