@@ -64,7 +64,7 @@ def search_action(request):
     if 'save' in request.POST:
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
-        request.user_profile.search_preferences = search.preferences
+        request.user_profile.search_preferences = search.preferences_dict
         request.user_profile.save()
 
     # redirect to base url including new query params

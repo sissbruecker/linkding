@@ -133,7 +133,7 @@ class BookmarkSearchModelTest(TestCase):
     def test_preferences(self):
         # no params
         bookmark_search = BookmarkSearch()
-        self.assertEqual(bookmark_search.preferences, {
+        self.assertEqual(bookmark_search.preferences_dict, {
             'sort': BookmarkSearch.SORT_ADDED_DESC,
             'shared': BookmarkSearch.FILTER_SHARED_OFF,
             'unread': BookmarkSearch.FILTER_UNREAD_OFF,
@@ -141,7 +141,7 @@ class BookmarkSearchModelTest(TestCase):
 
         # with params
         bookmark_search = BookmarkSearch(sort=BookmarkSearch.SORT_TITLE_DESC, unread=BookmarkSearch.FILTER_UNREAD_YES)
-        self.assertEqual(bookmark_search.preferences, {
+        self.assertEqual(bookmark_search.preferences_dict, {
             'sort': BookmarkSearch.SORT_TITLE_DESC,
             'shared': BookmarkSearch.FILTER_SHARED_OFF,
             'unread': BookmarkSearch.FILTER_UNREAD_YES,
@@ -149,7 +149,7 @@ class BookmarkSearchModelTest(TestCase):
 
         # only returns preferences
         bookmark_search = BookmarkSearch(q='search query', user='user123')
-        self.assertEqual(bookmark_search.preferences, {
+        self.assertEqual(bookmark_search.preferences_dict, {
             'sort': BookmarkSearch.SORT_ADDED_DESC,
             'shared': BookmarkSearch.FILTER_SHARED_OFF,
             'unread': BookmarkSearch.FILTER_UNREAD_OFF,

@@ -143,13 +143,19 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         url = '/test'
         rendered_template = self.render_template(url)
 
-        self.assertIn('<button type="button" class="btn dropdown-toggle ">', rendered_template)
+        self.assertIn('<button type="button" class="btn dropdown-toggle">', rendered_template)
 
         # With modifications
         url = '/test?sort=title_asc'
         rendered_template = self.render_template(url)
 
         self.assertIn('<button type="button" class="btn dropdown-toggle badge">', rendered_template)
+
+        # Ignores non-preferences modifications
+        url = '/test?q=foo&user=john'
+        rendered_template = self.render_template(url)
+
+        self.assertIn('<button type="button" class="btn dropdown-toggle">', rendered_template)
 
     def test_modified_labels(self):
         # Without modifications

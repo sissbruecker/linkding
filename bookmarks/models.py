@@ -139,6 +139,7 @@ class BookmarkSearch:
     FILTER_UNREAD_NO = 'no'
 
     params = ['q', 'user', 'sort', 'shared', 'unread']
+    preferences = ['sort', 'shared', 'unread']
     defaults = {
         'q': '',
         'user': '',
@@ -173,16 +174,24 @@ class BookmarkSearch:
         return [field for field in self.params if self.is_modified(field)]
 
     @property
+    def modified_preferences(self):
+        return [preference for preference in self.preferences if self.is_modified(preference)]
+
+    @property
     def has_modifications(self):
         return len(self.modified_params) > 0
+
+    @property
+    def has_modified_preferences(self):
+        return len(self.modified_preferences) > 0
 
     @property
     def query_params(self):
         return {param: self.__dict__[param] for param in self.modified_params}
 
     @property
-    def preferences(self):
-        return {param: self.__dict__[param] for param in self.params if param != 'q' and param != 'user'}
+    def preferences_dict(self):
+        return {preference: self.__dict__[preference] for preference in self.preferences}
 
     @staticmethod
     def from_request(query_dict: QueryDict, preferences: dict = None):
