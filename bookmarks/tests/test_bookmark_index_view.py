@@ -408,3 +408,13 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             'shared': BookmarkSearch.FILTER_SHARED_OFF,
             'unread': BookmarkSearch.FILTER_UNREAD_OFF,
         })
+
+    def test_url_encode_bookmark_actions_url(self):
+        url = reverse('bookmarks:index') + '?q=%23foo'
+        response = self.client.get(url)
+        html = response.content.decode()
+        soup = self.make_soup(html)
+        actions_form = soup.select('form.bookmark-actions')[0]
+
+        self.assertEqual(actions_form.attrs['action'],
+                         '/bookmarks/action?q=%23foo&return_url=%2Fbookmarks%3Fq%3D%2523foo')
