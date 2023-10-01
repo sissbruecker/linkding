@@ -55,8 +55,9 @@
         </div>
         <div class="actions">
           <button type="submit" class="btn btn-sm btn-primary" name="apply">Apply</button>
-          <button type="submit" class="btn btn-sm" name="save">Save as default
-          </button>
+          {% if request.user.is_authenticated %}
+            <button type="submit" class="btn btn-sm" name="save">Save as default</button>
+          {% endif %}
         </div>
 
         {% for hidden_field in preferences_form.hidden_fields %}
