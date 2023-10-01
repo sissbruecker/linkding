@@ -10,10 +10,10 @@ class BookmarkSearchFormTest(TestCase, BookmarkFactoryMixin):
         search = BookmarkSearch()
         form = BookmarkSearchForm(search)
         self.assertEqual(form['q'].initial, '')
-        self.assertEqual(form['sort'].initial, BookmarkSearch.SORT_ADDED_DESC)
         self.assertEqual(form['user'].initial, '')
-        self.assertEqual(form['shared'].initial, '')
-        self.assertEqual(form['unread'].initial, '')
+        self.assertEqual(form['sort'].initial, BookmarkSearch.SORT_ADDED_DESC)
+        self.assertEqual(form['shared'].initial, BookmarkSearch.FILTER_SHARED_OFF)
+        self.assertEqual(form['unread'].initial, BookmarkSearch.FILTER_UNREAD_OFF)
 
         # with params
         search = BookmarkSearch(q='search query',
@@ -23,8 +23,8 @@ class BookmarkSearchFormTest(TestCase, BookmarkFactoryMixin):
                                 unread=BookmarkSearch.FILTER_UNREAD_YES)
         form = BookmarkSearchForm(search)
         self.assertEqual(form['q'].initial, 'search query')
-        self.assertEqual(form['sort'].initial, BookmarkSearch.SORT_ADDED_ASC)
         self.assertEqual(form['user'].initial, 'user123')
+        self.assertEqual(form['sort'].initial, BookmarkSearch.SORT_ADDED_ASC)
         self.assertEqual(form['shared'].initial, BookmarkSearch.FILTER_SHARED_SHARED)
         self.assertEqual(form['unread'].initial, BookmarkSearch.FILTER_UNREAD_YES)
 

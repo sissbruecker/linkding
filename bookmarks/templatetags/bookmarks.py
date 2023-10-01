@@ -23,7 +23,11 @@ def bookmark_search(context, search: BookmarkSearch, tags: [Tag], mode: str = ''
     tag_names = [tag.name for tag in tags]
     tags_string = build_tag_string(tag_names, ' ')
     search_form = BookmarkSearchForm(search, editable_fields=['q'])
-    preferences_form = BookmarkSearchForm(search, editable_fields=['sort', 'shared', 'unread'])
+
+    if mode == 'shared':
+        preferences_form = BookmarkSearchForm(search, editable_fields=['sort'])
+    else:
+        preferences_form = BookmarkSearchForm(search, editable_fields=['sort', 'shared', 'unread'])
     return {
         'request': context['request'],
         'search': search,

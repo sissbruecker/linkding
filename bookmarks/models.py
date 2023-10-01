@@ -130,11 +130,11 @@ class BookmarkSearch:
     SORT_TITLE_ASC = 'title_asc'
     SORT_TITLE_DESC = 'title_desc'
 
-    FILTER_SHARED_OFF = ''
+    FILTER_SHARED_OFF = 'off'
     FILTER_SHARED_SHARED = 'yes'
     FILTER_SHARED_UNSHARED = 'no'
 
-    FILTER_UNREAD_OFF = ''
+    FILTER_UNREAD_OFF = 'off'
     FILTER_UNREAD_YES = 'yes'
     FILTER_UNREAD_NO = 'no'
 
@@ -167,7 +167,7 @@ class BookmarkSearch:
 
     def is_modified(self, param):
         value = self.__dict__[param]
-        return value and value != self.defaults[param]
+        return value != self.defaults[param]
 
     @property
     def modified_params(self):
@@ -231,6 +231,7 @@ class BookmarkSearchForm(forms.Form):
     def __init__(self, search: BookmarkSearch, editable_fields: List[str] = None, users: List[User] = None):
         super().__init__()
         editable_fields = editable_fields or []
+        self.editable_fields = editable_fields
 
         # set choices for user field if users are provided
         if users:

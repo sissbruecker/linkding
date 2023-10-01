@@ -318,7 +318,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         # some params
         response = self.client.post(reverse('bookmarks:index'), {
             'q': 'foo',
-            'sort': 'title_asc',
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
         })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('bookmarks:index') + '?q=foo&sort=title_asc')
@@ -326,10 +326,10 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         # params with default value are removed
         response = self.client.post(reverse('bookmarks:index'), {
             'q': 'foo',
-            'sort': 'added_desc',
-            'shared': '',
-            'unread': 'yes',
             'user': '',
+            'sort': BookmarkSearch.SORT_ADDED_DESC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
         })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('bookmarks:index') + '?q=foo&unread=yes')
@@ -337,8 +337,8 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         # page is removed
         response = self.client.post(reverse('bookmarks:index'), {
             'q': 'foo',
-            'sort': 'title_asc',
             'page': '2',
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
         })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('bookmarks:index') + '?q=foo&sort=title_asc')
@@ -352,47 +352,59 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         })
         user_profile.refresh_from_db()
         self.assertEqual(user_profile.search_preferences, {
-            'sort': 'added_desc',
-            'shared': '',
-            'unread': '',
+            'sort': BookmarkSearch.SORT_ADDED_DESC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_OFF,
         })
 
         # with param
         self.client.post(reverse('bookmarks:index'), {
             'save': '',
-            'sort': 'title_asc',
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
         })
         user_profile.refresh_from_db()
         self.assertEqual(user_profile.search_preferences, {
-            'sort': 'title_asc',
-            'shared': '',
-            'unread': '',
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_OFF,
         })
 
         # add a param
         self.client.post(reverse('bookmarks:index'), {
             'save': '',
-            'sort': 'title_asc',
-            'unread': 'yes',
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
         })
         user_profile.refresh_from_db()
         self.assertEqual(user_profile.search_preferences, {
-            'sort': 'title_asc',
-            'shared': '',
-            'unread': 'yes',
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        })
+
+        # remove a param
+        self.client.post(reverse('bookmarks:index'), {
+            'save': '',
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        })
+        user_profile.refresh_from_db()
+        self.assertEqual(user_profile.search_preferences, {
+            'sort': BookmarkSearch.SORT_ADDED_DESC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
         })
 
         # ignores non-preferences
         self.client.post(reverse('bookmarks:index'), {
             'save': '',
-            'sort': 'title_asc',
             'q': 'foo',
             'user': 'john',
             'page': '3',
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
         })
         user_profile.refresh_from_db()
         self.assertEqual(user_profile.search_preferences, {
-            'sort': 'title_asc',
-            'shared': '',
-            'unread': '',
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_OFF,
         })

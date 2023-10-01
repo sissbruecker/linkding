@@ -59,15 +59,15 @@ def shared(request):
 
 
 def search_action(request):
-    search = BookmarkSearch.from_request(request.POST)
-
     if 'save' in request.POST:
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
+        search = BookmarkSearch.from_request(request.POST)
         request.user_profile.search_preferences = search.preferences_dict
         request.user_profile.save()
 
     # redirect to base url including new query params
+    search = BookmarkSearch.from_request(request.POST, request.user_profile.search_preferences)
     base_url = request.path
     query_params = search.query_params
     query_string = urllib.parse.urlencode(query_params)

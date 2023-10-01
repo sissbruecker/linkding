@@ -8,7 +8,7 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
 class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-    def render_template(self, url: str, tags: QuerySet[Tag] = Tag.objects.all()):
+    def render_template(self, url: str, tags: QuerySet[Tag] = Tag.objects.all(), mode: str = ''):
         rf = RequestFactory()
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
@@ -18,10 +18,11 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             'request': request,
             'search': search,
             'tags': tags,
+            'mode': mode,
         })
         template_to_render = Template(
             '{% load bookmarks %}'
-            '{% bookmark_search search tags %}'
+            '{% bookmark_search search tags mode %}'
         )
         return template_to_render.render(context)
 
@@ -66,6 +67,10 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
                 else:
                     self.assertFalse(radio.has_attr('checked'))
 
+    def assertNoRadioGroup(self, form: BeautifulSoup, name: str):
+        radios = form.select(f'input[name="{name}"][type="radio"]')
+        self.assertTrue(len(radios) == 0)
+
     def assertUnmodifiedLabel(self, html: str, text: str, id: str = ''):
         id_attr = f'for="{id}"' if id else ''
         tag = 'label' if id else 'div'
@@ -101,9 +106,9 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertSearchInput(search_form, 'q', 'foo')
         self.assertHiddenInput(search_form, 'user', 'john')
-        self.assertHiddenInput(search_form, 'sort', 'title_asc')
-        self.assertHiddenInput(search_form, 'shared', 'yes')
-        self.assertHiddenInput(search_form, 'unread', 'yes')
+        self.assertHiddenInput(search_form, 'sort', BookmarkSearch.SORT_TITLE_ASC)
+        self.assertHiddenInput(search_form, 'shared', BookmarkSearch.FILTER_SHARED_SHARED)
+        self.assertHiddenInput(search_form, 'unread', BookmarkSearch.FILTER_UNREAD_YES)
 
     def test_preferences_form_inputs(self):
         # Without params
@@ -118,9 +123,9 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertNoHiddenInput(preferences_form, 'shared')
         self.assertNoHiddenInput(preferences_form, 'unread')
 
-        self.assertSelect(preferences_form, 'sort', 'added_desc')
-        self.assertRadioGroup(preferences_form, 'shared', '')
-        self.assertRadioGroup(preferences_form, 'unread', '')
+        self.assertSelect(preferences_form, 'sort', BookmarkSearch.SORT_ADDED_DESC)
+        self.assertRadioGroup(preferences_form, 'shared', BookmarkSearch.FILTER_SHARED_OFF)
+        self.assertRadioGroup(preferences_form, 'unread', BookmarkSearch.FILTER_UNREAD_OFF)
 
         # With params
         url = '/test?q=foo&user=john&sort=title_asc&shared=yes&unread=yes'
@@ -134,9 +139,42 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertNoHiddenInput(preferences_form, 'shared')
         self.assertNoHiddenInput(preferences_form, 'unread')
 
-        self.assertSelect(preferences_form, 'sort', 'title_asc')
-        self.assertRadioGroup(preferences_form, 'shared', 'yes')
-        self.assertRadioGroup(preferences_form, 'unread', 'yes')
+        self.assertSelect(preferences_form, 'sort', BookmarkSearch.SORT_TITLE_ASC)
+        self.assertRadioGroup(preferences_form, 'shared', BookmarkSearch.FILTER_SHARED_SHARED)
+        self.assertRadioGroup(preferences_form, 'unread', BookmarkSearch.FILTER_UNREAD_YES)
+
+    def test_preferences_form_inputs_shared_mode(self):
+        # Without params
+        url = '/test'
+        rendered_template = self.render_template(url, mode='shared')
+        soup = self.make_soup(rendered_template)
+        preferences_form = soup.select_one('form#search_preferences')
+
+        self.assertNoHiddenInput(preferences_form, 'q')
+        self.assertNoHiddenInput(preferences_form, 'user')
+        self.assertNoHiddenInput(preferences_form, 'sort')
+        self.assertNoHiddenInput(preferences_form, 'shared')
+        self.assertNoHiddenInput(preferences_form, 'unread')
+
+        self.assertSelect(preferences_form, 'sort', BookmarkSearch.SORT_ADDED_DESC)
+        self.assertNoRadioGroup(preferences_form, 'shared')
+        self.assertNoRadioGroup(preferences_form, 'unread')
+
+        # With params
+        url = '/test?q=foo&user=john&sort=title_asc'
+        rendered_template = self.render_template(url, mode='shared')
+        soup = self.make_soup(rendered_template)
+        preferences_form = soup.select_one('form#search_preferences')
+
+        self.assertHiddenInput(preferences_form, 'q', 'foo')
+        self.assertHiddenInput(preferences_form, 'user', 'john')
+        self.assertNoHiddenInput(preferences_form, 'sort')
+        self.assertNoHiddenInput(preferences_form, 'shared')
+        self.assertNoHiddenInput(preferences_form, 'unread')
+
+        self.assertSelect(preferences_form, 'sort', BookmarkSearch.SORT_TITLE_ASC)
+        self.assertNoRadioGroup(preferences_form, 'shared')
+        self.assertNoRadioGroup(preferences_form, 'unread')
 
     def test_modified_indicator(self):
         # Without modifications

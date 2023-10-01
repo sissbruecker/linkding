@@ -28,31 +28,37 @@
     <div class="menu text-sm" tabindex="0">
       <form id="search_preferences" action="" method="post">
         {% csrf_token %}
-        <div class="form-group">
-          <label for="{{ preferences_form.sort.id_for_label }}"
-                 class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">Sort by</label>
-          {{ preferences_form.sort|add_class:"form-select select-sm" }}
-        </div>
-        <div class="form-group radio-group">
-          <div class="form-label{% if 'shared' in search.modified_params %} text-bold{% endif %}">Shared filter</div>
-          {% for radio in preferences_form.shared %}
-            <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
-              {{ radio.tag }}
-              <i class="form-icon"></i>
-              {{ radio.choice_label }}
-            </label>
-          {% endfor %}
-        </div>
-        <div class="form-group radio-group">
-          <div class="form-label{% if 'unread' in search.modified_params %} text-bold{% endif %}">Unread filter</div>
-          {% for radio in preferences_form.unread %}
-            <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
-              {{ radio.tag }}
-              <i class="form-icon"></i>
-              {{ radio.choice_label }}
-            </label>
-          {% endfor %}
-        </div>
+        {% if 'sort' in preferences_form.editable_fields %}
+          <div class="form-group">
+            <label for="{{ preferences_form.sort.id_for_label }}"
+                   class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">Sort by</label>
+            {{ preferences_form.sort|add_class:"form-select select-sm" }}
+          </div>
+        {% endif %}
+        {% if 'shared' in preferences_form.editable_fields %}
+          <div class="form-group radio-group">
+            <div class="form-label{% if 'shared' in search.modified_params %} text-bold{% endif %}">Shared filter</div>
+            {% for radio in preferences_form.shared %}
+              <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
+                {{ radio.tag }}
+                <i class="form-icon"></i>
+                {{ radio.choice_label }}
+              </label>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if 'unread' in preferences_form.editable_fields %}
+          <div class="form-group radio-group">
+            <div class="form-label{% if 'unread' in search.modified_params %} text-bold{% endif %}">Unread filter</div>
+            {% for radio in preferences_form.unread %}
+              <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
+                {{ radio.tag }}
+                <i class="form-icon"></i>
+                {{ radio.choice_label }}
+              </label>
+            {% endfor %}
+          </div>
+        {% endif %}
         <div class="actions">
           <button type="submit" class="btn btn-sm btn-primary" name="apply">Apply</button>
           {% if request.user.is_authenticated %}
