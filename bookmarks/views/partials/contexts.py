@@ -54,11 +54,12 @@ class BookmarkItem:
 
 class BookmarkListContext:
     def __init__(self, request: WSGIRequest) -> None:
-        self.request = request
-        self.search = BookmarkSearch.from_request(self.request.GET)
-
         user = request.user
         user_profile = request.user_profile
+
+        self.request = request
+        self.search = BookmarkSearch.from_request(self.request.GET, user_profile.search_preferences)
+
         query_set = self.get_bookmark_query_set()
         page_number = request.GET.get('page')
         paginator = Paginator(query_set, DEFAULT_PAGE_SIZE)
@@ -175,8 +176,10 @@ class TagGroup:
 
 class TagCloudContext:
     def __init__(self, request: WSGIRequest) -> None:
+        user_profile = request.user_profile
+
         self.request = request
-        self.search = BookmarkSearch.from_request(self.request.GET)
+        self.search = BookmarkSearch.from_request(self.request.GET, user_profile.search_preferences)
 
         query_set = self.get_tag_query_set()
         tags = list(query_set)

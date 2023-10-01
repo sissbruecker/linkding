@@ -36,6 +36,34 @@ class BookmarkSearchModelTest(TestCase):
         self.assertEqual(search.shared, BookmarkSearch.FILTER_SHARED_SHARED)
         self.assertEqual(search.unread, BookmarkSearch.FILTER_UNREAD_YES)
 
+        # respects preferences
+        preferences = {
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        }
+        query_dict = QueryDict('q=search query')
+
+        search = BookmarkSearch.from_request(query_dict, preferences)
+        self.assertEqual(search.q, 'search query')
+        self.assertEqual(search.user, '')
+        self.assertEqual(search.sort, BookmarkSearch.SORT_TITLE_ASC)
+        self.assertEqual(search.shared, BookmarkSearch.FILTER_SHARED_OFF)
+        self.assertEqual(search.unread, BookmarkSearch.FILTER_UNREAD_YES)
+
+        # query overrides preferences
+        preferences = {
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        }
+        query_dict = QueryDict('q=search query&sort=added_asc')
+
+        search = BookmarkSearch.from_request(query_dict, preferences)
+        self.assertEqual(search.q, 'search query')
+        self.assertEqual(search.user, '')
+        self.assertEqual(search.sort, BookmarkSearch.SORT_ADDED_ASC)
+        self.assertEqual(search.shared, BookmarkSearch.FILTER_SHARED_OFF)
+        self.assertEqual(search.unread, BookmarkSearch.FILTER_UNREAD_YES)
+
     def test_modified_params(self):
         # no params
         bookmark_search = BookmarkSearch()
@@ -60,6 +88,34 @@ class BookmarkSearchModelTest(TestCase):
                                          unread=BookmarkSearch.FILTER_UNREAD_YES)
         modified_params = bookmark_search.modified_params
         self.assertCountEqual(modified_params, ['q', 'sort', 'user', 'shared', 'unread'])
+
+        # preferences are not modified params
+        preferences = {
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        }
+        bookmark_search = BookmarkSearch(preferences=preferences)
+        modified_params = bookmark_search.modified_params
+        self.assertEqual(len(modified_params), 0)
+
+        # param is not modified if it matches the preference
+        preferences = {
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        }
+        bookmark_search = BookmarkSearch(sort=BookmarkSearch.SORT_TITLE_ASC, unread=BookmarkSearch.FILTER_UNREAD_YES,
+                                         preferences=preferences)
+        modified_params = bookmark_search.modified_params
+        self.assertEqual(len(modified_params), 0)
+
+        # overriding preferences is a modified param
+        preferences = {
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        }
+        bookmark_search = BookmarkSearch(sort=BookmarkSearch.SORT_ADDED_ASC, preferences=preferences)
+        modified_params = bookmark_search.modified_params
+        self.assertCountEqual(modified_params, ['sort'])
 
     def test_has_modifications(self):
         # no params

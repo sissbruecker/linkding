@@ -146,12 +146,6 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(tags=[tag1, tag2, self.setup_tag()]),
         ]
 
-    def get_tags_from_bookmarks(self, bookmarks: [Bookmark]):
-        all_tags = []
-        for bookmark in bookmarks:
-            all_tags = all_tags + list(bookmark.tags.all())
-        return all_tags
-
     def assertQueryResult(self, query: QuerySet, item_lists: [[any]]):
         expected_items = []
         for item_list in item_lists:

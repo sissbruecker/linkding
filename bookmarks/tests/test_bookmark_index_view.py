@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.models import Bookmark, Tag, UserProfile
+from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin, collapse_whitespace
 
 
@@ -16,38 +16,51 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.client.force_login(user)
 
     def assertVisibleBookmarks(self, response, bookmarks: List[Bookmark], link_target: str = '_blank'):
-        html = response.content.decode()
-        self.assertContains(response, '<li ld-bookmark-item>', count=len(bookmarks))
+        soup = self.make_soup(response.content.decode())
+        bookmark_list = soup.select_one(f'ul.bookmark-list[data-bookmarks-total="{len(bookmarks)}"]')
+        self.assertIsNotNone(bookmark_list)
+
+        bookmark_items = bookmark_list.select('li[ld-bookmark-item]')
+        self.assertEqual(len(bookmark_items), len(bookmarks))
 
         for bookmark in bookmarks:
-            self.assertInHTML(
-                f'<a href="{bookmark.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
-                html
-            )
+            bookmark_item = bookmark_list.select_one(
+                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]')
+            self.assertIsNotNone(bookmark_item)
 
     def assertInvisibleBookmarks(self, response, bookmarks: List[Bookmark], link_target: str = '_blank'):
-        html = response.content.decode()
+        soup = self.make_soup(response.content.decode())
 
         for bookmark in bookmarks:
-            self.assertInHTML(
-                f'<a href="{bookmark.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
-                html,
-                count=0
-            )
+            bookmark_item = soup.select_one(
+                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]')
+            self.assertIsNone(bookmark_item)
 
     def assertVisibleTags(self, response, tags: List[Tag]):
-        self.assertContains(response, 'data-is-tag-item', count=len(tags))
+        soup = self.make_soup(response.content.decode())
+        tag_cloud = soup.select_one('div.tag-cloud')
+        self.assertIsNotNone(tag_cloud)
+
+        tag_items = tag_cloud.select('a[data-is-tag-item]')
+        self.assertEqual(len(tag_items), len(tags))
+
+        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
 
         for tag in tags:
-            self.assertContains(response, tag.name)
+            self.assertTrue(tag.name in tag_item_names)
 
     def assertInvisibleTags(self, response, tags: List[Tag]):
+        soup = self.make_soup(response.content.decode())
+        tag_items = soup.select('a[data-is-tag-item]')
+
+        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
+
         for tag in tags:
-            self.assertNotContains(response, tag.name)
+            self.assertFalse(tag.name in tag_item_names)
 
     def assertSelectedTags(self, response, tags: List[Tag]):
         soup = self.make_soup(response.content.decode())
-        selected_tags = soup.select('p.selected-tags')[0]
+        selected_tags = soup.select_one('p.selected-tags')
         self.assertIsNotNone(selected_tags)
 
         tag_list = selected_tags.select('a')
@@ -73,67 +86,34 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_should_list_unarchived_and_user_owned_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
-        visible_bookmarks = [
-            self.setup_bookmark(),
-            self.setup_bookmark(),
-            self.setup_bookmark()
-        ]
+        visible_bookmarks = self.setup_numbered_bookmarks(3)
         invisible_bookmarks = [
             self.setup_bookmark(is_archived=True),
             self.setup_bookmark(user=other_user),
         ]
 
         response = self.client.get(reverse('bookmarks:index'))
-        html = collapse_whitespace(response.content.decode())
 
-        # Should render list
-        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
     def test_should_list_bookmarks_matching_query(self):
-        visible_bookmarks = [
-            self.setup_bookmark(title='searchvalue'),
-            self.setup_bookmark(title='searchvalue'),
-            self.setup_bookmark(title='searchvalue')
-        ]
-        invisible_bookmarks = [
-            self.setup_bookmark(),
-            self.setup_bookmark(),
-            self.setup_bookmark()
-        ]
+        visible_bookmarks = self.setup_numbered_bookmarks(3, prefix='foo')
+        invisible_bookmarks = self.setup_numbered_bookmarks(3, prefix='bar')
 
-        response = self.client.get(reverse('bookmarks:index') + '?q=searchvalue')
-        html = collapse_whitespace(response.content.decode())
+        response = self.client.get(reverse('bookmarks:index') + '?q=foo')
 
-        # Should render list
-        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
     def test_should_list_tags_for_unarchived_and_user_owned_bookmarks(self):
         other_user = User.objects.create_user('otheruser', 'otheruser@example.com', 'password123')
-        visible_tags = [
-            self.setup_tag(),
-            self.setup_tag(),
-            self.setup_tag(),
-        ]
-        invisible_tags = [
-            self.setup_tag(),  # unused tag
-            self.setup_tag(),  # used in archived bookmark
-            self.setup_tag(user=other_user),  # belongs to other user
-        ]
+        visible_bookmarks = self.setup_numbered_bookmarks(3, with_tags=True)
+        archived_bookmarks = self.setup_numbered_bookmarks(3, with_tags=True, archived=True, tag_prefix='archived')
+        other_user_bookmarks = self.setup_numbered_bookmarks(3, with_tags=True, user=other_user, tag_prefix='otheruser')
 
-        # Assign tags to some bookmarks with duplicates
-        self.setup_bookmark(tags=[visible_tags[0]])
-        self.setup_bookmark(tags=[visible_tags[0]])
-        self.setup_bookmark(tags=[visible_tags[1]])
-        self.setup_bookmark(tags=[visible_tags[1]])
-        self.setup_bookmark(tags=[visible_tags[2]])
-        self.setup_bookmark(tags=[visible_tags[2]])
-
-        self.setup_bookmark(tags=[invisible_tags[1]], is_archived=True)
-        self.setup_bookmark(tags=[invisible_tags[2]], user=other_user)
+        visible_tags = self.get_tags_from_bookmarks(visible_bookmarks)
+        invisible_tags = self.get_tags_from_bookmarks(archived_bookmarks + other_user_bookmarks)
 
         response = self.client.get(reverse('bookmarks:index'))
 
@@ -141,28 +121,37 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertInvisibleTags(response, invisible_tags)
 
     def test_should_list_tags_for_bookmarks_matching_query(self):
-        visible_tags = [
-            self.setup_tag(),
-            self.setup_tag(),
-            self.setup_tag(),
-        ]
-        invisible_tags = [
-            self.setup_tag(),
-            self.setup_tag(),
-            self.setup_tag(),
-        ]
+        visible_bookmarks = self.setup_numbered_bookmarks(3, with_tags=True, prefix='foo', tag_prefix='foo')
+        invisible_bookmarks = self.setup_numbered_bookmarks(3, with_tags=True, prefix='bar', tag_prefix='bar')
 
-        self.setup_bookmark(tags=[visible_tags[0]], title='searchvalue')
-        self.setup_bookmark(tags=[visible_tags[1]], title='searchvalue')
-        self.setup_bookmark(tags=[visible_tags[2]], title='searchvalue')
-        self.setup_bookmark(tags=[invisible_tags[0]])
-        self.setup_bookmark(tags=[invisible_tags[1]])
-        self.setup_bookmark(tags=[invisible_tags[2]])
+        visible_tags = self.get_tags_from_bookmarks(visible_bookmarks)
+        invisible_tags = self.get_tags_from_bookmarks(invisible_bookmarks)
 
-        response = self.client.get(reverse('bookmarks:index') + '?q=searchvalue')
+        response = self.client.get(reverse('bookmarks:index') + '?q=foo')
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)
+
+    def test_should_list_bookmarks_and_tags_for_search_preferences(self):
+        user_profile = self.user.profile
+        user_profile.search_preferences = {
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        }
+        user_profile.save()
+
+        unread_bookmarks = self.setup_numbered_bookmarks(3, unread=True, with_tags=True, prefix='unread',
+                                                         tag_prefix='unread')
+        read_bookmarks = self.setup_numbered_bookmarks(3, unread=False, with_tags=True, prefix='read',
+                                                       tag_prefix='read')
+
+        unread_tags = self.get_tags_from_bookmarks(unread_bookmarks)
+        read_tags = self.get_tags_from_bookmarks(read_bookmarks)
+
+        response = self.client.get(reverse('bookmarks:index'))
+        self.assertVisibleBookmarks(response, unread_bookmarks)
+        self.assertInvisibleBookmarks(response, read_bookmarks)
+        self.assertVisibleTags(response, unread_tags)
+        self.assertInvisibleTags(response, read_tags)
 
     def test_should_display_selected_tags_from_query(self):
         tags = [
@@ -210,11 +199,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertSelectedTags(response, [tags[0], tags[1]])
 
     def test_should_open_bookmarks_in_new_page_by_default(self):
-        visible_bookmarks = [
-            self.setup_bookmark(),
-            self.setup_bookmark(),
-            self.setup_bookmark()
-        ]
+        visible_bookmarks = self.setup_numbered_bookmarks(3)
 
         response = self.client.get(reverse('bookmarks:index'))
 
@@ -225,11 +210,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         user.profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_SELF
         user.profile.save()
 
-        visible_bookmarks = [
-            self.setup_bookmark(),
-            self.setup_bookmark(),
-            self.setup_bookmark()
-        ]
+        visible_bookmarks = self.setup_numbered_bookmarks(3)
 
         response = self.client.get(reverse('bookmarks:index'))
 

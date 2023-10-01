@@ -5,11 +5,11 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.models import Bookmark, Tag, UserProfile
-from bookmarks.tests.helpers import BookmarkFactoryMixin, collapse_whitespace
+from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
-class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
+class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def authenticate(self) -> None:
         user = self.get_or_create_test_user()
@@ -22,27 +22,47 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         )
 
     def assertVisibleBookmarks(self, response, bookmarks: List[Bookmark], link_target: str = '_blank'):
-        html = response.content.decode()
-        self.assertContains(response, '<li ld-bookmark-item class="shared">', count=len(bookmarks))
+        soup = self.make_soup(response.content.decode())
+        bookmark_list = soup.select_one(f'ul.bookmark-list[data-bookmarks-total="{len(bookmarks)}"]')
+        self.assertIsNotNone(bookmark_list)
+
+        bookmark_items = bookmark_list.select('li[ld-bookmark-item]')
+        self.assertEqual(len(bookmark_items), len(bookmarks))
 
         for bookmark in bookmarks:
-            self.assertBookmarkCount(html, bookmark, 1, link_target)
+            bookmark_item = bookmark_list.select_one(
+                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]')
+            self.assertIsNotNone(bookmark_item)
 
     def assertInvisibleBookmarks(self, response, bookmarks: List[Bookmark], link_target: str = '_blank'):
-        html = response.content.decode()
+        soup = self.make_soup(response.content.decode())
 
         for bookmark in bookmarks:
-            self.assertBookmarkCount(html, bookmark, 0, link_target)
+            bookmark_item = soup.select_one(
+                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]')
+            self.assertIsNone(bookmark_item)
 
-    def assertVisibleTags(self, response, tags: [Tag]):
-        self.assertContains(response, 'data-is-tag-item', count=len(tags))
+    def assertVisibleTags(self, response, tags: List[Tag]):
+        soup = self.make_soup(response.content.decode())
+        tag_cloud = soup.select_one('div.tag-cloud')
+        self.assertIsNotNone(tag_cloud)
+
+        tag_items = tag_cloud.select('a[data-is-tag-item]')
+        self.assertEqual(len(tag_items), len(tags))
+
+        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
 
         for tag in tags:
-            self.assertContains(response, tag.name)
+            self.assertTrue(tag.name in tag_item_names)
 
-    def assertInvisibleTags(self, response, tags: [Tag]):
+    def assertInvisibleTags(self, response, tags: List[Tag]):
+        soup = self.make_soup(response.content.decode())
+        tag_items = soup.select('a[data-is-tag-item]')
+
+        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
+
         for tag in tags:
-            self.assertNotContains(response, tag.name)
+            self.assertFalse(tag.name in tag_item_names)
 
     def assertVisibleUserOptions(self, response, users: List[User]):
         html = response.content.decode()
@@ -86,10 +106,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         ]
 
         response = self.client.get(reverse('bookmarks:shared'))
-        html = collapse_whitespace(response.content.decode())
 
-        # Should render list
-        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
@@ -116,22 +133,12 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_should_list_bookmarks_matching_query(self):
         self.authenticate()
         user = self.setup_user(enable_sharing=True)
-        visible_bookmarks = [
-            self.setup_bookmark(shared=True, title='searchvalue', user=user),
-            self.setup_bookmark(shared=True, title='searchvalue', user=user),
-            self.setup_bookmark(shared=True, title='searchvalue', user=user)
-        ]
-        invisible_bookmarks = [
-            self.setup_bookmark(shared=True, user=user),
-            self.setup_bookmark(shared=True, user=user),
-            self.setup_bookmark(shared=True, user=user)
-        ]
 
-        response = self.client.get(reverse('bookmarks:shared') + '?q=searchvalue')
-        html = collapse_whitespace(response.content.decode())
+        visible_bookmarks = self.setup_numbered_bookmarks(3, shared=True, user=user, prefix='foo')
+        invisible_bookmarks = self.setup_numbered_bookmarks(3, shared=True, user=user)
 
-        # Should render list
-        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
+        response = self.client.get(reverse('bookmarks:shared') + '?q=foo')
+
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
@@ -139,22 +146,11 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
         user1 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
         user2 = self.setup_user(enable_sharing=True)
 
-        visible_bookmarks = [
-            self.setup_bookmark(shared=True, user=user1),
-            self.setup_bookmark(shared=True, user=user1),
-            self.setup_bookmark(shared=True, user=user1),
-        ]
-        invisible_bookmarks = [
-            self.setup_bookmark(shared=True, user=user2),
-            self.setup_bookmark(shared=True, user=user2),
-            self.setup_bookmark(shared=True, user=user2),
-        ]
+        visible_bookmarks = self.setup_numbered_bookmarks(3, shared=True, user=user1, prefix='user1')
+        invisible_bookmarks = self.setup_numbered_bookmarks(3, shared=True, user=user2, prefix='user2')
 
         response = self.client.get(reverse('bookmarks:shared'))
-        html = collapse_whitespace(response.content.decode())
 
-        # Should render list
-        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="3">', html)
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
@@ -296,6 +292,30 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin):
 
         response = self.client.get(reverse('bookmarks:shared'))
         self.assertVisibleUserOptions(response, expected_visible_users)
+
+    def test_should_list_bookmarks_and_tags_for_search_preferences(self):
+        self.authenticate()
+        other_user = self.setup_user(enable_sharing=True)
+
+        user_profile = self.get_or_create_test_user().profile
+        user_profile.search_preferences = {
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        }
+        user_profile.save()
+
+        unread_bookmarks = self.setup_numbered_bookmarks(3, shared=True, unread=True, with_tags=True, prefix='unread',
+                                                         tag_prefix='unread', user=other_user)
+        read_bookmarks = self.setup_numbered_bookmarks(3, shared=True, unread=False, with_tags=True, prefix='read',
+                                                       tag_prefix='read', user=other_user)
+
+        unread_tags = self.get_tags_from_bookmarks(unread_bookmarks)
+        read_tags = self.get_tags_from_bookmarks(read_bookmarks)
+
+        response = self.client.get(reverse('bookmarks:shared'))
+        self.assertVisibleBookmarks(response, unread_bookmarks)
+        self.assertInvisibleBookmarks(response, read_bookmarks)
+        self.assertVisibleTags(response, unread_tags)
+        self.assertInvisibleTags(response, read_tags)
 
     def test_should_open_bookmarks_in_new_page_by_default(self):
         self.authenticate()

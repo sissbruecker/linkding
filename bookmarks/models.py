@@ -148,20 +148,25 @@ class BookmarkSearch:
     }
 
     def __init__(self,
-                 q: str = defaults['q'],
-                 user: str = defaults['user'],
-                 sort: str = defaults['sort'],
-                 shared: str = defaults['shared'],
-                 unread: str = defaults['unread']):
-        self.q = q
-        self.user = user
-        self.sort = sort
-        self.shared = shared
-        self.unread = unread
+                 q: str = None,
+                 user: str = None,
+                 sort: str = None,
+                 shared: str = None,
+                 unread: str = None,
+                 preferences: dict = None):
+        if not preferences:
+            preferences = {}
+        self.defaults = {**BookmarkSearch.defaults, **preferences}
+
+        self.q = q or self.defaults['q']
+        self.user = user or self.defaults['user']
+        self.sort = sort or self.defaults['sort']
+        self.shared = shared or self.defaults['shared']
+        self.unread = unread or self.defaults['unread']
 
     def is_modified(self, param):
         value = self.__dict__[param]
-        return value and value != BookmarkSearch.defaults[param]
+        return value and value != self.defaults[param]
 
     @property
     def modified_params(self):
@@ -180,14 +185,14 @@ class BookmarkSearch:
         return {param: self.__dict__[param] for param in self.params if param != 'q' and param != 'user'}
 
     @staticmethod
-    def from_request(query_dict: QueryDict):
+    def from_request(query_dict: QueryDict, preferences: dict = None):
         initial_values = {}
         for param in BookmarkSearch.params:
             value = query_dict.get(param)
             if value:
                 initial_values[param] = value
 
-        return BookmarkSearch(**initial_values)
+        return BookmarkSearch(**initial_values, preferences=preferences)
 
 
 class BookmarkSearchForm(forms.Form):
