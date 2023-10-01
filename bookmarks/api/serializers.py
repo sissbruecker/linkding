@@ -90,6 +90,7 @@ class TagSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return get_or_create_tag(validated_data['name'], self.context['user'])
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
@@ -98,6 +99,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "bookmark_date_display",
             "bookmark_link_target",
             "web_archive_integration",
+            "tag_search",
             "enable_sharing",
-            "enable_favicons"
+            "enable_public_sharing",
+            "enable_favicons",
+            "display_url",
+            "permanent_notes",
+            "search_preferences",
         ]

@@ -107,14 +107,11 @@ class TagViewSet(viewsets.GenericViewSet,
     def get_serializer_context(self):
         return {'user': self.request.user}
 
-class UserViewSet(viewsets.GenericViewSet):
-    def get_serializer_context(self):
-        return {'user': self.request.user}
 
+class UserViewSet(viewsets.GenericViewSet):
     @action(methods=['get'], detail=False)
     def profile(self, request):
-            return Response(UserProfileSerializer(request.user.profile).data)
-
+        return Response(UserProfileSerializer(request.user.profile).data)
 
 
 router = DefaultRouter()

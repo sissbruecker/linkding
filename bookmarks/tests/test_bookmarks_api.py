@@ -6,8 +6,9 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
 
-from bookmarks.models import Bookmark
+from bookmarks.models import Bookmark, BookmarkSearch, UserProfile
 from bookmarks.services import website_loader
 from bookmarks.services.website_loader import WebsiteMetadata
 from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
@@ -644,3 +645,49 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         check_url = urllib.parse.quote_plus(inaccessible_bookmark.url)
         response = self.get(f'{url}?url={check_url}', expected_status_code=status.HTTP_200_OK)
         self.assertIsNone(response.data['bookmark'])
+
+    def assertUserProfile(self, response: Response, profile: UserProfile):
+        self.assertEqual(response.data['theme'], profile.theme)
+        self.assertEqual(response.data['bookmark_date_display'], profile.bookmark_date_display)
+        self.assertEqual(response.data['bookmark_link_target'], profile.bookmark_link_target)
+        self.assertEqual(response.data['web_archive_integration'], profile.web_archive_integration)
+        self.assertEqual(response.data['tag_search'], profile.tag_search)
+        self.assertEqual(response.data['enable_sharing'], profile.enable_sharing)
+        self.assertEqual(response.data['enable_public_sharing'], profile.enable_public_sharing)
+        self.assertEqual(response.data['enable_favicons'], profile.enable_favicons)
+        self.assertEqual(response.data['display_url'], profile.display_url)
+        self.assertEqual(response.data['permanent_notes'], profile.permanent_notes)
+        self.assertEqual(response.data['search_preferences'], profile.search_preferences)
+
+    def test_user_profile(self):
+        self.authenticate()
+
+        # default profile
+        profile = self.user.profile
+        url = reverse('bookmarks:user-profile')
+        response = self.get(url, expected_status_code=status.HTTP_200_OK)
+
+        self.assertUserProfile(response, profile)
+
+        # update profile
+        profile.theme = 'dark'
+        profile.bookmark_date_display = 'absolute'
+        profile.bookmark_link_target = '_self'
+        profile.web_archive_integration = 'enabled'
+        profile.tag_search = 'lax'
+        profile.enable_sharing = True
+        profile.enable_public_sharing = True
+        profile.enable_favicons = True
+        profile.display_url = True
+        profile.permanent_notes = True
+        profile.search_preferences = {
+            'sort': BookmarkSearch.SORT_TITLE_ASC,
+            'shared': BookmarkSearch.FILTER_SHARED_OFF,
+            'unread': BookmarkSearch.FILTER_UNREAD_YES,
+        }
+        profile.save()
+
+        url = reverse('bookmarks:user-profile')
+        response = self.get(url, expected_status_code=status.HTTP_200_OK)
+
+        self.assertUserProfile(response, profile)

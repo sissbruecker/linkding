@@ -247,13 +247,24 @@ GET /api/user/profile/
 
 User preferences.
 
+Example response:
+
 ```json
 {
   "theme": "auto",
   "bookmark_date_display": "relative",
   "bookmark_link_target": "_blank",
-  "web_archive_integration": "disabled",
-  "enable_sharing": false,
-  "enable_favicons": false
+  "web_archive_integration": "enabled",
+  "tag_search": "lax",
+  "enable_sharing": true,
+  "enable_public_sharing": true,
+  "enable_favicons": false,
+  "display_url": false,
+  "permanent_notes": false,
+  "search_preferences": {
+    "sort": "title_asc",
+    "shared": "off",
+    "unread": "off"
+  }
 }
 ```
