@@ -149,20 +149,15 @@ class BookmarkSearch:
 
     def __init__(self,
                  q: str = defaults['q'],
-                 query: str = defaults['q'],  # alias for q
                  user: str = defaults['user'],
                  sort: str = defaults['sort'],
                  shared: str = defaults['shared'],
                  unread: str = defaults['unread']):
-        self.q = q or query
+        self.q = q
         self.user = user
         self.sort = sort
         self.shared = shared
         self.unread = unread
-
-    @property
-    def query(self):
-        return self.q
 
     def is_modified(self, param):
         value = self.__dict__[param]

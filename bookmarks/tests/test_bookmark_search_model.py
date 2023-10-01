@@ -92,7 +92,7 @@ class BookmarkSearchModelTest(TestCase):
         })
 
         # only returns preferences
-        bookmark_search = BookmarkSearch(query='search query', user='user123')
+        bookmark_search = BookmarkSearch(q='search query', user='user123')
         self.assertEqual(bookmark_search.preferences, {
             'sort': BookmarkSearch.SORT_ADDED_DESC,
             'shared': BookmarkSearch.FILTER_SHARED_OFF,

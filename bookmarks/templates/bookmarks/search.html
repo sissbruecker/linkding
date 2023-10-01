@@ -3,7 +3,7 @@
 <div class="search-container">
   <form id="search" class="input-group" action="" method="get" role="search">
     <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
-           value="{{ search.query }}">
+           value="{{ search.q }}">
     <input type="submit" value="Search" class="btn input-group-btn">
     {% for hidden_field in search_form.hidden_fields %}
       {{ hidden_field }}
@@ -75,7 +75,7 @@
     const currentTags = currentTagsString.split(' ');
     const uniqueTags = [...new Set(currentTags)]
     const search = {
-      q: '{{ search.query }}',
+      q: '{{ search.q }}',
       user: '{{ search.user }}',
       shared: '{{ search.shared }}',
       unread: '{{ search.unread }}',
@@ -88,7 +88,7 @@
       props: {
         name: 'q',
         placeholder: 'Search for words or #tags',
-        value: '{{ search.query|safe }}',
+        value: '{{ search.q|safe }}',
         tags: uniqueTags,
         mode: '{{ mode }}',
         linkTarget: '{{ request.user_profile.bookmark_link_target }}',

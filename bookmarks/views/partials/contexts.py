@@ -196,7 +196,7 @@ class TagCloudContext:
         raise Exception(f'Must be implemented by subclass')
 
     def get_selected_tags(self, tags: List[Tag]):
-        parsed_query = queries.parse_query_string(self.search.query)
+        parsed_query = queries.parse_query_string(self.search.q)
         tag_names = parsed_query['tag_names']
         if self.request.user_profile.tag_search == UserProfile.TAG_SEARCH_LAX:
             tag_names = tag_names + parsed_query['search_terms']

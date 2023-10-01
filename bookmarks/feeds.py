@@ -17,7 +17,7 @@ class FeedContext:
 class BaseBookmarksFeed(Feed):
     def get_object(self, request, feed_key: str):
         feed_token = FeedToken.objects.get(key__exact=feed_key)
-        search = BookmarkSearch(query=request.GET.get('q', ''))
+        search = BookmarkSearch(q=request.GET.get('q', ''))
         query_set = queries.query_bookmarks(feed_token.user, feed_token.user.profile, search)
         return FeedContext(feed_token, query_set)
 
