@@ -37,7 +37,7 @@ def _base_bookmarks_query(user: Optional[User], profile: UserProfile, search: Bo
         query_set = query_set.filter(owner=user)
 
     # Split query into search terms and tags
-    query = parse_query_string(search.query)
+    query = parse_query_string(search.q)
 
     # Filter for search terms and tags
     for term in query['search_terms']:

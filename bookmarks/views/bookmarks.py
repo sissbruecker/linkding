@@ -1,6 +1,8 @@
+import urllib.parse
+
 from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
-from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -17,6 +19,9 @@ _default_page_size = 30
 
 @login_required
 def index(request):
+    if request.method == 'POST':
+        return search_action(request)
+
     bookmark_list = contexts.ActiveBookmarkListContext(request)
     tag_cloud = contexts.ActiveTagCloudContext(request)
     return render(request, 'bookmarks/index.html', {
@@ -27,6 +32,9 @@ def index(request):
 
 @login_required
 def archived(request):
+    if request.method == 'POST':
+        return search_action(request)
+
     bookmark_list = contexts.ArchivedBookmarkListContext(request)
     tag_cloud = contexts.ArchivedTagCloudContext(request)
     return render(request, 'bookmarks/archive.html', {
@@ -36,16 +44,35 @@ def archived(request):
 
 
 def shared(request):
-    search = BookmarkSearch.from_request(request)
+    if request.method == 'POST':
+        return search_action(request)
+
     bookmark_list = contexts.SharedBookmarkListContext(request)
     tag_cloud = contexts.SharedTagCloudContext(request)
     public_only = not request.user.is_authenticated
-    users = queries.query_shared_bookmark_users(request.user_profile, search, public_only)
+    users = queries.query_shared_bookmark_users(request.user_profile, bookmark_list.search, public_only)
     return render(request, 'bookmarks/shared.html', {
         'bookmark_list': bookmark_list,
         'tag_cloud': tag_cloud,
         'users': users
     })
+
+
+def search_action(request):
+    if 'save' in request.POST:
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        search = BookmarkSearch.from_request(request.POST)
+        request.user_profile.search_preferences = search.preferences_dict
+        request.user_profile.save()
+
+    # redirect to base url including new query params
+    search = BookmarkSearch.from_request(request.POST, request.user_profile.search_preferences)
+    base_url = request.path
+    query_params = search.query_params
+    query_string = urllib.parse.urlencode(query_params)
+    url = base_url if not query_string else base_url + '?' + query_string
+    return HttpResponseRedirect(url)
 
 
 def convert_tag_string(tag_string: str):
@@ -169,14 +196,14 @@ def mark_as_read(request, bookmark_id: int):
 
 @login_required
 def index_action(request):
-    search = BookmarkSearch.from_request(request)
+    search = BookmarkSearch.from_request(request.GET)
     query = queries.query_bookmarks(request.user, request.user_profile, search)
     return action(request, query)
 
 
 @login_required
 def archived_action(request):
-    search = BookmarkSearch.from_request(request)
+    search = BookmarkSearch.from_request(request.GET)
     query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
     return action(request, query)
 

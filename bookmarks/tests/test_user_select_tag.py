@@ -12,7 +12,7 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
         request.user_profile = self.get_or_create_test_user().profile
-        search = BookmarkSearch.from_request(request)
+        search = BookmarkSearch.from_request(request.GET)
         context = RequestContext(request, {
             'request': request,
             'search': search,
@@ -82,11 +82,11 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
         self.assertNoHiddenInput(rendered_template, 'unread')
 
         # With params
-        url = '/test?q=foo&user=john&sort=title_asc&shared=shared&unread=yes'
+        url = '/test?q=foo&user=john&sort=title_asc&shared=yes&unread=yes'
         rendered_template = self.render_template(url)
 
         self.assertNoHiddenInput(rendered_template, 'user')
         self.assertHiddenInput(rendered_template, 'q', 'foo')
         self.assertHiddenInput(rendered_template, 'sort', 'title_asc')
-        self.assertHiddenInput(rendered_template, 'shared', 'shared')
+        self.assertHiddenInput(rendered_template, 'shared', 'yes')
         self.assertHiddenInput(rendered_template, 'unread', 'yes')

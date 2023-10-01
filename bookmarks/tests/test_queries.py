@@ -146,12 +146,6 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(tags=[tag1, tag2, self.setup_tag()]),
         ]
 
-    def get_tags_from_bookmarks(self, bookmarks: [Bookmark]):
-        all_tags = []
-        for bookmark in bookmarks:
-            all_tags = all_tags + list(bookmark.tags.all())
-        return all_tags
-
     def assertQueryResult(self, query: QuerySet, item_lists: [[any]]):
         expected_items = []
         for item_list in item_lists:
@@ -164,7 +158,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmarks_should_return_all_for_empty_query(self):
         self.setup_bookmark_search_data()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q=''))
         self.assertQueryResult(query, [
             self.other_bookmarks,
             self.term1_bookmarks,
@@ -179,7 +173,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmarks_should_search_single_term(self):
         self.setup_bookmark_search_data()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='term1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='term1'))
         self.assertQueryResult(query, [
             self.term1_bookmarks,
             self.term1_term2_bookmarks,
@@ -189,35 +183,35 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmarks_should_search_multiple_terms(self):
         self.setup_bookmark_search_data()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='term2 term1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='term2 term1'))
 
         self.assertQueryResult(query, [self.term1_term2_bookmarks])
 
     def test_query_bookmarks_should_search_single_tag(self):
         self.setup_bookmark_search_data()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='#tag1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='#tag1'))
 
         self.assertQueryResult(query, [self.tag1_bookmarks, self.tag1_tag2_bookmarks, self.term1_tag1_bookmarks])
 
     def test_query_bookmarks_should_search_multiple_tags(self):
         self.setup_bookmark_search_data()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='#tag1 #tag2'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='#tag1 #tag2'))
 
         self.assertQueryResult(query, [self.tag1_tag2_bookmarks])
 
     def test_query_bookmarks_should_search_multiple_tags_ignoring_casing(self):
         self.setup_bookmark_search_data()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='#Tag1 #TAG2'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='#Tag1 #TAG2'))
 
         self.assertQueryResult(query, [self.tag1_tag2_bookmarks])
 
     def test_query_bookmarks_should_search_terms_and_tags_combined(self):
         self.setup_bookmark_search_data()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='term1 #tag1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='term1 #tag1'))
 
         self.assertQueryResult(query, [self.term1_tag1_bookmarks])
 
@@ -227,7 +221,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.profile.tag_search = UserProfile.TAG_SEARCH_STRICT
         self.profile.save()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='tag1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='tag1'))
         self.assertQueryResult(query, [self.tag1_as_term_bookmarks])
 
     def test_query_bookmarks_in_lax_mode_should_search_tags_as_terms(self):
@@ -236,7 +230,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.profile.tag_search = UserProfile.TAG_SEARCH_LAX
         self.profile.save()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='tag1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='tag1'))
         self.assertQueryResult(query, [
             self.tag1_bookmarks,
             self.tag1_as_term_bookmarks,
@@ -244,17 +238,17 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.term1_tag1_bookmarks
         ])
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='tag1 term1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='tag1 term1'))
         self.assertQueryResult(query, [
             self.term1_tag1_bookmarks,
         ])
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='tag1 tag2'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='tag1 tag2'))
         self.assertQueryResult(query, [
             self.tag1_tag2_bookmarks,
         ])
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='tag1 #tag2'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='tag1 #tag2'))
         self.assertQueryResult(query, [
             self.tag1_tag2_bookmarks,
         ])
@@ -262,28 +256,28 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmarks_should_return_no_matches(self):
         self.setup_bookmark_search_data()
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='term3'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='term3'))
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='term1 term3'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='term1 term3'))
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='term1 #tag2'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='term1 #tag2'))
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='#tag3'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='#tag3'))
         self.assertQueryResult(query, [])
 
         # Unused tag
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='#unused_tag1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='#unused_tag1'))
         self.assertQueryResult(query, [])
 
         # Unused tag combined with tag that is used
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='#tag1 #unused_tag1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='#tag1 #unused_tag1'))
         self.assertQueryResult(query, [])
 
         # Unused tag combined with term that is used
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='term1 #unused_tag1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='term1 #unused_tag1'))
         self.assertQueryResult(query, [])
 
     def test_query_bookmarks_should_not_return_archived_bookmarks(self):
@@ -293,7 +287,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(is_archived=True)
         self.setup_bookmark(is_archived=True)
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [[bookmark1, bookmark2]])
 
@@ -304,7 +298,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
         self.setup_bookmark()
 
-        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [[bookmark1, bookmark2]])
 
@@ -319,7 +313,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=other_user)
         self.setup_bookmark(user=other_user)
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [owned_bookmarks])
 
@@ -334,7 +328,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(is_archived=True, user=other_user)
         self.setup_bookmark(is_archived=True, user=other_user)
 
-        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [owned_bookmarks])
 
@@ -344,7 +338,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(tags=[tag])
         self.setup_bookmark(tags=[tag])
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='!untagged'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='!untagged'))
         self.assertCountEqual(list(query), [untagged_bookmark])
 
     def test_query_bookmarks_untagged_should_be_combinable_with_search_terms(self):
@@ -353,7 +347,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(title='term2')
         self.setup_bookmark(tags=[tag])
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='!untagged term1'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='!untagged term1'))
         self.assertCountEqual(list(query), [untagged_bookmark])
 
     def test_query_bookmarks_untagged_should_not_be_combinable_with_tags(self):
@@ -362,7 +356,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(tags=[tag])
         self.setup_bookmark(tags=[tag])
 
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query=f'!untagged #{tag.name}'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q=f'!untagged #{tag.name}'))
         self.assertCountEqual(list(query), [])
 
     def test_query_archived_bookmarks_untagged_should_return_untagged_bookmarks_only(self):
@@ -371,7 +365,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(is_archived=True, tags=[tag])
         self.setup_bookmark(is_archived=True, tags=[tag])
 
-        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(query='!untagged'))
+        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(q='!untagged'))
         self.assertCountEqual(list(query), [untagged_bookmark])
 
     def test_query_archived_bookmarks_untagged_should_be_combinable_with_search_terms(self):
@@ -380,7 +374,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(is_archived=True, title='term2')
         self.setup_bookmark(is_archived=True, tags=[tag])
 
-        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(query='!untagged term1'))
+        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(q='!untagged term1'))
         self.assertCountEqual(list(query), [untagged_bookmark])
 
     def test_query_archived_bookmarks_untagged_should_not_be_combinable_with_tags(self):
@@ -390,7 +384,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(is_archived=True, tags=[tag])
 
         query = queries.query_archived_bookmarks(self.user, self.profile,
-                                                 BookmarkSearch(query=f'!untagged #{tag.name}'))
+                                                 BookmarkSearch(q=f'!untagged #{tag.name}'))
         self.assertCountEqual(list(query), [])
 
     def test_query_bookmarks_unread_should_return_unread_bookmarks_only(self):
@@ -398,7 +392,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         read_bookmarks = self.setup_numbered_bookmarks(5, unread=False)
 
         # Legacy query filter
-        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(query='!unread'))
+        query = queries.query_bookmarks(self.user, self.profile, BookmarkSearch(q='!unread'))
         self.assertCountEqual(list(query), unread_bookmarks)
 
         # Bookmark search filter - off
@@ -421,7 +415,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         read_bookmarks = self.setup_numbered_bookmarks(5, unread=False, archived=True)
 
         # Legacy query filter
-        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(query='!unread'))
+        query = queries.query_archived_bookmarks(self.user, self.profile, BookmarkSearch(q='!unread'))
         self.assertCountEqual(list(query), unread_bookmarks)
 
         # Bookmark search filter - off
@@ -461,7 +455,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmark_tags_should_return_all_tags_for_empty_query(self):
         self.setup_tag_search_data()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.other_bookmarks),
@@ -476,7 +470,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmark_tags_should_search_single_term(self):
         self.setup_tag_search_data()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='term1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='term1'))
 
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.term1_bookmarks),
@@ -487,7 +481,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmark_tags_should_search_multiple_terms(self):
         self.setup_tag_search_data()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='term2 term1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='term2 term1'))
 
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.term1_term2_bookmarks),
@@ -496,7 +490,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmark_tags_should_search_single_tag(self):
         self.setup_tag_search_data()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='#tag1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='#tag1'))
 
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.tag1_bookmarks),
@@ -507,7 +501,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmark_tags_should_search_multiple_tags(self):
         self.setup_tag_search_data()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='#tag1 #tag2'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='#tag1 #tag2'))
 
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.tag1_tag2_bookmarks),
@@ -516,7 +510,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmark_tags_should_search_multiple_tags_ignoring_casing(self):
         self.setup_tag_search_data()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='#Tag1 #TAG2'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='#Tag1 #TAG2'))
 
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.tag1_tag2_bookmarks),
@@ -525,7 +519,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmark_tags_should_search_term_and_tag_combined(self):
         self.setup_tag_search_data()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='term1 #tag1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='term1 #tag1'))
 
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.term1_tag1_bookmarks),
@@ -537,7 +531,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.profile.tag_search = UserProfile.TAG_SEARCH_STRICT
         self.profile.save()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='tag1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='tag1'))
         self.assertQueryResult(query, self.get_tags_from_bookmarks(self.tag1_as_term_bookmarks))
 
     def test_query_bookmark_tags_in_lax_mode_should_search_tags_as_terms(self):
@@ -546,7 +540,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.profile.tag_search = UserProfile.TAG_SEARCH_LAX
         self.profile.save()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='tag1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='tag1'))
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.tag1_bookmarks),
             self.get_tags_from_bookmarks(self.tag1_as_term_bookmarks),
@@ -554,17 +548,17 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.get_tags_from_bookmarks(self.term1_tag1_bookmarks)
         ])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='tag1 term1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='tag1 term1'))
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.term1_tag1_bookmarks),
         ])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='tag1 tag2'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='tag1 tag2'))
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.tag1_tag2_bookmarks),
         ])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='tag1 #tag2'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='tag1 #tag2'))
         self.assertQueryResult(query, [
             self.get_tags_from_bookmarks(self.tag1_tag2_bookmarks),
         ])
@@ -572,28 +566,28 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
     def test_query_bookmark_tags_should_return_no_matches(self):
         self.setup_tag_search_data()
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='term3'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='term3'))
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='term1 term3'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='term1 term3'))
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='term1 #tag2'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='term1 #tag2'))
         self.assertQueryResult(query, [])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='#tag3'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='#tag3'))
         self.assertQueryResult(query, [])
 
         # Unused tag
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='#unused_tag1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='#unused_tag1'))
         self.assertQueryResult(query, [])
 
         # Unused tag combined with tag that is used
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='#tag1 #unused_tag1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='#tag1 #unused_tag1'))
         self.assertQueryResult(query, [])
 
         # Unused tag combined with term that is used
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='term1 #unused_tag1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='term1 #unused_tag1'))
         self.assertQueryResult(query, [])
 
     def test_query_bookmark_tags_should_return_tags_for_unarchived_bookmarks_only(self):
@@ -603,7 +597,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
         self.setup_bookmark(is_archived=True, tags=[tag2])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [[tag1]])
 
@@ -613,7 +607,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(tags=[tag])
         self.setup_bookmark(tags=[tag])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [[tag]])
 
@@ -624,7 +618,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
         self.setup_bookmark(is_archived=True, tags=[tag2])
 
-        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [[tag2]])
 
@@ -634,7 +628,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(is_archived=True, tags=[tag])
         self.setup_bookmark(is_archived=True, tags=[tag])
 
-        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [[tag]])
 
@@ -649,7 +643,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=other_user, tags=[self.setup_tag(user=other_user)])
         self.setup_bookmark(user=other_user, tags=[self.setup_tag(user=other_user)])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [self.get_tags_from_bookmarks(owned_bookmarks)])
 
@@ -664,7 +658,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(is_archived=True, user=other_user, tags=[self.setup_tag(user=other_user)])
         self.setup_bookmark(is_archived=True, user=other_user, tags=[self.setup_tag(user=other_user)])
 
-        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(query=''))
+        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(q=''))
 
         self.assertQueryResult(query, [self.get_tags_from_bookmarks(owned_bookmarks)])
 
@@ -675,13 +669,13 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(title='term1', tags=[tag])
         self.setup_bookmark(tags=[tag])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='!untagged'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='!untagged'))
         self.assertCountEqual(list(query), [])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='!untagged term1'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='!untagged term1'))
         self.assertCountEqual(list(query), [])
 
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query=f'!untagged #{tag.name}'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q=f'!untagged #{tag.name}'))
         self.assertCountEqual(list(query), [])
 
     def test_query_archived_bookmark_tags_untagged_should_never_return_any_tags(self):
@@ -691,14 +685,14 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(is_archived=True, title='term1', tags=[tag])
         self.setup_bookmark(is_archived=True, tags=[tag])
 
-        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(query='!untagged'))
+        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(q='!untagged'))
         self.assertCountEqual(list(query), [])
 
-        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(query='!untagged term1'))
+        query = queries.query_archived_bookmark_tags(self.user, self.profile, BookmarkSearch(q='!untagged term1'))
         self.assertCountEqual(list(query), [])
 
         query = queries.query_archived_bookmark_tags(self.user, self.profile,
-                                                     BookmarkSearch(query=f'!untagged #{tag.name}'))
+                                                     BookmarkSearch(q=f'!untagged #{tag.name}'))
         self.assertCountEqual(list(query), [])
 
     def test_query_bookmark_tags_filter_unread(self):
@@ -708,7 +702,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         read_tags = self.get_tags_from_bookmarks(read_bookmarks)
 
         # Legacy query filter
-        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(query='!unread'))
+        query = queries.query_bookmark_tags(self.user, self.profile, BookmarkSearch(q='!unread'))
         self.assertCountEqual(list(query), unread_tags)
 
         # Bookmark search filter - off
@@ -769,14 +763,14 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=user4, shared=True, tags=[tag]),
 
         # Should return shared bookmarks from all users
-        query_set = queries.query_shared_bookmarks(None, self.profile, BookmarkSearch(query=''), False)
+        query_set = queries.query_shared_bookmarks(None, self.profile, BookmarkSearch(q=''), False)
         self.assertQueryResult(query_set, [shared_bookmarks])
 
         # Should respect search query
-        query_set = queries.query_shared_bookmarks(None, self.profile, BookmarkSearch(query='test title'), False)
+        query_set = queries.query_shared_bookmarks(None, self.profile, BookmarkSearch(q='test title'), False)
         self.assertQueryResult(query_set, [[shared_bookmarks[0]]])
 
-        query_set = queries.query_shared_bookmarks(None, self.profile, BookmarkSearch(query=f'#{tag.name}'), False)
+        query_set = queries.query_shared_bookmarks(None, self.profile, BookmarkSearch(q=f'#{tag.name}'), False)
         self.assertQueryResult(query_set, [[shared_bookmarks[2]]])
 
     def test_query_publicly_shared_bookmarks(self):
@@ -786,7 +780,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         bookmark1 = self.setup_bookmark(user=user1, shared=True)
         self.setup_bookmark(user=user2, shared=True)
 
-        query_set = queries.query_shared_bookmarks(None, self.profile, BookmarkSearch(query=''), True)
+        query_set = queries.query_shared_bookmarks(None, self.profile, BookmarkSearch(q=''), True)
         self.assertQueryResult(query_set, [[bookmark1]])
 
     def test_query_shared_bookmark_tags(self):
@@ -810,7 +804,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=user3, shared=False, tags=[self.setup_tag(user=user3)]),
         self.setup_bookmark(user=user4, shared=True, tags=[self.setup_tag(user=user4)]),
 
-        query_set = queries.query_shared_bookmark_tags(None, self.profile, BookmarkSearch(query=''), False)
+        query_set = queries.query_shared_bookmark_tags(None, self.profile, BookmarkSearch(q=''), False)
 
         self.assertQueryResult(query_set, [shared_tags])
 
@@ -824,7 +818,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=user1, shared=True, tags=[tag1]),
         self.setup_bookmark(user=user2, shared=True, tags=[tag2]),
 
-        query_set = queries.query_shared_bookmark_tags(None, self.profile, BookmarkSearch(query=''), True)
+        query_set = queries.query_shared_bookmark_tags(None, self.profile, BookmarkSearch(q=''), True)
 
         self.assertQueryResult(query_set, [[tag1]])
 
@@ -849,11 +843,11 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=users_without_shared_bookmarks[2], shared=True),
 
         # Should return users with shared bookmarks
-        query_set = queries.query_shared_bookmark_users(self.profile, BookmarkSearch(query=''), False)
+        query_set = queries.query_shared_bookmark_users(self.profile, BookmarkSearch(q=''), False)
         self.assertQueryResult(query_set, [users_with_shared_bookmarks])
 
         # Should respect search query
-        query_set = queries.query_shared_bookmark_users(self.profile, BookmarkSearch(query='test title'), False)
+        query_set = queries.query_shared_bookmark_users(self.profile, BookmarkSearch(q='test title'), False)
         self.assertQueryResult(query_set, [[users_with_shared_bookmarks[0]]])
 
     def test_query_publicly_shared_bookmark_users(self):
@@ -863,7 +857,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(user=user1, shared=True)
         self.setup_bookmark(user=user2, shared=True)
 
-        query_set = queries.query_shared_bookmark_users(self.profile, BookmarkSearch(query=''), True)
+        query_set = queries.query_shared_bookmark_users(self.profile, BookmarkSearch(q=''), True)
         self.assertQueryResult(query_set, [[user1]])
 
     def test_sorty_by_date_added_asc(self):

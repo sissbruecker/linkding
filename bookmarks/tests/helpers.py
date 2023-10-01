@@ -106,7 +106,7 @@ class BookmarkFactoryMixin:
             tags = []
             if with_tags:
                 tag_name = f'{tag_prefix} {i}{suffix}'
-                tags = [self.setup_tag(name=tag_name)]
+                tags = [self.setup_tag(name=tag_name, user=user)]
             bookmark = self.setup_bookmark(url=url,
                                            title=title,
                                            is_archived=archived,
@@ -138,6 +138,12 @@ class BookmarkFactoryMixin:
         user.profile.enable_public_sharing = enable_public_sharing
         user.profile.save()
         return user
+
+    def get_tags_from_bookmarks(self, bookmarks: [Bookmark]):
+        all_tags = []
+        for bookmark in bookmarks:
+            all_tags = all_tags + list(bookmark.tags.all())
+        return all_tags
 
     def get_random_string(self, length: int = 32):
         return get_random_string(length=length)

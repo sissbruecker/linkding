@@ -5,10 +5,10 @@ from typing import List
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.http import QueryDict
 
 from bookmarks.utils import unique
 from bookmarks.validators import BookmarkURLValidator
@@ -130,15 +130,16 @@ class BookmarkSearch:
     SORT_TITLE_ASC = 'title_asc'
     SORT_TITLE_DESC = 'title_desc'
 
-    FILTER_SHARED_OFF = ''
-    FILTER_SHARED_SHARED = 'shared'
-    FILTER_SHARED_UNSHARED = 'unshared'
+    FILTER_SHARED_OFF = 'off'
+    FILTER_SHARED_SHARED = 'yes'
+    FILTER_SHARED_UNSHARED = 'no'
 
-    FILTER_UNREAD_OFF = ''
+    FILTER_UNREAD_OFF = 'off'
     FILTER_UNREAD_YES = 'yes'
     FILTER_UNREAD_NO = 'no'
 
     params = ['q', 'user', 'sort', 'shared', 'unread']
+    preferences = ['sort', 'shared', 'unread']
     defaults = {
         'q': '',
         'user': '',
@@ -148,43 +149,59 @@ class BookmarkSearch:
     }
 
     def __init__(self,
-                 q: str = defaults['q'],
-                 query: str = defaults['q'],  # alias for q
-                 user: str = defaults['user'],
-                 sort: str = defaults['sort'],
-                 shared: str = defaults['shared'],
-                 unread: str = defaults['unread']):
-        self.q = q or query
-        self.user = user
-        self.sort = sort
-        self.shared = shared
-        self.unread = unread
+                 q: str = None,
+                 user: str = None,
+                 sort: str = None,
+                 shared: str = None,
+                 unread: str = None,
+                 preferences: dict = None):
+        if not preferences:
+            preferences = {}
+        self.defaults = {**BookmarkSearch.defaults, **preferences}
 
-    @property
-    def query(self):
-        return self.q
+        self.q = q or self.defaults['q']
+        self.user = user or self.defaults['user']
+        self.sort = sort or self.defaults['sort']
+        self.shared = shared or self.defaults['shared']
+        self.unread = unread or self.defaults['unread']
 
     def is_modified(self, param):
         value = self.__dict__[param]
-        return value and value != BookmarkSearch.defaults[param]
+        return value != self.defaults[param]
 
     @property
     def modified_params(self):
         return [field for field in self.params if self.is_modified(field)]
 
     @property
+    def modified_preferences(self):
+        return [preference for preference in self.preferences if self.is_modified(preference)]
+
+    @property
+    def has_modifications(self):
+        return len(self.modified_params) > 0
+
+    @property
+    def has_modified_preferences(self):
+        return len(self.modified_preferences) > 0
+
+    @property
     def query_params(self):
         return {param: self.__dict__[param] for param in self.modified_params}
 
+    @property
+    def preferences_dict(self):
+        return {preference: self.__dict__[preference] for preference in self.preferences}
+
     @staticmethod
-    def from_request(request: WSGIRequest):
+    def from_request(query_dict: QueryDict, preferences: dict = None):
         initial_values = {}
         for param in BookmarkSearch.params:
-            value = request.GET.get(param)
+            value = query_dict.get(param)
             if value:
                 initial_values[param] = value
 
-        return BookmarkSearch(**initial_values)
+        return BookmarkSearch(**initial_values, preferences=preferences)
 
 
 class BookmarkSearchForm(forms.Form):
@@ -214,6 +231,7 @@ class BookmarkSearchForm(forms.Form):
     def __init__(self, search: BookmarkSearch, editable_fields: List[str] = None, users: List[User] = None):
         super().__init__()
         editable_fields = editable_fields or []
+        self.editable_fields = editable_fields
 
         # set choices for user field if users are provided
         if users:
@@ -282,6 +300,7 @@ class UserProfile(models.Model):
     enable_favicons = models.BooleanField(default=False, null=False)
     display_url = models.BooleanField(default=False, null=False)
     permanent_notes = models.BooleanField(default=False, null=False)
+    search_preferences = models.JSONField(default=dict, null=False)
 
 
 class UserProfileForm(forms.ModelForm):

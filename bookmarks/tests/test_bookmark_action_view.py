@@ -440,21 +440,6 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(Bookmark.objects.get(id=bookmark2.id).is_archived)
         self.assertTrue(Bookmark.objects.get(id=bookmark3.id).is_archived)
 
-    def test_bulk_select_across_respects_query(self):
-        self.setup_numbered_bookmarks(3, prefix='foo')
-        self.setup_numbered_bookmarks(3, prefix='bar')
-
-        self.assertEqual(3, Bookmark.objects.filter(title__startswith='foo').count())
-
-        self.client.post(reverse('bookmarks:index.action') + '?q=foo', {
-            'bulk_action': ['bulk_delete'],
-            'bulk_execute': [''],
-            'bulk_select_across': ['on'],
-        })
-
-        self.assertEqual(0, Bookmark.objects.filter(title__startswith='foo').count())
-        self.assertEqual(3, Bookmark.objects.filter(title__startswith='bar').count())
-
     def test_bulk_select_across_ignores_page(self):
         self.setup_numbered_bookmarks(100)
 
@@ -493,6 +478,21 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertIsNone(Bookmark.objects.filter(title='Bookmark 2').first())
         self.assertIsNone(Bookmark.objects.filter(title='Bookmark 3').first())
 
+    def test_index_action_bulk_select_across_respects_query(self):
+        self.setup_numbered_bookmarks(3, prefix='foo')
+        self.setup_numbered_bookmarks(3, prefix='bar')
+
+        self.assertEqual(3, Bookmark.objects.filter(title__startswith='foo').count())
+
+        self.client.post(reverse('bookmarks:index.action') + '?q=foo', {
+            'bulk_action': ['bulk_delete'],
+            'bulk_execute': [''],
+            'bulk_select_across': ['on'],
+        })
+
+        self.assertEqual(0, Bookmark.objects.filter(title__startswith='foo').count())
+        self.assertEqual(3, Bookmark.objects.filter(title__startswith='bar').count())
+
     def test_archived_action_bulk_select_across_only_affects_archived_bookmarks(self):
         self.setup_bulk_edit_scope_test_data()
 
@@ -510,6 +510,21 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertIsNone(Bookmark.objects.filter(title='Archived Bookmark 1').first())
         self.assertIsNone(Bookmark.objects.filter(title='Archived Bookmark 2').first())
         self.assertIsNone(Bookmark.objects.filter(title='Archived Bookmark 3').first())
+
+    def test_archived_action_bulk_select_across_respects_query(self):
+        self.setup_numbered_bookmarks(3, prefix='foo', archived=True)
+        self.setup_numbered_bookmarks(3, prefix='bar', archived=True)
+
+        self.assertEqual(3, Bookmark.objects.filter(title__startswith='foo').count())
+
+        self.client.post(reverse('bookmarks:archived.action') + '?q=foo', {
+            'bulk_action': ['bulk_delete'],
+            'bulk_execute': [''],
+            'bulk_select_across': ['on'],
+        })
+
+        self.assertEqual(0, Bookmark.objects.filter(title__startswith='foo').count())
+        self.assertEqual(3, Bookmark.objects.filter(title__startswith='bar').count())
 
     def test_shared_action_bulk_select_across_not_supported(self):
         self.setup_bulk_edit_scope_test_data()
