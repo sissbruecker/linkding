@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.22.0 (01/10/2023)
+
+### What's Changed
+* Fix case-insensitive search for unicode characters in SQLite by @sissbruecker in https://github.com/sissbruecker/linkding/pull/520
+* Add sort option to bookmark list by @sissbruecker in https://github.com/sissbruecker/linkding/pull/522
+* Add button to show tags on smaller screens by @sissbruecker in https://github.com/sissbruecker/linkding/pull/529
+* Make code blocks in notes scrollable by @sissbruecker in https://github.com/sissbruecker/linkding/pull/530
+* Add filter for shared state by @sissbruecker in https://github.com/sissbruecker/linkding/pull/531
+* Add support for exporting/importing bookmark notes by @sissbruecker in https://github.com/sissbruecker/linkding/pull/532
+* Add filter for unread state by @sissbruecker in https://github.com/sissbruecker/linkding/pull/535
+* Allow saving search preferences by @sissbruecker in https://github.com/sissbruecker/linkding/pull/540
+* Add user profile endpoint by @sissbruecker in https://github.com/sissbruecker/linkding/pull/541
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.21.0...v1.22.0
+
+---
+
 ## v1.21.1 (26/09/2023)
 
 ### What's Changed
