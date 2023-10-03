@@ -1,4 +1,4 @@
-FROM node:18.13.0-alpine AS node-build
+FROM node:18.18.0-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY package.json package-lock.json ./
