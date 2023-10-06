@@ -225,6 +225,11 @@ else:
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3'),
         'OPTIONS': LD_DB_OPTIONS,
+        # Creating a connection loads the ICU extension into the SQLite
+        # connection, and also loads an ICU collation. The latter causes a
+        # memory leak, so try to counter that by making connections indefinitely
+        # persistent.
+        'CONN_MAX_AGE': None
     }
 
 DATABASES = {
