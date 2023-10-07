@@ -44,8 +44,8 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
     </svg>
   </a>
-  <div class="dropdown dropdown-right">
-    <a href="#" id="mobile-nav-menu-trigger" class="btn btn-link dropdown-toggle" tabindex="0">
+  <div ld-dropdown class="dropdown dropdown-right">
+    <a href="#" class="btn btn-link dropdown-toggle" tabindex="0">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
            style="width: 24px; height: 24px">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -80,22 +80,3 @@
   </div>
 </div>
 {% endhtmlmin %}
-<script>
-  // Hide mobile menu on outside click
-  // The Spectre CSS component relies on focus changes to show/hide the dropdown, however mobile browsers like
-  // Safari will not trigger a blur event when clicking on a non-focusable element, so we have to simulate the
-  // behaviour through Javascript
-  const mobileNavMenuTrigger = document.getElementById('mobile-nav-menu-trigger');
-
-  function mobileNavMenuOutsideClickHandler(clickEvent) {
-    if (mobileNavMenuTrigger.parentElement.contains(clickEvent.target)) return
-    mobileNavMenuTrigger.blur();
-  }
-
-  mobileNavMenuTrigger.addEventListener('focus', function () {
-    document.addEventListener('click', mobileNavMenuOutsideClickHandler);
-  })
-  mobileNavMenuTrigger.addEventListener('blur', function () {
-    document.removeEventListener('click', mobileNavMenuOutsideClickHandler);
-  })
-</script>
