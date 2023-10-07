@@ -191,6 +191,7 @@ This section lists community projects around using linkding, in alphabetical ord
 
 - [aiolinkding](https://github.com/bachya/aiolinkding) A Python3, async library to interact with the linkding REST API. By [bachya](https://github.com/bachya)
 - [Helm Chart](https://charts.pascaliske.dev/charts/linkding/) Helm Chart for deploying linkding inside a Kubernetes cluster. By [pascaliske](https://github.com/pascaliske)
+- [iOS Shortcut using API and Tagging](https://gist.github.com/andrewdolphin/a7dff49505e588d940bec55132fab8ad) An iOS shortcut using the Linkding API (no extra logins required) that pulls previously used tags and allows tagging at the time of link creation. 
 - [Linka!](https://github.com/cmsax/linka) Web app (also a PWA) for quickly searching & opening bookmarks in linkding, support multi keywords, exclude mode and other advance options. By [cmsax](https://github.com/cmsax)
 - [linkding-cli](https://github.com/bachya/linkding-cli) A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). By [bachya](https://github.com/bachya)
 - [linkding-extension](https://github.com/jeroenpardon/linkding-extension) Chromium compatible extension that wraps the linkding bookmarklet. Tested with Chrome, Edge, Brave. By [jeroenpardon](https://github.com/jeroenpardon)
@@ -198,7 +199,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [LinkThing](https://apps.apple.com/us/app/linkthing/id1666031776) An iOS client for linkding. By [amoscardino](https://github.com/amoscardino)
 - [Open all links bookmarklet](https://gist.github.com/ukcuddlyguy/336dd7339e6d35fc64a75ccfc9323c66) A browser bookmarklet to open all links on the current Linkding page in new tabs. By [ukcuddlyguy](https://github.com/ukcuddlyguy)
 - [Postman collection](https://gist.github.com/gingerbeardman/f0b42502f3bc9344e92ce63afd4360d3) a group of saved request templates for API testing. By [gingerbeardman](https://github.com/gingerbeardman)
-- [iOS Shortcut using API and Tagging](https://gist.github.com/andrewdolphin/a7dff49505e588d940bec55132fab8ad) An iOS shortcut using the Linkding API (no extra logins required) that pulls previously used tags and allows tagging at the time of link creation. 
+
 
 ## Acknowledgements
 
