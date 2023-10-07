@@ -200,7 +200,6 @@ This section lists community projects around using linkding, in alphabetical ord
 - [Open all links bookmarklet](https://gist.github.com/ukcuddlyguy/336dd7339e6d35fc64a75ccfc9323c66) A browser bookmarklet to open all links on the current Linkding page in new tabs. By [ukcuddlyguy](https://github.com/ukcuddlyguy)
 - [Postman collection](https://gist.github.com/gingerbeardman/f0b42502f3bc9344e92ce63afd4360d3) a group of saved request templates for API testing. By [gingerbeardman](https://github.com/gingerbeardman)
 
-
 ## Acknowledgements
 
 JetBrains provides an open-source license of [IntelliJ IDEA](https://www.jetbrains.com/idea/) for the development of linkding.
