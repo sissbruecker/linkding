@@ -74,12 +74,6 @@
       min-width: 250px;
     }
 
-    &:focus-within {
-      .menu {
-        display: block;
-      }
-    }
-
     .menu .actions {
       margin-top: $unit-4;
       display: flex;
