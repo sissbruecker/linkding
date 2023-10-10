@@ -58,7 +58,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
 
 FROM python:3.10.13-alpine3.18 AS final
 # install runtime dependencies
-RUN apk update && apk add bash curl icu libpq
+RUN apk update && apk add bash curl icu libpq mailcap
 # create www-data user and group
 RUN set -x ; \
   addgroup -g 82 -S www-data ; \
