@@ -122,7 +122,7 @@ class AdminUserProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'Profile'
     fk_name = 'user'
-
+    readonly_fields = ('search_preferences', )
 
 class AdminCustomUser(UserAdmin):
     inlines = (AdminUserProfileInline,)
