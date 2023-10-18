@@ -23,7 +23,7 @@ soupsieve==2.3.2.post1
 sqlparse==0.4.4
 supervisor==4.2.4
 typing-extensions==3.10.0.0
-urllib3==1.26.17
+urllib3==1.26.18
 uWSGI==2.0.22
 waybackpy==3.0.6
 webencodings==0.5.1
