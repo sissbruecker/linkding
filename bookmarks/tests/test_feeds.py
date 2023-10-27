@@ -104,6 +104,14 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertContains(response, '<item>', count=0)
 
+    def test_strip_control_characters(self):
+        self.setup_bookmark(title='test\n\r\t\0\x08title', description='test\n\r\t\0\x08description')
+        response = self.client.get(reverse('bookmarks:feeds.all', args=[self.token.key]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<item>', count=1)
+        self.assertContains(response, f'<title>test\n\r\ttitle</title>', count=1)
+        self.assertContains(response, f'<description>test\n\r\tdescription</description>', count=1)
+
     def test_unread_returns_404_for_unknown_feed_token(self):
         response = self.client.get(reverse('bookmarks:feeds.unread', args=['foo']))
 
