@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.22.2 (27/10/2023)
+
+### What's Changed
+* Fix search options not opening on iOS by @sissbruecker in https://github.com/sissbruecker/linkding/pull/549
+* Bump urllib3 from 1.26.11 to 1.26.17 by @dependabot in https://github.com/sissbruecker/linkding/pull/542
+* Add iOS shortcut to community section by @andrewdolphin in https://github.com/sissbruecker/linkding/pull/550
+* Disable editing of search preferences in user admin by @sissbruecker in https://github.com/sissbruecker/linkding/pull/555
+* Add feed2linkding to community section by @Strubbl in https://github.com/sissbruecker/linkding/pull/544
+* Sanitize RSS feed to remove control characters by @sissbruecker in https://github.com/sissbruecker/linkding/pull/565
+* Bump urllib3 from 1.26.17 to 1.26.18 by @dependabot in https://github.com/sissbruecker/linkding/pull/560
+
+### New Contributors
+* @andrewdolphin made their first contribution in https://github.com/sissbruecker/linkding/pull/550
+* @Strubbl made their first contribution in https://github.com/sissbruecker/linkding/pull/544
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.22.1...v1.22.2
+
+---
+
+## v1.22.1 (06/10/2023)
+
+### What's Changed
+* Fix memory leak with SQLite by @sissbruecker in https://github.com/sissbruecker/linkding/pull/548
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.22.0...v1.22.1
+
+---
+
 ## v1.22.0 (01/10/2023)
 
 ### What's Changed
