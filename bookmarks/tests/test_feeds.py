@@ -7,6 +7,8 @@ from django.urls import reverse
 
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 from bookmarks.models import FeedToken, User
+from bookmarks.feeds import sanitize
+
 
 
 def rfc2822_date(date):
@@ -111,6 +113,9 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertContains(response, '<item>', count=1)
         self.assertContains(response, f'<title>test\n\r\ttitle</title>', count=1)
         self.assertContains(response, f'<description>test\n\r\tdescription</description>', count=1)
+
+    def test_sanitize_with_none_text(self):
+        self.assertEqual('', sanitize(None))
 
     def test_unread_returns_404_for_unknown_feed_token(self):
         response = self.client.get(reverse('bookmarks:feeds.unread', args=['foo']))
