@@ -17,6 +17,8 @@ WORKDIR /etc/linkding
 FROM python-base AS python-build
 # install build dependencies
 COPY requirements.txt requirements.txt
+# remove playwright from requirements as there is not always a distro and it's not needed for the build
+RUN sed -i '/playwright/d' requirements.txt
 RUN pip install -U pip && pip install -Ur requirements.txt
 # copy files needed for Django build
 COPY . .
