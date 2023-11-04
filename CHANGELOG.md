@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.22.3 (04/11/2023)
+
+### What's Changed
+* Fix RSS feed not handling None values  by @vitormarcal in https://github.com/sissbruecker/linkding/pull/569
+* Bump django from 4.1.10 to 4.1.13 by @dependabot in https://github.com/sissbruecker/linkding/pull/567
+
+### New Contributors
+* @vitormarcal made their first contribution in https://github.com/sissbruecker/linkding/pull/569
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.22.2...v1.22.3
+
+---
+
 ## v1.22.2 (27/10/2023)
 
 ### What's Changed
