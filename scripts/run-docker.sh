@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-docker build -t sissbruecker/linkding:local .
+variant="${1:-default}"
+
+docker build -f "docker/$variant.Dockerfile" -t sissbruecker/linkding:local .
 
 docker rm -f linkding-local || true
 
