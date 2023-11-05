@@ -58,8 +58,26 @@ The name comes from:
 linkding is designed to be run with container solutions like [Docker](https://docs.docker.com/get-started/).
 The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
 
-By default, linkding uses SQLite as a database.
+linkding uses an SQLite database by default.
 Alternatively linkding supports PostgreSQL, see the [database options](docs/Options.md#LD_DB_ENGINE) for more information.
+
+<details>
+
+<summary>🧪 Alpine-based image</summary>
+
+The default Docker image (`latest` tag) is based on a slim variant of Debian Linux.
+Alternatively, there is an image based on Alpine Linux (`latest-alpine` tag) which has a smaller size, resulting in a smaller download and less disk space required.
+The Alpine image is currently about 45 MB in compressed size, compared to about 130 MB for the Debian image.
+
+To use it, replace the `latest` tag with `latest-alpine`, either in the CLI command below when using Docker, or in the `docker-compose.yml` file when using docker-compose.
+
+> [!WARNING]
+> The image is currently considered experimental in order to gather feedback and iron out any issues.
+> Only use it if you are comfortable running experimental software or want to help out with testing.
+> While there should be no issues with creating new installations, there might be issues when migrating existing installations.
+> If you plan to migrate your existing installation, make sure to create proper [backups](https://github.com/sissbruecker/linkding/blob/master/docs/backup.md) first.
+
+</details>
 
 ###  Using Docker
 
