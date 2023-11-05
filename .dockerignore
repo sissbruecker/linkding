@@ -1,34 +1,22 @@
-# Remove project files, data, tmp files, build files
-/.env
-/.idea
-/data
-/node_modules
-/tmp
-/docs
-/static
-/scripts
-/build
-/out
-/.git
-/.devcontainer
+# Ignore everything
+*
 
-/.dockerignore
-/.gitignore
-/.gitattributes
-/Dockerfile
-/docker-compose.yml
-/*.sh
-/*.iml
-/*.patch
-/*.md
-/*.js
-/*.log
-/*.pid
+# Include files required for build or at runtime
+!/bookmarks
+!/siteroot
 
-# Whitelist files needed in build or prod image
-!/rollup.config.js
-!/bootstrap.sh
 !/background-tasks-wrapper.sh
+!/bootstrap.sh
+!/LICENSE.txt
+!/manage.py
+!/package.json
+!/package-lock.json
+!/requirements.prod.txt
+!/requirements.txt
+!/rollup.config.js
+!/supervisord.conf
+!/uwsgi.ini
+!/version.txt
 
-# Remove development settings
+ # Remove dev settings
 /siteroot/settings/dev.py
