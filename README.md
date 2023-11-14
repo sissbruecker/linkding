@@ -40,7 +40,7 @@ The name comes from:
 - Automatically provides titles, descriptions and icons of bookmarked websites
 - Automatically creates snapshots of bookmarked websites on [the Internet Archive Wayback Machine](https://archive.org/web/)
 - Import and export bookmarks in Netscape HTML format
-- Extensions for [Firefox](https://addons.mozilla.org/de/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a bookmarklet
+- Extensions for [Firefox](https://addons.mozilla.org/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a bookmarklet
 - Light and dark themes
 - REST API for developing 3rd party apps
 - Admin panel for user self-service and raw data access
@@ -198,7 +198,7 @@ Self-hosting web applications still requires a lot of technical know-how and com
 ## Browser Extension
 
 linkding comes with an official browser extension that allows to quickly add bookmarks, and search bookmarks through the browser's address bar. You can get the extension here:
-- [Mozilla Addon Store](https://addons.mozilla.org/de/firefox/addon/linkding-extension/)
+- [Mozilla Addon Store](https://addons.mozilla.org/firefox/addon/linkding-extension/)
 - [Chrome Web Store](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe)
 
 The extension is open-source as well, and can be found [here](https://github.com/sissbruecker/linkding-extension).
