@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.test import TestCase
 from django.urls import reverse
 
+from bookmarks.models import Bookmark
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -20,6 +21,9 @@ class SettingsExportViewTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(tags=[self.setup_tag()])
         self.setup_bookmark(tags=[self.setup_tag()])
         self.setup_bookmark(tags=[self.setup_tag()])
+        self.setup_bookmark(tags=[self.setup_tag()], is_archived=True)
+        self.setup_bookmark(tags=[self.setup_tag()], is_archived=True)
+        self.setup_bookmark(tags=[self.setup_tag()], is_archived=True)
 
         response = self.client.get(
             reverse('bookmarks:settings.export'),
@@ -29,6 +33,35 @@ class SettingsExportViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'text/plain; charset=UTF-8')
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="bookmarks.html"')
+
+        for bookmark in Bookmark.objects.all():
+            self.assertContains(response, bookmark.url)
+
+    def test_should_only_export_user_bookmarks(self):
+        other_user = self.setup_user()
+        owned_bookmarks = [
+            self.setup_bookmark(tags=[self.setup_tag()]),
+            self.setup_bookmark(tags=[self.setup_tag()]),
+            self.setup_bookmark(tags=[self.setup_tag()]),
+        ]
+        non_owned_bookmarks = [
+            self.setup_bookmark(tags=[self.setup_tag()], user=other_user),
+            self.setup_bookmark(tags=[self.setup_tag()], user=other_user),
+            self.setup_bookmark(tags=[self.setup_tag()], user=other_user),
+        ]
+
+        response = self.client.get(
+            reverse('bookmarks:settings.export'),
+            follow=True
+        )
+
+        text = response.content.decode('utf-8')
+
+        for bookmark in owned_bookmarks:
+            self.assertIn(bookmark.url, text)
+
+        for bookmark in non_owned_bookmarks:
+            self.assertNotIn(bookmark.url, text)
 
     def test_should_check_authentication(self):
         self.client.logout()
