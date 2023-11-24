@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.23.0 (24/11/2023)
+
+### What's Changed
+* Add Alpine based Docker image (experimental) by @sissbruecker in https://github.com/sissbruecker/linkding/pull/570
+* Add backup CLI command by @sissbruecker in https://github.com/sissbruecker/linkding/pull/571
+* Update browser extension links by @OPerepadia in https://github.com/sissbruecker/linkding/pull/574
+* Include archived bookmarks in export by @sissbruecker in https://github.com/sissbruecker/linkding/pull/579
+
+### New Contributors
+* @OPerepadia made their first contribution in https://github.com/sissbruecker/linkding/pull/574
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.22.3...v1.23.0
+
+---
+
 ## v1.22.3 (04/11/2023)
 
 ### What's Changed
