@@ -295,6 +295,27 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         self.assertEqual(bookmark2.shared, False)
         self.assertEqual(bookmark3.shared, True)
 
+    def test_archived_state(self):
+        test_html = self.render_html(tags_html='''
+        <DT><A HREF="https://example.com/1" ADD_DATE="1" TAGS="tag1,tag2,linkding:archived">Example title 1</A>
+        <DD>Example description 1</DD>
+        <DT><A HREF="https://example.com/2" ADD_DATE="1" PRIVATE="1" TAGS="tag1,tag2">Example title 2</A>
+        <DD>Example description 2</DD>
+        <DT><A HREF="https://example.com/3" ADD_DATE="1" PRIVATE="0">Example title 3</A>
+        <DD>Example description 3</DD>
+        ''')
+        import_netscape_html(test_html, self.get_or_create_test_user(), ImportOptions())
+
+        self.assertEqual(Bookmark.objects.count(), 3)
+        self.assertEqual(Bookmark.objects.all()[0].is_archived, True)
+        self.assertEqual(Bookmark.objects.all()[1].is_archived, False)
+        self.assertEqual(Bookmark.objects.all()[2].is_archived, False)
+
+        tags = Tag.objects.all()
+        self.assertEqual(len(tags), 2)
+        self.assertEqual(tags[0].name, 'tag1')
+        self.assertEqual(tags[1].name, 'tag2')
+
     def test_notes(self):
         # initial notes
         test_html = self.render_html(tags_html='''

@@ -12,8 +12,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
-from bookmarks.models import BookmarkSearch, UserProfileForm, FeedToken
-from bookmarks.queries import query_bookmarks
+from bookmarks.models import Bookmark, BookmarkSearch, UserProfileForm, FeedToken
 from bookmarks.services import exporter, tasks
 from bookmarks.services import importer
 from bookmarks.utils import app_version
@@ -136,7 +135,7 @@ def bookmark_import(request):
 def bookmark_export(request):
     # noinspection PyBroadException
     try:
-        bookmarks = list(query_bookmarks(request.user, request.user_profile, BookmarkSearch()))
+        bookmarks = Bookmark.objects.filter(owner=request.user)
         # Prefetch tags to prevent n+1 queries
         prefetch_related_objects(bookmarks, 'tags')
         file_content = exporter.export_netscape_html(bookmarks)

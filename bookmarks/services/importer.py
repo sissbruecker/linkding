@@ -5,7 +5,7 @@ from typing import List
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, Tag, parse_tag_string
+from bookmarks.models import Bookmark, Tag
 from bookmarks.services import tasks
 from bookmarks.services.parser import parse, NetscapeBookmark
 from bookmarks.utils import parse_timestamp
@@ -93,8 +93,7 @@ def _create_missing_tags(netscape_bookmarks: List[NetscapeBookmark], user: User)
     tags_to_create = []
 
     for netscape_bookmark in netscape_bookmarks:
-        tag_names = parse_tag_string(netscape_bookmark.tag_string)
-        for tag_name in tag_names:
+        for tag_name in netscape_bookmark.tag_names:
             tag = tag_cache.get(tag_name)
             if not tag:
                 tag = Tag(name=tag_name, owner=user)
@@ -194,8 +193,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark],
             continue
 
         # Get tag models by string, schedule inserts for bookmark -> tag associations
-        tag_names = parse_tag_string(netscape_bookmark.tag_string)
-        tags = tag_cache.get_all(tag_names)
+        tags = tag_cache.get_all(netscape_bookmark.tag_names)
         for tag in tags:
             relationships.append(BookmarkToTagRelationShip(bookmark=bookmark, tag=tag))
 
@@ -219,3 +217,5 @@ def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark,
         bookmark.notes = netscape_bookmark.notes
     if options.map_private_flag and not netscape_bookmark.private:
         bookmark.shared = True
+    if netscape_bookmark.archived:
+        bookmark.is_archived = True

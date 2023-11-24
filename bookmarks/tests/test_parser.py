@@ -2,6 +2,7 @@ from typing import List
 
 from django.test import TestCase
 
+from bookmarks.models import parse_tag_string
 from bookmarks.services.parser import NetscapeBookmark
 from bookmarks.services.parser import parse
 from bookmarks.tests.helpers import ImportTestMixin, BookmarkHtmlTag
@@ -16,7 +17,7 @@ class ParserTestCase(TestCase, ImportTestMixin):
             self.assertEqual(bookmark.title, html_tag.title)
             self.assertEqual(bookmark.date_added, html_tag.add_date)
             self.assertEqual(bookmark.description, html_tag.description)
-            self.assertEqual(bookmark.tag_string, html_tag.tags)
+            self.assertEqual(bookmark.tag_names, parse_tag_string(html_tag.tags))
             self.assertEqual(bookmark.to_read, html_tag.to_read)
             self.assertEqual(bookmark.private, html_tag.private)
 

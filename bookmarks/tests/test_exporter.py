@@ -22,6 +22,9 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
                                 description='Example description', notes='Example notes'),
             self.setup_bookmark(url='https://example.com/6', title='Title 6', added=added, shared=True,
                                 notes='Example notes'),
+            self.setup_bookmark(url='https://example.com/7', title='Title 7', added=added, is_archived=True),
+            self.setup_bookmark(url='https://example.com/8', title='Title 8', added=added,
+                                tags=[self.setup_tag(name='tag4'), self.setup_tag(name='tag5')], is_archived=True),
         ]
         html = exporter.export_netscape_html(bookmarks)
 
@@ -35,6 +38,8 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
             '<DD>Example description[linkding-notes]Example notes[/linkding-notes]',
             f'<DT><A HREF="https://example.com/6" ADD_DATE="{timestamp}" PRIVATE="0" TOREAD="0" TAGS="">Title 6</A>',
             '<DD>[linkding-notes]Example notes[/linkding-notes]',
+            f'<DT><A HREF="https://example.com/7" ADD_DATE="{timestamp}" PRIVATE="1" TOREAD="0" TAGS="linkding:archived">Title 7</A>',
+            f'<DT><A HREF="https://example.com/8" ADD_DATE="{timestamp}" PRIVATE="1" TOREAD="0" TAGS="tag4,tag5,linkding:archived">Title 8</A>',
         ]
         self.assertIn('\n\r'.join(lines), html)
 
