@@ -38,6 +38,10 @@ Now you can move that file to your backup location.
 
 To restore the backup, just copy the backup file to the data folder of your new installation and rename it to `db.sqlite3`. Then start the Docker container.
 
+```
+docker cp backup.sqlite3 linkding:/etc/linkding/db.sqlite3
+```
+
 ### Using the SQLite dump function
 
 Requires [SQLite](https://www.sqlite.org/index.html) to be installed on your host system.
