@@ -422,3 +422,31 @@ class BookmarkArchivedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         self.assertEqual(actions_form.attrs['action'],
                          '/bookmarks/archived/action?q=%23foo&return_url=%2Fbookmarks%2Farchived%3Fq%3D%2523foo')
+
+    def test_encode_search_params(self):
+        bookmark = self.setup_bookmark(description='alert(\'xss\')', is_archived=True)
+
+        url = reverse('bookmarks:archived') + '?q=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+        self.assertContains(response, bookmark.url)
+
+        url = reverse('bookmarks:archived') + '?sort=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:archived') + '?unread=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:archived') + '?shared=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:archived') + '?user=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:archived') + '?page=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
