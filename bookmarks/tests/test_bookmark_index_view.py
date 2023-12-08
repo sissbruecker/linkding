@@ -418,3 +418,31 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertEqual(actions_form.attrs['action'],
                          '/bookmarks/action?q=%23foo&return_url=%2Fbookmarks%3Fq%3D%2523foo')
+
+    def test_encode_search_params(self):
+        bookmark = self.setup_bookmark(description='alert(\'xss\')')
+
+        url = reverse('bookmarks:index') + '?q=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+        self.assertContains(response, bookmark.url)
+
+        url = reverse('bookmarks:index') + '?sort=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:index') + '?unread=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:index') + '?shared=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:index') + '?user=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:index') + '?page=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')

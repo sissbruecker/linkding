@@ -500,3 +500,35 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertEqual(actions_form.attrs['action'],
                          '/bookmarks/shared/action?q=%23foo&return_url=%2Fbookmarks%2Fshared%3Fq%3D%2523foo')
+
+    def test_encode_search_params(self):
+        self.authenticate()
+        user = self.get_or_create_test_user()
+        user.profile.enable_sharing = True
+        user.profile.save()
+        bookmark = self.setup_bookmark(description='alert(\'xss\')', shared=True)
+
+        url = reverse('bookmarks:shared') + '?q=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+        self.assertContains(response, bookmark.url)
+
+        url = reverse('bookmarks:shared') + '?sort=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:shared') + '?unread=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:shared') + '?shared=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:shared') + '?user=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')
+
+        url = reverse('bookmarks:shared') + '?page=alert(%27xss%27)'
+        response = self.client.get(url)
+        self.assertNotContains(response, 'alert(\'xss\')')

@@ -95,7 +95,7 @@
       props: {
         name: 'q',
         placeholder: 'Search for words or #tags',
-        value: '{{ search.q|safe }}',
+        value: input.value,
         tags: uniqueTags,
         mode: '{{ mode }}',
         linkTarget: '{{ request.user_profile.bookmark_link_target }}',
