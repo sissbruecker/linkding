@@ -185,7 +185,7 @@ LD_AUTH_PROXY_LOGOUT_URL = os.getenv('LD_AUTH_PROXY_LOGOUT_URL', None)
 
 LD_ENABLE_OIDC = os.getenv('LD_ENABLE_OIDC', False) in (True, 'True', '1')
 
-AUTHENTICATION_BACKENDS = []
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend",]
 
 if LD_ENABLE_OIDC:
     AUTHENTICATION_BACKENDS.append('mozilla_django_oidc.auth.OIDCAuthenticationBackend')
@@ -205,8 +205,7 @@ if LD_ENABLE_AUTH_PROXY:
     # in the LD_AUTH_PROXY_USERNAME_HEADER request header
     MIDDLEWARE.append('bookmarks.middlewares.CustomRemoteUserMiddleware')
     # Configure auth backend that does not require a password credential
-    AUTHENTICATION_BACKENDS.append(
-        'django.contrib.auth.backends.RemoteUserBackend',)
+    AUTHENTICATION_BACKENDS.append('django.contrib.auth.backends.RemoteUserBackend')
     # Configure logout URL
     if LD_AUTH_PROXY_LOGOUT_URL:
         LOGOUT_REDIRECT_URL = LD_AUTH_PROXY_LOGOUT_URL

@@ -1,20 +1,19 @@
 import logging
 import time
 from functools import lru_cache
-
 import requests
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import prefetch_related_objects
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
-from bookmarks.models import Bookmark, BookmarkSearch, UserProfileForm, FeedToken
-from bookmarks.services import exporter, tasks
-from bookmarks.services import importer
+from bookmarks.models import (Bookmark, FeedToken,
+                              UserProfileForm)
+from bookmarks.services import exporter, importer, tasks
 from bookmarks.utils import app_version
 
 logger = logging.getLogger(__name__)
@@ -40,6 +39,10 @@ def general(request):
 
     if not profile_form:
         profile_form = UserProfileForm(instance=request.user_profile)
+    try:
+        logged_in_via_django = request.session._session_cache["_auth_user_backend"] == "django.contrib.auth.backends.ModelBackend"
+    except (KeyError, AttributeError):
+        logged_in_via_django = True
 
     return render(request, 'settings/general.html', {
         'form': profile_form,
@@ -49,6 +52,7 @@ def general(request):
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
         'version_info': version_info,
+        'show_change_password': logged_in_via_django,
     })
 
 
