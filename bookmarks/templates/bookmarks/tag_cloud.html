@@ -1,10 +1,10 @@
 {% load shared %}
 {% htmlmin %}
   <div class="tag-cloud">
-    {% if has_selected_tags %}
+    {% if tag_cloud.has_selected_tags %}
       <p class="selected-tags">
-        {% for tag in selected_tags %}
-          <a href="?{% remove_from_query_param q=tag.name|hash_tag %}"
+        {% for tag in tag_cloud.selected_tags %}
+          <a href="?{% remove_tag_from_query tag.name %}"
              class="text-bold mr-2">
             <span>-{{ tag.name }}</span>
           </a>
@@ -12,19 +12,19 @@
       </p>
     {% endif %}
     <div class="unselected-tags">
-      {% for group in groups %}
+      {% for group in tag_cloud.groups %}
         <p class="group">
           {% for tag in group.tags %}
             {# Highlight first char of first tag in group #}
             {% if forloop.counter == 1 %}
-              <a href="?{% append_to_query_param q=tag.name|hash_tag %}"
+              <a href="?{% add_tag_to_query tag.name %}"
                  class="mr-2" data-is-tag-item>
                 <span
                     class="highlight-char">{{ tag.name|first_char }}</span><span>{{ tag.name|remaining_chars:1 }}</span>
               </a>
             {% else %}
               {# Render remaining tags normally #}
-              <a href="?{% append_to_query_param q=tag.name|hash_tag %}"
+              <a href="?{% add_tag_to_query tag.name %}"
                  class="mr-2" data-is-tag-item>
                 <span>{{ tag.name }}</span>
               </a>

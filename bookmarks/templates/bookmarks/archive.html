@@ -4,43 +4,45 @@
 {% load bookmarks %}
 
 {% block content %}
-
-  {% include 'bookmarks/bulk_edit/state.html' %}
-
-  <div class="bookmarks-page columns">
+  <div class="bookmarks-page grid columns-md-1"
+       ld-bulk-edit
+       ld-bookmark-page
+       bookmarks-url="{% url 'bookmarks:partials.bookmark_list.archived' %}"
+       tags-url="{% url 'bookmarks:partials.tag_cloud.archived' %}">
 
     {# Bookmark list #}
-    <section class="content-area column col-8 col-md-12">
-      <div class="content-area-header">
+    <section class="content-area col-2">
+      <div class="content-area-header mb-0">
         <h2>Archived bookmarks</h2>
-        <div class="spacer"></div>
-        {% bookmark_search filters tags mode='archived' %}
-        {% include 'bookmarks/bulk_edit/toggle.html' %}
+        <div class="header-controls">
+          {% bookmark_search bookmark_list.search tag_cloud.tags mode='archived' %}
+          {% include 'bookmarks/bulk_edit/toggle.html' %}
+          <button ld-modal modal-content=".tag-cloud" class="btn ml-2 show-md">Tags</button>
+        </div>
       </div>
 
-      <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ return_url }}"
-            method="post">
+      <form class="bookmark-actions"
+            action="{{ bookmark_list.action_url|safe }}"
+            method="post" autocomplete="off">
         {% csrf_token %}
-        {% include 'bookmarks/bulk_edit/bar.html' with mode='archive' %}
+        {% include 'bookmarks/bulk_edit/bar.html' with disable_actions='bulk_archive' %}
 
-        {% if empty %}
-          {% include 'bookmarks/empty_bookmarks.html' %}
-        {% else %}
-          {% bookmark_list bookmarks return_url link_target %}
-        {% endif %}
+        <div class="bookmark-list-container">
+          {% include 'bookmarks/bookmark_list.html' %}
+        </div>
       </form>
     </section>
 
-    {# Tag list #}
-    <section class="content-area column col-4 hide-md">
+    {# Tag cloud #}
+    <section class="content-area col-1 hide-md">
       <div class="content-area-header">
         <h2>Tags</h2>
       </div>
-      {% tag_cloud tags selected_tags %}
+      <div class="tag-cloud-container">
+        {% include 'bookmarks/tag_cloud.html' %}
+      </div>
     </section>
   </div>
 
-  <script src="{% static "bundle.js" %}"></script>
-  <script src="{% static "shared.js" %}"></script>
-  <script src="{% static "bookmark_list.js" %}"></script>
+  <script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
 {% endblock %}

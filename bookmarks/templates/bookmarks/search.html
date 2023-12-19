@@ -1,17 +1,79 @@
-<div class="search">
-  <form action="" method="get" role="search">
-    <div class="input-group">
-            <span id="search-input-wrap">
-                <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
-                       value="{{ filters.query }}">
-            </span>
-      <input type="submit" value="Search" class="btn input-group-btn">
-    </div>
-    {% if filters.user %}
-      <input type="hidden" name="user" value="{{ filters.user }}">
-    {% endif %}
+{% load widget_tweaks %}
+
+<div class="search-container">
+  <form id="search" class="input-group" action="" method="get" role="search">
+    <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
+           value="{{ search.q }}">
+    <input type="submit" value="Search" class="btn input-group-btn">
+    {% for hidden_field in search_form.hidden_fields %}
+      {{ hidden_field }}
+    {% endfor %}
   </form>
+  <div ld-dropdown class="search-options dropdown dropdown-right">
+    <button type="button" class="btn dropdown-toggle{% if search.has_modified_preferences %} badge{% endif %}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2"
+           stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+        <path d="M6 4v4"></path>
+        <path d="M6 12v8"></path>
+        <path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+        <path d="M12 4v10"></path>
+        <path d="M12 18v2"></path>
+        <path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+        <path d="M18 4v1"></path>
+        <path d="M18 9v11"></path>
+      </svg>
+    </button>
+    <div class="menu text-sm" tabindex="0">
+      <form id="search_preferences" action="" method="post">
+        {% csrf_token %}
+        {% if 'sort' in preferences_form.editable_fields %}
+          <div class="form-group">
+            <label for="{{ preferences_form.sort.id_for_label }}"
+                   class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">Sort by</label>
+            {{ preferences_form.sort|add_class:"form-select select-sm" }}
+          </div>
+        {% endif %}
+        {% if 'shared' in preferences_form.editable_fields %}
+          <div class="form-group radio-group">
+            <div class="form-label{% if 'shared' in search.modified_params %} text-bold{% endif %}">Shared filter</div>
+            {% for radio in preferences_form.shared %}
+              <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
+                {{ radio.tag }}
+                <i class="form-icon"></i>
+                {{ radio.choice_label }}
+              </label>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if 'unread' in preferences_form.editable_fields %}
+          <div class="form-group radio-group">
+            <div class="form-label{% if 'unread' in search.modified_params %} text-bold{% endif %}">Unread filter</div>
+            {% for radio in preferences_form.unread %}
+              <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
+                {{ radio.tag }}
+                <i class="form-icon"></i>
+                {{ radio.choice_label }}
+              </label>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <div class="actions">
+          <button type="submit" class="btn btn-sm btn-primary" name="apply">Apply</button>
+          {% if request.user.is_authenticated %}
+            <button type="submit" class="btn btn-sm" name="save">Save as default</button>
+          {% endif %}
+        </div>
+
+        {% for hidden_field in preferences_form.hidden_fields %}
+          {{ hidden_field }}
+        {% endfor %}
+      </form>
+    </div>
+  </div>
 </div>
+
 
 {# Replace search input with auto-complete component #}
 <script type="application/javascript">
@@ -19,25 +81,28 @@
     const currentTagsString = '{{ tags_string }}';
     const currentTags = currentTagsString.split(' ');
     const uniqueTags = [...new Set(currentTags)]
-    const filters = {
-      q: '{{ filters.query }}',
-      user: '{{ filters.user }}',
+    const search = {
+      q: '{{ search.q }}',
+      user: '{{ search.user }}',
+      shared: '{{ search.shared }}',
+      unread: '{{ search.unread }}',
     }
     const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
-    const wrapper = document.getElementById('search-input-wrap')
-    const newWrapper = document.createElement('div')
+    const input = document.querySelector('#search input[name="q"]')
+    const wrapper = document.createElement('div')
     new linkding.SearchAutoComplete({
-      target: newWrapper,
+      target: wrapper,
       props: {
         name: 'q',
         placeholder: 'Search for words or #tags',
-        value: '{{ filters.query }}',
+        value: input.value,
         tags: uniqueTags,
         mode: '{{ mode }}',
+        linkTarget: '{{ request.user_profile.bookmark_link_target }}',
         apiClient,
-        filters,
+        search,
       }
     })
-    wrapper.parentElement.replaceChild(newWrapper, wrapper)
+    input.replaceWith(wrapper.firstElementChild);
   });
 </script>

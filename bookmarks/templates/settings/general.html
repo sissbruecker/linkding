@@ -16,30 +16,83 @@
         {% csrf_token %}
         <div class="form-group">
           <label for="{{ form.theme.id_for_label }}" class="form-label">Theme</label>
-          {{ form.theme|add_class:"form-select col-2 col-sm-12" }}
+          {{ form.theme|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
             Whether to use a light or dark theme, or automatically adjust the theme based on your system's settings.
           </div>
         </div>
         <div class="form-group">
           <label for="{{ form.bookmark_date_display.id_for_label }}" class="form-label">Bookmark date format</label>
-          {{ form.bookmark_date_display|add_class:"form-select col-2 col-sm-12" }}
+          {{ form.bookmark_date_display|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
             Whether to show bookmark dates as relative (how long ago), or as absolute dates. Alternatively the date can
             be hidden.
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.display_url.id_for_label }}" class="form-checkbox">
+            {{ form.display_url }}
+            <i class="form-icon"></i> Show bookmark URL
+          </label>
+          <div class="form-input-hint">
+            When enabled, this setting displays the bookmark URL below the title.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.permanent_notes.id_for_label }}" class="form-checkbox">
+            {{ form.permanent_notes }}
+            <i class="form-icon"></i> Show notes permanently
+          </label>
+          <div class="form-input-hint">
+            Whether to show bookmark notes permanently, without having to toggle them individually.
+            Alternatively the keyboard shortcut <code>e</code> can be used to temporarily show all notes.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.bookmark_link_target.id_for_label }}" class="form-label">Open bookmarks in</label>
-          {{ form.bookmark_link_target|add_class:"form-select col-2 col-sm-12" }}
+          {{ form.bookmark_link_target|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
             Whether to open bookmarks a new page or in the same page.
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.tag_search.id_for_label }}" class="form-label">Tag search</label>
+          {{ form.tag_search|add_class:"form-select width-25 width-sm-100" }}
+          <div class="form-input-hint">
+            In strict mode, tags must be prefixed with a hash character (#).
+            In lax mode, tags can also be searched without the hash character.
+            Note that tags without the hash character are indistinguishable from search terms, which means the search
+            result will also include bookmarks where a search term matches otherwise.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.enable_favicons.id_for_label }}" class="form-checkbox">
+            {{ form.enable_favicons }}
+            <i class="form-icon"></i> Enable Favicons
+          </label>
+          <div class="form-input-hint">
+            Automatically loads favicons for bookmarked websites and displays them next to each bookmark.
+            By default, this feature uses a <b>Google service</b> to download favicons.
+            If you don't want to use this service, check the <a
+              href="https://github.com/sissbruecker/linkding/blob/master/docs/Options.md#ld_favicon_provider"
+              target="_blank">options documentation</a> on how to configure a custom favicon provider.
+            Icons are downloaded in the background, and it may take a while for them to show up.
+          </div>
+          {% if request.user_profile.enable_favicons and enable_refresh_favicons %}
+            <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
+          {% endif %}
+          {% if refresh_favicons_success_message %}
+            <div class="has-success">
+              <p class="form-input-hint">
+                {{ refresh_favicons_success_message }}
+              </p>
+            </div>
+          {% endif %}
+        </div>
+        <div class="form-group">
           <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
             integration</label>
-          {{ form.web_archive_integration|add_class:"form-select col-2 col-sm-12" }}
+          {{ form.web_archive_integration|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
             Enabling this feature will automatically create snapshots of bookmarked websites on the <a
               href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive Wayback
@@ -61,7 +114,25 @@
           </div>
         </div>
         <div class="form-group">
-          <input type="submit" value="Save" class="btn btn-primary mt-2">
+          <label for="{{ form.enable_public_sharing.id_for_label }}" class="form-checkbox">
+            {{ form.enable_public_sharing }}
+            <i class="form-icon"></i> Enable public bookmark sharing
+          </label>
+          <div class="form-input-hint">
+            Makes shared bookmarks publicly accessible, without requiring a login.
+            That means that anyone with a link to this instance can view shared bookmarks via the <a
+              href="{% url 'bookmarks:shared' %}">shared bookmarks page</a>.
+          </div>
+        </div>
+        <div class="form-group">
+          <input type="submit" name="update_profile" value="Save" class="btn btn-primary mt-2">
+          {% if update_profile_success_message %}
+            <div class="has-success">
+              <p class="form-input-hint">
+                {{ update_profile_success_message }}
+              </p>
+            </div>
+          {% endif %}
         </div>
       </form>
     </section>
@@ -74,9 +145,19 @@
       <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings.import' %}">
         {% csrf_token %}
         <div class="form-group">
-          <div class="input-group col-8 col-md-12">
+          <label for="import_map_private_flag" class="form-checkbox">
+            <input type="checkbox" id="import_map_private_flag" name="map_private_flag">
+            <i class="form-icon"></i> Import public bookmarks as shared
+          </label>
+          <div class="form-input-hint">
+            When importing bookmarks from a service that supports marking bookmarks as public or private (using the <code>PRIVATE</code> attribute), enabling this option will import all bookmarks that are marked as not private as shared bookmarks.
+            Otherwise, all bookmarks will be imported as private bookmarks.
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-group width-75 width-md-100">
             <input class="form-input" type="file" name="import_file">
-            <input type="submit" class="input-group-btn col-2 btn btn-primary" value="Upload">
+            <input type="submit" class="input-group-btn btn btn-primary" value="Upload">
           </div>
           {% if import_success_message %}
             <div class="has-success">
@@ -100,6 +181,10 @@
     <section class="content-area">
       <h2>Export</h2>
       <p>Export all bookmarks in Netscape HTML format.</p>
+      <p>
+        Note that exporting bookmark notes is currently not supported due to limitations of the format.
+        For proper backups please use a database backup as described in the documentation.
+      </p>
       <a class="btn btn-primary" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
       {% if export_error %}
         <div class="has-error">
@@ -136,5 +221,23 @@
       </table>
     </section>
   </div>
+
+  <script>
+    // Automatically disable public bookmark sharing if bookmark sharing is disabled
+    const enableSharing = document.getElementById("{{ form.enable_sharing.id_for_label }}");
+    const enablePublicSharing = document.getElementById("{{ form.enable_public_sharing.id_for_label }}");
+
+    function updatePublicSharing() {
+      if (enableSharing.checked) {
+        enablePublicSharing.disabled = false;
+      } else {
+        enablePublicSharing.disabled = true;
+        enablePublicSharing.checked = false;
+      }
+    }
+
+    updatePublicSharing();
+    enableSharing.addEventListener("change", updatePublicSharing);
+  </script>
 
 {% endblock %}

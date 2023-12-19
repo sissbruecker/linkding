@@ -30,6 +30,8 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     bookmark.save()
     # Create snapshot on web archive
     tasks.create_web_archive_snapshot(current_user, bookmark, False)
+    # Load favicon
+    tasks.load_favicon(current_user, bookmark)
 
     return bookmark
 
@@ -43,11 +45,15 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     # Update dates
     bookmark.date_modified = timezone.now()
     bookmark.save()
+    # Update favicon
+    tasks.load_favicon(current_user, bookmark)
+
     if has_url_changed:
         # Update web archive snapshot, if URL changed
         tasks.create_web_archive_snapshot(current_user, bookmark, True)
         # Only update website metadata if URL changed
         _update_website_metadata(bookmark)
+        bookmark.save()
 
     return bookmark
 
@@ -113,9 +119,38 @@ def untag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_us
     Bookmark.objects.bulk_update(bookmarks, ['date_modified'])
 
 
+def mark_bookmarks_as_read(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(unread=False, date_modified=timezone.now())
+
+
+def mark_bookmarks_as_unread(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(unread=True, date_modified=timezone.now())
+
+
+def share_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(shared=True, date_modified=timezone.now())
+
+
+def unshare_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    bookmarks = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids)
+
+    bookmarks.update(shared=False, date_modified=timezone.now())
+
+
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.title = from_bookmark.title
     to_bookmark.description = from_bookmark.description
+    to_bookmark.notes = from_bookmark.notes
     to_bookmark.unread = from_bookmark.unread
     to_bookmark.shared = from_bookmark.shared
 

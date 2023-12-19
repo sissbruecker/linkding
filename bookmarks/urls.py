@@ -1,10 +1,11 @@
-from django.urls import re_path
 from django.urls import path, include
+from django.urls import re_path
 from django.views.generic import RedirectView
 
-from bookmarks.api.routes import router
 from bookmarks import views
+from bookmarks.api.routes import router
 from bookmarks.feeds import AllBookmarksFeed, UnreadBookmarksFeed
+from bookmarks.views import partials
 
 app_name = 'bookmarks'
 urlpatterns = [
@@ -12,12 +13,24 @@ urlpatterns = [
     re_path(r'^$', RedirectView.as_view(pattern_name='bookmarks:index', permanent=False)),
     # Bookmarks
     path('bookmarks', views.bookmarks.index, name='index'),
+    path('bookmarks/action', views.bookmarks.index_action, name='index.action'),
     path('bookmarks/archived', views.bookmarks.archived, name='archived'),
+    path('bookmarks/archived/action', views.bookmarks.archived_action, name='archived.action'),
     path('bookmarks/shared', views.bookmarks.shared, name='shared'),
+    path('bookmarks/shared/action', views.bookmarks.shared_action, name='shared.action'),
     path('bookmarks/new', views.bookmarks.new, name='new'),
     path('bookmarks/close', views.bookmarks.close, name='close'),
     path('bookmarks/<int:bookmark_id>/edit', views.bookmarks.edit, name='edit'),
-    path('bookmarks/action', views.bookmarks.action, name='action'),
+    # Partials
+    path('bookmarks/partials/bookmark-list/active', partials.active_bookmark_list,
+         name='partials.bookmark_list.active'),
+    path('bookmarks/partials/tag-cloud/active', partials.active_tag_cloud, name='partials.tag_cloud.active'),
+    path('bookmarks/partials/bookmark-list/archived', partials.archived_bookmark_list,
+         name='partials.bookmark_list.archived'),
+    path('bookmarks/partials/tag-cloud/archived', partials.archived_tag_cloud, name='partials.tag_cloud.archived'),
+    path('bookmarks/partials/bookmark-list/shared', partials.shared_bookmark_list,
+         name='partials.bookmark_list.shared'),
+    path('bookmarks/partials/tag-cloud/shared', partials.shared_tag_cloud, name='partials.tag_cloud.shared'),
     # Settings
     path('settings', views.settings.general, name='settings.index'),
     path('settings/general', views.settings.general, name='settings.general'),
@@ -31,4 +44,8 @@ urlpatterns = [
     # Feeds
     path('feeds/<str:feed_key>/all', AllBookmarksFeed(), name='feeds.all'),
     path('feeds/<str:feed_key>/unread', UnreadBookmarksFeed(), name='feeds.unread'),
+    # Health check
+    path('health', views.health, name='health'),
+    # Manifest
+    path("manifest.json", views.manifest, name='manifest')
 ]

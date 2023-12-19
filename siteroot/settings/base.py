@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import json
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'bookmarks.middlewares.UserProfileMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -71,6 +73,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'bookmarks.context_processors.toasts',
+                'bookmarks.context_processors.public_shares',
+                'bookmarks.context_processors.app_version',
             ],
         },
     },
@@ -79,16 +83,6 @@ TEMPLATES = [
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 WSGI_APPLICATION = 'siteroot.wsgi.application'
-
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3'),
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -151,6 +145,7 @@ STATICFILES_FINDERS = [
 # Enable SASS processor to find custom folder for SCSS sources through static file finders
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'bookmarks', 'styles'),
+    os.path.join(BASE_DIR, 'data', 'favicons'),
 ]
 
 # REST framework
@@ -219,3 +214,49 @@ trusted_origins = os.getenv('LD_CSRF_TRUSTED_ORIGINS', '')
 if trusted_origins:
     CSRF_TRUSTED_ORIGINS = trusted_origins.split(',')
 
+# Database
+# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+
+LD_DB_ENGINE = os.getenv('LD_DB_ENGINE', 'sqlite')
+LD_DB_HOST = os.getenv('LD_DB_HOST', 'localhost')
+LD_DB_DATABASE = os.getenv('LD_DB_DATABASE', 'linkding')
+LD_DB_USER = os.getenv('LD_DB_USER', 'linkding')
+LD_DB_PASSWORD = os.getenv('LD_DB_PASSWORD', None)
+LD_DB_PORT = os.getenv('LD_DB_PORT', None)
+LD_DB_OPTIONS = json.loads(os.getenv('LD_DB_OPTIONS') or '{}')
+
+if LD_DB_ENGINE == 'postgres':
+    default_database = {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': LD_DB_DATABASE,
+        'USER': LD_DB_USER,
+        'PASSWORD': LD_DB_PASSWORD,
+        'HOST': LD_DB_HOST,
+        'PORT': LD_DB_PORT,
+        'OPTIONS': LD_DB_OPTIONS,
+    }
+else:
+    default_database = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3'),
+        'OPTIONS': LD_DB_OPTIONS,
+        # Creating a connection loads the ICU extension into the SQLite
+        # connection, and also loads an ICU collation. The latter causes a
+        # memory leak, so try to counter that by making connections indefinitely
+        # persistent.
+        'CONN_MAX_AGE': None
+    }
+
+DATABASES = {
+    'default': default_database
+}
+
+SQLITE_ICU_EXTENSION_PATH = './libicu.so'
+USE_SQLITE = default_database['ENGINE'] == 'django.db.backends.sqlite3'
+USE_SQLITE_ICU_EXTENSION = USE_SQLITE and os.path.exists(SQLITE_ICU_EXTENSION_PATH)
+
+# Favicons
+LD_DEFAULT_FAVICON_PROVIDER = 'https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url={url}&size=32'
+LD_FAVICON_PROVIDER = os.getenv('LD_FAVICON_PROVIDER', LD_DEFAULT_FAVICON_PROVIDER)
+LD_FAVICON_FOLDER = os.path.join(BASE_DIR, 'data', 'favicons')
+LD_ENABLE_REFRESH_FAVICONS = os.getenv('LD_ENABLE_REFRESH_FAVICONS', True) in (True, 'True', '1')

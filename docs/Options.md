@@ -108,3 +108,76 @@ Note that the setting **must** include the correct protocol (`https` or `http`),
 Multiple origins can be specified by separating them with a comma (`,`).
 
 This setting is adopted from the Django framework used by linkding, more information on the setting is available in the [Django documentation](https://docs.djangoproject.com/en/4.0/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS).
+
+### `LD_LOG_X_FORWARDED_FOR`
+
+Values: `true` or `false` | Default =  `false`
+
+Set uWSGI [log-x-forwarded-for](https://uwsgi-docs.readthedocs.io/en/latest/Options.html?#log-x-forwarded-for) parameter allowing to keep the real IP of clients in logs when using a reverse proxy.
+
+### `LD_DB_ENGINE`
+
+Values: `postgres` or `sqlite` | Default = `sqlite`
+
+Database engine used by linkding to store data.
+Currently, linkding supports SQLite and PostgreSQL.
+By default, linkding uses SQLite, for which you don't need to configure anything.
+All the other database variables below are only required for configured PostgresSQL.
+
+### `LD_DB_DATABASE`
+
+Values: `String` | Default =  `linkding`
+
+The name of the database. 
+
+### `LD_DB_USER`
+
+Values: `String` | Default =  `linkding`
+
+The name of the user to connect to the database server.
+
+### `LD_DB_PASSWORD`
+
+Values: `String` | Default =  None
+
+The password of the user to connect to the database server.
+The password must be configured when using a database other than SQLite, there is no default value.
+
+### `LD_DB_HOST`
+
+Values: `String` | Default =  `localhost`
+
+The hostname or IP of the database server.
+
+### `LD_DB_PORT`
+
+Values: `Integer` | Default =  None
+
+The port of the database server.
+Should use the default port if left empty, for example `5432` for PostgresSQL.
+
+### `LD_DB_OPTIONS`
+
+Values: `String` | Default = `{}`
+
+A json string with additional options for the database. Passed directly to OPTIONS.
+
+### `LD_FAVICON_PROVIDER`
+
+Values: `String` | Default =  `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url={url}&size=32`
+
+The favicon provider used for downloading icons if they are enabled in the user profile settings.
+The default provider is a Google service that automatically detects the correct favicon for a website, and provides icons in consistent image format (PNG) and in a consistent image size.
+
+This setting allows to configure a custom provider in form of a URL.
+When calling the provider with the URL of a website, it must return the image data for the favicon of that website.
+The configured favicon provider URL must contain a placeholder that will be replaced with the URL of the website for which to download the favicon.
+The available placeholders are:
+- `{url}` - Includes the scheme and hostname of the website, for example `https://example.com`
+- `{domain}` - Includes only the hostname of the website, for example `example.com`
+
+Which placeholder you need to use depends on the respective favicon provider, please check their documentation or usage examples.
+See the default URL for how to insert the placeholder to the favicon provider URL.
+
+Alternative favicon providers:
+- DuckDuckGo: `https://icons.duckduckgo.com/ip3/{domain}.ico`

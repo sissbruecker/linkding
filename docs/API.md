@@ -45,6 +45,7 @@ Example response:
       "url": "https://example.com",
       "title": "Example title",
       "description": "Example description",
+      "notes": "Example notes",
       "website_title": "Website title",
       "website_description": "Website description",
       "is_archived": false,
@@ -96,6 +97,7 @@ Example payload:
   "url": "https://example.com",
   "title": "Example title",
   "description": "Example description",
+  "notes": "Example notes",
   "is_archived": false,
   "unread": false,
   "shared": false,
@@ -232,5 +234,37 @@ Example payload:
 ```json
 {
   "name": "example"
+}
+```
+
+### User
+
+**Profile**
+
+```
+GET /api/user/profile/
+```
+
+User preferences.
+
+Example response:
+
+```json
+{
+  "theme": "auto",
+  "bookmark_date_display": "relative",
+  "bookmark_link_target": "_blank",
+  "web_archive_integration": "enabled",
+  "tag_search": "lax",
+  "enable_sharing": true,
+  "enable_public_sharing": true,
+  "enable_favicons": false,
+  "display_url": false,
+  "permanent_notes": false,
+  "search_preferences": {
+    "sort": "title_asc",
+    "shared": "off",
+    "unread": "off"
+  }
 }
 ```

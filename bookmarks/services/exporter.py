@@ -1,3 +1,4 @@
+import html
 from typing import List
 
 from bookmarks.models import Bookmark
@@ -28,13 +29,20 @@ def append_list_start(doc: BookmarkDocument):
 
 def append_bookmark(doc: BookmarkDocument, bookmark: Bookmark):
     url = bookmark.url
-    title = bookmark.resolved_title
-    desc = bookmark.resolved_description
-    tags = ','.join(bookmark.tag_names)
+    title = html.escape(bookmark.resolved_title or '')
+    desc = html.escape(bookmark.resolved_description or '')
+    if bookmark.notes:
+        desc += f'[linkding-notes]{html.escape(bookmark.notes)}[/linkding-notes]'
+    tag_names = bookmark.tag_names
+    if bookmark.is_archived:
+        tag_names.append('linkding:archived')
+    tags = ','.join(tag_names)
     toread = '1' if bookmark.unread else '0'
+    private = '0' if bookmark.shared else '1'
     added = int(bookmark.date_added.timestamp())
 
-    doc.append(f'<DT><A HREF="{url}" ADD_DATE="{added}" PRIVATE="0" TOREAD="{toread}" TAGS="{tags}">{title}</A>')
+    doc.append(
+        f'<DT><A HREF="{url}" ADD_DATE="{added}" PRIVATE="{private}" TOREAD="{toread}" TAGS="{tags}">{title}</A>')
 
     if desc:
         doc.append(f'<DD>{desc}')

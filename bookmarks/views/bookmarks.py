@@ -1,110 +1,78 @@
 import urllib.parse
 
 from django.contrib.auth.decorators import login_required
-from django.core.handlers.wsgi import WSGIRequest
-from django.core.paginator import Paginator
-from django.db.models import QuerySet, Q, prefetch_related_objects
-from django.http import HttpResponseRedirect, Http404
+from django.db.models import QuerySet
+from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkForm, BookmarkFilters, User, Tag, build_tag_string
+from bookmarks.models import Bookmark, BookmarkForm, BookmarkSearch, build_tag_string
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark, archive_bookmark, archive_bookmarks, \
-    unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks
+    unarchive_bookmark, unarchive_bookmarks, delete_bookmarks, tag_bookmarks, untag_bookmarks, mark_bookmarks_as_read, \
+    mark_bookmarks_as_unread, share_bookmarks, unshare_bookmarks
 from bookmarks.utils import get_safe_return_url
+from bookmarks.views.partials import contexts
 
 _default_page_size = 30
 
 
 @login_required
 def index(request):
-    filters = BookmarkFilters(request)
-    query_set = queries.query_bookmarks(request.user, filters.query)
-    tags = queries.query_bookmark_tags(request.user, filters.query)
-    base_url = reverse('bookmarks:index')
-    context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
-    return render(request, 'bookmarks/index.html', context)
+    if request.method == 'POST':
+        return search_action(request)
+
+    bookmark_list = contexts.ActiveBookmarkListContext(request)
+    tag_cloud = contexts.ActiveTagCloudContext(request)
+    return render(request, 'bookmarks/index.html', {
+        'bookmark_list': bookmark_list,
+        'tag_cloud': tag_cloud,
+    })
 
 
 @login_required
 def archived(request):
-    filters = BookmarkFilters(request)
-    query_set = queries.query_archived_bookmarks(request.user, filters.query)
-    tags = queries.query_archived_bookmark_tags(request.user, filters.query)
-    base_url = reverse('bookmarks:archived')
-    context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
-    return render(request, 'bookmarks/archive.html', context)
+    if request.method == 'POST':
+        return search_action(request)
+
+    bookmark_list = contexts.ArchivedBookmarkListContext(request)
+    tag_cloud = contexts.ArchivedTagCloudContext(request)
+    return render(request, 'bookmarks/archive.html', {
+        'bookmark_list': bookmark_list,
+        'tag_cloud': tag_cloud,
+    })
 
 
-@login_required
 def shared(request):
-    filters = BookmarkFilters(request)
-    user = User.objects.filter(username=filters.user).first()
-    query_set = queries.query_shared_bookmarks(user, filters.query)
-    tags = queries.query_shared_bookmark_tags(user, filters.query)
-    users = queries.query_shared_bookmark_users(filters.query)
-    base_url = reverse('bookmarks:shared')
-    context = get_bookmark_view_context(request, filters, query_set, tags, base_url)
-    context['users'] = users
-    return render(request, 'bookmarks/shared.html', context)
+    if request.method == 'POST':
+        return search_action(request)
+
+    bookmark_list = contexts.SharedBookmarkListContext(request)
+    tag_cloud = contexts.SharedTagCloudContext(request)
+    public_only = not request.user.is_authenticated
+    users = queries.query_shared_bookmark_users(request.user_profile, bookmark_list.search, public_only)
+    return render(request, 'bookmarks/shared.html', {
+        'bookmark_list': bookmark_list,
+        'tag_cloud': tag_cloud,
+        'users': users
+    })
 
 
-def _get_selected_tags(tags: QuerySet[Tag], query_string: str):
-    parsed_query = queries.parse_query_string(query_string)
-    tag_names = parsed_query['tag_names']
+def search_action(request):
+    if 'save' in request.POST:
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        search = BookmarkSearch.from_request(request.POST)
+        request.user_profile.search_preferences = search.preferences_dict
+        request.user_profile.save()
 
-    if len(tag_names) == 0:
-        return []
-
-    condition = Q()
-    for tag_name in parsed_query['tag_names']:
-        condition = condition | Q(name__iexact=tag_name)
-
-    return list(tags.filter(condition))
-
-
-def get_bookmark_view_context(request: WSGIRequest,
-                              filters: BookmarkFilters,
-                              query_set: QuerySet[Bookmark],
-                              tags: QuerySet[Tag],
-                              base_url: str):
-    page = request.GET.get('page')
-    paginator = Paginator(query_set, _default_page_size)
-    bookmarks = paginator.get_page(page)
-    selected_tags = _get_selected_tags(tags, filters.query)
-    # Prefetch related objects, this avoids n+1 queries when accessing fields in templates
-    prefetch_related_objects(bookmarks.object_list, 'owner', 'tags')
-    return_url = generate_return_url(base_url, page, filters)
-    link_target = request.user.profile.bookmark_link_target
-
-    if request.GET.get('tag'):
-        mod = request.GET.copy()
-        mod.pop('tag')
-        request.GET = mod
-
-    return {
-        'bookmarks': bookmarks,
-        'tags': tags,
-        'selected_tags': selected_tags,
-        'filters': filters,
-        'empty': paginator.count == 0,
-        'return_url': return_url,
-        'link_target': link_target,
-    }
-
-
-def generate_return_url(base_url: str, page: int, filters: BookmarkFilters):
-    url_query = {}
-    if filters.query:
-        url_query['q'] = filters.query
-    if filters.user:
-        url_query['user'] = filters.user
-    if page is not None:
-        url_query['page'] = page
-    url_params = urllib.parse.urlencode(url_query)
-    return_url = base_url if url_params == '' else base_url + '?' + url_params
-    return urllib.parse.quote_plus(return_url)
+    # redirect to base url including new query params
+    search = BookmarkSearch.from_request(request.POST, request.user_profile.search_preferences)
+    base_url = request.path
+    query_params = search.query_params
+    query_string = urllib.parse.urlencode(query_params)
+    url = base_url if not query_string else base_url + '?' + query_string
+    return HttpResponseRedirect(url)
 
 
 def convert_tag_string(tag_string: str):
@@ -116,6 +84,8 @@ def convert_tag_string(tag_string: str):
 @login_required
 def new(request):
     initial_url = request.GET.get('url')
+    initial_title = request.GET.get('title')
+    initial_description = request.GET.get('description')
     initial_auto_close = 'auto_close' in request.GET
 
     if request.method == 'POST':
@@ -133,6 +103,10 @@ def new(request):
         form = BookmarkForm()
         if initial_url:
             form.initial['url'] = initial_url
+        if initial_title:
+            form.initial['title'] = initial_title
+        if initial_description:
+            form.initial['description'] = initial_description
         if initial_auto_close:
             form.initial['auto_close'] = 'true'
 
@@ -200,6 +174,16 @@ def unarchive(request, bookmark_id: int):
     unarchive_bookmark(bookmark)
 
 
+def unshare(request, bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404('Bookmark does not exist')
+
+    bookmark.shared = False
+    bookmark.save()
+
+
 def mark_as_read(request, bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
@@ -211,8 +195,26 @@ def mark_as_read(request, bookmark_id: int):
 
 
 @login_required
-def action(request):
-    # Determine action
+def index_action(request):
+    search = BookmarkSearch.from_request(request.GET)
+    query = queries.query_bookmarks(request.user, request.user_profile, search)
+    return action(request, query)
+
+
+@login_required
+def archived_action(request):
+    search = BookmarkSearch.from_request(request.GET)
+    query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
+    return action(request, query)
+
+
+@login_required
+def shared_action(request):
+    return action(request)
+
+
+def action(request, query: QuerySet[Bookmark] = None):
+    # Single bookmark actions
     if 'archive' in request.POST:
         archive(request, request.POST['archive'])
     if 'unarchive' in request.POST:
@@ -221,23 +223,44 @@ def action(request):
         remove(request, request.POST['remove'])
     if 'mark_as_read' in request.POST:
         mark_as_read(request, request.POST['mark_as_read'])
-    if 'bulk_archive' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        archive_bookmarks(bookmark_ids, request.user)
-    if 'bulk_unarchive' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        unarchive_bookmarks(bookmark_ids, request.user)
-    if 'bulk_delete' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        delete_bookmarks(bookmark_ids, request.user)
-    if 'bulk_tag' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        tag_string = convert_tag_string(request.POST['bulk_tag_string'])
-        tag_bookmarks(bookmark_ids, tag_string, request.user)
-    if 'bulk_untag' in request.POST:
-        bookmark_ids = request.POST.getlist('bookmark_id')
-        tag_string = convert_tag_string(request.POST['bulk_tag_string'])
-        untag_bookmarks(bookmark_ids, tag_string, request.user)
+    if 'unshare' in request.POST:
+        unshare(request, request.POST['unshare'])
+
+    # Bulk actions
+    if 'bulk_execute' in request.POST:
+        if query is None:
+            return HttpResponseBadRequest('View does not support bulk actions')
+
+        bulk_action = request.POST['bulk_action']
+
+        # Determine set of bookmarks
+        if request.POST.get('bulk_select_across') == 'on':
+            # Query full list of bookmarks across all pages
+            bookmark_ids = query.only('id').values_list('id', flat=True)
+        else:
+            # Use only selected bookmarks
+            bookmark_ids = request.POST.getlist('bookmark_id')
+
+        if 'bulk_archive' == bulk_action:
+            archive_bookmarks(bookmark_ids, request.user)
+        if 'bulk_unarchive' == bulk_action:
+            unarchive_bookmarks(bookmark_ids, request.user)
+        if 'bulk_delete' == bulk_action:
+            delete_bookmarks(bookmark_ids, request.user)
+        if 'bulk_tag' == bulk_action:
+            tag_string = convert_tag_string(request.POST['bulk_tag_string'])
+            tag_bookmarks(bookmark_ids, tag_string, request.user)
+        if 'bulk_untag' == bulk_action:
+            tag_string = convert_tag_string(request.POST['bulk_tag_string'])
+            untag_bookmarks(bookmark_ids, tag_string, request.user)
+        if 'bulk_read' == bulk_action:
+            mark_bookmarks_as_read(bookmark_ids, request.user)
+        if 'bulk_unread' == bulk_action:
+            mark_bookmarks_as_unread(bookmark_ids, request.user)
+        if 'bulk_share' == bulk_action:
+            share_bookmarks(bookmark_ids, request.user)
+        if 'bulk_unshare' == bulk_action:
+            unshare_bookmarks(bookmark_ids, request.user)
 
     return_url = get_safe_return_url(request.GET.get('return_url'), reverse('bookmarks:index'))
     return HttpResponseRedirect(return_url)

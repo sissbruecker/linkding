@@ -4,45 +4,48 @@
 {% load bookmarks %}
 
 {% block content %}
-
-  <div class="bookmarks-page columns">
+  <div class="bookmarks-page grid columns-md-1"
+       ld-bookmark-page
+       bookmarks-url="{% url 'bookmarks:partials.bookmark_list.shared' %}"
+       tags-url="{% url 'bookmarks:partials.tag_cloud.shared' %}">
 
     {# Bookmark list #}
-    <section class="content-area column col-8 col-md-12">
+    <section class="content-area col-2">
       <div class="content-area-header">
         <h2>Shared bookmarks</h2>
-        <div class="spacer"></div>
-        {% bookmark_search filters tags mode='shared' %}
+        <div class="header-controls">
+          {% bookmark_search bookmark_list.search tag_cloud.tags mode='shared' %}
+          <button ld-modal modal-content=".tag-cloud" class="btn ml-2 show-md">Tags</button>
+        </div>
       </div>
 
-      <form class="bookmark-actions" action="{% url 'bookmarks:action' %}?return_url={{ return_url }}"
+      <form class="bookmark-actions" action="{{ bookmark_list.action_url|safe }}"
             method="post">
         {% csrf_token %}
 
-        {% if empty %}
-          {% include 'bookmarks/empty_bookmarks.html' %}
-        {% else %}
-          {% bookmark_list bookmarks return_url link_target %}
-        {% endif %}
+        <div class="bookmark-list-container">
+          {% include 'bookmarks/bookmark_list.html' %}
+        </div>
       </form>
     </section>
 
     {# Filters #}
-    <section class="content-area column col-4 hide-md">
+    <section class="content-area col-1 hide-md">
       <div class="content-area-header">
         <h2>User</h2>
       </div>
       <div>
-        {% user_select filters users %}
+        {% user_select bookmark_list.search users %}
         <br>
       </div>
       <div class="content-area-header">
         <h2>Tags</h2>
       </div>
-      {% tag_cloud tags selected_tags %}
+      <div class="tag-cloud-container">
+        {% include 'bookmarks/tag_cloud.html' %}
+      </div>
     </section>
   </div>
 
-  <script src="{% static "bundle.js" %}"></script>
-  <script src="{% static "shared.js" %}"></script>
+  <script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
 {% endblock %}

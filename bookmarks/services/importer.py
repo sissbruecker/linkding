@@ -5,7 +5,7 @@ from typing import List
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, Tag, parse_tag_string
+from bookmarks.models import Bookmark, Tag
 from bookmarks.services import tasks
 from bookmarks.services.parser import parse, NetscapeBookmark
 from bookmarks.utils import parse_timestamp
@@ -18,6 +18,11 @@ class ImportResult:
     total: int = 0
     success: int = 0
     failed: int = 0
+
+
+@dataclass
+class ImportOptions:
+    map_private_flag: bool = False
 
 
 class TagCache:
@@ -50,7 +55,7 @@ class TagCache:
         self.cache[tag.name.lower()] = tag
 
 
-def import_netscape_html(html: str, user: User):
+def import_netscape_html(html: str, user: User, options: ImportOptions = ImportOptions()) -> ImportResult:
     result = ImportResult()
     import_start = timezone.now()
 
@@ -70,10 +75,12 @@ def import_netscape_html(html: str, user: User):
     # Split bookmarks to import into batches, to keep memory usage for bulk operations manageable
     batches = _get_batches(netscape_bookmarks, 200)
     for batch in batches:
-        _import_batch(batch, user, tag_cache, result)
+        _import_batch(batch, user, options, tag_cache, result)
 
     # Create snapshots for newly imported bookmarks
     tasks.schedule_bookmarks_without_snapshots(user)
+    # Load favicons for newly imported bookmarks
+    tasks.schedule_bookmarks_without_favicons(user)
 
     end = timezone.now()
     logger.debug(f'Import duration: {end - import_start}')
@@ -86,8 +93,7 @@ def _create_missing_tags(netscape_bookmarks: List[NetscapeBookmark], user: User)
     tags_to_create = []
 
     for netscape_bookmark in netscape_bookmarks:
-        tag_names = parse_tag_string(netscape_bookmark.tag_string)
-        for tag_name in tag_names:
+        for tag_name in netscape_bookmark.tag_names:
             tag = tag_cache.get(tag_name)
             if not tag:
                 tag = Tag(name=tag_name, owner=user)
@@ -112,7 +118,11 @@ def _get_batches(items: List, batch_size: int):
     return batches
 
 
-def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_cache: TagCache, result: ImportResult):
+def _import_batch(netscape_bookmarks: List[NetscapeBookmark],
+                  user: User,
+                  options: ImportOptions,
+                  tag_cache: TagCache,
+                  result: ImportResult):
     # Query existing bookmarks
     batch_urls = [bookmark.href for bookmark in netscape_bookmarks]
     existing_bookmarks = Bookmark.objects.filter(owner=user, url__in=batch_urls)
@@ -133,7 +143,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
             else:
                 is_update = True
             # Copy data from parsed bookmark
-            _copy_bookmark_data(netscape_bookmark, bookmark)
+            _copy_bookmark_data(netscape_bookmark, bookmark, options)
             # Validate bookmark fields, exclude owner to prevent n+1 database query,
             # also there is no specific validation on owner
             bookmark.clean_fields(exclude=['owner'])
@@ -150,8 +160,15 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
             result.failed = result.failed + 1
 
     # Bulk update bookmarks in DB
-    Bookmark.objects.bulk_update(bookmarks_to_update,
-                                 ['url', 'date_added', 'date_modified', 'unread', 'title', 'description', 'owner'])
+    Bookmark.objects.bulk_update(bookmarks_to_update, ['url',
+                                                       'date_added',
+                                                       'date_modified',
+                                                       'unread',
+                                                       'shared',
+                                                       'title',
+                                                       'description',
+                                                       'notes',
+                                                       'owner'])
     # Bulk insert new bookmarks into DB
     Bookmark.objects.bulk_create(bookmarks_to_create)
 
@@ -176,8 +193,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
             continue
 
         # Get tag models by string, schedule inserts for bookmark -> tag associations
-        tag_names = parse_tag_string(netscape_bookmark.tag_string)
-        tags = tag_cache.get_all(tag_names)
+        tags = tag_cache.get_all(netscape_bookmark.tag_names)
         for tag in tags:
             relationships.append(BookmarkToTagRelationShip(bookmark=bookmark, tag=tag))
 
@@ -185,7 +201,7 @@ def _import_batch(netscape_bookmarks: List[NetscapeBookmark], user: User, tag_ca
     BookmarkToTagRelationShip.objects.bulk_create(relationships, ignore_conflicts=True)
 
 
-def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark):
+def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark, options: ImportOptions):
     bookmark.url = netscape_bookmark.href
     if netscape_bookmark.date_added:
         bookmark.date_added = parse_timestamp(netscape_bookmark.date_added)
@@ -197,3 +213,9 @@ def _copy_bookmark_data(netscape_bookmark: NetscapeBookmark, bookmark: Bookmark)
         bookmark.title = netscape_bookmark.title
     if netscape_bookmark.description:
         bookmark.description = netscape_bookmark.description
+    if netscape_bookmark.notes:
+        bookmark.notes = netscape_bookmark.notes
+    if options.map_private_flag and not netscape_bookmark.private:
+        bookmark.shared = True
+    if netscape_bookmark.archived:
+        bookmark.is_archived = True

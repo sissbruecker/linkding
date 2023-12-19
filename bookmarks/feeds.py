@@ -1,11 +1,12 @@
+import unicodedata
 from dataclasses import dataclass
 
 from django.contrib.syndication.views import Feed
 from django.db.models import QuerySet
 from django.urls import reverse
 
-from bookmarks.models import Bookmark, FeedToken
 from bookmarks import queries
+from bookmarks.models import Bookmark, BookmarkSearch, FeedToken
 
 
 @dataclass
@@ -14,18 +15,26 @@ class FeedContext:
     query_set: QuerySet[Bookmark]
 
 
+def sanitize(text: str):
+    if not text:
+        return ''
+    # remove control characters
+    valid_chars = ['\n', '\r', '\t']
+    return ''.join(ch for ch in text if ch in valid_chars or unicodedata.category(ch)[0] != 'C')
+
+
 class BaseBookmarksFeed(Feed):
     def get_object(self, request, feed_key: str):
         feed_token = FeedToken.objects.get(key__exact=feed_key)
-        query_string = request.GET.get('q')
-        query_set = queries.query_bookmarks(feed_token.user, query_string)
+        search = BookmarkSearch(q=request.GET.get('q', ''))
+        query_set = queries.query_bookmarks(feed_token.user, feed_token.user.profile, search)
         return FeedContext(feed_token, query_set)
 
     def item_title(self, item: Bookmark):
-        return item.resolved_title
+        return sanitize(item.resolved_title)
 
     def item_description(self, item: Bookmark):
-        return item.resolved_description
+        return sanitize(item.resolved_description)
 
     def item_link(self, item: Bookmark):
         return item.url

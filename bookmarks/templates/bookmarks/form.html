@@ -15,13 +15,13 @@
       </div>
     {% endif %}
     <div class="form-input-hint bookmark-exists">
-      This URL is already bookmarked. You can <a href="#">edit</a> it or you can overwrite the existing bookmark
-      by saving this form.
+      This URL is already bookmarked.
+      The form has been pre-filled with the existing bookmark, and saving the form will update the existing bookmark.
     </div>
   </div>
   <div class="form-group">
     <label for="{{ form.tag_string.id_for_label }}" class="form-label">Tags</label>
-    {{ form.tag_string|add_class:"form-input"|attr:"autocomplete:off" }}
+    {{ form.tag_string|add_class:"form-input"|attr:"ld-tag-autocomplete"|attr:"autocomplete:off"|attr:"autocapitalize:off" }}
     <div class="form-input-hint">
       Enter any number of tags separated by space and <strong>without</strong> the hash (#). If a tag does not
       exist it will be
@@ -68,6 +68,19 @@
     {{ form.description.errors }}
   </div>
   <div class="form-group">
+    <details class="notes"{% if form.has_notes %} open{% endif %}>
+      <summary>
+        <span class="form-label d-inline-block">Notes</span>
+      </summary>
+      <label for="{{ form.notes.id_for_label }}" class="text-assistive">Notes</label>
+      {{ form.notes|add_class:"form-input"|attr:"rows:8" }}
+      <div class="form-input-hint">
+        Additional notes, supports Markdown.
+      </div>
+      {{ form.notes.errors }}
+    </details>
+  </div>
+  <div class="form-group">
     <label for="{{ form.unread.id_for_label }}" class="form-checkbox">
       {{ form.unread }}
       <i class="form-icon"></i>
@@ -77,7 +90,7 @@
       Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them.
     </div>
   </div>
-  {% if request.user.profile.enable_sharing %}
+  {% if request.user_profile.enable_sharing %}
     <div class="form-group">
       <label for="{{ form.shared.id_for_label }}" class="form-checkbox">
         {{ form.shared }}
@@ -85,7 +98,11 @@
         <span>Share</span>
       </label>
       <div class="form-input-hint">
-        Share this bookmark with other users.
+        {% if request.user_profile.enable_public_sharing %}
+          Share this bookmark with other registered users and anonymous users.
+        {% else %}
+          Share this bookmark with other registered users.
+        {% endif %}
       </div>
     </div>
   {% endif %}
@@ -99,25 +116,7 @@
     <a href="{{ cancel_url }}" class="btn">Nevermind</a>
   </div>
 
-  {# Replace tag input with auto-complete component #}
-  <script src="{% static "bundle.js" %}"></script>
-  <script type="application/javascript">
-    const wrapper = document.createElement('div');
-    const tagInput = document.getElementById('{{ form.tag_string.id_for_label }}');
-    const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
-
-    new linkding.TagAutoComplete({
-      target: wrapper,
-      props: {
-        id: '{{ form.tag_string.id_for_label }}',
-        name: '{{ form.tag_string.name }}',
-        value: tagInput.value,
-        apiClient: apiClient
-      }
-    });
-
-    tagInput.parentElement.replaceChild(wrapper, tagInput);
-  </script>
+  <script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
   <script type="application/javascript">
     /**
      * - Pre-fill title and description placeholders with metadata from website as soon as URL changes
@@ -128,6 +127,11 @@
       const urlInput = document.getElementById('{{ form.url.id_for_label }}');
       const titleInput = document.getElementById('{{ form.title.id_for_label }}');
       const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+      const notesDetails = document.querySelector('form details.notes');
+      const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
+      const tagsInput = document.getElementById('{{ form.tag_string.id_for_label }}');
+      const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
+      const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
       const websiteTitleInput = document.getElementById('{{ form.website_title.id_for_label }}');
       const websiteDescriptionInput = document.getElementById('{{ form.website_description.id_for_label }}');
       const editedBookmarkId = {{ bookmark_id }};
@@ -143,6 +147,20 @@
         } else {
           input.removeAttribute('placeholder');
         }
+      }
+
+      function updateInput(input, value) {
+        if (!input) {
+          return;
+        }
+        input.value = value;
+      }
+
+      function updateCheckbox(input, value) {
+        if (!input) {
+          return;
+        }
+        input.checked = value;
       }
 
       function checkUrl() {
@@ -162,13 +180,19 @@
             toggleLoadingIcon(titleInput, false);
             toggleLoadingIcon(descriptionInput, false);
 
-            // Display hint if URL is already bookmarked
+            // Prefill form and display hint if URL is already bookmarked
+            const existingBookmark = data.bookmark;
             const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
-            const editExistingBookmarkLink = bookmarkExistsHint.querySelector('a');
 
-            if (data.bookmark && data.bookmark.id !== editedBookmarkId) {
+            if (existingBookmark && !editedBookmarkId) {
               bookmarkExistsHint.style['display'] = 'block';
-              editExistingBookmarkLink.href = data.bookmark.edit_url;
+              notesDetails.open = !!existingBookmark.notes;
+              updateInput(titleInput, existingBookmark.title);
+              updateInput(descriptionInput, existingBookmark.description);
+              updateInput(notesInput, existingBookmark.notes);
+              updateInput(tagsInput, existingBookmark.tag_names.join(" "));
+              updateCheckbox(unreadCheckbox, existingBookmark.unread);
+              updateCheckbox(sharedCheckbox, existingBookmark.shared);
             } else {
               bookmarkExistsHint.style['display'] = 'none';
             }
@@ -186,6 +210,9 @@
         });
       }
 
+      setupEditAutoValueButton(titleInput);
+      setupEditAutoValueButton(descriptionInput);
+
       // Fetch initial website data if we have a URL, and we are not editing an existing bookmark
       // For existing bookmarks we get the website metadata through hidden inputs
       if (urlInput.value && !editedBookmarkId) {
@@ -198,9 +225,6 @@
         updatePlaceholder(titleInput, websiteTitleInput.value);
         updatePlaceholder(descriptionInput, websiteDescriptionInput.value);
       }
-
-      setupEditAutoValueButton(titleInput);
-      setupEditAutoValueButton(descriptionInput);
     })();
   </script>
 </div>

@@ -1,34 +1,39 @@
 {% load shared %}
 {% htmlmin %}
-<div class="bulk-edit-bar">
-  <div class="bulk-edit-actions bg-gray">
-    <label class="form-checkbox bulk-edit-all-toggle">
-      <input type="checkbox" style="display: none">
-      <i class="form-icon"></i>
-    </label>
-    {% if mode == 'archive' %}
-      <button type="submit" name="bulk_unarchive" class="btn btn-link btn-sm btn-confirmation"
-              title="Unarchive selected bookmarks">Unarchive
-      </button>
-    {% else %}
-      <button type="submit" name="bulk_archive" class="btn btn-link btn-sm btn-confirmation"
-              title="Archive selected bookmarks">Archive
-      </button>
-    {% endif %}
-    <span class="text-sm text-gray-dark">•</span>
-    <button type="submit" name="bulk_delete" class="btn btn-link btn-sm btn-confirmation"
-            title="Delete selected bookmarks">Delete
-    </button>
-    <span class="text-sm text-gray-dark">•</span>
-    <span class="text-sm text-gray-dark"><label for="bulk-edit-tags-input">Tags:</label></span>
-    <input id="bulk-edit-tags-input" name="bulk_tag_string" class="form-input input-sm"
-           placeholder="&nbsp;">
-    <button type="submit" name="bulk_tag" class="btn btn-link btn-sm"
-            title="Add tags to selected bookmarks">Add
-    </button>
-    <button type="submit" name="bulk_untag" class="btn btn-link btn-sm"
-            title="Remove tags from selected bookmarks">Remove
-    </button>
+  <div class="bulk-edit-bar">
+    <div class="bulk-edit-actions bg-gray">
+      <label ld-bulk-edit-checkbox all class="form-checkbox">
+        <input type="checkbox">
+        <i class="form-icon"></i>
+      </label>
+      <select name="bulk_action" class="form-select select-sm">
+        {% if not 'bulk_archive' in disable_actions %}
+          <option value="bulk_archive">Archive</option>
+        {% endif %}
+        {% if not 'bulk_unarchive' in disable_actions %}
+          <option value="bulk_unarchive">Unarchive</option>
+        {% endif %}
+        <option value="bulk_delete">Delete</option>
+        <option value="bulk_tag">Add tags</option>
+        <option value="bulk_untag">Remove tags</option>
+        <option value="bulk_read">Mark as read</option>
+        <option value="bulk_unread">Mark as unread</option>
+        {% if request.user_profile.enable_sharing %}
+          <option value="bulk_share">Share</option>
+          <option value="bulk_unshare">Unshare</option>
+        {% endif %}
+      </select>
+      <div class="tag-autocomplete d-none">
+        <input ld-tag-autocomplete variant="small"
+               name="bulk_tag_string" class="form-input input-sm" placeholder="Tag names...">
+      </div>
+      <button ld-confirm-button type="submit" name="bulk_execute" class="btn btn-link btn-sm">Execute</button>
+
+      <label class="form-checkbox select-across d-none">
+        <input type="checkbox" name="bulk_select_across">
+        <i class="form-icon"></i>
+        All pages (<span class="total">{{ bookmark_list.bookmarks_total }}</span> bookmarks)
+      </label>
+    </div>
   </div>
-</div>
 {% endhtmlmin %}

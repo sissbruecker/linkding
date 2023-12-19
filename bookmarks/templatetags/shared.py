@@ -1,8 +1,13 @@
 import re
 
+import bleach
+import markdown
+from bleach_allowlist import markdown_tags, markdown_attrs
 from django import template
+from django.utils.safestring import mark_safe
 
 from bookmarks import utils
+from bookmarks.models import UserProfile
 
 register = template.Library()
 
@@ -19,36 +24,39 @@ def update_query_string(context, **kwargs):
 
 
 @register.simple_tag(takes_context=True)
-def append_to_query_param(context, **kwargs):
-    query = context.request.GET.copy()
+def add_tag_to_query(context, tag_name: str):
+    params = context.request.GET.copy()
 
-    # Append to or create query param
-    for key in kwargs:
-        if query.__contains__(key):
-            value = query.__getitem__(key) + ' '
-        else:
-            value = ''
-        value = value + kwargs[key]
-        query.__setitem__(key, value)
+    # Append to or create query string
+    if params.__contains__('q'):
+        query_string = params.__getitem__('q') + ' '
+    else:
+        query_string = ''
+    query_string = query_string + '#' + tag_name
+    params.__setitem__('q', query_string)
 
-    return query.urlencode()
+    return params.urlencode()
 
 
 @register.simple_tag(takes_context=True)
-def remove_from_query_param(context, **kwargs):
-    query = context.request.GET.copy()
+def remove_tag_from_query(context, tag_name: str):
+    params = context.request.GET.copy()
+    if params.__contains__('q'):
+        # Split query string into parts
+        query_string = params.__getitem__('q')
+        query_parts = query_string.split()
+        # Remove tag with hash
+        tag_name_with_hash = '#' + tag_name
+        query_parts = [part for part in query_parts if str.lower(part) != str.lower(tag_name_with_hash)]
+        # When using lax tag search, also remove tag without hash
+        profile = context.request.user_profile
+        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+            query_parts = [part for part in query_parts if str.lower(part) != str.lower(tag_name)]
+        # Rebuild query string
+        query_string = ' '.join(query_parts)
+        params.__setitem__('q', query_string)
 
-    # Remove item from query param
-    for key in kwargs:
-        if query.__contains__(key):
-            value = query.__getitem__(key)
-            parts = value.split()
-            part_to_remove = kwargs[key]
-            updated_parts = [part for part in parts if str.lower(part) != str.lower(part_to_remove)]
-            updated_value = ' '.join(updated_parts)
-            query.__setitem__(key, updated_value)
-
-    return query.urlencode()
+    return params.urlencode()
 
 
 @register.simple_tag(takes_context=True)
@@ -109,3 +117,19 @@ class HtmlMinNode(template.Node):
         output = re.sub(r'\s+', ' ', output)
 
         return output
+
+
+@register.simple_tag(name="markdown", takes_context=True)
+def render_markdown(context, markdown_text):
+    # naive approach to reusing the renderer for a single request
+    # works for bookmark list for now
+    if not ('markdown_renderer' in context):
+        renderer = markdown.Markdown(extensions=['fenced_code', 'nl2br'])
+        context['markdown_renderer'] = renderer
+    else:
+        renderer = context['markdown_renderer']
+
+    as_html = renderer.convert(markdown_text)
+    sanitized_html = bleach.clean(as_html, markdown_tags, markdown_attrs)
+
+    return mark_safe(sanitized_html)

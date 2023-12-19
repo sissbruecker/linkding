@@ -2,7 +2,7 @@ from django.db.models import prefetch_related_objects
 from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
-from bookmarks.models import Bookmark, Tag, build_tag_string
+from bookmarks.models import Bookmark, Tag, build_tag_string, UserProfile
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
 from bookmarks.services.tags import get_or_create_tag
 
@@ -27,6 +27,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             'url',
             'title',
             'description',
+            'notes',
             'website_title',
             'website_description',
             'is_archived',
@@ -47,6 +48,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
     # Override optional char fields to provide default value
     title = serializers.CharField(required=False, allow_blank=True, default='')
     description = serializers.CharField(required=False, allow_blank=True, default='')
+    notes = serializers.CharField(required=False, allow_blank=True, default='')
     is_archived = serializers.BooleanField(required=False, default=False)
     unread = serializers.BooleanField(required=False, default=False)
     shared = serializers.BooleanField(required=False, default=False)
@@ -58,6 +60,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
         bookmark.url = validated_data['url']
         bookmark.title = validated_data['title']
         bookmark.description = validated_data['description']
+        bookmark.notes = validated_data['notes']
         bookmark.is_archived = validated_data['is_archived']
         bookmark.unread = validated_data['unread']
         bookmark.shared = validated_data['shared']
@@ -66,7 +69,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
 
     def update(self, instance: Bookmark, validated_data):
         # Update fields if they were provided in the payload
-        for key in ['url', 'title', 'description', 'unread', 'shared']:
+        for key in ['url', 'title', 'description', 'notes', 'unread', 'shared']:
             if key in validated_data:
                 setattr(instance, key, validated_data[key])
 
@@ -86,3 +89,21 @@ class TagSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return get_or_create_tag(validated_data['name'], self.context['user'])
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = [
+            "theme",
+            "bookmark_date_display",
+            "bookmark_link_target",
+            "web_archive_integration",
+            "tag_search",
+            "enable_sharing",
+            "enable_public_sharing",
+            "enable_favicons",
+            "display_url",
+            "permanent_notes",
+            "search_preferences",
+        ]

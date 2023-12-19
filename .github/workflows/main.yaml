@@ -3,22 +3,48 @@ name: linkding CI
 on: [push]
 
 jobs:
-  run_tests:
-    name: Run Django Tests
+  unit_tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: "3.10"
       - name: Set up Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 14
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
+          node-version: 18
       - name: Install Node dependencies
         run: npm install
+      - name: Setup Python environment
+        run: pip install -r requirements.txt
       - name: Run tests
-        run: python manage.py test
+        run: python manage.py test bookmarks.tests
+  e2e_tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install Node dependencies
+        run: npm install
+      - name: Setup Python environment
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+      - name: Run build
+        run: |
+          npm run build
+          python manage.py compilescss
+          python manage.py collectstatic --ignore=*.scss
+      - name: Run tests
+        run: python manage.py test bookmarks.e2e --pattern="e2e_test_*.py"

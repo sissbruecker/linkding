@@ -8,6 +8,8 @@
   <meta charset="UTF-8">
   <link rel="icon" href="{% static 'favicon.png' %}"/>
   <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% url 'bookmarks:manifest' %}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
   <meta name="description" content="Self-hosted bookmark service">
   <meta name="robots" content="index,follow">
@@ -15,22 +17,82 @@
   <title>linkding</title>
   {# Include SASS styles, files are resolved from bookmarks/styles #}
   {# Include specific theme variant based on user profile setting #}
-  {% if request.user.profile.theme == 'light' %}
-    <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"/>
-  {% elif request.user.profile.theme == 'dark' %}
-    <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"/>
+  {% if request.user_profile.theme == 'light' %}
+    <link href="{% sass_src 'theme-light.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+  {% elif request.user_profile.theme == 'dark' %}
+    <link href="{% sass_src 'theme-dark.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
   {% else %}
     {# Use auto theme as fallback #}
-    <link href="{% sass_src 'theme-dark.scss' %}" rel="stylesheet" type="text/css"
+    <link href="{% sass_src 'theme-dark.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
           media="(prefers-color-scheme: dark)"/>
-    <link href="{% sass_src 'theme-light.scss' %}" rel="stylesheet" type="text/css"
+    <link href="{% sass_src 'theme-light.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
           media="(prefers-color-scheme: light)"/>
   {% endif %}
 </head>
-<body>
-<header>
+<body ld-global-shortcuts>
+
+<div class="d-none">
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <symbol id="ld-icon-unread" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"></path>
+      <path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"></path>
+      <path d="M3 6l0 13"></path>
+      <path d="M12 6l0 13"></path>
+      <path d="M21 6l0 13"></path>
+    </symbol>
+  </svg>
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <symbol id="ld-icon-read" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 5.899 -1.096"></path>
+      <path d="M3 6a9 9 0 0 1 2.114 -.884m3.8 -.21c1.07 .17 2.116 .534 3.086 1.094a9 9 0 0 1 9 0"></path>
+      <path d="M3 6v13"></path>
+      <path d="M12 6v2m0 4v7"></path>
+      <path d="M21 6v11"></path>
+      <path d="M3 3l18 18"></path>
+    </symbol>
+  </svg>
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <symbol id="ld-icon-share" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+      <path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+      <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+      <path d="M8.7 10.7l6.6 -3.4"></path>
+      <path d="M8.7 13.3l6.6 3.4"></path>
+    </symbol>
+  </svg>
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <symbol id="ld-icon-unshare" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+      <path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+      <path d="M15.861 15.896a3 3 0 0 0 4.265 4.22m.578 -3.417a3.012 3.012 0 0 0 -1.507 -1.45"></path>
+      <path d="M8.7 10.7l1.336 -.688m2.624 -1.352l2.64 -1.36"></path>
+      <path d="M8.7 13.3l6.6 3.4"></path>
+      <path d="M3 3l18 18"></path>
+    </symbol>
+  </svg>
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <symbol id="ld-icon-note" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
+      <path d="M9 7l6 0"></path>
+      <path d="M9 11l6 0"></path>
+      <path d="M9 15l4 0"></path>
+    </symbol>
+  </svg>
+</div>
+
+<header class="container">
   {% if has_toasts %}
-    <div class="toasts container grid-lg">
+    <div class="toasts">
       <form action="{% url 'bookmarks:toasts.acknowledge' %}?return_url={{ request.path | urlencode }}" method="post">
         {% csrf_token %}
         {% for toast in toast_messages %}
@@ -42,22 +104,21 @@
       </form>
     </div>
   {% endif %}
-  <div class="navbar container grid-lg">
-    <section class="navbar-section">
-      <a href="{% url 'bookmarks:index' %}" class="navbar-brand text-bold">
-        <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
-        <h1>linkding</h1>
-      </a>
-    </section>
-    {# Only show nav items menu when logged in #}
+  <div class="d-flex justify-between">
+    <a href="{% url 'bookmarks:index' %}" class="d-flex align-center">
+      <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
+      <h1>LINKDING</h1>
+    </a>
     {% if request.user.is_authenticated %}
-      <section class="navbar-section">
-        {% include 'bookmarks/nav_menu.html' %}
-      </section>
+      {# Only show nav items menu when logged in #}
+      {% include 'bookmarks/nav_menu.html' %}
+    {% elif has_public_shares %}
+      {# Otherwise show link to shared bookmarks if there are publicly shared bookmarks #}
+      <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared bookmarks</a>
     {% endif %}
   </div>
 </header>
-<div class="content container grid-lg">
+<div class="content container">
   {% block content %}
   {% endblock %}
 </div>

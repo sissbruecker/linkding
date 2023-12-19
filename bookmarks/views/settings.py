@@ -3,6 +3,7 @@ import time
 from functools import lru_cache
 
 import requests
+from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import prefetch_related_objects
@@ -11,39 +12,56 @@ from django.shortcuts import render
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
-from bookmarks.models import UserProfileForm, FeedToken
-from bookmarks.queries import query_bookmarks
-from bookmarks.services import exporter
+from bookmarks.models import Bookmark, BookmarkSearch, UserProfileForm, FeedToken
+from bookmarks.services import exporter, tasks
 from bookmarks.services import importer
+from bookmarks.utils import app_version
 
 logger = logging.getLogger(__name__)
-
-try:
-    with open("version.txt", "r") as f:
-        app_version = f.read().strip("\n")
-except Exception as exc:
-    logging.exception(exc)
-    pass
 
 
 @login_required
 def general(request):
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user.profile)
-        if form.is_valid():
-            form.save()
-    else:
-        form = UserProfileForm(instance=request.user.profile)
-
+    profile_form = None
+    enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
+    update_profile_success_message = None
+    refresh_favicons_success_message = None
     import_success_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_success')
     import_errors_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_errors')
     version_info = get_version_info(get_ttl_hash())
+
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:
+            profile_form = update_profile(request)
+            update_profile_success_message = 'Profile updated'
+        if 'refresh_favicons' in request.POST:
+            tasks.schedule_refresh_favicons(request.user)
+            refresh_favicons_success_message = 'Scheduled favicon update. This may take a while...'
+
+    if not profile_form:
+        profile_form = UserProfileForm(instance=request.user_profile)
+
     return render(request, 'settings/general.html', {
-        'form': form,
+        'form': profile_form,
+        'enable_refresh_favicons': enable_refresh_favicons,
+        'update_profile_success_message': update_profile_success_message,
+        'refresh_favicons_success_message': refresh_favicons_success_message,
         'import_success_message': import_success_message,
         'import_errors_message': import_errors_message,
         'version_info': version_info,
     })
+
+
+def update_profile(request):
+    user = request.user
+    profile = user.profile
+    favicons_were_enabled = profile.enable_favicons
+    form = UserProfileForm(request.POST, instance=profile)
+    if form.is_valid():
+        form.save()
+        if profile.enable_favicons and not favicons_were_enabled:
+            tasks.schedule_bookmarks_without_favicons(request.user)
+    return form
 
 
 # Cache API call response, for one hour when using get_ttl_hash with default params
@@ -91,6 +109,7 @@ def integrations(request):
 @login_required
 def bookmark_import(request):
     import_file = request.FILES.get('import_file')
+    import_options = importer.ImportOptions(map_private_flag=request.POST.get('map_private_flag') == 'on')
 
     if import_file is None:
         messages.error(request, 'Please select a file to import.', 'bookmark_import_errors')
@@ -98,7 +117,7 @@ def bookmark_import(request):
 
     try:
         content = import_file.read().decode()
-        result = importer.import_netscape_html(content, request.user)
+        result = importer.import_netscape_html(content, request.user, import_options)
         success_msg = str(result.success) + ' bookmarks were successfully imported.'
         messages.success(request, success_msg, 'bookmark_import_success')
         if result.failed > 0:
@@ -116,7 +135,7 @@ def bookmark_import(request):
 def bookmark_export(request):
     # noinspection PyBroadException
     try:
-        bookmarks = list(query_bookmarks(request.user, ''))
+        bookmarks = Bookmark.objects.filter(owner=request.user)
         # Prefetch tags to prevent n+1 queries
         prefetch_related_objects(bookmarks, 'tags')
         file_content = exporter.export_netscape_html(bookmarks)

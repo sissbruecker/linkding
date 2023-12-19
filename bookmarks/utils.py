@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 from typing import Optional
@@ -5,6 +6,13 @@ from typing import Optional
 from dateutil.relativedelta import relativedelta
 from django.template.defaultfilters import pluralize
 from django.utils import timezone, formats
+
+try:
+    with open("version.txt", "r") as f:
+        app_version = f.read().strip("\n")
+except Exception as exc:
+    logging.exception(exc)
+    app_version = ''
 
 
 def unique(elements, key):

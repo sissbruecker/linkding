@@ -1,5 +1,6 @@
 import random
 import logging
+import datetime
 from typing import List
 
 from bs4 import BeautifulSoup
@@ -28,13 +29,16 @@ class BookmarkFactoryMixin:
                        tags=None,
                        user: User = None,
                        url: str = '',
-                       title: str = '',
+                       title: str = None,
                        description: str = '',
+                       notes: str = '',
                        website_title: str = '',
                        website_description: str = '',
                        web_archive_snapshot_url: str = '',
+                       favicon_file: str = '',
+                       added: datetime = None,
                        ):
-        if not title:
+        if title is None:
             title = get_random_string(length=32)
         if tags is None:
             tags = []
@@ -43,25 +47,79 @@ class BookmarkFactoryMixin:
         if not url:
             unique_id = get_random_string(length=32)
             url = 'https://example.com/' + unique_id
+        if added is None:
+            added = timezone.now()
         bookmark = Bookmark(
             url=url,
             title=title,
             description=description,
+            notes=notes,
             website_title=website_title,
             website_description=website_description,
-            date_added=timezone.now(),
+            date_added=added,
             date_modified=timezone.now(),
             owner=user,
             is_archived=is_archived,
             unread=unread,
             shared=shared,
             web_archive_snapshot_url=web_archive_snapshot_url,
+            favicon_file=favicon_file,
         )
         bookmark.save()
         for tag in tags:
             bookmark.tags.add(tag)
         bookmark.save()
         return bookmark
+
+    def setup_numbered_bookmarks(self,
+                                 count: int,
+                                 prefix: str = '',
+                                 suffix: str = '',
+                                 tag_prefix: str = '',
+                                 archived: bool = False,
+                                 unread: bool = False,
+                                 shared: bool = False,
+                                 with_tags: bool = False,
+                                 user: User = None):
+        user = user or self.get_or_create_test_user()
+        bookmarks = []
+
+        if not prefix:
+            if archived:
+                prefix = 'Archived Bookmark'
+            elif shared:
+                prefix = 'Shared Bookmark'
+            else:
+                prefix = 'Bookmark'
+
+        if not tag_prefix:
+            if archived:
+                tag_prefix = 'Archived Tag'
+            elif shared:
+                tag_prefix = 'Shared Tag'
+            else:
+                tag_prefix = 'Tag'
+
+        for i in range(1, count + 1):
+            title = f'{prefix} {i}{suffix}'
+            url = f'https://example.com/{prefix}/{i}'
+            tags = []
+            if with_tags:
+                tag_name = f'{tag_prefix} {i}{suffix}'
+                tags = [self.setup_tag(name=tag_name, user=user)]
+            bookmark = self.setup_bookmark(url=url,
+                                           title=title,
+                                           is_archived=archived,
+                                           unread=unread,
+                                           shared=shared,
+                                           tags=tags,
+                                           user=user)
+            bookmarks.append(bookmark)
+
+        return bookmarks
+
+    def get_numbered_bookmark(self, title: str):
+        return Bookmark.objects.get(title=title)
 
     def setup_tag(self, user: User = None, name: str = ''):
         if user is None:
@@ -72,13 +130,23 @@ class BookmarkFactoryMixin:
         tag.save()
         return tag
 
-    def setup_user(self, name: str = None, enable_sharing: bool = False):
+    def setup_user(self, name: str = None, enable_sharing: bool = False, enable_public_sharing: bool = False):
         if not name:
             name = get_random_string(length=32)
         user = User.objects.create_user(name, 'user@example.com', 'password123')
         user.profile.enable_sharing = enable_sharing
+        user.profile.enable_public_sharing = enable_public_sharing
         user.profile.save()
         return user
+
+    def get_tags_from_bookmarks(self, bookmarks: [Bookmark]):
+        all_tags = []
+        for bookmark in bookmarks:
+            all_tags = all_tags + list(bookmark.tags.all())
+        return all_tags
+
+    def get_random_string(self, length: int = 32):
+        return get_random_string(length=length)
 
 
 class HtmlTestMixin:
@@ -120,13 +188,15 @@ class BookmarkHtmlTag:
                  description: str = '',
                  add_date: str = '',
                  tags: str = '',
-                 to_read: bool = False):
+                 to_read: bool = False,
+                 private: bool = True):
         self.href = href
         self.title = title
         self.description = description
         self.add_date = add_date
         self.tags = tags
         self.to_read = to_read
+        self.private = private
 
 
 class ImportTestMixin:
@@ -136,7 +206,8 @@ class ImportTestMixin:
         <A {f'HREF="{tag.href}"' if tag.href else ''}
            {f'ADD_DATE="{tag.add_date}"' if tag.add_date else ''}
            {f'TAGS="{tag.tags}"' if tag.tags else ''}
-           TOREAD="{1 if tag.to_read else 0}">
+           TOREAD="{1 if tag.to_read else 0}"
+           PRIVATE="{1 if tag.private else 0}">
            {tag.title if tag.title else ''}
         </A>
         {f'<DD>{tag.description}' if tag.description else ''}
@@ -201,3 +272,8 @@ def disable_logging(f):
         return result
 
     return wrapper
+
+
+def collapse_whitespace(text: str):
+    text = text.replace('\n', '').replace('\r', '')
+    return ' '.join(text.split())

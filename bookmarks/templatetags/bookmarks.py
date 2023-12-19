@@ -1,10 +1,8 @@
-from typing import List, Set
+from typing import List
 
 from django import template
-from django.core.paginator import Page
 
-from bookmarks.models import BookmarkForm, BookmarkFilters, Tag, build_tag_string, User
-from bookmarks.utils import unique
+from bookmarks.models import BookmarkForm, BookmarkSearch, BookmarkSearchForm, Tag, build_tag_string, User
 
 register = template.Library()
 
@@ -20,75 +18,32 @@ def bookmark_form(context, form: BookmarkForm, cancel_url: str, bookmark_id: int
     }
 
 
-class TagGroup:
-    def __init__(self, char):
-        self.tags = []
-        self.char = char
-
-
-def create_tag_groups(tags: Set[Tag]):
-    # Ensure groups, as well as tags within groups, are ordered alphabetically
-    sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
-    group = None
-    groups = []
-
-    # Group tags that start with a different character than the previous one
-    for tag in sorted_tags:
-        tag_char = tag.name[0].lower()
-
-        if not group or group.char != tag_char:
-            group = TagGroup(tag_char)
-            groups.append(group)
-
-        group.tags.append(tag)
-
-    return groups
-
-
-@register.inclusion_tag('bookmarks/tag_cloud.html', name='tag_cloud', takes_context=True)
-def tag_cloud(context, tags: List[Tag], selected_tags: List[Tag]):
-    # Only display each tag name once, ignoring casing
-    # This covers cases where the tag cloud contains shared tags with duplicate names
-    # Also means that the cloud can not make assumptions that it will necessarily contain
-    # all tags of the current user
-    unique_tags = unique(tags, key=lambda x: str.lower(x.name))
-    unique_selected_tags = unique(selected_tags, key=lambda x: str.lower(x.name))
-
-    has_selected_tags = len(unique_selected_tags) > 0
-    unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
-    groups = create_tag_groups(unselected_tags)
-    return {
-        'groups': groups,
-        'selected_tags': unique_selected_tags,
-        'has_selected_tags': has_selected_tags,
-    }
-
-
-@register.inclusion_tag('bookmarks/bookmark_list.html', name='bookmark_list', takes_context=True)
-def bookmark_list(context, bookmarks: Page, return_url: str, link_target: str = '_blank'):
-    return {
-        'request': context['request'],
-        'bookmarks': bookmarks,
-        'return_url': return_url,
-        'link_target': link_target,
-    }
-
-
 @register.inclusion_tag('bookmarks/search.html', name='bookmark_search', takes_context=True)
-def bookmark_search(context, filters: BookmarkFilters, tags: [Tag], mode: str = ''):
+def bookmark_search(context, search: BookmarkSearch, tags: [Tag], mode: str = ''):
     tag_names = [tag.name for tag in tags]
     tags_string = build_tag_string(tag_names, ' ')
+    search_form = BookmarkSearchForm(search, editable_fields=['q'])
+
+    if mode == 'shared':
+        preferences_form = BookmarkSearchForm(search, editable_fields=['sort'])
+    else:
+        preferences_form = BookmarkSearchForm(search, editable_fields=['sort', 'shared', 'unread'])
     return {
-        'filters': filters,
+        'request': context['request'],
+        'search': search,
+        'search_form': search_form,
+        'preferences_form': preferences_form,
         'tags_string': tags_string,
         'mode': mode,
     }
 
 
 @register.inclusion_tag('bookmarks/user_select.html', name='user_select', takes_context=True)
-def user_select(context, filters: BookmarkFilters, users: List[User]):
+def user_select(context, search: BookmarkSearch, users: List[User]):
     sorted_users = sorted(users, key=lambda x: str.lower(x.username))
+    form = BookmarkSearchForm(search, editable_fields=['user'], users=sorted_users)
     return {
-        'filters': filters,
+        'search': search,
         'users': sorted_users,
+        'form': form,
     }

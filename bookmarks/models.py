@@ -5,10 +5,10 @@ from typing import List
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.http import QueryDict
 
 from bookmarks.utils import unique
 from bookmarks.validators import BookmarkURLValidator
@@ -50,9 +50,11 @@ class Bookmark(models.Model):
     url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     title = models.CharField(max_length=512, blank=True)
     description = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
     website_title = models.CharField(max_length=512, blank=True, null=True)
     website_description = models.TextField(blank=True, null=True)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
+    favicon_file = models.CharField(max_length=512, blank=True)
     unread = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     shared = models.BooleanField(default=False)
@@ -109,6 +111,7 @@ class BookmarkForm(forms.ModelForm):
             'tag_string',
             'title',
             'description',
+            'notes',
             'website_title',
             'website_description',
             'unread',
@@ -116,11 +119,135 @@ class BookmarkForm(forms.ModelForm):
             'auto_close',
         ]
 
+    @property
+    def has_notes(self):
+        return self.instance and self.instance.notes
 
-class BookmarkFilters:
-    def __init__(self, request: WSGIRequest):
-        self.query = request.GET.get('q') or ''
-        self.user = request.GET.get('user') or ''
+
+class BookmarkSearch:
+    SORT_ADDED_ASC = 'added_asc'
+    SORT_ADDED_DESC = 'added_desc'
+    SORT_TITLE_ASC = 'title_asc'
+    SORT_TITLE_DESC = 'title_desc'
+
+    FILTER_SHARED_OFF = 'off'
+    FILTER_SHARED_SHARED = 'yes'
+    FILTER_SHARED_UNSHARED = 'no'
+
+    FILTER_UNREAD_OFF = 'off'
+    FILTER_UNREAD_YES = 'yes'
+    FILTER_UNREAD_NO = 'no'
+
+    params = ['q', 'user', 'sort', 'shared', 'unread']
+    preferences = ['sort', 'shared', 'unread']
+    defaults = {
+        'q': '',
+        'user': '',
+        'sort': SORT_ADDED_DESC,
+        'shared': FILTER_SHARED_OFF,
+        'unread': FILTER_UNREAD_OFF,
+    }
+
+    def __init__(self,
+                 q: str = None,
+                 user: str = None,
+                 sort: str = None,
+                 shared: str = None,
+                 unread: str = None,
+                 preferences: dict = None):
+        if not preferences:
+            preferences = {}
+        self.defaults = {**BookmarkSearch.defaults, **preferences}
+
+        self.q = q or self.defaults['q']
+        self.user = user or self.defaults['user']
+        self.sort = sort or self.defaults['sort']
+        self.shared = shared or self.defaults['shared']
+        self.unread = unread or self.defaults['unread']
+
+    def is_modified(self, param):
+        value = self.__dict__[param]
+        return value != self.defaults[param]
+
+    @property
+    def modified_params(self):
+        return [field for field in self.params if self.is_modified(field)]
+
+    @property
+    def modified_preferences(self):
+        return [preference for preference in self.preferences if self.is_modified(preference)]
+
+    @property
+    def has_modifications(self):
+        return len(self.modified_params) > 0
+
+    @property
+    def has_modified_preferences(self):
+        return len(self.modified_preferences) > 0
+
+    @property
+    def query_params(self):
+        return {param: self.__dict__[param] for param in self.modified_params}
+
+    @property
+    def preferences_dict(self):
+        return {preference: self.__dict__[preference] for preference in self.preferences}
+
+    @staticmethod
+    def from_request(query_dict: QueryDict, preferences: dict = None):
+        initial_values = {}
+        for param in BookmarkSearch.params:
+            value = query_dict.get(param)
+            if value:
+                initial_values[param] = value
+
+        return BookmarkSearch(**initial_values, preferences=preferences)
+
+
+class BookmarkSearchForm(forms.Form):
+    SORT_CHOICES = [
+        (BookmarkSearch.SORT_ADDED_ASC, 'Added ↑'),
+        (BookmarkSearch.SORT_ADDED_DESC, 'Added ↓'),
+        (BookmarkSearch.SORT_TITLE_ASC, 'Title ↑'),
+        (BookmarkSearch.SORT_TITLE_DESC, 'Title ↓'),
+    ]
+    FILTER_SHARED_CHOICES = [
+        (BookmarkSearch.FILTER_SHARED_OFF, 'Off'),
+        (BookmarkSearch.FILTER_SHARED_SHARED, 'Shared'),
+        (BookmarkSearch.FILTER_SHARED_UNSHARED, 'Unshared'),
+    ]
+    FILTER_UNREAD_CHOICES = [
+        (BookmarkSearch.FILTER_UNREAD_OFF, 'Off'),
+        (BookmarkSearch.FILTER_UNREAD_YES, 'Unread'),
+        (BookmarkSearch.FILTER_UNREAD_NO, 'Read'),
+    ]
+
+    q = forms.CharField()
+    user = forms.ChoiceField()
+    sort = forms.ChoiceField(choices=SORT_CHOICES)
+    shared = forms.ChoiceField(choices=FILTER_SHARED_CHOICES, widget=forms.RadioSelect)
+    unread = forms.ChoiceField(choices=FILTER_UNREAD_CHOICES, widget=forms.RadioSelect)
+
+    def __init__(self, search: BookmarkSearch, editable_fields: List[str] = None, users: List[User] = None):
+        super().__init__()
+        editable_fields = editable_fields or []
+        self.editable_fields = editable_fields
+
+        # set choices for user field if users are provided
+        if users:
+            user_choices = [(user.username, user.username) for user in users]
+            user_choices.insert(0, ('', 'Everyone'))
+            self.fields['user'].choices = user_choices
+
+        for param in search.params:
+            # set initial values for modified params
+            self.fields[param].initial = search.__dict__[param]
+
+            # Mark non-editable modified fields as hidden. That way, templates
+            # rendering a form can just loop over hidden_fields to ensure that
+            # all necessary search options are kept when submitting the form.
+            if search.is_modified(param) and param not in editable_fields:
+                self.fields[param].widget = forms.HiddenInput()
 
 
 class UserProfile(models.Model):
@@ -152,6 +279,12 @@ class UserProfile(models.Model):
         (WEB_ARCHIVE_INTEGRATION_DISABLED, 'Disabled'),
         (WEB_ARCHIVE_INTEGRATION_ENABLED, 'Enabled'),
     ]
+    TAG_SEARCH_STRICT = 'strict'
+    TAG_SEARCH_LAX = 'lax'
+    TAG_SEARCH_CHOICES = [
+        (TAG_SEARCH_STRICT, 'Strict'),
+        (TAG_SEARCH_LAX, 'Lax'),
+    ]
     user = models.OneToOneField(get_user_model(), related_name='profile', on_delete=models.CASCADE)
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, blank=False, default=THEME_AUTO)
     bookmark_date_display = models.CharField(max_length=10, choices=BOOKMARK_DATE_DISPLAY_CHOICES, blank=False,
@@ -160,13 +293,21 @@ class UserProfile(models.Model):
                                             default=BOOKMARK_LINK_TARGET_BLANK)
     web_archive_integration = models.CharField(max_length=10, choices=WEB_ARCHIVE_INTEGRATION_CHOICES, blank=False,
                                                default=WEB_ARCHIVE_INTEGRATION_DISABLED)
+    tag_search = models.CharField(max_length=10, choices=TAG_SEARCH_CHOICES, blank=False,
+                                  default=TAG_SEARCH_STRICT)
     enable_sharing = models.BooleanField(default=False, null=False)
+    enable_public_sharing = models.BooleanField(default=False, null=False)
+    enable_favicons = models.BooleanField(default=False, null=False)
+    display_url = models.BooleanField(default=False, null=False)
+    permanent_notes = models.BooleanField(default=False, null=False)
+    search_preferences = models.JSONField(default=dict, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'enable_sharing']
+        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'tag_search',
+                  'enable_sharing', 'enable_public_sharing', 'enable_favicons', 'display_url', 'permanent_notes']
 
 
 @receiver(post_save, sender=get_user_model())

@@ -1,13 +1,17 @@
 from django.core.paginator import Paginator
 from django.template import Template, RequestContext
-from django.test import SimpleTestCase, RequestFactory
+from django.test import TestCase, RequestFactory
+
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
-class PaginationTagTest(SimpleTestCase):
+class PaginationTagTest(TestCase, BookmarkFactoryMixin):
 
     def render_template(self, num_items: int, page_size: int, current_page: int, url: str = '/test') -> str:
         rf = RequestFactory()
         request = rf.get(url)
+        request.user = self.get_or_create_test_user()
+        request.user_profile = self.get_or_create_test_user().profile
         paginator = Paginator(range(0, num_items), page_size)
         page = paginator.page(current_page)
 
@@ -109,9 +113,9 @@ class PaginationTagTest(SimpleTestCase):
             self.assertPageLink(rendered_template, page_number, page_number == current_page, expected_occurrences)
         self.assertTruncationIndicators(rendered_template, 1)
 
-    def test_extend_existing_query(self):
-        rendered_template = self.render_template(100, 10, 2, url='/test?q=cake')
-        self.assertPrevLink(rendered_template, 1, href='?q=cake&page=1')
-        self.assertPageLink(rendered_template, 1, False, href='?q=cake&page=1')
-        self.assertPageLink(rendered_template, 2, True, href='?q=cake&page=2')
-        self.assertNextLink(rendered_template, 3, href='?q=cake&page=3')
+    def test_respects_search_parameters(self):
+        rendered_template = self.render_template(100, 10, 2, url='/test?q=cake&sort=title_asc&page=2')
+        self.assertPrevLink(rendered_template, 1, href='?q=cake&sort=title_asc&page=1')
+        self.assertPageLink(rendered_template, 1, False, href='?q=cake&sort=title_asc&page=1')
+        self.assertPageLink(rendered_template, 2, True, href='?q=cake&sort=title_asc&page=2')
+        self.assertNextLink(rendered_template, 3, href='?q=cake&sort=title_asc&page=3')
