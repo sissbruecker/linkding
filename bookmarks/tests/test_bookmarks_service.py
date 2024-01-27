@@ -336,6 +336,28 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertCountEqual(bookmark2.tags.all(), [tag1, tag2])
         self.assertCountEqual(bookmark3.tags.all(), [tag1, tag2])
 
+    def test_tag_bookmarks_should_handle_existing_relationships(self):
+        tag1 = self.setup_tag()
+        tag2 = self.setup_tag()
+        bookmark1 = self.setup_bookmark(tags=[tag1])
+        bookmark2 = self.setup_bookmark(tags=[tag1])
+        bookmark3 = self.setup_bookmark(tags=[tag1])
+
+        BookmarkToTagRelationShip = Bookmark.tags.through
+        self.assertEqual(3, BookmarkToTagRelationShip.objects.count())
+
+        tag_bookmarks([bookmark1.id, bookmark2.id, bookmark3.id], f'{tag1.name},{tag2.name}',
+                      self.get_or_create_test_user())
+
+        bookmark1.refresh_from_db()
+        bookmark2.refresh_from_db()
+        bookmark3.refresh_from_db()
+
+        self.assertCountEqual(bookmark1.tags.all(), [tag1, tag2])
+        self.assertCountEqual(bookmark2.tags.all(), [tag1, tag2])
+        self.assertCountEqual(bookmark3.tags.all(), [tag1, tag2])
+        self.assertEqual(6, BookmarkToTagRelationShip.objects.count())
+
     def test_tag_bookmarks_should_only_tag_specified_bookmarks(self):
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()
