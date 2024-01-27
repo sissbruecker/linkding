@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0009_bookmark_web_archive_snapshot_url'),
+        ("bookmarks", "0009_bookmark_web_archive_snapshot_url"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='bookmark_link_target',
-            field=models.CharField(choices=[('_blank', 'New page'), ('_self', 'Same page')], default='_blank', max_length=10),
+            model_name="userprofile",
+            name="bookmark_link_target",
+            field=models.CharField(
+                choices=[("_blank", "New page"), ("_self", "Same page")],
+                default="_blank",
+                max_length=10,
+            ),
         ),
     ]

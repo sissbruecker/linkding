@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
@@ -21,14 +22,27 @@ from bookmarks.admin import linkding_admin_site
 from .settings import ALLOW_REGISTRATION, DEBUG
 
 urlpatterns = [
-    path('admin/', linkding_admin_site.urls),
-    path('login/', auth_views.LoginView.as_view(redirect_authenticated_user=True,
-                                                extra_context=dict(allow_registration=ALLOW_REGISTRATION)),
-         name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('change-password/', auth_views.PasswordChangeView.as_view(), name='change_password'),
-    path('password-change-done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
-    path('', include('bookmarks.urls')),
+    path("admin/", linkding_admin_site.urls),
+    path(
+        "login/",
+        auth_views.LoginView.as_view(
+            redirect_authenticated_user=True,
+            extra_context=dict(allow_registration=ALLOW_REGISTRATION),
+        ),
+        name="login",
+    ),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path(
+        "change-password/",
+        auth_views.PasswordChangeView.as_view(),
+        name="change_password",
+    ),
+    path(
+        "password-change-done/",
+        auth_views.PasswordChangeDoneView.as_view(),
+        name="password_change_done",
+    ),
+    path("", include("bookmarks.urls")),
 ]
 
 if settings.LD_CONTEXT_PATH:
@@ -37,7 +51,7 @@ if settings.LD_CONTEXT_PATH:
 if DEBUG:
     import debug_toolbar
 
-    urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))
+    urlpatterns.append(path("__debug__/", include(debug_toolbar.urls)))
 
 if ALLOW_REGISTRATION:
-    urlpatterns.append(path('', include('django_registration.backends.one_step.urls')))
+    urlpatterns.append(path("", include("django_registration.backends.one_step.urls")))

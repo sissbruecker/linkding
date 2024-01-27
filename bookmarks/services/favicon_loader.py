@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # register mime type for .ico files, which is not included in the default
 # mimetypes of the Docker image
-mimetypes.add_type('image/x-icon', '.ico')
+mimetypes.add_type("image/x-icon", ".ico")
 
 
 def _ensure_favicon_folder():
@@ -23,16 +23,16 @@ def _ensure_favicon_folder():
 
 
 def _url_to_filename(url: str) -> str:
-    return re.sub(r'\W+', '_', url)
+    return re.sub(r"\W+", "_", url)
 
 
 def _get_url_parameters(url: str) -> dict:
     parsed_uri = urlparse(url)
     return {
         # https://example.com/foo?bar -> https://example.com
-        'url': f'{parsed_uri.scheme}://{parsed_uri.hostname}',
+        "url": f"{parsed_uri.scheme}://{parsed_uri.hostname}",
         # https://example.com/foo?bar -> example.com
-        'domain': parsed_uri.hostname,
+        "domain": parsed_uri.hostname,
     }
 
 
@@ -63,21 +63,21 @@ def load_favicon(url: str) -> str:
     # Create favicon folder if not exists
     _ensure_favicon_folder()
     # Use scheme+hostname as favicon filename to reuse icon for all pages on the same domain
-    favicon_name = _url_to_filename(url_parameters['url'])
+    favicon_name = _url_to_filename(url_parameters["url"])
     favicon_file = _check_existing_favicon(favicon_name)
 
     if not favicon_file:
         # Load favicon from provider, save to file
         favicon_url = settings.LD_FAVICON_PROVIDER.format(**url_parameters)
-        logger.debug(f'Loading favicon from: {favicon_url}')
+        logger.debug(f"Loading favicon from: {favicon_url}")
         with requests.get(favicon_url, stream=True) as response:
-            content_type = response.headers['Content-Type']
+            content_type = response.headers["Content-Type"]
             file_extension = mimetypes.guess_extension(content_type)
-            favicon_file = f'{favicon_name}{file_extension}'
+            favicon_file = f"{favicon_name}{file_extension}"
             favicon_path = _get_favicon_path(favicon_file)
-            with open(favicon_path, 'wb') as file:
+            with open(favicon_path, "wb") as file:
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
-        logger.debug(f'Saved favicon as: {favicon_path}')
+        logger.debug(f"Saved favicon as: {favicon_path}")
 
     return favicon_file

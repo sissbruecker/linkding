@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class BookmarksConfig(AppConfig):
-    name = 'bookmarks'
+    name = "bookmarks"
 
     def ready(self):
         # Register signal handlers

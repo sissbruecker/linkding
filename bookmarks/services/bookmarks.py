@@ -11,7 +11,9 @@ from bookmarks.services import tasks
 
 def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     # If URL is already bookmarked, then update it
-    existing_bookmark: Bookmark = Bookmark.objects.filter(owner=current_user, url=bookmark.url).first()
+    existing_bookmark: Bookmark = Bookmark.objects.filter(
+        owner=current_user, url=bookmark.url
+    ).first()
 
     if existing_bookmark is not None:
         _merge_bookmark_data(bookmark, existing_bookmark)
@@ -68,8 +70,9 @@ def archive_bookmark(bookmark: Bookmark):
 def archive_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
-    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(is_archived=True,
-                                                                                      date_modified=timezone.now())
+    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
+        is_archived=True, date_modified=timezone.now()
+    )
 
 
 def unarchive_bookmark(bookmark: Bookmark):
@@ -82,8 +85,9 @@ def unarchive_bookmark(bookmark: Bookmark):
 def unarchive_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
-    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(is_archived=False,
-                                                                                      date_modified=timezone.now())
+    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
+        is_archived=False, date_modified=timezone.now()
+    )
 
 
 def delete_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
@@ -94,8 +98,9 @@ def delete_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
 
 def tag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
-    owned_bookmark_ids = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).values_list('id',
-                                                                                                                flat=True)
+    owned_bookmark_ids = Bookmark.objects.filter(
+        owner=current_user, id__in=sanitized_bookmark_ids
+    ).values_list("id", flat=True)
     tag_names = parse_tag_string(tag_string)
     tags = get_or_create_tags(tag_names, current_user)
 
@@ -103,54 +108,69 @@ def tag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_user
     relationships = []
     for tag in tags:
         for bookmark_id in owned_bookmark_ids:
-            relationships.append(BookmarkToTagRelationShip(bookmark_id=bookmark_id, tag=tag))
+            relationships.append(
+                BookmarkToTagRelationShip(bookmark_id=bookmark_id, tag=tag)
+            )
 
     # Insert all bookmark -> tag associations at once, should ignore errors if association already exists
     BookmarkToTagRelationShip.objects.bulk_create(relationships, ignore_conflicts=True)
-    Bookmark.objects.filter(id__in=owned_bookmark_ids).update(date_modified=timezone.now())
+    Bookmark.objects.filter(id__in=owned_bookmark_ids).update(
+        date_modified=timezone.now()
+    )
 
 
-def untag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_user: User):
+def untag_bookmarks(
+    bookmark_ids: [Union[int, str]], tag_string: str, current_user: User
+):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
-    owned_bookmark_ids = Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).values_list('id',
-                                                                                                                flat=True)
+    owned_bookmark_ids = Bookmark.objects.filter(
+        owner=current_user, id__in=sanitized_bookmark_ids
+    ).values_list("id", flat=True)
     tag_names = parse_tag_string(tag_string)
     tags = get_or_create_tags(tag_names, current_user)
 
     BookmarkToTagRelationShip = Bookmark.tags.through
     for tag in tags:
         # Remove all bookmark -> tag associations for the owned bookmarks and the current tag
-        BookmarkToTagRelationShip.objects.filter(bookmark_id__in=owned_bookmark_ids, tag=tag).delete()
+        BookmarkToTagRelationShip.objects.filter(
+            bookmark_id__in=owned_bookmark_ids, tag=tag
+        ).delete()
 
-    Bookmark.objects.filter(id__in=owned_bookmark_ids).update(date_modified=timezone.now())
+    Bookmark.objects.filter(id__in=owned_bookmark_ids).update(
+        date_modified=timezone.now()
+    )
 
 
 def mark_bookmarks_as_read(bookmark_ids: [Union[int, str]], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
-    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(unread=False,
-                                                                                      date_modified=timezone.now())
+    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
+        unread=False, date_modified=timezone.now()
+    )
 
 
 def mark_bookmarks_as_unread(bookmark_ids: [Union[int, str]], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
-    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(unread=True,
-                                                                                      date_modified=timezone.now())
+    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
+        unread=True, date_modified=timezone.now()
+    )
 
 
 def share_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
-    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(shared=True,
-                                                                                      date_modified=timezone.now())
+    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
+        shared=True, date_modified=timezone.now()
+    )
 
 
 def unshare_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
-    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(shared=False,
-                                                                                      date_modified=timezone.now())
+    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
+        shared=False, date_modified=timezone.now()
+    )
 
 
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):

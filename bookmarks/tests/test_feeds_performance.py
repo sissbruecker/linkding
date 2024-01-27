@@ -27,7 +27,7 @@ class FeedsPerformanceTestCase(TestCase, BookmarkFactoryMixin):
         # capture number of queries
         context = CaptureQueriesContext(self.get_connection())
         with context:
-            feed_url = reverse('bookmarks:feeds.all', args=[self.token.key])
+            feed_url = reverse("bookmarks:feeds.all", args=[self.token.key])
             self.client.get(feed_url)
 
         number_of_queries = context.final_queries

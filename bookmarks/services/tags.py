@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def get_or_create_tags(tag_names: List[str], user: User):
     tags = [get_or_create_tag(tag_name, user) for tag_name in tag_names]
-    return unique(tags, operator.attrgetter('id'))
+    return unique(tags, operator.attrgetter("id"))
 
 
 def get_or_create_tag(name: str, user: User):

@@ -18,9 +18,9 @@ class WebsiteMetadata:
 
     def to_dict(self):
         return {
-            'url': self.url,
-            'title': self.title,
-            'description': self.description,
+            "url": self.url,
+            "title": self.title,
+            "description": self.description,
         }
 
 
@@ -34,22 +34,29 @@ def load_website_metadata(url: str):
         start = timezone.now()
         page_text = load_page(url)
         end = timezone.now()
-        logger.debug(f'Load duration: {end - start}')
+        logger.debug(f"Load duration: {end - start}")
 
         start = timezone.now()
-        soup = BeautifulSoup(page_text, 'html.parser')
+        soup = BeautifulSoup(page_text, "html.parser")
 
         title = soup.title.string.strip() if soup.title is not None else None
-        description_tag = soup.find('meta', attrs={'name': 'description'})
-        description = description_tag['content'].strip() if description_tag and description_tag[
-            'content'] else None
+        description_tag = soup.find("meta", attrs={"name": "description"})
+        description = (
+            description_tag["content"].strip()
+            if description_tag and description_tag["content"]
+            else None
+        )
 
         if not description:
-            description_tag = soup.find('meta', attrs={'property': 'og:description'})
-            description = description_tag['content'].strip() if description_tag and description_tag['content'] else None
+            description_tag = soup.find("meta", attrs={"property": "og:description"})
+            description = (
+                description_tag["content"].strip()
+                if description_tag and description_tag["content"]
+                else None
+            )
 
         end = timezone.now()
-        logger.debug(f'Parsing duration: {end - start}')
+        logger.debug(f"Parsing duration: {end - start}")
     finally:
         return WebsiteMetadata(url=url, title=title, description=description)
 
@@ -73,30 +80,30 @@ def load_page(url: str):
             else:
                 content = content + chunk
 
-            logger.debug(f'Loaded chunk (iteration={iteration}, total={size / 1024})')
+            logger.debug(f"Loaded chunk (iteration={iteration}, total={size / 1024})")
 
             # Stop reading if we have parsed end of head tag
-            end_of_head = '</head>'.encode('utf-8')
+            end_of_head = "</head>".encode("utf-8")
             if end_of_head in content:
-                logger.debug(f'Found closing head tag after {size} bytes')
+                logger.debug(f"Found closing head tag after {size} bytes")
                 content = content.split(end_of_head)[0] + end_of_head
                 break
             # Stop reading if we exceed limit
             if size > MAX_CONTENT_LIMIT:
-                logger.debug(f'Cancel reading document after {size} bytes')
+                logger.debug(f"Cancel reading document after {size} bytes")
                 break
-        if hasattr(r, '_content_consumed'):
-            logger.debug(f'Request consumed: {r._content_consumed}')
+        if hasattr(r, "_content_consumed"):
+            logger.debug(f"Request consumed: {r._content_consumed}")
 
     # Use charset_normalizer to determine encoding that best matches the response content
     # Several sites seem to specify the response encoding incorrectly, so we ignore it and use custom logic instead
     # This is different from Response.text which does respect the encoding specified in the response first,
     # before trying to determine one
-    results = from_bytes(content or '')
+    results = from_bytes(content or "")
     return str(results.best())
 
 
-DEFAULT_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36'
+DEFAULT_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36"
 
 
 def fake_request_headers():

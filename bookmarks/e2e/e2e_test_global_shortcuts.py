@@ -9,11 +9,11 @@ class GlobalShortcutsE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             browser = self.setup_browser(p)
             page = browser.new_page()
-            page.goto(self.live_server_url + reverse('bookmarks:index'))
+            page.goto(self.live_server_url + reverse("bookmarks:index"))
 
-            page.press('body', 's')
+            page.press("body", "s")
 
-            expect(page.get_by_placeholder('Search for words or #tags')).to_be_focused()
+            expect(page.get_by_placeholder("Search for words or #tags")).to_be_focused()
 
             browser.close()
 
@@ -21,10 +21,10 @@ class GlobalShortcutsE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             browser = self.setup_browser(p)
             page = browser.new_page()
-            page.goto(self.live_server_url + reverse('bookmarks:index'))
+            page.goto(self.live_server_url + reverse("bookmarks:index"))
 
-            page.press('body', 'n')
+            page.press("body", "n")
 
-            expect(page).to_have_url(self.live_server_url + reverse('bookmarks:new'))
+            expect(page).to_have_url(self.live_server_url + reverse("bookmarks:new"))
 
             browser.close()

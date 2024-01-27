@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0008_userprofile_bookmark_date_display'),
+        ("bookmarks", "0008_userprofile_bookmark_date_display"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bookmark',
-            name='web_archive_snapshot_url',
+            model_name="bookmark",
+            name="web_archive_snapshot_url",
             field=models.CharField(blank=True, max_length=2048),
         ),
     ]

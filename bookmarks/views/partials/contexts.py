@@ -8,7 +8,14 @@ from django.urls import reverse
 
 from bookmarks import queries
 from bookmarks import utils
-from bookmarks.models import Bookmark, BookmarkSearch, BookmarkSearchForm, User, UserProfile, Tag
+from bookmarks.models import (
+    Bookmark,
+    BookmarkSearch,
+    BookmarkSearchForm,
+    User,
+    UserProfile,
+    Tag,
+)
 
 DEFAULT_PAGE_SIZE = 30
 
@@ -34,22 +41,26 @@ class BookmarkItem:
 
         css_classes = []
         if bookmark.unread:
-            css_classes.append('unread')
+            css_classes.append("unread")
         if bookmark.shared:
-            css_classes.append('shared')
+            css_classes.append("shared")
 
-        self.css_classes = ' '.join(css_classes)
+        self.css_classes = " ".join(css_classes)
 
         if profile.bookmark_date_display == UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE:
             self.display_date = utils.humanize_relative_date(bookmark.date_added)
-        elif profile.bookmark_date_display == UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE:
+        elif (
+            profile.bookmark_date_display == UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE
+        ):
             self.display_date = utils.humanize_absolute_date(bookmark.date_added)
 
         self.show_notes_button = bookmark.notes and not profile.permanent_notes
         self.show_mark_as_read = is_editable and bookmark.unread
         self.show_unshare = is_editable and bookmark.shared and profile.enable_sharing
 
-        self.has_extra_actions = self.show_notes_button or self.show_mark_as_read or self.show_unshare
+        self.has_extra_actions = (
+            self.show_notes_button or self.show_mark_as_read or self.show_unshare
+        )
 
 
 class BookmarkListContext:
@@ -58,22 +69,30 @@ class BookmarkListContext:
         user_profile = request.user_profile
 
         self.request = request
-        self.search = BookmarkSearch.from_request(self.request.GET, user_profile.search_preferences)
+        self.search = BookmarkSearch.from_request(
+            self.request.GET, user_profile.search_preferences
+        )
 
         query_set = self.get_bookmark_query_set()
-        page_number = request.GET.get('page')
+        page_number = request.GET.get("page")
         paginator = Paginator(query_set, DEFAULT_PAGE_SIZE)
         bookmarks_page = paginator.get_page(page_number)
         # Prefetch related objects, this avoids n+1 queries when accessing fields in templates
-        models.prefetch_related_objects(bookmarks_page.object_list, 'owner', 'tags')
+        models.prefetch_related_objects(bookmarks_page.object_list, "owner", "tags")
 
-        self.items = [BookmarkItem(bookmark, user, user_profile) for bookmark in bookmarks_page]
+        self.items = [
+            BookmarkItem(bookmark, user, user_profile) for bookmark in bookmarks_page
+        ]
 
         self.is_empty = paginator.count == 0
         self.bookmarks_page = bookmarks_page
         self.bookmarks_total = paginator.count
-        self.return_url = self.generate_return_url(self.search, self.get_base_url(), page_number)
-        self.action_url = self.generate_action_url(self.search, self.get_base_action_url(), self.return_url)
+        self.return_url = self.generate_return_url(
+            self.search, self.get_base_url(), page_number
+        )
+        self.action_url = self.generate_action_url(
+            self.search, self.get_base_action_url(), self.return_url
+        )
         self.link_target = user_profile.bookmark_link_target
         self.date_display = user_profile.bookmark_date_display
         self.show_url = user_profile.display_url
@@ -84,69 +103,74 @@ class BookmarkListContext:
     def generate_return_url(search: BookmarkSearch, base_url: str, page: int = None):
         query_params = search.query_params
         if page is not None:
-            query_params['page'] = page
+            query_params["page"] = page
         query_string = urllib.parse.urlencode(query_params)
 
-        return base_url if query_string == '' else base_url + '?' + query_string
+        return base_url if query_string == "" else base_url + "?" + query_string
 
     @staticmethod
-    def generate_action_url(search: BookmarkSearch, base_action_url: str, return_url: str):
+    def generate_action_url(
+        search: BookmarkSearch, base_action_url: str, return_url: str
+    ):
         query_params = search.query_params
-        query_params['return_url'] = return_url
+        query_params["return_url"] = return_url
         query_string = urllib.parse.urlencode(query_params)
 
-        return base_action_url if query_string == '' else base_action_url + '?' + query_string
+        return (
+            base_action_url
+            if query_string == ""
+            else base_action_url + "?" + query_string
+        )
 
     def get_base_url(self):
-        raise Exception(f'Must be implemented by subclass')
+        raise Exception(f"Must be implemented by subclass")
 
     def get_base_action_url(self):
-        raise Exception(f'Must be implemented by subclass')
+        raise Exception(f"Must be implemented by subclass")
 
     def get_bookmark_query_set(self):
-        raise Exception(f'Must be implemented by subclass')
+        raise Exception(f"Must be implemented by subclass")
 
 
 class ActiveBookmarkListContext(BookmarkListContext):
     def get_base_url(self):
-        return reverse('bookmarks:index')
+        return reverse("bookmarks:index")
 
     def get_base_action_url(self):
-        return reverse('bookmarks:index.action')
+        return reverse("bookmarks:index.action")
 
     def get_bookmark_query_set(self):
-        return queries.query_bookmarks(self.request.user,
-                                       self.request.user_profile,
-                                       self.search)
+        return queries.query_bookmarks(
+            self.request.user, self.request.user_profile, self.search
+        )
 
 
 class ArchivedBookmarkListContext(BookmarkListContext):
     def get_base_url(self):
-        return reverse('bookmarks:archived')
+        return reverse("bookmarks:archived")
 
     def get_base_action_url(self):
-        return reverse('bookmarks:archived.action')
+        return reverse("bookmarks:archived.action")
 
     def get_bookmark_query_set(self):
-        return queries.query_archived_bookmarks(self.request.user,
-                                                self.request.user_profile,
-                                                self.search)
+        return queries.query_archived_bookmarks(
+            self.request.user, self.request.user_profile, self.search
+        )
 
 
 class SharedBookmarkListContext(BookmarkListContext):
     def get_base_url(self):
-        return reverse('bookmarks:shared')
+        return reverse("bookmarks:shared")
 
     def get_base_action_url(self):
-        return reverse('bookmarks:shared.action')
+        return reverse("bookmarks:shared.action")
 
     def get_bookmark_query_set(self):
         user = User.objects.filter(username=self.search.user).first()
         public_only = not self.request.user.is_authenticated
-        return queries.query_shared_bookmarks(user,
-                                              self.request.user_profile,
-                                              self.search,
-                                              public_only)
+        return queries.query_shared_bookmarks(
+            user, self.request.user_profile, self.search, public_only
+        )
 
 
 class TagGroup:
@@ -179,13 +203,17 @@ class TagCloudContext:
         user_profile = request.user_profile
 
         self.request = request
-        self.search = BookmarkSearch.from_request(self.request.GET, user_profile.search_preferences)
+        self.search = BookmarkSearch.from_request(
+            self.request.GET, user_profile.search_preferences
+        )
 
         query_set = self.get_tag_query_set()
         tags = list(query_set)
         selected_tags = self.get_selected_tags(tags)
         unique_tags = utils.unique(tags, key=lambda x: str.lower(x.name))
-        unique_selected_tags = utils.unique(selected_tags, key=lambda x: str.lower(x.name))
+        unique_selected_tags = utils.unique(
+            selected_tags, key=lambda x: str.lower(x.name)
+        )
         has_selected_tags = len(unique_selected_tags) > 0
         unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
         groups = TagGroup.create_tag_groups(unselected_tags)
@@ -196,13 +224,13 @@ class TagCloudContext:
         self.has_selected_tags = has_selected_tags
 
     def get_tag_query_set(self):
-        raise Exception(f'Must be implemented by subclass')
+        raise Exception(f"Must be implemented by subclass")
 
     def get_selected_tags(self, tags: List[Tag]):
         parsed_query = queries.parse_query_string(self.search.q)
-        tag_names = parsed_query['tag_names']
+        tag_names = parsed_query["tag_names"]
         if self.request.user_profile.tag_search == UserProfile.TAG_SEARCH_LAX:
-            tag_names = tag_names + parsed_query['search_terms']
+            tag_names = tag_names + parsed_query["search_terms"]
         tag_names = [tag_name.lower() for tag_name in tag_names]
 
         return [tag for tag in tags if tag.name.lower() in tag_names]
@@ -210,23 +238,22 @@ class TagCloudContext:
 
 class ActiveTagCloudContext(TagCloudContext):
     def get_tag_query_set(self):
-        return queries.query_bookmark_tags(self.request.user,
-                                           self.request.user_profile,
-                                           self.search)
+        return queries.query_bookmark_tags(
+            self.request.user, self.request.user_profile, self.search
+        )
 
 
 class ArchivedTagCloudContext(TagCloudContext):
     def get_tag_query_set(self):
-        return queries.query_archived_bookmark_tags(self.request.user,
-                                                    self.request.user_profile,
-                                                    self.search)
+        return queries.query_archived_bookmark_tags(
+            self.request.user, self.request.user_profile, self.search
+        )
 
 
 class SharedTagCloudContext(TagCloudContext):
     def get_tag_query_set(self):
         user = User.objects.filter(username=self.search.user).first()
         public_only = not self.request.user.is_authenticated
-        return queries.query_shared_bookmark_tags(user,
-                                                  self.request.user_profile,
-                                                  self.search,
-                                                  public_only)
+        return queries.query_shared_bookmark_tags(
+            user, self.request.user_profile, self.search, public_only
+        )

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0020_userprofile_tag_search'),
+        ("bookmarks", "0020_userprofile_tag_search"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='display_url',
+            model_name="userprofile",
+            name="display_url",
             field=models.BooleanField(default=False),
         ),
     ]

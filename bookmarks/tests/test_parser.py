@@ -9,7 +9,9 @@ from bookmarks.tests.helpers import ImportTestMixin, BookmarkHtmlTag
 
 
 class ParserTestCase(TestCase, ImportTestMixin):
-    def assertTagsEqual(self, bookmarks: List[NetscapeBookmark], html_tags: List[BookmarkHtmlTag]):
+    def assertTagsEqual(
+        self, bookmarks: List[NetscapeBookmark], html_tags: List[BookmarkHtmlTag]
+    ):
         self.assertEqual(len(bookmarks), len(html_tags))
         for bookmark in bookmarks:
             html_tag = html_tags[bookmarks.index(bookmark)]
@@ -23,14 +25,34 @@ class ParserTestCase(TestCase, ImportTestMixin):
 
     def test_parse_bookmarks(self):
         html_tags = [
-            BookmarkHtmlTag(href='https://example.com', title='Example title', description='Example description',
-                            add_date='1', tags='example-tag'),
-            BookmarkHtmlTag(href='https://example.com/foo', title='Foo title', description='',
-                            add_date='2', tags=''),
-            BookmarkHtmlTag(href='https://example.com/bar', title='Bar title', description='Bar description',
-                            add_date='3', tags='bar-tag, other-tag'),
-            BookmarkHtmlTag(href='https://example.com/baz', title='Baz title', description='Baz description',
-                            add_date='3', to_read=True),
+            BookmarkHtmlTag(
+                href="https://example.com",
+                title="Example title",
+                description="Example description",
+                add_date="1",
+                tags="example-tag",
+            ),
+            BookmarkHtmlTag(
+                href="https://example.com/foo",
+                title="Foo title",
+                description="",
+                add_date="2",
+                tags="",
+            ),
+            BookmarkHtmlTag(
+                href="https://example.com/bar",
+                title="Bar title",
+                description="Bar description",
+                add_date="3",
+                tags="bar-tag, other-tag",
+            ),
+            BookmarkHtmlTag(
+                href="https://example.com/baz",
+                title="Baz title",
+                description="Baz description",
+                add_date="3",
+                to_read=True,
+            ),
         ]
         html = self.render_html(html_tags)
         bookmarks = parse(html)
@@ -45,10 +67,14 @@ class ParserTestCase(TestCase, ImportTestMixin):
 
     def test_reset_properties_after_adding_bookmark(self):
         html_tags = [
-            BookmarkHtmlTag(href='https://example.com', title='Example title', description='Example description',
-                            add_date='1', tags='example-tag'),
-            BookmarkHtmlTag(href='', title='', description='',
-                            add_date='', tags='')
+            BookmarkHtmlTag(
+                href="https://example.com",
+                title="Example title",
+                description="Example description",
+                add_date="1",
+                tags="example-tag",
+            ),
+            BookmarkHtmlTag(href="", title="", description="", add_date="", tags=""),
         ]
         html = self.render_html(html_tags)
         bookmarks = parse(html)
@@ -57,59 +83,101 @@ class ParserTestCase(TestCase, ImportTestMixin):
 
     def test_empty_title(self):
         html_tags = [
-            BookmarkHtmlTag(href='https://example.com', title='', description='Example description',
-                            add_date='1', tags='example-tag'),
+            BookmarkHtmlTag(
+                href="https://example.com",
+                title="",
+                description="Example description",
+                add_date="1",
+                tags="example-tag",
+            ),
         ]
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1" TAGS="example-tag"></A>
         <DD>Example description
-        ''')
+        """
+        )
         bookmarks = parse(html)
 
         self.assertTagsEqual(bookmarks, html_tags)
 
     def test_with_closing_description_tag(self):
         html_tags = [
-            BookmarkHtmlTag(href='https://example.com', title='Example title', description='Example description',
-                            add_date='1', tags='example-tag'),
-            BookmarkHtmlTag(href='https://foo.com', title='Foo title', description='',
-                            add_date='2', tags=''),
+            BookmarkHtmlTag(
+                href="https://example.com",
+                title="Example title",
+                description="Example description",
+                add_date="1",
+                tags="example-tag",
+            ),
+            BookmarkHtmlTag(
+                href="https://foo.com",
+                title="Foo title",
+                description="",
+                add_date="2",
+                tags="",
+            ),
         ]
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1" TAGS="example-tag">Example title</A>
         <DD>Example description</DD>
         <DT><A HREF="https://foo.com" ADD_DATE="2">Foo title</A>
         <DD></DD>
-        ''')
+        """
+        )
         bookmarks = parse(html)
 
         self.assertTagsEqual(bookmarks, html_tags)
 
     def test_description_tag_before_anchor_tag(self):
         html_tags = [
-            BookmarkHtmlTag(href='https://example.com', title='Example title', description='Example description',
-                            add_date='1', tags='example-tag'),
-            BookmarkHtmlTag(href='https://foo.com', title='Foo title', description='',
-                            add_date='2', tags=''),
+            BookmarkHtmlTag(
+                href="https://example.com",
+                title="Example title",
+                description="Example description",
+                add_date="1",
+                tags="example-tag",
+            ),
+            BookmarkHtmlTag(
+                href="https://foo.com",
+                title="Foo title",
+                description="",
+                add_date="2",
+                tags="",
+            ),
         ]
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><DD>Example description</DD>
         <A HREF="https://example.com" ADD_DATE="1" TAGS="example-tag">Example title</A>
         <DT><DD></DD>
         <A HREF="https://foo.com" ADD_DATE="2">Foo title</A>
-        ''')
+        """
+        )
         bookmarks = parse(html)
 
         self.assertTagsEqual(bookmarks, html_tags)
 
     def test_with_folders(self):
         html_tags = [
-            BookmarkHtmlTag(href='https://example.com', title='Example title', description='Example description',
-                            add_date='1', tags='example-tag'),
-            BookmarkHtmlTag(href='https://foo.com', title='Foo title', description='',
-                            add_date='2', tags=''),
+            BookmarkHtmlTag(
+                href="https://example.com",
+                title="Example title",
+                description="Example description",
+                add_date="1",
+                tags="example-tag",
+            ),
+            BookmarkHtmlTag(
+                href="https://foo.com",
+                title="Foo title",
+                description="",
+                add_date="2",
+                tags="",
+            ),
         ]
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DL><p>
             <DT><H3>Folder 1</H3>
             <DL><p>
@@ -121,102 +189,126 @@ class ParserTestCase(TestCase, ImportTestMixin):
                 <DT><A HREF="https://foo.com" ADD_DATE="2">Foo title</A>
             </DL><p>
         </DL><p>
-        ''')
+        """
+        )
         bookmarks = parse(html)
 
         self.assertTagsEqual(bookmarks, html_tags)
 
     def test_private_flag(self):
         # is private by default
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
         <DD>Example description</DD>
-        ''')
+        """
+        )
         bookmarks = parse(html)
         self.assertEqual(bookmarks[0].private, True)
 
         # explicitly marked as private
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1" PRIVATE="1">Example title</A>
         <DD>Example description</DD>
-        ''')
+        """
+        )
         bookmarks = parse(html)
         self.assertEqual(bookmarks[0].private, True)
 
         # explicitly marked as public
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1" PRIVATE="0">Example title</A>
         <DD>Example description</DD>
-        ''')
+        """
+        )
         bookmarks = parse(html)
         self.assertEqual(bookmarks[0].private, False)
 
     def test_notes(self):
         # no description, no notes
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
-        ''')
+        """
+        )
         bookmarks = parse(html)
-        self.assertEqual(bookmarks[0].description, '')
-        self.assertEqual(bookmarks[0].notes, '')
+        self.assertEqual(bookmarks[0].description, "")
+        self.assertEqual(bookmarks[0].notes, "")
 
         # description, no notes
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
         <DD>Example description
-        ''')
+        """
+        )
         bookmarks = parse(html)
-        self.assertEqual(bookmarks[0].description, 'Example description')
-        self.assertEqual(bookmarks[0].notes, '')
+        self.assertEqual(bookmarks[0].description, "Example description")
+        self.assertEqual(bookmarks[0].notes, "")
 
         # description, notes
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
         <DD>Example description[linkding-notes]Example notes[/linkding-notes]
-        ''')
+        """
+        )
         bookmarks = parse(html)
-        self.assertEqual(bookmarks[0].description, 'Example description')
-        self.assertEqual(bookmarks[0].notes, 'Example notes')
+        self.assertEqual(bookmarks[0].description, "Example description")
+        self.assertEqual(bookmarks[0].notes, "Example notes")
 
         # description, notes without closing tag
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
         <DD>Example description[linkding-notes]Example notes
-        ''')
+        """
+        )
         bookmarks = parse(html)
-        self.assertEqual(bookmarks[0].description, 'Example description')
-        self.assertEqual(bookmarks[0].notes, 'Example notes')
+        self.assertEqual(bookmarks[0].description, "Example description")
+        self.assertEqual(bookmarks[0].notes, "Example notes")
 
         # no description, notes
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1">Example title</A>
         <DD>[linkding-notes]Example notes[/linkding-notes]
-        ''')
+        """
+        )
         bookmarks = parse(html)
-        self.assertEqual(bookmarks[0].description, '')
-        self.assertEqual(bookmarks[0].notes, 'Example notes')
+        self.assertEqual(bookmarks[0].description, "")
+        self.assertEqual(bookmarks[0].notes, "Example notes")
 
         # notes reset between bookmarks
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com/1" ADD_DATE="1">Example title</A>
         <DD>[linkding-notes]Example notes[/linkding-notes]
         <DT><A HREF="https://example.com/2" ADD_DATE="1">Example title</A>
         <DD>Example description
-        ''')
+        """
+        )
         bookmarks = parse(html)
-        self.assertEqual(bookmarks[0].description, '')
-        self.assertEqual(bookmarks[0].notes, 'Example notes')
-        self.assertEqual(bookmarks[1].description, 'Example description')
-        self.assertEqual(bookmarks[1].notes, '')
+        self.assertEqual(bookmarks[0].description, "")
+        self.assertEqual(bookmarks[0].notes, "Example notes")
+        self.assertEqual(bookmarks[1].description, "Example description")
+        self.assertEqual(bookmarks[1].notes, "")
 
     def test_unescape_content(self):
-        html = self.render_html(tags_html='''
+        html = self.render_html(
+            tags_html="""
         <DT><A HREF="https://example.com" ADD_DATE="1">&lt;style&gt;: The Style Information element</A>
         <DD>The &lt;style&gt; HTML element contains style information for a document, or part of a document.[linkding-notes]Interesting notes about the &lt;style&gt; HTML element.[/linkding-notes]
-        ''')
+        """
+        )
         bookmarks = parse(html)
-        self.assertEqual(bookmarks[0].title,
-                         '<style>: The Style Information element')
-        self.assertEqual(bookmarks[0].description,
-                         'The <style> HTML element contains style information for a document, or part of a document.')
-        self.assertEqual(bookmarks[0].notes, 'Interesting notes about the <style> HTML element.')
+        self.assertEqual(bookmarks[0].title, "<style>: The Style Information element")
+        self.assertEqual(
+            bookmarks[0].description,
+            "The <style> HTML element contains style information for a document, or part of a document.",
+        )
+        self.assertEqual(
+            bookmarks[0].notes, "Interesting notes about the <style> HTML element."
+        )

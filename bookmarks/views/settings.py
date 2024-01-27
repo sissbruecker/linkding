@@ -26,30 +26,40 @@ def general(request):
     enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
     update_profile_success_message = None
     refresh_favicons_success_message = None
-    import_success_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_success')
-    import_errors_message = _find_message_with_tag(messages.get_messages(request), 'bookmark_import_errors')
+    import_success_message = _find_message_with_tag(
+        messages.get_messages(request), "bookmark_import_success"
+    )
+    import_errors_message = _find_message_with_tag(
+        messages.get_messages(request), "bookmark_import_errors"
+    )
     version_info = get_version_info(get_ttl_hash())
 
-    if request.method == 'POST':
-        if 'update_profile' in request.POST:
+    if request.method == "POST":
+        if "update_profile" in request.POST:
             profile_form = update_profile(request)
-            update_profile_success_message = 'Profile updated'
-        if 'refresh_favicons' in request.POST:
+            update_profile_success_message = "Profile updated"
+        if "refresh_favicons" in request.POST:
             tasks.schedule_refresh_favicons(request.user)
-            refresh_favicons_success_message = 'Scheduled favicon update. This may take a while...'
+            refresh_favicons_success_message = (
+                "Scheduled favicon update. This may take a while..."
+            )
 
     if not profile_form:
         profile_form = UserProfileForm(instance=request.user_profile)
 
-    return render(request, 'settings/general.html', {
-        'form': profile_form,
-        'enable_refresh_favicons': enable_refresh_favicons,
-        'update_profile_success_message': update_profile_success_message,
-        'refresh_favicons_success_message': refresh_favicons_success_message,
-        'import_success_message': import_success_message,
-        'import_errors_message': import_errors_message,
-        'version_info': version_info,
-    })
+    return render(
+        request,
+        "settings/general.html",
+        {
+            "form": profile_form,
+            "enable_refresh_favicons": enable_refresh_favicons,
+            "update_profile_success_message": update_profile_success_message,
+            "refresh_favicons_success_message": refresh_favicons_success_message,
+            "import_success_message": import_success_message,
+            "import_errors_message": import_errors_message,
+            "version_info": version_info,
+        },
+    )
 
 
 def update_profile(request):
@@ -69,21 +79,23 @@ def update_profile(request):
 def get_version_info(ttl_hash=None):
     latest_version = None
     try:
-        latest_version_url = 'https://api.github.com/repos/sissbruecker/linkding/releases/latest'
+        latest_version_url = (
+            "https://api.github.com/repos/sissbruecker/linkding/releases/latest"
+        )
         response = requests.get(latest_version_url, timeout=5)
         json = response.json()
-        if response.status_code == 200 and 'name' in json:
-            latest_version = json['name'][1:]
+        if response.status_code == 200 and "name" in json:
+            latest_version = json["name"][1:]
     except requests.exceptions.RequestException:
         pass
 
-    latest_version_info = ''
+    latest_version_info = ""
     if latest_version == app_version:
-        latest_version_info = ' (latest)'
+        latest_version_info = " (latest)"
     elif latest_version is not None:
-        latest_version_info = f' (latest: {latest_version})'
+        latest_version_info = f" (latest: {latest_version})"
 
-    return f'{app_version}{latest_version_info}'
+    return f"{app_version}{latest_version_info}"
 
 
 def get_ttl_hash(seconds=3600):
@@ -93,42 +105,61 @@ def get_ttl_hash(seconds=3600):
 
 @login_required
 def integrations(request):
-    application_url = request.build_absolute_uri(reverse('bookmarks:new'))
+    application_url = request.build_absolute_uri(reverse("bookmarks:new"))
     api_token = Token.objects.get_or_create(user=request.user)[0]
     feed_token = FeedToken.objects.get_or_create(user=request.user)[0]
-    all_feed_url = request.build_absolute_uri(reverse('bookmarks:feeds.all', args=[feed_token.key]))
-    unread_feed_url = request.build_absolute_uri(reverse('bookmarks:feeds.unread', args=[feed_token.key]))
-    return render(request, 'settings/integrations.html', {
-        'application_url': application_url,
-        'api_token': api_token.key,
-        'all_feed_url': all_feed_url,
-        'unread_feed_url': unread_feed_url,
-    })
+    all_feed_url = request.build_absolute_uri(
+        reverse("bookmarks:feeds.all", args=[feed_token.key])
+    )
+    unread_feed_url = request.build_absolute_uri(
+        reverse("bookmarks:feeds.unread", args=[feed_token.key])
+    )
+    return render(
+        request,
+        "settings/integrations.html",
+        {
+            "application_url": application_url,
+            "api_token": api_token.key,
+            "all_feed_url": all_feed_url,
+            "unread_feed_url": unread_feed_url,
+        },
+    )
 
 
 @login_required
 def bookmark_import(request):
-    import_file = request.FILES.get('import_file')
-    import_options = importer.ImportOptions(map_private_flag=request.POST.get('map_private_flag') == 'on')
+    import_file = request.FILES.get("import_file")
+    import_options = importer.ImportOptions(
+        map_private_flag=request.POST.get("map_private_flag") == "on"
+    )
 
     if import_file is None:
-        messages.error(request, 'Please select a file to import.', 'bookmark_import_errors')
-        return HttpResponseRedirect(reverse('bookmarks:settings.general'))
+        messages.error(
+            request, "Please select a file to import.", "bookmark_import_errors"
+        )
+        return HttpResponseRedirect(reverse("bookmarks:settings.general"))
 
     try:
         content = import_file.read().decode()
         result = importer.import_netscape_html(content, request.user, import_options)
-        success_msg = str(result.success) + ' bookmarks were successfully imported.'
-        messages.success(request, success_msg, 'bookmark_import_success')
+        success_msg = str(result.success) + " bookmarks were successfully imported."
+        messages.success(request, success_msg, "bookmark_import_success")
         if result.failed > 0:
-            err_msg = str(result.failed) + ' bookmarks could not be imported. Please check the logs for more details.'
-            messages.error(request, err_msg, 'bookmark_import_errors')
+            err_msg = (
+                str(result.failed)
+                + " bookmarks could not be imported. Please check the logs for more details."
+            )
+            messages.error(request, err_msg, "bookmark_import_errors")
     except:
-        logging.exception('Unexpected error during bookmark import')
-        messages.error(request, 'An error occurred during bookmark import.', 'bookmark_import_errors')
+        logging.exception("Unexpected error during bookmark import")
+        messages.error(
+            request,
+            "An error occurred during bookmark import.",
+            "bookmark_import_errors",
+        )
         pass
 
-    return HttpResponseRedirect(reverse('bookmarks:settings.general'))
+    return HttpResponseRedirect(reverse("bookmarks:settings.general"))
 
 
 @login_required
@@ -137,18 +168,20 @@ def bookmark_export(request):
     try:
         bookmarks = Bookmark.objects.filter(owner=request.user)
         # Prefetch tags to prevent n+1 queries
-        prefetch_related_objects(bookmarks, 'tags')
+        prefetch_related_objects(bookmarks, "tags")
         file_content = exporter.export_netscape_html(bookmarks)
 
-        response = HttpResponse(content_type='text/plain; charset=UTF-8')
-        response['Content-Disposition'] = 'attachment; filename="bookmarks.html"'
+        response = HttpResponse(content_type="text/plain; charset=UTF-8")
+        response["Content-Disposition"] = 'attachment; filename="bookmarks.html"'
         response.write(file_content)
 
         return response
     except:
-        return render(request, 'settings/general.html', {
-            'export_error': 'An error occurred during bookmark export.'
-        })
+        return render(
+            request,
+            "settings/general.html",
+            {"export_error": "An error occurred during bookmark export."},
+        )
 
 
 def _find_message_with_tag(messages, tag):

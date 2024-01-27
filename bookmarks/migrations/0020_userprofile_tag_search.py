@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0019_userprofile_enable_favicons'),
+        ("bookmarks", "0019_userprofile_enable_favicons"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='tag_search',
-            field=models.CharField(choices=[('strict', 'Strict'), ('lax', 'Lax')], default='strict', max_length=10),
+            model_name="userprofile",
+            name="tag_search",
+            field=models.CharField(
+                choices=[("strict", "Strict"), ("lax", "Lax")],
+                default="strict",
+                max_length=10,
+            ),
         ),
     ]

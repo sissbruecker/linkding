@@ -15,9 +15,11 @@ def user_logged_in(sender, request, user, **kwargs):
 def extend_sqlite(connection=None, **kwargs):
     # Load ICU extension into Sqlite connection to support case-insensitive
     # comparisons with unicode characters
-    if connection.vendor == 'sqlite' and settings.USE_SQLITE_ICU_EXTENSION:
+    if connection.vendor == "sqlite" and settings.USE_SQLITE_ICU_EXTENSION:
         connection.connection.enable_load_extension(True)
-        connection.connection.load_extension(settings.SQLITE_ICU_EXTENSION_PATH.rstrip('.so'))
+        connection.connection.load_extension(
+            settings.SQLITE_ICU_EXTENSION_PATH.rstrip(".so")
+        )
 
         with connection.cursor() as cursor:
             # Load an ICU collation for case-insensitive ordering.

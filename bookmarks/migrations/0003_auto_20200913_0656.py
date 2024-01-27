@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0002_auto_20190629_2303'),
+        ("bookmarks", "0002_auto_20190629_2303"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bookmark',
-            name='url',
+            model_name="bookmark",
+            name="url",
             field=models.URLField(max_length=2048),
         ),
     ]

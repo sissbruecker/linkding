@@ -9,16 +9,26 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('bookmarks', '0014_alter_bookmark_unread'),
+        ("bookmarks", "0014_alter_bookmark_unread"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FeedToken',
+            name="FeedToken",
             fields=[
-                ('key', models.CharField(max_length=40, primary_key=True, serialize=False)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='feed_token', to=settings.AUTH_USER_MODEL)),
+                (
+                    "key",
+                    models.CharField(max_length=40, primary_key=True, serialize=False),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="feed_token",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0005_auto_20210103_1212'),
+        ("bookmarks", "0005_auto_20210103_1212"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bookmark',
-            name='is_archived',
+            model_name="bookmark",
+            name="is_archived",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -8,7 +8,9 @@ from django.db.utils import DEFAULT_DB_ALIAS
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
-class BookmarkArchivedViewPerformanceTestCase(TransactionTestCase, BookmarkFactoryMixin):
+class BookmarkArchivedViewPerformanceTestCase(
+    TransactionTestCase, BookmarkFactoryMixin
+):
 
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
@@ -26,8 +28,10 @@ class BookmarkArchivedViewPerformanceTestCase(TransactionTestCase, BookmarkFacto
         # capture number of queries
         context = CaptureQueriesContext(self.get_connection())
         with context:
-            response = self.client.get(reverse('bookmarks:archived'))
-            self.assertContains(response, '<li ld-bookmark-item>', num_initial_bookmarks)
+            response = self.client.get(reverse("bookmarks:archived"))
+            self.assertContains(
+                response, "<li ld-bookmark-item>", num_initial_bookmarks
+            )
 
         number_of_queries = context.final_queries
 
@@ -38,5 +42,9 @@ class BookmarkArchivedViewPerformanceTestCase(TransactionTestCase, BookmarkFacto
 
         # assert num queries doesn't increase
         with self.assertNumQueries(number_of_queries):
-            response = self.client.get(reverse('bookmarks:archived'))
-            self.assertContains(response, '<li ld-bookmark-item>', num_initial_bookmarks + num_additional_bookmarks)
+            response = self.client.get(reverse("bookmarks:archived"))
+            self.assertContains(
+                response,
+                "<li ld-bookmark-item>",
+                num_initial_bookmarks + num_additional_bookmarks,
+            )

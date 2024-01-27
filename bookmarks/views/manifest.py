@@ -7,7 +7,7 @@ def manifest(request):
         "short_name": "linkding",
         "start_url": "bookmarks",
         "display": "standalone",
-        "scope": "/" + settings.LD_CONTEXT_PATH
+        "scope": "/" + settings.LD_CONTEXT_PATH,
     }
 
     return JsonResponse(response, status=200)

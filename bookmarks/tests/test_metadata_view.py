@@ -13,7 +13,7 @@ class MetadataViewTestCase(TestCase):
             "short_name": "linkding",
             "start_url": "bookmarks",
             "display": "standalone",
-            "scope": "/"
+            "scope": "/",
         }
         self.assertDictEqual(response_body, expected_body)
 
@@ -28,6 +28,6 @@ class MetadataViewTestCase(TestCase):
             "short_name": "linkding",
             "start_url": "bookmarks",
             "display": "standalone",
-            "scope": "/linkding/"
+            "scope": "/linkding/",
         }
         self.assertDictEqual(response_body, expected_body)
