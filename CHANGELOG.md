@@ -1,5 +1,38 @@
 # Changelog
 
+## v1.24.0 (27/01/2024)
+
+### What's Changed
+* Support Open Graph description by @jonathan-s in https://github.com/sissbruecker/linkding/pull/602
+* Add tooltip to truncated bookmark titles by @jonathan-s in https://github.com/sissbruecker/linkding/pull/607
+* Improve bulk tag performance by @sissbruecker in https://github.com/sissbruecker/linkding/pull/612
+* Increase tag limit in tag autocomplete by @hypebeast in https://github.com/sissbruecker/linkding/pull/581
+* Add CapRover as managed hosting option by @adamshand in https://github.com/sissbruecker/linkding/pull/585
+* Bump playwright dependencies by @jonathan-s in https://github.com/sissbruecker/linkding/pull/601
+* Adjust archive.org donation link in general.html by @JnsDornbusch in https://github.com/sissbruecker/linkding/pull/603
+
+### New Contributors
+* @hypebeast made their first contribution in https://github.com/sissbruecker/linkding/pull/581
+* @adamshand made their first contribution in https://github.com/sissbruecker/linkding/pull/585
+* @jonathan-s made their first contribution in https://github.com/sissbruecker/linkding/pull/601
+* @JnsDornbusch made their first contribution in https://github.com/sissbruecker/linkding/pull/603
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.23.1...v1.24.0
+
+---
+
+## v1.23.1 (08/12/2023)
+
+### What's Changed
+* Properly encode search query param by @sissbruecker in https://github.com/sissbruecker/linkding/pull/587
+
+> [!WARNING] 
+> *This resolves a security vulnerability in linkding. Everyone is encouraged to upgrade to the latest version as soon as possible.*
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.23.0...v1.23.1
+
+---
+
 ## v1.23.0 (24/11/2023)
 
 ### What's Changed
