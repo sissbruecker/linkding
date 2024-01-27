@@ -29,18 +29,17 @@ class WebsiteLoaderTestCase(TestCase):
         # clear cached metadata before test run
         website_loader.load_website_metadata.cache_clear()
 
-    def render_html_document(self, title, description, og=False):
-        if not og:
-            meta = f'<meta name="description" content="{description}">'
-        else:
-            meta = f'<meta property="og:description" content="{description}">'
+    def render_html_document(self, title, description='', og_description=''):
+        meta_description = f'<meta name="description" content="{description}">' if description else ''
+        meta_og_description = f'<meta property="og:description" content="{og_description}">' if og_description else ''
         return f'''
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <title>{title}</title>
-            {meta}
+            {meta_description}
+            {meta_og_description}
         </head>
         <body></body>
         </html>
@@ -101,7 +100,16 @@ class WebsiteLoaderTestCase(TestCase):
 
     def test_load_website_metadata_using_og_description(self):
         with mock.patch('bookmarks.services.website_loader.load_page') as mock_load_page:
-            mock_load_page.return_value = self.render_html_document('test title', 'test description', og=True)
+            mock_load_page.return_value = self.render_html_document('test title', '',
+                                                                    og_description='test og description')
+            metadata = website_loader.load_website_metadata('https://example.com')
+            self.assertEqual('test title', metadata.title)
+            self.assertEqual('test og description', metadata.description)
+
+    def test_load_website_metadata_prefers_description_over_og_description(self):
+        with mock.patch('bookmarks.services.website_loader.load_page') as mock_load_page:
+            mock_load_page.return_value = self.render_html_document('test title', 'test description',
+                                                                    og_description='test og description')
             metadata = website_loader.load_website_metadata('https://example.com')
             self.assertEqual('test title', metadata.title)
             self.assertEqual('test description', metadata.description)
