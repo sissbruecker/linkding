@@ -183,9 +183,8 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
           </div>
         ''', html)
 
+    def test_should_hide_notes_if_there_are_no_notes(self):
+        bookmark = self.setup_bookmark()
+        response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
 
-def test_should_hide_notes_if_there_are_no_notes(self):
-    bookmark = self.setup_bookmark()
-    response = self.client.get(reverse('bookmarks:edit', args=[bookmark.id]))
-
-    self.assertContains(response, '<details class="notes">', count=1)
+        self.assertContains(response, '<details class="notes">', count=1)

@@ -9,11 +9,11 @@
 ## Overview
 - [Introduction](#introduction)
 - [Installation](#installation)
-    - [Using Docker](#using-docker)
-    - [Using Docker Compose](#using-docker-compose)
-    - [User Setup](#user-setup)
-    - [Reverse Proxy Setup](#reverse-proxy-setup)
-    - [Managed Hosting Options](#managed-hosting-options)
+  - [Using Docker](#using-docker)
+  - [Using Docker Compose](#using-docker-compose)
+  - [User Setup](#user-setup)
+  - [Reverse Proxy Setup](#reverse-proxy-setup)
+  - [Managed Hosting Options](#managed-hosting-options)
 - [Documentation](#documentation)
 - [Browser Extension](#browser-extension)
 - [Community](#community)
@@ -103,7 +103,7 @@ docker-compose up -d
 
 To complete the setup, you still have to [create an initial user](#user-setup), so that you can access your installation.
 
-### User setup
+### User Setup
 
 For security reasons, the linkding Docker image does not provide an initial user, so you have to create one after setting up an installation. To do so, replace the credentials in the following command and run it:
 
@@ -119,7 +119,7 @@ docker-compose exec linkding python manage.py createsuperuser --username=joe --e
 
 The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
 
-Alternatively you can automatically create an initial superuser on startup using the [`LD_SUPERUSER_NAME` option](docs/Options.md#LD_SUPERUSER_NAME). 
+Alternatively you can automatically create an initial superuser on startup using the [`LD_SUPERUSER_NAME` option](docs/Options.md#LD_SUPERUSER_NAME).
 
 ### Reverse Proxy Setup
 
@@ -211,7 +211,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [aiolinkding](https://github.com/bachya/aiolinkding) A Python3, async library to interact with the linkding REST API. By [bachya](https://github.com/bachya)
 - [feed2linkding](https://codeberg.org/strubbl/feed2linkding) A commandline utility to add all web feed item links to linkding via API call. By [Strubbl](https://github.com/Strubbl)
 - [Helm Chart](https://charts.pascaliske.dev/charts/linkding/) Helm Chart for deploying linkding inside a Kubernetes cluster. By [pascaliske](https://github.com/pascaliske)
-- [iOS Shortcut using API and Tagging](https://gist.github.com/andrewdolphin/a7dff49505e588d940bec55132fab8ad) An iOS shortcut using the Linkding API (no extra logins required) that pulls previously used tags and allows tagging at the time of link creation. 
+- [iOS Shortcut using API and Tagging](https://gist.github.com/andrewdolphin/a7dff49505e588d940bec55132fab8ad) An iOS shortcut using the Linkding API (no extra logins required) that pulls previously used tags and allows tagging at the time of link creation.
 - [Linka!](https://github.com/cmsax/linka) Web app (also a PWA) for quickly searching & opening bookmarks in linkding, support multi keywords, exclude mode and other advance options. By [cmsax](https://github.com/cmsax)
 - [linkding-cli](https://github.com/bachya/linkding-cli) A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). By [bachya](https://github.com/bachya)
 - [linkding-extension](https://github.com/jeroenpardon/linkding-extension) Chromium compatible extension that wraps the linkding bookmarklet. Tested with Chrome, Edge, Brave. By [jeroenpardon](https://github.com/jeroenpardon)
@@ -224,7 +224,7 @@ This section lists community projects around using linkding, in alphabetical ord
 
 ### PikaPods
 
-[PikaPods](https://www.pikapods.com/) has a revenue sharing agreement with this project, sharing some of their revenue from hosting linkding instances. I do not intend to profit from this project financially, so I am in turn donating that revenue. Big thanks to PikaPods for making this possible. 
+[PikaPods](https://www.pikapods.com/) has a revenue sharing agreement with this project, sharing some of their revenue from hosting linkding instances. I do not intend to profit from this project financially, so I am in turn donating that revenue. Big thanks to PikaPods for making this possible.
 
 See the table below for a list of donations.
 
@@ -300,3 +300,8 @@ Start the Django development server with:
 python3 manage.py runserver
 ```
 The frontend is now available under http://localhost:8000
+
+Run all tests with pytest
+```
+pytest
+```

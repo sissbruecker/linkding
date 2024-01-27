@@ -41,8 +41,13 @@ def load_website_metadata(url: str):
 
         title = soup.title.string.strip() if soup.title is not None else None
         description_tag = soup.find('meta', attrs={'name': 'description'})
-        description = description = description_tag['content'].strip() if description_tag and description_tag[
+        description = description_tag['content'].strip() if description_tag and description_tag[
             'content'] else None
+
+        if not description:
+            description_tag = soup.find('meta', attrs={'property': 'og:description'})
+            description = description_tag['content'].strip() if description_tag and description_tag['content'] else None
+
         end = timezone.now()
         logger.debug(f'Parsing duration: {end - start}')
     finally:
