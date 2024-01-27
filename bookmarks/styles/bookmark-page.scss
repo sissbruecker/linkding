@@ -107,6 +107,18 @@ ul.bookmark-list {
   padding: 0;
 }
 
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+  90% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Bookmarks */
 li[ld-bookmark-item] {
   position: relative;
@@ -122,6 +134,27 @@ li[ld-bookmark-item] {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    &[data-tooltip]:hover::after, &[data-tooltip]:focus::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      z-index: 10;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: 100%;
+      height: fit-content;
+      background-color: #292f62;
+      color: #fff;
+      padding: $unit-1;
+      border-radius: $border-radius;
+      border: 1px solid #424a8c;
+      font-size: $font-size-sm;
+      font-style: normal;
+      white-space: normal;
+      animation: 0.3s ease 0s appear;
+    }
   }
 
   &.unread .title a {
