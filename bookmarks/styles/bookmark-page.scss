@@ -135,20 +135,24 @@ li[ld-bookmark-item] {
     overflow: hidden;
     text-overflow: ellipsis;
 
-    &[data-title].shouldHover:hover::after {
-      content: attr(data-title);
+    &[data-tooltip]:hover::after, &[data-tooltip]:focus::after {
+      content: attr(data-tooltip);
       position: absolute;
-      top: 18px;
+      z-index: 10;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
+      width: max-content;
+      max-width: 100%;
       height: fit-content;
       background-color: #292f62;
       color: #fff;
-      padding: 0.3em 0.5em;
-      border-radius: 0.3em;
+      padding: $unit-1;
+      border-radius: $border-radius;
       border: 1px solid #424a8c;
-      font-size: 0.80em;
-      white-space: nowrap;
+      font-size: $font-size-sm;
+      font-style: normal;
+      white-space: normal;
       animation: 0.3s ease 0s appear;
     }
   }

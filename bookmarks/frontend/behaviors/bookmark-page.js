@@ -59,9 +59,17 @@ class BookmarkItem {
   constructor(element) {
     this.element = element;
 
+    // Toggle notes
     const notesToggle = element.querySelector(".toggle-notes");
     if (notesToggle) {
       notesToggle.addEventListener("click", this.onToggleNotes.bind(this));
+    }
+
+    // Add tooltip to title if it is truncated
+    const titleAnchor = element.querySelector(".title > a");
+    const titleSpan = titleAnchor.querySelector("span");
+    if (titleSpan.offsetWidth > titleAnchor.offsetWidth) {
+      titleAnchor.dataset.tooltip = titleSpan.textContent;
     }
   }
 
@@ -73,24 +81,3 @@ class BookmarkItem {
 }
 
 registerBehavior("ld-bookmark-item", BookmarkItem);
-
-
-class LinkItem {
-  constructor(element) {
-    this.element = element
-    element.addEventListener("mouseover", this.onHover.bind(this))
-  }
-
-  getRect(element) {
-      return element.getBoundingClientRect();
-  }
-
-  onHover(event) {
-    let parent = this.element.parentElement
-    if (this.getRect(this.element).right > this.getRect(parent).right) {
-      parent.classList.add("shouldHover")
-    }
-  }
-}
-
-registerBehavior("ld-link-item", LinkItem)
