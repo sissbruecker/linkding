@@ -7,7 +7,6 @@
 </div>
 
 ## Overview
-- [Overview](#overview)
 - [Introduction](#introduction)
 - [Installation](#installation)
   - [Using Docker](#using-docker)
@@ -19,12 +18,7 @@
 - [Browser Extension](#browser-extension)
 - [Community](#community)
 - [Acknowledgements + Donations](#acknowledgements--donations)
-  - [PikaPods](#pikapods)
-  - [JetBrains](#jetbrains)
 - [Development](#development)
-  - [Prerequisites](#prerequisites)
-  - [Setup](#setup)
-  - [DevContainers](#devcontainers)
 
 ##  Introduction
 
