@@ -24,7 +24,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
                 target="{link_target}" 
                 rel="noopener">
                 {favicon_img}
-                {bookmark.resolved_title}
+                <span>{bookmark.resolved_title}</span>
             </a>
             ''',
             html
