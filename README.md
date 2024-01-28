@@ -256,7 +256,7 @@ source ~/environments/linkding/bin/activate[.csh|.fish]
 ```
 Within the active environment install the application dependencies from the application folder:
 ```
-pip3 install -Ur requirements.txt
+pip3 install -r requirements.txt -r requirements.dev.txt
 ```
 Install frontend dependencies:
 ```

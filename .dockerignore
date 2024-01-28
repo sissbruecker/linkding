@@ -11,7 +11,7 @@
 !/manage.py
 !/package.json
 !/package-lock.json
-!/requirements.prod.txt
+!/requirements.dev.txt
 !/requirements.txt
 !/rollup.config.js
 !/supervisord.conf

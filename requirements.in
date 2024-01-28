@@ -1,0 +1,17 @@
+beautifulsoup4
+bleach
+bleach-allowlist
+Django
+django-generate-secret-key
+django-registration
+django-sass-processor
+django-widget-tweaks
+django4-background-tasks
+djangorestframework
+Markdown
+psycopg2-binary
+python-dateutil
+requests
+supervisor
+uWSGI
+waybackpy

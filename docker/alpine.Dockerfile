@@ -17,9 +17,10 @@ WORKDIR /etc/linkding
 FROM python-base AS python-build
 # install build dependencies
 COPY requirements.txt requirements.txt
+COPY requirements.dev.txt requirements.dev.txt
 # remove playwright from requirements as there is not always a distro and it's not needed for the build
-RUN sed -i '/playwright/d' requirements.txt
-RUN pip install -U pip && pip install -Ur requirements.txt
+RUN sed -i '/playwright/d' requirements.dev.txt
+RUN pip install -U pip && pip install -r requirements.txt -r requirements.dev.txt
 # copy files needed for Django build
 COPY . .
 COPY --from=node-build /etc/linkding .
@@ -30,11 +31,13 @@ RUN python manage.py compilescss && \
 
 
 FROM python-base AS prod-deps
-COPY requirements.prod.txt ./requirements.txt
+COPY requirements.txt ./requirements.txt
+# replace psycopg2-binary with psycopg2
+RUN sed -i 's/psycopg2-binary/psycopg2/g' requirements.txt
 RUN mkdir /opt/venv && \
     python -m venv --upgrade-deps --copies /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip wheel && \
-    /opt/venv/bin/pip install -Ur requirements.txt
+    /opt/venv/bin/pip install -r requirements.txt
 
 
 FROM python-base AS compile-icu
