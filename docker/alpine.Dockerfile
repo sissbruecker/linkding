@@ -32,6 +32,8 @@ RUN python manage.py compilescss && \
 
 FROM python-base AS prod-deps
 COPY requirements.txt ./requirements.txt
+# replace psycopg2-binary with psycopg2
+RUN sed -i 's/psycopg2-binary/psycopg2/g' requirements.txt
 RUN mkdir /opt/venv && \
     python -m venv --upgrade-deps --copies /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip wheel && \
