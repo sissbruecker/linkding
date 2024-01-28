@@ -1196,25 +1196,25 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
         bookmarks = [
             self.setup_bookmark(
-                added=timezone.datetime(2020, 1, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2021, 2, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2021, 2, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2022, 3, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2022, 3, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2023, 4, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2023, 4, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2022, 5, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2022, 5, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2021, 6, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2021, 6, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2020, 7, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2020, 7, 1, tzinfo=datetime.timezone.utc)
             ),
         ]
         sorted_bookmarks = sorted(bookmarks, key=lambda b: b.date_added)
@@ -1227,25 +1227,25 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
         bookmarks = [
             self.setup_bookmark(
-                added=timezone.datetime(2020, 1, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2021, 2, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2021, 2, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2022, 3, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2022, 3, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2023, 4, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2023, 4, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2022, 5, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2022, 5, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2021, 6, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2021, 6, 1, tzinfo=datetime.timezone.utc)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2020, 7, 1, tzinfo=datetime.UTC)
+                added=timezone.datetime(2020, 7, 1, tzinfo=datetime.timezone.utc)
             ),
         ]
         sorted_bookmarks = sorted(bookmarks, key=lambda b: b.date_added, reverse=True)
