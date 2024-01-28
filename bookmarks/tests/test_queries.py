@@ -1,4 +1,5 @@
 import operator
+import datetime
 
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
@@ -6,7 +7,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkSearch, UserProfile
+from bookmarks.models import BookmarkSearch, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, random_sentence
 from bookmarks.utils import unique
 
@@ -1195,25 +1196,25 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
         bookmarks = [
             self.setup_bookmark(
-                added=timezone.datetime(2020, 1, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2020, 1, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2021, 2, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2021, 2, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2022, 3, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2022, 3, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2023, 4, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2023, 4, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2022, 5, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2022, 5, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2021, 6, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2021, 6, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2020, 7, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2020, 7, 1, tzinfo=datetime.UTC)
             ),
         ]
         sorted_bookmarks = sorted(bookmarks, key=lambda b: b.date_added)
@@ -1226,25 +1227,25 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
         bookmarks = [
             self.setup_bookmark(
-                added=timezone.datetime(2020, 1, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2020, 1, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2021, 2, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2021, 2, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2022, 3, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2022, 3, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2023, 4, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2023, 4, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2022, 5, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2022, 5, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2021, 6, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2021, 6, 1, tzinfo=datetime.UTC)
             ),
             self.setup_bookmark(
-                added=timezone.datetime(2020, 7, 1, tzinfo=timezone.utc)
+                added=timezone.datetime(2020, 7, 1, tzinfo=datetime.UTC)
             ),
         ]
         sorted_bookmarks = sorted(bookmarks, key=lambda b: b.date_added, reverse=True)
