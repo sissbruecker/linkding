@@ -1,6 +1,14 @@
 name: linkding CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+  pull_request:
+    branches:
+      - "*"
 
 jobs:
   unit_tests:
