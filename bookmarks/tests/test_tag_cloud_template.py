@@ -39,7 +39,7 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             group_element = group_elements[group_index]
             link_elements = group_element.select("a")
 
-            self.assertEqual(len(link_elements), len(tags))
+            self.assertEqual(len(link_elements), len(tags), tags)
 
             for tag_index, tag in enumerate(tags, start=0):
                 link_element = link_elements[tag_index]
@@ -49,6 +49,59 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         soup = self.make_soup(rendered_template)
         link_elements = soup.select("p.selected-tags a")
         self.assertEqual(len(link_elements), count)
+
+    def test_cjk_using_single_group(self):
+        """
+        Ideographic characters will be using the same group
+        While other japanese and korean characters will have separate groups.
+        """
+        tags = [
+            self.setup_tag(name="Aardvark"),
+            self.setup_tag(name="Armadillo"),
+            self.setup_tag(name="あひる"),
+            self.setup_tag(name="あきらか"),
+            self.setup_tag(name="アヒル"),
+            self.setup_tag(name="アキラカ"),
+            self.setup_tag(name="ひる"),
+            self.setup_tag(name="アヒル"),
+            self.setup_tag(name="오리"),
+            self.setup_tag(name="물"),
+            self.setup_tag(name="家鴨"),
+            self.setup_tag(name="感じ"),
+        ]
+        self.setup_bookmark(tags=tags)
+        rendered_template = self.render_template()
+
+        self.assertTagGroups(
+            rendered_template,
+            [
+                [
+                    "Aardvark",
+                    "Armadillo",
+                ],
+                [
+                    "あきらか",
+                    "あひる",
+                ],
+                [
+                    "ひる",
+                ],
+                [
+                    "アキラカ",
+                    "アヒル",
+                ],
+                [
+                    "물",
+                ],
+                [
+                    "오리",
+                ],
+                [
+                    "家鴨",
+                    "感じ",
+                ],
+            ],
+        )
 
     def test_group_alphabetically(self):
         tags = [

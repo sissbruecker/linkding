@@ -1,5 +1,6 @@
 import urllib.parse
 from typing import Set, List
+import re
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator
@@ -11,13 +12,13 @@ from bookmarks import utils
 from bookmarks.models import (
     Bookmark,
     BookmarkSearch,
-    BookmarkSearchForm,
     User,
     UserProfile,
     Tag,
 )
 
 DEFAULT_PAGE_SIZE = 30
+CJK_RE = re.compile(r"[\u4e00-\u9fff]+")
 
 
 class BookmarkItem:
@@ -123,13 +124,13 @@ class BookmarkListContext:
         )
 
     def get_base_url(self):
-        raise Exception(f"Must be implemented by subclass")
+        raise Exception("Must be implemented by subclass")
 
     def get_base_action_url(self):
-        raise Exception(f"Must be implemented by subclass")
+        raise Exception("Must be implemented by subclass")
 
     def get_bookmark_query_set(self):
-        raise Exception(f"Must be implemented by subclass")
+        raise Exception("Must be implemented by subclass")
 
 
 class ActiveBookmarkListContext(BookmarkListContext):
@@ -178,23 +179,35 @@ class TagGroup:
         self.tags = []
         self.char = char
 
+    def __repr__(self):
+        return f"<{self.char} TagGroup>"
+
     @staticmethod
     def create_tag_groups(tags: Set[Tag]):
         # Ensure groups, as well as tags within groups, are ordered alphabetically
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
+        # begin at 65
         group = None
         groups = []
+        cjk_used = False
+        cjk_group = TagGroup("Ideographic")
 
         # Group tags that start with a different character than the previous one
         for tag in sorted_tags:
             tag_char = tag.name[0].lower()
-
-            if not group or group.char != tag_char:
+            # breakpoint()
+            if CJK_RE.match(tag_char):
+                cjk_used = True
+                cjk_group.tags.append(tag)
+            elif not group or group.char != tag_char:
                 group = TagGroup(tag_char)
                 groups.append(group)
+                group.tags.append(tag)
+            else:
+                group.tags.append(tag)
 
-            group.tags.append(tag)
-
+        if cjk_used:
+            groups.append(cjk_group)
         return groups
 
 
@@ -224,7 +237,7 @@ class TagCloudContext:
         self.has_selected_tags = has_selected_tags
 
     def get_tag_query_set(self):
-        raise Exception(f"Must be implemented by subclass")
+        raise Exception("Must be implemented by subclass")
 
     def get_selected_tags(self, tags: List[Tag]):
         parsed_query = queries.parse_query_string(self.search.q)
