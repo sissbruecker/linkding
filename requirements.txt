@@ -23,11 +23,8 @@ confusable-homoglyphs==3.2.0
 django==5.0.1
     # via
     #   -r requirements.in
-    #   django-generate-secret-key
     #   django-registration
     #   djangorestframework
-django-generate-secret-key==1.0.2
-    # via -r requirements.in
 django-registration==3.4
     # via -r requirements.in
 django-sass-processor==1.4
