@@ -2,7 +2,6 @@ beautifulsoup4
 bleach
 bleach-allowlist
 Django
-django-generate-secret-key
 django-registration
 django-sass-processor
 django-widget-tweaks

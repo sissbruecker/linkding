@@ -15,7 +15,7 @@ SASS_PROCESSOR_ENABLED = False
 
 # Try read secret key from file
 try:
-    with open(os.path.join(BASE_DIR, "secretkey.txt")) as f:
+    with open(os.path.join(BASE_DIR, "data", "secretkey.txt")) as f:
         SECRET_KEY = f.read().strip()
 except:
     pass
