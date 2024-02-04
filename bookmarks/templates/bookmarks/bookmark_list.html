@@ -29,6 +29,11 @@
             </a>
           </div>
         {% endif %}
+        {% if bookmark_item.description %}
+        <div class="description desc-no-overflow">
+            <span>{{ bookmark_item.description }}</span>
+        </div>
+        {% endif %}
         <div class="description truncate">
           {% if bookmark_item.tag_names %}
             <span>
@@ -36,10 +41,6 @@
                 <a href="?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
               {% endfor %}
             </span>
-          {% endif %}
-          {% if bookmark_item.tag_names and bookmark_item.description %} | {% endif %}
-          {% if bookmark_item.description %}
-            <span>{{ bookmark_item.description }}</span>
           {% endif %}
         </div>
         {% if bookmark_item.notes %}
@@ -78,6 +79,10 @@
             <button ld-confirm-button type="submit" name="remove" value="{{ bookmark_item.id }}"
                     class="btn btn-link btn-sm">Remove
             </button>
+            <div class="hidden show-more">
+              <span class="separator">|</span>
+              <button class="btn btn-link btn-sm show-more">Show more</button>
+            </div>
           {% else %}
             {# Shared bookmark actions #}
             <span>Shared by

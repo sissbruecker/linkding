@@ -172,6 +172,11 @@ li[ld-bookmark-item] {
     color: $secondary-link-color;
   }
 
+  .desc-no-overflow {
+    max-height: 2lh;
+    overflow: hidden;
+  }
+
   .description {
     color: $gray-color-dark;
 

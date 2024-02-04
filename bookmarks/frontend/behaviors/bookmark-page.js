@@ -71,6 +71,28 @@ class BookmarkItem {
     if (titleSpan.offsetWidth > titleAnchor.offsetWidth) {
       titleAnchor.dataset.tooltip = titleSpan.textContent;
     }
+    // Enable show more if description is truncated.
+    const showMoreBtn = this.element.querySelector(".show-more.btn")
+    const showMore = this.element.querySelector(".show-more")
+    showMoreBtn.addEventListener("click", this.onToggleMore.bind(this))
+    const description = this.element.querySelector(".description")
+    const text = this.element.querySelector(".description span")
+    if (text.offsetHeight > description.offsetHeight) {
+      showMore.classList.remove("hidden")
+    }
+  }
+
+  onToggleMore(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const desc = this.element.querySelector(".description")
+    const btn = this.element.querySelector(".show-more.btn")
+    if (btn.textContent == "Show more") {
+      btn.textContent = "Show less"
+    } else {
+      btn.textContent = "Show more"
+    }
+    desc.classList.toggle("desc-no-overflow")
   }
 
   onToggleNotes(event) {
