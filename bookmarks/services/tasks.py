@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
 
 import bookmarks.services.wayback
-from bookmarks.models import Bookmark, UserProfile
+from bookmarks.models import Bookmark, UserProfile, Link
 from bookmarks.services import favicon_loader
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 
@@ -26,72 +26,72 @@ def is_web_archive_integration_active(user: User) -> bool:
     return background_tasks_enabled and web_archive_integration_enabled
 
 
-def create_web_archive_snapshot(user: User, bookmark: Bookmark, force_update: bool):
+def create_web_archive_snapshot(user: User, link: Link, force_update: bool):
     if is_web_archive_integration_active(user):
-        _create_web_archive_snapshot_task(bookmark.id, force_update)
+        _create_web_archive_snapshot_task(link.id, force_update)
 
 
-def _load_newest_snapshot(bookmark: Bookmark):
+def _load_newest_snapshot(link: Bookmark):
     try:
-        logger.info(f"Load existing snapshot for bookmark. url={bookmark.url}")
+        logger.info(f"Load existing snapshot for link. url={link.url}")
         cdx_api = bookmarks.services.wayback.CustomWaybackMachineCDXServerAPI(
-            bookmark.url
+            link.url
         )
         existing_snapshot = cdx_api.newest()
 
         if existing_snapshot:
-            bookmark.web_archive_snapshot_url = existing_snapshot.archive_url
-            bookmark.save(update_fields=["web_archive_snapshot_url"])
+            link.web_archive_snapshot_url = existing_snapshot.archive_url
+            link.save(update_fields=["web_archive_snapshot_url"])
             logger.info(
-                f"Using newest snapshot. url={bookmark.url} from={existing_snapshot.datetime_timestamp}"
+                f"Using newest snapshot. url={link.url} from={existing_snapshot.datetime_timestamp}"
             )
 
     except NoCDXRecordFound:
-        logger.info(f"Could not find any snapshots for bookmark. url={bookmark.url}")
+        logger.info(f"Could not find any snapshots for link. url={link.url}")
     except WaybackError as error:
         logger.error(
-            f"Failed to load existing snapshot. url={bookmark.url}", exc_info=error
+            f"Failed to load existing snapshot. url={link.url}", exc_info=error
         )
 
 
-def _create_snapshot(bookmark: Bookmark):
-    logger.info(f"Create new snapshot for bookmark. url={bookmark.url}...")
+def _create_snapshot(link: Link):
+    logger.info(f"Create new snapshot for link. url={link.url}...")
     archive = waybackpy.WaybackMachineSaveAPI(
-        bookmark.url, DEFAULT_USER_AGENT, max_tries=1
+        link.url, DEFAULT_USER_AGENT, max_tries=1
     )
     archive.save()
-    bookmark.web_archive_snapshot_url = archive.archive_url
-    bookmark.save(update_fields=["web_archive_snapshot_url"])
-    logger.info(f"Successfully created new snapshot for bookmark:. url={bookmark.url}")
+    link.web_archive_snapshot_url = archive.archive_url
+    link.save(update_fields=["web_archive_snapshot_url"])
+    logger.info(f"Successfully created new snapshot for bookmark:. url={link.url}")
 
 
 @background()
-def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
+def _create_web_archive_snapshot_task(link_id: int, force_update: bool):
     try:
-        bookmark = Bookmark.objects.get(id=bookmark_id)
-    except Bookmark.DoesNotExist:
+        link = Link.objects.get(id=link_id)
+    except Link.DoesNotExist:
         return
 
     # Skip if snapshot exists and update is not explicitly requested
-    if bookmark.web_archive_snapshot_url and not force_update:
+    if link.web_archive_snapshot_url and not force_update:
         return
 
     # Create new snapshot
     try:
-        _create_snapshot(bookmark)
+        _create_snapshot(link)
         return
     except TooManyRequestsError:
         logger.error(
-            f"Failed to create snapshot due to rate limiting, trying to load newest snapshot as fallback. url={bookmark.url}"
+            f"Failed to create snapshot due to rate limiting, trying to load newest snapshot as fallback. url={link.url}"
         )
     except WaybackError as error:
         logger.error(
-            f"Failed to create snapshot, trying to load newest snapshot as fallback. url={bookmark.url}",
+            f"Failed to create snapshot, trying to load newest snapshot as fallback. url={link.url}",
             exc_info=error,
         )
 
     # Load the newest snapshot as fallback
-    _load_newest_snapshot(bookmark)
+    _load_newest_snapshot(link)
 
 
 @background()
@@ -137,21 +137,21 @@ def load_favicon(user: User, bookmark: Bookmark):
 
 
 @background()
-def _load_favicon_task(bookmark_id: int):
+def _load_favicon_task(link_id: int):
     try:
-        bookmark = Bookmark.objects.get(id=bookmark_id)
-    except Bookmark.DoesNotExist:
+        link = Link.objects.get(id=link_id)
+    except Link.DoesNotExist:
         return
 
-    logger.info(f"Load favicon for bookmark. url={bookmark.url}")
+    logger.info(f"Load favicon for bookmark. url={link.url}")
 
-    new_favicon_file = favicon_loader.load_favicon(bookmark.url)
+    new_favicon_file = favicon_loader.load_favicon(link.url)
 
-    if new_favicon_file != bookmark.favicon_file:
-        bookmark.favicon_file = new_favicon_file
-        bookmark.save(update_fields=["favicon_file"])
+    if new_favicon_file != link.favicon_file:
+        link.favicon_file = new_favicon_file
+        link.save(update_fields=["favicon_file"])
         logger.info(
-            f"Successfully updated favicon for bookmark. url={bookmark.url} icon={new_favicon_file}"
+            f"Successfully updated favicon for bookmark. url={link.url} icon={new_favicon_file}"
         )
 
 

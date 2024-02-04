@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.http import QueryDict
+from django.utils import timezone
 
 from bookmarks.utils import unique
 from bookmarks.validators import BookmarkURLValidator
@@ -46,6 +47,15 @@ def build_tag_string(tag_names: List[str], delimiter: str = ","):
     return delimiter.join(tag_names)
 
 
+class Link(models.Model):
+    created = models.DateTimeField(default=timezone.now)
+    url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()], unique=True)
+    website_title = models.CharField(max_length=512, blank=True, null=True)
+    website_description = models.TextField(blank=True, null=True)
+    web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
+    favicon_file = models.CharField(max_length=512, blank=True)
+
+
 class Bookmark(models.Model):
     url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     title = models.CharField(max_length=512, blank=True)
@@ -62,6 +72,7 @@ class Bookmark(models.Model):
     date_modified = models.DateTimeField()
     date_accessed = models.DateTimeField(blank=True, null=True)
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    link = models.ForeignKey(Link, on_delete=models.CASCADE, null=True, blank=True)
     tags = models.ManyToManyField(Tag)
 
     @property

@@ -5,7 +5,7 @@ from typing import List
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, Tag
+from bookmarks.models import Bookmark, Tag, Link
 from bookmarks.services import tasks
 from bookmarks.services.parser import parse, NetscapeBookmark
 from bookmarks.utils import parse_timestamp
@@ -129,11 +129,12 @@ def _import_batch(
 ):
     # Query existing bookmarks
     batch_urls = [bookmark.href for bookmark in netscape_bookmarks]
-    existing_bookmarks = Bookmark.objects.filter(owner=user, url__in=batch_urls)
+    existing_bookmarks = Bookmark.objects.filter(owner=user, link__url__in=batch_urls)
 
     # Create or update bookmarks from parsed Netscape bookmarks
     bookmarks_to_create = []
     bookmarks_to_update = []
+    links_to_create = []
 
     for netscape_bookmark in netscape_bookmarks:
         result.total = result.total + 1
@@ -156,15 +157,16 @@ def _import_batch(
             _copy_bookmark_data(netscape_bookmark, bookmark, options)
             # Validate bookmark fields, exclude owner to prevent n+1 database query,
             # also there is no specific validation on owner
-            bookmark.clean_fields(exclude=["owner"])
+            bookmark.clean_fields(exclude=["owner", "link"])
             # Schedule for update or insert
             if is_update:
                 bookmarks_to_update.append(bookmark)
             else:
                 bookmarks_to_create.append(bookmark)
+                links_to_create.append(Link(url=netscape_bookmark.href))
 
             result.success = result.success + 1
-        except:
+        except Exception:
             shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + "..."
             logging.exception("Error importing bookmark: " + shortened_bookmark_tag_str)
             result.failed = result.failed + 1
@@ -185,13 +187,17 @@ def _import_batch(
         ],
     )
     # Bulk insert new bookmarks into DB
+    links = Link.objects.bulk_create(links_to_create)
+    for link, bookmark in zip(links, bookmarks_to_create):
+        bookmark.link = link
+
     Bookmark.objects.bulk_create(bookmarks_to_create)
 
     # Bulk assign tags
-    # In Django 3, bulk_create does not return the auto-generated IDs when bulk inserting,
-    # so we have to reload the inserted bookmarks, and match them to the parsed bookmarks by URL
-    existing_bookmarks = Bookmark.objects.filter(owner=user, url__in=batch_urls)
+    # To assign new tags on re-import of same bookmarks we need to fetch all bookmarks
+    existing_bookmarks = Bookmark.objects.filter(owner=user, link__url__in=batch_urls)
 
+    # Bulk assign tags
     BookmarkToTagRelationShip = Bookmark.tags.through
     relationships = []
 

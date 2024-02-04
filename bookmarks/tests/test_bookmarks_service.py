@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, Tag
+from bookmarks.models import Bookmark, Tag, Link
 from bookmarks.services import tasks
 from bookmarks.services import website_loader
 from bookmarks.services.bookmarks import (
@@ -33,7 +33,41 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
     def setUp(self) -> None:
         self.get_or_create_test_user()
 
-    def test_create_should_update_website_metadata(self):
+    def get_bookmark_data(self):
+        return dict(
+            url="https://example.com",
+            title="Updated Title",
+            description="Updated description",
+            unread=True,
+            shared=True,
+            is_archived=True,
+        )
+
+    def test_creating_bookmark_by_two_different_users_use_same_link(self):
+        bookmark_data = self.get_bookmark_data()
+        user = self.get_or_create_test_user()
+        user2 = User.objects.create_user(
+            "testuser2", "test2@example.com", "password123"
+        )
+        with patch.object(website_loader, "load_website_metadata") as mock_metadata:
+            expected_metadata = WebsiteMetadata(
+                "https://example.com", "Website title", "Website description"
+            )
+            mock_metadata.return_value = expected_metadata
+            created_bookmark = create_bookmark(
+                Bookmark(**bookmark_data), "", user
+            )
+
+            created_bookmark2 = create_bookmark(
+                Bookmark(**bookmark_data), "", user2
+            )
+
+            self.assertEqual(created_bookmark.link.pk, created_bookmark2.link.pk)
+            self.assertNotEqual(created_bookmark.pk, created_bookmark2.pk)
+            self.assertEqual(Link.objects.all().count(), 1)
+            self.assertEqual(Bookmark.objects.all().count(), 2)
+
+    def test_creating_bookmark_creates_link_updates_website_metadata(self):
         with patch.object(
             website_loader, "load_website_metadata"
         ) as mock_load_website_metadata:
@@ -55,10 +89,18 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             )
 
             created_bookmark.refresh_from_db()
-            self.assertEqual(expected_metadata.title, created_bookmark.website_title)
+            links = Link.objects.all().count()
+
+            self.assertNotEqual(created_bookmark.link, None)
             self.assertEqual(
-                expected_metadata.description, created_bookmark.website_description
+                expected_metadata.title,
+                created_bookmark.link.website_title
             )
+            self.assertEqual(
+                expected_metadata.description,
+                created_bookmark.link.website_description
+            )
+            self.assertEqual(links, 1)
 
     def test_create_should_update_existing_bookmark_with_same_url(self):
         original_bookmark = self.setup_bookmark(
@@ -95,7 +137,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
 
             mock_create_web_archive_snapshot.assert_called_once_with(
-                self.user, bookmark, False
+                self.user, bookmark.link, False
             )
 
     def test_create_should_load_favicon(self):
@@ -103,7 +145,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark_data = Bookmark(url="https://example.com")
             bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
 
-            mock_load_favicon.assert_called_once_with(self.user, bookmark)
+            mock_load_favicon.assert_called_once_with(self.user, bookmark.link)
 
     def test_update_should_create_web_archive_snapshot_if_url_did_change(self):
         with patch.object(

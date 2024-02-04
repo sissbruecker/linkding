@@ -90,14 +90,14 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             waybackpy, "WaybackMachineSaveAPI", return_value=mock_save_api
         ):
             tasks.create_web_archive_snapshot(
-                self.get_or_create_test_user(), bookmark, False
+                self.get_or_create_test_user(), bookmark.link, False
             )
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
 
             mock_save_api.save.assert_called_once()
             self.assertEqual(
-                bookmark.web_archive_snapshot_url,
+                bookmark.link.web_archive_snapshot_url,
                 "https://example.com/created_snapshot",
             )
 
@@ -136,12 +136,12 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             waybackpy, "WaybackMachineSaveAPI", return_value=mock_save_api
         ):
             tasks.create_web_archive_snapshot(
-                self.get_or_create_test_user(), bookmark, True
+                self.get_or_create_test_user(), bookmark.link, True
             )
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
 
-            self.assertEqual(bookmark.web_archive_snapshot_url, "https://other.com")
+            self.assertEqual(bookmark.link.web_archive_snapshot_url, "https://other.com")
 
     def test_create_web_archive_snapshot_should_use_newest_snapshot_as_fallback(self):
         bookmark = self.setup_bookmark()
@@ -157,7 +157,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
                 return_value=mock_cdx_api,
             ):
                 tasks.create_web_archive_snapshot(
-                    self.get_or_create_test_user(), bookmark, False
+                    self.get_or_create_test_user(), bookmark.link, False
                 )
                 self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
@@ -165,7 +165,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
                 mock_cdx_api.newest.assert_called_once()
                 self.assertEqual(
                     "https://example.com/newest_snapshot",
-                    bookmark.web_archive_snapshot_url,
+                    bookmark.link.web_archive_snapshot_url,
                 )
 
     def test_create_web_archive_snapshot_should_ignore_missing_newest_snapshot(self):
@@ -226,7 +226,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             waybackpy, "WaybackMachineSaveAPI", return_value=mock_save_api
         ):
             tasks.create_web_archive_snapshot(
-                self.get_or_create_test_user(), bookmark, False
+                self.get_or_create_test_user(), bookmark.link, False
             )
             self.run_pending_task(tasks._create_web_archive_snapshot_task)
             bookmark.refresh_from_db()
@@ -234,7 +234,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(bookmark.title, "Updated title")
             self.assertEqual(
                 "https://example.com/created_snapshot",
-                bookmark.web_archive_snapshot_url,
+                bookmark.link.web_archive_snapshot_url,
             )
 
     def test_load_web_archive_snapshot_should_update_snapshot_url(self):
@@ -433,11 +433,11 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         ) as mock_load_favicon:
             mock_load_favicon.return_value = "https_example_com.png"
 
-            tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+            tasks.load_favicon(self.get_or_create_test_user(), bookmark.link)
             self.run_pending_task(tasks._load_favicon_task)
             bookmark.refresh_from_db()
 
-            self.assertEqual(bookmark.favicon_file, "https_example_com.png")
+            self.assertEqual(bookmark.link.favicon_file, "https_example_com.png")
 
     def test_load_favicon_should_update_favicon_file(self):
         bookmark = self.setup_bookmark(favicon_file="https_example_com.png")
@@ -446,12 +446,12 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             "bookmarks.services.favicon_loader.load_favicon"
         ) as mock_load_favicon:
             mock_load_favicon.return_value = "https_example_updated_com.png"
-            tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+            tasks.load_favicon(self.get_or_create_test_user(), bookmark.link)
             self.run_pending_task(tasks._load_favicon_task)
 
             mock_load_favicon.assert_called()
             bookmark.refresh_from_db()
-            self.assertEqual(bookmark.favicon_file, "https_example_updated_com.png")
+            self.assertEqual(bookmark.link.favicon_file, "https_example_updated_com.png")
 
     def test_load_favicon_should_handle_missing_bookmark(self):
         with mock.patch(
@@ -477,12 +477,12 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         ) as mock_load_favicon:
             mock_load_favicon.side_effect = mock_load_favicon_impl
 
-            tasks.load_favicon(self.get_or_create_test_user(), bookmark)
+            tasks.load_favicon(self.get_or_create_test_user(), bookmark.link)
             self.run_pending_task(tasks._load_favicon_task)
             bookmark.refresh_from_db()
 
             self.assertEqual(bookmark.title, "Updated title")
-            self.assertEqual(bookmark.favicon_file, "https_example_com.png")
+            self.assertEqual(bookmark.link.favicon_file, "https_example_com.png")
 
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
     def test_load_favicon_should_not_run_when_background_tasks_are_disabled(self):

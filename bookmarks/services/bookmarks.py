@@ -3,7 +3,7 @@ from typing import Union
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, parse_tag_string
+from bookmarks.models import Bookmark, parse_tag_string, Link
 from bookmarks.services.tags import get_or_create_tags
 from bookmarks.services import website_loader
 from bookmarks.services import tasks
@@ -11,8 +11,15 @@ from bookmarks.services import tasks
 
 def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     # If URL is already bookmarked, then update it
+    existing_link: Link = Link.objects.filter(
+        url=bookmark.url
+    ).first()
+    if not existing_link:
+        # TODO should include date_added
+        existing_link = Link.objects.create(url=bookmark.url)
+
     existing_bookmark: Bookmark = Bookmark.objects.filter(
-        owner=current_user, url=bookmark.url
+        owner=current_user, link=existing_link
     ).first()
 
     if existing_bookmark is not None:
@@ -20,20 +27,21 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
         return update_bookmark(existing_bookmark, tag_string, current_user)
 
     # Update website info
-    _update_website_metadata(bookmark)
+    _update_website_metadata(existing_link)
     # Set currently logged in user as owner
     bookmark.owner = current_user
     # Set dates
     bookmark.date_added = timezone.now()
     bookmark.date_modified = timezone.now()
+    bookmark.link = existing_link
     bookmark.save()
     # Update tag list
     _update_bookmark_tags(bookmark, tag_string, current_user)
     bookmark.save()
     # Create snapshot on web archive
-    tasks.create_web_archive_snapshot(current_user, bookmark, False)
+    tasks.create_web_archive_snapshot(current_user, existing_link, False)
     # Load favicon
-    tasks.load_favicon(current_user, bookmark)
+    tasks.load_favicon(current_user, existing_link)
 
     return bookmark
 
@@ -181,10 +189,11 @@ def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.shared = from_bookmark.shared
 
 
-def _update_website_metadata(bookmark: Bookmark):
-    metadata = website_loader.load_website_metadata(bookmark.url)
-    bookmark.website_title = metadata.title
-    bookmark.website_description = metadata.description
+def _update_website_metadata(link: Link):
+    metadata = website_loader.load_website_metadata(link.url)
+    link.website_title = metadata.title
+    link.website_description = metadata.description
+    link.save()
 
 
 def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):

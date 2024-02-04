@@ -10,7 +10,7 @@ from django.utils.crypto import get_random_string
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from bookmarks.models import Bookmark, Tag
+from bookmarks.models import Bookmark, Tag, Link
 
 
 class BookmarkFactoryMixin:
@@ -52,6 +52,10 @@ class BookmarkFactoryMixin:
             url = "https://example.com/" + unique_id
         if added is None:
             added = timezone.now()
+
+        link = Link(url=url)
+        link.save()
+
         bookmark = Bookmark(
             url=url,
             title=title,
@@ -65,6 +69,7 @@ class BookmarkFactoryMixin:
             is_archived=is_archived,
             unread=unread,
             shared=shared,
+            link=link,
             web_archive_snapshot_url=web_archive_snapshot_url,
             favicon_file=favicon_file,
         )
