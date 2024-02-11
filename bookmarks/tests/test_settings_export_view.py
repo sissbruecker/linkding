@@ -34,7 +34,7 @@ class SettingsExportViewTestCase(TestCase, BookmarkFactoryMixin):
         )
 
         for bookmark in Bookmark.objects.all():
-            self.assertContains(response, bookmark.url)
+            self.assertContains(response, bookmark.link.url)
 
     def test_should_only_export_user_bookmarks(self):
         other_user = self.setup_user()
@@ -54,10 +54,10 @@ class SettingsExportViewTestCase(TestCase, BookmarkFactoryMixin):
         text = response.content.decode("utf-8")
 
         for bookmark in owned_bookmarks:
-            self.assertIn(bookmark.url, text)
+            self.assertIn(bookmark.link.url, text)
 
         for bookmark in non_owned_bookmarks:
-            self.assertNotIn(bookmark.url, text)
+            self.assertNotIn(bookmark.link.url, text)
 
     def test_should_check_authentication(self):
         self.client.logout()

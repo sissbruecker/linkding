@@ -31,7 +31,7 @@ def create_web_archive_snapshot(user: User, link: Link, force_update: bool):
         _create_web_archive_snapshot_task(link.id, force_update)
 
 
-def _load_newest_snapshot(link: Bookmark):
+def _load_newest_snapshot(link: Link):
     try:
         logger.info(f"Load existing snapshot for link. url={link.url}")
         cdx_api = bookmarks.services.wayback.CustomWaybackMachineCDXServerAPI(
@@ -101,10 +101,10 @@ def _load_web_archive_snapshot_task(bookmark_id: int):
     except Bookmark.DoesNotExist:
         return
     # Skip if snapshot exists
-    if bookmark.web_archive_snapshot_url:
+    if bookmark.link.web_archive_snapshot_url:
         return
     # Load the newest snapshot
-    _load_newest_snapshot(bookmark)
+    _load_newest_snapshot(bookmark.link)
 
 
 def schedule_bookmarks_without_snapshots(user: User):
@@ -116,7 +116,7 @@ def schedule_bookmarks_without_snapshots(user: User):
 def _schedule_bookmarks_without_snapshots_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks_without_snapshots = Bookmark.objects.filter(
-        web_archive_snapshot_url__exact="", owner=user
+        link__web_archive_snapshot_url__exact="", owner=user
     )
 
     for bookmark in bookmarks_without_snapshots:
@@ -163,7 +163,7 @@ def schedule_bookmarks_without_favicons(user: User):
 @background()
 def _schedule_bookmarks_without_favicons_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
-    bookmarks = Bookmark.objects.filter(favicon_file__exact="", owner=user)
+    bookmarks = Bookmark.objects.filter(link__favicon_file__exact="", owner=user)
     tasks = []
 
     for bookmark in bookmarks:

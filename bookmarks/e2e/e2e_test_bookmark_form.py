@@ -23,7 +23,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
             page.goto(self.live_server_url + reverse("bookmarks:new"))
 
             # Enter bookmarked URL
-            page.get_by_label("URL").fill(existing_bookmark.url)
+            page.get_by_label("URL").fill(existing_bookmark.link.url)
             # Already bookmarked hint should be visible
             page.get_by_text("This URL is already bookmarked.").wait_for(timeout=2000)
             # Form should be pre-filled with data from existing bookmark
@@ -83,5 +83,5 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
             details = page.locator("details.notes")
             expect(details).not_to_have_attribute("open", value="")
 
-            page.get_by_label("URL").fill(bookmark.url)
+            page.get_by_label("URL").fill(bookmark.link.url)
             expect(details).to_have_attribute("open", value="")

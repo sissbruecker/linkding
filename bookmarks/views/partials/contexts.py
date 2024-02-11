@@ -28,16 +28,17 @@ class BookmarkItem:
         self.is_editable = is_editable
 
         self.id = bookmark.id
-        self.url = bookmark.url
         self.title = bookmark.resolved_title
         self.description = bookmark.resolved_description
         self.notes = bookmark.notes
         self.tag_names = bookmark.tag_names
-        self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url
-        self.favicon_file = bookmark.favicon_file
         self.is_archived = bookmark.is_archived
         self.unread = bookmark.unread
         self.owner = bookmark.owner
+
+        self.favicon_file = bookmark.link.favicon_file
+        self.url = bookmark.link.url
+        self.web_archive_snapshot_url = bookmark.link.web_archive_snapshot_url
 
         css_classes = []
         if bookmark.unread:

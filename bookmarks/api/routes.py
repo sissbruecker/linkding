@@ -91,7 +91,7 @@ class BookmarkViewSet(
     @action(methods=["get"], detail=False)
     def check(self, request):
         url = request.GET.get("url")
-        bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
+        bookmark = Bookmark.objects.filter(owner=request.user, link__url=url).first()
         existing_bookmark_data = (
             self.get_serializer(bookmark).data if bookmark else None
         )
@@ -99,7 +99,7 @@ class BookmarkViewSet(
         # Either return metadata from existing bookmark, or scrape from URL
         if bookmark:
             metadata = WebsiteMetadata(
-                url, bookmark.website_title, bookmark.website_description
+                url, bookmark.link.website_title, bookmark.link.website_description
             )
         else:
             metadata = website_loader.load_website_metadata(url)

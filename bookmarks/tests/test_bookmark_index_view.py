@@ -33,7 +33,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         for bookmark in bookmarks:
             bookmark_item = bookmark_list.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
+                f'li[ld-bookmark-item] a[href="{bookmark.link.url}"][target="{link_target}"]'
             )
             self.assertIsNotNone(bookmark_item)
 
@@ -44,7 +44,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         for bookmark in bookmarks:
             bookmark_item = soup.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
+                f'li[ld-bookmark-item] a[href="{bookmark.link.url}"][target="{link_target}"]'
             )
             self.assertIsNone(bookmark_item)
 
@@ -88,7 +88,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         html = response.content.decode()
         self.assertInHTML(
             f"""
-            <a href="{url}">Edit</a>        
+            <a href="{url}">Edit</a>
         """,
             html,
         )
@@ -521,7 +521,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         url = reverse("bookmarks:index") + "?q=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
-        self.assertContains(response, bookmark.url)
+        self.assertContains(response, bookmark.link.url)
 
         url = reverse("bookmarks:index") + "?sort=alert(%27xss%27)"
         response = self.client.get(url)

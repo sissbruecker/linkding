@@ -2,7 +2,7 @@ from django.db.models import prefetch_related_objects
 from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
-from bookmarks.models import Bookmark, Tag, build_tag_string, UserProfile
+from bookmarks.models import Bookmark, Link, Tag, build_tag_string, UserProfile
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
 from bookmarks.services.tags import get_or_create_tag
 
@@ -15,8 +15,8 @@ class BookmarkListSerializer(ListSerializer):
     def to_representation(self, data):
         # Prefetch nested relations to avoid n+1 queries
         prefetch_related_objects(data, "tags")
-
-        return super().to_representation(data)
+        representation = super().to_representation(data)
+        return representation
 
 
 class BookmarkSerializer(serializers.ModelSerializer):
@@ -28,8 +28,6 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "notes",
-            "website_title",
-            "website_description",
             "is_archived",
             "unread",
             "shared",
@@ -45,6 +43,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
         ]
         list_serializer_class = BookmarkListSerializer
 
+    url = serializers.CharField(required=False)
     # Override optional char fields to provide default value
     title = serializers.CharField(required=False, allow_blank=True, default="")
     description = serializers.CharField(required=False, allow_blank=True, default="")
@@ -55,9 +54,17 @@ class BookmarkSerializer(serializers.ModelSerializer):
     # Override readonly tag_names property to allow passing a list of tag names to create/update
     tag_names = TagListField(required=False, default=[])
 
+    def to_representation(self, data):
+        result = super().to_representation(data)
+        result["url"] = data.link.url
+        result["website_description"] = data.link.website_description
+        result["website_title"] = data.link.website_title
+        return result
+
     def create(self, validated_data):
+        link = Link(url=validated_data["url"])
         bookmark = Bookmark()
-        bookmark.url = validated_data["url"]
+        bookmark.link = link
         bookmark.title = validated_data["title"]
         bookmark.description = validated_data["description"]
         bookmark.notes = validated_data["notes"]
@@ -72,6 +79,9 @@ class BookmarkSerializer(serializers.ModelSerializer):
         for key in ["url", "title", "description", "notes", "unread", "shared"]:
             if key in validated_data:
                 setattr(instance, key, validated_data[key])
+
+        if validated_data.get("url") and validated_data["url"] != instance.link.url:
+            instance.link = Link(url=validated_data["url"])
 
         # Use tag string from payload, or use bookmark's current tags as fallback
         tag_string = build_tag_string(instance.tag_names)

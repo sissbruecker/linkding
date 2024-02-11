@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass
 from typing import List
 
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -9,6 +10,7 @@ from bookmarks.models import Bookmark, Tag, Link
 from bookmarks.services import tasks
 from bookmarks.services.parser import parse, NetscapeBookmark
 from bookmarks.utils import parse_timestamp
+from bookmarks.validators import BookmarkURLValidator
 
 logger = logging.getLogger(__name__)
 
@@ -144,12 +146,18 @@ def _import_batch(
                 (
                     bookmark
                     for bookmark in existing_bookmarks
-                    if bookmark.url == netscape_bookmark.href
+                    if bookmark.link.url == netscape_bookmark.href
                 ),
                 None,
             )
+
             if not bookmark:
                 bookmark = Bookmark(owner=user)
+                validator = BookmarkURLValidator()
+                validator(netscape_bookmark.href)
+
+                link, _ = Link.objects.get_or_create(url=netscape_bookmark.href)
+                bookmark.link = link
                 is_update = False
             else:
                 is_update = True
@@ -175,7 +183,7 @@ def _import_batch(
     Bookmark.objects.bulk_update(
         bookmarks_to_update,
         [
-            "url",
+            "link",
             "date_added",
             "date_modified",
             "unread",
@@ -187,7 +195,8 @@ def _import_batch(
         ],
     )
     # Bulk insert new bookmarks into DB
-    links = Link.objects.bulk_create(links_to_create)
+    Link.objects.bulk_create(links_to_create, ignore_conflicts=True)
+    links = Link.objects.filter(url__in=[link.url for link in links_to_create])
     for link, bookmark in zip(links, bookmarks_to_create):
         bookmark.link = link
 
@@ -207,7 +216,7 @@ def _import_batch(
             (
                 bookmark
                 for bookmark in existing_bookmarks
-                if bookmark.url == netscape_bookmark.href
+                if bookmark.link.url == netscape_bookmark.href
             ),
             None,
         )
@@ -232,7 +241,6 @@ def _import_batch(
 def _copy_bookmark_data(
     netscape_bookmark: NetscapeBookmark, bookmark: Bookmark, options: ImportOptions
 ):
-    bookmark.url = netscape_bookmark.href
     if netscape_bookmark.date_added:
         bookmark.date_added = parse_timestamp(netscape_bookmark.date_added)
     else:

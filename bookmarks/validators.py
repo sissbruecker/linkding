@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core import validators
+from django.core.exceptions import ValidationError
 
 
 class BookmarkURLValidator(validators.URLValidator):
@@ -12,4 +13,6 @@ class BookmarkURLValidator(validators.URLValidator):
         if settings.LD_DISABLE_URL_VALIDATION:
             return
 
+        if value == "":
+            raise ValidationError("URL can't be empty")
         super().__call__(value)

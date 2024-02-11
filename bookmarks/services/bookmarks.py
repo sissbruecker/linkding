@@ -12,11 +12,10 @@ from bookmarks.services import tasks
 def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     # If URL is already bookmarked, then update it
     existing_link: Link = Link.objects.filter(
-        url=bookmark.url
+        url=bookmark.link.url
     ).first()
     if not existing_link:
-        # TODO should include date_added
-        existing_link = Link.objects.create(url=bookmark.url)
+        existing_link = Link.objects.create(url=bookmark.link.url)
 
     existing_bookmark: Bookmark = Bookmark.objects.filter(
         owner=current_user, link=existing_link
@@ -49,11 +48,13 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
 def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     # Detect URL change
     original_bookmark = Bookmark.objects.get(id=bookmark.id)
-    has_url_changed = original_bookmark.url != bookmark.url
+    has_url_changed = original_bookmark.link.url != bookmark.link.url
     # Update tag list
     _update_bookmark_tags(bookmark, tag_string, current_user)
     # Update dates
     bookmark.date_modified = timezone.now()
+
+    bookmark.link.save()
     bookmark.save()
     # Update favicon
     tasks.load_favicon(current_user, bookmark)
@@ -62,7 +63,7 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
         # Update web archive snapshot, if URL changed
         tasks.create_web_archive_snapshot(current_user, bookmark, True)
         # Only update website metadata if URL changed
-        _update_website_metadata(bookmark)
+        _update_website_metadata(bookmark.link)
         bookmark.save()
 
     return bookmark

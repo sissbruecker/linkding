@@ -20,14 +20,14 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         self, html: str, bookmark: Bookmark, link_target: str = "_blank"
     ):
         favicon_img = (
-            f'<img src="/static/{bookmark.favicon_file}" alt="">'
-            if bookmark.favicon_file
+            f'<img src="/static/{bookmark.link.favicon_file}" alt="">'
+            if bookmark.link.favicon_file
             else ""
         )
         self.assertInHTML(
             f"""
-            <a href="{bookmark.url}" 
-                target="{link_target}" 
+            <a href="{bookmark.link.url}"
+                target="{link_target}"
                 rel="noopener">
                 {favicon_img}
                 <span>{bookmark.resolved_title}</span>
@@ -103,7 +103,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
     def assertShareInfoCount(self, html: str, bookmark: Bookmark, count=1):
         self.assertInHTML(
             f"""
-            <span>Shared by 
+            <span>Shared by
                 <a href="?user={bookmark.owner.username}">{bookmark.owner.username}</a>
             </span>
         """,
@@ -120,7 +120,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
     def assertFaviconCount(self, html: str, bookmark: Bookmark, count=1):
         self.assertInHTML(
             f"""
-            <img src="/static/{bookmark.favicon_file}" alt="">
+            <img src="/static/{bookmark.link.favicon_file}" alt="">
             """,
             html,
             count=count,
@@ -132,9 +132,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(
             f"""
         <div class="url-path truncate">
-          <a href="{bookmark.url}" target="{link_target}" rel="noopener" 
+          <a href="{bookmark.link.url}" target="{link_target}" rel="noopener"
           class="url-display text-sm">
-            {bookmark.url}
+            {bookmark.link.url}
           </a>
         </div>
         """,
@@ -171,7 +171,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
             <use xlink:href="#ld-icon-note"></use>
           </svg>
           Notes
-        </button>      
+        </button>
           """,
             html,
             count=count,
@@ -187,7 +187,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
             <use xlink:href="#ld-icon-share"></use>
           </svg>
           Shared
-        </button>    
+        </button>
           """,
             html,
             count=count,
@@ -203,7 +203,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
             <use xlink:href="#ld-icon-unread"></use>
           </svg>
           Unread
-        </button>   
+        </button>
           """,
             html,
             count=count,
@@ -234,7 +234,8 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
     ):
         bookmark = self.setup_bookmark()
         bookmark.date_added = timezone.now() - relativedelta(days=8)
-        bookmark.web_archive_snapshot_url = web_archive_url
+        bookmark.link.web_archive_snapshot_url = web_archive_url
+        bookmark.link.save()
         bookmark.save()
         user = self.get_or_create_test_user()
         user.profile.bookmark_date_display = date_display_setting
@@ -259,7 +260,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         formatted_date = formats.date_format(bookmark.date_added, "SHORT_DATE_FORMAT")
 
         self.assertWebArchiveLink(
-            html, formatted_date, bookmark.web_archive_snapshot_url
+            html, formatted_date, bookmark.link.web_archive_snapshot_url
         )
 
     def test_should_respect_relative_date_setting(self):
@@ -275,7 +276,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         )
         html = self.render_template()
 
-        self.assertWebArchiveLink(html, "1 week ago", bookmark.web_archive_snapshot_url)
+        self.assertWebArchiveLink(html, "1 week ago", bookmark.link.web_archive_snapshot_url)
 
     def test_bookmark_link_target_should_be_blank_by_default(self):
         bookmark = self.setup_bookmark()
@@ -296,13 +297,14 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
     def test_web_archive_link_target_should_be_blank_by_default(self):
         bookmark = self.setup_bookmark()
         bookmark.date_added = timezone.now() - relativedelta(days=8)
-        bookmark.web_archive_snapshot_url = "https://example.com"
+        bookmark.link.web_archive_snapshot_url = "https://example.com"
+        bookmark.link.save()
         bookmark.save()
 
         html = self.render_template()
 
         self.assertWebArchiveLink(
-            html, "1 week ago", bookmark.web_archive_snapshot_url, link_target="_blank"
+            html, "1 week ago", bookmark.link.web_archive_snapshot_url, link_target="_blank"
         )
 
     def test_web_archive_link_target_should_respect_user_profile(self):
@@ -312,13 +314,14 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
         bookmark = self.setup_bookmark()
         bookmark.date_added = timezone.now() - relativedelta(days=8)
-        bookmark.web_archive_snapshot_url = "https://example.com"
+        bookmark.link.web_archive_snapshot_url = "https://example.com"
+        bookmark.link.save()
         bookmark.save()
 
         html = self.render_template()
 
         self.assertWebArchiveLink(
-            html, "1 week ago", bookmark.web_archive_snapshot_url, link_target="_self"
+            html, "1 week ago", bookmark.link.web_archive_snapshot_url, link_target="_self"
         )
 
     def test_should_reflect_unread_state_as_css_class(self):
@@ -381,7 +384,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f"""
-            <span>Shared by 
+            <span>Shared by
                 <a href="?q=foo&user={bookmark.owner.username}">{bookmark.owner.username}</a>
             </span>
         """,
@@ -599,11 +602,12 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
         bookmark = self.setup_bookmark()
         bookmark.date_added = timezone.now() - relativedelta(days=8)
-        bookmark.web_archive_snapshot_url = (
+        bookmark.link.web_archive_snapshot_url = (
             "https://web.archive.org/web/20230531200136/https://example.com"
         )
         bookmark.notes = '**Example:** `print("Hello world!")`'
-        bookmark.favicon_file = "https_example_com.png"
+        bookmark.link.favicon_file = "https_example_com.png"
+        bookmark.link.save()
         bookmark.shared = True
         bookmark.unread = True
         bookmark.save()
@@ -613,7 +617,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         )
         self.assertBookmarksLink(html, bookmark, link_target="_blank")
         self.assertWebArchiveLink(
-            html, "1 week ago", bookmark.web_archive_snapshot_url, link_target="_blank"
+            html, "1 week ago", bookmark.link.web_archive_snapshot_url, link_target="_blank"
         )
         self.assertNoBookmarkActions(html, bookmark)
         self.assertShareInfo(html, bookmark)

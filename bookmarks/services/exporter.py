@@ -28,7 +28,7 @@ def append_list_start(doc: BookmarkDocument):
 
 
 def append_bookmark(doc: BookmarkDocument, bookmark: Bookmark):
-    url = bookmark.url
+    url = bookmark.link.url
     title = html.escape(bookmark.resolved_title or "")
     desc = html.escape(bookmark.resolved_description or "")
     if bookmark.notes:

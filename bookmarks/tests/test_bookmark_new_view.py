@@ -35,7 +35,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
 
         bookmark = Bookmark.objects.first()
         self.assertEqual(bookmark.owner, self.user)
-        self.assertEqual(bookmark.url, form_data["url"])
+        self.assertEqual(bookmark.link.url, form_data["url"])
         self.assertEqual(bookmark.title, form_data["title"])
         self.assertEqual(bookmark.description, form_data["description"])
         self.assertEqual(bookmark.notes, form_data["notes"])
@@ -153,7 +153,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
               <input type="checkbox" name="shared" id="id_shared">
               <i class="form-icon"></i>
               <span>Share</span>
-            </label>            
+            </label>
         """,
             html,
             count=0,
@@ -170,7 +170,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
               <input type="checkbox" name="shared" id="id_shared">
               <i class="form-icon"></i>
               <span>Share</span>
-            </label>            
+            </label>
         """,
             html,
             count=1,

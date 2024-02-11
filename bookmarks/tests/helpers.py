@@ -53,16 +53,20 @@ class BookmarkFactoryMixin:
         if added is None:
             added = timezone.now()
 
-        link = Link(url=url)
-        link.save()
+        link, _ = Link.objects.get_or_create(
+            url=url,
+            defaults=dict(
+                website_description=website_description,
+                website_title=website_title,
+                web_archive_snapshot_url=web_archive_snapshot_url,
+                favicon_file=favicon_file
+            )
+        )
 
         bookmark = Bookmark(
-            url=url,
             title=title,
             description=description,
             notes=notes,
-            website_title=website_title,
-            website_description=website_description,
             date_added=added,
             date_modified=timezone.now(),
             owner=user,
@@ -70,8 +74,6 @@ class BookmarkFactoryMixin:
             unread=unread,
             shared=shared,
             link=link,
-            web_archive_snapshot_url=web_archive_snapshot_url,
-            favicon_file=favicon_file,
         )
         bookmark.save()
         for tag in tags:

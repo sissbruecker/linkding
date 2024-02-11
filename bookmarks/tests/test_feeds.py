@@ -61,10 +61,10 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             expected_item = (
                 "<item>"
                 f"<title>{bookmark.resolved_title}</title>"
-                f"<link>{bookmark.url}</link>"
+                f"<link>{bookmark.link.url}</link>"
                 f"<description>{bookmark.resolved_description}</description>"
                 f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
-                f"<guid>{bookmark.url}</guid>"
+                f"<guid>{bookmark.link.url}</guid>"
                 "</item>"
             )
             self.assertContains(response, expected_item, count=1)
@@ -85,20 +85,20 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark1.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark1.link.url}</guid>", count=1)
 
         url = feed_url + "?q=" + urllib.parse.quote("#" + tag1.name)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=2)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
-        self.assertContains(response, f"<guid>{bookmark3.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark2.link.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark3.link.url}</guid>", count=1)
 
         url = feed_url + "?q=" + urllib.parse.quote(f"#{tag1.name} {bookmark2.title}")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark2.link.url}</guid>", count=1)
 
     def test_all_returns_only_user_owned_bookmarks(self):
         other_user = User.objects.create_user(
@@ -176,10 +176,10 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             expected_item = (
                 "<item>"
                 f"<title>{bookmark.resolved_title}</title>"
-                f"<link>{bookmark.url}</link>"
+                f"<link>{bookmark.link.url}</link>"
                 f"<description>{bookmark.resolved_description}</description>"
                 f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
-                f"<guid>{bookmark.url}</guid>"
+                f"<guid>{bookmark.link.url}</guid>"
                 "</item>"
             )
             self.assertContains(response, expected_item, count=1)
@@ -200,20 +200,20 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark1.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark1.link.url}</guid>", count=1)
 
         url = feed_url + "?q=" + urllib.parse.quote("#" + tag1.name)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=2)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
-        self.assertContains(response, f"<guid>{bookmark3.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark2.link.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark3.link.url}</guid>", count=1)
 
         url = feed_url + "?q=" + urllib.parse.quote(f"#{tag1.name} {bookmark2.title}")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark2.link.url}</guid>", count=1)
 
     def test_unread_returns_only_user_owned_bookmarks(self):
         other_user = User.objects.create_user(

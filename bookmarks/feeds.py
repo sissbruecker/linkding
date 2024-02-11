@@ -41,7 +41,7 @@ class BaseBookmarksFeed(Feed):
         return sanitize(item.resolved_description)
 
     def item_link(self, item: Bookmark):
-        return item.url
+        return item.link.url
 
     def item_pubdate(self, item: Bookmark):
         return item.date_added

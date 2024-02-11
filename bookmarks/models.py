@@ -55,16 +55,19 @@ class Link(models.Model):
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
     favicon_file = models.CharField(max_length=512, blank=True)
 
+    def __str__(self):
+        return f"{self.url[:30]}..."
+
+
+class BookmarkManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().select_related("link")
+
 
 class Bookmark(models.Model):
-    url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     title = models.CharField(max_length=512, blank=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
-    website_title = models.CharField(max_length=512, blank=True, null=True)
-    website_description = models.TextField(blank=True, null=True)
-    web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
-    favicon_file = models.CharField(max_length=512, blank=True)
     unread = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     shared = models.BooleanField(default=False)
@@ -75,25 +78,31 @@ class Bookmark(models.Model):
     link = models.ForeignKey(Link, on_delete=models.CASCADE, null=True, blank=True)
     tags = models.ManyToManyField(Tag)
 
+    objects = BookmarkManager()
+
     @property
     def resolved_title(self):
         if self.title:
             return self.title
-        elif self.website_title:
-            return self.website_title
+        elif not self.link:
+            return "<empty>"
+        elif self.link.website_title:
+            return self.link.website_title
         else:
-            return self.url
+            return self.link.url
 
     @property
     def resolved_description(self):
-        return self.website_description if not self.description else self.description
+        website_description = self.link.website_description if self.link else "<empty>"
+        return website_description if not self.description else self.description
 
     @property
     def tag_names(self):
         return [tag.name for tag in self.tags.all()]
 
     def __str__(self):
-        return self.resolved_title + " (" + self.url[:30] + "...)"
+        url = self.link.url if self.link else "<empty>"
+        return f"{self.resolved_title} ( {url[:30]}...)"
 
 
 class BookmarkForm(forms.ModelForm):
@@ -127,6 +136,27 @@ class BookmarkForm(forms.ModelForm):
             "shared",
             "auto_close",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.link:
+            url = self.data.get("url", "")
+            link = Link.objects.filter(url=url).first()
+            if not link:
+                link = Link(url=url)
+            self.instance.link = link
+        else:
+            self.initial["url"] = self.instance.link.url
+            self.initial["website_description"] = self.instance.link.website_description
+            self.initial["website_title"] = self.instance.link.website_title
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        form_url = self.data.get("url")
+        url_changed = form_url != instance.link.url
+        if url_changed:
+            instance.link = Link(url=form_url)
+        return instance
 
     @property
     def has_notes(self):

@@ -170,7 +170,6 @@ def edit(request, bookmark_id: int):
     form.initial["tag_string"] = build_tag_string(bookmark.tag_names, " ")
 
     context = {"form": form, "bookmark_id": bookmark_id, "return_url": return_url}
-
     return render(request, "bookmarks/edit.html", context)
 
 

@@ -53,9 +53,9 @@ def _base_bookmarks_query(
             Q(title__icontains=term)
             | Q(description__icontains=term)
             | Q(notes__icontains=term)
-            | Q(website_title__icontains=term)
-            | Q(website_description__icontains=term)
-            | Q(url__icontains=term)
+            | Q(link__website_title__icontains=term)
+            | Q(link__website_description__icontains=term)
+            | Q(link__url__icontains=term)
         )
 
         if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
@@ -104,10 +104,10 @@ def _base_bookmarks_query(
             effective_title=Case(
                 When(Q(title__isnull=False) & ~Q(title__exact=""), then=Lower("title")),
                 When(
-                    Q(website_title__isnull=False) & ~Q(website_title__exact=""),
-                    then=Lower("website_title"),
+                    Q(link__website_title__isnull=False) & ~Q(link__website_title__exact=""),
+                    then=Lower("link__website_title"),
                 ),
-                default=Lower("url"),
+                default=Lower("link__url"),
                 output_field=CharField(),
             )
         )

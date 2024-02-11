@@ -23,9 +23,9 @@ class AdminBookmark(admin.ModelAdmin):
     search_fields = (
         "title",
         "description",
-        "website_title",
-        "website_description",
-        "url",
+        "link__website_title",
+        "link__website_description",
+        "link__url",
         "tags__name",
     )
     list_filter = (
@@ -42,6 +42,13 @@ class AdminBookmark(admin.ModelAdmin):
         "mark_as_read",
         "mark_as_unread",
     ]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset
+
+    def url(self, obj):
+        return obj.link.url
 
     def get_actions(self, request):
         actions = super().get_actions(request)

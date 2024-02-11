@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.models import build_tag_string
+from bookmarks.models import build_tag_string, Link
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -35,13 +35,16 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark.refresh_from_db()
 
         self.assertEqual(bookmark.owner, self.user)
-        self.assertEqual(bookmark.url, form_data["url"])
+        self.assertEqual(bookmark.link.url, form_data["url"])
         self.assertEqual(bookmark.title, form_data["title"])
         self.assertEqual(bookmark.description, form_data["description"])
         self.assertEqual(bookmark.notes, form_data["notes"])
         self.assertEqual(bookmark.unread, form_data["unread"])
         self.assertEqual(bookmark.shared, form_data["shared"])
         self.assertEqual(bookmark.tags.count(), 2)
+        self.assertEqual(bookmark.link.website_title, "Example Domain")
+        self.assertEqual(Link.objects.all().count(), 2, "Edited url should be created")
+
         tags = bookmark.tags.order_by("name").all()
         self.assertEqual(tags[0].name, "editedtag1")
         self.assertEqual(tags[1].name, "editedtag2")
@@ -89,8 +92,8 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f"""
-            <input type="text" name="url" value="{bookmark.url}" placeholder=" "
-                    autofocus class="form-input" required id="id_url">   
+            <input type="text" name="url" value="{bookmark.link.url}" placeholder=" "
+                    autofocus class="form-input" required id="id_url">
         """,
             html,
         )
@@ -98,7 +101,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         tag_string = build_tag_string(bookmark.tag_names, " ")
         self.assertInHTML(
             f"""
-            <input ld-tag-autocomplete type="text" name="tag_string" value="{tag_string}" 
+            <input ld-tag-autocomplete type="text" name="tag_string" value="{tag_string}"
                     autocomplete="off" autocapitalize="off" class="form-input" id="id_tag_string">
         """,
             html,
@@ -106,7 +109,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f"""
-            <input type="text" name="title" value="{bookmark.title}" maxlength="512" autocomplete="off" 
+            <input type="text" name="title" value="{bookmark.title}" maxlength="512" autocomplete="off"
                     class="form-input" id="id_title">
         """,
             html,
@@ -133,7 +136,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(
             f"""
             <input type="hidden" name="website_title"  id="id_website_title"
-                    value="{bookmark.website_title}">
+                    value="{bookmark.link.website_title}">
         """,
             html,
         )
@@ -141,7 +144,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(
             f"""
             <input type="hidden" name="website_description"  id="id_website_description"
-                    value="{bookmark.website_description}">
+                    value="{bookmark.link.website_description}">
         """,
             html,
         )
@@ -201,7 +204,8 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
             reverse("bookmarks:edit", args=[bookmark.id]), form_data
         )
         bookmark.refresh_from_db()
-        self.assertNotEqual(bookmark.url, form_data["url"])
+        self.assertNotEqual(bookmark.link.url, form_data["url"])
+        self.assertNotEqual(bookmark.title, form_data["title"])
         self.assertEqual(response.status_code, 404)
 
     def test_should_respect_share_profile_setting(self):
@@ -218,7 +222,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
               <input type="checkbox" name="shared" id="id_shared">
               <i class="form-icon"></i>
               <span>Share</span>
-            </label>            
+            </label>
         """,
             html,
             count=0,
@@ -235,7 +239,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
               <input type="checkbox" name="shared" id="id_shared">
               <i class="form-icon"></i>
               <span>Share</span>
-            </label>            
+            </label>
         """,
             html,
             count=1,

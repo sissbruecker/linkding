@@ -35,7 +35,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
 
     def get_bookmark_data(self):
         return dict(
-            url="https://example.com",
+            link=Link(url="https://example.com"),
             title="Updated Title",
             description="Updated description",
             unread=True,
@@ -77,7 +77,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             mock_load_website_metadata.return_value = expected_metadata
 
             bookmark_data = Bookmark(
-                url="https://example.com",
+                link=Link(url="https://example.com"),
                 title="Updated Title",
                 description="Updated description",
                 unread=True,
@@ -106,8 +106,9 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         original_bookmark = self.setup_bookmark(
             url="https://example.com", unread=False, shared=False
         )
-        bookmark_data = Bookmark(
-            url="https://example.com",
+
+        bookmark_data =  Bookmark(
+            link=Link(url="https://example.com"),
             title="Updated Title",
             description="Updated description",
             notes="Updated notes",
@@ -133,7 +134,9 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         with patch.object(
             tasks, "create_web_archive_snapshot"
         ) as mock_create_web_archive_snapshot:
-            bookmark_data = Bookmark(url="https://example.com")
+            link = Link(url="https://example.com")
+            link.save()
+            bookmark_data = Bookmark(link=link)
             bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
 
             mock_create_web_archive_snapshot.assert_called_once_with(
@@ -142,7 +145,9 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_create_should_load_favicon(self):
         with patch.object(tasks, "load_favicon") as mock_load_favicon:
-            bookmark_data = Bookmark(url="https://example.com")
+            link = Link(url="https://example.com")
+            link.save()
+            bookmark_data = Bookmark(link=link)
             bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
 
             mock_load_favicon.assert_called_once_with(self.user, bookmark.link)
@@ -152,7 +157,8 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             tasks, "create_web_archive_snapshot"
         ) as mock_create_web_archive_snapshot:
             bookmark = self.setup_bookmark()
-            bookmark.url = "https://example.com/updated"
+            link = Link(url="https://example.com/updated")
+            bookmark.link = link
             update_bookmark(bookmark, "tag1,tag2", self.user)
 
             mock_create_web_archive_snapshot.assert_called_once_with(
@@ -181,14 +187,15 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             mock_load_website_metadata.return_value = expected_metadata
 
             bookmark = self.setup_bookmark()
-            bookmark.url = "https://example.com/updated"
+            link = Link(url="https://example.com/updated")
+            bookmark.link = link
             update_bookmark(bookmark, "tag1,tag2", self.user)
 
             bookmark.refresh_from_db()
             mock_load_website_metadata.assert_called_once()
-            self.assertEqual(expected_metadata.title, bookmark.website_title)
+            self.assertEqual(expected_metadata.title, bookmark.link.website_title)
             self.assertEqual(
-                expected_metadata.description, bookmark.website_description
+                expected_metadata.description, bookmark.link.website_description
             )
 
     def test_update_should_not_update_website_metadata_if_url_did_not_change(self):
@@ -210,8 +217,10 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             mock_load_favicon.assert_called_once_with(self.user, bookmark)
 
     def test_archive_bookmark(self):
+        link = Link(url="https://example.com")
+        link.save()
         bookmark = Bookmark(
-            url="https://example.com",
+            link=link,
             date_added=timezone.now(),
             date_modified=timezone.now(),
             owner=self.user,
@@ -227,8 +236,10 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(updated_bookmark.is_archived)
 
     def test_unarchive_bookmark(self):
+        link = Link(url="https://example.com")
+        link.save()
         bookmark = Bookmark(
-            url="https://example.com",
+            link=link,
             date_added=timezone.now(),
             date_modified=timezone.now(),
             owner=self.user,

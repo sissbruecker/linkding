@@ -20,7 +20,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
 
     def assertBookmarksImported(self, html_tags: List[BookmarkHtmlTag]):
         for html_tag in html_tags:
-            bookmark = Bookmark.objects.get(url=html_tag.href)
+            bookmark = Bookmark.objects.get(link__url=html_tag.href)
             self.assertIsNotNone(bookmark)
 
             self.assertEqual(bookmark.title, html_tag.title)
@@ -48,13 +48,6 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 tags="example-tag",
             ),
             BookmarkHtmlTag(
-                href="https://example.com/foo",
-                title="Foo title",
-                description="",
-                add_date="2",
-                tags="",
-            ),
-            BookmarkHtmlTag(
                 href="https://example.com/bar",
                 title="Bar title",
                 description="Bar description",
@@ -67,6 +60,13 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 description="Baz description",
                 add_date="4",
                 to_read=True,
+            ),
+            BookmarkHtmlTag(
+                href="https://example.com/foo",
+                title="Foo title",
+                description="",
+                add_date="2",
+                tags="",
             ),
         ]
         import_html = self.render_html(tags=html_tags)
@@ -93,13 +93,6 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 tags="example-tag",
             ),
             BookmarkHtmlTag(
-                href="https://example.com/foo",
-                title="Foo title",
-                description="",
-                add_date="2",
-                tags="",
-            ),
-            BookmarkHtmlTag(
                 href="https://example.com/bar",
                 title="Bar title",
                 description="Bar description",
@@ -107,11 +100,11 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 tags="bar-tag, other-tag",
             ),
             BookmarkHtmlTag(
-                href="https://example.com/unread",
-                title="Unread title",
-                description="Unread description",
-                add_date="3",
-                to_read=True,
+                href="https://example.com/foo",
+                title="Foo title",
+                description="",
+                add_date="2",
+                tags="",
             ),
             BookmarkHtmlTag(
                 href="https://example.com/private",
@@ -119,6 +112,13 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 description="Private description",
                 add_date="4",
                 private=True,
+            ),
+            BookmarkHtmlTag(
+                href="https://example.com/unread",
+                title="Unread title",
+                description="Unread description",
+                add_date="3",
+                to_read=True,
             ),
         ]
         import_html = self.render_html(tags=html_tags)
@@ -374,9 +374,9 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
             self.get_or_create_test_user(),
             ImportOptions(map_private_flag=True),
         )
-        bookmark1 = Bookmark.objects.get(url="https://example.com/1")
-        bookmark2 = Bookmark.objects.get(url="https://example.com/2")
-        bookmark3 = Bookmark.objects.get(url="https://example.com/3")
+        bookmark1 = Bookmark.objects.get(link__url="https://example.com/1")
+        bookmark2 = Bookmark.objects.get(link__url="https://example.com/2")
+        bookmark3 = Bookmark.objects.get(link__url="https://example.com/3")
         self.assertEqual(bookmark1.shared, False)
         self.assertEqual(bookmark2.shared, False)
         self.assertEqual(bookmark3.shared, True)

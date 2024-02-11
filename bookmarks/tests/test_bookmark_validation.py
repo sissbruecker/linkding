@@ -1,10 +1,7 @@
-import datetime
-
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
-from bookmarks.models import BookmarkForm, Bookmark
+from bookmarks.models import BookmarkForm, Link
 
 User = get_user_model()
 
@@ -29,41 +26,42 @@ DISABLED_URL_VALIDATION_TEST_CASES = [
 ]
 
 
-class BookmarkValidationTestCase(TestCase):
+class BookmarkFormTest(TestCase):
 
     def setUp(self) -> None:
         self.user = User.objects.create_user(
             "testuser", "test@example.com", "password123"
         )
 
-    def test_bookmark_model_should_not_allow_missing_url(self):
-        bookmark = Bookmark(
-            date_added=datetime.datetime.now(),
-            date_modified=datetime.datetime.now(),
-            owner=self.user,
+    def test_form(self):
+        form = BookmarkForm(data={"url": ""})
+        self.assertEqual(form.is_valid(), False)
+
+    def test_valid_bookmarkform(self):
+        form = BookmarkForm(data={"url": "https://wwvw.example.com"})
+        self.assertEqual(form.is_valid(), True)
+
+    def test_commit_save_false_returns_bookmark_with_link(self):
+        form = BookmarkForm(data={"url": "https://wwvw.example.com"})
+        bookmark = form.save(commit=False)
+
+        self.assertEqual(bookmark.link.pk, None)
+
+    def test_commit_save_false_returns_bookmark_with_existing_link(self):
+        url = "https://www.example.com"
+        existing_link = Link.objects.create(url=url)
+        form = BookmarkForm(data={"url": url})
+        bookmark = form.save(commit=False)
+
+        self.assertEqual(bookmark.link.pk, existing_link.pk)
+
+
+class BookmarkValidationTestCase(TestCase):
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(
+            "testuser", "test@example.com", "password123"
         )
-
-        with self.assertRaises(ValidationError):
-            bookmark.full_clean()
-
-    def test_bookmark_model_should_not_allow_empty_url(self):
-        bookmark = Bookmark(
-            url="",
-            date_added=datetime.datetime.now(),
-            date_modified=datetime.datetime.now(),
-            owner=self.user,
-        )
-
-        with self.assertRaises(ValidationError):
-            bookmark.full_clean()
-
-    @override_settings(LD_DISABLE_URL_VALIDATION=False)
-    def test_bookmark_model_should_validate_url_if_not_disabled_in_settings(self):
-        self._run_bookmark_model_url_validity_checks(ENABLED_URL_VALIDATION_TEST_CASES)
-
-    @override_settings(LD_DISABLE_URL_VALIDATION=True)
-    def test_bookmark_model_should_not_validate_url_if_disabled_in_settings(self):
-        self._run_bookmark_model_url_validity_checks(DISABLED_URL_VALIDATION_TEST_CASES)
 
     def test_bookmark_form_should_validate_required_fields(self):
         form = BookmarkForm(data={"url": ""})
@@ -83,25 +81,6 @@ class BookmarkValidationTestCase(TestCase):
     @override_settings(LD_DISABLE_URL_VALIDATION=True)
     def test_bookmark_form_should_not_validate_url_if_disabled_in_settings(self):
         self._run_bookmark_form_url_validity_checks(DISABLED_URL_VALIDATION_TEST_CASES)
-
-    def _run_bookmark_model_url_validity_checks(self, cases):
-        for case in cases:
-            url, expectation = case
-            bookmark = Bookmark(
-                url=url,
-                date_added=datetime.datetime.now(),
-                date_modified=datetime.datetime.now(),
-                owner=self.user,
-            )
-
-            try:
-                bookmark.full_clean()
-                self.assertTrue(expectation, "Did not expect validation error")
-            except ValidationError as e:
-                self.assertFalse(expectation, "Expected validation error")
-                self.assertTrue(
-                    "url" in e.message_dict, "Expected URL validation to fail"
-                )
 
     def _run_bookmark_form_url_validity_checks(self, cases):
         for case in cases:

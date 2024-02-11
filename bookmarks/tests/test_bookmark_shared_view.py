@@ -19,7 +19,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self, html: str, bookmark: Bookmark, count: int, link_target: str = "_blank"
     ):
         self.assertInHTML(
-            f'<a href="{bookmark.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
+            f'<a href="{bookmark.link.url}" target="{link_target}" rel="noopener">{bookmark.resolved_title}</a>',
             html,
             count=count,
         )
@@ -38,7 +38,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         for bookmark in bookmarks:
             bookmark_item = bookmark_list.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
+                f'li[ld-bookmark-item] a[href="{bookmark.link.url}"][target="{link_target}"]'
             )
             self.assertIsNotNone(bookmark_item)
 
@@ -49,7 +49,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         for bookmark in bookmarks:
             bookmark_item = soup.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
+                f'li[ld-bookmark-item] a[href="{bookmark.link.url}"][target="{link_target}"]'
             )
             self.assertIsNone(bookmark_item)
 
@@ -95,7 +95,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         html = response.content.decode()
         self.assertInHTML(
             f"""
-            <a href="{url}">Edit</a>        
+            <a href="{url}">Edit</a>
         """,
             html,
         )
@@ -606,7 +606,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         url = reverse("bookmarks:shared") + "?q=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
-        self.assertContains(response, bookmark.url)
+        self.assertContains(response, bookmark.link.url)
 
         url = reverse("bookmarks:shared") + "?sort=alert(%27xss%27)"
         response = self.client.get(url)

@@ -187,7 +187,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
                 self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
                 bookmark.refresh_from_db()
-                self.assertEqual("", bookmark.web_archive_snapshot_url)
+                self.assertEqual("", bookmark.link.web_archive_snapshot_url)
 
     def test_create_web_archive_snapshot_should_ignore_newest_snapshot_errors(self):
         bookmark = self.setup_bookmark()
@@ -208,7 +208,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
                 self.run_pending_task(tasks._create_web_archive_snapshot_task)
 
                 bookmark.refresh_from_db()
-                self.assertEqual("", bookmark.web_archive_snapshot_url)
+                self.assertEqual("", bookmark.link.web_archive_snapshot_url)
 
     def test_create_web_archive_snapshot_should_not_save_stale_bookmark_data(self):
         bookmark = self.setup_bookmark()
@@ -252,7 +252,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             bookmark.refresh_from_db()
             mock_cdx_api.newest.assert_called_once()
             self.assertEqual(
-                "https://example.com/newest_snapshot", bookmark.web_archive_snapshot_url
+                "https://example.com/newest_snapshot", bookmark.link.web_archive_snapshot_url
             )
 
     def test_load_web_archive_snapshot_should_handle_missing_bookmark_id(self):
@@ -294,7 +294,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
-            self.assertEqual("", bookmark.web_archive_snapshot_url)
+            self.assertEqual("", bookmark.link.web_archive_snapshot_url)
 
     def test_load_web_archive_snapshot_should_handle_wayback_errors(self):
         bookmark = self.setup_bookmark()
@@ -308,7 +308,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             tasks._load_web_archive_snapshot_task(bookmark.id)
             self.run_pending_task(tasks._load_web_archive_snapshot_task)
 
-            self.assertEqual("", bookmark.web_archive_snapshot_url)
+            self.assertEqual("", bookmark.link.web_archive_snapshot_url)
 
     def test_load_web_archive_snapshot_should_not_save_stale_bookmark_data(self):
         bookmark = self.setup_bookmark()
@@ -334,7 +334,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
             self.assertEqual("Updated title", bookmark.title)
             self.assertEqual(
-                "https://example.com/newest_snapshot", bookmark.web_archive_snapshot_url
+                "https://example.com/newest_snapshot", bookmark.link.web_archive_snapshot_url
             )
 
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
