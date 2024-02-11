@@ -29,7 +29,7 @@ docker exec -it linkding python manage.py backup backup.sqlite3
 ```
 This creates a `backup.sqlite3` file in the Docker container.
 
-To copy the backup file to your host system, execute the following command:
+Finally, to copy the backup file to your host system, execute the following command:
 ```shell
 docker cp linkding:/etc/linkding/backup.sqlite3 backup.sqlite3
 ```
@@ -37,6 +37,22 @@ This copies the backup file from the Docker container to the current folder on y
 Now you can move that file to your backup location.
 
 To restore the backup, just copy the backup file to the data folder of your new installation and rename it to `db.sqlite3`. Then start the Docker container.
+
+#### Rootless
+
+If you are running rootless container, you may be passing a `user` that has owns a folder binded to `/etc/linkding/data`.
+
+Given that `/etc/linkding` can only be writted by `root`, you will need to export the backup to `/etc/linkding/data` instead. 
+
+In summary, execute the following command:
+```shell
+docker exec -u "${PUID}:${PGID}" linkding python manage.py backup /etc/linkding/data/backup.sqlite3
+```
+
+Then copy the file:
+```shell
+docker cp linkding:/etc/linkding/data/backup.sqlite3 backup.sqlite3
+```
 
 ### Using the SQLite dump function
 
