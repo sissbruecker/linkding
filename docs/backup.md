@@ -29,7 +29,7 @@ docker exec -it linkding python manage.py backup backup.sqlite3
 ```
 This creates a `backup.sqlite3` file in the Docker container.
 
-Finally, to copy the backup file to your host system, execute the following command:
+To copy the backup file to your host system, execute the following command:
 ```shell
 docker cp linkding:/etc/linkding/backup.sqlite3 backup.sqlite3
 ```
