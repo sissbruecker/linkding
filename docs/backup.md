@@ -46,7 +46,7 @@ Given that `/etc/linkding` can only be writted by `root`, you will need to expor
 
 In summary, execute the following command:
 ```shell
-docker exec -u "${PUID}:${PGID}" linkding python manage.py backup /etc/linkding/data/backup.sqlite3
+docker exec linkding python manage.py backup /etc/linkding/data/backup.sqlite3
 ```
 
 Then copy the file:
