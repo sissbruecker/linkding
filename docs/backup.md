@@ -40,7 +40,7 @@ To restore the backup, just copy the backup file to the data folder of your new 
 
 #### Rootless
 
-If you are running rootless container, you may be passing a `user` that has owns a folder binded to `/etc/linkding/data`.
+If you are running rootless container, you may be passing a `user` that owns the folder binded to `/etc/linkding/data`.
 
 Given that `/etc/linkding` can only be writted by `root`, you will need to export the backup to `/etc/linkding/data` instead. 
 
