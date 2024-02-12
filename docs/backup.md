@@ -38,11 +38,9 @@ Now you can move that file to your backup location.
 
 To restore the backup, just copy the backup file to the data folder of your new installation and rename it to `db.sqlite3`. Then start the Docker container.
 
-#### Rootless
+#### Custom `user`
 
-If you are running rootless container, you may be passing a `user` that owns the folder binded to `/etc/linkding/data`.
-
-Given that `/etc/linkding` can only be writted by `root`, you will need to export the backup to `/etc/linkding/data` instead. 
+The default instructions assumes that the process has permissions to write to `/etc/linkding` (`root` by default). However, that may not be the case in case the containers is being ran with a custom `user`. In those cases, you can export the backup to  `/etc/linkding/data` where the same user should have permissions to write to.
 
 In summary, execute the following command:
 ```shell
