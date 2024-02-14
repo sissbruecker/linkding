@@ -40,7 +40,7 @@ To restore the backup, just copy the backup file to the data folder of your new 
 
 #### Custom `user`
 
-The default instructions assumes that the process has permissions to write to `/etc/linkding` (`root` by default). However, that may not be the case in case the containers is being ran with a custom `user`. In those cases, you can export the backup to  `/etc/linkding/data` where the same user should have permissions to write to.
+The default instructions assumes that the process has permissions to write to `/etc/linkding` (`root`). However, that may not be the case in case the container is being ran with `user` set. In those cases, you can export the backup to  `/etc/linkding/data` where the same user has write permissions.
 
 In summary, execute the following command:
 ```shell
