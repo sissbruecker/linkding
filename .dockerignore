@@ -13,7 +13,7 @@
 !/package-lock.json
 !/requirements.dev.txt
 !/requirements.txt
-!/rollup.config.js
+!/rollup.config.mjs
 !/supervisord.conf
 !/uwsgi.ini
 !/version.txt
