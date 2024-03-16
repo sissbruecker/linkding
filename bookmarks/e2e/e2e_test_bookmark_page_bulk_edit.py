@@ -313,6 +313,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_bulk_edit_bar().get_by_text("Confirm").click()
 
+            expect(self.locate_bulk_edit_select_all()).not_to_be_checked()
             self.locate_bulk_edit_select_all().click()
 
             expect(
