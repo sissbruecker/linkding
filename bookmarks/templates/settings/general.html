@@ -124,6 +124,18 @@
               href="{% url 'bookmarks:shared' %}">shared bookmarks page</a>.
           </div>
         </div>
+      <div class="form-group">
+        <details {% if form.custom_css.value %}open{% endif %}>
+          <summary>Custom CSS</summary>
+          <label for="{{ form.custom_css.id_for_label }}" class="text-assistive">Custom CSS</label>
+          <div class="mt-2">
+            {{ form.custom_css|add_class:"form-input custom-css"|attr:"rows:6" }}
+          </div>
+        </details>
+        <div class="form-input-hint">
+          Allows to add custom CSS to the page.
+        </div>
+      </div>
         <div class="form-group">
           <input type="submit" name="update_profile" value="Save" class="btn btn-primary mt-2">
           {% if update_profile_success_message %}

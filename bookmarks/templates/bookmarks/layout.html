@@ -34,6 +34,9 @@
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161822">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#5856e0">
   {% endif %}
+  {% if request.user_profile.custom_css %}
+    <style>{{ request.user_profile.custom_css }}</style>
+  {% endif %}
 </head>
 <body ld-global-shortcuts>
 

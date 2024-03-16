@@ -32,6 +32,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "tag_search": UserProfile.TAG_SEARCH_STRICT,
             "display_url": False,
             "permanent_notes": False,
+            "custom_css": "",
         }
 
         return {**form_data, **overrides}
@@ -63,6 +64,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "tag_search": UserProfile.TAG_SEARCH_LAX,
             "display_url": True,
             "permanent_notes": True,
+            "custom_css": "body { background-color: #000; }",
         }
         response = self.client.post(reverse("bookmarks:settings.general"), form_data)
         html = response.content.decode()
@@ -93,6 +95,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(
             self.user.profile.permanent_notes, form_data["permanent_notes"]
         )
+        self.assertEqual(self.user.profile.custom_css, form_data["custom_css"])
         self.assertInHTML(
             """
                 <p class="form-input-hint">Profile updated</p>
