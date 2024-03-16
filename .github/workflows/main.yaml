@@ -1,6 +1,6 @@
 name: linkding CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   unit_tests:
