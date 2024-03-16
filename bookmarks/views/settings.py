@@ -46,10 +46,6 @@ def general(request):
 
     if not profile_form:
         profile_form = UserProfileForm(instance=request.user_profile)
-    try:
-        logged_in_via_django = request.session._session_cache["_auth_user_backend"] == "django.contrib.auth.backends.ModelBackend"
-    except (KeyError, AttributeError):
-        logged_in_via_django = True
 
     return render(
         request,
@@ -62,7 +58,6 @@ def general(request):
             "import_success_message": import_success_message,
             "import_errors_message": import_errors_message,
             "version_info": version_info,
-            "show_change_password": logged_in_via_django,
         },
     )
 

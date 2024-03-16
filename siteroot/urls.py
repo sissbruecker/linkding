@@ -27,7 +27,9 @@ urlpatterns = [
         "login/",
         auth_views.LoginView.as_view(
             redirect_authenticated_user=True,
-            extra_context=dict(allow_registration=ALLOW_REGISTRATION, enable_oidc=LD_ENABLE_OIDC),
+            extra_context=dict(
+                allow_registration=ALLOW_REGISTRATION, enable_oidc=LD_ENABLE_OIDC
+            ),
         ),
         name="login",
     ),
@@ -46,7 +48,7 @@ urlpatterns = [
 ]
 
 if LD_ENABLE_OIDC:
-    urlpatterns.append(path('oidc/', include('mozilla_django_oidc.urls')))
+    urlpatterns.append(path("oidc/", include("mozilla_django_oidc.urls")))
 
 if settings.LD_CONTEXT_PATH:
     urlpatterns = [path(settings.LD_CONTEXT_PATH, include(urlpatterns))]

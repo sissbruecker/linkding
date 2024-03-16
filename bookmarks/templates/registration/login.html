@@ -26,8 +26,8 @@
 
       <br/>
       <div class="d-flex justify-between">
-        <input type="submit" value="Login" class="btn btn-primary btn-wide" />
-        <input type="hidden" name="next" value="{{ next }}" />
+        <input type="submit" value="Login" class="btn btn-primary btn-wide"/>
+        <input type="hidden" name="next" value="{{ next }}"/>
         {% if enable_oidc %}
           <a class="btn btn-link" href="{% url 'oidc_authentication_init' %}">Login with OIDC</a>
         {% endif %}
