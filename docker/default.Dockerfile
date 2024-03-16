@@ -1,8 +1,8 @@
-FROM node:18.18.0-alpine AS node-build
+FROM node:20-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
-COPY rollup.config.js package.json package-lock.json ./
-RUN npm install
+COPY rollup.config.mjs package.json package-lock.json ./
+RUN npm ci
 # copy files needed for JS build
 COPY bookmarks/frontend ./bookmarks/frontend
 # run build
