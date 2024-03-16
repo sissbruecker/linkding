@@ -209,9 +209,9 @@
     {/if}
     {#each suggestions.tags as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
-        <button on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
+        <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
           {suggestion.label}
-        </button>
+        </a>
       </li>
     {/each}
 
@@ -220,9 +220,9 @@
     {/if}
     {#each suggestions.recentSearches as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
-        <button on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
+        <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
           {suggestion.label}
-        </button>
+        </a>
       </li>
     {/each}
 
@@ -231,9 +231,9 @@
     {/if}
     {#each suggestions.bookmarks as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
-        <button  on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
+        <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
           {suggestion.label}
-        </button>
+        </a>
       </li>
     {/each}
   </ul>
