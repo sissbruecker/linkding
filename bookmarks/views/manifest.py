@@ -11,7 +11,7 @@ def manifest(request):
         "display": "standalone",
         "scope": "/" + settings.LD_CONTEXT_PATH,
         "theme_color": "#5856e0",
-        "background_color": "#ffffff" if request.user_profile.theme == "light" else "#161822",
+        "background_color": "#161822" if request.user_profile.theme == "dark" else "#ffffff",
         "icons": [
             {
                 "src": "/" + settings.LD_CONTEXT_PATH + "static/logo.svg",

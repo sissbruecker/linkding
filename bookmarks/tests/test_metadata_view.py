@@ -17,7 +17,7 @@ class MetadataViewTestCase(TestCase):
             "display": "standalone",
             "scope": "/",
             "theme_color": "#5856e0",
-            "background_color": "#161822",
+            "background_color": "#ffffff",
             "icons": [
                 {
                     "src": "/static/logo.svg",
@@ -114,7 +114,7 @@ class MetadataViewTestCase(TestCase):
             "display": "standalone",
             "scope": "/linkding/",
             "theme_color": "#5856e0",
-            "background_color": "#161822",
+            "background_color": "#ffffff",
             "icons": [
                 {
                     "src": "/linkding/static/logo.svg",
