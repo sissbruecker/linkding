@@ -186,7 +186,6 @@ class TagGroup:
     def create_tag_groups(tags: Set[Tag]):
         # Ensure groups, as well as tags within groups, are ordered alphabetically
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
-        # begin at 65
         group = None
         groups = []
         cjk_used = False
@@ -195,7 +194,6 @@ class TagGroup:
         # Group tags that start with a different character than the previous one
         for tag in sorted_tags:
             tag_char = tag.name[0].lower()
-            # breakpoint()
             if CJK_RE.match(tag_char):
                 cjk_used = True
                 cjk_group.tags.append(tag)
