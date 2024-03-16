@@ -20,7 +20,7 @@ click==8.1.7
     # via waybackpy
 confusable-homoglyphs==3.2.0
     # via django-registration
-django==5.0.1
+django==5.0.2
     # via
     #   -r requirements.in
     #   django-registration
