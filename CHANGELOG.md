@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.24.1 (16/03/2024)
+
+### What's Changed
+* Bump dependencies by @sissbruecker in https://github.com/sissbruecker/linkding/pull/618
+* Persist secret key in data folder by @sissbruecker in https://github.com/sissbruecker/linkding/pull/620
+* Group ideographic characters in tag cloud by @jonathan-s in https://github.com/sissbruecker/linkding/pull/613
+* Bump django from 5.0.1 to 5.0.2 by @dependabot in https://github.com/sissbruecker/linkding/pull/625
+* Add k8s setup to community section by @jzck in https://github.com/sissbruecker/linkding/pull/633
+* Added a new Linkding client to community section by @JGeek00 in https://github.com/sissbruecker/linkding/pull/638
+
+### New Contributors
+* @jzck made their first contribution in https://github.com/sissbruecker/linkding/pull/633
+* @JGeek00 made their first contribution in https://github.com/sissbruecker/linkding/pull/638
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.24.0...v1.24.1
+
+---
+
 ## v1.24.0 (27/01/2024)
 
 ### What's Changed
