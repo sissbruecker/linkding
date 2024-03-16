@@ -115,8 +115,6 @@
     {% endif %}
     <a href="{{ cancel_url }}" class="btn">Nevermind</a>
   </div>
-
-  <script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
   <script type="application/javascript">
     /**
      * - Pre-fill title and description placeholders with metadata from website as soon as URL changes
@@ -129,7 +127,6 @@
       const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
       const notesDetails = document.querySelector('form details.notes');
       const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
-      const tagsInput = document.getElementById('{{ form.tag_string.id_for_label }}');
       const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
       const websiteTitleInput = document.getElementById('{{ form.website_title.id_for_label }}');
@@ -185,6 +182,10 @@
             const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
 
             if (existingBookmark && !editedBookmarkId) {
+              // Workaround: tag input will be replaced by tag autocomplete, so
+              // defer getting the input until we need it
+              const tagsInput = document.getElementById('{{ form.tag_string.id_for_label }}');
+
               bookmarkExistsHint.style['display'] = 'block';
               notesDetails.open = !!existingBookmark.notes;
               updateInput(titleInput, existingBookmark.title);

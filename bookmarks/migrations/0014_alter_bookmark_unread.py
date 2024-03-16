@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 
 def forwards(apps, schema_editor):
-    Bookmark = apps.get_model('bookmarks', 'Bookmark')
+    Bookmark = apps.get_model("bookmarks", "Bookmark")
     Bookmark.objects.update(unread=False)
 
 
@@ -14,13 +14,13 @@ def reverse(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('bookmarks', '0013_web_archive_optin_toast'),
+        ("bookmarks", "0013_web_archive_optin_toast"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bookmark',
-            name='unread',
+            model_name="bookmark",
+            name="unread",
             field=models.BooleanField(default=False),
         ),
         migrations.RunPython(forwards, reverse),

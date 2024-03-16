@@ -11,8 +11,10 @@ from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
 class BookmarksApiPerformanceTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
     def setUp(self) -> None:
-        self.api_token = Token.objects.get_or_create(user=self.get_or_create_test_user())[0]
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.api_token.key)
+        self.api_token = Token.objects.get_or_create(
+            user=self.get_or_create_test_user()
+        )[0]
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.api_token.key)
 
     def get_connection(self):
         return connections[DEFAULT_DB_ALIAS]
@@ -26,7 +28,10 @@ class BookmarksApiPerformanceTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
         # capture number of queries
         context = CaptureQueriesContext(self.get_connection())
         with context:
-            self.get(reverse('bookmarks:bookmark-list'), expected_status_code=status.HTTP_200_OK)
+            self.get(
+                reverse("bookmarks:bookmark-list"),
+                expected_status_code=status.HTTP_200_OK,
+            )
 
         number_of_queries = context.final_queries
 
@@ -41,7 +46,10 @@ class BookmarksApiPerformanceTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
         # capture number of queries
         context = CaptureQueriesContext(self.get_connection())
         with context:
-            self.get(reverse('bookmarks:bookmark-archived'), expected_status_code=status.HTTP_200_OK)
+            self.get(
+                reverse("bookmarks:bookmark-archived"),
+                expected_status_code=status.HTTP_200_OK,
+            )
 
         number_of_queries = context.final_queries
 
@@ -57,7 +65,10 @@ class BookmarksApiPerformanceTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
         # capture number of queries
         context = CaptureQueriesContext(self.get_connection())
         with context:
-            self.get(reverse('bookmarks:bookmark-shared'), expected_status_code=status.HTTP_200_OK)
+            self.get(
+                reverse("bookmarks:bookmark-shared"),
+                expected_status_code=status.HTTP_200_OK,
+            )
 
         number_of_queries = context.final_queries
 

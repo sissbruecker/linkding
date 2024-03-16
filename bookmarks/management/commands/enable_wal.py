@@ -14,11 +14,11 @@ class Command(BaseCommand):
         if not settings.USE_SQLITE:
             return
 
-        connection = connections['default']
+        connection = connections["default"]
         with connection.cursor() as cursor:
             cursor.execute("PRAGMA journal_mode")
             current_mode = cursor.fetchone()[0]
-            logger.info(f'Current journal mode: {current_mode}')
-            if current_mode != 'wal':
+            logger.info(f"Current journal mode: {current_mode}")
+            if current_mode != "wal":
                 cursor.execute("PRAGMA journal_mode=wal;")
-                logger.info('Switched to WAL journal mode')
+                logger.info("Switched to WAL journal mode")

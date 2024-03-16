@@ -14,11 +14,11 @@
           <i class="form-icon"></i>
         </label>
         <div class="title">
-          <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener">
+          <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener" >
             {% if bookmark_item.favicon_file and bookmark_list.show_favicons %}
               <img src="{% static bookmark_item.favicon_file %}" alt="">
             {% endif %}
-            {{ bookmark_item.title }}
+              <span>{{ bookmark_item.title }}</span>
           </a>
         </div>
         {% if bookmark_list.show_url %}

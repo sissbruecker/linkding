@@ -9,11 +9,11 @@
 ## Overview
 - [Introduction](#introduction)
 - [Installation](#installation)
-    - [Using Docker](#using-docker)
-    - [Using Docker Compose](#using-docker-compose)
-    - [User Setup](#user-setup)
-    - [Reverse Proxy Setup](#reverse-proxy-setup)
-    - [Managed Hosting Options](#managed-hosting-options)
+  - [Using Docker](#using-docker)
+  - [Using Docker Compose](#using-docker-compose)
+  - [User Setup](#user-setup)
+  - [Reverse Proxy Setup](#reverse-proxy-setup)
+  - [Managed Hosting Options](#managed-hosting-options)
 - [Documentation](#documentation)
 - [Browser Extension](#browser-extension)
 - [Community](#community)
@@ -40,6 +40,7 @@ The name comes from:
 - Automatically provides titles, descriptions and icons of bookmarked websites
 - Automatically creates snapshots of bookmarked websites on [the Internet Archive Wayback Machine](https://archive.org/web/)
 - Import and export bookmarks in Netscape HTML format
+- Installable as a Progressive Web App (PWA)
 - Extensions for [Firefox](https://addons.mozilla.org/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a bookmarklet
 - Light and dark themes
 - REST API for developing 3rd party apps
@@ -103,7 +104,7 @@ docker-compose up -d
 
 To complete the setup, you still have to [create an initial user](#user-setup), so that you can access your installation.
 
-### User setup
+### User Setup
 
 For security reasons, the linkding Docker image does not provide an initial user, so you have to create one after setting up an installation. To do so, replace the credentials in the following command and run it:
 
@@ -119,7 +120,7 @@ docker-compose exec linkding python manage.py createsuperuser --username=joe --e
 
 The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
 
-Alternatively you can automatically create an initial superuser on startup using the [`LD_SUPERUSER_NAME` option](docs/Options.md#LD_SUPERUSER_NAME). 
+Alternatively you can automatically create an initial superuser on startup using the [`LD_SUPERUSER_NAME` option](docs/Options.md#LD_SUPERUSER_NAME).
 
 ### Reverse Proxy Setup
 
@@ -182,6 +183,7 @@ Self-hosting web applications still requires a lot of technical know-how and com
 
 - [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) - Guide for hosting a linkding installation on [fly.io](https://fly.io). By [fspoettel](https://github.com/fspoettel)
 - [PikaPods.com](https://www.pikapods.com/) - Managed hosting for linkding, EU and US regions available. [1-click setup link](https://www.pikapods.com/pods?run=linkding) ([Disclosure](#pikapods))
+- [CapRover](https://caprover.com/) - Linkding is included as a default one-click app
 
 ## Documentation
 
@@ -210,11 +212,13 @@ This section lists community projects around using linkding, in alphabetical ord
 - [aiolinkding](https://github.com/bachya/aiolinkding) A Python3, async library to interact with the linkding REST API. By [bachya](https://github.com/bachya)
 - [feed2linkding](https://codeberg.org/strubbl/feed2linkding) A commandline utility to add all web feed item links to linkding via API call. By [Strubbl](https://github.com/Strubbl)
 - [Helm Chart](https://charts.pascaliske.dev/charts/linkding/) Helm Chart for deploying linkding inside a Kubernetes cluster. By [pascaliske](https://github.com/pascaliske)
-- [iOS Shortcut using API and Tagging](https://gist.github.com/andrewdolphin/a7dff49505e588d940bec55132fab8ad) An iOS shortcut using the Linkding API (no extra logins required) that pulls previously used tags and allows tagging at the time of link creation. 
+- [iOS Shortcut using API and Tagging](https://gist.github.com/andrewdolphin/a7dff49505e588d940bec55132fab8ad) An iOS shortcut using the Linkding API (no extra logins required) that pulls previously used tags and allows tagging at the time of link creation.
+- [k8s + s3](https://github.com/jzck/linkding-k8s-s3) - Setup for hosting stateless linkding on k8s with sqlite replicated to s3. By [jzck](https://github.com/jzck)
 - [Linka!](https://github.com/cmsax/linka) Web app (also a PWA) for quickly searching & opening bookmarks in linkding, support multi keywords, exclude mode and other advance options. By [cmsax](https://github.com/cmsax)
 - [linkding-cli](https://github.com/bachya/linkding-cli) A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). By [bachya](https://github.com/bachya)
 - [linkding-extension](https://github.com/jeroenpardon/linkding-extension) Chromium compatible extension that wraps the linkding bookmarklet. Tested with Chrome, Edge, Brave. By [jeroenpardon](https://github.com/jeroenpardon)
 - [linkding-injector](https://github.com/Fivefold/linkding-injector) Injects search results from linkding into the sidebar of search pages like google and duckduckgo. Tested with Firefox and Chrome. By [Fivefold](https://github.com/Fivefold)
+- [Linkdy](https://github.com/JGeek00/linkdy): An open source mobile and desktop (not yet) client created with Flutter. Available at the [Google Play Store](https://play.google.com/store/apps/details?id=com.jgeek00.linkdy). By [JGeek00](https://github.com/JGeek00).
 - [LinkThing](https://apps.apple.com/us/app/linkthing/id1666031776) An iOS client for linkding. By [amoscardino](https://github.com/amoscardino)
 - [Open all links bookmarklet](https://gist.github.com/ukcuddlyguy/336dd7339e6d35fc64a75ccfc9323c66) A browser bookmarklet to open all links on the current Linkding page in new tabs. By [ukcuddlyguy](https://github.com/ukcuddlyguy)
 - [Postman collection](https://gist.github.com/gingerbeardman/f0b42502f3bc9344e92ce63afd4360d3) a group of saved request templates for API testing. By [gingerbeardman](https://github.com/gingerbeardman)
@@ -223,7 +227,7 @@ This section lists community projects around using linkding, in alphabetical ord
 
 ### PikaPods
 
-[PikaPods](https://www.pikapods.com/) has a revenue sharing agreement with this project, sharing some of their revenue from hosting linkding instances. I do not intend to profit from this project financially, so I am in turn donating that revenue. Big thanks to PikaPods for making this possible. 
+[PikaPods](https://www.pikapods.com/) has a revenue sharing agreement with this project, sharing some of their revenue from hosting linkding instances. I do not intend to profit from this project financially, so I am in turn donating that revenue. Big thanks to PikaPods for making this possible.
 
 See the table below for a list of donations.
 
@@ -255,7 +259,7 @@ source ~/environments/linkding/bin/activate[.csh|.fish]
 ```
 Within the active environment install the application dependencies from the application folder:
 ```
-pip3 install -Ur requirements.txt
+pip3 install -r requirements.txt -r requirements.dev.txt
 ```
 Install frontend dependencies:
 ```
@@ -279,6 +283,20 @@ Start the Django development server with:
 python3 manage.py runserver
 ```
 The frontend is now available under http://localhost:8000
+
+### Tests
+
+Run all tests with pytest:
+```
+pytest
+```
+
+### Formatting
+
+Format Python code with black, and JavaScript code with prettier:
+```
+make format
+```
 
 ### DevContainers
 

@@ -14,7 +14,7 @@ class TagListField(serializers.ListField):
 class BookmarkListSerializer(ListSerializer):
     def to_representation(self, data):
         # Prefetch nested relations to avoid n+1 queries
-        prefetch_related_objects(data, 'tags')
+        prefetch_related_objects(data, "tags")
 
         return super().to_representation(data)
 
@@ -23,32 +23,32 @@ class BookmarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
         fields = [
-            'id',
-            'url',
-            'title',
-            'description',
-            'notes',
-            'website_title',
-            'website_description',
-            'is_archived',
-            'unread',
-            'shared',
-            'tag_names',
-            'date_added',
-            'date_modified'
+            "id",
+            "url",
+            "title",
+            "description",
+            "notes",
+            "website_title",
+            "website_description",
+            "is_archived",
+            "unread",
+            "shared",
+            "tag_names",
+            "date_added",
+            "date_modified",
         ]
         read_only_fields = [
-            'website_title',
-            'website_description',
-            'date_added',
-            'date_modified'
+            "website_title",
+            "website_description",
+            "date_added",
+            "date_modified",
         ]
         list_serializer_class = BookmarkListSerializer
 
     # Override optional char fields to provide default value
-    title = serializers.CharField(required=False, allow_blank=True, default='')
-    description = serializers.CharField(required=False, allow_blank=True, default='')
-    notes = serializers.CharField(required=False, allow_blank=True, default='')
+    title = serializers.CharField(required=False, allow_blank=True, default="")
+    description = serializers.CharField(required=False, allow_blank=True, default="")
+    notes = serializers.CharField(required=False, allow_blank=True, default="")
     is_archived = serializers.BooleanField(required=False, default=False)
     unread = serializers.BooleanField(required=False, default=False)
     shared = serializers.BooleanField(required=False, default=False)
@@ -57,38 +57,38 @@ class BookmarkSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         bookmark = Bookmark()
-        bookmark.url = validated_data['url']
-        bookmark.title = validated_data['title']
-        bookmark.description = validated_data['description']
-        bookmark.notes = validated_data['notes']
-        bookmark.is_archived = validated_data['is_archived']
-        bookmark.unread = validated_data['unread']
-        bookmark.shared = validated_data['shared']
-        tag_string = build_tag_string(validated_data['tag_names'])
-        return create_bookmark(bookmark, tag_string, self.context['user'])
+        bookmark.url = validated_data["url"]
+        bookmark.title = validated_data["title"]
+        bookmark.description = validated_data["description"]
+        bookmark.notes = validated_data["notes"]
+        bookmark.is_archived = validated_data["is_archived"]
+        bookmark.unread = validated_data["unread"]
+        bookmark.shared = validated_data["shared"]
+        tag_string = build_tag_string(validated_data["tag_names"])
+        return create_bookmark(bookmark, tag_string, self.context["user"])
 
     def update(self, instance: Bookmark, validated_data):
         # Update fields if they were provided in the payload
-        for key in ['url', 'title', 'description', 'notes', 'unread', 'shared']:
+        for key in ["url", "title", "description", "notes", "unread", "shared"]:
             if key in validated_data:
                 setattr(instance, key, validated_data[key])
 
         # Use tag string from payload, or use bookmark's current tags as fallback
         tag_string = build_tag_string(instance.tag_names)
-        if 'tag_names' in validated_data:
-            tag_string = build_tag_string(validated_data['tag_names'])
+        if "tag_names" in validated_data:
+            tag_string = build_tag_string(validated_data["tag_names"])
 
-        return update_bookmark(instance, tag_string, self.context['user'])
+        return update_bookmark(instance, tag_string, self.context["user"])
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'date_added']
-        read_only_fields = ['date_added']
+        fields = ["id", "name", "date_added"]
+        read_only_fields = ["date_added"]
 
     def create(self, validated_data):
-        return get_or_create_tag(validated_data['name'], self.context['user'])
+        return get_or_create_tag(validated_data["name"], self.context["user"])
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

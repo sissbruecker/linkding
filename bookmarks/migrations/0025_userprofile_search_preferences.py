@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0024_userprofile_enable_public_sharing'),
+        ("bookmarks", "0024_userprofile_enable_public_sharing"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='search_preferences',
+            model_name="userprofile",
+            name="search_preferences",
             field=models.JSONField(default=dict),
         ),
     ]

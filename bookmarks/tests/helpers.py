@@ -18,26 +18,29 @@ class BookmarkFactoryMixin:
 
     def get_or_create_test_user(self):
         if self.user is None:
-            self.user = User.objects.create_user('testuser', 'test@example.com', 'password123')
+            self.user = User.objects.create_user(
+                "testuser", "test@example.com", "password123"
+            )
 
         return self.user
 
-    def setup_bookmark(self,
-                       is_archived: bool = False,
-                       unread: bool = False,
-                       shared: bool = False,
-                       tags=None,
-                       user: User = None,
-                       url: str = '',
-                       title: str = None,
-                       description: str = '',
-                       notes: str = '',
-                       website_title: str = '',
-                       website_description: str = '',
-                       web_archive_snapshot_url: str = '',
-                       favicon_file: str = '',
-                       added: datetime = None,
-                       ):
+    def setup_bookmark(
+        self,
+        is_archived: bool = False,
+        unread: bool = False,
+        shared: bool = False,
+        tags=None,
+        user: User = None,
+        url: str = "",
+        title: str = None,
+        description: str = "",
+        notes: str = "",
+        website_title: str = "",
+        website_description: str = "",
+        web_archive_snapshot_url: str = "",
+        favicon_file: str = "",
+        added: datetime = None,
+    ):
         if title is None:
             title = get_random_string(length=32)
         if tags is None:
@@ -46,7 +49,7 @@ class BookmarkFactoryMixin:
             user = self.get_or_create_test_user()
         if not url:
             unique_id = get_random_string(length=32)
-            url = 'https://example.com/' + unique_id
+            url = "https://example.com/" + unique_id
         if added is None:
             added = timezone.now()
         bookmark = Bookmark(
@@ -71,49 +74,53 @@ class BookmarkFactoryMixin:
         bookmark.save()
         return bookmark
 
-    def setup_numbered_bookmarks(self,
-                                 count: int,
-                                 prefix: str = '',
-                                 suffix: str = '',
-                                 tag_prefix: str = '',
-                                 archived: bool = False,
-                                 unread: bool = False,
-                                 shared: bool = False,
-                                 with_tags: bool = False,
-                                 user: User = None):
+    def setup_numbered_bookmarks(
+        self,
+        count: int,
+        prefix: str = "",
+        suffix: str = "",
+        tag_prefix: str = "",
+        archived: bool = False,
+        unread: bool = False,
+        shared: bool = False,
+        with_tags: bool = False,
+        user: User = None,
+    ):
         user = user or self.get_or_create_test_user()
         bookmarks = []
 
         if not prefix:
             if archived:
-                prefix = 'Archived Bookmark'
+                prefix = "Archived Bookmark"
             elif shared:
-                prefix = 'Shared Bookmark'
+                prefix = "Shared Bookmark"
             else:
-                prefix = 'Bookmark'
+                prefix = "Bookmark"
 
         if not tag_prefix:
             if archived:
-                tag_prefix = 'Archived Tag'
+                tag_prefix = "Archived Tag"
             elif shared:
-                tag_prefix = 'Shared Tag'
+                tag_prefix = "Shared Tag"
             else:
-                tag_prefix = 'Tag'
+                tag_prefix = "Tag"
 
         for i in range(1, count + 1):
-            title = f'{prefix} {i}{suffix}'
-            url = f'https://example.com/{prefix}/{i}'
+            title = f"{prefix} {i}{suffix}"
+            url = f"https://example.com/{prefix}/{i}"
             tags = []
             if with_tags:
-                tag_name = f'{tag_prefix} {i}{suffix}'
+                tag_name = f"{tag_prefix} {i}{suffix}"
                 tags = [self.setup_tag(name=tag_name, user=user)]
-            bookmark = self.setup_bookmark(url=url,
-                                           title=title,
-                                           is_archived=archived,
-                                           unread=unread,
-                                           shared=shared,
-                                           tags=tags,
-                                           user=user)
+            bookmark = self.setup_bookmark(
+                url=url,
+                title=title,
+                is_archived=archived,
+                unread=unread,
+                shared=shared,
+                tags=tags,
+                user=user,
+            )
             bookmarks.append(bookmark)
 
         return bookmarks
@@ -121,7 +128,7 @@ class BookmarkFactoryMixin:
     def get_numbered_bookmark(self, title: str):
         return Bookmark.objects.get(title=title)
 
-    def setup_tag(self, user: User = None, name: str = ''):
+    def setup_tag(self, user: User = None, name: str = ""):
         if user is None:
             user = self.get_or_create_test_user()
         if not name:
@@ -130,10 +137,15 @@ class BookmarkFactoryMixin:
         tag.save()
         return tag
 
-    def setup_user(self, name: str = None, enable_sharing: bool = False, enable_public_sharing: bool = False):
+    def setup_user(
+        self,
+        name: str = None,
+        enable_sharing: bool = False,
+        enable_public_sharing: bool = False,
+    ):
         if not name:
             name = get_random_string(length=32)
-        user = User.objects.create_user(name, 'user@example.com', 'password123')
+        user = User.objects.create_user(name, "user@example.com", "password123")
         user.profile.enable_sharing = enable_sharing
         user.profile.enable_public_sharing = enable_public_sharing
         user.profile.save()
@@ -161,17 +173,17 @@ class LinkdingApiTestCase(APITestCase):
         return response
 
     def post(self, url, data=None, expected_status_code=status.HTTP_200_OK):
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, expected_status_code)
         return response
 
     def put(self, url, data=None, expected_status_code=status.HTTP_200_OK):
-        response = self.client.put(url, data, format='json')
+        response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, expected_status_code)
         return response
 
     def patch(self, url, data=None, expected_status_code=status.HTTP_200_OK):
-        response = self.client.patch(url, data, format='json')
+        response = self.client.patch(url, data, format="json")
         self.assertEqual(response.status_code, expected_status_code)
         return response
 
@@ -182,14 +194,16 @@ class LinkdingApiTestCase(APITestCase):
 
 
 class BookmarkHtmlTag:
-    def __init__(self,
-                 href: str = '',
-                 title: str = '',
-                 description: str = '',
-                 add_date: str = '',
-                 tags: str = '',
-                 to_read: bool = False,
-                 private: bool = True):
+    def __init__(
+        self,
+        href: str = "",
+        title: str = "",
+        description: str = "",
+        add_date: str = "",
+        tags: str = "",
+        to_read: bool = False,
+        private: bool = True,
+    ):
         self.href = href
         self.title = title
         self.description = description
@@ -201,7 +215,7 @@ class BookmarkHtmlTag:
 
 class ImportTestMixin:
     def render_tag(self, tag: BookmarkHtmlTag):
-        return f'''
+        return f"""
         <DT>
         <A {f'HREF="{tag.href}"' if tag.href else ''}
            {f'ADD_DATE="{tag.add_date}"' if tag.add_date else ''}
@@ -211,13 +225,13 @@ class ImportTestMixin:
            {tag.title if tag.title else ''}
         </A>
         {f'<DD>{tag.description}' if tag.description else ''}
-        '''
+        """
 
-    def render_html(self, tags: List[BookmarkHtmlTag] = None, tags_html: str = ''):
+    def render_html(self, tags: List[BookmarkHtmlTag] = None, tags_html: str = ""):
         if tags:
             rendered_tags = [self.render_tag(tag) for tag in tags]
-            tags_html = '\n'.join(rendered_tags)
-        return f'''
+            tags_html = "\n".join(rendered_tags)
+        return f"""
         <!DOCTYPE NETSCAPE-Bookmark-file-1>
         <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
         <TITLE>Bookmarks</TITLE>
@@ -225,34 +239,34 @@ class ImportTestMixin:
         <DL><p>
         {tags_html}
         </DL><p>
-        '''
+        """
 
 
 _words = [
-    'quasi',
-    'consequatur',
-    'necessitatibus',
-    'debitis',
-    'quod',
-    'vero',
-    'qui',
-    'commodi',
-    'quod',
-    'odio',
-    'aliquam',
-    'veniam',
-    'architecto',
-    'consequatur',
-    'autem',
-    'qui',
-    'iste',
-    'asperiores',
-    'soluta',
-    'et',
+    "quasi",
+    "consequatur",
+    "necessitatibus",
+    "debitis",
+    "quod",
+    "vero",
+    "qui",
+    "commodi",
+    "quod",
+    "odio",
+    "aliquam",
+    "veniam",
+    "architecto",
+    "consequatur",
+    "autem",
+    "qui",
+    "iste",
+    "asperiores",
+    "soluta",
+    "et",
 ]
 
 
-def random_sentence(num_words: int = None, including_word: str = ''):
+def random_sentence(num_words: int = None, including_word: str = ""):
     if num_words is None:
         num_words = random.randint(5, 10)
     selected_words = random.choices(_words, k=num_words)
@@ -260,7 +274,7 @@ def random_sentence(num_words: int = None, including_word: str = ''):
         selected_words.append(including_word)
     random.shuffle(selected_words)
 
-    return ' '.join(selected_words)
+    return " ".join(selected_words)
 
 
 def disable_logging(f):
@@ -275,5 +289,5 @@ def disable_logging(f):
 
 
 def collapse_whitespace(text: str):
-    text = text.replace('\n', '').replace('\r', '')
-    return ' '.join(text.split())
+    text = text.replace("\n", "").replace("\r", "")
+    return " ".join(text.split())

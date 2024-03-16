@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0010_userprofile_bookmark_link_target'),
+        ("bookmarks", "0010_userprofile_bookmark_link_target"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='web_archive_integration',
-            field=models.CharField(choices=[('disabled', 'Disabled'), ('enabled', 'Enabled')], default='disabled', max_length=10),
+            model_name="userprofile",
+            name="web_archive_integration",
+            field=models.CharField(
+                choices=[("disabled", "Disabled"), ("enabled", "Enabled")],
+                default="disabled",
+                max_length=10,
+            ),
         ),
     ]

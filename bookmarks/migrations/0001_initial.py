@@ -15,19 +15,36 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Bookmark',
+            name="Bookmark",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.URLField()),
-                ('title', models.CharField(max_length=512)),
-                ('description', models.TextField()),
-                ('website_title', models.CharField(blank=True, max_length=512, null=True)),
-                ('website_description', models.TextField(blank=True, null=True)),
-                ('unread', models.BooleanField(default=True)),
-                ('date_added', models.DateTimeField()),
-                ('date_modified', models.DateTimeField()),
-                ('date_accessed', models.DateTimeField(blank=True, null=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("url", models.URLField()),
+                ("title", models.CharField(max_length=512)),
+                ("description", models.TextField()),
+                (
+                    "website_title",
+                    models.CharField(blank=True, max_length=512, null=True),
+                ),
+                ("website_description", models.TextField(blank=True, null=True)),
+                ("unread", models.BooleanField(default=True)),
+                ("date_added", models.DateTimeField()),
+                ("date_modified", models.DateTimeField()),
+                ("date_accessed", models.DateTimeField(blank=True, null=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

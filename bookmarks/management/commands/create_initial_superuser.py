@@ -12,18 +12,20 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         User = get_user_model()
-        superuser_name = os.getenv('LD_SUPERUSER_NAME', None)
-        superuser_password = os.getenv('LD_SUPERUSER_PASSWORD', None)
+        superuser_name = os.getenv("LD_SUPERUSER_NAME", None)
+        superuser_password = os.getenv("LD_SUPERUSER_PASSWORD", None)
 
         # Skip if option is undefined
         if not superuser_name:
-            logger.info('Skip creating initial superuser, LD_SUPERUSER_NAME option is not defined')
+            logger.info(
+                "Skip creating initial superuser, LD_SUPERUSER_NAME option is not defined"
+            )
             return
 
         # Skip if user already exists
         user_exists = User.objects.filter(username=superuser_name).exists()
         if user_exists:
-            logger.info('Skip creating initial superuser, user already exists')
+            logger.info("Skip creating initial superuser, user already exists")
             return
 
         user = User(username=superuser_name, is_superuser=True, is_staff=True)
@@ -34,4 +36,4 @@ class Command(BaseCommand):
             user.set_unusable_password()
 
         user.save()
-        logger.info('Created initial superuser')
+        logger.info("Created initial superuser")

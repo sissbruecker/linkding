@@ -25,29 +25,29 @@ class BookmarkParser(HTMLParser):
 
         self.current_tag = None
         self.bookmark = None
-        self.href = ''
-        self.add_date = ''
-        self.tags = ''
-        self.title = ''
-        self.description = ''
-        self.notes = ''
-        self.toread = ''
-        self.private = ''
+        self.href = ""
+        self.add_date = ""
+        self.tags = ""
+        self.title = ""
+        self.description = ""
+        self.notes = ""
+        self.toread = ""
+        self.private = ""
 
     def handle_starttag(self, tag: str, attrs: list):
-        name = 'handle_start_' + tag.lower()
+        name = "handle_start_" + tag.lower()
         if name in dir(self):
             getattr(self, name)({k.lower(): v for k, v in attrs})
         self.current_tag = tag
 
     def handle_endtag(self, tag: str):
-        name = 'handle_end_' + tag.lower()
+        name = "handle_end_" + tag.lower()
         if name in dir(self):
             getattr(self, name)()
         self.current_tag = None
 
     def handle_data(self, data):
-        name = f'handle_{self.current_tag}_data'
+        name = f"handle_{self.current_tag}_data"
         if name in dir(self):
             getattr(self, name)(data)
 
@@ -60,22 +60,22 @@ class BookmarkParser(HTMLParser):
     def handle_start_a(self, attrs: Dict[str, str]):
         vars(self).update(attrs)
         tag_names = parse_tag_string(self.tags)
-        archived = 'linkding:archived' in self.tags
+        archived = "linkding:archived" in self.tags
         try:
-            tag_names.remove('linkding:archived')
+            tag_names.remove("linkding:archived")
         except ValueError:
             pass
 
         self.bookmark = NetscapeBookmark(
             href=self.href,
-            title='',
-            description='',
-            notes='',
+            title="",
+            description="",
+            notes="",
             date_added=self.add_date,
             tag_names=tag_names,
-            to_read=self.toread == '1',
+            to_read=self.toread == "1",
             # Mark as private by default, also when attribute is not specified
-            private=self.private != '0',
+            private=self.private != "0",
             archived=archived,
         )
 
@@ -84,9 +84,9 @@ class BookmarkParser(HTMLParser):
 
     def handle_dd_data(self, data):
         desc = data.strip()
-        if '[linkding-notes]' in desc:
-            self.notes = desc.split('[linkding-notes]')[1].split('[/linkding-notes]')[0]
-        self.description = desc.split('[linkding-notes]')[0]
+        if "[linkding-notes]" in desc:
+            self.notes = desc.split("[linkding-notes]")[1].split("[/linkding-notes]")[0]
+        self.description = desc.split("[linkding-notes]")[0]
 
     def add_bookmark(self):
         if self.bookmark:
@@ -95,14 +95,14 @@ class BookmarkParser(HTMLParser):
             self.bookmark.notes = self.notes
             self.bookmarks.append(self.bookmark)
         self.bookmark = None
-        self.href = ''
-        self.add_date = ''
-        self.tags = ''
-        self.title = ''
-        self.description = ''
-        self.notes = ''
-        self.toread = ''
-        self.private = ''
+        self.href = ""
+        self.add_date = ""
+        self.tags = ""
+        self.title = ""
+        self.description = ""
+        self.notes = ""
+        self.toread = ""
+        self.private = ""
 
 
 def parse(html: str) -> List[NetscapeBookmark]:

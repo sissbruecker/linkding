@@ -8,14 +8,15 @@ NUM_ADJACENT_PAGES = 2
 register = template.Library()
 
 
-@register.inclusion_tag('bookmarks/pagination.html', name='pagination', takes_context=True)
+@register.inclusion_tag(
+    "bookmarks/pagination.html", name="pagination", takes_context=True
+)
 def pagination(context, page: Page):
-    visible_page_numbers = get_visible_page_numbers(page.number, page.paginator.num_pages)
+    visible_page_numbers = get_visible_page_numbers(
+        page.number, page.paginator.num_pages
+    )
 
-    return {
-        'page': page,
-        'visible_page_numbers': visible_page_numbers
-    }
+    return {"page": page, "visible_page_numbers": visible_page_numbers}
 
 
 def get_visible_page_numbers(current_page_number: int, num_pages: int) -> [int]:
@@ -29,10 +30,12 @@ def get_visible_page_numbers(current_page_number: int, num_pages: int) -> [int]:
     visible_pages = set()
 
     # Add adjacent pages around current page
-    visible_pages |= set(range(
-        max(1, current_page_number - NUM_ADJACENT_PAGES),
-        min(num_pages, current_page_number + NUM_ADJACENT_PAGES) + 1
-    ))
+    visible_pages |= set(
+        range(
+            max(1, current_page_number - NUM_ADJACENT_PAGES),
+            min(num_pages, current_page_number + NUM_ADJACENT_PAGES) + 1,
+        )
+    )
 
     # Add first page
     visible_pages.add(1)

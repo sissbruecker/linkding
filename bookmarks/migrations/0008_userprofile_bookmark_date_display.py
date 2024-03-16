@@ -6,13 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0007_userprofile'),
+        ("bookmarks", "0007_userprofile"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='bookmark_date_display',
-            field=models.CharField(choices=[('relative', 'Relative'), ('absolute', 'Absolute'), ('hidden', 'Hidden')], default='relative', max_length=10),
+            model_name="userprofile",
+            name="bookmark_date_display",
+            field=models.CharField(
+                choices=[
+                    ("relative", "Relative"),
+                    ("absolute", "Absolute"),
+                    ("hidden", "Hidden"),
+                ],
+                default="relative",
+                max_length=10,
+            ),
         ),
     ]

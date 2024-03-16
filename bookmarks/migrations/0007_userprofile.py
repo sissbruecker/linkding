@@ -6,8 +6,8 @@ import django.db.models.deletion
 
 
 def forwards(apps, schema_editor):
-    User = apps.get_model('auth', 'User')
-    UserProfile = apps.get_model('bookmarks', 'UserProfile')
+    User = apps.get_model("auth", "User")
+    UserProfile = apps.get_model("bookmarks", "UserProfile")
     for user in User.objects.all():
         try:
             if user.profile:
@@ -24,19 +24,42 @@ def reverse(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('bookmarks', '0006_bookmark_is_archived'),
+        ("bookmarks", "0006_bookmark_is_archived"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('theme',
-                 models.CharField(choices=[('auto', 'Auto'), ('light', 'Light'), ('dark', 'Dark')], default='auto',
-                                  max_length=10)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile',
-                                              to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "theme",
+                    models.CharField(
+                        choices=[
+                            ("auto", "Auto"),
+                            ("light", "Light"),
+                            ("dark", "Dark"),
+                        ],
+                        default="auto",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.RunPython(forwards, reverse),

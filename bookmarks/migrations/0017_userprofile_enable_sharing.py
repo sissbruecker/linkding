@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0016_bookmark_shared'),
+        ("bookmarks", "0016_bookmark_shared"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='enable_sharing',
+            model_name="userprofile",
+            name="enable_sharing",
             field=models.BooleanField(default=False),
         ),
     ]

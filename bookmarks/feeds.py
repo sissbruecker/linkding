@@ -17,17 +17,21 @@ class FeedContext:
 
 def sanitize(text: str):
     if not text:
-        return ''
+        return ""
     # remove control characters
-    valid_chars = ['\n', '\r', '\t']
-    return ''.join(ch for ch in text if ch in valid_chars or unicodedata.category(ch)[0] != 'C')
+    valid_chars = ["\n", "\r", "\t"]
+    return "".join(
+        ch for ch in text if ch in valid_chars or unicodedata.category(ch)[0] != "C"
+    )
 
 
 class BaseBookmarksFeed(Feed):
     def get_object(self, request, feed_key: str):
         feed_token = FeedToken.objects.get(key__exact=feed_key)
-        search = BookmarkSearch(q=request.GET.get('q', ''))
-        query_set = queries.query_bookmarks(feed_token.user, feed_token.user.profile, search)
+        search = BookmarkSearch(q=request.GET.get("q", ""))
+        query_set = queries.query_bookmarks(
+            feed_token.user, feed_token.user.profile, search
+        )
         return FeedContext(feed_token, query_set)
 
     def item_title(self, item: Bookmark):
@@ -44,22 +48,22 @@ class BaseBookmarksFeed(Feed):
 
 
 class AllBookmarksFeed(BaseBookmarksFeed):
-    title = 'All bookmarks'
-    description = 'All bookmarks'
+    title = "All bookmarks"
+    description = "All bookmarks"
 
     def link(self, context: FeedContext):
-        return reverse('bookmarks:feeds.all', args=[context.feed_token.key])
+        return reverse("bookmarks:feeds.all", args=[context.feed_token.key])
 
     def items(self, context: FeedContext):
         return context.query_set
 
 
 class UnreadBookmarksFeed(BaseBookmarksFeed):
-    title = 'Unread bookmarks'
-    description = 'All unread bookmarks'
+    title = "Unread bookmarks"
+    description = "All unread bookmarks"
 
     def link(self, context: FeedContext):
-        return reverse('bookmarks:feeds.unread', args=[context.feed_token.key])
+        return reverse("bookmarks:feeds.unread", args=[context.feed_token.key])
 
     def items(self, context: FeedContext):
         return context.query_set.filter(unread=True)

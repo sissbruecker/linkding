@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0015_feedtoken'),
+        ("bookmarks", "0015_feedtoken"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bookmark',
-            name='shared',
+            model_name="bookmark",
+            name="shared",
             field=models.BooleanField(default=False),
         ),
     ]

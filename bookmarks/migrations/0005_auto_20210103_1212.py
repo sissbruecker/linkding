@@ -7,13 +7,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0004_auto_20200926_1028'),
+        ("bookmarks", "0004_auto_20200926_1028"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bookmark',
-            name='url',
-            field=models.CharField(max_length=2048, validators=[bookmarks.validators.BookmarkURLValidator()]),
+            model_name="bookmark",
+            name="url",
+            field=models.CharField(
+                max_length=2048,
+                validators=[bookmarks.validators.BookmarkURLValidator()],
+            ),
         ),
     ]

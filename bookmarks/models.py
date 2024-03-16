@@ -26,10 +26,10 @@ class Tag(models.Model):
 def sanitize_tag_name(tag_name: str):
     # strip leading/trailing spaces
     # replace inner spaces with replacement char
-    return tag_name.strip().replace(' ', '-')
+    return tag_name.strip().replace(" ", "-")
 
 
-def parse_tag_string(tag_string: str, delimiter: str = ','):
+def parse_tag_string(tag_string: str, delimiter: str = ","):
     if not tag_string:
         return []
     names = tag_string.strip().split(delimiter)
@@ -42,7 +42,7 @@ def parse_tag_string(tag_string: str, delimiter: str = ','):
     return names
 
 
-def build_tag_string(tag_names: List[str], delimiter: str = ','):
+def build_tag_string(tag_names: List[str], delimiter: str = ","):
     return delimiter.join(tag_names)
 
 
@@ -82,7 +82,7 @@ class Bookmark(models.Model):
         return [tag.name for tag in self.tags.all()]
 
     def __str__(self):
-        return self.resolved_title + ' (' + self.url[:30] + '...)'
+        return self.resolved_title + " (" + self.url[:30] + "...)"
 
 
 class BookmarkForm(forms.ModelForm):
@@ -90,15 +90,13 @@ class BookmarkForm(forms.ModelForm):
     url = forms.CharField(validators=[BookmarkURLValidator()])
     tag_string = forms.CharField(required=False)
     # Do not require title and description in form as we fill these automatically if they are empty
-    title = forms.CharField(max_length=512,
-                            required=False)
-    description = forms.CharField(required=False,
-                                  widget=forms.Textarea())
+    title = forms.CharField(max_length=512, required=False)
+    description = forms.CharField(required=False, widget=forms.Textarea())
     # Include website title and description as hidden field as they only provide info when editing bookmarks
-    website_title = forms.CharField(max_length=512,
-                                    required=False, widget=forms.HiddenInput())
-    website_description = forms.CharField(required=False,
-                                          widget=forms.HiddenInput())
+    website_title = forms.CharField(
+        max_length=512, required=False, widget=forms.HiddenInput()
+    )
+    website_description = forms.CharField(required=False, widget=forms.HiddenInput())
     unread = forms.BooleanField(required=False)
     shared = forms.BooleanField(required=False)
     # Hidden field that determines whether to close window/tab after saving the bookmark
@@ -107,16 +105,16 @@ class BookmarkForm(forms.ModelForm):
     class Meta:
         model = Bookmark
         fields = [
-            'url',
-            'tag_string',
-            'title',
-            'description',
-            'notes',
-            'website_title',
-            'website_description',
-            'unread',
-            'shared',
-            'auto_close',
+            "url",
+            "tag_string",
+            "title",
+            "description",
+            "notes",
+            "website_title",
+            "website_description",
+            "unread",
+            "shared",
+            "auto_close",
         ]
 
     @property
@@ -125,45 +123,47 @@ class BookmarkForm(forms.ModelForm):
 
 
 class BookmarkSearch:
-    SORT_ADDED_ASC = 'added_asc'
-    SORT_ADDED_DESC = 'added_desc'
-    SORT_TITLE_ASC = 'title_asc'
-    SORT_TITLE_DESC = 'title_desc'
+    SORT_ADDED_ASC = "added_asc"
+    SORT_ADDED_DESC = "added_desc"
+    SORT_TITLE_ASC = "title_asc"
+    SORT_TITLE_DESC = "title_desc"
 
-    FILTER_SHARED_OFF = 'off'
-    FILTER_SHARED_SHARED = 'yes'
-    FILTER_SHARED_UNSHARED = 'no'
+    FILTER_SHARED_OFF = "off"
+    FILTER_SHARED_SHARED = "yes"
+    FILTER_SHARED_UNSHARED = "no"
 
-    FILTER_UNREAD_OFF = 'off'
-    FILTER_UNREAD_YES = 'yes'
-    FILTER_UNREAD_NO = 'no'
+    FILTER_UNREAD_OFF = "off"
+    FILTER_UNREAD_YES = "yes"
+    FILTER_UNREAD_NO = "no"
 
-    params = ['q', 'user', 'sort', 'shared', 'unread']
-    preferences = ['sort', 'shared', 'unread']
+    params = ["q", "user", "sort", "shared", "unread"]
+    preferences = ["sort", "shared", "unread"]
     defaults = {
-        'q': '',
-        'user': '',
-        'sort': SORT_ADDED_DESC,
-        'shared': FILTER_SHARED_OFF,
-        'unread': FILTER_UNREAD_OFF,
+        "q": "",
+        "user": "",
+        "sort": SORT_ADDED_DESC,
+        "shared": FILTER_SHARED_OFF,
+        "unread": FILTER_UNREAD_OFF,
     }
 
-    def __init__(self,
-                 q: str = None,
-                 user: str = None,
-                 sort: str = None,
-                 shared: str = None,
-                 unread: str = None,
-                 preferences: dict = None):
+    def __init__(
+        self,
+        q: str = None,
+        user: str = None,
+        sort: str = None,
+        shared: str = None,
+        unread: str = None,
+        preferences: dict = None,
+    ):
         if not preferences:
             preferences = {}
         self.defaults = {**BookmarkSearch.defaults, **preferences}
 
-        self.q = q or self.defaults['q']
-        self.user = user or self.defaults['user']
-        self.sort = sort or self.defaults['sort']
-        self.shared = shared or self.defaults['shared']
-        self.unread = unread or self.defaults['unread']
+        self.q = q or self.defaults["q"]
+        self.user = user or self.defaults["user"]
+        self.sort = sort or self.defaults["sort"]
+        self.shared = shared or self.defaults["shared"]
+        self.unread = unread or self.defaults["unread"]
 
     def is_modified(self, param):
         value = self.__dict__[param]
@@ -175,7 +175,11 @@ class BookmarkSearch:
 
     @property
     def modified_preferences(self):
-        return [preference for preference in self.preferences if self.is_modified(preference)]
+        return [
+            preference
+            for preference in self.preferences
+            if self.is_modified(preference)
+        ]
 
     @property
     def has_modifications(self):
@@ -191,7 +195,9 @@ class BookmarkSearch:
 
     @property
     def preferences_dict(self):
-        return {preference: self.__dict__[preference] for preference in self.preferences}
+        return {
+            preference: self.__dict__[preference] for preference in self.preferences
+        }
 
     @staticmethod
     def from_request(query_dict: QueryDict, preferences: dict = None):
@@ -206,20 +212,20 @@ class BookmarkSearch:
 
 class BookmarkSearchForm(forms.Form):
     SORT_CHOICES = [
-        (BookmarkSearch.SORT_ADDED_ASC, 'Added ↑'),
-        (BookmarkSearch.SORT_ADDED_DESC, 'Added ↓'),
-        (BookmarkSearch.SORT_TITLE_ASC, 'Title ↑'),
-        (BookmarkSearch.SORT_TITLE_DESC, 'Title ↓'),
+        (BookmarkSearch.SORT_ADDED_ASC, "Added ↑"),
+        (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
+        (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
+        (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
     ]
     FILTER_SHARED_CHOICES = [
-        (BookmarkSearch.FILTER_SHARED_OFF, 'Off'),
-        (BookmarkSearch.FILTER_SHARED_SHARED, 'Shared'),
-        (BookmarkSearch.FILTER_SHARED_UNSHARED, 'Unshared'),
+        (BookmarkSearch.FILTER_SHARED_OFF, "Off"),
+        (BookmarkSearch.FILTER_SHARED_SHARED, "Shared"),
+        (BookmarkSearch.FILTER_SHARED_UNSHARED, "Unshared"),
     ]
     FILTER_UNREAD_CHOICES = [
-        (BookmarkSearch.FILTER_UNREAD_OFF, 'Off'),
-        (BookmarkSearch.FILTER_UNREAD_YES, 'Unread'),
-        (BookmarkSearch.FILTER_UNREAD_NO, 'Read'),
+        (BookmarkSearch.FILTER_UNREAD_OFF, "Off"),
+        (BookmarkSearch.FILTER_UNREAD_YES, "Unread"),
+        (BookmarkSearch.FILTER_UNREAD_NO, "Read"),
     ]
 
     q = forms.CharField()
@@ -228,7 +234,12 @@ class BookmarkSearchForm(forms.Form):
     shared = forms.ChoiceField(choices=FILTER_SHARED_CHOICES, widget=forms.RadioSelect)
     unread = forms.ChoiceField(choices=FILTER_UNREAD_CHOICES, widget=forms.RadioSelect)
 
-    def __init__(self, search: BookmarkSearch, editable_fields: List[str] = None, users: List[User] = None):
+    def __init__(
+        self,
+        search: BookmarkSearch,
+        editable_fields: List[str] = None,
+        users: List[User] = None,
+    ):
         super().__init__()
         editable_fields = editable_fields or []
         self.editable_fields = editable_fields
@@ -236,8 +247,8 @@ class BookmarkSearchForm(forms.Form):
         # set choices for user field if users are provided
         if users:
             user_choices = [(user.username, user.username) for user in users]
-            user_choices.insert(0, ('', 'Everyone'))
-            self.fields['user'].choices = user_choices
+            user_choices.insert(0, ("", "Everyone"))
+            self.fields["user"].choices = user_choices
 
         for param in search.params:
             # set initial values for modified params
@@ -251,50 +262,70 @@ class BookmarkSearchForm(forms.Form):
 
 
 class UserProfile(models.Model):
-    THEME_AUTO = 'auto'
-    THEME_LIGHT = 'light'
-    THEME_DARK = 'dark'
+    THEME_AUTO = "auto"
+    THEME_LIGHT = "light"
+    THEME_DARK = "dark"
     THEME_CHOICES = [
-        (THEME_AUTO, 'Auto'),
-        (THEME_LIGHT, 'Light'),
-        (THEME_DARK, 'Dark'),
+        (THEME_AUTO, "Auto"),
+        (THEME_LIGHT, "Light"),
+        (THEME_DARK, "Dark"),
     ]
-    BOOKMARK_DATE_DISPLAY_RELATIVE = 'relative'
-    BOOKMARK_DATE_DISPLAY_ABSOLUTE = 'absolute'
-    BOOKMARK_DATE_DISPLAY_HIDDEN = 'hidden'
+    BOOKMARK_DATE_DISPLAY_RELATIVE = "relative"
+    BOOKMARK_DATE_DISPLAY_ABSOLUTE = "absolute"
+    BOOKMARK_DATE_DISPLAY_HIDDEN = "hidden"
     BOOKMARK_DATE_DISPLAY_CHOICES = [
-        (BOOKMARK_DATE_DISPLAY_RELATIVE, 'Relative'),
-        (BOOKMARK_DATE_DISPLAY_ABSOLUTE, 'Absolute'),
-        (BOOKMARK_DATE_DISPLAY_HIDDEN, 'Hidden'),
+        (BOOKMARK_DATE_DISPLAY_RELATIVE, "Relative"),
+        (BOOKMARK_DATE_DISPLAY_ABSOLUTE, "Absolute"),
+        (BOOKMARK_DATE_DISPLAY_HIDDEN, "Hidden"),
     ]
-    BOOKMARK_LINK_TARGET_BLANK = '_blank'
-    BOOKMARK_LINK_TARGET_SELF = '_self'
+    BOOKMARK_LINK_TARGET_BLANK = "_blank"
+    BOOKMARK_LINK_TARGET_SELF = "_self"
     BOOKMARK_LINK_TARGET_CHOICES = [
-        (BOOKMARK_LINK_TARGET_BLANK, 'New page'),
-        (BOOKMARK_LINK_TARGET_SELF, 'Same page'),
+        (BOOKMARK_LINK_TARGET_BLANK, "New page"),
+        (BOOKMARK_LINK_TARGET_SELF, "Same page"),
     ]
-    WEB_ARCHIVE_INTEGRATION_DISABLED = 'disabled'
-    WEB_ARCHIVE_INTEGRATION_ENABLED = 'enabled'
+    WEB_ARCHIVE_INTEGRATION_DISABLED = "disabled"
+    WEB_ARCHIVE_INTEGRATION_ENABLED = "enabled"
     WEB_ARCHIVE_INTEGRATION_CHOICES = [
-        (WEB_ARCHIVE_INTEGRATION_DISABLED, 'Disabled'),
-        (WEB_ARCHIVE_INTEGRATION_ENABLED, 'Enabled'),
+        (WEB_ARCHIVE_INTEGRATION_DISABLED, "Disabled"),
+        (WEB_ARCHIVE_INTEGRATION_ENABLED, "Enabled"),
     ]
-    TAG_SEARCH_STRICT = 'strict'
-    TAG_SEARCH_LAX = 'lax'
+    TAG_SEARCH_STRICT = "strict"
+    TAG_SEARCH_LAX = "lax"
     TAG_SEARCH_CHOICES = [
-        (TAG_SEARCH_STRICT, 'Strict'),
-        (TAG_SEARCH_LAX, 'Lax'),
+        (TAG_SEARCH_STRICT, "Strict"),
+        (TAG_SEARCH_LAX, "Lax"),
     ]
-    user = models.OneToOneField(get_user_model(), related_name='profile', on_delete=models.CASCADE)
-    theme = models.CharField(max_length=10, choices=THEME_CHOICES, blank=False, default=THEME_AUTO)
-    bookmark_date_display = models.CharField(max_length=10, choices=BOOKMARK_DATE_DISPLAY_CHOICES, blank=False,
-                                             default=BOOKMARK_DATE_DISPLAY_RELATIVE)
-    bookmark_link_target = models.CharField(max_length=10, choices=BOOKMARK_LINK_TARGET_CHOICES, blank=False,
-                                            default=BOOKMARK_LINK_TARGET_BLANK)
-    web_archive_integration = models.CharField(max_length=10, choices=WEB_ARCHIVE_INTEGRATION_CHOICES, blank=False,
-                                               default=WEB_ARCHIVE_INTEGRATION_DISABLED)
-    tag_search = models.CharField(max_length=10, choices=TAG_SEARCH_CHOICES, blank=False,
-                                  default=TAG_SEARCH_STRICT)
+    user = models.OneToOneField(
+        get_user_model(), related_name="profile", on_delete=models.CASCADE
+    )
+    theme = models.CharField(
+        max_length=10, choices=THEME_CHOICES, blank=False, default=THEME_AUTO
+    )
+    bookmark_date_display = models.CharField(
+        max_length=10,
+        choices=BOOKMARK_DATE_DISPLAY_CHOICES,
+        blank=False,
+        default=BOOKMARK_DATE_DISPLAY_RELATIVE,
+    )
+    bookmark_link_target = models.CharField(
+        max_length=10,
+        choices=BOOKMARK_LINK_TARGET_CHOICES,
+        blank=False,
+        default=BOOKMARK_LINK_TARGET_BLANK,
+    )
+    web_archive_integration = models.CharField(
+        max_length=10,
+        choices=WEB_ARCHIVE_INTEGRATION_CHOICES,
+        blank=False,
+        default=WEB_ARCHIVE_INTEGRATION_DISABLED,
+    )
+    tag_search = models.CharField(
+        max_length=10,
+        choices=TAG_SEARCH_CHOICES,
+        blank=False,
+        default=TAG_SEARCH_STRICT,
+    )
     enable_sharing = models.BooleanField(default=False, null=False)
     enable_public_sharing = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
@@ -306,8 +337,18 @@ class UserProfile(models.Model):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme', 'bookmark_date_display', 'bookmark_link_target', 'web_archive_integration', 'tag_search',
-                  'enable_sharing', 'enable_public_sharing', 'enable_favicons', 'display_url', 'permanent_notes']
+        fields = [
+            "theme",
+            "bookmark_date_display",
+            "bookmark_link_target",
+            "web_archive_integration",
+            "tag_search",
+            "enable_sharing",
+            "enable_public_sharing",
+            "enable_favicons",
+            "display_url",
+            "permanent_notes",
+        ]
 
 
 @receiver(post_save, sender=get_user_model())
@@ -332,11 +373,13 @@ class FeedToken(models.Model):
     """
     Adapted from authtoken.models.Token
     """
+
     key = models.CharField(max_length=40, primary_key=True)
-    user = models.OneToOneField(get_user_model(),
-                                related_name='feed_token',
-                                on_delete=models.CASCADE,
-                                )
+    user = models.OneToOneField(
+        get_user_model(),
+        related_name="feed_token",
+        on_delete=models.CASCADE,
+    )
     created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

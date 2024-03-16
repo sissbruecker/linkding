@@ -14,8 +14,10 @@ class CustomWaybackMachineCDXServerAPI(waybackpy.WaybackMachineCDXServerAPI):
 
     def newest(self):
         unix_timestamp = int(time.time())
-        self.closest = waybackpy.utils.unix_timestamp_to_wayback_timestamp(unix_timestamp)
-        self.sort = 'closest'
+        self.closest = waybackpy.utils.unix_timestamp_to_wayback_timestamp(
+            unix_timestamp
+        )
+        self.sort = "closest"
         self.limit = -5
 
         newest_snapshot = None
@@ -37,4 +39,4 @@ class CustomWaybackMachineCDXServerAPI(waybackpy.WaybackMachineCDXServerAPI):
         super().add_payload(payload)
         # Set fastLatest query param, as we are only using this API to get the latest snapshot and using fastLatest
         # makes searching for latest snapshots faster
-        payload['fastLatest'] = 'true'
+        payload["fastLatest"] = "true"

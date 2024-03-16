@@ -25,7 +25,7 @@ class ExporterPerformanceTestCase(TestCase, BookmarkFactoryMixin):
         # capture number of queries
         context = CaptureQueriesContext(self.get_connection())
         with context:
-            self.client.get(reverse('bookmarks:settings.export'),follow=True)
+            self.client.get(reverse("bookmarks:settings.export"), follow=True)
 
         number_of_queries = context.final_queries
 

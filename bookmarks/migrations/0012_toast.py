@@ -9,18 +9,32 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('bookmarks', '0011_userprofile_web_archive_integration'),
+        ("bookmarks", "0011_userprofile_web_archive_integration"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Toast',
+            name="Toast",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.CharField(max_length=50)),
-                ('message', models.TextField()),
-                ('acknowledged', models.BooleanField(default=False)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("key", models.CharField(max_length=50)),
+                ("message", models.TextField()),
+                ("acknowledged", models.BooleanField(default=False)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
