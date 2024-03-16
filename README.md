@@ -183,7 +183,6 @@ Self-hosting web applications still requires a lot of technical know-how and com
 - [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) - Guide for hosting a linkding installation on [fly.io](https://fly.io). By [fspoettel](https://github.com/fspoettel)
 - [PikaPods.com](https://www.pikapods.com/) - Managed hosting for linkding, EU and US regions available. [1-click setup link](https://www.pikapods.com/pods?run=linkding) ([Disclosure](#pikapods))
 - [CapRover](https://caprover.com/) - Linkding is included as a default one-click app
-- [k8s + s3](https://github.com/jzck/linkding-k8s-s3) - Stateless linkding on k8s with sqlite replicated to s3
 
 ## Documentation
 
@@ -213,6 +212,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [feed2linkding](https://codeberg.org/strubbl/feed2linkding) A commandline utility to add all web feed item links to linkding via API call. By [Strubbl](https://github.com/Strubbl)
 - [Helm Chart](https://charts.pascaliske.dev/charts/linkding/) Helm Chart for deploying linkding inside a Kubernetes cluster. By [pascaliske](https://github.com/pascaliske)
 - [iOS Shortcut using API and Tagging](https://gist.github.com/andrewdolphin/a7dff49505e588d940bec55132fab8ad) An iOS shortcut using the Linkding API (no extra logins required) that pulls previously used tags and allows tagging at the time of link creation.
+- [k8s + s3](https://github.com/jzck/linkding-k8s-s3) - Setup for hosting stateless linkding on k8s with sqlite replicated to s3. By [jzck](https://github.com/jzck)
 - [Linka!](https://github.com/cmsax/linka) Web app (also a PWA) for quickly searching & opening bookmarks in linkding, support multi keywords, exclude mode and other advance options. By [cmsax](https://github.com/cmsax)
 - [linkding-cli](https://github.com/bachya/linkding-cli) A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). By [bachya](https://github.com/bachya)
 - [linkding-extension](https://github.com/jeroenpardon/linkding-extension) Chromium compatible extension that wraps the linkding bookmarklet. Tested with Chrome, Edge, Brave. By [jeroenpardon](https://github.com/jeroenpardon)
