@@ -34,7 +34,10 @@
     </ul>
   </div>
   <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
-  <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
+  <form class="d-inline" action="{% url 'logout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-link">Logout</button>
+  </form>
 </div>
 {# Menu drop-down for smaller devices #}
 <div class="show-md">
@@ -74,7 +77,10 @@
         <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
       </li>
       <li>
-        <a href="{% url 'logout' %}" class="btn btn-link">Logout</a>
+        <form class="d-inline" action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-link">Logout</button>
+        </form>
       </li>
     </ul>
   </div>
