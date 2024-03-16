@@ -40,6 +40,7 @@ The name comes from:
 - Automatically provides titles, descriptions and icons of bookmarked websites
 - Automatically creates snapshots of bookmarked websites on [the Internet Archive Wayback Machine](https://archive.org/web/)
 - Import and export bookmarks in Netscape HTML format
+- Installable as a Progressive Web App (PWA)
 - Extensions for [Firefox](https://addons.mozilla.org/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a bookmarklet
 - Light and dark themes
 - REST API for developing 3rd party apps
