@@ -131,9 +131,9 @@
     <!-- menu list items -->
     {#each suggestions as tag,i}
       <li class="menu-item" class:selected={selectedIndex === i}>
-        <button on:mousedown|preventDefault={() => complete(tag)}>
+        <a href="#" on:mousedown|preventDefault={() => complete(tag)}>
           {tag.name}
-        </button>
+        </a>
       </li>
     {/each}
   </ul>
