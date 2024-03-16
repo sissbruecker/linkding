@@ -17,22 +17,24 @@
       {% endif %}
       <div class="form-group">
         <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
-        {{ form.username|add_class:'form-input'|attr:"placeholder: " }}
+        {{ form.username|add_class:'form-input'|attr:'placeholder: ' }}
       </div>
       <div class="form-group">
         <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
-        {{ form.password|add_class:'form-input'|attr:"placeholder: " }}
+        {{ form.password|add_class:'form-input'|attr:'placeholder: ' }}
       </div>
 
       <br/>
       <div class="d-flex justify-between">
-        <input type="submit" value="Login" class="btn btn-primary btn-wide">
-        <input type="hidden" name="next" value="{{ next }}">
+        <input type="submit" value="Login" class="btn btn-primary btn-wide"/>
+        <input type="hidden" name="next" value="{{ next }}"/>
+        {% if enable_oidc %}
+          <a class="btn btn-link" href="{% url 'oidc_authentication_init' %}">Login with OIDC</a>
+        {% endif %}
         {% if allow_registration %}
           <a href="{% url 'django_registration_register' %}" class="btn btn-link">Register</a>
         {% endif %}
       </div>
-
     </form>
   </section>
 {% endblock %}

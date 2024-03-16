@@ -14,17 +14,25 @@ bleach-allowlist==1.0.3
     # via -r requirements.in
 certifi==2023.11.17
     # via requests
+cffi==1.16.0
+    # via cryptography
 charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via waybackpy
 confusable-homoglyphs==3.2.0
     # via django-registration
+cryptography==42.0.5
+    # via
+    #   josepy
+    #   mozilla-django-oidc
+    #   pyopenssl
 django==5.0.2
     # via
     #   -r requirements.in
     #   django-registration
     #   djangorestframework
+    #   mozilla-django-oidc
 django-registration==3.4
     # via -r requirements.in
 django-sass-processor==1.4
@@ -37,10 +45,18 @@ djangorestframework==3.14.0
     # via -r requirements.in
 idna==3.6
     # via requests
+josepy==1.14.0
+    # via mozilla-django-oidc
 markdown==3.5.2
+    # via -r requirements.in
+mozilla-django-oidc==4.0.1
     # via -r requirements.in
 psycopg2-binary==2.9.9
     # via -r requirements.in
+pycparser==2.21
+    # via cffi
+pyopenssl==24.1.0
+    # via josepy
 python-dateutil==2.8.2
     # via -r requirements.in
 pytz==2023.3.post1
@@ -48,6 +64,7 @@ pytz==2023.3.post1
 requests==2.31.0
     # via
     #   -r requirements.in
+    #   mozilla-django-oidc
     #   waybackpy
 six==1.16.0
     # via

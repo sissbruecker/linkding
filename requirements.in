@@ -8,6 +8,7 @@ django-widget-tweaks
 django4-background-tasks
 djangorestframework
 Markdown
+mozilla-django-oidc
 psycopg2-binary
 python-dateutil
 requests

@@ -1,5 +1,6 @@
 import logging
 import re
+import unicodedata
 from datetime import datetime
 from typing import Optional
 
@@ -111,3 +112,12 @@ def get_safe_return_url(return_url: str, fallback_url: str):
     if not return_url or not re.match(r"^/[a-z]+", return_url):
         return fallback_url
     return return_url
+
+
+def generate_username(email):
+    # taken from mozilla-django-oidc docs :)
+
+    # Using Python 3 and Django 1.11+, usernames can contain alphanumeric
+    # (ascii and unicode), _, @, +, . and - characters. So we normalize
+    # it and slice at 150 characters.
+    return unicodedata.normalize("NFKC", email)[:150]
