@@ -94,6 +94,31 @@ For example, for Authelia, which passes the `Remote-User` HTTP header, the `LD_A
 By default, the logout redirects to the login URL, which means the user will be automatically authenticated again.
 Instead, you might want to configure the logout URL of the auth proxy here.
 
+### `LD_ENABLE_OIDC`
+
+Values: `True`, `False` | Default = `False`
+
+Enables support for OpenID Connect (OIDC) authentication, allowing to use single sign-on (SSO) with OIDC providers.
+When enabled, this shows a button on the login page that allows users to authenticate using an OIDC provider.
+Users are associated by the email address provided from the OIDC provider, which is used as the username in linkding.
+If there is no user with that email address as username, a new user is created automatically. 
+
+This requires configuring a number of other options, which of those you need depends on which OIDC provider you use and how it is configured.
+In general, you should find the required information in the UI of your OIDC provider, or its documentation. 
+
+The options are adopted from the [mozilla-django-oidc](https://mozilla-django-oidc.readthedocs.io/en/stable/) library, which is used by linkding for OIDC support.
+Please check their documentation for more information on the options.
+
+The following options are available:
+- `OIDC_RP_CLIENT_ID` - Required. The client ID of your linkding instance in the OIDC provider.
+- `OIDC_OP_AUTHORIZATION_ENDPOINT` - Required. The authorization endpoint of the OIDC provider.
+- `OIDC_OP_TOKEN_ENDPOINT` - Required. The token endpoint of the OIDC provider.
+- `OIDC_OP_USER_ENDPOINT` - Required. The user info endpoint of the OIDC provider.
+- `OIDC_USE_PKCE` - Optional. Whether to use PKCE for the OIDC flow. Default is `True`. If you leave this enabled you should configure your OIDC provider to use the PKCE flow as well. You need to disable this if you want to use an authentication flow with a client secret.
+- `OIDC_RP_CLIENT_SECRET` - Optional. The client secret of the OIDC application. You need to disable PKCE if you want to use a client secret.
+- `OIDC_RP_SIGN_ALGO` - Optional. The signing algorithm to use for the OIDC flow. Default is `HS256`.
+- `OIDC_OP_JWKS_ENDPOINT` - Optional. The JWKS endpoint of the OIDC provider.
+
 ### `LD_CSRF_TRUSTED_ORIGINS`
 
 Values: `String` | Default = None
