@@ -331,6 +331,7 @@ class UserProfile(models.Model):
     enable_favicons = models.BooleanField(default=False, null=False)
     display_url = models.BooleanField(default=False, null=False)
     permanent_notes = models.BooleanField(default=False, null=False)
+    custom_css = models.TextField(blank=True, null=False)
     search_preferences = models.JSONField(default=dict, null=False)
 
 
@@ -348,6 +349,7 @@ class UserProfileForm(forms.ModelForm):
             "enable_favicons",
             "display_url",
             "permanent_notes",
+            "custom_css",
         ]
 
 
