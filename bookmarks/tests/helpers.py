@@ -84,6 +84,7 @@ class BookmarkFactoryMixin:
         unread: bool = False,
         shared: bool = False,
         with_tags: bool = False,
+        with_web_archive_snapshot_url: bool = False,
         user: User = None,
     ):
         user = user or self.get_or_create_test_user()
@@ -112,6 +113,9 @@ class BookmarkFactoryMixin:
             if with_tags:
                 tag_name = f"{tag_prefix} {i}{suffix}"
                 tags = [self.setup_tag(name=tag_name, user=user)]
+            web_archive_snapshot_url = ""
+            if with_web_archive_snapshot_url:
+                web_archive_snapshot_url = f"https://web.archive.org/web/{i}"
             bookmark = self.setup_bookmark(
                 url=url,
                 title=title,
@@ -119,6 +123,7 @@ class BookmarkFactoryMixin:
                 unread=unread,
                 shared=shared,
                 tags=tags,
+                web_archive_snapshot_url=web_archive_snapshot_url,
                 user=user,
             )
             bookmarks.append(bookmark)

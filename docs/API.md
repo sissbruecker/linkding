@@ -48,6 +48,7 @@ Example response:
       "notes": "Example notes",
       "website_title": "Website title",
       "website_description": "Website description",
+      "web_archive_snapshot_url": "https://web.archive.org/web/20200926094623/https://example.com",
       "is_archived": false,
       "unread": false,
       "shared": false,

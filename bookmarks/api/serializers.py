@@ -30,6 +30,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "notes",
             "website_title",
             "website_description",
+            "web_archive_snapshot_url",
             "is_archived",
             "unread",
             "shared",
@@ -40,6 +41,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "website_title",
             "website_description",
+            "web_archive_snapshot_url",
             "date_added",
             "date_modified",
         ]
