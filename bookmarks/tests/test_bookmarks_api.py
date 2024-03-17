@@ -35,6 +35,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             expectation["notes"] = bookmark.notes
             expectation["website_title"] = bookmark.website_title
             expectation["website_description"] = bookmark.website_description
+            expectation["web_archive_snapshot_url"] = bookmark.web_archive_snapshot_url
             expectation["is_archived"] = bookmark.is_archived
             expectation["unread"] = bookmark.unread
             expectation["shared"] = bookmark.shared
@@ -55,6 +56,17 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_list_bookmarks(self):
         self.authenticate()
         bookmarks = self.setup_numbered_bookmarks(5)
+
+        response = self.get(
+            reverse("bookmarks:bookmark-list"), expected_status_code=status.HTTP_200_OK
+        )
+        self.assertBookmarkListEqual(response.data["results"], bookmarks)
+
+    def test_list_bookmarks_with_more_details(self):
+        self.authenticate()
+        bookmarks = self.setup_numbered_bookmarks(
+            5, with_tags=True, with_web_archive_snapshot_url=True
+        )
 
         response = self.get(
             reverse("bookmarks:bookmark-list"), expected_status_code=status.HTTP_200_OK
@@ -431,6 +443,18 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_get_bookmark(self):
         self.authenticate()
         bookmark = self.setup_bookmark()
+
+        url = reverse("bookmarks:bookmark-detail", args=[bookmark.id])
+        response = self.get(url, expected_status_code=status.HTTP_200_OK)
+        self.assertBookmarkListEqual([response.data], [bookmark])
+
+    def test_get_bookmark_with_more_details(self):
+        self.authenticate()
+        tag1 = self.setup_tag()
+        bookmark = self.setup_bookmark(
+            web_archive_snapshot_url="https://web.archive.org/web/1/",
+            tags=[tag1],
+        )
 
         url = reverse("bookmarks:bookmark-detail", args=[bookmark.id])
         response = self.get(url, expected_status_code=status.HTTP_200_OK)
