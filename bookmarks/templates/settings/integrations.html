@@ -49,9 +49,11 @@
         <section class="content-area">
             <h2>RSS Feeds</h2>
             <p>The following URLs provide RSS feeds for your bookmarks:</p>
-            <ul>
+            <ul style="list-style-position: outside;">
               <li><a href="{{ all_feed_url }}">All bookmarks</a></li>
               <li><a href="{{ unread_feed_url }}">Unread bookmarks</a></li>
+              <li><a href="{{ shared_feed_url }}">Shared bookmarks</a></li>
+              <li><a href="{{ public_shared_feed_url }}">Public shared bookmarks</a><br><span class="text-small text-gray">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span></li>
             </ul>
             <p>
               All URLs support appending a <code>q</code> URL parameter for specifying a search query.

@@ -4,7 +4,12 @@ from django.views.generic import RedirectView
 
 from bookmarks import views
 from bookmarks.api.routes import router
-from bookmarks.feeds import AllBookmarksFeed, UnreadBookmarksFeed
+from bookmarks.feeds import (
+    AllBookmarksFeed,
+    UnreadBookmarksFeed,
+    SharedBookmarksFeed,
+    PublicSharedBookmarksFeed,
+)
 from bookmarks.views import partials
 
 app_name = "bookmarks"
@@ -77,6 +82,8 @@ urlpatterns = [
     # Feeds
     path("feeds/<str:feed_key>/all", AllBookmarksFeed(), name="feeds.all"),
     path("feeds/<str:feed_key>/unread", UnreadBookmarksFeed(), name="feeds.unread"),
+    path("feeds/<str:feed_key>/shared", SharedBookmarksFeed(), name="feeds.shared"),
+    path("feeds/shared", PublicSharedBookmarksFeed(), name="feeds.public_shared"),
     # Health check
     path("health", views.health, name="health"),
     # Manifest

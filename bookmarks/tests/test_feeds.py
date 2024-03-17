@@ -194,7 +194,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(unread=True)
         self.setup_bookmark(unread=True)
 
-        feed_url = reverse("bookmarks:feeds.all", args=[self.token.key])
+        feed_url = reverse("bookmarks:feeds.unread", args=[self.token.key])
 
         url = feed_url + f"?q={bookmark1.title}"
         response = self.client.get(url)
@@ -229,3 +229,172 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "<item>", count=0)
+
+    def test_shared_returns_404_for_unknown_feed_token(self):
+        response = self.client.get(reverse("bookmarks:feeds.shared", args=["foo"]))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_shared_metadata(self):
+        feed_url = reverse("bookmarks:feeds.shared", args=[self.token.key])
+        response = self.client.get(feed_url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "<title>Shared bookmarks</title>")
+        self.assertContains(response, "<description>All shared bookmarks</description>")
+        self.assertContains(response, f"<link>http://testserver{feed_url}</link>")
+        self.assertContains(
+            response, f'<atom:link href="http://testserver{feed_url}" rel="self"/>'
+        )
+
+    def test_shared_returns_shared_bookmarks_only(self):
+        user1 = self.setup_user(enable_sharing=True)
+        user2 = self.setup_user(enable_sharing=False)
+
+        self.setup_bookmark()
+        self.setup_bookmark(shared=False, user=user1)
+        self.setup_bookmark(shared=True, user=user2)
+
+        shared_bookmarks = [
+            self.setup_bookmark(shared=True, user=user1, description="test"),
+            self.setup_bookmark(shared=True, user=user1, description="test"),
+            self.setup_bookmark(shared=True, user=user1, description="test"),
+        ]
+
+        response = self.client.get(
+            reverse("bookmarks:feeds.shared", args=[self.token.key])
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "<item>", count=len(shared_bookmarks))
+
+        for bookmark in shared_bookmarks:
+            expected_item = (
+                "<item>"
+                f"<title>{bookmark.resolved_title}</title>"
+                f"<link>{bookmark.url}</link>"
+                f"<description>{bookmark.resolved_description}</description>"
+                f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
+                f"<guid>{bookmark.url}</guid>"
+                "</item>"
+            )
+            self.assertContains(response, expected_item, count=1)
+
+    def test_shared_with_query(self):
+        user = self.setup_user(enable_sharing=True)
+
+        tag1 = self.setup_tag(user=user)
+        bookmark1 = self.setup_bookmark(shared=True, user=user)
+        bookmark2 = self.setup_bookmark(shared=True, tags=[tag1], user=user)
+        bookmark3 = self.setup_bookmark(shared=True, tags=[tag1], user=user)
+
+        self.setup_bookmark(shared=True, user=user)
+        self.setup_bookmark(shared=True, user=user)
+        self.setup_bookmark(shared=True, user=user)
+
+        feed_url = reverse("bookmarks:feeds.shared", args=[self.token.key])
+
+        url = feed_url + f"?q={bookmark1.title}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=1)
+        self.assertContains(response, f"<guid>{bookmark1.url}</guid>", count=1)
+
+        url = feed_url + "?q=" + urllib.parse.quote("#" + tag1.name)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=2)
+        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark3.url}</guid>", count=1)
+
+        url = feed_url + "?q=" + urllib.parse.quote(f"#{tag1.name} {bookmark2.title}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=1)
+        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
+
+    def test_public_shared_does_not_require_auth(self):
+        response = self.client.get(reverse("bookmarks:feeds.public_shared"))
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_public_shared_metadata(self):
+        feed_url = reverse("bookmarks:feeds.public_shared")
+        response = self.client.get(feed_url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "<title>Public shared bookmarks</title>")
+        self.assertContains(
+            response, "<description>All public shared bookmarks</description>"
+        )
+        self.assertContains(response, f"<link>http://testserver{feed_url}</link>")
+        self.assertContains(
+            response, f'<atom:link href="http://testserver{feed_url}" rel="self"/>'
+        )
+
+    def test_public_shared_returns_publicly_shared_bookmarks_only(self):
+        user1 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+        user3 = self.setup_user(enable_sharing=False)
+
+        self.setup_bookmark()
+        self.setup_bookmark(shared=False, user=user1)
+        self.setup_bookmark(shared=False, user=user2)
+        self.setup_bookmark(shared=True, user=user2)
+        self.setup_bookmark(shared=True, user=user3)
+
+        public_shared_bookmarks = [
+            self.setup_bookmark(shared=True, user=user1, description="test"),
+            self.setup_bookmark(shared=True, user=user1, description="test"),
+            self.setup_bookmark(shared=True, user=user1, description="test"),
+        ]
+
+        response = self.client.get(reverse("bookmarks:feeds.public_shared"))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "<item>", count=len(public_shared_bookmarks))
+
+        for bookmark in public_shared_bookmarks:
+            expected_item = (
+                "<item>"
+                f"<title>{bookmark.resolved_title}</title>"
+                f"<link>{bookmark.url}</link>"
+                f"<description>{bookmark.resolved_description}</description>"
+                f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
+                f"<guid>{bookmark.url}</guid>"
+                "</item>"
+            )
+            self.assertContains(response, expected_item, count=1)
+
+    def test_public_shared_with_query(self):
+        user = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+
+        tag1 = self.setup_tag(user=user)
+        bookmark1 = self.setup_bookmark(shared=True, user=user)
+        bookmark2 = self.setup_bookmark(shared=True, tags=[tag1], user=user)
+        bookmark3 = self.setup_bookmark(shared=True, tags=[tag1], user=user)
+
+        self.setup_bookmark(shared=True, user=user)
+        self.setup_bookmark(shared=True, user=user)
+        self.setup_bookmark(shared=True, user=user)
+
+        feed_url = reverse("bookmarks:feeds.shared", args=[self.token.key])
+
+        url = feed_url + f"?q={bookmark1.title}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=1)
+        self.assertContains(response, f"<guid>{bookmark1.url}</guid>", count=1)
+
+        url = feed_url + "?q=" + urllib.parse.quote("#" + tag1.name)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=2)
+        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
+        self.assertContains(response, f"<guid>{bookmark3.url}</guid>", count=1)
+
+        url = feed_url + "?q=" + urllib.parse.quote(f"#{tag1.name} {bookmark2.title}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=1)
+        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)

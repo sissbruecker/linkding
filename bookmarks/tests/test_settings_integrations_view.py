@@ -74,3 +74,11 @@ class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
             f'<a href="http://testserver/feeds/{token.key}/unread">Unread bookmarks</a>',
             html,
         )
+        self.assertInHTML(
+            f'<a href="http://testserver/feeds/{token.key}/shared">Shared bookmarks</a>',
+            html,
+        )
+        self.assertInHTML(
+            f'<a href="http://testserver/feeds/shared">Public shared bookmarks</a>',
+            html,
+        )
