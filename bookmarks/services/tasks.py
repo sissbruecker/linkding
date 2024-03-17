@@ -2,11 +2,10 @@ import logging
 import os
 
 import waybackpy
-from background_task import background
-from background_task.models import Task
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from huey.contrib.djhuey import task
 from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
 from django.utils import timezone, formats
 
@@ -67,7 +66,7 @@ def _create_snapshot(bookmark: Bookmark):
     logger.info(f"Successfully created new snapshot for bookmark:. url={bookmark.url}")
 
 
-@background()
+@task()
 def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
@@ -96,7 +95,7 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     _load_newest_snapshot(bookmark)
 
 
-@background()
+@task()
 def _load_web_archive_snapshot_task(bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
@@ -114,13 +113,14 @@ def schedule_bookmarks_without_snapshots(user: User):
         _schedule_bookmarks_without_snapshots_task(user.id)
 
 
-@background()
+@task()
 def _schedule_bookmarks_without_snapshots_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks_without_snapshots = Bookmark.objects.filter(
         web_archive_snapshot_url__exact="", owner=user
     )
 
+    # TODO: Implement bulk task creation
     for bookmark in bookmarks_without_snapshots:
         # To prevent rate limit errors from the Wayback API only try to load the latest snapshots instead of creating
         # new ones when processing bookmarks in bulk
@@ -138,7 +138,7 @@ def load_favicon(user: User, bookmark: Bookmark):
         _load_favicon_task(bookmark.id)
 
 
-@background()
+@task()
 def _load_favicon_task(bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
@@ -162,19 +162,15 @@ def schedule_bookmarks_without_favicons(user: User):
         _schedule_bookmarks_without_favicons_task(user.id)
 
 
-@background()
+@task()
 def _schedule_bookmarks_without_favicons_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(favicon_file__exact="", owner=user)
-    tasks = []
 
+    # TODO: Implement bulk task creation
     for bookmark in bookmarks:
-        task = Task.objects.new_task(
-            task_name="bookmarks.services.tasks._load_favicon_task", args=(bookmark.id,)
-        )
-        tasks.append(task)
-
-    Task.objects.bulk_create(tasks)
+        _load_favicon_task(bookmark.id)
+        pass
 
 
 def schedule_refresh_favicons(user: User):
@@ -182,19 +178,14 @@ def schedule_refresh_favicons(user: User):
         _schedule_refresh_favicons_task(user.id)
 
 
-@background()
+@task()
 def _schedule_refresh_favicons_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(owner=user)
-    tasks = []
 
+    # TODO: Implement bulk task creation
     for bookmark in bookmarks:
-        task = Task.objects.new_task(
-            task_name="bookmarks.services.tasks._load_favicon_task", args=(bookmark.id,)
-        )
-        tasks.append(task)
-
-    Task.objects.bulk_create(tasks)
+        _load_favicon_task(bookmark.id)
 
 
 def is_html_snapshot_feature_active() -> bool:
@@ -230,7 +221,7 @@ def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
     return f"{asset.asset_type}_{formatted_datetime}_{sanitized_url}.html.gz"
 
 
-@background()
+@task()
 def _create_html_snapshot_task(asset_id: int):
     try:
         asset = BookmarkAsset.objects.get(id=asset_id)
