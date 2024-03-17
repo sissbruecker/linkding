@@ -1,11 +1,10 @@
 import logging
 
 import waybackpy
-from background_task import background
-from background_task.models import Task
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from huey.contrib.djhuey import task
 from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
 
 import bookmarks.services.wayback
@@ -33,7 +32,7 @@ def create_web_archive_snapshot(user: User, bookmark: Bookmark, force_update: bo
 
 def _load_newest_snapshot(bookmark: Bookmark):
     try:
-        logger.info(f"Load existing snapshot for bookmark. url={bookmark.url}")
+        logger.info(f"Load existing snapshot for bookmark: url={bookmark.url}")
         cdx_api = bookmarks.services.wayback.CustomWaybackMachineCDXServerAPI(
             bookmark.url
         )
@@ -43,29 +42,30 @@ def _load_newest_snapshot(bookmark: Bookmark):
             bookmark.web_archive_snapshot_url = existing_snapshot.archive_url
             bookmark.save(update_fields=["web_archive_snapshot_url"])
             logger.info(
-                f"Using newest snapshot. url={bookmark.url} from={existing_snapshot.datetime_timestamp}"
+                f"Using newest snapshot: url={bookmark.url} from={existing_snapshot.datetime_timestamp}"
             )
 
     except NoCDXRecordFound:
-        logger.info(f"Could not find any snapshots for bookmark. url={bookmark.url}")
+        logger.info(f"Could not find any snapshots for bookmark: url={bookmark.url}")
     except WaybackError as error:
         logger.error(
-            f"Failed to load existing snapshot. url={bookmark.url}", exc_info=error
+            f"Failed to load existing snapshot: url={bookmark.url}", exc_info=error
         )
 
 
 def _create_snapshot(bookmark: Bookmark):
-    logger.info(f"Create new snapshot for bookmark. url={bookmark.url}...")
+    logger.info(f"Create new snapshot for bookmark: url={bookmark.url}...")
     archive = waybackpy.WaybackMachineSaveAPI(
         bookmark.url, DEFAULT_USER_AGENT, max_tries=1
     )
     archive.save()
     bookmark.web_archive_snapshot_url = archive.archive_url
     bookmark.save(update_fields=["web_archive_snapshot_url"])
-    logger.info(f"Successfully created new snapshot for bookmark:. url={bookmark.url}")
+    logger.info(f"Successfully created new snapshot for bookmark: url={bookmark.url}")
 
 
-@background()
+# @background()
+@task()
 def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
@@ -82,11 +82,11 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
         return
     except TooManyRequestsError:
         logger.error(
-            f"Failed to create snapshot due to rate limiting, trying to load newest snapshot as fallback. url={bookmark.url}"
+            f"Failed to create snapshot due to rate limiting, trying to load newest snapshot as fallback: url={bookmark.url}"
         )
     except WaybackError as error:
         logger.error(
-            f"Failed to create snapshot, trying to load newest snapshot as fallback. url={bookmark.url}",
+            f"Failed to create snapshot, trying to load newest snapshot as fallback: url={bookmark.url}",
             exc_info=error,
         )
 
@@ -94,7 +94,7 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     _load_newest_snapshot(bookmark)
 
 
-@background()
+@task()
 def _load_web_archive_snapshot_task(bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
@@ -112,13 +112,14 @@ def schedule_bookmarks_without_snapshots(user: User):
         _schedule_bookmarks_without_snapshots_task(user.id)
 
 
-@background()
+@task()
 def _schedule_bookmarks_without_snapshots_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks_without_snapshots = Bookmark.objects.filter(
         web_archive_snapshot_url__exact="", owner=user
     )
 
+    # TODO: Implement bulk task creation
     for bookmark in bookmarks_without_snapshots:
         # To prevent rate limit errors from the Wayback API only try to load the latest snapshots instead of creating
         # new ones when processing bookmarks in bulk
@@ -136,7 +137,7 @@ def load_favicon(user: User, bookmark: Bookmark):
         _load_favicon_task(bookmark.id)
 
 
-@background()
+@task()
 def _load_favicon_task(bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
@@ -160,19 +161,15 @@ def schedule_bookmarks_without_favicons(user: User):
         _schedule_bookmarks_without_favicons_task(user.id)
 
 
-@background()
+@task()
 def _schedule_bookmarks_without_favicons_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(favicon_file__exact="", owner=user)
-    tasks = []
 
+    # TODO: Implement bulk task creation
     for bookmark in bookmarks:
-        task = Task.objects.new_task(
-            task_name="bookmarks.services.tasks._load_favicon_task", args=(bookmark.id,)
-        )
-        tasks.append(task)
-
-    Task.objects.bulk_create(tasks)
+        _load_favicon_task(bookmark.id)
+        pass
 
 
 def schedule_refresh_favicons(user: User):
@@ -180,16 +177,11 @@ def schedule_refresh_favicons(user: User):
         _schedule_refresh_favicons_task(user.id)
 
 
-@background()
+@task()
 def _schedule_refresh_favicons_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(owner=user)
-    tasks = []
 
+    # TODO: Implement bulk task creation
     for bookmark in bookmarks:
-        task = Task.objects.new_task(
-            task_name="bookmarks.services.tasks._load_favicon_task", args=(bookmark.id,)
-        )
-        tasks.append(task)
-
-    Task.objects.bulk_create(tasks)
+        _load_favicon_task(bookmark.id)

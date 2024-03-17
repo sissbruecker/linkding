@@ -1,5 +1,3 @@
-from background_task.admin import TaskAdmin, CompletedTaskAdmin
-from background_task.models import Task, CompletedTask
 from django.contrib import admin, messages
 from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import UserAdmin
@@ -205,5 +203,3 @@ linkding_admin_site.register(User, AdminCustomUser)
 linkding_admin_site.register(TokenProxy, TokenAdmin)
 linkding_admin_site.register(Toast, AdminToast)
 linkding_admin_site.register(FeedToken, AdminFeedToken)
-linkding_admin_site.register(Task, TaskAdmin)
-linkding_admin_site.register(CompletedTask, CompletedTaskAdmin)

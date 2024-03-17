@@ -5,7 +5,6 @@
 !/bookmarks
 !/siteroot
 
-!/background-tasks-wrapper.sh
 !/bootstrap.sh
 !/LICENSE.txt
 !/manage.py
