@@ -114,6 +114,9 @@ def integrations(request):
     unread_feed_url = request.build_absolute_uri(
         reverse("bookmarks:feeds.unread", args=[feed_token.key])
     )
+    shared_feed_url = request.build_absolute_uri(
+        reverse("bookmarks:feeds.shared", args=[feed_token.key])
+    )
     return render(
         request,
         "settings/integrations.html",
@@ -122,6 +125,7 @@ def integrations(request):
             "api_token": api_token.key,
             "all_feed_url": all_feed_url,
             "unread_feed_url": unread_feed_url,
+            "shared_feed_url": shared_feed_url,
         },
     )
 

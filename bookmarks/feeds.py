@@ -67,3 +67,22 @@ class UnreadBookmarksFeed(BaseBookmarksFeed):
 
     def items(self, context: FeedContext):
         return context.query_set.filter(unread=True)
+
+
+class SharedBookmarksFeed(BaseBookmarksFeed):
+    title = "Shared bookmarks"
+    description = "All shared bookmarks"
+
+    def get_object(self, request, feed_key: str):
+        feed_token = FeedToken.objects.get(key__exact=feed_key)
+        search = BookmarkSearch(q=request.GET.get("q", ""))
+        query_set = queries.query_shared_bookmarks(
+            None, feed_token.user.profile, search, False
+        )
+        return FeedContext(feed_token, query_set)
+
+    def link(self, context: FeedContext):
+        return reverse("bookmarks:feeds.shared", args=[context.feed_token.key])
+
+    def items(self, context: FeedContext):
+        return context.query_set
