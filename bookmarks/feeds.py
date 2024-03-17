@@ -6,12 +6,12 @@ from django.db.models import QuerySet
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkSearch, FeedToken
+from bookmarks.models import Bookmark, BookmarkSearch, FeedToken, UserProfile
 
 
 @dataclass
 class FeedContext:
-    feed_token: FeedToken
+    feed_token: FeedToken | None
     query_set: QuerySet[Bookmark]
 
 
@@ -83,6 +83,23 @@ class SharedBookmarksFeed(BaseBookmarksFeed):
 
     def link(self, context: FeedContext):
         return reverse("bookmarks:feeds.shared", args=[context.feed_token.key])
+
+    def items(self, context: FeedContext):
+        return context.query_set
+
+
+class PublicSharedBookmarksFeed(BaseBookmarksFeed):
+    title = "Public shared bookmarks"
+    description = "All public shared bookmarks"
+
+    def get_object(self, request):
+        search = BookmarkSearch(q=request.GET.get("q", ""))
+        default_profile = UserProfile()
+        query_set = queries.query_shared_bookmarks(None, default_profile, search, True)
+        return FeedContext(None, query_set)
+
+    def link(self, context: FeedContext):
+        return reverse("bookmarks:feeds.public_shared")
 
     def items(self, context: FeedContext):
         return context.query_set
