@@ -25,13 +25,13 @@ linkding includes a CLI command for creating a backup copy of the database.
 
 To create a backup, execute the following command:
 ```shell
-docker exec -it linkding python manage.py backup backup.sqlite3
+docker exec -it linkding python manage.py backup /etc/linkding/data/backup.sqlite3
 ```
-This creates a `backup.sqlite3` file in the Docker container.
+This creates a `backup.sqlite3` file in the Docker container under `/etc/linkding/data`.
 
 To copy the backup file to your host system, execute the following command:
 ```shell
-docker cp linkding:/etc/linkding/backup.sqlite3 backup.sqlite3
+docker cp linkding:/etc/linkding/data/backup.sqlite3 backup.sqlite3
 ```
 This copies the backup file from the Docker container to the current folder on your host system.
 Now you can move that file to your backup location.
