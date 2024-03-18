@@ -1,4 +1,4 @@
-FROM node:20-alpine AS node-build
+FROM node:18-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY rollup.config.mjs package.json package-lock.json ./
@@ -9,8 +9,16 @@ COPY bookmarks/frontend ./bookmarks/frontend
 RUN npm run build
 
 
-FROM python:3.10.6-slim-buster AS python-base
-RUN apt-get update && apt-get -y install build-essential libpq-dev
+# Use 3.11 for now, as django4-background-tasks doesn't work with 3.12 yet
+FROM python:3.11.8-slim-bookworm AS python-base
+# Add required packages
+# build-essential pkg-config: build Python packages from source
+# libpq-dev: build Postgres client from source
+# libicu-dev libsqlite3-dev: build Sqlite ICU extension
+# llibffi-dev libssl-dev curl rustup: build Python cryptography from source
+RUN apt-get update && apt-get -y install build-essential pkg-config libpq-dev libicu-dev libsqlite3-dev wget unzip libffi-dev libssl-dev curl
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 WORKDIR /etc/linkding
 
 
@@ -32,7 +40,7 @@ RUN python manage.py compilescss && \
 
 FROM python-base AS prod-deps
 COPY requirements.txt ./requirements.txt
-# replace psycopg2-binary with psycopg2
+# Need to build psycopg2 from source for ARM platforms
 RUN sed -i 's/psycopg2-binary/psycopg2/g' requirements.txt
 RUN mkdir /opt/venv && \
     python -m venv --upgrade-deps --copies /opt/venv && \
@@ -41,9 +49,6 @@ RUN mkdir /opt/venv && \
 
 
 FROM python-base AS compile-icu
-RUN apt-get update && apt-get -y install libicu-dev libsqlite3-dev wget unzip
-WORKDIR /etc/linkding
-
 # Defines SQLite version
 # Since this is only needed for downloading the header files this probably
 # doesn't need to be up-to-date, assuming the SQLite APIs used by the ICU
@@ -64,8 +69,8 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.10.6-slim-buster as final
-RUN apt-get update && apt-get -y install mime-support libpq-dev libicu-dev curl
+FROM python:3.11.8-slim-bookworm as final
+RUN apt-get update && apt-get -y install mime-support libpq-dev libicu-dev libssl3 curl
 WORKDIR /etc/linkding
 # copy prod dependencies
 COPY --from=prod-deps /opt/venv /opt/venv

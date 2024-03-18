@@ -1,4 +1,4 @@
-FROM node:20-alpine AS node-build
+FROM node:18-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY rollup.config.mjs package.json package-lock.json ./
@@ -9,8 +9,14 @@ COPY bookmarks/frontend ./bookmarks/frontend
 RUN npm run build
 
 
-FROM python:3.10.13-alpine3.18 AS python-base
-RUN apk update && apk add alpine-sdk linux-headers libpq-dev pkgconfig icu-dev sqlite-dev
+# Use 3.11 for now, as django4-background-tasks doesn't work with 3.12 yet
+FROM python:3.11.8-alpine3.19 AS python-base
+# Add required packages
+# alpine-sdk linux-headers pkgconfig: build Python packages from source
+# libpq-dev: build Postgres client from source
+# icu-dev sqlite-dev: build Sqlite ICU extension
+# libffi-dev openssl-dev rust cargo: build Python cryptography from source
+RUN apk update && apk add alpine-sdk linux-headers libpq-dev pkgconfig icu-dev sqlite-dev libffi-dev openssl-dev rust cargo
 WORKDIR /etc/linkding
 
 
@@ -32,7 +38,7 @@ RUN python manage.py compilescss && \
 
 FROM python-base AS prod-deps
 COPY requirements.txt ./requirements.txt
-# replace psycopg2-binary with psycopg2
+# Need to build psycopg2 from source for ARM platforms
 RUN sed -i 's/psycopg2-binary/psycopg2/g' requirements.txt
 RUN mkdir /opt/venv && \
     python -m venv --upgrade-deps --copies /opt/venv && \
@@ -61,9 +67,9 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.10.13-alpine3.18 AS final
+FROM python:3.11.8-alpine3.19 AS final
 # install runtime dependencies
-RUN apk update && apk add bash curl icu libpq mailcap
+RUN apk update && apk add bash curl icu libpq mailcap libssl3
 # create www-data user and group
 RUN set -x ; \
   addgroup -g 82 -S www-data ; \
