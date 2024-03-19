@@ -24,7 +24,9 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
       - name: Setup Python environment
-        run: pip install -r requirements.txt -r requirements.dev.txt
+        run: |
+          pip install -r requirements.txt -r requirements.dev.txt
+          mkdir data
       - name: Run tests
         run: python manage.py test bookmarks.tests
   e2e_tests:
@@ -47,6 +49,7 @@ jobs:
         run: |
           pip install -r requirements.txt -r requirements.dev.txt
           playwright install chromium
+          mkdir data
       - name: Run build
         run: |
           npm run build
