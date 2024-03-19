@@ -1,5 +1,36 @@
 # Changelog
 
+## v1.25.0 (18/03/2024)
+
+### What's Changed
+* Improve PWA capabilities by @hugo-vrijswijk in https://github.com/sissbruecker/linkding/pull/630
+* build improvements by @hugo-vrijswijk in https://github.com/sissbruecker/linkding/pull/649
+* Add support for oidc by @Nighmared in https://github.com/sissbruecker/linkding/pull/389
+* Add option for custom CSS by @sissbruecker in https://github.com/sissbruecker/linkding/pull/652
+* Update backup location to safe directory by @bphenriques in https://github.com/sissbruecker/linkding/pull/653
+* Include web archive link in /api/bookmarks/ by @sissbruecker in https://github.com/sissbruecker/linkding/pull/655
+* Add RSS feeds for shared bookmarks by @sissbruecker in https://github.com/sissbruecker/linkding/pull/656
+* Bump django from 5.0.2 to 5.0.3 by @dependabot in https://github.com/sissbruecker/linkding/pull/658
+
+### New Contributors
+* @hugo-vrijswijk made their first contribution in https://github.com/sissbruecker/linkding/pull/630
+* @Nighmared made their first contribution in https://github.com/sissbruecker/linkding/pull/389
+* @bphenriques made their first contribution in https://github.com/sissbruecker/linkding/pull/653
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.24.2...v1.25.0
+
+---
+
+## v1.24.2 (16/03/2024)
+
+### What's Changed
+* Fix logout button by @sissbruecker in https://github.com/sissbruecker/linkding/pull/648
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.24.1...v1.24.2
+
+---
+
 ## v1.24.1 (16/03/2024)
 
 ### What's Changed
