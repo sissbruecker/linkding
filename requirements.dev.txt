@@ -6,7 +6,7 @@
 #
 asgiref==3.7.2
     # via django
-black==24.1.1
+black==24.3.0
     # via -r requirements.dev.in
 click==8.1.7
     # via black
