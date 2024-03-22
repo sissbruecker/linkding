@@ -153,6 +153,7 @@ li[ld-bookmark-item] {
       font-size: $font-size-sm;
       font-style: normal;
       white-space: normal;
+      pointer-events: none;
       animation: 0.3s ease 0s appear;
     }
   }
