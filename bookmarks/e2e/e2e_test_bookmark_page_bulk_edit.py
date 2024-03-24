@@ -39,6 +39,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("bookmarks:index"), p)
 
+            bookmark_list = self.locate_bookmark_list()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
             self.locate_bulk_edit_select_across().click()
@@ -46,6 +47,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            # Wait until bookmark list is updated (old reference becomes invisible)
+            expect(bookmark_list).not_to_be_visible()
 
         self.assertEqual(
             0,
@@ -74,6 +77,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("bookmarks:archived"), p)
 
+            bookmark_list = self.locate_bookmark_list()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
             self.locate_bulk_edit_select_across().click()
@@ -81,6 +85,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            # Wait until bookmark list is updated (old reference becomes invisible)
+            expect(bookmark_list).not_to_be_visible()
 
         self.assertEqual(
             50,
@@ -109,6 +115,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("bookmarks:index") + "?q=foo", p)
 
+            bookmark_list = self.locate_bookmark_list()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
             self.locate_bulk_edit_select_across().click()
@@ -116,6 +123,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            # Wait until bookmark list is updated (old reference becomes invisible)
+            expect(bookmark_list).not_to_be_visible()
 
         self.assertEqual(
             50,
@@ -144,6 +153,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("bookmarks:archived") + "?q=foo", p)
 
+            bookmark_list = self.locate_bookmark_list()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
             self.locate_bulk_edit_select_across().click()
@@ -151,6 +161,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            # Wait until bookmark list is updated (old reference becomes invisible)
+            expect(bookmark_list).not_to_be_visible()
 
         self.assertEqual(
             50,
@@ -269,13 +281,12 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             url = reverse("bookmarks:index")
             page = self.open(url, p)
 
+            bookmark_list = self.locate_bookmark_list()
+
             # Select all bookmarks, enable select across
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
             self.locate_bulk_edit_select_across().click()
-
-            # Get reference for bookmark list
-            bookmark_list = page.locator("ul[ld-bookmark-list]")
 
             # Execute bulk action
             self.select_bulk_action("Mark as unread")
@@ -302,6 +313,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             url = reverse("bookmarks:index")
             self.open(url, p)
 
+            bookmark_list = self.locate_bookmark_list()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
 
@@ -312,6 +324,8 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            # Wait until bookmark list is updated (old reference becomes invisible)
+            expect(bookmark_list).not_to_be_visible()
 
             expect(self.locate_bulk_edit_select_all()).not_to_be_checked()
             self.locate_bulk_edit_select_all().click()

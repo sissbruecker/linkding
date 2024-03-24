@@ -38,6 +38,9 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
     def assertReloads(self, count: int):
         self.assertEqual(self.num_loads, count)
 
+    def locate_bookmark_list(self):
+        return self.page.locator("ul[ld-bookmark-list]")
+
     def locate_bookmark(self, title: str):
         bookmark_tags = self.page.locator("li[ld-bookmark-item]")
         return bookmark_tags.filter(has_text=title)
