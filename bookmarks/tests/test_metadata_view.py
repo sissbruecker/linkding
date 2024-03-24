@@ -23,37 +23,37 @@ class MetadataViewTestCase(TestCase):
                     "src": "/static/logo.svg",
                     "type": "image/svg+xml",
                     "sizes": "512x512",
-                    "purpose": "any"
+                    "purpose": "any",
                 },
                 {
                     "src": "/static/logo-512.png",
                     "type": "image/png",
                     "sizes": "512x512",
-                    "purpose": "any"
+                    "purpose": "any",
                 },
                 {
                     "src": "/static/logo-192.png",
                     "type": "image/png",
                     "sizes": "192x192",
-                    "purpose": "any"
+                    "purpose": "any",
                 },
                 {
                     "src": "/static/maskable-logo.svg",
                     "type": "image/svg+xml",
                     "sizes": "512x512",
-                    "purpose": "maskable"
+                    "purpose": "maskable",
                 },
                 {
                     "src": "/static/maskable-logo-512.png",
                     "type": "image/png",
                     "sizes": "512x512",
-                    "purpose": "maskable"
+                    "purpose": "maskable",
                 },
                 {
                     "src": "/static/maskable-logo-192.png",
                     "type": "image/png",
                     "sizes": "192x192",
-                    "purpose": "maskable"
+                    "purpose": "maskable",
                 },
             ],
             "shortcuts": [
@@ -76,14 +76,14 @@ class MetadataViewTestCase(TestCase):
                 {
                     "name": "Shared",
                     "url": "/bookmarks/shared",
-                }
+                },
             ],
             "screenshots": [
                 {
                     "src": "/static/linkding-screenshot.png",
                     "type": "image/png",
                     "sizes": "2158x1160",
-                    "form_factor": "wide"
+                    "form_factor": "wide",
                 }
             ],
             "share_target": {
@@ -94,8 +94,8 @@ class MetadataViewTestCase(TestCase):
                     "url": "url",
                     "text": "url",
                     "title": "title",
-                }
-            }
+                },
+            },
         }
         self.assertDictEqual(response_body, expected_body)
 
@@ -120,37 +120,37 @@ class MetadataViewTestCase(TestCase):
                     "src": "/linkding/static/logo.svg",
                     "type": "image/svg+xml",
                     "sizes": "512x512",
-                    "purpose": "any"
+                    "purpose": "any",
                 },
                 {
                     "src": "/linkding/static/logo-512.png",
                     "type": "image/png",
                     "sizes": "512x512",
-                    "purpose": "any"
+                    "purpose": "any",
                 },
                 {
                     "src": "/linkding/static/logo-192.png",
                     "type": "image/png",
                     "sizes": "192x192",
-                    "purpose": "any"
+                    "purpose": "any",
                 },
                 {
                     "src": "/linkding/static/maskable-logo.svg",
                     "type": "image/svg+xml",
                     "sizes": "512x512",
-                    "purpose": "maskable"
+                    "purpose": "maskable",
                 },
                 {
                     "src": "/linkding/static/maskable-logo-512.png",
                     "type": "image/png",
                     "sizes": "512x512",
-                    "purpose": "maskable"
+                    "purpose": "maskable",
                 },
                 {
                     "src": "/linkding/static/maskable-logo-192.png",
                     "type": "image/png",
                     "sizes": "192x192",
-                    "purpose": "maskable"
+                    "purpose": "maskable",
                 },
             ],
             "shortcuts": [
@@ -173,14 +173,14 @@ class MetadataViewTestCase(TestCase):
                 {
                     "name": "Shared",
                     "url": "/linkding/bookmarks/shared",
-                }
+                },
             ],
             "screenshots": [
                 {
                     "src": "/linkding/static/linkding-screenshot.png",
                     "type": "image/png",
                     "sizes": "2158x1160",
-                    "form_factor": "wide"
+                    "form_factor": "wide",
                 }
             ],
             "share_target": {
@@ -191,7 +191,7 @@ class MetadataViewTestCase(TestCase):
                     "url": "url",
                     "text": "url",
                     "title": "title",
-                }
-            }
+                },
+            },
         }
         self.assertDictEqual(response_body, expected_body)

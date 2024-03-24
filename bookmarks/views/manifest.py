@@ -11,43 +11,45 @@ def manifest(request):
         "display": "standalone",
         "scope": "/" + settings.LD_CONTEXT_PATH,
         "theme_color": "#5856e0",
-        "background_color": "#161822" if request.user_profile.theme == "dark" else "#ffffff",
+        "background_color": (
+            "#161822" if request.user_profile.theme == "dark" else "#ffffff"
+        ),
         "icons": [
             {
                 "src": "/" + settings.LD_CONTEXT_PATH + "static/logo.svg",
                 "type": "image/svg+xml",
                 "sizes": "512x512",
-                "purpose": "any"
+                "purpose": "any",
             },
             {
                 "src": "/" + settings.LD_CONTEXT_PATH + "static/logo-512.png",
                 "type": "image/png",
                 "sizes": "512x512",
-                "purpose": "any"
+                "purpose": "any",
             },
             {
                 "src": "/" + settings.LD_CONTEXT_PATH + "static/logo-192.png",
                 "type": "image/png",
                 "sizes": "192x192",
-                "purpose": "any"
+                "purpose": "any",
             },
             {
                 "src": "/" + settings.LD_CONTEXT_PATH + "static/maskable-logo.svg",
                 "type": "image/svg+xml",
                 "sizes": "512x512",
-                "purpose": "maskable"
+                "purpose": "maskable",
             },
             {
                 "src": "/" + settings.LD_CONTEXT_PATH + "static/maskable-logo-512.png",
                 "type": "image/png",
                 "sizes": "512x512",
-                "purpose": "maskable"
+                "purpose": "maskable",
             },
             {
                 "src": "/" + settings.LD_CONTEXT_PATH + "static/maskable-logo-192.png",
                 "type": "image/png",
                 "sizes": "192x192",
-                "purpose": "maskable"
+                "purpose": "maskable",
             },
         ],
         "shortcuts": [
@@ -70,14 +72,16 @@ def manifest(request):
             {
                 "name": "Shared",
                 "url": "/" + settings.LD_CONTEXT_PATH + "bookmarks/shared",
-            }
+            },
         ],
         "screenshots": [
             {
-                "src": "/" + settings.LD_CONTEXT_PATH + "static/linkding-screenshot.png",
+                "src": "/"
+                + settings.LD_CONTEXT_PATH
+                + "static/linkding-screenshot.png",
                 "type": "image/png",
                 "sizes": "2158x1160",
-                "form_factor": "wide"
+                "form_factor": "wide",
             }
         ],
         "share_target": {
@@ -88,8 +92,8 @@ def manifest(request):
                 "url": "url",
                 "text": "url",
                 "title": "title",
-            }
-        }
+            },
+        },
     }
 
     return JsonResponse(response, status=200)
