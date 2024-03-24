@@ -96,6 +96,8 @@ class BookmarkListContext:
         )
         self.link_target = user_profile.bookmark_link_target
         self.date_display = user_profile.bookmark_date_display
+        self.description_display = user_profile.bookmark_description_display
+        self.description_max_lines = user_profile.bookmark_description_max_lines
         self.show_url = user_profile.display_url
         self.show_favicons = user_profile.enable_favicons
         self.show_notes = user_profile.permanent_notes

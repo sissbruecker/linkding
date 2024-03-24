@@ -10,11 +10,11 @@ from django.utils import timezone, formats
 
 from bookmarks.middlewares import UserProfileMiddleware
 from bookmarks.models import Bookmark, UserProfile, User
-from bookmarks.tests.helpers import BookmarkFactoryMixin, collapse_whitespace
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 from bookmarks.views.partials import contexts
 
 
-class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
+class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def assertBookmarksLink(
         self, html: str, bookmark: Bookmark, link_target: str = "_blank"
@@ -240,6 +240,172 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         user.profile.bookmark_date_display = date_display_setting
         user.profile.save()
         return bookmark
+
+    def inline_bookmark_description_test(self, bookmark):
+        html = self.render_template()
+        soup = self.make_soup(html)
+
+        has_description = bool(bookmark.description)
+        has_tags = len(bookmark.tags.all()) > 0
+
+        # inline description block exists
+        description = soup.select_one(".description.inline.truncate")
+        self.assertIsNotNone(description)
+
+        # separate description block does not exist
+        separate_description = soup.select_one(".description.separate")
+        self.assertIsNone(separate_description)
+
+        # one direct child element per description or tags
+        children = description.find_all(recursive=False)
+        expected_child_count = (
+            0 + (1 if has_description else 0) + (1 if has_tags else 0)
+        )
+        self.assertEqual(len(children), expected_child_count)
+
+        # has separator between description and tags
+        if has_description and has_tags:
+            self.assertTrue("|" in description.text)
+
+        # contains description text
+        if has_description:
+            description_text = description.find("span", text=bookmark.description)
+            self.assertIsNotNone(description_text)
+
+        if not has_tags:
+            # no tags element
+            tags = soup.select_one(".tags")
+            self.assertIsNone(tags)
+        else:
+            # tags element exists
+            tags = soup.select_one(".tags")
+            self.assertIsNotNone(tags)
+
+            # one link for each tag
+            tag_links = tags.find_all("a")
+            self.assertEqual(len(tag_links), len(bookmark.tags.all()))
+
+            for tag in bookmark.tags.all():
+                tag_link = tags.find("a", text=f"#{tag.name}")
+                self.assertIsNotNone(tag_link)
+                self.assertEqual(tag_link["href"], f"?q=%23{tag.name}")
+
+    def test_inline_bookmark_description(self):
+        profile = self.get_or_create_test_user().profile
+        profile.bookmark_description_display = (
+            UserProfile.BOOKMARK_DESCRIPTION_DISPLAY_INLINE
+        )
+        profile.save()
+
+        # no description, no tags
+        bookmark = self.setup_bookmark(description="")
+        self.inline_bookmark_description_test(bookmark)
+
+        # with description, no tags
+        bookmark = self.setup_bookmark(description="Test description")
+        self.inline_bookmark_description_test(bookmark)
+
+        # no description, with tags
+        Bookmark.objects.all().delete()
+        bookmark = self.setup_bookmark(
+            description="", tags=[self.setup_tag(), self.setup_tag(), self.setup_tag()]
+        )
+        self.inline_bookmark_description_test(bookmark)
+
+        # with description, with tags
+        Bookmark.objects.all().delete()
+        bookmark = self.setup_bookmark(
+            description="Test description",
+            tags=[self.setup_tag(), self.setup_tag(), self.setup_tag()],
+        )
+        self.inline_bookmark_description_test(bookmark)
+
+    def separate_bookmark_description_test(self, bookmark):
+        html = self.render_template()
+        soup = self.make_soup(html)
+
+        has_description = bool(bookmark.description)
+        has_tags = len(bookmark.tags.all()) > 0
+
+        # inline description block does not exist
+        inline_description = soup.select_one(".description.inline")
+        self.assertIsNone(inline_description)
+
+        if not has_description:
+            # no description element
+            description = soup.select_one(".description")
+            self.assertIsNone(description)
+        else:
+            # contains description text
+            description = soup.select_one(".description.separate")
+            self.assertIsNotNone(description)
+            self.assertEqual(description.text.strip(), bookmark.description)
+
+        if not has_tags:
+            # no tags element
+            tags = soup.select_one(".tags")
+            self.assertIsNone(tags)
+        else:
+            # tags element exists
+            tags = soup.select_one(".tags")
+            self.assertIsNotNone(tags)
+
+            # one link for each tag
+            tag_links = tags.find_all("a")
+            self.assertEqual(len(tag_links), len(bookmark.tags.all()))
+
+            for tag in bookmark.tags.all():
+                tag_link = tags.find("a", text=f"#{tag.name}")
+                self.assertIsNotNone(tag_link)
+                self.assertEqual(tag_link["href"], f"?q=%23{tag.name}")
+
+    def test_separate_bookmark_description(self):
+        profile = self.get_or_create_test_user().profile
+        profile.bookmark_description_display = (
+            UserProfile.BOOKMARK_DESCRIPTION_DISPLAY_SEPARATE
+        )
+        profile.save()
+
+        # no description, no tags
+        bookmark = self.setup_bookmark(description="")
+        self.separate_bookmark_description_test(bookmark)
+
+        # with description, no tags
+        bookmark = self.setup_bookmark(description="Test description")
+        self.separate_bookmark_description_test(bookmark)
+
+        # no description, with tags
+        Bookmark.objects.all().delete()
+        bookmark = self.setup_bookmark(
+            description="", tags=[self.setup_tag(), self.setup_tag(), self.setup_tag()]
+        )
+        self.separate_bookmark_description_test(bookmark)
+
+        # with description, with tags
+        Bookmark.objects.all().delete()
+        bookmark = self.setup_bookmark(
+            description="Test description",
+            tags=[self.setup_tag(), self.setup_tag(), self.setup_tag()],
+        )
+        self.separate_bookmark_description_test(bookmark)
+
+    def test_bookmark_description_max_lines(self):
+        self.setup_bookmark()
+        html = self.render_template()
+        soup = self.make_soup(html)
+        bookmark_list = soup.select_one("ul.bookmark-list")
+        style = bookmark_list["style"]
+        self.assertIn("--ld-bookmark-description-max-lines:1;", style)
+
+        profile = self.get_or_create_test_user().profile
+        profile.bookmark_description_max_lines = 3
+        profile.save()
+
+        html = self.render_template()
+        soup = self.make_soup(html)
+        bookmark_list = soup.select_one("ul.bookmark-list")
+        style = bookmark_list["style"]
+        self.assertIn("--ld-bookmark-description-max-lines:3;", style)
 
     def test_should_respect_absolute_date_setting(self):
         bookmark = self.setup_date_format_test(
@@ -539,9 +705,11 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
 
     def test_notes_are_hidden_initially_by_default(self):
         self.setup_bookmark(notes="Test note")
-        html = collapse_whitespace(self.render_template())
+        html = self.render_template()
+        soup = self.make_soup(html)
+        bookmark_list = soup.select_one("ul.bookmark-list.show-notes")
 
-        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="1">', html)
+        self.assertIsNone(bookmark_list)
 
     def test_notes_are_hidden_initially_with_permanent_notes_disabled(self):
         profile = self.get_or_create_test_user().profile
@@ -549,9 +717,11 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         self.setup_bookmark(notes="Test note")
-        html = collapse_whitespace(self.render_template())
+        html = self.render_template()
+        soup = self.make_soup(html)
+        bookmark_list = soup.select_one("ul.bookmark-list.show-notes")
 
-        self.assertIn('<ul class="bookmark-list" data-bookmarks-total="1">', html)
+        self.assertIsNone(bookmark_list)
 
     def test_notes_are_visible_initially_with_permanent_notes_enabled(self):
         profile = self.get_or_create_test_user().profile
@@ -559,11 +729,11 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin):
         profile.save()
 
         self.setup_bookmark(notes="Test note")
-        html = collapse_whitespace(self.render_template())
+        html = self.render_template()
+        soup = self.make_soup(html)
+        bookmark_list = soup.select_one("ul.bookmark-list.show-notes")
 
-        self.assertIn(
-            '<ul class="bookmark-list show-notes" data-bookmarks-total="1">', html
-        )
+        self.assertIsNotNone(bookmark_list)
 
     def test_toggle_notes_is_visible_by_default(self):
         self.setup_bookmark(notes="Test note")

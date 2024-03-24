@@ -6,6 +6,7 @@
   {% include 'bookmarks/empty_bookmarks.html' %}
 {% else %}
   <ul class="bookmark-list{% if bookmark_list.show_notes %} show-notes{% endif %}"
+      style="--ld-bookmark-description-max-lines:{{ bookmark_list.description_max_lines }};"
       data-bookmarks-total="{{ bookmark_list.bookmarks_total }}">
     {% for bookmark_item in bookmark_list.items %}
       <li ld-bookmark-item{% if bookmark_item.css_classes %} class="{{ bookmark_item.css_classes }}"{% endif %}>
@@ -14,11 +15,11 @@
           <i class="form-icon"></i>
         </label>
         <div class="title">
-          <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener" >
+          <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener">
             {% if bookmark_item.favicon_file and bookmark_list.show_favicons %}
               <img src="{% static bookmark_item.favicon_file %}" alt="">
             {% endif %}
-              <span>{{ bookmark_item.title }}</span>
+            <span>{{ bookmark_item.title }}</span>
           </a>
         </div>
         {% if bookmark_list.show_url %}
@@ -29,19 +30,34 @@
             </a>
           </div>
         {% endif %}
-        <div class="description truncate">
+        {% if bookmark_list.description_display == 'inline' %}
+          <div class="description inline truncate">
+            {% if bookmark_item.tag_names %}
+              <span class="tags">
+                {% for tag_name in bookmark_item.tag_names %}
+                  <a href="?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
+                {% endfor %}
+              </span>
+            {% endif %}
+            {% if bookmark_item.tag_names and bookmark_item.description %} | {% endif %}
+            {% if bookmark_item.description %}
+              <span>{{ bookmark_item.description }}</span>
+            {% endif %}
+          </div>
+        {% else %}
+          {% if bookmark_item.description %}
+            <div class="description separate">
+              {{ bookmark_item.description }}
+            </div>
+          {% endif %}
           {% if bookmark_item.tag_names %}
-            <span>
+            <div class="tags">
               {% for tag_name in bookmark_item.tag_names %}
                 <a href="?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
               {% endfor %}
-            </span>
+            </div>
           {% endif %}
-          {% if bookmark_item.tag_names and bookmark_item.description %} | {% endif %}
-          {% if bookmark_item.description %}
-            <span>{{ bookmark_item.description }}</span>
-          {% endif %}
-        </div>
+        {% endif %}
         {% if bookmark_item.notes %}
           <div class="notes bg-gray text-gray-dark">
             <div class="notes-content">

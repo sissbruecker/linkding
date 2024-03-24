@@ -175,7 +175,16 @@ li[ld-bookmark-item] {
 
   .description {
     color: $gray-color-dark;
+  }
 
+  .description.separate {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--ld-bookmark-description-max-lines, 1);
+    overflow: hidden;
+  }
+
+  .tags {
     a, a:visited:hover {
       color: $alternative-color;
     }

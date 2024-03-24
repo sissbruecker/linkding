@@ -30,6 +30,22 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.bookmark_description_display.id_for_label }}" class="form-label">Bookmark
+            description</label>
+          {{ form.bookmark_description_display|add_class:"form-select width-25 width-sm-100" }}
+          <div class="form-input-hint">
+            Whether to show bookmark descriptions and tags in the same line, or as separate blocks.
+          </div>
+        </div>
+        <div
+            class="form-group {% if request.user_profile.bookmark_description_display == 'inline' %}d-hide{% endif %}">
+          <label for="{{ form.bookmark_description_max_lines.id_for_label }}" class="form-label">Bookmark description max lines</label>
+          {{ form.bookmark_description_max_lines|add_class:"form-input width-25 width-sm-100" }}
+          <div class="form-input-hint">
+            Limits the number of lines that are displayed for the bookmark description.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.display_url.id_for_label }}" class="form-checkbox">
             {{ form.display_url }}
             <i class="form-icon"></i> Show bookmark URL
@@ -124,18 +140,18 @@
               href="{% url 'bookmarks:shared' %}">shared bookmarks page</a>.
           </div>
         </div>
-      <div class="form-group">
-        <details {% if form.custom_css.value %}open{% endif %}>
-          <summary>Custom CSS</summary>
-          <label for="{{ form.custom_css.id_for_label }}" class="text-assistive">Custom CSS</label>
-          <div class="mt-2">
-            {{ form.custom_css|add_class:"form-input custom-css"|attr:"rows:6" }}
+        <div class="form-group">
+          <details {% if form.custom_css.value %}open{% endif %}>
+            <summary>Custom CSS</summary>
+            <label for="{{ form.custom_css.id_for_label }}" class="text-assistive">Custom CSS</label>
+            <div class="mt-2">
+              {{ form.custom_css|add_class:"form-input custom-css"|attr:"rows:6" }}
+            </div>
+          </details>
+          <div class="form-input-hint">
+            Allows to add custom CSS to the page.
           </div>
-        </details>
-        <div class="form-input-hint">
-          Allows to add custom CSS to the page.
         </div>
-      </div>
         <div class="form-group">
           <input type="submit" name="update_profile" value="Save" class="btn btn-primary mt-2">
           {% if update_profile_success_message %}
@@ -195,10 +211,6 @@
     <section class="content-area">
       <h2>Export</h2>
       <p>Export all bookmarks in Netscape HTML format.</p>
-      <p>
-        Note that exporting bookmark notes is currently not supported due to limitations of the format.
-        For proper backups please use a database backup as described in the documentation.
-      </p>
       <a class="btn btn-primary" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
       {% if export_error %}
         <div class="has-error">
@@ -237,10 +249,12 @@
   </div>
 
   <script>
-    // Automatically disable public bookmark sharing if bookmark sharing is disabled
     const enableSharing = document.getElementById("{{ form.enable_sharing.id_for_label }}");
     const enablePublicSharing = document.getElementById("{{ form.enable_public_sharing.id_for_label }}");
+    const bookmarkDescriptionDisplay = document.getElementById("{{ form.bookmark_description_display.id_for_label }}");
+    const bookmarkDescriptionMaxLines = document.getElementById("{{ form.bookmark_description_max_lines.id_for_label }}");
 
+    // Automatically disable public bookmark sharing if bookmark sharing is disabled
     function updatePublicSharing() {
       if (enableSharing.checked) {
         enablePublicSharing.disabled = false;
@@ -252,6 +266,18 @@
 
     updatePublicSharing();
     enableSharing.addEventListener("change", updatePublicSharing);
+
+    // Automatically hide the bookmark description max lines input if the description display is set to inline
+    function updateBookmarkDescriptionMaxLines() {
+      if (bookmarkDescriptionDisplay.value === "inline") {
+        bookmarkDescriptionMaxLines.closest(".form-group").classList.add("d-hide");
+      } else {
+        bookmarkDescriptionMaxLines.closest(".form-group").classList.remove("d-hide");
+      }
+    }
+
+    updateBookmarkDescriptionMaxLines();
+    bookmarkDescriptionDisplay.addEventListener("change", updateBookmarkDescriptionMaxLines);
   </script>
 
 {% endblock %}
