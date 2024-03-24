@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "widget_tweaks",
     "rest_framework",
     "rest_framework.authtoken",
-    "background_task",
+    "huey.contrib.djhuey",
     "mozilla_django_oidc",
 ]
 
@@ -173,7 +173,27 @@ LD_DISABLE_BACKGROUND_TASKS = os.getenv("LD_DISABLE_BACKGROUND_TASKS", False) in
     "1",
 )
 
-# django-background-tasks
+# Huey task queue
+HUEY = {
+    "huey_class": "huey.SqliteHuey",
+    "filename": os.path.join(BASE_DIR, "data", "tasks.sqlite3"),
+    "immediate": False,
+    "results": False,
+    "store_none": False,
+    "utc": True,
+    "consumer": {
+        "workers": 2,
+        "worker_type": "thread",
+        "initial_delay": 0.1,
+        "backoff": 1.15,
+        "max_delay": 10.0,
+        "scheduler_interval": 10,
+        "periodic": False,
+        "check_worker_health": True,
+        "health_check_interval": 10,
+    },
+}
+
 MAX_ATTEMPTS = 5
 # How many tasks will run in parallel
 # We want to keep this low to prevent SQLite lock errors and in general not to consume too much resources on smaller

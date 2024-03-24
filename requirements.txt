@@ -39,9 +39,9 @@ django-sass-processor==1.4
     # via -r requirements.in
 django-widget-tweaks==1.5.0
     # via -r requirements.in
-django4-background-tasks==1.2.9
-    # via -r requirements.in
 djangorestframework==3.14.0
+    # via -r requirements.in
+huey==2.5.0
     # via -r requirements.in
 idna==3.6
     # via requests
@@ -69,7 +69,6 @@ requests==2.31.0
 six==1.16.0
     # via
     #   bleach
-    #   django4-background-tasks
     #   python-dateutil
 soupsieve==2.5
     # via beautifulsoup4
