@@ -24,6 +24,8 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         form_data = {
             "theme": UserProfile.THEME_AUTO,
             "bookmark_date_display": UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE,
+            "bookmark_description_display": UserProfile.BOOKMARK_DESCRIPTION_DISPLAY_INLINE,
+            "bookmark_description_max_lines": 1,
             "bookmark_link_target": UserProfile.BOOKMARK_LINK_TARGET_BLANK,
             "web_archive_integration": UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED,
             "enable_sharing": False,
@@ -56,6 +58,8 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "update_profile": "",
             "theme": UserProfile.THEME_DARK,
             "bookmark_date_display": UserProfile.BOOKMARK_DATE_DISPLAY_HIDDEN,
+            "bookmark_description_display": UserProfile.BOOKMARK_DESCRIPTION_DISPLAY_SEPARATE,
+            "bookmark_description_max_lines": 3,
             "bookmark_link_target": UserProfile.BOOKMARK_LINK_TARGET_SELF,
             "web_archive_integration": UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED,
             "enable_sharing": True,
@@ -75,6 +79,14 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(self.user.profile.theme, form_data["theme"])
         self.assertEqual(
             self.user.profile.bookmark_date_display, form_data["bookmark_date_display"]
+        )
+        self.assertEqual(
+            self.user.profile.bookmark_description_display,
+            form_data["bookmark_description_display"],
+        )
+        self.assertEqual(
+            self.user.profile.bookmark_description_max_lines,
+            form_data["bookmark_description_max_lines"],
         )
         self.assertEqual(
             self.user.profile.bookmark_link_target, form_data["bookmark_link_target"]
