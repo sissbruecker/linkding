@@ -2,6 +2,7 @@
 # Bootstrap script that gets executed in new Docker containers
 
 LD_SERVER_PORT="${LD_SERVER_PORT:-9090}"
+export LD_REQUEST_TIMEOUT="${LD_REQUEST_TIMEOUT:-60}"
 
 # Create data folder if it does not exist
 mkdir -p data
