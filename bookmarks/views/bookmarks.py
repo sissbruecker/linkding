@@ -109,11 +109,15 @@ def details(request, bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
-        raise Http404('Bookmark does not exist')
+        raise Http404("Bookmark does not exist")
 
-    return render(request, 'bookmarks/details.html', {
-        'bookmark': bookmark,
-    })
+    return render(
+        request,
+        "bookmarks/details.html",
+        {
+            "bookmark": bookmark,
+        },
+    )
 
 
 def convert_tag_string(tag_string: str):

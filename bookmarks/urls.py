@@ -34,7 +34,9 @@ urlpatterns = [
     path("bookmarks/new", views.bookmarks.new, name="new"),
     path("bookmarks/close", views.bookmarks.close, name="close"),
     path("bookmarks/<int:bookmark_id>/edit", views.bookmarks.edit, name="edit"),
-    path('bookmarks/<int:bookmark_id>/details', views.bookmarks.details, name='details'),
+    path(
+        "bookmarks/<int:bookmark_id>/details", views.bookmarks.details, name="details"
+    ),
     # Partials
     path(
         "bookmarks/partials/bookmark-list/active",

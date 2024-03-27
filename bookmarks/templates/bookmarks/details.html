@@ -9,28 +9,33 @@
     {% endif %}
     {{ bookmark.resolved_title }}
   </h2>
-  <a href="{{ bookmark.url }}" rel="noopener">
-    {{ bookmark.url }}
-  </a>
+  <a href="{{ bookmark.url }}" rel="noopener"
+     target="{{ request.user_profile.bookmark_link_target }}">{{ bookmark.url }}</a>
   <dl class="mt-4">
     <dt>Date added</dt>
     <dd>
-      {{ bookmark.date_added }}
-      <br>
-      <a class="text-sm" href="{{ bookmark.web_archive_snapshot_url }}">View snapshot on Internet Archive</a>
-    </dd>
-    <dt>Tags</dt>
-    <dd>
-      {% if bookmark.tag_names %}
-        {% for tag_name in bookmark.tag_names %}
-          <a style="color: #05a6a3" href="?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
-        {% endfor %}
+      <span>{{ bookmark.date_added }}</span>
+      {% if bookmark.web_archive_snapshot_url %}
+        <br>
+        <a class="text-sm" href="{{ bookmark.web_archive_snapshot_url }}"
+           target="{{ request.user_profile.bookmark_link_target }}">View snapshot on Internet Archive</a>
       {% endif %}
     </dd>
+    {% if bookmark.tag_names %}
+      <dt>Tags</dt>
+      <dd>
+        {% for tag_name in bookmark.tag_names %}
+          <a style="color: #05a6a3"
+             href="{% url 'bookmarks:index' %}?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
+        {% endfor %}
+      </dd>
+    {% endif %}
     <dt>Description</dt>
     <dd>{{ bookmark.resolved_description }}</dd>
-    <dt>Notes</dt>
-    <dd class="markdown" style="padding: 0">{% markdown bookmark.notes %}</dd>
+    {% if bookmark.notes %}
+      <dt>Notes</dt>
+      <dd class="markdown" style="padding: 0">{% markdown bookmark.notes %}</dd>
+    {% endif %}
     <dt>Quick settings</dt>
     <dd class="d-flex" style="gap: .8rem">
       <div class="form-group">
@@ -53,7 +58,7 @@
       </div>
     </dd>
   </dl>
-  <div class="mt-4 d-flex" style="gap: .4rem">
+  <div class="mt-4 d-flex" style="gap: .6rem">
     <a class="btn btn-primary">Back</a>
     <a class="btn">Edit</a>
     <button ld-confirm-button class="btn">Delete</button>
