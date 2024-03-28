@@ -127,6 +127,25 @@ ul.menu li:first-child {
   }
 }
 
+// Remove slide-down from modal animation
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.modal.active .modal-container, .modal.active .modal-overlay {
+  animation: fade-in .15s ease 1;
+}
+
+// Same for menu
+.dropdown .menu {
+  animation: fade-in .15s ease 1;
+}
+
 // Increase input font size on small viewports to prevent zooming on focus the input
 // on mobile devices. 430px relates to the "normalized" iPhone 14 Pro Max
 // viewport size
