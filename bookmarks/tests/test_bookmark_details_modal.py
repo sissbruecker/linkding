@@ -11,10 +11,11 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         user = self.get_or_create_test_user()
         self.client.force_login(user)
 
-    def get_details(self, bookmark):
-        response = self.client.get(
-            reverse("bookmarks:details_modal", args=[bookmark.id])
-        )
+    def get_details(self, bookmark, return_url=""):
+        url = reverse("bookmarks:details_modal", args=[bookmark.id])
+        if return_url:
+            url += f"?return_url={return_url}"
+        response = self.client.get(url)
         soup = self.make_soup(response.content)
         return soup
 
@@ -121,7 +122,13 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertEqual(image["src"], "/static/example.png")
 
     def test_internet_archive_link(self):
-        # basics
+        # without snapshot url
+        bookmark = self.setup_bookmark()
+        soup = self.get_details(bookmark)
+        link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
+        self.assertIsNone(link)
+
+        # with snapshot url
         bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")
         soup = self.get_details(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
@@ -130,7 +137,9 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertEqual(link.text.strip(), "View on Internet Archive")
 
         # favicons disabled
-        bookmark = self.setup_bookmark(favicon_file="example.png")
+        bookmark = self.setup_bookmark(
+            web_archive_snapshot_url="https://example.com/", favicon_file="example.png"
+        )
         soup = self.get_details(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         image = link.select_one("svg")
@@ -141,14 +150,18 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.enable_favicons = True
         profile.save()
 
-        bookmark = self.setup_bookmark(favicon_file="")
+        bookmark = self.setup_bookmark(
+            web_archive_snapshot_url="https://example.com/", favicon_file=""
+        )
         soup = self.get_details(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         image = link.select_one("svg")
         self.assertIsNone(image)
 
         # favicons enabled, favicon present
-        bookmark = self.setup_bookmark(favicon_file="example.png")
+        bookmark = self.setup_bookmark(
+            web_archive_snapshot_url="https://example.com/", favicon_file="example.png"
+        )
         soup = self.get_details(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         image = link.select_one("svg")
@@ -220,6 +233,13 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             self.assertEqual(tag_link["href"], expected_url)
 
     def test_description(self):
+        # without description
+        bookmark = self.setup_bookmark(description="", website_description="")
+        soup = self.get_details(bookmark)
+
+        section = self.find_section(soup, "Description")
+        self.assertIsNone(section)
+
         # with description
         bookmark = self.setup_bookmark(description="Test description")
         soup = self.get_details(bookmark)
@@ -250,3 +270,46 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         section = self.get_section(soup, "Notes")
         self.assertEqual(section.decode_contents(), "<p>Test notes</p>")
+
+    def test_edit_link(self):
+        bookmark = self.setup_bookmark()
+
+        # with default return URL
+        soup = self.get_details(bookmark)
+        edit_link = soup.find("a", string="Edit")
+        self.assertIsNotNone(edit_link)
+        expected_url = (
+            reverse("bookmarks:edit", args=[bookmark.id]) + "?return_url=/bookmarks"
+        )
+        self.assertEqual(edit_link["href"], expected_url)
+
+        # with custom return URL
+        soup = self.get_details(bookmark, return_url="/custom")
+        edit_link = soup.find("a", string="Edit")
+        self.assertIsNotNone(edit_link)
+        expected_url = (
+            reverse("bookmarks:edit", args=[bookmark.id]) + "?return_url=/custom"
+        )
+        self.assertEqual(edit_link["href"], expected_url)
+
+    def test_delete_button(self):
+        bookmark = self.setup_bookmark()
+
+        # basics
+        soup = self.get_details(bookmark)
+        delete_button = soup.find("button", {"type": "submit", "name": "remove"})
+        self.assertIsNotNone(delete_button)
+        self.assertEqual(delete_button.text.strip(), "Delete...")
+        self.assertEqual(delete_button["value"], str(bookmark.id))
+
+        form = delete_button.find_parent("form")
+        self.assertIsNotNone(form)
+        expected_url = reverse("bookmarks:index.action") + f"?return_url=/bookmarks"
+        self.assertEqual(form["action"], expected_url)
+
+        # with custom return URL
+        soup = self.get_details(bookmark, return_url="/custom")
+        delete_button = soup.find("button", {"type": "submit", "name": "remove"})
+        form = delete_button.find_parent("form")
+        expected_url = reverse("bookmarks:index.action") + f"?return_url=/custom"
+        self.assertEqual(form["action"], expected_url)

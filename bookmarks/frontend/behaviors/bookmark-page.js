@@ -74,7 +74,9 @@ class BookmarkItem {
 
     // Show details in modal
     const detailsButton = element.querySelector("a.details");
-    detailsButton.addEventListener("click", this.onShowDetails.bind(this));
+    if (detailsButton) {
+      detailsButton.addEventListener("click", this.onShowDetails.bind(this));
+    }
   }
 
   onToggleNotes(event) {

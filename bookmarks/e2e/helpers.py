@@ -45,6 +45,9 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         bookmark_tags = self.page.locator("li[ld-bookmark-item]")
         return bookmark_tags.filter(has_text=title)
 
+    def locate_details_modal(self):
+        return self.page.locator(".modal.bookmark-details")
+
     def locate_bulk_edit_bar(self):
         return self.page.locator(".bulk-edit-bar")
 

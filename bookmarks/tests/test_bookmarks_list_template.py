@@ -66,6 +66,15 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertBookmarkActionsCount(html, bookmark, count=0)
 
     def assertBookmarkActionsCount(self, html: str, bookmark: Bookmark, count=1):
+        # View link
+        view_url = reverse("bookmarks:details_modal", args=[bookmark.id])
+        self.assertInHTML(
+            f"""
+            <a class="details" href="{view_url}?return_url=/bookmarks">View</a>
+        """,
+            html,
+            count=count,
+        )
         # Edit link
         edit_url = reverse("bookmarks:edit", args=[bookmark.id])
         self.assertInHTML(
@@ -154,7 +163,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertInHTML(
             f"""
         <div class="notes bg-gray text-gray-dark">
-          <div class="notes-content">
+          <div class="markdown">
             {notes_html}
           </div>
         </div>
