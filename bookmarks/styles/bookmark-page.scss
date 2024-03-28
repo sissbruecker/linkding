@@ -82,9 +82,11 @@
 
     .radio-group {
       margin-bottom: $unit-1;
+
       .form-label {
         padding-bottom: 0;
       }
+
       .form-radio.form-inline {
         margin: 0 $unit-2 0 0;
         padding: 0;
@@ -92,6 +94,7 @@
         align-items: center;
         column-gap: $unit-1;
       }
+
       .form-icon {
         top: 0;
         position: relative;
@@ -268,55 +271,13 @@ ul.bookmark-list {
     overflow-y: auto;
   }
 
-  &.show-notes .notes,
-  li.show-notes .notes {
-    display: block;
-  }
-}
-
-/* Bookmark notes markdown styles */
-.markdown, ul.bookmark-list .notes-content {
-  & {
+  .notes .markdown {
     padding: $unit-2 $unit-3;
   }
 
-  p, ul, ol, pre, blockquote {
-    margin: 0 0 $unit-2 0;
-  }
-
-  > *:first-child {
-    margin-top: 0;
-  }
-
-  > *:last-child {
-    margin-bottom: 0;
-  }
-
-  ul, ol {
-    margin-left: $unit-4;
-  }
-
-  ul li, ol li {
-    margin-top: $unit-1;
-  }
-
-  pre {
-    padding: $unit-1 $unit-2;
-    background-color: $code-bg-color;
-    border-radius: $unit-1;
-    overflow-x: auto;
-  }
-
-  pre code {
-    background: none;
-    box-shadow: none;
-    padding: 0;
-  }
-
-  > pre:first-child:last-child {
-    padding: 0;
-    background: none;
-    border-radius: 0;
+  &.show-notes .notes,
+  li.show-notes .notes {
+    display: block;
   }
 }
 
@@ -404,5 +365,71 @@ $bulk-edit-transition-duration: 400ms;
       margin: 0 0 0 auto;
       font-size: $font-size-sm;
     }
+  }
+}
+
+/* Bookmark details modal */
+.modal.bookmark-details {
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    gap: $unit-2;
+  }
+
+  .modal-header h2 {
+    flex: 1 1 0;
+    align-items: flex-start;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .modal-header button.close {
+    padding: 0;
+    height: auto;
+    line-height: 0;
+  }
+
+  .modal-body {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .weblinks {
+    display: flex;
+    flex-direction: column;
+    gap: $unit-2;
+  }
+
+  a.weblink {
+    display: flex;
+    align-items: center;
+    gap: $unit-2;
+  }
+
+  a.weblink img, a.weblink svg {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+  }
+
+  a.weblink span {
+    flex: 1 1 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  dl {
+    margin-bottom: 0;
+  }
+
+  .tags a {
+    color: $alternative-color;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 }

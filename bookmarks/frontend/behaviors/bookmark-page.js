@@ -1,4 +1,4 @@
-import { registerBehavior, swap } from "./index";
+import { applyBehaviors, registerBehavior, swap } from "./index";
 
 class BookmarkPage {
   constructor(element) {
@@ -71,12 +71,30 @@ class BookmarkItem {
     if (titleSpan.offsetWidth > titleAnchor.offsetWidth) {
       titleAnchor.dataset.tooltip = titleSpan.textContent;
     }
+
+    // Show details in modal
+    const detailsButton = element.querySelector("a.details");
+    detailsButton.addEventListener("click", this.onShowDetails.bind(this));
   }
 
   onToggleNotes(event) {
     event.preventDefault();
     event.stopPropagation();
     this.element.classList.toggle("show-notes");
+  }
+
+  async onShowDetails(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    let url = event.target.href;
+    const modalHtml = await fetch(url).then((response) => response.text());
+    const modal = document.createElement("div");
+    modal.classList.add("modal", "active", "bookmark-details");
+    modal.setAttribute("ld-modal", "");
+    modal.innerHTML = modalHtml;
+
+    document.body.append(modal);
+    applyBehaviors(document.body);
   }
 }
 

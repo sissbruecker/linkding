@@ -2,6 +2,25 @@ import { registerBehavior } from "./index";
 
 class ModalBehavior {
   constructor(element) {
+    this.modal = element;
+
+    // Register close handlers
+    const modalOverlay = element.querySelector(".modal-overlay");
+    const closeButton = element.querySelector(".btn.close");
+    modalOverlay.addEventListener("click", this.onClose.bind(this));
+    closeButton.addEventListener("click", this.onClose.bind(this));
+  }
+
+  onClose() {
+    // Remove modal
+    this.modal.remove();
+  }
+}
+
+registerBehavior("ld-modal", ModalBehavior);
+
+class TagModalBehavior {
+  constructor(element) {
     const toggle = element;
     toggle.addEventListener("click", this.onToggleClick.bind(this));
     this.toggle = toggle;
@@ -62,4 +81,4 @@ class ModalBehavior {
   }
 }
 
-registerBehavior("ld-modal", ModalBehavior);
+registerBehavior("ld-tag-modal", TagModalBehavior);

@@ -6,13 +6,15 @@ from bookmarks.models import UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
-class BookmarkDetailsViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
+class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def setUp(self):
         user = self.get_or_create_test_user()
         self.client.force_login(user)
 
     def get_details(self, bookmark):
-        response = self.client.get(reverse("bookmarks:details", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("bookmarks:details_modal", args=[bookmark.id])
+        )
         soup = self.make_soup(response.content)
         return soup
 
@@ -26,28 +28,37 @@ class BookmarkDetailsViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin)
         self.assertIsNotNone(dd)
         return dd
 
+    def find_weblink(self, soup, url):
+        return soup.find("a", {"class": "weblink", "href": url})
+
     def test_access(self):
         # own bookmark
         bookmark = self.setup_bookmark()
 
-        response = self.client.get(reverse("bookmarks:details", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("bookmarks:details_modal", args=[bookmark.id])
+        )
         self.assertEqual(response.status_code, 200)
 
         # other user's bookmark
         other_user = self.setup_user()
         bookmark = self.setup_bookmark(user=other_user)
 
-        response = self.client.get(reverse("bookmarks:details", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("bookmarks:details_modal", args=[bookmark.id])
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # non-existent bookmark
+        response = self.client.get(reverse("bookmarks:details_modal", args=[9999]))
         self.assertEqual(response.status_code, 404)
 
         # guest user
         self.client.logout()
-        response = self.client.get(reverse("bookmarks:details", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("bookmarks:details_modal", args=[bookmark.id])
+        )
         self.assertEqual(response.status_code, 302)
-
-    def test_return_404_for_non_existent_bookmark(self):
-        response = self.client.get(reverse("bookmarks:details", args=[9999]))
-        self.assertEqual(response.status_code, 404)
 
     def test_displays_title(self):
         # with title
@@ -74,43 +85,77 @@ class BookmarkDetailsViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin)
         self.assertIsNotNone(title)
         self.assertEqual(title.text.strip(), bookmark.url)
 
-    def test_favicon(self):
-        # favicons disabled, should not render
+    def test_website_link(self):
+        # basics
+        bookmark = self.setup_bookmark()
+        soup = self.get_details(bookmark)
+        link = self.find_weblink(soup, bookmark.url)
+        self.assertIsNotNone(link)
+        self.assertEqual(link["href"], bookmark.url)
+        self.assertEqual(link.text.strip(), bookmark.url)
+
+        # favicons disabled
         bookmark = self.setup_bookmark(favicon_file="example.png")
         soup = self.get_details(bookmark)
+        link = self.find_weblink(soup, bookmark.url)
+        image = link.select_one("img")
+        self.assertIsNone(image)
 
-        favicon = soup.select_one("h2 img")
-        self.assertIsNone(favicon)
-
-        # favicons enabled, no favicon, should not render
+        # favicons enabled, no favicon
         profile = self.get_or_create_test_user().profile
         profile.enable_favicons = True
         profile.save()
 
         bookmark = self.setup_bookmark(favicon_file="")
         soup = self.get_details(bookmark)
+        link = self.find_weblink(soup, bookmark.url)
+        image = link.select_one("img")
+        self.assertIsNone(image)
 
-        favicon = soup.select_one("h2 img")
-        self.assertIsNone(favicon)
-
-        # favicons enabled, favicon present, should render
+        # favicons enabled, favicon present
         bookmark = self.setup_bookmark(favicon_file="example.png")
         soup = self.get_details(bookmark)
+        link = self.find_weblink(soup, bookmark.url)
+        image = link.select_one("img")
+        self.assertIsNotNone(image)
+        self.assertEqual(image["src"], "/static/example.png")
 
-        favicon = soup.select_one("h2 img")
-        self.assertIsNotNone(favicon)
-        self.assertEqual(favicon["src"], "/static/example.png")
-
-    def test_link(self):
-        bookmark = self.setup_bookmark()
+    def test_internet_archive_link(self):
+        # basics
+        bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")
         soup = self.get_details(bookmark)
-
-        link = soup.find("a", string=bookmark.url)
+        link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         self.assertIsNotNone(link)
-        self.assertEqual(link["href"], bookmark.url)
+        self.assertEqual(link["href"], bookmark.web_archive_snapshot_url)
+        self.assertEqual(link.text.strip(), "View on Internet Archive")
 
-    def test_link_respects_target_setting(self):
-        bookmark = self.setup_bookmark()
+        # favicons disabled
+        bookmark = self.setup_bookmark(favicon_file="example.png")
+        soup = self.get_details(bookmark)
+        link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
+        image = link.select_one("svg")
+        self.assertIsNone(image)
+
+        # favicons enabled, no favicon
+        profile = self.get_or_create_test_user().profile
+        profile.enable_favicons = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(favicon_file="")
+        soup = self.get_details(bookmark)
+        link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
+        image = link.select_one("svg")
+        self.assertIsNone(image)
+
+        # favicons enabled, favicon present
+        bookmark = self.setup_bookmark(favicon_file="example.png")
+        soup = self.get_details(bookmark)
+        link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
+        image = link.select_one("svg")
+        self.assertIsNotNone(image)
+
+    def test_weblinks_respect_target_setting(self):
+        bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")
 
         # target blank
         profile = self.get_or_create_test_user().profile
@@ -119,9 +164,15 @@ class BookmarkDetailsViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin)
 
         soup = self.get_details(bookmark)
 
-        link = soup.find("a", string=bookmark.url)
-        self.assertIsNotNone(link)
-        self.assertEqual(link["target"], UserProfile.BOOKMARK_LINK_TARGET_BLANK)
+        website_link = self.find_weblink(soup, bookmark.url)
+        self.assertIsNotNone(website_link)
+        self.assertEqual(website_link["target"], UserProfile.BOOKMARK_LINK_TARGET_BLANK)
+
+        web_archive_link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
+        self.assertIsNotNone(web_archive_link)
+        self.assertEqual(
+            web_archive_link["target"], UserProfile.BOOKMARK_LINK_TARGET_BLANK
+        )
 
         # target self
         profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_SELF
@@ -129,9 +180,15 @@ class BookmarkDetailsViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin)
 
         soup = self.get_details(bookmark)
 
-        link = soup.find("a", string=bookmark.url)
-        self.assertIsNotNone(link)
-        self.assertEqual(link["target"], UserProfile.BOOKMARK_LINK_TARGET_SELF)
+        website_link = self.find_weblink(soup, bookmark.url)
+        self.assertIsNotNone(website_link)
+        self.assertEqual(website_link["target"], UserProfile.BOOKMARK_LINK_TARGET_SELF)
+
+        web_archive_link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
+        self.assertIsNotNone(web_archive_link)
+        self.assertEqual(
+            web_archive_link["target"], UserProfile.BOOKMARK_LINK_TARGET_SELF
+        )
 
     def test_date_added(self):
         bookmark = self.setup_bookmark()
@@ -141,50 +198,6 @@ class BookmarkDetailsViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin)
         expected_date = formats.date_format(bookmark.date_added, "DATETIME_FORMAT")
         date = section.find("span", string=expected_date)
         self.assertIsNotNone(date)
-
-    def test_web_archive_link(self):
-        # without web archive link
-        bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
-        section = self.get_section(soup, "Date added")
-
-        link = section.find("a", string="View snapshot on Internet Archive")
-        self.assertIsNone(link)
-
-        # with web archive link
-        bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")
-        soup = self.get_details(bookmark)
-        section = self.get_section(soup, "Date added")
-
-        link = section.find("a", string="View snapshot on Internet Archive")
-        self.assertIsNotNone(link)
-        self.assertEqual(link["href"], bookmark.web_archive_snapshot_url)
-
-    def test_web_archive_link_respects_target_setting(self):
-        bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")
-
-        # target blank
-        profile = self.get_or_create_test_user().profile
-        profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_BLANK
-        profile.save()
-
-        soup = self.get_details(bookmark)
-        section = self.get_section(soup, "Date added")
-
-        link = section.find("a", string="View snapshot on Internet Archive")
-        self.assertIsNotNone(link)
-        self.assertEqual(link["target"], UserProfile.BOOKMARK_LINK_TARGET_BLANK)
-
-        # target self
-        profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_SELF
-        profile.save()
-
-        soup = self.get_details(bookmark)
-        section = self.get_section(soup, "Date added")
-
-        link = section.find("a", string="View snapshot on Internet Archive")
-        self.assertIsNotNone(link)
-        self.assertEqual(link["target"], UserProfile.BOOKMARK_LINK_TARGET_SELF)
 
     def test_tags(self):
         # without tags

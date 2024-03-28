@@ -105,17 +105,22 @@ def search_action(request):
 
 
 @login_required
-def details(request, bookmark_id: int):
+def details_modal(request, bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
         raise Http404("Bookmark does not exist")
 
+    return_url = get_safe_return_url(
+        request.GET.get("return_url"), reverse("bookmarks:index")
+    )
+
     return render(
         request,
-        "bookmarks/details.html",
+        "bookmarks/details_modal.html",
         {
             "bookmark": bookmark,
+            "return_url": return_url,
         },
     )
 
