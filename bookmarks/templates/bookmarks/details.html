@@ -1,0 +1,11 @@
+{% extends 'bookmarks/layout.html' %}
+
+{% block content %}
+  <div class="bookmark-details page">
+    {% include 'bookmarks/details/actions.html' %}
+    {% include 'bookmarks/details/title.html' %}
+    <div>
+      {% include 'bookmarks/details/content.html' %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,39 +1,56 @@
-import { registerBehavior } from "./index";
+import { applyBehaviors, registerBehavior } from "./index";
 
 class ModalBehavior {
-  constructor(element) {
-    this.modal = element;
-
-    // Register close handlers
-    const modalOverlay = element.querySelector(".modal-overlay");
-    const closeButton = element.querySelector(".btn.close");
-    modalOverlay.addEventListener("click", this.onClose.bind(this));
-    closeButton.addEventListener("click", this.onClose.bind(this));
-  }
-
-  onClose() {
-    // Remove modal
-    this.modal.remove();
-  }
-}
-
-registerBehavior("ld-modal", ModalBehavior);
-
-class TagModalBehavior {
   constructor(element) {
     const toggle = element;
     toggle.addEventListener("click", this.onToggleClick.bind(this));
     this.toggle = toggle;
   }
 
-  onToggleClick() {
+  async onToggleClick(event) {
+    // Ignore Ctrl + click
+    if (event.ctrlKey || event.metaKey) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Create modal either by teleporting existing content or fetching from URL
+    const modal = this.toggle.hasAttribute("modal-content")
+      ? this.createFromContent()
+      : await this.createFromUrl();
+
+    if (!modal) {
+      return;
+    }
+
+    // Register close handlers
+    const modalOverlay = modal.querySelector(".modal-overlay");
+    const closeButton = modal.querySelector(".btn.close");
+    modalOverlay.addEventListener("click", this.onClose.bind(this));
+    closeButton.addEventListener("click", this.onClose.bind(this));
+
+    document.body.append(modal);
+    applyBehaviors(document.body);
+    this.modal = modal;
+  }
+
+  async createFromUrl() {
+    const url = this.toggle.getAttribute("modal-url");
+    const modalHtml = await fetch(url).then((response) => response.text());
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(modalHtml, "text/html");
+    return doc.querySelector(".modal");
+  }
+
+  createFromContent() {
     const contentSelector = this.toggle.getAttribute("modal-content");
     const content = document.querySelector(contentSelector);
     if (!content) {
       return;
     }
 
-    // Create modal
+    // Todo: make title configurable, only used for tag cloud for now
     const modal = document.createElement("div");
     modal.classList.add("modal", "active");
     modal.innerHTML = `
@@ -55,30 +72,24 @@ class TagModalBehavior {
       </div>
     `;
 
-    // Teleport content element
     const contentOwner = content.parentElement;
     const contentContainer = modal.querySelector(".content");
     contentContainer.append(content);
     this.content = content;
     this.contentOwner = contentOwner;
 
-    // Register close handlers
-    const modalOverlay = modal.querySelector(".modal-overlay");
-    const closeButton = modal.querySelector(".btn.close");
-    modalOverlay.addEventListener("click", this.onClose.bind(this));
-    closeButton.addEventListener("click", this.onClose.bind(this));
-
-    document.body.append(modal);
-    this.modal = modal;
+    return modal;
   }
 
   onClose() {
     // Teleport content back
-    this.contentOwner.append(this.content);
+    if (this.content && this.contentOwner) {
+      this.contentOwner.append(this.content);
+    }
 
     // Remove modal
     this.modal.remove();
   }
 }
 
-registerBehavior("ld-tag-modal", TagModalBehavior);
+registerBehavior("ld-modal", ModalBehavior);

@@ -11,8 +11,11 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         user = self.get_or_create_test_user()
         self.client.force_login(user)
 
+    def get_base_url(self, bookmark):
+        return reverse("bookmarks:details_modal", args=[bookmark.id])
+
     def get_details(self, bookmark, return_url=""):
-        url = reverse("bookmarks:details_modal", args=[bookmark.id])
+        url = self.get_base_url(bookmark)
         if return_url:
             url += f"?return_url={return_url}"
         response = self.client.get(url)

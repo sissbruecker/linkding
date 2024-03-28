@@ -104,8 +104,7 @@ def search_action(request):
     return HttpResponseRedirect(url)
 
 
-@login_required
-def details_modal(request, bookmark_id: int):
+def _details(request, bookmark_id: int, template: str):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -117,12 +116,22 @@ def details_modal(request, bookmark_id: int):
 
     return render(
         request,
-        "bookmarks/details_modal.html",
+        template,
         {
             "bookmark": bookmark,
             "return_url": return_url,
         },
     )
+
+
+@login_required
+def details(request, bookmark_id: int):
+    return _details(request, bookmark_id, "bookmarks/details.html")
+
+
+@login_required
+def details_modal(request, bookmark_id: int):
+    return _details(request, bookmark_id, "bookmarks/details_modal.html")
 
 
 def convert_tag_string(tag_string: str):

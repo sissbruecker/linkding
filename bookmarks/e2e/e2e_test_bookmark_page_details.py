@@ -12,7 +12,7 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("bookmarks:index"), p)
 
-            details_button = self.locate_bookmark(bookmark.title).locator(".details")
+            details_button = self.locate_bookmark(bookmark.title).get_by_text("View")
             details_button.click()
 
             details_modal = self.locate_details_modal()
@@ -28,7 +28,7 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse("bookmarks:index"), p)
 
             # close with close button
-            details_button = self.locate_bookmark(bookmark.title).locator(".details")
+            details_button = self.locate_bookmark(bookmark.title).get_by_text("View")
             details_button.click()
 
             details_modal = self.locate_details_modal()
@@ -54,7 +54,7 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
             url = reverse("bookmarks:index") + f"?q={bookmark.title}"
             self.open(url, p)
 
-            details_button = self.locate_bookmark(bookmark.title).locator(".details")
+            details_button = self.locate_bookmark(bookmark.title).get_by_text("View")
             details_button.click()
 
             details_modal = self.locate_details_modal()
@@ -75,7 +75,7 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
             url = reverse("bookmarks:index") + f"?q={bookmark.title}"
             self.open(url, p)
 
-            details_button = self.locate_bookmark(bookmark.title).locator(".details")
+            details_button = self.locate_bookmark(bookmark.title).get_by_text("View")
             details_button.click()
 
             details_modal = self.locate_details_modal()
