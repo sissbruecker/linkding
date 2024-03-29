@@ -3,6 +3,32 @@
 
 // Variables and mixins
 @import "../../node_modules/spectre.css/src/variables";
+
+// Customize variables to reduce font and control sizes
+
+// Can use CSS variables for font sizes, as they are not used in SCSS calculations
+$font-size: var(--font-size);
+$font-size-sm: var(--font-size-sm);
+$font-size-lg: var(--font-size-lg);
+
+// Can't use CSS variables for these, used in SCSS calculations
+$line-height: 1rem;
+$control-size: $unit-8;
+$control-size-sm: $unit-6;
+$control-size-lg: $unit-9;
+
+// Declare defaults for CSS variables, expose SCSS variables as CSS variables
+html {
+  --font-size: 0.7rem;
+  --font-size-sm: 0.65rem;
+  --font-size-lg: 0.8rem;
+
+  --control-size: #{$control-size};
+  --control-size-sm: #{$control-size-sm};
+  --control-size-lg: #{$control-size-lg};
+}
+
+// Mixins
 @import "../../node_modules/spectre.css/src/mixins";
 
 /*! Spectre.css v#{$version} | MIT License | github.com/picturepan2/spectre */
@@ -62,19 +88,6 @@ a:visited:hover {
 // something to do with .btn applying a transition for background, and then .btn-link setting a different background
 .btn {
   transition: none !important;
-}
-
-// Fix radio button sub-pixel size
-.form-radio .form-icon {
-  width: 14px;
-  height: 14px;
-  border-width: 1px;
-}
-
-.form-radio input:checked + .form-icon::before {
-  top: 3px;
-  left: 3px;
-  transform: unset;
 }
 
 // Make code work with light and dark theme

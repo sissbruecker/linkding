@@ -26,10 +26,10 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         )
         self.assertInHTML(
             f"""
+            {favicon_img}
             <a href="{bookmark.url}" 
                 target="{link_target}" 
                 rel="noopener">
-                {favicon_img}
                 <span>{bookmark.resolved_title}</span>
             </a>
             """,
@@ -40,7 +40,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertInHTML(
             f"""
         <span>{label_content}</span>
-        <span class="separator">|</span>
+        <span>|</span>
         """,
             html,
         )
@@ -54,7 +54,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
            title="Show snapshot on the Internet Archive Wayback Machine" target="{link_target}" rel="noopener">
             {label_content} ∞
         </a>
-        <span class="separator">|</span>
+        <span>|</span>
         """,
             html,
         )
@@ -147,7 +147,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             f"""
         <div class="url-path truncate">
           <a href="{bookmark.url}" target="{link_target}" rel="noopener" 
-          class="url-display text-sm">
+          class="url-display">
             {bookmark.url}
           </a>
         </div>

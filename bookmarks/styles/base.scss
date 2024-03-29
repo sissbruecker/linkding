@@ -9,7 +9,7 @@ body {
 }
 
 header {
-  margin-bottom: $unit-10;
+  margin-bottom: $unit-9;
 
   .logo {
     width: 28px;
@@ -50,14 +50,14 @@ section.content-area {
     border-bottom: solid 1px $border-color;
     display: flex;
     flex-wrap: wrap;
-    column-gap: $unit-6;
-    padding-bottom: $unit-2;
-    margin-bottom: $unit-4;
+    column-gap: $unit-5;
+    padding-bottom: $unit-1;
+    margin-bottom: $unit-3;
 
     h2 {
       flex: 0 0 auto;
-      line-height: 1.8rem;
-      margin-bottom: 0;
+      line-height: $unit-9;
+      margin: 0;
     }
 
     .header-controls {
@@ -95,10 +95,6 @@ span.confirmation {
   text-overflow: ellipsis;
 }
 
-.text-sm {
-  font-size: 0.7rem;
-}
-
 .text-gray-dark {
   color: $gray-color-dark;
 }
@@ -122,10 +118,6 @@ span.confirmation {
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
-}
-
-.ml-auto {
-  margin-left: auto;
 }
 
 .btn.btn-wide {

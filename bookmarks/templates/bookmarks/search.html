@@ -25,7 +25,7 @@
         <path d="M18 9v11"></path>
       </svg>
     </button>
-    <div class="menu text-sm" tabindex="0">
+    <div class="menu" tabindex="0">
       <form id="search_preferences" action="" method="post">
         {% csrf_token %}
         {% if 'sort' in preferences_form.editable_fields %}

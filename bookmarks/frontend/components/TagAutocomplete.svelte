@@ -151,18 +151,20 @@
     }
 
     .form-autocomplete.small .form-autocomplete-input {
-        height: 1.4rem;
-        min-height: 1.4rem;
+        height: var(--control-size-sm);
+        min-height: var(--control-size-sm);
         padding: 0.05rem 0.3rem;
     }
 
     .form-autocomplete.small .form-autocomplete-input input {
+        width: 100%;
+        height: 100%;
         margin: 0;
         padding: 0;
-        font-size: 0.7rem;
+        font-size: var(--font-size-sm);
     }
 
     .form-autocomplete.small .menu .menu-item {
-        font-size: 0.7rem;
+        font-size: var(--font-size-sm);
     }
 </style>

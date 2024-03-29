@@ -1,11 +1,10 @@
 .bookmarks-page.grid {
-  grid-gap: $unit-10;
+  grid-gap: $unit-9;
 }
 
 /* Bookmark area header controls */
 .bookmarks-page .content-area-header {
   --searchbox-max-width: 350px;
-  --searchbox-height: 1.8rem;
 
   @media (max-width: $size-sm) {
     --searchbox-max-width: initial;
@@ -20,18 +19,18 @@
 
   // Regular input
   input[type='search'] {
-    height: var(--searchbox-height);
+    height: $control-size;
     -webkit-appearance: none;
   }
 
   // Enhanced auto-complete input
   // This needs a bit more wrangling to make the CSS component align with the attached button
   .form-autocomplete {
-    height: var(--searchbox-height);
+    height: $control-size;
 
     .form-autocomplete-input {
       width: 100%;
-      height: var(--searchbox-height);
+      height: $control-size;
 
       input[type='search'] {
         width: 100%;
@@ -72,6 +71,7 @@
     .menu {
       padding: $unit-4;
       min-width: 250px;
+      font-size: $font-size-sm;
     }
 
     .menu .actions {
@@ -108,6 +108,9 @@ ul.bookmark-list {
   list-style: none;
   margin: 0;
   padding: 0;
+
+  /* Increase line-height for better separation within / between items */
+  line-height: 1.1rem;
 }
 
 @keyframes appear {
@@ -125,54 +128,66 @@ ul.bookmark-list {
 /* Bookmarks */
 li[ld-bookmark-item] {
   position: relative;
+  margin-top: $unit-2;
 
   [ld-bulk-edit-checkbox].form-checkbox {
     display: none;
   }
 
+  .title {
+    position: relative;
+  }
+
+  .title img {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .title img + a {
+    padding-left: 22px;
+  }
+
   .title a {
-    display: inline-block;
-    vertical-align: top;
+    display: block;
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
 
-    &[data-tooltip]:hover::after, &[data-tooltip]:focus::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      z-index: 10;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: max-content;
-      max-width: 100%;
-      height: fit-content;
-      background-color: #292f62;
-      color: #fff;
-      padding: $unit-1;
-      border-radius: $border-radius;
-      border: 1px solid #424a8c;
-      font-size: $font-size-sm;
-      font-style: normal;
-      white-space: normal;
-      pointer-events: none;
-      animation: 0.3s ease 0s appear;
-    }
+  .title a[data-tooltip]:hover::after, .title a[data-tooltip]:focus::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    z-index: 10;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 90%;
+    height: fit-content;
+    background-color: #292f62;
+    color: #fff;
+    padding: $unit-1;
+    border-radius: $border-radius;
+    border: 1px solid #424a8c;
+    font-size: $font-size-sm;
+    font-style: normal;
+    white-space: normal;
+    pointer-events: none;
+    animation: 0.3s ease 0s appear;
   }
 
   &.unread .title a {
     font-style: italic;
   }
 
-  .title img {
-    width: 16px;
-    height: 16px;
-    margin-right: $unit-h;
-    vertical-align: text-top;
-  }
-
-  .url-display {
+  .url-path, .url-display {
+    font-size: $font-size-sm;
     color: $secondary-link-color;
   }
 
@@ -208,6 +223,8 @@ li[ld-bookmark-item] {
   }
 
   .actions {
+    font-size: $font-size-sm;
+
     a, button.btn-link {
       color: $gray-color;
       padding: 0;
@@ -224,10 +241,6 @@ li[ld-bookmark-item] {
         color: $gray-color-dark;
       }
     }
-
-    .separator {
-      align-self: flex-start;
-    }
   }
 }
 
@@ -236,6 +249,8 @@ li[ld-bookmark-item] {
 }
 
 .tag-cloud {
+  /* Increase line-height for better separation within / between items */
+  line-height: 1.1rem;
 
   .selected-tags {
     margin-bottom: $unit-4;
@@ -291,7 +306,7 @@ $bulk-edit-transition-duration: 400ms;
   .bulk-edit-bar {
     margin-top: -1px;
     margin-left: -$bulk-edit-bar-offset;
-    margin-bottom: $unit-4;
+    margin-bottom: $unit-3;
     max-height: 0;
     overflow: hidden;
     transition: max-height $bulk-edit-transition-duration;
@@ -313,7 +328,6 @@ $bulk-edit-transition-duration: 400ms;
     width: $bulk-edit-toggle-width;
     margin: 0 0 0 $bulk-edit-toggle-offset;
     padding: 0;
-    min-height: 1rem;
   }
 
   /* Bookmark checkboxes */
@@ -321,8 +335,10 @@ $bulk-edit-transition-duration: 400ms;
     display: block;
     position: absolute;
     width: $bulk-edit-toggle-width;
+    min-height: $bulk-edit-toggle-width;
     left: -$bulk-edit-toggle-width - $bulk-edit-toggle-offset;
-    top: 0;
+    top: 50%;
+    transform: translateY(-50%);
     padding: 0;
     margin: 0;
     visibility: hidden;
@@ -330,7 +346,7 @@ $bulk-edit-transition-duration: 400ms;
     transition: all $bulk-edit-transition-duration;
 
     .form-icon {
-      top: $unit-1;
+        top: 0;
     }
   }
 
@@ -342,7 +358,7 @@ $bulk-edit-transition-duration: 400ms;
   /* Actions */
   .bulk-edit-actions {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     padding: $unit-1 0;
     border-top: solid 1px $border-color;
     gap: $unit-2;
