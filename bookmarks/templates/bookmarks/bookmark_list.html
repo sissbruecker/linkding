@@ -79,25 +79,33 @@
             {% endif %}
             <span>|</span>
           {% endif %}
-          {# View link is always visible #}
-          <a ld-modal
-             modal-url="{% url 'bookmarks:details_modal' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}"
-             href="{% url 'bookmarks:details' bookmark_item.id %}">View</a>
+          {# View link is visible for both owned and shared bookmarks #}
+          {% if bookmark_list.show_view_action %}
+            <a ld-modal
+               modal-url="{% url 'bookmarks:details_modal' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}"
+               href="{% url 'bookmarks:details' bookmark_item.id %}">View</a>
+          {% endif %}
           {% if bookmark_item.is_editable %}
             {# Bookmark owner actions #}
-            <a href="{% url 'bookmarks:edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">Edit</a>
-            {% if bookmark_item.is_archived %}
-              <button type="submit" name="unarchive" value="{{ bookmark_item.id }}"
-                      class="btn btn-link btn-sm">Unarchive
-              </button>
-            {% else %}
-              <button type="submit" name="archive" value="{{ bookmark_item.id }}"
-                      class="btn btn-link btn-sm">Archive
+            {% if bookmark_list.show_edit_action %}
+              <a href="{% url 'bookmarks:edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">Edit</a>
+            {% endif %}
+            {% if bookmark_list.show_archive_action %}
+              {% if bookmark_item.is_archived %}
+                <button type="submit" name="unarchive" value="{{ bookmark_item.id }}"
+                        class="btn btn-link btn-sm">Unarchive
+                </button>
+              {% else %}
+                <button type="submit" name="archive" value="{{ bookmark_item.id }}"
+                        class="btn btn-link btn-sm">Archive
+                </button>
+              {% endif %}
+            {% endif %}
+            {% if bookmark_list.show_remove_action %}
+              <button ld-confirm-button type="submit" name="remove" value="{{ bookmark_item.id }}"
+                      class="btn btn-link btn-sm">Remove
               </button>
             {% endif %}
-            <button ld-confirm-button type="submit" name="remove" value="{{ bookmark_item.id }}"
-                    class="btn btn-link btn-sm">Remove
-            </button>
           {% else %}
             {# Shared bookmark actions #}
             <span>Shared by

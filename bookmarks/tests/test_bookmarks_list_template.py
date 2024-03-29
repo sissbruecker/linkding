@@ -62,6 +62,20 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def assertViewLink(
         self, html: str, bookmark: Bookmark, return_url=reverse("bookmarks:index")
     ):
+        self.assertViewLinkCount(html, bookmark, return_url=return_url)
+
+    def assertNoViewLink(
+        self, html: str, bookmark: Bookmark, return_url=reverse("bookmarks:index")
+    ):
+        self.assertViewLinkCount(html, bookmark, count=0, return_url=return_url)
+
+    def assertViewLinkCount(
+        self,
+        html: str,
+        bookmark: Bookmark,
+        count=1,
+        return_url=reverse("bookmarks:index"),
+    ):
         details_url = reverse("bookmarks:details", args=[bookmark.id])
         details_modal_url = reverse("bookmarks:details_modal", args=[bookmark.id])
         self.assertInHTML(
@@ -69,7 +83,37 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
                 <a ld-modal modal-url="{details_modal_url}?return_url={return_url}" href="{details_url}">View</a>
             """,
             html,
-            count=1,
+            count=count,
+        )
+
+    def assertEditLinkCount(self, html: str, bookmark: Bookmark, count=1):
+        edit_url = reverse("bookmarks:edit", args=[bookmark.id])
+        self.assertInHTML(
+            f"""
+            <a href="{edit_url}?return_url=/bookmarks">Edit</a>
+        """,
+            html,
+            count=count,
+        )
+
+    def assertArchiveLinkCount(self, html: str, bookmark: Bookmark, count=1):
+        self.assertInHTML(
+            f"""
+            <button type="submit" name="archive" value="{bookmark.id}"
+               class="btn btn-link btn-sm">Archive</button>
+        """,
+            html,
+            count=count,
+        )
+
+    def assertDeleteLinkCount(self, html: str, bookmark: Bookmark, count=1):
+        self.assertInHTML(
+            f"""
+            <button ld-confirm-button type="submit" name="remove" value="{bookmark.id}"
+               class="btn btn-link btn-sm">Remove</button>
+        """,
+            html,
+            count=count,
         )
 
     def assertBookmarkActions(self, html: str, bookmark: Bookmark):
@@ -79,33 +123,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertBookmarkActionsCount(html, bookmark, count=0)
 
     def assertBookmarkActionsCount(self, html: str, bookmark: Bookmark, count=1):
-        # Edit link
-        edit_url = reverse("bookmarks:edit", args=[bookmark.id])
-        self.assertInHTML(
-            f"""
-            <a href="{edit_url}?return_url=/bookmarks">Edit</a>
-        """,
-            html,
-            count=count,
-        )
-        # Archive link
-        self.assertInHTML(
-            f"""
-            <button type="submit" name="archive" value="{bookmark.id}"
-               class="btn btn-link btn-sm">Archive</button>
-        """,
-            html,
-            count=count,
-        )
-        # Delete link
-        self.assertInHTML(
-            f"""
-            <button ld-confirm-button type="submit" name="remove" value="{bookmark.id}"
-               class="btn btn-link btn-sm">Remove</button>
-        """,
-            html,
-            count=count,
-        )
+        self.assertEditLinkCount(html, bookmark, count=count)
+        self.assertArchiveLinkCount(html, bookmark, count=count)
+        self.assertDeleteLinkCount(html, bookmark, count=count)
 
     def assertShareInfo(self, html: str, bookmark: Bookmark):
         self.assertShareInfoCount(html, bookmark, 1)
@@ -534,6 +554,54 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertViewLink(html, bookmark)
         self.assertBookmarkActions(html, bookmark)
         self.assertNoShareInfo(html, bookmark)
+
+    def test_hide_view_link(self):
+        bookmark = self.setup_bookmark()
+        profile = self.get_or_create_test_user().profile
+        profile.display_view_bookmark_action = False
+        profile.save()
+
+        html = self.render_template()
+        self.assertViewLinkCount(html, bookmark, count=0)
+        self.assertEditLinkCount(html, bookmark, count=1)
+        self.assertArchiveLinkCount(html, bookmark, count=1)
+        self.assertDeleteLinkCount(html, bookmark, count=1)
+
+    def test_hide_edit_link(self):
+        bookmark = self.setup_bookmark()
+        profile = self.get_or_create_test_user().profile
+        profile.display_edit_bookmark_action = False
+        profile.save()
+
+        html = self.render_template()
+        self.assertViewLinkCount(html, bookmark, count=1)
+        self.assertEditLinkCount(html, bookmark, count=0)
+        self.assertArchiveLinkCount(html, bookmark, count=1)
+        self.assertDeleteLinkCount(html, bookmark, count=1)
+
+    def test_hide_archive_link(self):
+        bookmark = self.setup_bookmark()
+        profile = self.get_or_create_test_user().profile
+        profile.display_archive_bookmark_action = False
+        profile.save()
+
+        html = self.render_template()
+        self.assertViewLinkCount(html, bookmark, count=1)
+        self.assertEditLinkCount(html, bookmark, count=1)
+        self.assertArchiveLinkCount(html, bookmark, count=0)
+        self.assertDeleteLinkCount(html, bookmark, count=1)
+
+    def test_hide_remove_link(self):
+        bookmark = self.setup_bookmark()
+        profile = self.get_or_create_test_user().profile
+        profile.display_remove_bookmark_action = False
+        profile.save()
+
+        html = self.render_template()
+        self.assertViewLinkCount(html, bookmark, count=1)
+        self.assertEditLinkCount(html, bookmark, count=1)
+        self.assertArchiveLinkCount(html, bookmark, count=1)
+        self.assertDeleteLinkCount(html, bookmark, count=0)
 
     def test_show_share_info_for_non_owned_bookmarks(self):
         other_user = User.objects.create_user(
