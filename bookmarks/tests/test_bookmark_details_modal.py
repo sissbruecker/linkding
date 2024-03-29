@@ -62,7 +62,43 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         response = self.client.get(
             reverse("bookmarks:details_modal", args=[bookmark.id])
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 404)
+
+    def test_access_with_sharing(self):
+        # shared bookmark, sharing disabled
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(shared=True, user=other_user)
+
+        response = self.client.get(
+            reverse("bookmarks:details_modal", args=[bookmark.id])
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # shared bookmark, sharing enabled
+        profile = other_user.profile
+        profile.enable_sharing = True
+        profile.save()
+
+        response = self.client.get(
+            reverse("bookmarks:details_modal", args=[bookmark.id])
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # shared bookmark, guest user, no public sharing
+        self.client.logout()
+        response = self.client.get(
+            reverse("bookmarks:details_modal", args=[bookmark.id])
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # shared bookmark, guest user, public sharing
+        profile.enable_public_sharing = True
+        profile.save()
+
+        response = self.client.get(
+            reverse("bookmarks:details_modal", args=[bookmark.id])
+        )
+        self.assertEqual(response.status_code, 200)
 
     def test_displays_title(self):
         # with title
@@ -271,6 +307,115 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         shared = section.find("input", {"type": "checkbox", "name": "shared"})
         self.assertTrue(shared.has_attr("checked"))
 
+    def test_status_visibility(self):
+        # own bookmark
+        bookmark = self.setup_bookmark()
+        soup = self.get_details(bookmark)
+        section = self.find_section(soup, "Status")
+        form_action = reverse("bookmarks:details", args=[bookmark.id])
+        form = soup.find("form", {"action": form_action})
+        self.assertIsNotNone(section)
+        self.assertIsNotNone(form)
+
+        # other user's bookmark
+        other_user = self.setup_user(enable_sharing=True)
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+        soup = self.get_details(bookmark)
+        section = self.find_section(soup, "Status")
+        form_action = reverse("bookmarks:details", args=[bookmark.id])
+        form = soup.find("form", {"action": form_action})
+        self.assertIsNone(section)
+        self.assertIsNone(form)
+
+        # guest user
+        self.client.logout()
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+        soup = self.get_details(bookmark)
+        section = self.find_section(soup, "Status")
+        form_action = reverse("bookmarks:details", args=[bookmark.id])
+        form = soup.find("form", {"action": form_action})
+        self.assertIsNone(section)
+        self.assertIsNone(form)
+
+    def test_status_update(self):
+        bookmark = self.setup_bookmark()
+
+        # update status
+        response = self.client.post(
+            self.get_base_url(bookmark),
+            {"is_archived": "on", "unread": "on", "shared": "on"},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        bookmark.refresh_from_db()
+        self.assertTrue(bookmark.is_archived)
+        self.assertTrue(bookmark.unread)
+        self.assertTrue(bookmark.shared)
+
+        # update individual status
+        response = self.client.post(
+            self.get_base_url(bookmark),
+            {"is_archived": "", "unread": "on", "shared": ""},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        bookmark.refresh_from_db()
+        self.assertFalse(bookmark.is_archived)
+        self.assertTrue(bookmark.unread)
+        self.assertFalse(bookmark.shared)
+
+    def test_status_update_access(self):
+        # no sharing
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        response = self.client.post(
+            self.get_base_url(bookmark),
+            {"is_archived": "on", "unread": "on", "shared": "on"},
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # shared, sharing disabled
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+        response = self.client.post(
+            self.get_base_url(bookmark),
+            {"is_archived": "on", "unread": "on", "shared": "on"},
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # shared, sharing enabled
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+        profile = other_user.profile
+        profile.enable_sharing = True
+        profile.save()
+
+        response = self.client.post(
+            self.get_base_url(bookmark),
+            {"is_archived": "on", "unread": "on", "shared": "on"},
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # shared, public sharing enabled
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+        profile = other_user.profile
+        profile.enable_public_sharing = True
+        profile.save()
+
+        response = self.client.post(
+            self.get_base_url(bookmark),
+            {"is_archived": "on", "unread": "on", "shared": "on"},
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # guest user
+        self.client.logout()
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+
+        response = self.client.post(
+            self.get_base_url(bookmark),
+            {"is_archived": "on", "unread": "on", "shared": "on"},
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_date_added(self):
         bookmark = self.setup_bookmark()
         soup = self.get_details(bookmark)
@@ -382,3 +527,36 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         form = delete_button.find_parent("form")
         expected_url = reverse("bookmarks:index.action") + f"?return_url=/custom"
         self.assertEqual(form["action"], expected_url)
+
+    def test_actions_visibility(self):
+        # with sharing
+        other_user = self.setup_user(enable_sharing=True)
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+
+        soup = self.get_details(bookmark)
+        edit_link = soup.find("a", string="Edit")
+        delete_button = soup.find("button", {"type": "submit", "name": "remove"})
+        self.assertIsNone(edit_link)
+        self.assertIsNone(delete_button)
+
+        # with public sharing
+        profile = other_user.profile
+        profile.enable_public_sharing = True
+        profile.save()
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+
+        soup = self.get_details(bookmark)
+        edit_link = soup.find("a", string="Edit")
+        delete_button = soup.find("button", {"type": "submit", "name": "remove"})
+        self.assertIsNone(edit_link)
+        self.assertIsNone(delete_button)
+
+        # guest user
+        self.client.logout()
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+
+        soup = self.get_details(bookmark)
+        edit_link = soup.find("a", string="Edit")
+        delete_button = soup.find("button", {"type": "submit", "name": "remove"})
+        self.assertIsNone(edit_link)
+        self.assertIsNone(delete_button)

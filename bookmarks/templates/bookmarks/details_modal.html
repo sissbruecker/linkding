@@ -17,8 +17,11 @@
         {% include 'bookmarks/details/content.html' %}
       </div>
     </div>
-    <div class="modal-footer">
-      {% include 'bookmarks/details/actions.html' %}
-    </div>
+
+    {% if request.user == bookmark.owner %}
+      <div class="modal-footer">
+        {% include 'bookmarks/details/actions.html' %}
+      </div>
+    {% endif %}
   </div>
 </div>

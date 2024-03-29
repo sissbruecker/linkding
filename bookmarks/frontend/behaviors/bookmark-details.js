@@ -3,6 +3,10 @@ import { registerBehavior } from "./index";
 class BookmarkDetails {
   constructor(element) {
     this.form = element.querySelector(".status form");
+    if (!this.form) {
+      // Form may not exist if user does not own the bookmark
+      return;
+    }
     this.form.addEventListener("submit", (event) => {
       event.preventDefault();
       this.submitForm();

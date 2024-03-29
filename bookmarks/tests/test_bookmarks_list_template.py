@@ -59,6 +59,19 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             html,
         )
 
+    def assertViewLink(
+        self, html: str, bookmark: Bookmark, return_url=reverse("bookmarks:index")
+    ):
+        details_url = reverse("bookmarks:details", args=[bookmark.id])
+        details_modal_url = reverse("bookmarks:details_modal", args=[bookmark.id])
+        self.assertInHTML(
+            f"""
+                <a ld-modal modal-url="{details_modal_url}?return_url={return_url}" href="{details_url}">View</a>
+            """,
+            html,
+            count=1,
+        )
+
     def assertBookmarkActions(self, html: str, bookmark: Bookmark):
         self.assertBookmarkActionsCount(html, bookmark, count=1)
 
@@ -66,16 +79,6 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertBookmarkActionsCount(html, bookmark, count=0)
 
     def assertBookmarkActionsCount(self, html: str, bookmark: Bookmark, count=1):
-        # View link
-        details_url = reverse("bookmarks:details", args=[bookmark.id])
-        details_modal_url = reverse("bookmarks:details_modal", args=[bookmark.id])
-        self.assertInHTML(
-            f"""
-            <a ld-modal modal-url="{details_modal_url}?return_url=/bookmarks" href="{details_url}">View</a>
-        """,
-            html,
-            count=count,
-        )
         # Edit link
         edit_url = reverse("bookmarks:edit", args=[bookmark.id])
         self.assertInHTML(
@@ -111,6 +114,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertShareInfoCount(html, bookmark, 0)
 
     def assertShareInfoCount(self, html: str, bookmark: Bookmark, count=1):
+        # Shared by link
         self.assertInHTML(
             f"""
             <span>Shared by 
@@ -527,6 +531,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         bookmark = self.setup_bookmark()
         html = self.render_template()
 
+        self.assertViewLink(html, bookmark)
         self.assertBookmarkActions(html, bookmark)
         self.assertNoShareInfo(html, bookmark)
 
@@ -540,6 +545,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         bookmark = self.setup_bookmark(user=other_user, shared=True)
         html = self.render_template(context_type=contexts.SharedBookmarkListContext)
 
+        self.assertViewLink(html, bookmark, return_url=reverse("bookmarks:shared"))
         self.assertNoBookmarkActions(html, bookmark)
         self.assertShareInfo(html, bookmark)
 
@@ -795,6 +801,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertWebArchiveLink(
             html, "1 week ago", bookmark.web_archive_snapshot_url, link_target="_blank"
         )
+        self.assertViewLink(html, bookmark, return_url=reverse("bookmarks:shared"))
         self.assertNoBookmarkActions(html, bookmark)
         self.assertShareInfo(html, bookmark)
         self.assertMarkAsReadButton(html, bookmark, count=0)
