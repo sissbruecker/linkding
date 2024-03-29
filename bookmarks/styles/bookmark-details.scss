@@ -23,6 +23,7 @@
     flex: 0 0 auto;
     width: 16px;
     height: 16px;
+    color: $body-font-color;
   }
 
   a.weblink span {
@@ -61,11 +62,6 @@
   display: flex;
   flex-direction: column;
   gap: $unit-6;
-
-  .actions {
-    justify-content: flex-start;
-    gap: $unit-2;
-  }
 }
 
 /* Bookmark details modal specific */
