@@ -40,7 +40,7 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
         # Should render toasts container
         self.assertContains(response, '<div class="toasts">')
         # Should render two toasts
-        self.assertContains(response, '<div class="toast">', count=2)
+        self.assertContains(response, '<div class="toast d-flex">', count=2)
 
     def test_should_not_render_acknowledged_toasts(self):
         self.create_toast(acknowledged=True)
@@ -81,9 +81,9 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_toast_content(self):
         toast = self.create_toast()
         expected_toast = f"""
-            <div class="toast">
+            <div class="toast d-flex">
                 {toast.message}
-                <button type="submit" name="toast" value="{toast.id}" class="btn btn-clear float-right"></button>
+                <button type="submit" name="toast" value="{toast.id}" class="btn btn-clear"></button>
             </div>        
         """
 

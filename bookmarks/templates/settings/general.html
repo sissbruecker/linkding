@@ -39,7 +39,8 @@
         </div>
         <div
             class="form-group {% if request.user_profile.bookmark_description_display == 'inline' %}d-hide{% endif %}">
-          <label for="{{ form.bookmark_description_max_lines.id_for_label }}" class="form-label">Bookmark description max lines</label>
+          <label for="{{ form.bookmark_description_max_lines.id_for_label }}" class="form-label">Bookmark description
+            max lines</label>
           {{ form.bookmark_description_max_lines|add_class:"form-input width-25 width-sm-100" }}
           <div class="form-input-hint">
             Limits the number of lines that are displayed for the bookmark description.
@@ -68,7 +69,7 @@
           <label>Bookmark actions</label>
           <label for="{{ form.display_view_bookmark_action.id_for_label }}" class="form-checkbox">
             {{ form.display_view_bookmark_action }}
-            <i class="form-icon"></i> View details
+            <i class="form-icon"></i> View
           </label>
           <label for="{{ form.display_edit_bookmark_action.id_for_label }}" class="form-checkbox">
             {{ form.display_edit_bookmark_action }}
