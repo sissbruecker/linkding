@@ -5,7 +5,7 @@ from bookmarks.e2e.helpers import LinkdingE2ETestCase
 from bookmarks.models import Bookmark
 
 
-class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
+class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
     def test_show_details(self):
         bookmark = self.setup_bookmark()
 
@@ -41,23 +41,17 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
             url = reverse("bookmarks:index")
             self.open(url, p)
 
-            bookmark_list = self.locate_bookmark_list()
             details_modal = self.open_details_modal(bookmark)
-
             details_modal.get_by_text("Archived", exact=False).click()
-            expect(bookmark_list).not_to_be_visible()
-            self.assertEqual(self.locate_bookmark(bookmark.title).count(), 0)
+            expect(self.locate_bookmark(bookmark.title)).not_to_be_visible()
 
             # unarchive
             url = reverse("bookmarks:archived")
             self.page.goto(self.live_server_url + url)
 
-            bookmark_list = self.locate_bookmark_list()
             details_modal = self.open_details_modal(bookmark)
-
             details_modal.get_by_text("Archived", exact=False).click()
-            expect(bookmark_list).not_to_be_visible()
-            self.assertEqual(self.locate_bookmark(bookmark.title).count(), 0)
+            expect(self.locate_bookmark(bookmark.title)).not_to_be_visible()
 
     def test_toggle_unread(self):
         bookmark = self.setup_bookmark()
@@ -67,21 +61,16 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
             url = reverse("bookmarks:index")
             self.open(url, p)
 
-            bookmark_list = self.locate_bookmark_list()
             details_modal = self.open_details_modal(bookmark)
 
             details_modal.get_by_text("Unread").click()
-            expect(bookmark_list).not_to_be_visible()
             bookmark_item = self.locate_bookmark(bookmark.title)
             expect(bookmark_item.get_by_text("Unread")).to_be_visible()
 
             # mark as read
-            bookmark_list = self.locate_bookmark_list()
-
             details_modal.get_by_text("Unread").click()
-            expect(bookmark_list).not_to_be_visible()
             bookmark_item = self.locate_bookmark(bookmark.title)
-            self.assertEqual(bookmark_item.get_by_text("Unread").count(), 0)
+            expect(bookmark_item.get_by_text("Unread")).not_to_be_visible()
 
     def test_toggle_shared(self):
         profile = self.get_or_create_test_user().profile
@@ -95,21 +84,16 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
             url = reverse("bookmarks:index")
             self.open(url, p)
 
-            bookmark_list = self.locate_bookmark_list()
             details_modal = self.open_details_modal(bookmark)
 
             details_modal.get_by_text("Shared").click()
-            expect(bookmark_list).not_to_be_visible()
             bookmark_item = self.locate_bookmark(bookmark.title)
             expect(bookmark_item.get_by_text("Shared")).to_be_visible()
 
             # unshare bookmark
-            bookmark_list = self.locate_bookmark_list()
-
             details_modal.get_by_text("Shared").click()
-            expect(bookmark_list).not_to_be_visible()
             bookmark_item = self.locate_bookmark(bookmark.title)
-            self.assertEqual(bookmark_item.get_by_text("Shared").count(), 0)
+            expect(bookmark_item.get_by_text("Shared")).not_to_be_visible()
 
     def test_edit_return_url(self):
         bookmark = self.setup_bookmark()
@@ -144,6 +128,6 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
 
             # verify bookmark is deleted
             self.locate_bookmark(bookmark.title)
-            self.assertEqual(self.locate_bookmark(bookmark.title).count(), 0)
+            expect(self.locate_bookmark(bookmark.title)).not_to_be_visible()
 
         self.assertEqual(Bookmark.objects.count(), 0)
