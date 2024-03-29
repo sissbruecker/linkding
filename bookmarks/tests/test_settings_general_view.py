@@ -33,6 +33,10 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "enable_favicons": False,
             "tag_search": UserProfile.TAG_SEARCH_STRICT,
             "display_url": False,
+            "display_view_bookmark_action": True,
+            "display_edit_bookmark_action": True,
+            "display_archive_bookmark_action": True,
+            "display_remove_bookmark_action": True,
             "permanent_notes": False,
             "custom_css": "",
         }
@@ -67,6 +71,10 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "enable_favicons": True,
             "tag_search": UserProfile.TAG_SEARCH_LAX,
             "display_url": True,
+            "display_view_bookmark_action": False,
+            "display_edit_bookmark_action": False,
+            "display_archive_bookmark_action": False,
+            "display_remove_bookmark_action": False,
             "permanent_notes": True,
             "custom_css": "body { background-color: #000; }",
         }
@@ -104,6 +112,22 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
         self.assertEqual(self.user.profile.tag_search, form_data["tag_search"])
         self.assertEqual(self.user.profile.display_url, form_data["display_url"])
+        self.assertEqual(
+            self.user.profile.display_view_bookmark_action,
+            form_data["display_view_bookmark_action"],
+        )
+        self.assertEqual(
+            self.user.profile.display_edit_bookmark_action,
+            form_data["display_edit_bookmark_action"],
+        )
+        self.assertEqual(
+            self.user.profile.display_archive_bookmark_action,
+            form_data["display_archive_bookmark_action"],
+        )
+        self.assertEqual(
+            self.user.profile.display_remove_bookmark_action,
+            form_data["display_remove_bookmark_action"],
+        )
         self.assertEqual(
             self.user.profile.permanent_notes, form_data["permanent_notes"]
         )

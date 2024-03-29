@@ -346,6 +346,10 @@ class UserProfile(models.Model):
     enable_public_sharing = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
     display_url = models.BooleanField(default=False, null=False)
+    display_view_bookmark_action = models.BooleanField(default=True, null=False)
+    display_edit_bookmark_action = models.BooleanField(default=True, null=False)
+    display_archive_bookmark_action = models.BooleanField(default=True, null=False)
+    display_remove_bookmark_action = models.BooleanField(default=True, null=False)
     permanent_notes = models.BooleanField(default=False, null=False)
     custom_css = models.TextField(blank=True, null=False)
     search_preferences = models.JSONField(default=dict, null=False)
@@ -366,6 +370,10 @@ class UserProfileForm(forms.ModelForm):
             "enable_public_sharing",
             "enable_favicons",
             "display_url",
+            "display_view_bookmark_action",
+            "display_edit_bookmark_action",
+            "display_archive_bookmark_action",
+            "display_remove_bookmark_action",
             "permanent_notes",
             "custom_css",
         ]

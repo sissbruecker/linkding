@@ -65,6 +65,28 @@
           </div>
         </div>
         <div class="form-group">
+          <label>Bookmark actions</label>
+          <label for="{{ form.display_view_bookmark_action.id_for_label }}" class="form-checkbox">
+            {{ form.display_view_bookmark_action }}
+            <i class="form-icon"></i> View details
+          </label>
+          <label for="{{ form.display_edit_bookmark_action.id_for_label }}" class="form-checkbox">
+            {{ form.display_edit_bookmark_action }}
+            <i class="form-icon"></i> Edit
+          </label>
+          <label for="{{ form.display_archive_bookmark_action.id_for_label }}" class="form-checkbox">
+            {{ form.display_archive_bookmark_action }}
+            <i class="form-icon"></i> Archive
+          </label>
+          <label for="{{ form.display_remove_bookmark_action.id_for_label }}" class="form-checkbox">
+            {{ form.display_remove_bookmark_action }}
+            <i class="form-icon"></i> Remove
+          </label>
+          <div class="form-input-hint">
+            Which actions to display for each bookmark.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.bookmark_link_target.id_for_label }}" class="form-label">Open bookmarks in</label>
           {{ form.bookmark_link_target|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
