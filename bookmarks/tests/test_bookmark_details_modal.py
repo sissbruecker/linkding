@@ -346,8 +346,9 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         soup = self.get_details(bookmark)
         edit_link = soup.find("a", string="Edit")
         self.assertIsNotNone(edit_link)
+        details_url = reverse("bookmarks:details", args=[bookmark.id])
         expected_url = (
-            reverse("bookmarks:edit", args=[bookmark.id]) + "?return_url=/bookmarks"
+            reverse("bookmarks:edit", args=[bookmark.id]) + "?return_url=" + details_url
         )
         self.assertEqual(edit_link["href"], expected_url)
 

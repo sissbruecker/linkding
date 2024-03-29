@@ -11,7 +11,7 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         self.cookie = self.client.cookies["sessionid"]
 
     def setup_browser(self, playwright) -> BrowserContext:
-        browser = playwright.chromium.launch(headless=False)
+        browser = playwright.chromium.launch(headless=True)
         context = browser.new_context()
         context.add_cookies(
             [

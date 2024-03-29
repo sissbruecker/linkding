@@ -71,7 +71,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         details_modal_url = reverse("bookmarks:details_modal", args=[bookmark.id])
         self.assertInHTML(
             f"""
-            <a ld-modal modal-url="{details_modal_url}?return_url=/bookmarks" href="{details_url}?return_url=/bookmarks">View</a>
+            <a ld-modal modal-url="{details_modal_url}?return_url=/bookmarks" href="{details_url}">View</a>
         """,
             html,
             count=count,

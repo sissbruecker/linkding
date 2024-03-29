@@ -110,6 +110,13 @@ def _details(request, bookmark_id: int, template: str):
     except Bookmark.DoesNotExist:
         raise Http404("Bookmark does not exist")
 
+    edit_return_url = get_safe_return_url(
+        request.GET.get("return_url"), reverse("bookmarks:details", args=[bookmark_id])
+    )
+    delete_return_url = get_safe_return_url(
+        request.GET.get("return_url"), reverse("bookmarks:index")
+    )
+
     # handles status actions form
     if request.method == "POST":
         bookmark.is_archived = request.POST.get("is_archived") == "on"
@@ -117,19 +124,15 @@ def _details(request, bookmark_id: int, template: str):
         bookmark.shared = request.POST.get("shared") == "on"
         bookmark.save()
 
-        return_url = reverse("bookmarks:details", args=[bookmark_id])
-        return HttpResponseRedirect(return_url)
-
-    return_url = get_safe_return_url(
-        request.GET.get("return_url"), reverse("bookmarks:index")
-    )
+        return HttpResponseRedirect(edit_return_url)
 
     return render(
         request,
         template,
         {
             "bookmark": bookmark,
-            "return_url": return_url,
+            "edit_return_url": edit_return_url,
+            "delete_return_url": delete_return_url,
         },
     )
 
