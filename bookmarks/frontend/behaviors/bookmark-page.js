@@ -8,6 +8,10 @@ class BookmarkPage {
 
     this.bookmarkList = element.querySelector(".bookmark-list-container");
     this.tagCloud = element.querySelector(".tag-cloud-container");
+
+    document.addEventListener("bookmark-page-refresh", () => {
+      this.refresh();
+    });
   }
 
   async onFormSubmit(event) {

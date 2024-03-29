@@ -60,7 +60,7 @@
         {% endif %}
         {% if bookmark_item.notes %}
           <div class="notes bg-gray text-gray-dark">
-            <div class="notes-content">
+            <div class="markdown">
               {% markdown bookmark_item.notes %}
             </div>
           </div>
@@ -79,6 +79,10 @@
             {% endif %}
             <span class="separator">|</span>
           {% endif %}
+          {# View link is always visible #}
+          <a ld-modal
+             modal-url="{% url 'bookmarks:details_modal' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}"
+             href="{% url 'bookmarks:details' bookmark_item.id %}">View</a>
           {% if bookmark_item.is_editable %}
             {# Bookmark owner actions #}
             <a href="{% url 'bookmarks:edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">Edit</a>

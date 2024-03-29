@@ -1,0 +1,13 @@
+{% extends 'bookmarks/layout.html' %}
+
+{% block content %}
+  <div ld-bookmark-details class="bookmark-details page">
+    {% if request.user == bookmark.owner %}
+      {% include 'bookmarks/details/actions.html' %}
+    {% endif %}
+    {% include 'bookmarks/details/title.html' %}
+    <div>
+      {% include 'bookmarks/details/content.html' %}
+    </div>
+  </div>
+{% endblock %}

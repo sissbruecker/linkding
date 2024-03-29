@@ -82,9 +82,11 @@
 
     .radio-group {
       margin-bottom: $unit-1;
+
       .form-label {
         padding-bottom: 0;
       }
+
       .form-radio.form-inline {
         margin: 0 $unit-2 0 0;
         padding: 0;
@@ -92,6 +94,7 @@
         align-items: center;
         column-gap: $unit-1;
       }
+
       .form-icon {
         top: 0;
         position: relative;
@@ -268,55 +271,13 @@ ul.bookmark-list {
     overflow-y: auto;
   }
 
-  &.show-notes .notes,
-  li.show-notes .notes {
-    display: block;
-  }
-}
-
-/* Bookmark notes markdown styles */
-ul.bookmark-list .notes-content {
-  & {
+  .notes .markdown {
     padding: $unit-2 $unit-3;
   }
 
-  p, ul, ol, pre, blockquote {
-    margin: 0 0 $unit-2 0;
-  }
-
-  > *:first-child {
-    margin-top: 0;
-  }
-
-  > *:last-child {
-    margin-bottom: 0;
-  }
-
-  ul, ol {
-    margin-left: $unit-4;
-  }
-
-  ul li, ol li {
-    margin-top: $unit-1;
-  }
-
-  pre {
-    padding: $unit-1 $unit-2;
-    background-color: $code-bg-color;
-    border-radius: $unit-1;
-    overflow-x: auto;
-  }
-
-  pre code {
-    background: none;
-    box-shadow: none;
-    padding: 0;
-  }
-
-  > pre:first-child:last-child {
-    padding: 0;
-    background: none;
-    border-radius: 0;
+  &.show-notes .notes,
+  li.show-notes .notes {
+    display: block;
   }
 }
 

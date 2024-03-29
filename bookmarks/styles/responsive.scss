@@ -37,6 +37,14 @@
   min-width: 0;
 }
 
+.columns-2 {
+  --grid-columns: 2;
+}
+
+.gap-0 {
+  gap: 0;
+}
+
 .col-1 {
   grid-column: unquote("span min(1, var(--grid-columns))");
 }

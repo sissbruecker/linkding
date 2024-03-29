@@ -127,6 +127,53 @@ ul.menu li:first-child {
   }
 }
 
+// Customize modal animation
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.modal.active .modal-container, .modal.active .modal-overlay {
+  animation: fade-in .15s ease 1;
+}
+
+.modal.active.closing .modal-container, .modal.active.closing .modal-overlay {
+  animation: fade-out .15s ease 1;
+}
+
+// Customize menu animation
+.dropdown .menu {
+  animation: fade-in .15s ease 1;
+}
+
+// Modal close button
+.modal .modal-header button.close {
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 0;
+  cursor: pointer;
+  opacity: .85;
+  color: $gray-color-dark;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
 // Increase input font size on small viewports to prevent zooming on focus the input
 // on mobile devices. 430px relates to the "normalized" iPhone 14 Pro Max
 // viewport size

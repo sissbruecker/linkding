@@ -38,10 +38,14 @@ class ConfirmButtonBehavior {
       container.append(question);
     }
 
+    const buttonClasses = Array.from(this.button.classList.values())
+      .filter((cls) => cls.startsWith("btn"))
+      .join(" ");
+
     const cancelButton = document.createElement(this.button.nodeName);
     cancelButton.type = "button";
     cancelButton.innerText = question ? "No" : "Cancel";
-    cancelButton.className = "btn btn-link btn-sm mr-1";
+    cancelButton.className = `${buttonClasses} mr-1`;
     cancelButton.addEventListener("click", this.reset.bind(this));
 
     const confirmButton = document.createElement(this.button.nodeName);
@@ -49,7 +53,7 @@ class ConfirmButtonBehavior {
     confirmButton.name = this.button.dataset.name;
     confirmButton.value = this.button.dataset.value;
     confirmButton.innerText = question ? "Yes" : "Confirm";
-    confirmButton.className = "btn btn-link btn-sm";
+    confirmButton.className = buttonClasses;
     confirmButton.addEventListener("click", this.reset.bind(this));
 
     container.append(cancelButton, confirmButton);

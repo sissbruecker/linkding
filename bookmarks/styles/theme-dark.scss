@@ -7,9 +7,11 @@
 // Import style modules
 @import "base";
 @import "responsive";
+@import "bookmark-details";
 @import "bookmark-page";
 @import "bookmark-form";
 @import "settings";
+@import "markdown";
 
 /* Dark theme overrides */
 
@@ -40,8 +42,17 @@ a:focus, .btn:focus {
 }
 
 .form-checkbox input:checked + .form-icon, .form-radio input:checked + .form-icon, .form-switch input:checked + .form-icon {
-  background: $dt-primary-button-color;
-  border-color: $dt-primary-button-color;
+  background: $dt-primary-input-color;
+  border-color: $dt-primary-input-color;
+}
+
+.form-switch .form-icon::before, .form-switch input:active + .form-icon::before {
+  background: $light-color;
+}
+
+.form-switch input:checked + .form-icon {
+  background: $dt-primary-input-color;
+  border-color: $dt-primary-input-color;
 }
 
 .form-radio input:checked + .form-icon::before {

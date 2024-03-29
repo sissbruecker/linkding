@@ -1,0 +1,85 @@
+{% load static %}
+{% load shared %}
+
+<div class="weblinks">
+  <a class="weblink" href="{{ bookmark.url }}" rel="noopener"
+     target="{{ request.user_profile.bookmark_link_target }}">
+    {% if bookmark.favicon_file and request.user_profile.enable_favicons %}
+      <img class="favicon" src="{% static bookmark.favicon_file %}" alt="">
+    {% endif %}
+    <span>{{ bookmark.url }}</span>
+  </a>
+  {% if bookmark.web_archive_snapshot_url %}
+    <a class="weblink" href="{{ bookmark.web_archive_snapshot_url }}"
+       target="{{ request.user_profile.bookmark_link_target }}">
+      {% if bookmark.favicon_file and request.user_profile.enable_favicons %}
+        <svg class="favicon" viewBox="0 0 76 86" xmlns="http://www.w3.org/2000/svg">
+          <path
+              d="m76 82v4h-76l.00080851-4zm-3-6v5h-70v-5zm-62.6696277-54 .8344146.4217275.4176066 6.7436084.4176065 10.9576581v10.5383496l-.4176065 13.1364492-.0694681 8.8498268-1.1825531.3523804h-4.17367003l-1.25202116-.3523804-.48627608-8.8498268-.41840503-13.0662957v-10.5375432l.41840503-11.028618.38167482-6.7798947.87034634-.3854412zm60.0004653 0 .8353798.4217275.4168913 6.7436084.4168913 10.9576581v10.5383496l-.4168913 13.1364492-.0686832 8.8498268-1.1835879.3523804h-4.1737047l-1.2522712-.3523804-.4879704-8.8498268-.4168913-13.0662957v-10.5375432l.4168913-11.028618.3833483-6.7798947.8697215-.3854412zm-42.000632 0 .8344979.4217275.4176483 6.7436084.4176482 10.9576581v10.5383496l-.4176482 13.1364492-.0686764 8.8498268-1.1834698.3523804h-4.1740866l-1.2529447-.3523804-.4863246-8.8498268-.4168497-13.0662957v-10.5375432l.4168497-11.028618.38331-6.7798947.8688361-.3854412zm23 0 .8344979.4217275.4176483 6.7436084.4176482 10.9576581v10.5383496l-.4176482 13.1364492-.0686764 8.8498268-1.1834698.3523804h-4.1740866l-1.2521462-.3523804-.4871231-8.8498268-.4168497-13.0662957v-10.5375432l.4168497-11.028618.38331-6.7798947.8696347-.3854412zm21.6697944-9v7h-70v-7zm-35.7200748-13 36.7200748 8.4088317-1.4720205 2.5911683h-70.32799254l-2.19998696-2.10140371z"
+              fill="currentColor" fill-rule="evenodd"/>
+        </svg>
+      {% endif %}
+      <span>View on Internet Archive</span>
+    </a>
+  {% endif %}
+</div>
+<dl class="grid columns-2 columns-sm-1 gap-0">
+  {% if request.user == bookmark.owner %}
+    <div class="status col-2">
+      <dt>Status</dt>
+      <dd class="d-flex" style="gap: .8rem">
+        <form action="{% url 'bookmarks:details' bookmark.id %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-switch">
+              <input type="checkbox" name="is_archived" {% if bookmark.is_archived %}checked{% endif %}>
+              <i class="form-icon"></i> Archived
+            </label>
+          </div>
+          <div class="form-group">
+            <label class="form-switch">
+              <input type="checkbox" name="unread" {% if bookmark.unread %}checked{% endif %}>
+              <i class="form-icon"></i> Unread
+            </label>
+          </div>
+          {% if request.user_profile.enable_sharing %}
+            <div class="form-group">
+              <label class="form-switch">
+                <input type="checkbox" name="shared" {% if bookmark.shared %}checked{% endif %}>
+                <i class="form-icon"></i> Shared
+              </label>
+            </div>
+          {% endif %}
+        </form>
+      </dd>
+    </div>
+  {% endif %}
+  {% if bookmark.tag_names %}
+    <div class="tags col-1">
+      <dt>Tags</dt>
+      <dd>
+        {% for tag_name in bookmark.tag_names %}
+          <a href="{% url 'bookmarks:index' %}?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
+        {% endfor %}
+      </dd>
+    </div>
+  {% endif %}
+  <div class="date-added col-1">
+    <dt>Date added</dt>
+    <dd>
+      <span>{{ bookmark.date_added }}</span>
+    </dd>
+  </div>
+  {% if bookmark.resolved_description %}
+    <div class="description col-2">
+      <dt>Description</dt>
+      <dd>{{ bookmark.resolved_description }}</dd>
+    </div>
+  {% endif %}
+  {% if bookmark.notes %}
+    <div class="notes col-2">
+      <dt>Notes</dt>
+      <dd class="markdown">{% markdown bookmark.notes %}</dd>
+    </div>
+  {% endif %}
+</dl>

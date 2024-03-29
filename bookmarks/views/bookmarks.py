@@ -104,6 +104,59 @@ def search_action(request):
     return HttpResponseRedirect(url)
 
 
+def _details(request, bookmark_id: int, template: str):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id)
+    except Bookmark.DoesNotExist:
+        raise Http404("Bookmark does not exist")
+
+    is_owner = bookmark.owner == request.user
+    is_shared = (
+        request.user.is_authenticated
+        and bookmark.shared
+        and bookmark.owner.profile.enable_sharing
+    )
+    is_public_shared = bookmark.shared and bookmark.owner.profile.enable_public_sharing
+    if not is_owner and not is_shared and not is_public_shared:
+        raise Http404("Bookmark does not exist")
+
+    edit_return_url = get_safe_return_url(
+        request.GET.get("return_url"), reverse("bookmarks:details", args=[bookmark_id])
+    )
+    delete_return_url = get_safe_return_url(
+        request.GET.get("return_url"), reverse("bookmarks:index")
+    )
+
+    # handles status actions form
+    if request.method == "POST":
+        if not is_owner:
+            raise Http404("Bookmark does not exist")
+        bookmark.is_archived = request.POST.get("is_archived") == "on"
+        bookmark.unread = request.POST.get("unread") == "on"
+        bookmark.shared = request.POST.get("shared") == "on"
+        bookmark.save()
+
+        return HttpResponseRedirect(edit_return_url)
+
+    return render(
+        request,
+        template,
+        {
+            "bookmark": bookmark,
+            "edit_return_url": edit_return_url,
+            "delete_return_url": delete_return_url,
+        },
+    )
+
+
+def details(request, bookmark_id: int):
+    return _details(request, bookmark_id, "bookmarks/details.html")
+
+
+def details_modal(request, bookmark_id: int):
+    return _details(request, bookmark_id, "bookmarks/details_modal.html")
+
+
 def convert_tag_string(tag_string: str):
     # Tag strings coming from inputs are space-separated, however services.bookmarks functions expect comma-separated
     # strings

@@ -1,0 +1,79 @@
+/* Common styles */
+.bookmark-details {
+  h2 {
+    flex: 1 1 0;
+    align-items: flex-start;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .weblinks {
+    display: flex;
+    flex-direction: column;
+    gap: $unit-2;
+  }
+
+  a.weblink {
+    display: flex;
+    align-items: center;
+    gap: $unit-2;
+  }
+
+  a.weblink img, a.weblink svg {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    color: $body-font-color;
+  }
+
+  a.weblink span {
+    flex: 1 1 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  dl {
+    margin-bottom: 0;
+  }
+
+  .tags a {
+    color: $alternative-color;
+  }
+
+  .status form {
+    display: flex;
+    gap: $unit-2;
+  }
+
+  .status form .form-group, .status form .form-switch {
+    margin: 0;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Bookmark details view specific */
+.bookmark-details.page {
+  display: flex;
+  flex-direction: column;
+  gap: $unit-6;
+}
+
+/* Bookmark details modal specific */
+.bookmark-details.modal {
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    gap: $unit-2;
+  }
+
+  .modal-body {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
