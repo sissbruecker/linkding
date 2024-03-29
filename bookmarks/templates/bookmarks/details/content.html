@@ -24,6 +24,34 @@
   {% endif %}
 </div>
 <dl class="grid columns-2 columns-sm-1 gap-0">
+  <div class="status col-2">
+    <dt>Status</dt>
+    <dd class="d-flex" style="gap: .8rem">
+      <form action="{% url 'bookmarks:details' bookmark.id %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-switch">
+            <input type="checkbox" name="is_archived" {% if bookmark.is_archived %}checked{% endif %}>
+            <i class="form-icon"></i> Archived
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-switch">
+            <input type="checkbox" name="unread" {% if bookmark.unread %}checked{% endif %}>
+            <i class="form-icon"></i> Unread
+          </label>
+        </div>
+        {% if request.user_profile.enable_sharing %}
+          <div class="form-group">
+            <label class="form-switch">
+              <input type="checkbox" name="shared" {% if bookmark.shared %}checked{% endif %}>
+              <i class="form-icon"></i> Shared
+            </label>
+          </div>
+        {% endif %}
+      </form>
+    </dd>
+  </div>
   {% if bookmark.tag_names %}
     <div class="tags col-1">
       <dt>Tags</dt>

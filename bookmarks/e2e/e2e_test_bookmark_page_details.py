@@ -12,12 +12,7 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("bookmarks:index"), p)
 
-            details_button = self.locate_bookmark(bookmark.title).get_by_text("View")
-            details_button.click()
-
-            details_modal = self.locate_details_modal()
-            expect(details_modal).to_be_visible()
-
+            details_modal = self.open_details_modal(bookmark)
             title = details_modal.locator("h2")
             expect(title).to_have_text(bookmark.title)
 
@@ -28,24 +23,93 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse("bookmarks:index"), p)
 
             # close with close button
-            details_button = self.locate_bookmark(bookmark.title).get_by_text("View")
-            details_button.click()
-
-            details_modal = self.locate_details_modal()
-            expect(details_modal).to_be_visible()
-
+            details_modal = self.open_details_modal(bookmark)
             details_modal.locator("button.close").click()
             expect(details_modal).to_be_hidden()
 
             # close with backdrop
-            details_button.click()
-
-            details_modal = self.locate_details_modal()
-            expect(details_modal).to_be_visible()
-
+            details_modal = self.open_details_modal(bookmark)
             overlay = details_modal.locator(".modal-overlay")
             overlay.click(position={"x": 0, "y": 0})
             expect(details_modal).to_be_hidden()
+
+    def test_toggle_archived(self):
+        bookmark = self.setup_bookmark()
+
+        with sync_playwright() as p:
+            # archive
+            url = reverse("bookmarks:index")
+            self.open(url, p)
+
+            bookmark_list = self.locate_bookmark_list()
+            details_modal = self.open_details_modal(bookmark)
+
+            details_modal.get_by_text("Archived", exact=False).click()
+            expect(bookmark_list).not_to_be_visible()
+            self.assertEqual(self.locate_bookmark(bookmark.title).count(), 0)
+
+            # unarchive
+            url = reverse("bookmarks:archived")
+            self.page.goto(self.live_server_url + url)
+
+            bookmark_list = self.locate_bookmark_list()
+            details_modal = self.open_details_modal(bookmark)
+
+            details_modal.get_by_text("Archived", exact=False).click()
+            expect(bookmark_list).not_to_be_visible()
+            self.assertEqual(self.locate_bookmark(bookmark.title).count(), 0)
+
+    def test_toggle_unread(self):
+        bookmark = self.setup_bookmark()
+
+        with sync_playwright() as p:
+            # mark as unread
+            url = reverse("bookmarks:index")
+            self.open(url, p)
+
+            bookmark_list = self.locate_bookmark_list()
+            details_modal = self.open_details_modal(bookmark)
+
+            details_modal.get_by_text("Unread").click()
+            expect(bookmark_list).not_to_be_visible()
+            bookmark_item = self.locate_bookmark(bookmark.title)
+            expect(bookmark_item.get_by_text("Unread")).to_be_visible()
+
+            # mark as read
+            bookmark_list = self.locate_bookmark_list()
+
+            details_modal.get_by_text("Unread").click()
+            expect(bookmark_list).not_to_be_visible()
+            bookmark_item = self.locate_bookmark(bookmark.title)
+            self.assertEqual(bookmark_item.get_by_text("Unread").count(), 0)
+
+    def test_toggle_shared(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+
+        with sync_playwright() as p:
+            # share bookmark
+            url = reverse("bookmarks:index")
+            self.open(url, p)
+
+            bookmark_list = self.locate_bookmark_list()
+            details_modal = self.open_details_modal(bookmark)
+
+            details_modal.get_by_text("Shared").click()
+            expect(bookmark_list).not_to_be_visible()
+            bookmark_item = self.locate_bookmark(bookmark.title)
+            expect(bookmark_item.get_by_text("Shared")).to_be_visible()
+
+            # unshare bookmark
+            bookmark_list = self.locate_bookmark_list()
+
+            details_modal.get_by_text("Shared").click()
+            expect(bookmark_list).not_to_be_visible()
+            bookmark_item = self.locate_bookmark(bookmark.title)
+            self.assertEqual(bookmark_item.get_by_text("Shared").count(), 0)
 
     def test_edit_return_url(self):
         bookmark = self.setup_bookmark()
@@ -54,11 +118,7 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
             url = reverse("bookmarks:index") + f"?q={bookmark.title}"
             self.open(url, p)
 
-            details_button = self.locate_bookmark(bookmark.title).get_by_text("View")
-            details_button.click()
-
-            details_modal = self.locate_details_modal()
-            expect(details_modal).to_be_visible()
+            details_modal = self.open_details_modal(bookmark)
 
             # Navigate to edit page
             with self.page.expect_navigation():
@@ -75,11 +135,7 @@ class BookmarkPageDetailsE2ETestCase(LinkdingE2ETestCase):
             url = reverse("bookmarks:index") + f"?q={bookmark.title}"
             self.open(url, p)
 
-            details_button = self.locate_bookmark(bookmark.title).get_by_text("View")
-            details_button.click()
-
-            details_modal = self.locate_details_modal()
-            expect(details_modal).to_be_visible()
+            details_modal = self.open_details_modal(bookmark)
 
             # Delete bookmark, verify return url
             with self.page.expect_navigation(url=self.live_server_url + url):

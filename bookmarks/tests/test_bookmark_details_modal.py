@@ -206,6 +206,71 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             web_archive_link["target"], UserProfile.BOOKMARK_LINK_TARGET_SELF
         )
 
+    def test_status(self):
+        # renders form
+        bookmark = self.setup_bookmark()
+        soup = self.get_details(bookmark)
+        section = self.get_section(soup, "Status")
+
+        form = section.find("form")
+        self.assertIsNotNone(form)
+        self.assertEqual(
+            form["action"], reverse("bookmarks:details", args=[bookmark.id])
+        )
+        self.assertEqual(form["method"], "post")
+
+        # sharing disabled
+        bookmark = self.setup_bookmark()
+        soup = self.get_details(bookmark)
+        section = self.get_section(soup, "Status")
+
+        archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
+        self.assertIsNotNone(archived)
+        unread = section.find("input", {"type": "checkbox", "name": "unread"})
+        self.assertIsNotNone(unread)
+        shared = section.find("input", {"type": "checkbox", "name": "shared"})
+        self.assertIsNone(shared)
+
+        # sharing enabled
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        soup = self.get_details(bookmark)
+        section = self.get_section(soup, "Status")
+
+        archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
+        self.assertIsNotNone(archived)
+        unread = section.find("input", {"type": "checkbox", "name": "unread"})
+        self.assertIsNotNone(unread)
+        shared = section.find("input", {"type": "checkbox", "name": "shared"})
+        self.assertIsNotNone(shared)
+
+        # unchecked
+        bookmark = self.setup_bookmark()
+        soup = self.get_details(bookmark)
+        section = self.get_section(soup, "Status")
+
+        archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
+        self.assertFalse(archived.has_attr("checked"))
+        unread = section.find("input", {"type": "checkbox", "name": "unread"})
+        self.assertFalse(unread.has_attr("checked"))
+        shared = section.find("input", {"type": "checkbox", "name": "shared"})
+        self.assertFalse(shared.has_attr("checked"))
+
+        # checked
+        bookmark = self.setup_bookmark(is_archived=True, unread=True, shared=True)
+        soup = self.get_details(bookmark)
+        section = self.get_section(soup, "Status")
+
+        archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
+        self.assertTrue(archived.has_attr("checked"))
+        unread = section.find("input", {"type": "checkbox", "name": "unread"})
+        self.assertTrue(unread.has_attr("checked"))
+        shared = section.find("input", {"type": "checkbox", "name": "shared"})
+        self.assertTrue(shared.has_attr("checked"))
+
     def test_date_added(self):
         bookmark = self.setup_bookmark()
         soup = self.get_details(bookmark)

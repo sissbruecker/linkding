@@ -1,3 +1,4 @@
+import "./behaviors/bookmark-details";
 import "./behaviors/bookmark-page";
 import "./behaviors/bulk-edit";
 import "./behaviors/confirm-button";

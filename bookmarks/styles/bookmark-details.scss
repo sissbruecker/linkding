@@ -40,6 +40,15 @@
     color: $alternative-color;
   }
 
+  .status form {
+    display: flex;
+    gap: $unit-2;
+  }
+
+  .status form .form-group, .status form .form-switch {
+    margin: 0;
+  }
+
   .actions {
     display: flex;
     justify-content: space-between;
@@ -65,12 +74,6 @@
     display: flex;
     align-items: flex-start;
     gap: $unit-2;
-  }
-
-  .modal-header button.close {
-    padding: 0;
-    height: auto;
-    line-height: 0;
   }
 
   .modal-body {

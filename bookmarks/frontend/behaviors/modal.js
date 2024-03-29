@@ -26,7 +26,7 @@ class ModalBehavior {
 
     // Register close handlers
     const modalOverlay = modal.querySelector(".modal-overlay");
-    const closeButton = modal.querySelector(".btn.close");
+    const closeButton = modal.querySelector("button.close");
     modalOverlay.addEventListener("click", this.onClose.bind(this));
     closeButton.addEventListener("click", this.onClose.bind(this));
 
@@ -58,7 +58,7 @@ class ModalBehavior {
       <div class="modal-container">
         <div class="modal-header d-flex justify-between align-center">
           <div class="modal-title h5">Tags</div>
-          <button class="btn btn-link close">
+          <button class="close">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
             <path d="M18 6l-12 12"></path>
@@ -88,7 +88,12 @@ class ModalBehavior {
     }
 
     // Remove modal
-    this.modal.remove();
+    this.modal.classList.add("closing");
+    this.modal.addEventListener("animationend", (event) => {
+      if (event.animationName === "fade-out") {
+        this.modal.remove();
+      }
+    });
   }
 }
 

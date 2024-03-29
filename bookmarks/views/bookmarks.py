@@ -110,6 +110,16 @@ def _details(request, bookmark_id: int, template: str):
     except Bookmark.DoesNotExist:
         raise Http404("Bookmark does not exist")
 
+    # handles status actions form
+    if request.method == "POST":
+        bookmark.is_archived = request.POST.get("is_archived") == "on"
+        bookmark.unread = request.POST.get("unread") == "on"
+        bookmark.shared = request.POST.get("shared") == "on"
+        bookmark.save()
+
+        return_url = reverse("bookmarks:details", args=[bookmark_id])
+        return HttpResponseRedirect(return_url)
+
     return_url = get_safe_return_url(
         request.GET.get("return_url"), reverse("bookmarks:index")
     )
