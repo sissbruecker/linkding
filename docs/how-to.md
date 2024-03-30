@@ -2,6 +2,13 @@
 
 Collection of tips and tricks around using linkding.
 
+**Table of Contents:**
+
+* [Using the bookmarklet on Android/Chrome](#using-the-bookmarklet-on-androidchrome)
+* [Using HTTP Shortcuts app on Android](#using-http-shortcuts-app-on-android)
+* [Create a share action on iOS for adding bookmarks to linkding](#create-a-share-action-on-ios-for-adding-bookmarks-to-linkding)
+* [Increase the font size](#increase-the-font-size)
+
 ## Using the bookmarklet on Android/Chrome
 
 This how-to explains the usage of the standard linkding bookmarklet on Android / Chrome. 
@@ -59,3 +66,27 @@ At the bottom of the share sheet there is a button for configuring share actions
 
 > [!NOTE]  
 > You can also check the [Community section](https://github.com/sissbruecker/linkding#community) for other pre-made shortcuts that you can use.
+
+## Increase the font size
+
+The font size can be adjusted globally by adding the following CSS to the custom CSS field in the settings:
+
+```css
+html {
+  --font-size: 0.75rem;
+  --font-size-sm: 0.7rem;
+  --font-size-lg: 0.9rem;
+}
+
+.bookmark-list {
+  line-height: 1.15rem;
+}
+
+.tag-cloud {
+  line-height: 1.15rem;
+}
+```
+
+You can adjust the `--font-size`, `--font-size-sm` and `--font-size-lg` variables to your liking.
+Note that increasing the font might also require you to adjust the line-height in certain places to better separate texts from each other.
+As an example, the above also increases the font size and line height of the bookmark list and tag cloud.
