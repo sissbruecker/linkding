@@ -184,6 +184,7 @@ Self-hosting web applications still requires a lot of technical know-how and com
 - [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) - Guide for hosting a linkding installation on [fly.io](https://fly.io). By [fspoettel](https://github.com/fspoettel)
 - [PikaPods.com](https://www.pikapods.com/) - Managed hosting for linkding, EU and US regions available. [1-click setup link](https://www.pikapods.com/pods?run=linkding) ([Disclosure](#pikapods))
 - [CapRover](https://caprover.com/) - Linkding is included as a default one-click app
+- [Railway.app](https://railway.app/) - Deploy linkding through [template](https://railway.app/template/BxdomX). By [tianheg](https://github.com/tianheg)
 
 ## Documentation
 
