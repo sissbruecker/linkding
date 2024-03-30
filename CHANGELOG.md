@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.26.0 (30/03/2024)
+
+### What's Changed
+* Add option for showing bookmark description as separate block by @sissbruecker in https://github.com/sissbruecker/linkding/pull/663
+* Add bookmark details view by @sissbruecker in https://github.com/sissbruecker/linkding/pull/665
+* Make bookmark list actions configurable by @sissbruecker in https://github.com/sissbruecker/linkding/pull/666
+* Bump black from 24.1.1 to 24.3.0 by @dependabot in https://github.com/sissbruecker/linkding/pull/662
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.25.0...v1.26.0
+
+---
+
 ## v1.25.0 (18/03/2024)
 
 ### What's Changed
