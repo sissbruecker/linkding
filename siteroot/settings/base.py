@@ -269,3 +269,9 @@ LD_ENABLE_REFRESH_FAVICONS = os.getenv("LD_ENABLE_REFRESH_FAVICONS", True) in (
     "True",
     "1",
 )
+
+# Asset / snapshot settings
+LD_ASSET_FOLDER = os.path.join(BASE_DIR, "data", "assets")
+
+LD_MONOLITH_PATH = os.getenv("LD_MONOLITH_PATH", "monolith")
+LD_MONOLITH_OPTIONS = os.getenv("LD_MONOLITH_OPTIONS", "-a -v -s")

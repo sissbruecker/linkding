@@ -44,6 +44,12 @@ urlpatterns = [
         views.bookmarks.details_modal,
         name="details_modal",
     ),
+    # Assets
+    path(
+        "assets/<int:asset_id>",
+        views.assets.view,
+        name="assets.view",
+    ),
     # Partials
     path(
         "bookmarks/partials/bookmark-list/active",

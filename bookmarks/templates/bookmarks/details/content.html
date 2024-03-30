@@ -22,6 +22,20 @@
       <span>View on Internet Archive</span>
     </a>
   {% endif %}
+  {% for asset in assets %}
+    <a class="weblink" href="{% url 'bookmarks:assets.view' asset.id %}"
+       target="{{ request.user_profile.bookmark_link_target }}">
+      {% if bookmark.favicon_file and request.user_profile.enable_favicons %}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+          <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/>
+        </svg>
+      {% endif %}
+      <span>{{ asset.display_name }} ({{ asset.date_created }})</span>
+    </a>
+  {% endfor %}
 </div>
 <dl class="grid columns-2 columns-sm-1 gap-0">
   {% if request.user == bookmark.owner %}

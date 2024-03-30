@@ -12,7 +12,12 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkForm, BookmarkSearch, build_tag_string
+from bookmarks.models import (
+    Bookmark,
+    BookmarkForm,
+    BookmarkSearch,
+    build_tag_string,
+)
 from bookmarks.services.bookmarks import (
     create_bookmark,
     update_bookmark,
@@ -143,6 +148,7 @@ def _details(request, bookmark_id: int, template: str):
         template,
         {
             "bookmark": bookmark,
+            "assets": bookmark.bookmarkasset_set.all(),
             "edit_return_url": edit_return_url,
             "delete_return_url": delete_return_url,
         },
