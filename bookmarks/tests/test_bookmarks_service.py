@@ -103,7 +103,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark_data = Bookmark(url="https://example.com")
             bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
 
-            mock_load_favicon.assert_called_once_with(bookmark)
+            mock_load_favicon.assert_called_once_with(self.user, bookmark)
 
     def test_create_should_load_html_snapshot(self):
         with patch.object(tasks, "create_html_snapshot") as mock_create_html_snapshot:

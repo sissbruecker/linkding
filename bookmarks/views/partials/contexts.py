@@ -308,6 +308,14 @@ class BookmarkDetailsContext:
         user = request.user
         user_profile = request.user_profile
 
+        self.edit_return_url = utils.get_safe_return_url(
+            request.GET.get("return_url"),
+            reverse("bookmarks:details", args=[bookmark.id]),
+        )
+        self.delete_return_url = utils.get_safe_return_url(
+            request.GET.get("return_url"), reverse("bookmarks:index")
+        )
+
         self.bookmark = bookmark
         self.profile = request.user_profile
         self.is_editable = bookmark.owner == user

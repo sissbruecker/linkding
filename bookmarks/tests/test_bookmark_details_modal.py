@@ -11,8 +11,15 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         user = self.get_or_create_test_user()
         self.client.force_login(user)
 
+    def get_view_name(self):
+        return "bookmarks:details_modal"
+
     def get_base_url(self, bookmark):
-        return reverse("bookmarks:details_modal", args=[bookmark.id])
+        return reverse(self.get_view_name(), args=[bookmark.id])
+
+    def get_details_form(self, soup, bookmark):
+        expected_url = reverse("bookmarks:details", args=[bookmark.id])
+        return soup.find("form", {"action": expected_url})
 
     def get_details(self, bookmark, return_url=""):
         url = self.get_base_url(bookmark)
@@ -38,43 +45,35 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def find_asset(self, soup, asset):
         return soup.find("div", {"data-asset-id": asset.id})
 
-    def test_access(self):
+    def details_route_access_test(self, view_name: str, shareable: bool):
         # own bookmark
         bookmark = self.setup_bookmark()
 
-        response = self.client.get(
-            reverse("bookmarks:details_modal", args=[bookmark.id])
-        )
+        response = self.client.get(reverse(view_name, args=[bookmark.id]))
         self.assertEqual(response.status_code, 200)
 
         # other user's bookmark
         other_user = self.setup_user()
         bookmark = self.setup_bookmark(user=other_user)
 
-        response = self.client.get(
-            reverse("bookmarks:details_modal", args=[bookmark.id])
-        )
+        response = self.client.get(reverse(view_name, args=[bookmark.id]))
         self.assertEqual(response.status_code, 404)
 
         # non-existent bookmark
-        response = self.client.get(reverse("bookmarks:details_modal", args=[9999]))
+        response = self.client.get(reverse(view_name, args=[9999]))
         self.assertEqual(response.status_code, 404)
 
         # guest user
         self.client.logout()
-        response = self.client.get(
-            reverse("bookmarks:details_modal", args=[bookmark.id])
-        )
-        self.assertEqual(response.status_code, 404)
+        response = self.client.get(reverse(view_name, args=[bookmark.id]))
+        self.assertEqual(response.status_code, 404 if shareable else 302)
 
-    def test_access_with_sharing(self):
+    def details_route_sharing_access_test(self, view_name: str, shareable: bool):
         # shared bookmark, sharing disabled
         other_user = self.setup_user()
         bookmark = self.setup_bookmark(shared=True, user=other_user)
 
-        response = self.client.get(
-            reverse("bookmarks:details_modal", args=[bookmark.id])
-        )
+        response = self.client.get(reverse(view_name, args=[bookmark.id]))
         self.assertEqual(response.status_code, 404)
 
         # shared bookmark, sharing enabled
@@ -82,26 +81,38 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.enable_sharing = True
         profile.save()
 
-        response = self.client.get(
-            reverse("bookmarks:details_modal", args=[bookmark.id])
-        )
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse(view_name, args=[bookmark.id]))
+        self.assertEqual(response.status_code, 200 if shareable else 404)
 
         # shared bookmark, guest user, no public sharing
         self.client.logout()
-        response = self.client.get(
-            reverse("bookmarks:details_modal", args=[bookmark.id])
-        )
-        self.assertEqual(response.status_code, 404)
+        response = self.client.get(reverse(view_name, args=[bookmark.id]))
+        self.assertEqual(response.status_code, 404 if shareable else 302)
 
         # shared bookmark, guest user, public sharing
         profile.enable_public_sharing = True
         profile.save()
 
-        response = self.client.get(
-            reverse("bookmarks:details_modal", args=[bookmark.id])
-        )
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse(view_name, args=[bookmark.id]))
+        self.assertEqual(response.status_code, 200 if shareable else 302)
+
+    def test_access(self):
+        self.details_route_access_test(self.get_view_name(), True)
+
+    def test_access_with_sharing(self):
+        self.details_route_sharing_access_test(self.get_view_name(), True)
+
+    def test_form_partial_access(self):
+        # form partial is only used when submitting forms, which should be only
+        # accessible to the owner of the bookmark. As such assume it requires
+        # login.
+        self.details_route_access_test("bookmarks:partials.details_form", False)
+
+    def test_form_partial_access_with_sharing(self):
+        # form partial is only used when submitting forms, which should be only
+        # accessible to the owner of the bookmark. As such assume it requires
+        # login.
+        self.details_route_sharing_access_test("bookmarks:partials.details_form", False)
 
     def test_displays_title(self):
         # with title
@@ -249,9 +260,8 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # renders form
         bookmark = self.setup_bookmark()
         soup = self.get_details(bookmark)
-        section = self.get_section(soup, "Status")
 
-        form = section.find("form")
+        form = self.get_details_form(soup, bookmark)
         self.assertIsNotNone(form)
         self.assertEqual(
             form["action"], reverse("bookmarks:details", args=[bookmark.id])
@@ -315,30 +325,21 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark()
         soup = self.get_details(bookmark)
         section = self.find_section(soup, "Status")
-        form_action = reverse("bookmarks:details", args=[bookmark.id])
-        form = soup.find("form", {"action": form_action})
         self.assertIsNotNone(section)
-        self.assertIsNotNone(form)
 
         # other user's bookmark
         other_user = self.setup_user(enable_sharing=True)
         bookmark = self.setup_bookmark(user=other_user, shared=True)
         soup = self.get_details(bookmark)
         section = self.find_section(soup, "Status")
-        form_action = reverse("bookmarks:details", args=[bookmark.id])
-        form = soup.find("form", {"action": form_action})
         self.assertIsNone(section)
-        self.assertIsNone(form)
 
         # guest user
         self.client.logout()
         bookmark = self.setup_bookmark(user=other_user, shared=True)
         soup = self.get_details(bookmark)
         section = self.find_section(soup, "Status")
-        form_action = reverse("bookmarks:details", args=[bookmark.id])
-        form = soup.find("form", {"action": form_action})
         self.assertIsNone(section)
-        self.assertIsNone(form)
 
     def test_status_update(self):
         bookmark = self.setup_bookmark()
@@ -655,3 +656,33 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset_item = self.find_asset(soup, asset3)
         asset_text = asset_item.select_one(".asset-text")
         self.assertIn("11.0\xa0MB", asset_text.text)
+
+    def test_remove_asset(self):
+        # remove asset
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark)
+
+        response = self.client.post(
+            self.get_base_url(bookmark), {"remove_asset": asset.id}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(BookmarkAsset.objects.filter(id=asset.id).exists())
+
+        # non-existent asset
+        response = self.client.post(self.get_base_url(bookmark), {"remove_asset": 9999})
+        self.assertEqual(response.status_code, 404)
+
+        # post without asset ID does not remove
+        asset = self.setup_asset(bookmark)
+        response = self.client.post(self.get_base_url(bookmark))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(BookmarkAsset.objects.filter(id=asset.id).exists())
+
+        # guest user
+        asset = self.setup_asset(bookmark)
+        self.client.logout()
+        response = self.client.post(
+            self.get_base_url(bookmark), {"remove_asset": asset.id}
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(BookmarkAsset.objects.filter(id=asset.id).exists())

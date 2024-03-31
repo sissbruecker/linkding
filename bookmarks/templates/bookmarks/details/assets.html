@@ -17,6 +17,9 @@
       <div class="asset-actions">
         {% if asset.file %}
           <a class="btn btn-link" href="{% url 'bookmarks:assets.view' asset.id %}" target="_blank">View</a>
+          <button ld-confirm-button type="submit" name="remove_asset" value="{{ asset.id }}" class="btn btn-link">
+            Remove
+          </button>
         {% endif %}
       </div>
     </div>
