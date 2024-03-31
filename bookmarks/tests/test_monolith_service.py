@@ -8,7 +8,7 @@ from django.test import TestCase
 from bookmarks.services import monolith
 
 
-class MonolithServiceTest(TestCase):
+class MonolithServiceTestCase(TestCase):
     html_content = "<html><body><h1>Hello, World!</h1></body></html>"
     html_filepath = "temp.html.gz"
     temp_html_filepath = "temp.html.gz.tmp"
