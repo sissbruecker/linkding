@@ -4,6 +4,12 @@ class FormBehavior {
   constructor(element) {
     this.element = element;
     element.addEventListener("submit", this.onFormSubmit.bind(this));
+
+    // Configure auto-refresh
+    const autoRefresh = parseInt(element.getAttribute("refresh-interval"));
+    if (autoRefresh) {
+      setTimeout(this.refresh.bind(this), autoRefresh);
+    }
   }
 
   async onFormSubmit(event) {

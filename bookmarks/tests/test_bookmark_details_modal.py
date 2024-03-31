@@ -1,9 +1,12 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import formats
 
 from bookmarks.models import BookmarkAsset, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
+from bookmarks.services import tasks
 
 
 class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
@@ -686,3 +689,17 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         )
         self.assertEqual(response.status_code, 404)
         self.assertTrue(BookmarkAsset.objects.filter(id=asset.id).exists())
+
+    def test_create_snapshot(self):
+        with patch.object(
+            tasks, "_create_html_snapshot_task"
+        ) as mock_create_html_snapshot_task:
+            bookmark = self.setup_bookmark()
+            response = self.client.post(
+                self.get_base_url(bookmark), {"create_snapshot": ""}
+            )
+            self.assertEqual(response.status_code, 302)
+
+            mock_create_html_snapshot_task.assert_called_with(bookmark.id)
+
+            self.assertEqual(bookmark.bookmarkasset_set.count(), 1)

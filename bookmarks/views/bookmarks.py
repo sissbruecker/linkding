@@ -34,6 +34,7 @@ from bookmarks.services.bookmarks import (
     share_bookmarks,
     unshare_bookmarks,
 )
+from bookmarks.services import tasks
 from bookmarks.utils import get_safe_return_url
 from bookmarks.views.partials import contexts
 
@@ -142,6 +143,8 @@ def _details(request, bookmark_id: int, template: str):
             except BookmarkAsset.DoesNotExist:
                 raise Http404("Asset does not exist")
             asset.delete()
+        if "create_snapshot" in request.POST:
+            tasks.create_html_snapshot(bookmark)
         else:
             bookmark.is_archived = request.POST.get("is_archived") == "on"
             bookmark.unread = request.POST.get("unread") == "on"
