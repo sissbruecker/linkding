@@ -273,5 +273,11 @@ LD_ENABLE_REFRESH_FAVICONS = os.getenv("LD_ENABLE_REFRESH_FAVICONS", True) in (
 # Asset / snapshot settings
 LD_ASSET_FOLDER = os.path.join(BASE_DIR, "data", "assets")
 
+LD_SINGLEFILE_PATH = os.getenv("LD_SINGLEFILE_PATH", "single-file")
+LD_SINGLEFILE_OPTIONS = os.getenv("LD_SINGLEFILE_OPTIONS", "")
+
+# Monolith isn't used at the moment, as the local snapshot implementation
+# switched to single-file after the prototype. Keeping this around in case
+# it turns out to be useful in the future.
 LD_MONOLITH_PATH = os.getenv("LD_MONOLITH_PATH", "monolith")
 LD_MONOLITH_OPTIONS = os.getenv("LD_MONOLITH_OPTIONS", "-a -v -s")

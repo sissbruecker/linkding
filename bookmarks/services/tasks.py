@@ -11,7 +11,7 @@ from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecord
 
 import bookmarks.services.wayback
 from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
-from bookmarks.services import favicon_loader, monolith
+from bookmarks.services import favicon_loader, singlefile
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
@@ -240,14 +240,14 @@ def _create_html_snapshot_task(asset_id: int):
     try:
         filename = _generate_snapshot_filename(asset)
         filepath = os.path.join(settings.LD_ASSET_FOLDER, filename)
-        monolith.create_snapshot(asset.bookmark.url, filepath)
+        singlefile.create_snapshot(asset.bookmark.url, filepath)
         asset.status = BookmarkAsset.STATUS_COMPLETE
         asset.file = filename
         asset.gzip = True
         logger.info(
             f"Successfully created HTML snapshot for bookmark. url={asset.bookmark.url}"
         )
-    except monolith.MonolithError as error:
+    except singlefile.SingeFileError as error:
         asset.status = BookmarkAsset.STATUS_FAILURE
         logger.error(
             f"Failed to create HTML snapshot for bookmark. url={asset.bookmark.url}",

@@ -14,7 +14,7 @@ from waybackpy.exceptions import WaybackError
 import bookmarks.services.favicon_loader
 import bookmarks.services.wayback
 from bookmarks.models import BookmarkAsset, UserProfile
-from bookmarks.services import tasks, monolith
+from bookmarks.services import tasks, singlefile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
@@ -650,7 +650,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_html_snapshot_should_update_file_info(self):
         bookmark = self.setup_bookmark(url="https://example.com")
 
-        with mock.patch("bookmarks.services.monolith.create_snapshot") as mock_create:
+        with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
             tasks.create_html_snapshot(bookmark)
             asset = BookmarkAsset.objects.get(bookmark=bookmark)
             asset.date_created = datetime.datetime(2021, 1, 2, 3, 44, 55)
@@ -672,8 +672,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_html_snapshot_should_handle_error(self):
         bookmark = self.setup_bookmark(url="https://example.com")
 
-        with mock.patch("bookmarks.services.monolith.create_snapshot") as mock_create:
-            mock_create.side_effect = monolith.MonolithError("Error")
+        with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
+            mock_create.side_effect = singlefile.SingeFileError("Error")
 
             tasks.create_html_snapshot(bookmark)
             self.run_pending_task(tasks._create_html_snapshot_task)
@@ -684,7 +684,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.assertFalse(asset.gzip)
 
     def test_create_html_snapshot_should_handle_missing_bookmark(self):
-        with mock.patch("bookmarks.services.monolith.create_snapshot") as mock_create:
+        with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
             tasks._create_html_snapshot_task(123)
             self.run_pending_task(tasks._create_html_snapshot_task)
 

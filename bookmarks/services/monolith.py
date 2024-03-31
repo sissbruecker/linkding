@@ -10,6 +10,9 @@ class MonolithError(Exception):
     pass
 
 
+# Monolith isn't used at the moment, as the local snapshot implementation
+# switched to single-file after the prototype. Keeping this around in case
+# it turns out to be useful in the future.
 def create_snapshot(url: str, filepath: str):
     monolith_path = settings.LD_MONOLITH_PATH
     monolith_options = settings.LD_MONOLITH_OPTIONS
