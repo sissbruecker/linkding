@@ -101,11 +101,22 @@ class BookmarkAsset(models.Model):
     bookmark = models.ForeignKey(Bookmark, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     file = models.CharField(max_length=2048, blank=True, null=False)
+    file_size = models.IntegerField(null=True)
     asset_type = models.CharField(max_length=64, blank=False, null=False)
     content_type = models.CharField(max_length=128, blank=False, null=False)
     display_name = models.CharField(max_length=2048, blank=True, null=False)
     status = models.CharField(max_length=64, blank=False, null=False)
     gzip = models.BooleanField(default=False, null=False)
+
+    def save(self, *args, **kwargs):
+        if self.file:
+            try:
+                file_path = os.path.join(settings.LD_ASSET_FOLDER, self.file)
+                if os.path.isfile(file_path):
+                    self.file_size = os.path.getsize(file_path)
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
 
 
 @receiver(post_delete, sender=BookmarkAsset)

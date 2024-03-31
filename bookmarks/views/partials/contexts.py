@@ -285,6 +285,7 @@ class BookmarkAssetItem:
         self.display_name = asset.display_name
         self.content_type = asset.content_type
         self.file = asset.file
+        self.file_size = asset.file_size
         self.status = asset.status
 
         icon_classes = []

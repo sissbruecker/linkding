@@ -4,12 +4,15 @@
       <div class="asset-icon {{ asset.icon_classes }}">
         {% include 'bookmarks/details/asset_icon.html' %}
       </div>
-      <div class="asset-text {{ asset.text_classes }}">
+      <div class="asset-text truncate {{ asset.text_classes }}">
         <span>
           {{ asset.display_name }}
           {% if asset.status == 'pending' %}(queued){% endif %}
           {% if asset.status == 'failure' %}(failed){% endif %}
         </span>
+        {% if asset.file_size %}
+          <span class="filesize">{{ asset.file_size|filesizeformat }}</span>
+        {% endif %}
       </div>
       <div class="asset-actions">
         {% if asset.file %}

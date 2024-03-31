@@ -17,14 +17,15 @@ class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
         for temp_file in temp_files:
             os.remove(os.path.join(settings.LD_ASSET_FOLDER, temp_file))
 
-    def setup_asset_with_file(self, bookmark):
-        filename = f"temp_{bookmark.id}.html.gzip"
-        asset = self.setup_asset(bookmark=bookmark, file=filename)
-
+    def setup_asset_file(self, filename):
         filepath = os.path.join(settings.LD_ASSET_FOLDER, filename)
         with open(filepath, "w") as f:
             f.write("test")
 
+    def setup_asset_with_file(self, bookmark):
+        filename = f"temp_{bookmark.id}.html.gzip"
+        self.setup_asset_file(filename)
+        asset = self.setup_asset(bookmark=bookmark, file=filename)
         return asset
 
     def test_delete_bookmark_deletes_asset_file(self):
@@ -69,3 +70,18 @@ class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertFalse(
             os.path.exists(os.path.join(settings.LD_ASSET_FOLDER, asset3.file))
         )
+
+    def test_save_updates_file_size(self):
+        # File does not exist initially
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark, file="temp.html.gz")
+        self.assertIsNone(asset.file_size)
+
+        # Add file, save again
+        self.setup_asset_file(asset.file)
+        asset.save()
+        self.assertEqual(asset.file_size, 4)
+
+        # Create asset with initial file
+        asset = self.setup_asset(bookmark=bookmark, file="temp.html.gz")
+        self.assertEqual(asset.file_size, 4)

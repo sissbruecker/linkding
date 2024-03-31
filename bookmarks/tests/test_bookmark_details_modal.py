@@ -635,3 +635,23 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset_item = self.find_asset(soup, failed_asset)
         asset_text = asset_item.select_one(".asset-text span")
         self.assertIn("(failed)", asset_text.text)
+
+    def test_asset_file_size(self):
+        bookmark = self.setup_bookmark()
+        asset1 = self.setup_asset(bookmark, file_size=None)
+        asset2 = self.setup_asset(bookmark, file_size=54639)
+        asset3 = self.setup_asset(bookmark, file_size=11492020)
+
+        soup = self.get_details(bookmark)
+
+        asset_item = self.find_asset(soup, asset1)
+        asset_text = asset_item.select_one(".asset-text")
+        self.assertEqual(asset_text.text.strip(), asset1.display_name)
+
+        asset_item = self.find_asset(soup, asset2)
+        asset_text = asset_item.select_one(".asset-text")
+        self.assertIn("53.4\xa0KB", asset_text.text)
+
+        asset_item = self.find_asset(soup, asset3)
+        asset_text = asset_item.select_one(".asset-text")
+        self.assertIn("11.0\xa0MB", asset_text.text)
