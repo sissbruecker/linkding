@@ -196,12 +196,19 @@ def _schedule_refresh_favicons_task(user_id: int):
     Task.objects.bulk_create(tasks)
 
 
+def is_html_snapshot_feature_active() -> bool:
+    return not settings.LD_DISABLE_BACKGROUND_TASKS
+
+
 def create_html_snapshot(bookmark: Bookmark):
+    if settings.LD_DISABLE_BACKGROUND_TASKS:
+        return
+
     asset = BookmarkAsset(
         bookmark=bookmark,
         asset_type=BookmarkAsset.TYPE_SNAPSHOT,
         content_type="text/html",
-        display_name="HTML Snapshot",
+        display_name="HTML snapshot",
         status=BookmarkAsset.STATUS_PENDING,
     )
     asset.save()

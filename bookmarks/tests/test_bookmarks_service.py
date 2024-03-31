@@ -103,7 +103,14 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark_data = Bookmark(url="https://example.com")
             bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
 
-            mock_load_favicon.assert_called_once_with(self.user, bookmark)
+            mock_load_favicon.assert_called_once_with(bookmark)
+
+    def test_create_should_load_html_snapshot(self):
+        with patch.object(tasks, "create_html_snapshot") as mock_create_html_snapshot:
+            bookmark_data = Bookmark(url="https://example.com")
+            bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
+
+            mock_create_html_snapshot.assert_called_once_with(bookmark)
 
     def test_update_should_create_web_archive_snapshot_if_url_did_change(self):
         with patch.object(
@@ -166,6 +173,14 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             update_bookmark(bookmark, "tag1,tag2", self.user)
 
             mock_load_favicon.assert_called_once_with(self.user, bookmark)
+
+    def test_update_should_not_create_html_snapshot(self):
+        with patch.object(tasks, "create_html_snapshot") as mock_create_html_snapshot:
+            bookmark = self.setup_bookmark()
+            bookmark.title = "updated title"
+            update_bookmark(bookmark, "tag1,tag2", self.user)
+
+            mock_create_html_snapshot.assert_not_called()
 
     def test_archive_bookmark(self):
         bookmark = Bookmark(
