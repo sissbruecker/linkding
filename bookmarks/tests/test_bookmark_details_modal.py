@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import formats
 
-from bookmarks.models import UserProfile
+from bookmarks.models import BookmarkAsset, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
@@ -34,6 +34,9 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
     def find_weblink(self, soup, url):
         return soup.find("a", {"class": "weblink", "href": url})
+
+    def find_asset(self, soup, asset):
+        return soup.find("div", {"data-asset-id": asset.id})
 
     def test_access(self):
         # own bookmark
@@ -560,3 +563,75 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         delete_button = soup.find("button", {"type": "submit", "name": "remove"})
         self.assertIsNone(edit_link)
         self.assertIsNone(delete_button)
+
+    def test_assets_visibility(self):
+        # no assets
+        bookmark = self.setup_bookmark()
+
+        soup = self.get_details(bookmark)
+        section = self.get_section(soup, "Files")
+        asset_list = section.find("div", {"class": "assets"})
+        self.assertIsNone(asset_list)
+
+        # with assets
+        bookmark = self.setup_bookmark()
+        self.setup_asset(bookmark)
+
+        soup = self.get_details(bookmark)
+        section = self.get_section(soup, "Files")
+        asset_list = section.find("div", {"class": "assets"})
+        self.assertIsNotNone(asset_list)
+
+    def test_asset_list(self):
+        bookmark = self.setup_bookmark()
+        assets = [
+            self.setup_asset(bookmark),
+            self.setup_asset(bookmark),
+            self.setup_asset(bookmark),
+        ]
+
+        soup = self.get_details(bookmark)
+        section = self.get_section(soup, "Files")
+        asset_list = section.find("div", {"class": "assets"})
+
+        for asset in assets:
+            asset_item = self.find_asset(asset_list, asset)
+            self.assertIsNotNone(asset_item)
+
+            asset_icon = asset_item.select_one(".asset-icon svg")
+            self.assertIsNotNone(asset_icon)
+
+            asset_text = asset_item.select_one(".asset-text span")
+            self.assertIsNotNone(asset_text)
+            self.assertIn(asset.display_name, asset_text.text)
+
+            view_url = reverse("bookmarks:assets.view", args=[asset.id])
+            view_link = asset_item.find("a", {"href": view_url})
+            self.assertIsNotNone(view_link)
+
+    def test_asset_without_file(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark)
+        asset.file = ""
+        asset.save()
+
+        soup = self.get_details(bookmark)
+        asset_item = self.find_asset(soup, asset)
+        view_url = reverse("bookmarks:assets.view", args=[asset.id])
+        view_link = asset_item.find("a", {"href": view_url})
+        self.assertIsNone(view_link)
+
+    def test_asset_status(self):
+        bookmark = self.setup_bookmark()
+        pending_asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_PENDING)
+        failed_asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_FAILURE)
+
+        soup = self.get_details(bookmark)
+
+        asset_item = self.find_asset(soup, pending_asset)
+        asset_text = asset_item.select_one(".asset-text span")
+        self.assertIn("(queued)", asset_text.text)
+
+        asset_item = self.find_asset(soup, failed_asset)
+        asset_text = asset_item.select_one(".asset-text span")
+        self.assertIn("(failed)", asset_text.text)

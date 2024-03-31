@@ -1,0 +1,21 @@
+<div class="assets">
+  {% for asset in details.assets %}
+    <div class="asset" data-asset-id="{{ asset.id }}">
+      <div class="asset-icon {{ asset.icon_classes }}">
+        {% include 'bookmarks/details/asset_icon.html' %}
+      </div>
+      <div class="asset-text {{ asset.text_classes }}">
+        <span>
+          {{ asset.display_name }}
+          {% if asset.status == 'pending' %}(queued){% endif %}
+          {% if asset.status == 'failure' %}(failed){% endif %}
+        </span>
+      </div>
+      <div class="asset-actions">
+        {% if asset.file %}
+          <a class="btn btn-link" href="{% url 'bookmarks:assets.view' asset.id %}" target="_blank">View</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>

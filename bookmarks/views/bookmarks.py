@@ -143,12 +143,13 @@ def _details(request, bookmark_id: int, template: str):
 
         return HttpResponseRedirect(edit_return_url)
 
+    details_context = contexts.BookmarkDetailsContext(request, bookmark)
+
     return render(
         request,
         template,
         {
-            "bookmark": bookmark,
-            "assets": bookmark.bookmarkasset_set.all(),
+            "details": details_context,
             "edit_return_url": edit_return_url,
             "delete_return_url": delete_return_url,
         },

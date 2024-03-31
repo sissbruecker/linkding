@@ -37,6 +37,44 @@
     margin-bottom: 0;
   }
 
+  .assets {
+    margin-top: $unit-2;
+  }
+
+  .assets .asset {
+    display: flex;
+    align-items: center;
+    gap: $unit-3;
+    padding: $unit-2 0;
+    border-top: $unit-o solid $border-color-light;
+  }
+
+  .assets .asset:last-child {
+    border-bottom: $unit-o solid $border-color-light;
+  }
+
+  .assets .asset-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .assets .asset-text {
+    flex: 1 1 0;
+  }
+
+  .assets .asset-actions {
+    display: flex;
+    gap: $unit-3;
+    align-items: center;
+  }
+
+  .assets .asset-actions .btn {
+    height: unset;
+    padding: 0 $unit-2;
+    border: none;
+  }
+
   .tags a {
     color: $alternative-color;
   }

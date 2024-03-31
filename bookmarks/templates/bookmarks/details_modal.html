@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    {% if request.user == bookmark.owner %}
+    {% if details.is_editable %}
       <div class="modal-footer">
         {% include 'bookmarks/details/actions.html' %}
       </div>
