@@ -25,6 +25,6 @@ docker buildx build --target linkding-plus --platform linux/amd64,linux/arm64 \
 
 docker buildx build --target linkding-plus --platform linux/amd64,linux/arm64 \
   -f docker/alpine.Dockerfile \
-  -t sissbruecker/linkding:latest-alpine-plus \
-  -t sissbruecker/linkding:$version-alpine-plus \
+  -t sissbruecker/linkding:latest-plus-alpine \
+  -t sissbruecker/linkding:$version-plus-alpine \
   --push .
