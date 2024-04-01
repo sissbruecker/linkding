@@ -22,6 +22,8 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
             os.remove(os.path.join(settings.LD_ASSET_FOLDER, temp_file))
 
     def setup_asset_file(self, filename):
+        if not os.path.exists(settings.LD_ASSET_FOLDER):
+            os.makedirs(settings.LD_ASSET_FOLDER)
         filepath = os.path.join(settings.LD_ASSET_FOLDER, filename)
         with open(filepath, "w") as f:
             f.write("test")
