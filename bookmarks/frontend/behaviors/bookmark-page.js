@@ -1,4 +1,4 @@
-import { registerBehavior, swap } from "./index";
+import { registerBehavior, swapContent } from "./index";
 
 class BookmarkPage {
   constructor(element) {
@@ -37,8 +37,8 @@ class BookmarkPage {
       fetch(`${bookmarksUrl}${query}`).then((response) => response.text()),
       fetch(`${tagsUrl}${query}`).then((response) => response.text()),
     ]).then(([bookmarkListHtml, tagCloudHtml]) => {
-      swap(this.bookmarkList, bookmarkListHtml);
-      swap(this.tagCloud, tagCloudHtml);
+      swapContent(this.bookmarkList, bookmarkListHtml);
+      swapContent(this.tagCloud, tagCloudHtml);
 
       // Dispatch list updated event
       const listElement = this.bookmarkList.querySelector(

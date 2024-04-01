@@ -1,4 +1,4 @@
-<div ld-bookmark-details class="modal active bookmark-details">
+<div class="modal active bookmark-details">
   <div class="modal-overlay" aria-label="Close"></div>
   <div class="modal-container">
     <div class="modal-header">
@@ -14,11 +14,11 @@
     </div>
     <div class="modal-body">
       <div class="content">
-        {% include 'bookmarks/details/content.html' %}
+        {% include 'bookmarks/details/form.html' %}
       </div>
     </div>
 
-    {% if request.user == bookmark.owner %}
+    {% if details.is_editable %}
       <div class="modal-footer">
         {% include 'bookmarks/details/actions.html' %}
       </div>

@@ -12,7 +12,13 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks import queries
-from bookmarks.models import Bookmark, BookmarkForm, BookmarkSearch, build_tag_string
+from bookmarks.models import (
+    Bookmark,
+    BookmarkAsset,
+    BookmarkForm,
+    BookmarkSearch,
+    build_tag_string,
+)
 from bookmarks.services.bookmarks import (
     create_bookmark,
     update_bookmark,
@@ -28,6 +34,7 @@ from bookmarks.services.bookmarks import (
     share_bookmarks,
     unshare_bookmarks,
 )
+from bookmarks.services import tasks
 from bookmarks.utils import get_safe_return_url
 from bookmarks.views.partials import contexts
 
@@ -120,31 +127,39 @@ def _details(request, bookmark_id: int, template: str):
     if not is_owner and not is_shared and not is_public_shared:
         raise Http404("Bookmark does not exist")
 
-    edit_return_url = get_safe_return_url(
-        request.GET.get("return_url"), reverse("bookmarks:details", args=[bookmark_id])
-    )
-    delete_return_url = get_safe_return_url(
-        request.GET.get("return_url"), reverse("bookmarks:index")
-    )
-
-    # handles status actions form
     if request.method == "POST":
         if not is_owner:
             raise Http404("Bookmark does not exist")
-        bookmark.is_archived = request.POST.get("is_archived") == "on"
-        bookmark.unread = request.POST.get("unread") == "on"
-        bookmark.shared = request.POST.get("shared") == "on"
-        bookmark.save()
 
-        return HttpResponseRedirect(edit_return_url)
+        return_url = get_safe_return_url(
+            request.GET.get("return_url"),
+            reverse("bookmarks:details", args=[bookmark.id]),
+        )
+
+        if "remove_asset" in request.POST:
+            asset_id = request.POST["remove_asset"]
+            try:
+                asset = bookmark.bookmarkasset_set.get(pk=asset_id)
+            except BookmarkAsset.DoesNotExist:
+                raise Http404("Asset does not exist")
+            asset.delete()
+        if "create_snapshot" in request.POST:
+            tasks.create_html_snapshot(bookmark)
+        else:
+            bookmark.is_archived = request.POST.get("is_archived") == "on"
+            bookmark.unread = request.POST.get("unread") == "on"
+            bookmark.shared = request.POST.get("shared") == "on"
+            bookmark.save()
+
+        return HttpResponseRedirect(return_url)
+
+    details_context = contexts.BookmarkDetailsContext(request, bookmark)
 
     return render(
         request,
         template,
         {
-            "bookmark": bookmark,
-            "edit_return_url": edit_return_url,
-            "delete_return_url": delete_return_url,
+            "details": details_context,
         },
     )
 

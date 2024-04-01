@@ -1,8 +1,8 @@
-import "./behaviors/bookmark-details";
 import "./behaviors/bookmark-page";
 import "./behaviors/bulk-edit";
 import "./behaviors/confirm-button";
 import "./behaviors/dropdown";
+import "./behaviors/form";
 import "./behaviors/modal";
 import "./behaviors/global-shortcuts";
 import "./behaviors/tag-autocomplete";

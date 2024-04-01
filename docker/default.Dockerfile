@@ -69,7 +69,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.11.8-slim-bookworm as final
+FROM python:3.11.8-slim-bookworm as linkding
 RUN apt-get update && apt-get -y install mime-support libpq-dev libicu-dev libssl3 curl
 WORKDIR /etc/linkding
 # copy prod dependencies
@@ -94,3 +94,9 @@ HEALTHCHECK --interval=30s --retries=3 --timeout=1s \
 CMD curl -f http://localhost:${LD_SERVER_PORT:-9090}/${LD_CONTEXT_PATH}health || exit 1
 
 CMD ["./bootstrap.sh"]
+
+FROM linkding AS linkding-plus
+# install node, chromium and single-file
+RUN apt-get update && apt-get -y install nodejs npm chromium && npm install -g single-file-cli
+# enable snapshot support
+ENV LD_ENABLE_SNAPSHOTS=True

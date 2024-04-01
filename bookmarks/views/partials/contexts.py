@@ -6,11 +6,13 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator
 from django.db import models
 from django.urls import reverse
+from django.conf import settings
 
 from bookmarks import queries
 from bookmarks import utils
 from bookmarks.models import (
     Bookmark,
+    BookmarkAsset,
     BookmarkSearch,
     User,
     UserProfile,
@@ -274,3 +276,55 @@ class SharedTagCloudContext(TagCloudContext):
         return queries.query_shared_bookmark_tags(
             user, self.request.user_profile, self.search, public_only
         )
+
+
+class BookmarkAssetItem:
+    def __init__(self, asset: BookmarkAsset):
+        self.asset = asset
+
+        self.id = asset.id
+        self.display_name = asset.display_name
+        self.content_type = asset.content_type
+        self.file = asset.file
+        self.file_size = asset.file_size
+        self.status = asset.status
+
+        icon_classes = []
+        text_classes = []
+        if asset.status == BookmarkAsset.STATUS_PENDING:
+            icon_classes.append("text-gray")
+            text_classes.append("text-gray")
+        elif asset.status == BookmarkAsset.STATUS_FAILURE:
+            icon_classes.append("text-error")
+            text_classes.append("text-error")
+        else:
+            icon_classes.append("text-primary")
+
+        self.icon_classes = " ".join(icon_classes)
+        self.text_classes = " ".join(text_classes)
+
+
+class BookmarkDetailsContext:
+    def __init__(self, request: WSGIRequest, bookmark: Bookmark):
+        user = request.user
+        user_profile = request.user_profile
+
+        self.edit_return_url = utils.get_safe_return_url(
+            request.GET.get("return_url"),
+            reverse("bookmarks:details", args=[bookmark.id]),
+        )
+        self.delete_return_url = utils.get_safe_return_url(
+            request.GET.get("return_url"), reverse("bookmarks:index")
+        )
+
+        self.bookmark = bookmark
+        self.profile = request.user_profile
+        self.is_editable = bookmark.owner == user
+        self.sharing_enabled = user_profile.enable_sharing
+        self.show_link_icons = user_profile.enable_favicons and bookmark.favicon_file
+        # For now hide files section if snapshots are not supported
+        self.show_files = settings.LD_ENABLE_SNAPSHOTS
+
+        self.assets = [
+            BookmarkAssetItem(asset) for asset in bookmark.bookmarkasset_set.all()
+        ]

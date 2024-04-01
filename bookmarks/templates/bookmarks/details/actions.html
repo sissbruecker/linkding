@@ -1,11 +1,14 @@
 <div class="actions">
   <div class="left-actions">
-    <a class="btn" href="{% url 'bookmarks:edit' bookmark.id %}?return_url={{ edit_return_url|urlencode }}">Edit</a>
+    <a class="btn"
+       href="{% url 'bookmarks:edit' details.bookmark.id %}?return_url={{ details.edit_return_url|urlencode }}">Edit</a>
   </div>
   <div class="right-actions">
-    <form action="{% url 'bookmarks:index.action' %}?return_url={{ delete_return_url|urlencode }}" method="post">
+    <form action="{% url 'bookmarks:index.action' %}?return_url={{ details.delete_return_url|urlencode }}"
+          method="post">
       {% csrf_token %}
-      <button ld-confirm-button type="submit" name="remove" value="{{ bookmark.id }}" class="btn btn-link text-error">
+      <button ld-confirm-button type="submit" name="remove" value="{{ details.bookmark.id }}"
+              class="btn btn-link text-error">
         Delete...
       </button>
     </form>

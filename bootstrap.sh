@@ -7,6 +7,8 @@ LD_SERVER_PORT="${LD_SERVER_PORT:-9090}"
 mkdir -p data
 # Create favicon folder if it does not exist
 mkdir -p data/favicons
+# Create assets folder if it does not exist
+mkdir -p data/assets
 
 # Generate secret key file if it does not exist
 python manage.py generate_secret_key

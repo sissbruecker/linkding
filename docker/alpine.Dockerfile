@@ -67,7 +67,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.11.8-alpine3.19 AS final
+FROM python:3.11.8-alpine3.19 AS linkding
 # install runtime dependencies
 RUN apk update && apk add bash curl icu libpq mailcap libssl3
 # create www-data user and group
@@ -96,3 +96,10 @@ HEALTHCHECK --interval=30s --retries=3 --timeout=1s \
 CMD curl -f http://localhost:${LD_SERVER_PORT:-9090}/${LD_CONTEXT_PATH}health || exit 1
 
 CMD ["./bootstrap.sh"]
+
+
+FROM linkding AS linkding-plus
+# install node, chromium and single-file
+RUN apk update && apk add nodejs npm chromium && npm install -g single-file-cli
+# enable snapshot support
+ENV LD_ENABLE_SNAPSHOTS=True

@@ -44,6 +44,12 @@ urlpatterns = [
         views.bookmarks.details_modal,
         name="details_modal",
     ),
+    # Assets
+    path(
+        "assets/<int:asset_id>",
+        views.assets.view,
+        name="assets.view",
+    ),
     # Partials
     path(
         "bookmarks/partials/bookmark-list/active",
@@ -74,6 +80,11 @@ urlpatterns = [
         "bookmarks/partials/tag-cloud/shared",
         partials.shared_tag_cloud,
         name="partials.tag_cloud.shared",
+    ),
+    path(
+        "bookmarks/partials/details-form/<int:bookmark_id>",
+        partials.details_form,
+        name="partials.details_form",
     ),
     # Settings
     path("settings", views.settings.general, name="settings.index"),

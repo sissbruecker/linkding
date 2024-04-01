@@ -12,7 +12,14 @@ export function applyBehaviors(container, behaviorNames = null) {
 
   behaviorNames.forEach((behaviorName) => {
     const behavior = behaviorRegistry[behaviorName];
-    const elements = container.querySelectorAll(`[${behaviorName}]`);
+    const elements = Array.from(
+      container.querySelectorAll(`[${behaviorName}]`),
+    );
+
+    // Include the container element if it has the behavior
+    if (container.hasAttribute && container.hasAttribute(behaviorName)) {
+      elements.push(container);
+    }
 
     elements.forEach((element) => {
       element.__behaviors = element.__behaviors || [];
@@ -31,6 +38,13 @@ export function applyBehaviors(container, behaviorNames = null) {
 }
 
 export function swap(element, html) {
+  const dom = new DOMParser().parseFromString(html, "text/html");
+  const newElement = dom.body.firstChild;
+  element.replaceWith(newElement);
+  applyBehaviors(newElement);
+}
+
+export function swapContent(element, html) {
   element.innerHTML = html;
   applyBehaviors(element);
 }

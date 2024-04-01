@@ -1,18 +1,20 @@
 import datetime
+import os.path
 from dataclasses import dataclass
 from typing import Any
 from unittest import mock
 
 import waybackpy
 from background_task.models import Task
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from waybackpy.exceptions import WaybackError
 
 import bookmarks.services.favicon_loader
 import bookmarks.services.wayback
-from bookmarks.models import UserProfile
-from bookmarks.services import tasks
+from bookmarks.models import BookmarkAsset, UserProfile
+from bookmarks.services import tasks, singlefile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
@@ -624,5 +626,88 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         self.setup_bookmark()
         tasks.schedule_refresh_favicons(self.get_or_create_test_user())
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_html_snapshot_should_create_pending_asset(self):
+        bookmark = self.setup_bookmark()
+
+        with mock.patch("bookmarks.services.monolith.create_snapshot"):
+            tasks.create_html_snapshot(bookmark)
+            self.assertEqual(BookmarkAsset.objects.count(), 1)
+
+            tasks.create_html_snapshot(bookmark)
+            self.assertEqual(BookmarkAsset.objects.count(), 2)
+
+            assets = BookmarkAsset.objects.filter(bookmark=bookmark)
+            for asset in assets:
+                self.assertEqual(asset.bookmark, bookmark)
+                self.assertEqual(asset.asset_type, BookmarkAsset.TYPE_SNAPSHOT)
+                self.assertEqual(asset.content_type, BookmarkAsset.CONTENT_TYPE_HTML)
+                self.assertIn("HTML snapshot", asset.display_name)
+                self.assertEqual(asset.status, BookmarkAsset.STATUS_PENDING)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_html_snapshot_should_update_file_info(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+
+        with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
+            tasks.create_html_snapshot(bookmark)
+            asset = BookmarkAsset.objects.get(bookmark=bookmark)
+            asset.date_created = datetime.datetime(2021, 1, 2, 3, 44, 55)
+            asset.save()
+            expected_filename = "snapshot_2021-01-02_034455_https___example.com.html.gz"
+
+            self.run_pending_task(tasks._create_html_snapshot_task)
+
+            mock_create.assert_called_once_with(
+                "https://example.com",
+                os.path.join(settings.LD_ASSET_FOLDER, expected_filename),
+            )
+
+            asset = BookmarkAsset.objects.get(bookmark=bookmark)
+            self.assertEqual(asset.status, BookmarkAsset.STATUS_COMPLETE)
+            self.assertEqual(asset.file, expected_filename)
+            self.assertTrue(asset.gzip)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_html_snapshot_should_handle_error(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+
+        with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
+            mock_create.side_effect = singlefile.SingeFileError("Error")
+
+            tasks.create_html_snapshot(bookmark)
+            self.run_pending_task(tasks._create_html_snapshot_task)
+
+            asset = BookmarkAsset.objects.get(bookmark=bookmark)
+            self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
+            self.assertEqual(asset.file, "")
+            self.assertFalse(asset.gzip)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_html_snapshot_should_handle_missing_bookmark(self):
+        with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
+            tasks._create_html_snapshot_task(123)
+            self.run_pending_task(tasks._create_html_snapshot_task)
+
+            mock_create.assert_not_called()
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=False)
+    def test_create_html_snapshot_should_not_run_when_single_file_is_disabled(
+        self,
+    ):
+        bookmark = self.setup_bookmark()
+        tasks.create_html_snapshot(bookmark)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True, LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_create_html_snapshot_should_not_run_when_background_tasks_are_disabled(
+        self,
+    ):
+        bookmark = self.setup_bookmark()
+        tasks.create_html_snapshot(bookmark)
 
         self.assertEqual(Task.objects.count(), 0)

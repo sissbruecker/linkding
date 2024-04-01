@@ -1,17 +1,21 @@
-import binascii
+import logging
 import os
 from typing import List
 
+import binascii
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.http import QueryDict
 
 from bookmarks.utils import unique
 from bookmarks.validators import BookmarkURLValidator
+
+logger = logging.getLogger(__name__)
 
 
 class Tag(models.Model):
@@ -83,6 +87,47 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return self.resolved_title + " (" + self.url[:30] + "...)"
+
+
+class BookmarkAsset(models.Model):
+    TYPE_SNAPSHOT = "snapshot"
+
+    CONTENT_TYPE_HTML = "text/html"
+
+    STATUS_PENDING = "pending"
+    STATUS_COMPLETE = "complete"
+    STATUS_FAILURE = "failure"
+
+    bookmark = models.ForeignKey(Bookmark, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True, null=False)
+    file = models.CharField(max_length=2048, blank=True, null=False)
+    file_size = models.IntegerField(null=True)
+    asset_type = models.CharField(max_length=64, blank=False, null=False)
+    content_type = models.CharField(max_length=128, blank=False, null=False)
+    display_name = models.CharField(max_length=2048, blank=True, null=False)
+    status = models.CharField(max_length=64, blank=False, null=False)
+    gzip = models.BooleanField(default=False, null=False)
+
+    def save(self, *args, **kwargs):
+        if self.file:
+            try:
+                file_path = os.path.join(settings.LD_ASSET_FOLDER, self.file)
+                if os.path.isfile(file_path):
+                    self.file_size = os.path.getsize(file_path)
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
+
+
+@receiver(post_delete, sender=BookmarkAsset)
+def bookmark_asset_deleted(sender, instance, **kwargs):
+    if instance.file:
+        filepath = os.path.join(settings.LD_ASSET_FOLDER, instance.file)
+        if os.path.isfile(filepath):
+            try:
+                os.remove(filepath)
+            except Exception as error:
+                logger.error(f"Failed to delete asset file: {filepath}", exc_info=error)
 
 
 class BookmarkForm(forms.ModelForm):
@@ -353,6 +398,7 @@ class UserProfile(models.Model):
     permanent_notes = models.BooleanField(default=False, null=False)
     custom_css = models.TextField(blank=True, null=False)
     search_preferences = models.JSONField(default=dict, null=False)
+    enable_automatic_html_snapshots = models.BooleanField(default=True, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
@@ -369,6 +415,7 @@ class UserProfileForm(forms.ModelForm):
             "enable_sharing",
             "enable_public_sharing",
             "enable_favicons",
+            "enable_automatic_html_snapshots",
             "display_url",
             "display_view_bookmark_action",
             "display_edit_bookmark_action",

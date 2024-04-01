@@ -1,4 +1,5 @@
 import logging
+import os
 
 import waybackpy
 from background_task import background
@@ -7,10 +8,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
+from django.utils import timezone, formats
 
 import bookmarks.services.wayback
-from bookmarks.models import Bookmark, UserProfile
-from bookmarks.services import favicon_loader
+from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
+from bookmarks.services import favicon_loader, singlefile
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
@@ -193,3 +195,64 @@ def _schedule_refresh_favicons_task(user_id: int):
         tasks.append(task)
 
     Task.objects.bulk_create(tasks)
+
+
+def is_html_snapshot_feature_active() -> bool:
+    return settings.LD_ENABLE_SNAPSHOTS and not settings.LD_DISABLE_BACKGROUND_TASKS
+
+
+def create_html_snapshot(bookmark: Bookmark):
+    if not is_html_snapshot_feature_active():
+        return
+
+    timestamp = formats.date_format(timezone.now(), "SHORT_DATE_FORMAT")
+    asset = BookmarkAsset(
+        bookmark=bookmark,
+        asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+        content_type="text/html",
+        display_name=f"HTML snapshot from {timestamp}",
+        status=BookmarkAsset.STATUS_PENDING,
+    )
+    asset.save()
+    _create_html_snapshot_task(asset.id)
+
+
+def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
+    def sanitize_char(char):
+        if char.isalnum() or char in ("-", "_", "."):
+            return char
+        else:
+            return "_"
+
+    formatted_datetime = asset.date_created.strftime("%Y-%m-%d_%H%M%S")
+    sanitized_url = "".join(sanitize_char(char) for char in asset.bookmark.url)
+
+    return f"{asset.asset_type}_{formatted_datetime}_{sanitized_url}.html.gz"
+
+
+@background()
+def _create_html_snapshot_task(asset_id: int):
+    try:
+        asset = BookmarkAsset.objects.get(id=asset_id)
+    except BookmarkAsset.DoesNotExist:
+        return
+
+    logger.info(f"Create HTML snapshot for bookmark. url={asset.bookmark.url}")
+
+    try:
+        filename = _generate_snapshot_filename(asset)
+        filepath = os.path.join(settings.LD_ASSET_FOLDER, filename)
+        singlefile.create_snapshot(asset.bookmark.url, filepath)
+        asset.status = BookmarkAsset.STATUS_COMPLETE
+        asset.file = filename
+        asset.gzip = True
+        logger.info(
+            f"Successfully created HTML snapshot for bookmark. url={asset.bookmark.url}"
+        )
+    except singlefile.SingeFileError as error:
+        asset.status = BookmarkAsset.STATUS_FAILURE
+        logger.error(
+            f"Failed to create HTML snapshot for bookmark. url={asset.bookmark.url}",
+            exc_info=error,
+        )
+    asset.save()

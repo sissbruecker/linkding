@@ -37,6 +37,53 @@
     margin-bottom: 0;
   }
 
+  .assets {
+    margin-top: $unit-2;
+  }
+
+  .assets .asset {
+    display: flex;
+    align-items: center;
+    gap: $unit-3;
+    padding: $unit-2 0;
+    border-top: $unit-o solid $border-color-light;
+  }
+
+  .assets .asset:last-child {
+    border-bottom: $unit-o solid $border-color-light;
+  }
+
+  .assets .asset-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .assets .asset-text {
+    flex: 1 1 0;
+  }
+
+  .assets .asset-text .filesize {
+    color: $gray-color;
+    margin-left: $unit-2;
+  }
+
+  .assets .asset-actions, .assets-actions {
+    display: flex;
+    gap: $unit-3;
+    align-items: center;
+  }
+
+  .assets .asset-actions .btn, .assets-actions .btn {
+    height: unset;
+    padding: 0;
+    border: none;
+  }
+
+  .assets-actions {
+    margin-top: $unit-2;
+  }
+
   .tags a {
     color: $alternative-color;
   }
@@ -46,7 +93,7 @@
     gap: $unit-2;
   }
 
-  .status form .form-group, .status form .form-switch {
+  .status .form-group, .status .form-switch {
     margin: 0;
   }
 

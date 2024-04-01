@@ -1,6 +1,6 @@
 import random
 import logging
-import datetime
+from datetime import datetime
 from typing import List
 
 from bs4 import BeautifulSoup
@@ -10,7 +10,7 @@ from django.utils.crypto import get_random_string
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from bookmarks.models import Bookmark, Tag
+from bookmarks.models import Bookmark, BookmarkAsset, Tag
 
 
 class BookmarkFactoryMixin:
@@ -132,6 +132,38 @@ class BookmarkFactoryMixin:
 
     def get_numbered_bookmark(self, title: str):
         return Bookmark.objects.get(title=title)
+
+    def setup_asset(
+        self,
+        bookmark: Bookmark,
+        date_created: datetime = None,
+        file: str = None,
+        file_size: int = None,
+        asset_type: str = BookmarkAsset.TYPE_SNAPSHOT,
+        content_type: str = "image/html",
+        display_name: str = None,
+        status: str = BookmarkAsset.STATUS_COMPLETE,
+        gzip: bool = False,
+    ):
+        if date_created is None:
+            date_created = timezone.now()
+        if not file:
+            file = get_random_string(length=32)
+        if not display_name:
+            display_name = file
+        asset = BookmarkAsset(
+            bookmark=bookmark,
+            date_created=date_created,
+            file=file,
+            file_size=file_size,
+            asset_type=asset_type,
+            content_type=content_type,
+            display_name=display_name,
+            status=status,
+            gzip=gzip,
+        )
+        asset.save()
+        return asset
 
     def setup_tag(self, user: User = None, name: str = ""):
         if user is None:
