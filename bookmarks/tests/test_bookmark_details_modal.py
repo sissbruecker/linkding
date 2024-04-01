@@ -660,6 +660,34 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset_text = asset_item.select_one(".asset-text")
         self.assertIn("11.0\xa0MB", asset_text.text)
 
+    def test_asset_actions_visibility(self):
+        bookmark = self.setup_bookmark()
+
+        # with file
+        asset = self.setup_asset(bookmark)
+        soup = self.get_details(bookmark)
+
+        asset_item = self.find_asset(soup, asset)
+        view_link = asset_item.find("a", string="View")
+        delete_button = asset_item.find(
+            "button", {"type": "submit", "name": "remove_asset"}
+        )
+        self.assertIsNotNone(view_link)
+        self.assertIsNotNone(delete_button)
+
+        # without file
+        asset.file = ""
+        asset.save()
+        soup = self.get_details(bookmark)
+
+        asset_item = self.find_asset(soup, asset)
+        view_link = asset_item.find("a", string="View")
+        delete_button = asset_item.find(
+            "button", {"type": "submit", "name": "remove_asset"}
+        )
+        self.assertIsNone(view_link)
+        self.assertIsNotNone(delete_button)
+
     def test_remove_asset(self):
         # remove asset
         bookmark = self.setup_bookmark()
