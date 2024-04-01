@@ -2,7 +2,6 @@
 {% load shared %}
 
 <form ld-form action="{% url 'bookmarks:details' details.bookmark.id %}"
-      {% if details.auto_refresh %}refresh-interval="1000"{% endif %}
       refresh-url="{% url 'bookmarks:partials.details_form' details.bookmark.id %}"
       refresh-events="bookmark-page-refresh"
       method="post">

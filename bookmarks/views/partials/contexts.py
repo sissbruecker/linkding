@@ -325,7 +325,3 @@ class BookmarkDetailsContext:
         self.assets = [
             BookmarkAssetItem(asset) for asset in bookmark.bookmarkasset_set.all()
         ]
-        # set auto refresh if any asset is pending
-        self.auto_refresh = any(
-            asset.status == BookmarkAsset.STATUS_PENDING for asset in self.assets
-        )
