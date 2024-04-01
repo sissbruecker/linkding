@@ -36,7 +36,7 @@ The name comes from:
 - Bulk editing, Markdown notes, read it later functionality
 - Share bookmarks with other users or guests
 - Automatically provides titles, descriptions and icons of bookmarked websites
-- Automatically creates snapshots of websites, either as local HTML file or on Internet Archive
+- Automatically archive websites, either as local HTML file or on Internet Archive
 - Import and export bookmarks in Netscape HTML format
 - Installable as a Progressive Web App (PWA)
 - Extensions for [Firefox](https://addons.mozilla.org/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a bookmarklet
@@ -78,7 +78,7 @@ The Docker image comes in several variants. To use a different image than the de
     <tr>
       <td><code>latest-plus</code></td>
       <td>
-        Includes feature for saving HTML snapshots of websites
+        Includes feature for archiving websites as HTML snapshots
         <ul>
           <li>Significantly larger image size as it includes a Chromium installation</li>
           <li>Requires more runtime memory to run Chromium</li>
