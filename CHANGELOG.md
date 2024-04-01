@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.27.0 (01/04/2024)
+
+### What's Changed
+* Archive snapshots of websites locally by @sissbruecker in https://github.com/sissbruecker/linkding/pull/672
+* Add Railway hosting option by @tianheg in https://github.com/sissbruecker/linkding/pull/661
+* Add how to for increasing the font size by @sissbruecker in https://github.com/sissbruecker/linkding/pull/667
+
+### New Contributors
+* @tianheg made their first contribution in https://github.com/sissbruecker/linkding/pull/661
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.26.0...v1.27.0
+
+---
+
 ## v1.26.0 (30/03/2024)
 
 ### What's Changed
