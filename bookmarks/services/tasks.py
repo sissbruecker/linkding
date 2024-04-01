@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
+from django.utils import timezone, formats
 
 import bookmarks.services.wayback
 from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
@@ -204,11 +205,12 @@ def create_html_snapshot(bookmark: Bookmark):
     if settings.LD_DISABLE_BACKGROUND_TASKS:
         return
 
+    timestamp = formats.date_format(timezone.now(), "SHORT_DATE_FORMAT")
     asset = BookmarkAsset(
         bookmark=bookmark,
         asset_type=BookmarkAsset.TYPE_SNAPSHOT,
         content_type="text/html",
-        display_name="HTML snapshot",
+        display_name=f"HTML snapshot from {timestamp}",
         status=BookmarkAsset.STATUS_PENDING,
     )
     asset.save()
