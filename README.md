@@ -33,16 +33,13 @@ The name comes from:
 **Feature Overview:**
 - Clean UI optimized for readability
 - Organize bookmarks with tags
-- Bulk editing
-- Add notes using Markdown
-- Read it later functionality
-- Share bookmarks with other users
+- Bulk editing, Markdown notes, read it later functionality
+- Share bookmarks with other users or guests
 - Automatically provides titles, descriptions and icons of bookmarked websites
-- Automatically saves HTML snapshots of websites, or creates snapshots on Internet Archive
+- Automatically creates snapshots of websites, either as local HTML file or on Internet Archive
 - Import and export bookmarks in Netscape HTML format
 - Installable as a Progressive Web App (PWA)
 - Extensions for [Firefox](https://addons.mozilla.org/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a bookmarklet
-- Light and dark themes
 - SSO support via OIDC or authentication proxies
 - REST API for developing 3rd party apps
 - Admin panel for user self-service and raw data access
@@ -76,39 +73,26 @@ The Docker image comes in several variants. To use a different image than the de
   <tbody>
     <tr>
       <td><code>latest</code></td>
-      <td>
-        <ul>
-          <li>Provides the basic functionality of linkding</li>
-          <li>Baseline image size, memory and disk space usage</li>
-        </ul>        
-      </td>
+      <td>Provides the basic functionality of linkding</td>
     </tr>
     <tr>
       <td><code>latest-plus</code></td>
       <td>
+        Includes feature for saving HTML snapshots of websites
         <ul>
-          <li>Allows saving HTML snapshots of websites</li>
           <li>Significantly larger image size as it includes a Chromium installation</li>
           <li>Requires more runtime memory to run Chromium</li>
           <li>Requires more disk space for storing HTML snapshots</li>
-        </ul>
+        </ul>            
       </td>
     </tr>
     <tr>
-      <td><code>latest-alpine</code><br></td>
-      <td>
-        <ul>
-          <li><code>latest</code>, but based on Alpine Linux. 🧪 Experimental</li>
-        </ul>        
-      </td>
+      <td><code>latest-alpine</code></td>
+      <td><code>latest</code>, but based on Alpine Linux. 🧪 Experimental</td>
     </tr>    
     <tr>
-      <td><code>latest-plus-alpine</code><br></td>
-      <td>
-        <ul>
-          <li><code>latest-plus</code>, but based on Alpine Linux. 🧪 Experimental</li>
-        </ul>        
-      </td>
+      <td><code>latest-plus-alpine</code></td>
+      <td><code>latest-plus</code>, but based on Alpine Linux. 🧪 Experimental</td>
     </tr>    
   </tbody>
 </table>
