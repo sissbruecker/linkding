@@ -33,12 +33,12 @@ The name comes from:
 **Feature Overview:**
 - Clean UI optimized for readability
 - Organize bookmarks with tags
+- Bulk editing
 - Add notes using Markdown
 - Read it later functionality
 - Share bookmarks with other users
-- Bulk editing
 - Automatically provides titles, descriptions and icons of bookmarked websites
-- Automatically creates snapshots of bookmarked websites on [the Internet Archive Wayback Machine](https://archive.org/web/)
+- Automatically saves HTML snapshots of websites, or creates snapshots on Internet Archive
 - Import and export bookmarks in Netscape HTML format
 - Installable as a Progressive Web App (PWA)
 - Extensions for [Firefox](https://addons.mozilla.org/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a bookmarklet
@@ -62,27 +62,58 @@ The Docker image is compatible with ARM platforms, so it can be run on a Raspber
 linkding uses an SQLite database by default.
 Alternatively linkding supports PostgreSQL, see the [database options](docs/Options.md#LD_DB_ENGINE) for more information.
 
-<details>
-
-<summary>🧪 Alpine-based image</summary>
-
-The default Docker image (`latest` tag) is based on a slim variant of Debian Linux.
-Alternatively, there is an image based on Alpine Linux (`latest-alpine` tag) which has a smaller size, resulting in a smaller download and less disk space required.
-The Alpine image is currently about 45 MB in compressed size, compared to about 130 MB for the Debian image.
-
-To use it, replace the `latest` tag with `latest-alpine`, either in the CLI command below when using Docker, or in the `docker-compose.yml` file when using docker-compose.
-
-> [!WARNING]
-> The image is currently considered experimental in order to gather feedback and iron out any issues.
-> Only use it if you are comfortable running experimental software or want to help out with testing.
-> While there should be no issues with creating new installations, there might be issues when migrating existing installations.
-> If you plan to migrate your existing installation, make sure to create proper [backups](https://github.com/sissbruecker/linkding/blob/master/docs/backup.md) first.
-
-</details>
-
 ###  Using Docker
 
-To install linkding using Docker you can just run the [latest image](https://hub.docker.com/repository/docker/sissbruecker/linkding) from Docker Hub:
+The Docker image comes in several variants. To use a different image than the default, replace `latest` with the desired tag in the commands below, or in the docker-compose file.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tag</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>latest</code></td>
+      <td>
+        <ul>
+          <li>Provides the basic functionality of linkding</li>
+          <li>Baseline image size, memory and disk space usage</li>
+        </ul>        
+      </td>
+    </tr>
+    <tr>
+      <td><code>latest-plus</code></td>
+      <td>
+        <ul>
+          <li>Allows saving HTML snapshots of websites</li>
+          <li>Significantly larger image size as it includes a Chromium installation</li>
+          <li>Requires more runtime memory to run Chromium</li>
+          <li>Requires more disk space for storing HTML snapshots</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><code>latest-alpine</code><br></td>
+      <td>
+        <ul>
+          <li><code>latest</code>, but based on Alpine Linux. 🧪 Experimental</li>
+        </ul>        
+      </td>
+    </tr>    
+    <tr>
+      <td><code>latest-plus-alpine</code><br></td>
+      <td>
+        <ul>
+          <li><code>latest-plus</code>, but based on Alpine Linux. 🧪 Experimental</li>
+        </ul>        
+      </td>
+    </tr>    
+  </tbody>
+</table>
+
+To install linkding using Docker you can just run the image from [Docker Hub](https://hub.docker.com/repository/docker/sissbruecker/linkding):
 ```shell
 docker run --name linkding -p 9090:9090 -v {host-data-folder}:/etc/linkding/data -d sissbruecker/linkding:latest
 ```
