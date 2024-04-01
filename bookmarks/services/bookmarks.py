@@ -35,7 +35,8 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     # Load favicon
     tasks.load_favicon(current_user, bookmark)
     # Create HTML snapshot
-    tasks.create_html_snapshot(bookmark)
+    if current_user.profile.enable_automatic_html_snapshots:
+        tasks.create_html_snapshot(bookmark)
 
     return bookmark
 

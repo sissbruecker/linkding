@@ -398,6 +398,7 @@ class UserProfile(models.Model):
     permanent_notes = models.BooleanField(default=False, null=False)
     custom_css = models.TextField(blank=True, null=False)
     search_preferences = models.JSONField(default=dict, null=False)
+    enable_automatic_html_snapshots = models.BooleanField(default=True, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
@@ -414,6 +415,7 @@ class UserProfileForm(forms.ModelForm):
             "enable_sharing",
             "enable_public_sharing",
             "enable_favicons",
+            "enable_automatic_html_snapshots",
             "display_url",
             "display_view_bookmark_action",
             "display_edit_bookmark_action",

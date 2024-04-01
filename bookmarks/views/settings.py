@@ -12,7 +12,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
-from bookmarks.models import Bookmark, BookmarkSearch, UserProfileForm, FeedToken
+from bookmarks.models import Bookmark, UserProfileForm, FeedToken
 from bookmarks.services import exporter, tasks
 from bookmarks.services import importer
 from bookmarks.utils import app_version
@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 def general(request):
     profile_form = None
     enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
+    has_snapshot_support = django_settings.LD_ENABLE_SNAPSHOTS
     update_profile_success_message = None
     refresh_favicons_success_message = None
     import_success_message = _find_message_with_tag(
@@ -53,6 +54,7 @@ def general(request):
         {
             "form": profile_form,
             "enable_refresh_favicons": enable_refresh_favicons,
+            "has_snapshot_support": has_snapshot_support,
             "update_profile_success_message": update_profile_success_message,
             "refresh_favicons_success_message": refresh_favicons_success_message,
             "import_success_message": import_success_message,

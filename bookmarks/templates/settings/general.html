@@ -163,6 +163,18 @@
               href="{% url 'bookmarks:shared' %}">shared bookmarks page</a>.
           </div>
         </div>
+        {% if has_snapshot_support %}
+          <div class="form-group">
+            <label for="{{ form.enable_automatic_html_snapshots.id_for_label }}" class="form-checkbox">
+              {{ form.enable_automatic_html_snapshots }}
+              <i class="form-icon"></i> Automatically create HTML snapshots
+            </label>
+            <div class="form-input-hint">
+              Automatically creates HTML snapshots when adding bookmarks. Alternatively, when disabled, snapshots can be
+              created manually in the details view of a bookmark.
+            </div>
+          </div>
+        {% endif %}
         <div class="form-group">
           <details {% if form.custom_css.value %}open{% endif %}>
             <summary>Custom CSS</summary>
