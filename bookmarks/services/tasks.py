@@ -198,11 +198,11 @@ def _schedule_refresh_favicons_task(user_id: int):
 
 
 def is_html_snapshot_feature_active() -> bool:
-    return not settings.LD_DISABLE_BACKGROUND_TASKS
+    return settings.LD_ENABLE_SNAPSHOTS and not settings.LD_DISABLE_BACKGROUND_TASKS
 
 
 def create_html_snapshot(bookmark: Bookmark):
-    if settings.LD_DISABLE_BACKGROUND_TASKS:
+    if not is_html_snapshot_feature_active():
         return
 
     timestamp = formats.date_format(timezone.now(), "SHORT_DATE_FORMAT")

@@ -1,12 +1,12 @@
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import formats
 
 from bookmarks.models import BookmarkAsset, UserProfile
-from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 from bookmarks.services import tasks
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
 class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
@@ -568,7 +568,23 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertIsNone(edit_link)
         self.assertIsNone(delete_button)
 
-    def test_assets_visibility(self):
+    def test_assets_visibility_no_snapshot_support(self):
+        bookmark = self.setup_bookmark()
+
+        soup = self.get_details(bookmark)
+        section = self.find_section(soup, "Files")
+        self.assertIsNone(section)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_assets_visibility_with_snapshot_support(self):
+        bookmark = self.setup_bookmark()
+
+        soup = self.get_details(bookmark)
+        section = self.find_section(soup, "Files")
+        self.assertIsNotNone(section)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_asset_list_visibility(self):
         # no assets
         bookmark = self.setup_bookmark()
 
@@ -586,6 +602,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset_list = section.find("div", {"class": "assets"})
         self.assertIsNotNone(asset_list)
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_list(self):
         bookmark = self.setup_bookmark()
         assets = [
@@ -613,6 +630,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             view_link = asset_item.find("a", {"href": view_url})
             self.assertIsNotNone(view_link)
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_without_file(self):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(bookmark)
@@ -625,6 +643,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         view_link = asset_item.find("a", {"href": view_url})
         self.assertIsNone(view_link)
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_status(self):
         bookmark = self.setup_bookmark()
         pending_asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_PENDING)
@@ -640,6 +659,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset_text = asset_item.select_one(".asset-text span")
         self.assertIn("(failed)", asset_text.text)
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_file_size(self):
         bookmark = self.setup_bookmark()
         asset1 = self.setup_asset(bookmark, file_size=None)
@@ -660,6 +680,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset_text = asset_item.select_one(".asset-text")
         self.assertIn("11.0\xa0MB", asset_text.text)
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_actions_visibility(self):
         bookmark = self.setup_bookmark()
 
@@ -718,6 +739,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertEqual(response.status_code, 404)
         self.assertTrue(BookmarkAsset.objects.filter(id=asset.id).exists())
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_snapshot(self):
         with patch.object(
             tasks, "_create_html_snapshot_task"

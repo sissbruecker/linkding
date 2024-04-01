@@ -12,7 +12,9 @@ export function applyBehaviors(container, behaviorNames = null) {
 
   behaviorNames.forEach((behaviorName) => {
     const behavior = behaviorRegistry[behaviorName];
-    const elements = Array.from(container.querySelectorAll(`[${behaviorName}]`));
+    const elements = Array.from(
+      container.querySelectorAll(`[${behaviorName}]`),
+    );
 
     // Include the container element if it has the behavior
     if (container.hasAttribute && container.hasAttribute(behaviorName)) {

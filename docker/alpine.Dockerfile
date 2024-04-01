@@ -101,3 +101,5 @@ CMD ["./bootstrap.sh"]
 FROM linkding AS linkding-plus
 # install node, chromium and single-file
 RUN apk update && apk add nodejs npm chromium && npm install -g single-file-cli
+# enable snapshot support
+ENV LD_ENABLE_SNAPSHOTS=True

@@ -6,6 +6,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator
 from django.db import models
 from django.urls import reverse
+from django.conf import settings
 
 from bookmarks import queries
 from bookmarks import utils
@@ -321,6 +322,8 @@ class BookmarkDetailsContext:
         self.is_editable = bookmark.owner == user
         self.sharing_enabled = user_profile.enable_sharing
         self.show_link_icons = user_profile.enable_favicons and bookmark.favicon_file
+        # For now hide files section if snapshots are not supported
+        self.show_files = settings.LD_ENABLE_SNAPSHOTS
 
         self.assets = [
             BookmarkAssetItem(asset) for asset in bookmark.bookmarkasset_set.all()

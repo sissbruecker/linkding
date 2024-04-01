@@ -629,6 +629,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(Task.objects.count(), 0)
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_html_snapshot_should_create_pending_asset(self):
         bookmark = self.setup_bookmark()
 
@@ -647,6 +648,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
                 self.assertIn("HTML snapshot", asset.display_name)
                 self.assertEqual(asset.status, BookmarkAsset.STATUS_PENDING)
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_html_snapshot_should_update_file_info(self):
         bookmark = self.setup_bookmark(url="https://example.com")
 
@@ -669,6 +671,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(asset.file, expected_filename)
             self.assertTrue(asset.gzip)
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_html_snapshot_should_handle_error(self):
         bookmark = self.setup_bookmark(url="https://example.com")
 
@@ -683,6 +686,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(asset.file, "")
             self.assertFalse(asset.gzip)
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_html_snapshot_should_handle_missing_bookmark(self):
         with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
             tasks._create_html_snapshot_task(123)
@@ -690,7 +694,16 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
             mock_create.assert_not_called()
 
-    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    @override_settings(LD_ENABLE_SNAPSHOTS=False)
+    def test_create_html_snapshot_should_not_run_when_single_file_is_disabled(
+        self,
+    ):
+        bookmark = self.setup_bookmark()
+        tasks.create_html_snapshot(bookmark)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True, LD_DISABLE_BACKGROUND_TASKS=True)
     def test_create_html_snapshot_should_not_run_when_background_tasks_are_disabled(
         self,
     ):

@@ -59,12 +59,14 @@
         </dd>
       </div>
     {% endif %}
-    <div class="files col-2">
-      <dt>Files</dt>
-      <dd>
-        {% include 'bookmarks/details/assets.html' %}
-      </dd>
-    </div>
+    {% if details.show_files %}
+      <div class="files col-2">
+        <dt>Files</dt>
+        <dd>
+          {% include 'bookmarks/details/assets.html' %}
+        </dd>
+      </div>
+    {% endif %}
     {% if details.bookmark.tag_names %}
       <div class="tags col-1">
         <dt>Tags</dt>

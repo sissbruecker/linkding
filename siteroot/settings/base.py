@@ -273,6 +273,11 @@ LD_ENABLE_REFRESH_FAVICONS = os.getenv("LD_ENABLE_REFRESH_FAVICONS", True) in (
 # Asset / snapshot settings
 LD_ASSET_FOLDER = os.path.join(BASE_DIR, "data", "assets")
 
+LD_ENABLE_SNAPSHOTS = os.getenv("LD_ENABLE_SNAPSHOTS", False) in (
+    True,
+    "True",
+    "1",
+)
 LD_SINGLEFILE_PATH = os.getenv("LD_SINGLEFILE_PATH", "single-file")
 LD_SINGLEFILE_OPTIONS = os.getenv("LD_SINGLEFILE_OPTIONS", "")
 
