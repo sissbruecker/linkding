@@ -709,6 +709,32 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertIsNone(view_link)
         self.assertIsNotNone(delete_button)
 
+        # shared bookmark
+        other_user = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+        bookmark = self.setup_bookmark(shared=True, user=other_user)
+        asset = self.setup_asset(bookmark)
+        soup = self.get_details(bookmark)
+
+        asset_item = self.find_asset(soup, asset)
+        view_link = asset_item.find("a", string="View")
+        delete_button = asset_item.find(
+            "button", {"type": "submit", "name": "remove_asset"}
+        )
+        self.assertIsNotNone(view_link)
+        self.assertIsNone(delete_button)
+
+        # shared bookmark, guest user
+        self.client.logout()
+        soup = self.get_details(bookmark)
+
+        asset_item = self.find_asset(soup, asset)
+        view_link = asset_item.find("a", string="View")
+        delete_button = asset_item.find(
+            "button", {"type": "submit", "name": "remove_asset"}
+        )
+        self.assertIsNotNone(view_link)
+        self.assertIsNone(delete_button)
+
     def test_remove_asset(self):
         # remove asset
         bookmark = self.setup_bookmark()
