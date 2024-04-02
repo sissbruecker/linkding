@@ -119,6 +119,45 @@ The following options can be configured:
 - `OIDC_RP_SIGN_ALGO` - The algorithm the OIDC provider uses to sign ID tokens. Default is `RS256`.
 - `OIDC_USE_PKCE` - Whether to use PKCE for the OIDC flow. Default is `True`.
 
+<details>
+
+<summary>Authelia Example</summary>
+
+#### Linkding Configuration
+
+```bash
+LD_ENABLE_OIDC=True
+OIDC_OP_AUTHORIZATION_ENDPOINT=https://auth.example.com/api/oidc/authorization
+OIDC_OP_TOKEN_ENDPOINT=https://auth.example.com/api/oidc/token
+OIDC_OP_USER_ENDPOINT=https://auth.example.com/api/oidc/userinfo
+OIDC_OP_JWKS_ENDPOINT=https://auth.example.com/jwks.json
+OIDC_RP_CLIENT_ID=linkding
+OIDC_RP_CLIENT_SECRET=myClientSecret
+```
+#### Authelia Configuration
+
+```yaml
+identity_providers:
+  oidc:
+    # --- more OIDC provider configuration ---
+
+    clients:
+      - id: linkding
+        description: Linkding
+        # docker run --rm authelia/authelia:latest authelia crypto rand --length 64 --charset alphanumeric
+        secret: myClientSecret
+        public: false
+        token_endpoint_auth_method: client_secret_post
+        scopes:
+          - openid
+          - email
+          - profile
+        redirect_uris:
+          - https://linkding.example.com/oidc/callback/
+```
+
+</details>
+
 ### `LD_CSRF_TRUSTED_ORIGINS`
 
 Values: `String` | Default = None
