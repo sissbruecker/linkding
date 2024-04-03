@@ -8,7 +8,10 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Enable WAL journal mode when using an SQLite database"
+    help = "Determine journal mode when using an SQLite database"
+
+    # https://www.sqlite.org/pragma.html#pragma_journal_mode
+    parser.add_argument("--journal-mode", default="wal", help="Pick sqlite journaling mode")
 
     def handle(self, *args, **options):
         if not settings.USE_SQLITE:
@@ -16,9 +19,6 @@ class Command(BaseCommand):
 
         connection = connections["default"]
         with connection.cursor() as cursor:
-            cursor.execute("PRAGMA journal_mode")
+            cursor.execute(f"PRAGMA journal_mode={options['journal-mode']}")
             current_mode = cursor.fetchone()[0]
-            logger.info(f"Current journal mode: {current_mode}")
-            if current_mode != "wal":
-                cursor.execute("PRAGMA journal_mode=wal;")
-                logger.info("Switched to WAL journal mode")
+            logger.info(f"Journal mode: {current_mode}")
