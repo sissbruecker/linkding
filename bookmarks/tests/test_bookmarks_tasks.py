@@ -67,6 +67,13 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_load_favicon = self.mock_load_favicon_patcher.start()
         self.mock_load_favicon.return_value = "https_example_com.png"
 
+        self.mock_singlefile_create_snapshot_patcher = mock.patch(
+            "bookmarks.services.singlefile.create_snapshot",
+        )
+        self.mock_singlefile_create_snapshot = (
+            self.mock_singlefile_create_snapshot_patcher.start()
+        )
+
         user = self.get_or_create_test_user()
         user.profile.web_archive_integration = (
             UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED
@@ -78,6 +85,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_save_api_patcher.stop()
         self.mock_cdx_api_patcher.stop()
         self.mock_load_favicon_patcher.stop()
+        self.mock_singlefile_create_snapshot_patcher.stop()
         huey.storage.flush_results()
         huey.immediate = False
 
@@ -503,7 +511,8 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_html_snapshot_should_create_pending_asset(self):
         bookmark = self.setup_bookmark()
 
-        with mock.patch("bookmarks.services.monolith.create_snapshot"):
+        # Mock the task function to avoid running it immediately
+        with mock.patch("bookmarks.services.tasks._create_html_snapshot_task"):
             tasks.create_html_snapshot(bookmark)
             self.assertEqual(BookmarkAsset.objects.count(), 1)
 
@@ -522,18 +531,21 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_html_snapshot_should_update_file_info(self):
         bookmark = self.setup_bookmark(url="https://example.com")
 
-        with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
-            tasks.create_html_snapshot(bookmark)
-            asset = BookmarkAsset.objects.get(bookmark=bookmark)
-            asset.date_created = datetime.datetime(2021, 1, 2, 3, 44, 55)
-            asset.save()
+        with mock.patch(
+            "bookmarks.services.tasks._generate_snapshot_filename"
+        ) as mock_generate:
             expected_filename = "snapshot_2021-01-02_034455_https___example.com.html.gz"
+            mock_generate.return_value = expected_filename
 
-            self.run_pending_task(tasks._create_html_snapshot_task)
+            tasks.create_html_snapshot(bookmark)
+            BookmarkAsset.objects.get(bookmark=bookmark)
 
-            mock_create.assert_called_once_with(
+            self.mock_singlefile_create_snapshot.assert_called_once_with(
                 "https://example.com",
-                os.path.join(settings.LD_ASSET_FOLDER, expected_filename),
+                os.path.join(
+                    settings.LD_ASSET_FOLDER,
+                    expected_filename,
+                ),
             )
 
             asset = BookmarkAsset.objects.get(bookmark=bookmark)
@@ -545,24 +557,21 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_html_snapshot_should_handle_error(self):
         bookmark = self.setup_bookmark(url="https://example.com")
 
-        with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
-            mock_create.side_effect = singlefile.SingeFileError("Error")
+        self.mock_singlefile_create_snapshot.side_effect = singlefile.SingeFileError(
+            "Error"
+        )
+        tasks.create_html_snapshot(bookmark)
 
-            tasks.create_html_snapshot(bookmark)
-            self.run_pending_task(tasks._create_html_snapshot_task)
-
-            asset = BookmarkAsset.objects.get(bookmark=bookmark)
-            self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
-            self.assertEqual(asset.file, "")
-            self.assertFalse(asset.gzip)
+        asset = BookmarkAsset.objects.get(bookmark=bookmark)
+        self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
+        self.assertEqual(asset.file, "")
+        self.assertFalse(asset.gzip)
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_html_snapshot_should_handle_missing_bookmark(self):
-        with mock.patch("bookmarks.services.singlefile.create_snapshot") as mock_create:
-            tasks._create_html_snapshot_task(123)
-            self.run_pending_task(tasks._create_html_snapshot_task)
+        tasks._create_html_snapshot_task(123)
 
-            mock_create.assert_not_called()
+        self.mock_singlefile_create_snapshot.assert_not_called()
 
     @override_settings(LD_ENABLE_SNAPSHOTS=False)
     def test_create_html_snapshot_should_not_run_when_single_file_is_disabled(
@@ -571,7 +580,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         tasks.create_html_snapshot(bookmark)
 
-        self.assertEqual(Task.objects.count(), 0)
+        self.assertEqual(self.executed_count(), 0)
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True, LD_DISABLE_BACKGROUND_TASKS=True)
     def test_create_html_snapshot_should_not_run_when_background_tasks_are_disabled(
@@ -580,4 +589,4 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         tasks.create_html_snapshot(bookmark)
 
-        self.assertEqual(Task.objects.count(), 0)
+        self.assertEqual(self.executed_count(), 0)
