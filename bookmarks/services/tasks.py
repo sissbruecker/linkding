@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.utils import timezone, formats
 from huey.contrib.djhuey import HUEY as huey
+from huey.exceptions import TaskLockedException
 from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
 
 import bookmarks.services.wayback
@@ -32,6 +33,12 @@ def task(retries=5, retry_delay=15, retry_backoff=4):
             task = kwargs.pop("task")
             try:
                 return fn(*args, **kwargs)
+            except TaskLockedException as exc:
+                # Task locks are currently only used as workaround to enforce
+                # running specific types of tasks (e.g. singlefile snapshots)
+                # sequentially. In that case don't reduce the number of retries.
+                task.retries = retries
+                raise exc
             except Exception as exc:
                 task.retry_delay *= retry_backoff
                 raise exc
@@ -246,6 +253,7 @@ def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
 
 
 @task()
+@huey.lock_task("create-html-snapshot-lock")
 def _create_html_snapshot_task(asset_id: int):
     try:
         asset = BookmarkAsset.objects.get(id=asset_id)

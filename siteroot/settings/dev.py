@@ -48,7 +48,7 @@ LOGGING = {
             "propagate": False,
         },
         "huey": {  # Huey
-            "level": "DEBUG",
+            "level": "INFO",
             "handlers": ["console"],
             "propagate": False,
         },
