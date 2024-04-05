@@ -1,3 +1,4 @@
+import functools
 import logging
 import os
 
@@ -5,9 +6,9 @@ import waybackpy
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from huey.contrib.djhuey import task
-from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
 from django.utils import timezone, formats
+from huey.contrib.djhuey import HUEY as huey
+from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
 
 import bookmarks.services.wayback
 from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
@@ -15,6 +16,29 @@ from bookmarks.services import favicon_loader, singlefile
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
+
+
+# Create custom decorator for Huey tasks that implements exponential backoff
+# Taken from: https://huey.readthedocs.io/en/latest/guide.html#tips-and-tricks
+# Retry 1: 60
+# Retry 2: 240
+# Retry 3: 960
+# Retry 4: 3840
+# Retry 5: 15360
+def task(retries=5, retry_delay=15, retry_backoff=4):
+    def deco(fn):
+        @functools.wraps(fn)
+        def inner(*args, **kwargs):
+            task = kwargs.pop("task")
+            try:
+                return fn(*args, **kwargs)
+            except Exception as exc:
+                task.retry_delay *= retry_backoff
+                raise exc
+
+        return huey.task(retries=retries, retry_delay=retry_delay, context=True)(inner)
+
+    return deco
 
 
 def is_web_archive_integration_active(user: User) -> bool:
@@ -237,13 +261,12 @@ def _create_html_snapshot_task(asset_id: int):
         asset.status = BookmarkAsset.STATUS_COMPLETE
         asset.file = filename
         asset.gzip = True
+        asset.save()
         logger.info(
             f"Successfully created HTML snapshot for bookmark. url={asset.bookmark.url}"
         )
-    except singlefile.SingeFileError as error:
+    except Exception as error:
+        logger.error(f"Failed to HTML snapshot for bookmark. url={asset.bookmark.url}")
         asset.status = BookmarkAsset.STATUS_FAILURE
-        logger.error(
-            f"Failed to create HTML snapshot for bookmark. url={asset.bookmark.url}",
-            exc_info=error,
-        )
-    asset.save()
+        asset.save()
+        raise error
