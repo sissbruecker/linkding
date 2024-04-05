@@ -184,9 +184,9 @@ HUEY = {
     "consumer": {
         "workers": 2,
         "worker_type": "thread",
-        "initial_delay": 0.1,
+        "initial_delay": 5,
         "backoff": 1.15,
-        "max_delay": 10.0,
+        "max_delay": 10,
         "scheduler_interval": 10,
         "periodic": False,
         "check_worker_health": True,
@@ -194,12 +194,6 @@ HUEY = {
     },
 }
 
-MAX_ATTEMPTS = 5
-# How many tasks will run in parallel
-# We want to keep this low to prevent SQLite lock errors and in general not to consume too much resources on smaller
-# specced systems like Raspberries. Should be OK as tasks are not time critical.
-BACKGROUND_TASK_RUN_ASYNC = True
-BACKGROUND_TASK_ASYNC_THREADS = 2
 
 # Enable OICD support if configured
 LD_ENABLE_OIDC = os.getenv("LD_ENABLE_OIDC", False) in (True, "True", "1")

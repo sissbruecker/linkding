@@ -49,7 +49,12 @@ LOGGING = {
             "level": "INFO",
             "handlers": ["console"],
             "propagate": False,
-        }
+        },
+        "huey": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "propagate": False,
+        },
     },
 }
 
