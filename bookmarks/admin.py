@@ -11,7 +11,7 @@ from huey.contrib.djhuey import HUEY as huey
 from rest_framework.authtoken.admin import TokenAdmin
 from rest_framework.authtoken.models import TokenProxy
 
-from bookmarks.models import Bookmark, Tag, UserProfile, Toast, FeedToken
+from bookmarks.models import Bookmark, BookmarkAsset, Tag, UserProfile, Toast, FeedToken
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
 
 
@@ -199,6 +199,15 @@ class AdminBookmark(admin.ModelAdmin):
         )
 
 
+class AdminBookmarkAsset(admin.ModelAdmin):
+    list_display = ("display_name", "date_created", "status")
+    search_fields = (
+        "display_name",
+        "file",
+    )
+    list_filter = ("status",)
+
+
 class AdminTag(admin.ModelAdmin):
     list_display = ("name", "bookmarks_count", "owner", "date_added")
     search_fields = ("name", "owner__username")
@@ -274,6 +283,7 @@ class AdminFeedToken(admin.ModelAdmin):
 
 linkding_admin_site = LinkdingAdminSite()
 linkding_admin_site.register(Bookmark, AdminBookmark)
+linkding_admin_site.register(BookmarkAsset, AdminBookmarkAsset)
 linkding_admin_site.register(Tag, AdminTag)
 linkding_admin_site.register(User, AdminCustomUser)
 linkding_admin_site.register(TokenProxy, TokenAdmin)
