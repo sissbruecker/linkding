@@ -49,3 +49,15 @@ class OidcSupportTest(TestCase):
             base_settings.AUTHENTICATION_BACKENDS,
         )
         del os.environ["LD_ENABLE_OIDC"]  # Remove the temporary environment variable
+
+    def test_default_settings(self):
+        os.environ["LD_ENABLE_OIDC"] = "True"
+        base_settings = importlib.import_module("siteroot.settings.base")
+        importlib.reload(base_settings)
+
+        self.assertEqual(
+            True,
+            base_settings.OIDC_VERIFY_SSL,
+        )
+
+        del os.environ["LD_ENABLE_OIDC"]

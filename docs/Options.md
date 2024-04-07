@@ -118,6 +118,7 @@ The following options can be configured:
 - `OIDC_RP_CLIENT_SECRET` - The client secret of the application.
 - `OIDC_RP_SIGN_ALGO` - The algorithm the OIDC provider uses to sign ID tokens. Default is `RS256`.
 - `OIDC_USE_PKCE` - Whether to use PKCE for the OIDC flow. Default is `True`.
+- `OIDC_VERIFY_SSL` - Whether to verify the SSL certificate of the OIDC provider. Set to `False` if using self-signed certificates or custom certificate authority. Default is `True`.
 
 <details>
 
