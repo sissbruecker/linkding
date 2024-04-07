@@ -24,8 +24,7 @@ def create_snapshot(url: str, filepath: str):
     try:
         # Use start_new_session=True to create a new process group
         process = subprocess.Popen(args, start_new_session=True)
-        timeout = float(os.environ.get('LD_SINGLEFILE_TIMEOUT_SEC', 60))
-        process.wait(timeout=timeout)
+        process.wait(timeout=settings.LD_SINGLEFILE_TIMEOUT_SEC)
 
         # check if the file was created
         if not os.path.exists(temp_filepath):
