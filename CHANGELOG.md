@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.27.1 (07/04/2024)
+
+### What's Changed
+* Fix HTML snapshot errors related to single-file-cli by @sissbruecker in https://github.com/sissbruecker/linkding/pull/683
+* Replace django-background-tasks with huey by @sissbruecker in https://github.com/sissbruecker/linkding/pull/657
+* Add Authelia OIDC example to docs by @hugo-vrijswijk in https://github.com/sissbruecker/linkding/pull/675
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.27.0...v1.27.1
+
+---
+
 ## v1.27.0 (01/04/2024)
 
 ### What's Changed
