@@ -239,6 +239,9 @@ def create_html_snapshot(bookmark: Bookmark):
     asset.save()
 
 
+MAX_SNAPSHOT_FILENAME_LENGTH = 192
+
+
 def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
     def sanitize_char(char):
         if char.isalnum() or char in ("-", "_", "."):
@@ -248,6 +251,13 @@ def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
 
     formatted_datetime = asset.date_created.strftime("%Y-%m-%d_%H%M%S")
     sanitized_url = "".join(sanitize_char(char) for char in asset.bookmark.url)
+
+    # Calculate the length of the non-URL parts of the filename
+    non_url_length = len(f"{asset.asset_type}{formatted_datetime}__.html.gz")
+    # Calculate the maximum length for the URL part
+    max_url_length = MAX_SNAPSHOT_FILENAME_LENGTH - non_url_length
+    # Truncate the URL if necessary
+    sanitized_url = sanitized_url[:max_url_length]
 
     return f"{asset.asset_type}_{formatted_datetime}_{sanitized_url}.html.gz"
 
