@@ -295,6 +295,7 @@ LD_ENABLE_SNAPSHOTS = os.getenv("LD_ENABLE_SNAPSHOTS", False) in (
 )
 LD_SINGLEFILE_PATH = os.getenv("LD_SINGLEFILE_PATH", "single-file")
 LD_SINGLEFILE_OPTIONS = os.getenv("LD_SINGLEFILE_OPTIONS", "")
+LD_SINGLEFILE_TIMEOUT_SEC = float(os.getenv("LD_SINGLEFILE_TIMEOUT_SEC", 60))
 
 # Monolith isn't used at the moment, as the local snapshot implementation
 # switched to single-file after the prototype. Keeping this around in case

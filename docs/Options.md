@@ -246,3 +246,10 @@ See the default URL for how to insert the placeholder to the favicon provider UR
 
 Alternative favicon providers:
 - DuckDuckGo: `https://icons.duckduckgo.com/ip3/{domain}.ico`
+
+
+### `LD_SINGLEFILE_TIMEOUT_SEC`
+
+Values: `Float` | Default =  60.0
+
+When creating archive snapshots, control the timeout for how long to wait for `single-file` to complete, in `seconds`. Defaults to 60 seconds; on lower-powered hardware you may need to increase this value. 

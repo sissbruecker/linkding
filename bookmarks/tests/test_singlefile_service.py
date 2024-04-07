@@ -3,7 +3,7 @@ import os
 import subprocess
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from bookmarks.services import singlefile
 
@@ -50,3 +50,24 @@ class SingleFileServiceTestCase(TestCase):
         with mock.patch("subprocess.Popen"):
             with self.assertRaises(singlefile.SingeFileError):
                 singlefile.create_snapshot("http://example.com", self.html_filepath)
+
+    def test_create_snapshot_default_timeout_setting(self):
+        mock_process = mock.Mock()
+        mock_process.wait.return_value = 0
+        self.create_test_file()
+
+        with mock.patch("subprocess.Popen", return_value=mock_process):
+            singlefile.create_snapshot("http://example.com", self.html_filepath)
+
+            mock_process.wait.assert_called_with(timeout=60)
+
+    @override_settings(LD_SINGLEFILE_TIMEOUT_SEC=120)
+    def test_create_snapshot_custom_timeout_setting(self):
+        mock_process = mock.Mock()
+        mock_process.wait.return_value = 0
+        self.create_test_file()
+
+        with mock.patch("subprocess.Popen", return_value=mock_process):
+            singlefile.create_snapshot("http://example.com", self.html_filepath)
+
+            mock_process.wait.assert_called_with(timeout=120)
