@@ -24,3 +24,8 @@ class Command(BaseCommand):
         source_db.close()
 
         self.stdout.write(self.style.SUCCESS(f"Backup created at {destination}"))
+        self.stdout.write(
+            self.style.WARNING(
+                "This backup method is deprecated and may be removed in the future. Please use the full_backup command instead, which creates backup zip file with all contents of the data folder."
+            )
+        )
