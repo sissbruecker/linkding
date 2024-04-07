@@ -5,8 +5,8 @@ Django
 django-registration
 django-sass-processor
 django-widget-tweaks
-django4-background-tasks
 djangorestframework
+huey
 Markdown
 mozilla-django-oidc
 psycopg2-binary

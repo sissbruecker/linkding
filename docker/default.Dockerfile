@@ -33,7 +33,8 @@ RUN pip install -U pip && pip install -r requirements.txt -r requirements.dev.tx
 COPY . .
 COPY --from=node-build /etc/linkding .
 # run Django part of the build
-RUN python manage.py compilescss && \
+RUN mkdir data && \
+    python manage.py compilescss && \
     python manage.py collectstatic --ignore=*.scss && \
     python manage.py compilescss --delete-files
 

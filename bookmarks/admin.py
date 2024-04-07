@@ -1,21 +1,95 @@
-from background_task.admin import TaskAdmin, CompletedTaskAdmin
-from background_task.models import Task, CompletedTask
 from django.contrib import admin, messages
 from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.db.models import Count, QuerySet
+from django.shortcuts import render
+from django.urls import path
 from django.utils.translation import ngettext, gettext
+from huey.contrib.djhuey import HUEY as huey
 from rest_framework.authtoken.admin import TokenAdmin
 from rest_framework.authtoken.models import TokenProxy
 
-from bookmarks.models import Bookmark, Tag, UserProfile, Toast, FeedToken
+from bookmarks.models import Bookmark, BookmarkAsset, Tag, UserProfile, Toast, FeedToken
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
+
+
+# Custom paginator to paginate through Huey tasks
+class TaskPaginator(Paginator):
+    def __init__(self):
+        super().__init__(self, 100)
+        self.task_count = huey.storage.queue_size()
+
+    @property
+    def count(self):
+        return self.task_count
+
+    def page(self, number):
+        limit = self.per_page
+        offset = (number - 1) * self.per_page
+        return self._get_page(
+            self.enqueued_items(limit, offset),
+            number,
+            self,
+        )
+
+    # Copied from Huey's SqliteStorage with some modifications to allow pagination
+    def enqueued_items(self, limit, offset):
+        to_bytes = lambda b: bytes(b) if not isinstance(b, bytes) else b
+        sql = "select data from task where queue=? order by priority desc, id limit ? offset ?"
+        params = (huey.storage.name, limit, offset)
+
+        serialized_tasks = [
+            to_bytes(i) for i, in huey.storage.sql(sql, params, results=True)
+        ]
+        return [huey.deserialize_task(task) for task in serialized_tasks]
+
+
+# Custom view to display Huey tasks in the admin
+def background_task_view(request):
+    page_number = int(request.GET.get("p", 1))
+    paginator = TaskPaginator()
+    page = paginator.get_page(page_number)
+    page_range = paginator.get_elided_page_range(page_number, on_each_side=2, on_ends=2)
+    context = {
+        **linkding_admin_site.each_context(request),
+        "title": "Background tasks",
+        "page": page,
+        "page_range": page_range,
+        "tasks": page.object_list,
+    }
+    return render(request, "admin/background_tasks.html", context)
 
 
 class LinkdingAdminSite(AdminSite):
     site_header = "linkding administration"
     site_title = "linkding Admin"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path("tasks/", background_task_view, name="background_tasks"),
+        ]
+        return custom_urls + urls
+
+    def get_app_list(self, request, app_label=None):
+        app_list = super().get_app_list(request, app_label)
+        app_list += [
+            {
+                "name": "Huey",
+                "app_label": "huey_app",
+                "models": [
+                    {
+                        "name": "Queued tasks",
+                        "object_name": "background_tasks",
+                        "admin_url": "/admin/tasks/",
+                        "view_only": True,
+                    }
+                ],
+            }
+        ]
+        return app_list
 
 
 class AdminBookmark(admin.ModelAdmin):
@@ -125,6 +199,15 @@ class AdminBookmark(admin.ModelAdmin):
         )
 
 
+class AdminBookmarkAsset(admin.ModelAdmin):
+    list_display = ("display_name", "date_created", "status")
+    search_fields = (
+        "display_name",
+        "file",
+    )
+    list_filter = ("status",)
+
+
 class AdminTag(admin.ModelAdmin):
     list_display = ("name", "bookmarks_count", "owner", "date_added")
     search_fields = ("name", "owner__username")
@@ -200,10 +283,9 @@ class AdminFeedToken(admin.ModelAdmin):
 
 linkding_admin_site = LinkdingAdminSite()
 linkding_admin_site.register(Bookmark, AdminBookmark)
+linkding_admin_site.register(BookmarkAsset, AdminBookmarkAsset)
 linkding_admin_site.register(Tag, AdminTag)
 linkding_admin_site.register(User, AdminCustomUser)
 linkding_admin_site.register(TokenProxy, TokenAdmin)
 linkding_admin_site.register(Toast, AdminToast)
 linkding_admin_site.register(FeedToken, AdminFeedToken)
-linkding_admin_site.register(Task, TaskAdmin)
-linkding_admin_site.register(CompletedTask, CompletedTaskAdmin)

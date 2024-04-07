@@ -1,0 +1,39 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <table style="width: 100%">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Args</th>
+      <th>Retries</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for task in tasks %}
+      <tr>
+        <td>{{ task.id }}</td>
+        <td>{{ task.name }}</td>
+        <td>{{ task.args }}</td>
+        <td>{{ task.retries }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="paginator">
+    {% if page.paginator.num_pages > 1 %}
+      {% for page_number in page_range %}
+        {% if page_number == page.number %}
+          <span class="this-page">{{ page_number }}</span>
+        {% elif page_number == '…' %}
+          <span>…</span>
+        {% else %}
+          <a href="?p={{ page_number }}">{{ page_number }}</a>
+        {% endif %}
+      {% endfor %}
+      &nbsp;
+    {% endif %}
+    {{ page.paginator.count }} tasks
+  </p>
+{% endblock %}

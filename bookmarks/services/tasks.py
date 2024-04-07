@@ -1,14 +1,16 @@
+import functools
 import logging
 import os
 
 import waybackpy
-from background_task import background
-from background_task.models import Task
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
 from django.utils import timezone, formats
+from huey import crontab
+from huey.contrib.djhuey import HUEY as huey
+from huey.exceptions import TaskLockedException
+from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
 
 import bookmarks.services.wayback
 from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
@@ -16,6 +18,35 @@ from bookmarks.services import favicon_loader, singlefile
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
+
+
+# Create custom decorator for Huey tasks that implements exponential backoff
+# Taken from: https://huey.readthedocs.io/en/latest/guide.html#tips-and-tricks
+# Retry 1: 60
+# Retry 2: 240
+# Retry 3: 960
+# Retry 4: 3840
+# Retry 5: 15360
+def task(retries=5, retry_delay=15, retry_backoff=4):
+    def deco(fn):
+        @functools.wraps(fn)
+        def inner(*args, **kwargs):
+            task = kwargs.pop("task")
+            try:
+                return fn(*args, **kwargs)
+            except TaskLockedException as exc:
+                # Task locks are currently only used as workaround to enforce
+                # running specific types of tasks (e.g. singlefile snapshots)
+                # sequentially. In that case don't reduce the number of retries.
+                task.retries = retries
+                raise exc
+            except Exception as exc:
+                task.retry_delay *= retry_backoff
+                raise exc
+
+        return huey.task(retries=retries, retry_delay=retry_delay, context=True)(inner)
+
+    return deco
 
 
 def is_web_archive_integration_active(user: User) -> bool:
@@ -67,7 +98,7 @@ def _create_snapshot(bookmark: Bookmark):
     logger.info(f"Successfully created new snapshot for bookmark:. url={bookmark.url}")
 
 
-@background()
+@task()
 def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
@@ -96,7 +127,7 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
     _load_newest_snapshot(bookmark)
 
 
-@background()
+@task()
 def _load_web_archive_snapshot_task(bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
@@ -114,13 +145,14 @@ def schedule_bookmarks_without_snapshots(user: User):
         _schedule_bookmarks_without_snapshots_task(user.id)
 
 
-@background()
+@task()
 def _schedule_bookmarks_without_snapshots_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks_without_snapshots = Bookmark.objects.filter(
         web_archive_snapshot_url__exact="", owner=user
     )
 
+    # TODO: Implement bulk task creation
     for bookmark in bookmarks_without_snapshots:
         # To prevent rate limit errors from the Wayback API only try to load the latest snapshots instead of creating
         # new ones when processing bookmarks in bulk
@@ -138,7 +170,7 @@ def load_favicon(user: User, bookmark: Bookmark):
         _load_favicon_task(bookmark.id)
 
 
-@background()
+@task()
 def _load_favicon_task(bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
@@ -162,19 +194,15 @@ def schedule_bookmarks_without_favicons(user: User):
         _schedule_bookmarks_without_favicons_task(user.id)
 
 
-@background()
+@task()
 def _schedule_bookmarks_without_favicons_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(favicon_file__exact="", owner=user)
-    tasks = []
 
+    # TODO: Implement bulk task creation
     for bookmark in bookmarks:
-        task = Task.objects.new_task(
-            task_name="bookmarks.services.tasks._load_favicon_task", args=(bookmark.id,)
-        )
-        tasks.append(task)
-
-    Task.objects.bulk_create(tasks)
+        _load_favicon_task(bookmark.id)
+        pass
 
 
 def schedule_refresh_favicons(user: User):
@@ -182,19 +210,14 @@ def schedule_refresh_favicons(user: User):
         _schedule_refresh_favicons_task(user.id)
 
 
-@background()
+@task()
 def _schedule_refresh_favicons_task(user_id: int):
     user = get_user_model().objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(owner=user)
-    tasks = []
 
+    # TODO: Implement bulk task creation
     for bookmark in bookmarks:
-        task = Task.objects.new_task(
-            task_name="bookmarks.services.tasks._load_favicon_task", args=(bookmark.id,)
-        )
-        tasks.append(task)
-
-    Task.objects.bulk_create(tasks)
+        _load_favicon_task(bookmark.id)
 
 
 def is_html_snapshot_feature_active() -> bool:
@@ -214,7 +237,6 @@ def create_html_snapshot(bookmark: Bookmark):
         status=BookmarkAsset.STATUS_PENDING,
     )
     asset.save()
-    _create_html_snapshot_task(asset.id)
 
 
 def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
@@ -230,7 +252,23 @@ def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
     return f"{asset.asset_type}_{formatted_datetime}_{sanitized_url}.html.gz"
 
 
-@background()
+# singe-file does not support running multiple instances in parallel, so we can
+# not queue up multiple snapshot tasks at once. Instead, schedule a periodic
+# task that grabs a number of pending assets and creates snapshots for them in
+# sequence. The task uses a lock to ensure that a new task isn't scheduled
+# before the previous one has finished.
+@huey.periodic_task(crontab(minute="*"))
+@huey.lock_task("schedule-html-snapshots-lock")
+def _schedule_html_snapshots_task():
+    # Get five pending assets
+    assets = BookmarkAsset.objects.filter(status=BookmarkAsset.STATUS_PENDING).order_by(
+        "date_created"
+    )[:5]
+
+    for asset in assets:
+        _create_html_snapshot_task(asset.id)
+
+
 def _create_html_snapshot_task(asset_id: int):
     try:
         asset = BookmarkAsset.objects.get(id=asset_id)
@@ -246,13 +284,14 @@ def _create_html_snapshot_task(asset_id: int):
         asset.status = BookmarkAsset.STATUS_COMPLETE
         asset.file = filename
         asset.gzip = True
+        asset.save()
         logger.info(
             f"Successfully created HTML snapshot for bookmark. url={asset.bookmark.url}"
         )
-    except singlefile.SingeFileError as error:
-        asset.status = BookmarkAsset.STATUS_FAILURE
+    except Exception as error:
         logger.error(
-            f"Failed to create HTML snapshot for bookmark. url={asset.bookmark.url}",
+            f"Failed to HTML snapshot for bookmark. url={asset.bookmark.url}",
             exc_info=error,
         )
-    asset.save()
+        asset.status = BookmarkAsset.STATUS_FAILURE
+        asset.save()
