@@ -98,13 +98,13 @@ CMD ["./bootstrap.sh"]
 FROM linkding AS linkding-plus
 # install chromium
 RUN apt-get update && apt-get -y install chromium
-# install node and single-file
+# install node
 ENV NODE_MAJOR=20
 RUN apt-get install -y gnupg2 apt-transport-https ca-certificates && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
-    apt-get update && apt-get install -y nodejs && \
-    npm install -g single-file-cli
-
+    apt-get update && apt-get install -y nodejs
+# install single-file from fork for now, which contains several hotfixes
+RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/f3730995a52f27d5041a1ad9e7528af4b6b4cf4b
 # enable snapshot support
 ENV LD_ENABLE_SNAPSHOTS=True
