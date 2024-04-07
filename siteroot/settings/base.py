@@ -188,7 +188,7 @@ HUEY = {
         "backoff": 1.15,
         "max_delay": 10,
         "scheduler_interval": 10,
-        "periodic": False,
+        "periodic": True,
         "check_worker_health": True,
         "health_check_interval": 10,
     },

@@ -540,6 +540,9 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             tasks.create_html_snapshot(bookmark)
             BookmarkAsset.objects.get(bookmark=bookmark)
 
+            # Run periodic task to process the snapshot
+            tasks._schedule_html_snapshots_task()
+
             self.mock_singlefile_create_snapshot.assert_called_once_with(
                 "https://example.com",
                 os.path.join(
@@ -562,6 +565,9 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         )
         tasks.create_html_snapshot(bookmark)
 
+        # Run periodic task to process the snapshot
+        tasks._schedule_html_snapshots_task()
+
         asset = BookmarkAsset.objects.get(bookmark=bookmark)
         self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
         self.assertEqual(asset.file, "")
@@ -574,19 +580,19 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_singlefile_create_snapshot.assert_not_called()
 
     @override_settings(LD_ENABLE_SNAPSHOTS=False)
-    def test_create_html_snapshot_should_not_run_when_single_file_is_disabled(
+    def test_create_html_snapshot_should_not_create_asset_when_single_file_is_disabled(
         self,
     ):
         bookmark = self.setup_bookmark()
         tasks.create_html_snapshot(bookmark)
 
-        self.assertEqual(self.executed_count(), 0)
+        self.assertEqual(BookmarkAsset.objects.count(), 0)
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True, LD_DISABLE_BACKGROUND_TASKS=True)
-    def test_create_html_snapshot_should_not_run_when_background_tasks_are_disabled(
+    def test_create_html_snapshot_should_not_create_asset_when_background_tasks_are_disabled(
         self,
     ):
         bookmark = self.setup_bookmark()
         tasks.create_html_snapshot(bookmark)
 
-        self.assertEqual(self.executed_count(), 0)
+        self.assertEqual(BookmarkAsset.objects.count(), 0)

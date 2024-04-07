@@ -776,6 +776,4 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             )
             self.assertEqual(response.status_code, 302)
 
-            mock_create_html_snapshot_task.assert_called_with(bookmark.id)
-
             self.assertEqual(bookmark.bookmarkasset_set.count(), 1)

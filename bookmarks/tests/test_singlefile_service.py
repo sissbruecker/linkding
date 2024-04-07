@@ -1,7 +1,7 @@
 import gzip
 import os
-from unittest import mock
 import subprocess
+from unittest import mock
 
 from django.test import TestCase
 
@@ -24,9 +24,11 @@ class SingleFileServiceTestCase(TestCase):
             file.write(self.html_content)
 
     def test_create_snapshot(self):
-        with mock.patch("subprocess.run") as mock_run:
-            mock_run.side_effect = self.create_test_file
+        mock_process = mock.Mock()
+        mock_process.wait.return_value = 0
+        self.create_test_file()
 
+        with mock.patch("subprocess.Popen", return_value=mock_process):
             singlefile.create_snapshot("http://example.com", self.html_filepath)
 
             self.assertTrue(os.path.exists(self.html_filepath))
@@ -38,13 +40,13 @@ class SingleFileServiceTestCase(TestCase):
 
     def test_create_snapshot_failure(self):
         # subprocess fails - which it probably doesn't as single-file doesn't return exit codes
-        with mock.patch("subprocess.run") as mock_run:
-            mock_run.side_effect = subprocess.CalledProcessError(1, "command")
+        with mock.patch("subprocess.Popen") as mock_popen:
+            mock_popen.side_effect = subprocess.CalledProcessError(1, "command")
 
             with self.assertRaises(singlefile.SingeFileError):
                 singlefile.create_snapshot("http://example.com", self.html_filepath)
 
         # so also check that it raises error if output file isn't created
-        with mock.patch("subprocess.run") as mock_run:
+        with mock.patch("subprocess.Popen"):
             with self.assertRaises(singlefile.SingeFileError):
                 singlefile.create_snapshot("http://example.com", self.html_filepath)

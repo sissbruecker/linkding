@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.utils import timezone, formats
+from huey import crontab
 from huey.contrib.djhuey import HUEY as huey
 from huey.exceptions import TaskLockedException
 from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
@@ -236,7 +237,6 @@ def create_html_snapshot(bookmark: Bookmark):
         status=BookmarkAsset.STATUS_PENDING,
     )
     asset.save()
-    _create_html_snapshot_task(asset.id)
 
 
 def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
@@ -252,8 +252,23 @@ def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
     return f"{asset.asset_type}_{formatted_datetime}_{sanitized_url}.html.gz"
 
 
-@task()
-@huey.lock_task("create-html-snapshot-lock")
+# singe-file does not support running multiple instances in parallel, so we can
+# not queue up multiple snapshot tasks at once. Instead, schedule a periodic
+# task that grabs a number of pending assets and creates snapshots for them in
+# sequence. The task uses a lock to ensure that a new task isn't scheduled
+# before the previous one has finished.
+@huey.periodic_task(crontab(minute="*"))
+@huey.lock_task("schedule-html-snapshots-lock")
+def _schedule_html_snapshots_task():
+    # Get five pending assets
+    assets = BookmarkAsset.objects.filter(status=BookmarkAsset.STATUS_PENDING).order_by(
+        "date_created"
+    )[:5]
+
+    for asset in assets:
+        _create_html_snapshot_task(asset.id)
+
+
 def _create_html_snapshot_task(asset_id: int):
     try:
         asset = BookmarkAsset.objects.get(id=asset_id)
@@ -274,7 +289,9 @@ def _create_html_snapshot_task(asset_id: int):
             f"Successfully created HTML snapshot for bookmark. url={asset.bookmark.url}"
         )
     except Exception as error:
-        logger.error(f"Failed to HTML snapshot for bookmark. url={asset.bookmark.url}")
+        logger.error(
+            f"Failed to HTML snapshot for bookmark. url={asset.bookmark.url}",
+            exc_info=error,
+        )
         asset.status = BookmarkAsset.STATUS_FAILURE
         asset.save()
-        raise error
