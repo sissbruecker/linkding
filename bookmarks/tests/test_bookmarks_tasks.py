@@ -557,6 +557,21 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.assertTrue(asset.gzip)
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_html_snapshot_truncate_filename(self):
+        # Create a bookmark with a very long URL
+        long_url = "http://" + "a" * 300 + ".com"
+        bookmark = self.setup_bookmark(url=long_url)
+
+        tasks.create_html_snapshot(bookmark)
+        BookmarkAsset.objects.get(bookmark=bookmark)
+
+        # Run periodic task to process the snapshot
+        tasks._schedule_html_snapshots_task()
+
+        asset = BookmarkAsset.objects.get(bookmark=bookmark)
+        self.assertEqual(len(asset.file), 192)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_html_snapshot_should_handle_error(self):
         bookmark = self.setup_bookmark(url="https://example.com")
 
