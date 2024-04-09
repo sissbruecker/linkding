@@ -81,8 +81,8 @@
           {% endif %}
           {# View link is visible for both owned and shared bookmarks #}
           {% if bookmark_list.show_view_action %}
-            <a ld-modal
-               modal-url="{% url 'bookmarks:details_modal' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}"
+            <a ld-fetch="{% url 'bookmarks:details_modal' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}"
+               ld-on="click" ld-target="body|append"
                href="{% url 'bookmarks:details' bookmark_item.id %}">View</a>
           {% endif %}
           {% if bookmark_item.is_editable %}
