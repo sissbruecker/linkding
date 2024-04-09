@@ -24,7 +24,7 @@
         {% csrf_token %}
         {% include 'bookmarks/bulk_edit/bar.html' with disable_actions='bulk_unarchive' %}
 
-        <div ld-fetch="{% url 'bookmarks:partials.bookmark_list.active' %}" ld-on="refresh-bookmark-list"
+        <div ld-fetch="{{ bookmark_list.refresh_url }}" ld-on="refresh-bookmark-list"
              class="bookmark-list-container">
           {% include 'bookmarks/bookmark_list.html' %}
         </div>
@@ -36,7 +36,7 @@
       <div class="content-area-header">
         <h2>Tags</h2>
       </div>
-      <div ld-fetch="{% url 'bookmarks:partials.tag_cloud.active' %}" ld-on="refresh-tag-cloud"
+      <div ld-fetch="{{ tag_cloud.refresh_url }}" ld-on="refresh-tag-cloud"
            class="tag-cloud-container">
         {% include 'bookmarks/tag_cloud.html' %}
       </div>
