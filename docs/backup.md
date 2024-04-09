@@ -13,7 +13,7 @@ The following sections explain how to back up the individual contents.
 
 ## Full backup
 
-lindking provides a CLI command to create a full backup of the data folder. This creates a zip file that contains backups of the database, assets, and favicons.
+linkding provides a CLI command to create a full backup of the data folder. This creates a zip file that contains backups of the database, assets, and favicons.
 
 > [!NOTE]
 > This method assumes that you are using the default SQLite database.
