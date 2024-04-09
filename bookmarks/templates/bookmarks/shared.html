@@ -12,7 +12,9 @@
         <h2>Shared bookmarks</h2>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search tag_cloud.tags mode='shared' %}
-          <button class="btn ml-2 show-md">Tags</button>
+          <button ld-fetch="{{ bookmark_list.tag_modal_url }}" ld-target="body|append" ld-on="click"
+                  class="btn ml-2 show-md">Tags
+          </button>
         </div>
       </div>
 

@@ -1,8 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
 from django.shortcuts import render
 
-from bookmarks.models import Bookmark
 from bookmarks.views.partials import contexts
 
 
@@ -25,6 +23,13 @@ def active_tag_cloud(request):
 
 
 @login_required
+def active_tag_modal(request):
+    tag_cloud_context = contexts.ActiveTagCloudContext(request)
+
+    return render(request, "bookmarks/tag_modal.html", {"tag_cloud": tag_cloud_context})
+
+
+@login_required
 def archived_bookmark_list(request):
     bookmark_list_context = contexts.ArchivedBookmarkListContext(request)
 
@@ -43,6 +48,12 @@ def archived_tag_cloud(request):
 
 
 @login_required
+def archived_tag_modal(request):
+    tag_cloud_context = contexts.ArchivedTagCloudContext(request)
+
+    return render(request, "bookmarks/tag_modal.html", {"tag_cloud": tag_cloud_context})
+
+
 def shared_bookmark_list(request):
     bookmark_list_context = contexts.SharedBookmarkListContext(request)
 
@@ -53,8 +64,13 @@ def shared_bookmark_list(request):
     )
 
 
-@login_required
 def shared_tag_cloud(request):
     tag_cloud_context = contexts.SharedTagCloudContext(request)
 
     return render(request, "bookmarks/tag_cloud.html", {"tag_cloud": tag_cloud_context})
+
+
+def shared_tag_modal(request):
+    tag_cloud_context = contexts.SharedTagCloudContext(request)
+
+    return render(request, "bookmarks/tag_modal.html", {"tag_cloud": tag_cloud_context})

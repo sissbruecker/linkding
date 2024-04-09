@@ -13,7 +13,9 @@
         <div class="header-controls">
           {% bookmark_search bookmark_list.search tag_cloud.tags %}
           {% include 'bookmarks/bulk_edit/toggle.html' %}
-          <button class="btn ml-2 show-md">Tags</button>
+          <button ld-fetch="{{ bookmark_list.tag_modal_url }}" ld-target="body|append" ld-on="click"
+                  class="btn ml-2 show-md">Tags
+          </button>
         </div>
       </div>
 
