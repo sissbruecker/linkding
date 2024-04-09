@@ -19,7 +19,7 @@ class ConfirmButtonBehavior {
     const container = document.createElement("span");
     container.className = "confirmation";
 
-    const icon = this.button.getAttribute("confirm-icon");
+    const icon = this.button.getAttribute("ld-confirm-icon");
     if (icon) {
       const iconElement = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -31,7 +31,7 @@ class ConfirmButtonBehavior {
       container.append(iconElement);
     }
 
-    const question = this.button.getAttribute("confirm-question");
+    const question = this.button.getAttribute("ld-confirm-question");
     if (question) {
       const questionElement = document.createElement("span");
       questionElement.innerText = question;
