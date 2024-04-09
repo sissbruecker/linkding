@@ -150,17 +150,27 @@
         display: block;
     }
 
+    .form-autocomplete-input {
+        box-sizing: border-box;
+        height: var(--control-size);
+        min-height: var(--control-size);
+        padding: 0;
+    }
+
+    .form-autocomplete-input input {
+        width: 100%;
+        height: 100%;
+        border: none;
+        margin: 0;
+    }
+
     .form-autocomplete.small .form-autocomplete-input {
         height: var(--control-size-sm);
         min-height: var(--control-size-sm);
-        padding: 0.05rem 0.3rem;
     }
 
     .form-autocomplete.small .form-autocomplete-input input {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
+        padding: 0.05rem 0.3rem;
         font-size: var(--font-size-sm);
     }
 
