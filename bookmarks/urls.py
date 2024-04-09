@@ -81,11 +81,6 @@ urlpatterns = [
         partials.shared_tag_cloud,
         name="partials.tag_cloud.shared",
     ),
-    path(
-        "bookmarks/partials/details-form/<int:bookmark_id>",
-        partials.details_form,
-        name="partials.details_form",
-    ),
     # Settings
     path("settings", views.settings.general, name="settings.index"),
     path("settings/general", views.settings.general, name="settings.general"),

@@ -14,7 +14,8 @@ class FetchBehavior {
     const html = await fetch(url).then((response) => response.text());
 
     const target = this.element.getAttribute("ld-target");
-    swap(this.element, html, target);
+    const select = this.element.getAttribute("ld-select");
+    swap(this.element, html, { target, select });
   }
 }
 

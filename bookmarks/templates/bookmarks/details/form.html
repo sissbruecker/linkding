@@ -1,8 +1,8 @@
 {% load static %}
 {% load shared %}
 
-<form ld-form action="{% url 'bookmarks:details' details.bookmark.id %}"
-      ld-fire="refresh-bookmark-list,refresh-tag-cloud"
+<form ld-form ld-fire="refresh-bookmark-list,refresh-tag-cloud,refresh-details"
+      action="{% url 'bookmarks:details' details.bookmark.id %}"
       method="post">
   <div class="weblinks">
     <a class="weblink" href="{{ details.bookmark.url }}" rel="noopener"

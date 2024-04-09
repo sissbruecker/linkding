@@ -105,18 +105,6 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_access_with_sharing(self):
         self.details_route_sharing_access_test(self.get_view_name(), True)
 
-    def test_form_partial_access(self):
-        # form partial is only used when submitting forms, which should be only
-        # accessible to the owner of the bookmark. As such assume it requires
-        # login.
-        self.details_route_access_test("bookmarks:partials.details_form", False)
-
-    def test_form_partial_access_with_sharing(self):
-        # form partial is only used when submitting forms, which should be only
-        # accessible to the owner of the bookmark. As such assume it requires
-        # login.
-        self.details_route_sharing_access_test("bookmarks:partials.details_form", False)
-
     def test_displays_title(self):
         # with title
         bookmark = self.setup_bookmark(title="Test title")

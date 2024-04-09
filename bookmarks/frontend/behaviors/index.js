@@ -37,32 +37,36 @@ export function applyBehaviors(container, behaviorNames = null) {
   });
 }
 
-export function swap(element, html, target = null) {
+export function swap(element, html, options) {
   const dom = new DOMParser().parseFromString(html, "text/html");
-  const contents = Array.from(dom.body.children);
 
   let targetElement = element;
   let strategy = "innerHTML";
-  if (target) {
-    const parts = target.split("|");
-    targetElement = document.querySelector(parts[0]);
+  if (options.target) {
+    const parts = options.target.split("|");
+    targetElement =
+      parts[0] === "self" ? element : document.querySelector(parts[0]);
     strategy = parts[1] || "innerHTML";
+  }
+
+  let contents = Array.from(dom.body.children);
+  if (options.select) {
+    contents = Array.from(dom.querySelectorAll(options.select));
   }
 
   switch (strategy) {
     case "append":
       targetElement.append(...contents);
       break;
+    case "outerHTML":
+      targetElement.parentElement.replaceChild(contents[0], targetElement);
+      break;
+    case "innerHTML":
     default:
       targetElement.innerHTML = "";
       targetElement.append(...contents);
   }
-  applyBehaviors(targetElement);
-}
-
-export function swapContent(element, html) {
-  element.innerHTML = html;
-  applyBehaviors(element);
+  contents.forEach((content) => applyBehaviors(content));
 }
 
 export function fireEvents(events) {

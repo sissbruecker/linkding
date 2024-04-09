@@ -58,15 +58,3 @@ def shared_tag_cloud(request):
     tag_cloud_context = contexts.SharedTagCloudContext(request)
 
     return render(request, "bookmarks/tag_cloud.html", {"tag_cloud": tag_cloud_context})
-
-
-@login_required
-def details_form(request, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
-    details_context = contexts.BookmarkDetailsContext(request, bookmark)
-
-    return render(request, "bookmarks/details/form.html", {"details": details_context})
