@@ -1,6 +1,7 @@
 import gzip
 import logging
 import os
+import shlex
 import shutil
 import signal
 import subprocess
@@ -17,10 +18,11 @@ logger = logging.getLogger(__name__)
 
 def create_snapshot(url: str, filepath: str):
     singlefile_path = settings.LD_SINGLEFILE_PATH
-    # singlefile_options = settings.LD_SINGLEFILE_OPTIONS
+    # parse string to list of arguments
+    singlefile_options = shlex.split(settings.LD_SINGLEFILE_OPTIONS)
     temp_filepath = filepath + ".tmp"
-
-    args = [singlefile_path, url, temp_filepath]
+    # concat lists
+    args = [singlefile_path] + singlefile_options + [url, temp_filepath]
     try:
         # Use start_new_session=True to create a new process group
         process = subprocess.Popen(args, start_new_session=True)
