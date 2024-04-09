@@ -94,15 +94,10 @@ class BookmarkArchivedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         )
 
     def assertBulkActionForm(self, response, url: str):
-        html = collapse_whitespace(response.content.decode())
-        needle = collapse_whitespace(
-            f"""
-            <form class="bookmark-actions"
-                action="{url}"
-                method="post" autocomplete="off">
-        """
-        )
-        self.assertIn(needle, html)
+        soup = self.make_soup(response.content.decode())
+        form = soup.select_one("form.bookmark-actions")
+        self.assertIsNotNone(form)
+        self.assertEqual(form.attrs["action"], url)
 
     def test_should_list_archived_and_user_owned_bookmarks(self):
         other_user = User.objects.create_user(
