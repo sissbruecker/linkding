@@ -252,14 +252,14 @@ Alternative favicon providers:
 
 Values: `Float` | Default =  60.0
 
-When creating archive snapshots, control the timeout for how long to wait for `single-file` to complete, in `seconds`. Defaults to 60 seconds; on lower-powered hardware you may need to increase this value. 
+When creating HTML archive snapshots, control the timeout for how long to wait for the snapshot to complete, in `seconds`.
+Defaults to 60 seconds; on lower-powered hardware you may need to increase this value. 
 
 ### `LD_SINGLEFILE_OPTIONS`
 
 Values: `String` | Default = None
 
-When creating archive snapshots, pass additional options to the `single-file` command. See `single-file --help` for complete list of arguments, or browse source: https://github.com/gildas-lormeau/single-file-cli/blob/master/options.js#L33
+When creating HTML archive snapshots, pass additional options to the `single-file` application that is used to create snapshots.
+See `single-file --help` for complete list of arguments, or browse source: https://github.com/gildas-lormeau/single-file-cli/blob/master/options.js
 
-Example:
-
-`LD_SINGLEFILE_OPTIONS=--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) Gecko/20100101 Firefox/124.0"`
+Example: `LD_SINGLEFILE_OPTIONS=--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) Gecko/20100101 Firefox/124.0"`
