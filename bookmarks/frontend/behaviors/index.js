@@ -70,10 +70,14 @@ export function swap(element, html, options) {
 }
 
 export function fireEvents(events) {
+  if (!events) {
+    return;
+  }
   events.split(",").forEach((eventName) => {
     const targets = Array.from(
       document.querySelectorAll(`[ld-on='${eventName}']`),
     );
+    targets.push(document);
     targets.forEach((target) => {
       target.dispatchEvent(new CustomEvent(eventName));
     });

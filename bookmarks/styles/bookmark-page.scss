@@ -130,7 +130,7 @@ li[ld-bookmark-item] {
   position: relative;
   margin-top: $unit-2;
 
-  [ld-bulk-edit-checkbox].form-checkbox {
+  .form-checkbox.bulk-edit-checkbox {
     display: none;
   }
 
@@ -323,7 +323,7 @@ $bulk-edit-transition-duration: 400ms;
   }
 
   /* All checkbox */
-  [ld-bulk-edit-checkbox][all].form-checkbox {
+  .form-checkbox.bulk-edit-checkbox.all {
     display: block;
     width: $bulk-edit-toggle-width;
     margin: 0 0 0 $bulk-edit-toggle-offset;
@@ -331,7 +331,7 @@ $bulk-edit-transition-duration: 400ms;
   }
 
   /* Bookmark checkboxes */
-  li[ld-bookmark-item] [ld-bulk-edit-checkbox].form-checkbox {
+  li[ld-bookmark-item] .form-checkbox.bulk-edit-checkbox {
     display: block;
     position: absolute;
     width: $bulk-edit-toggle-width;
@@ -350,7 +350,7 @@ $bulk-edit-transition-duration: 400ms;
     }
   }
 
-  &.active li[ld-bookmark-item] [ld-bulk-edit-checkbox].form-checkbox {
+  &.active li[ld-bookmark-item] .form-checkbox.bulk-edit-checkbox {
     visibility: visible;
     opacity: 1;
   }

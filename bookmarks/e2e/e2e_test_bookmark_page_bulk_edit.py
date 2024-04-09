@@ -194,7 +194,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.locate_bulk_edit_toggle().click()
 
-            checkboxes = page.locator("label[ld-bulk-edit-checkbox] input")
+            checkboxes = page.locator("label.bulk-edit-checkbox input")
             self.assertEqual(6, checkboxes.count())
             for i in range(checkboxes.count()):
                 expect(checkboxes.nth(i)).not_to_be_checked()
@@ -264,13 +264,13 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             # Hide select across by toggling a single bookmark
             self.locate_bookmark("Bookmark 1").locator(
-                "label[ld-bulk-edit-checkbox]"
+                "label.bulk-edit-checkbox"
             ).click()
             expect(self.locate_bulk_edit_select_across()).not_to_be_visible()
 
             # Show select across again, verify it is unchecked
             self.locate_bookmark("Bookmark 1").locator(
-                "label[ld-bulk-edit-checkbox]"
+                "label.bulk-edit-checkbox"
             ).click()
             expect(self.locate_bulk_edit_select_across()).not_to_be_checked()
 
@@ -297,7 +297,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             expect(bookmark_list).not_to_be_visible()
 
             # Verify bulk edit checkboxes are reset
-            checkboxes = page.locator("label[ld-bulk-edit-checkbox] input")
+            checkboxes = page.locator("label.bulk-edit-checkbox input")
             self.assertEqual(31, checkboxes.count())
             for i in range(checkboxes.count()):
                 expect(checkboxes.nth(i)).not_to_be_checked()

@@ -62,7 +62,7 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         return self.page.locator(".bulk-edit-bar")
 
     def locate_bulk_edit_select_all(self):
-        return self.locate_bulk_edit_bar().locator("label[ld-bulk-edit-checkbox][all]")
+        return self.locate_bulk_edit_bar().locator("label.bulk-edit-checkbox.all")
 
     def locate_bulk_edit_select_across(self):
         return self.locate_bulk_edit_bar().locator("label.select-across")

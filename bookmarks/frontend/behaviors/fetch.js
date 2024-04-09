@@ -1,4 +1,4 @@
-import { registerBehavior, swap } from "./index";
+import { fireEvents, registerBehavior, swap } from "./index";
 
 class FetchBehavior {
   constructor(element) {
@@ -16,6 +16,9 @@ class FetchBehavior {
     const target = this.element.getAttribute("ld-target");
     const select = this.element.getAttribute("ld-select");
     swap(this.element, html, { target, select });
+
+    const events = this.element.getAttribute("ld-fire");
+    fireEvents(events);
   }
 }
 

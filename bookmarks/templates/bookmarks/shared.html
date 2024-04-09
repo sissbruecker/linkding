@@ -22,6 +22,7 @@
             method="post" autocomplete="off">
         {% csrf_token %}
         <div ld-fetch="{{ bookmark_list.refresh_url }}" ld-on="refresh-bookmark-list"
+             ld-fire="refresh-bookmark-list-done"
              class="bookmark-list-container">
           {% include 'bookmarks/bookmark_list.html' %}
         </div>

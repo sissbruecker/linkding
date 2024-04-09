@@ -11,7 +11,7 @@
     {% for bookmark_item in bookmark_list.items %}
       <li ld-bookmark-item{% if bookmark_item.css_classes %} class="{{ bookmark_item.css_classes }}"{% endif %}>
         <div class="title">
-          <label ld-bulk-edit-checkbox class="form-checkbox">
+          <label class="form-checkbox bulk-edit-checkbox">
             <input type="checkbox" name="bookmark_id" value="{{ bookmark_item.id }}">
             <i class="form-icon"></i>
           </label>

@@ -22,9 +22,10 @@
             action="{{ bookmark_list.action_url|safe }}"
             method="post" autocomplete="off">
         {% csrf_token %}
-        {% include 'bookmarks/bulk_edit/bar.html' with disable_actions='bulk_unarchive' %}
+        {% include 'bookmarks/bulk_edit/bar.html' with disable_actions='bulk_archive' %}
 
         <div ld-fetch="{{ bookmark_list.refresh_url }}" ld-on="refresh-bookmark-list"
+             ld-fire="refresh-bookmark-list-done"
              class="bookmark-list-container">
           {% include 'bookmarks/bookmark_list.html' %}
         </div>
