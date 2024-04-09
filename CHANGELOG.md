@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.28.0 (09/04/2024)
+
+### What's Changed
+* Add option to disable SSL verification for OIDC by @akaSyntaax in https://github.com/sissbruecker/linkding/pull/684
+* Add full backup method by @sissbruecker in https://github.com/sissbruecker/linkding/pull/686
+* Truncate snapshot filename for long URLs by @sissbruecker in https://github.com/sissbruecker/linkding/pull/687
+* Add option for customizing single-file timeout by @pettijohn in https://github.com/sissbruecker/linkding/pull/688
+* Add option for passing arguments to single-file command by @pettijohn in https://github.com/sissbruecker/linkding/pull/691
+* Fix typo by @tianheg in https://github.com/sissbruecker/linkding/pull/689
+
+### New Contributors
+* @akaSyntaax made their first contribution in https://github.com/sissbruecker/linkding/pull/684
+* @pettijohn made their first contribution in https://github.com/sissbruecker/linkding/pull/688
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.27.1...v1.28.0
+
+---
+
 ## v1.27.1 (07/04/2024)
 
 ### What's Changed
