@@ -39,6 +39,9 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
     def assertReloads(self, count: int):
         self.assertEqual(self.num_loads, count)
 
+    def resetReloads(self):
+        self.num_loads = 0
+
     def locate_bookmark_list(self):
         return self.page.locator("ul[ld-bookmark-list]")
 
@@ -62,7 +65,7 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         return self.page.locator(".bulk-edit-bar")
 
     def locate_bulk_edit_select_all(self):
-        return self.locate_bulk_edit_bar().locator("label[ld-bulk-edit-checkbox][all]")
+        return self.locate_bulk_edit_bar().locator("label.bulk-edit-checkbox.all")
 
     def locate_bulk_edit_select_across(self):
         return self.locate_bulk_edit_bar().locator("label.select-across")

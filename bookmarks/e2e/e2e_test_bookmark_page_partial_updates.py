@@ -169,7 +169,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark("Bookmark 2").locator(
-                "label[ld-bulk-edit-checkbox]"
+                "label.bulk-edit-checkbox"
             ).click()
             self.select_bulk_action("Archive")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
@@ -187,7 +187,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark("Bookmark 2").locator(
-                "label[ld-bulk-edit-checkbox]"
+                "label.bulk-edit-checkbox"
             ).click()
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
@@ -230,7 +230,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark("Archived Bookmark 2").locator(
-                "label[ld-bulk-edit-checkbox]"
+                "label.bulk-edit-checkbox"
             ).click()
             self.select_bulk_action("Unarchive")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
@@ -248,7 +248,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark("Archived Bookmark 2").locator(
-                "label[ld-bulk-edit-checkbox]"
+                "label.bulk-edit-checkbox"
             ).click()
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()

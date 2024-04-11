@@ -4,11 +4,7 @@
 {% load bookmarks %}
 
 {% block content %}
-  <div class="bookmarks-page grid columns-md-1"
-       ld-bulk-edit
-       ld-bookmark-page
-       bookmarks-url="{% url 'bookmarks:partials.bookmark_list.active' %}"
-       tags-url="{% url 'bookmarks:partials.tag_cloud.active' %}">
+  <div ld-bulk-edit class="bookmarks-page grid columns-md-1">
 
     {# Bookmark list #}
     <section class="content-area col-2">
@@ -17,17 +13,22 @@
         <div class="header-controls">
           {% bookmark_search bookmark_list.search tag_cloud.tags %}
           {% include 'bookmarks/bulk_edit/toggle.html' %}
-          <button ld-modal modal-content=".tag-cloud" class="btn ml-2 show-md">Tags</button>
+          <button ld-fetch="{{ bookmark_list.tag_modal_url }}" ld-target="body|append" ld-on="click"
+                  class="btn ml-2 show-md">Tags
+          </button>
         </div>
       </div>
 
-      <form class="bookmark-actions"
+      <form ld-form ld-fire="refresh-bookmark-list,refresh-tag-cloud"
+            class="bookmark-actions"
             action="{{ bookmark_list.action_url|safe }}"
             method="post" autocomplete="off">
         {% csrf_token %}
         {% include 'bookmarks/bulk_edit/bar.html' with disable_actions='bulk_unarchive' %}
 
-        <div class="bookmark-list-container">
+        <div ld-fetch="{{ bookmark_list.refresh_url }}" ld-on="refresh-bookmark-list"
+             ld-fire="refresh-bookmark-list-done"
+             class="bookmark-list-container">
           {% include 'bookmarks/bookmark_list.html' %}
         </div>
       </form>
@@ -38,7 +39,8 @@
       <div class="content-area-header">
         <h2>Tags</h2>
       </div>
-      <div class="tag-cloud-container">
+      <div ld-fetch="{{ tag_cloud.refresh_url }}" ld-on="refresh-tag-cloud"
+           class="tag-cloud-container">
         {% include 'bookmarks/tag_cloud.html' %}
       </div>
     </section>

@@ -1,11 +1,8 @@
-<div ld-modal
-     ld-fetch="{% url 'bookmarks:details_modal' details.bookmark.id %}" ld-on="refresh-details"
-     ld-select=".content" ld-target=".modal.bookmark-details .content|outerHTML"
-     class="modal active bookmark-details">
+<div ld-modal class="modal active">
   <div class="modal-overlay" aria-label="Close"></div>
   <div class="modal-container">
-    <div class="modal-header">
-      {% include 'bookmarks/details/title.html' %}
+    <div class="modal-header d-flex justify-between align-center">
+      <div class="modal-title h5">Tags</div>
       <button class="close">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
              stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -17,14 +14,8 @@
     </div>
     <div class="modal-body">
       <div class="content">
-        {% include 'bookmarks/details/form.html' %}
+        {% include 'bookmarks/tag_cloud.html' %}
       </div>
     </div>
-
-    {% if details.is_editable %}
-      <div class="modal-footer">
-        {% include 'bookmarks/details/actions.html' %}
-      </div>
-    {% endif %}
   </div>
 </div>

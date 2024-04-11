@@ -1,12 +1,12 @@
-import { registerBehavior, swap } from "./index";
+import { fireEvents, registerBehavior } from "./index";
 
 class FormBehavior {
   constructor(element) {
     this.element = element;
-    element.addEventListener("submit", this.onFormSubmit.bind(this));
+    element.addEventListener("submit", this.onSubmit.bind(this));
   }
 
-  async onFormSubmit(event) {
+  async onSubmit(event) {
     event.preventDefault();
 
     const url = this.element.action;
@@ -21,34 +21,21 @@ class FormBehavior {
       redirect: "manual", // ignore redirect
     });
 
-    // Dispatch refresh events
-    const refreshEvents = this.element.getAttribute("refresh-events");
-    if (refreshEvents) {
-      refreshEvents.split(",").forEach((eventName) => {
-        document.dispatchEvent(new CustomEvent(eventName));
-      });
+    const events = this.element.getAttribute("ld-fire");
+    if (fireEvents) {
+      fireEvents(events);
     }
-
-    // Refresh form
-    await this.refresh();
-  }
-
-  async refresh() {
-    const refreshUrl = this.element.getAttribute("refresh-url");
-    const html = await fetch(refreshUrl).then((response) => response.text());
-    swap(this.element, html);
   }
 }
 
-class FormAutoSubmitBehavior {
+class AutoSubmitBehavior {
   constructor(element) {
-    this.element = element;
-    this.element.addEventListener("change", () => {
-      const form = this.element.closest("form");
+    element.addEventListener("change", () => {
+      const form = element.closest("form");
       form.dispatchEvent(new Event("submit", { cancelable: true }));
     });
   }
 }
 
 registerBehavior("ld-form", FormBehavior);
-registerBehavior("ld-form-auto-submit", FormAutoSubmitBehavior);
+registerBehavior("ld-auto-submit", AutoSubmitBehavior);

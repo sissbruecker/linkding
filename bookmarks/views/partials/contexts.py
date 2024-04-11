@@ -23,6 +23,113 @@ DEFAULT_PAGE_SIZE = 30
 CJK_RE = re.compile(r"[\u4e00-\u9fff]+")
 
 
+class RequestContext:
+    index_view = "bookmarks:index"
+    action_view = "bookmarks:index.action"
+    bookmark_list_partial_view = "bookmarks:partials.bookmark_list.active"
+    tag_cloud_partial_view = "bookmarks:partials.tag_cloud.active"
+    tag_modal_partial_view = "bookmarks:partials.tag_modal.active"
+
+    def __init__(self, request: WSGIRequest):
+        self.request = request
+        self.index_url = reverse(self.index_view)
+        self.action_url = reverse(self.action_view)
+        self.bookmark_list_partial_url = reverse(self.bookmark_list_partial_view)
+        self.tag_cloud_partial_url = reverse(self.tag_cloud_partial_view)
+        self.tag_modal_partial_url = reverse(self.tag_modal_partial_view)
+        self.query_params = request.GET.copy()
+        self.query_params.pop("details", None)
+
+    def get_url(self, view_url: str, add: dict = None, remove: dict = None) -> str:
+        query_params = self.query_params.copy()
+        if add:
+            query_params.update(add)
+        if remove:
+            for key in remove:
+                query_params.pop(key, None)
+        encoded_params = query_params.urlencode()
+        return view_url + "?" + encoded_params if encoded_params else view_url
+
+    def index(self) -> str:
+        return self.get_url(self.index_url)
+
+    def action(self, return_url: str) -> str:
+        return self.get_url(self.action_url, add={"return_url": return_url})
+
+    def bookmark_list_partial(self) -> str:
+        return self.get_url(self.bookmark_list_partial_url)
+
+    def tag_cloud_partial(self) -> str:
+        return self.get_url(self.tag_cloud_partial_url)
+
+    def tag_modal_partial(self) -> str:
+        return self.get_url(self.tag_modal_partial_url)
+
+    def get_bookmark_query_set(self, search: BookmarkSearch):
+        raise Exception("Must be implemented by subclass")
+
+    def get_tag_query_set(self, search: BookmarkSearch):
+        raise Exception("Must be implemented by subclass")
+
+
+class ActiveBookmarksContext(RequestContext):
+    index_view = "bookmarks:index"
+    action_view = "bookmarks:index.action"
+    bookmark_list_partial_view = "bookmarks:partials.bookmark_list.active"
+    tag_cloud_partial_view = "bookmarks:partials.tag_cloud.active"
+    tag_modal_partial_view = "bookmarks:partials.tag_modal.active"
+
+    def get_bookmark_query_set(self, search: BookmarkSearch):
+        return queries.query_bookmarks(
+            self.request.user, self.request.user_profile, search
+        )
+
+    def get_tag_query_set(self, search: BookmarkSearch):
+        return queries.query_bookmark_tags(
+            self.request.user, self.request.user_profile, search
+        )
+
+
+class ArchivedBookmarksContext(RequestContext):
+    index_view = "bookmarks:archived"
+    action_view = "bookmarks:archived.action"
+    bookmark_list_partial_view = "bookmarks:partials.bookmark_list.archived"
+    tag_cloud_partial_view = "bookmarks:partials.tag_cloud.archived"
+    tag_modal_partial_view = "bookmarks:partials.tag_modal.archived"
+
+    def get_bookmark_query_set(self, search: BookmarkSearch):
+        return queries.query_archived_bookmarks(
+            self.request.user, self.request.user_profile, search
+        )
+
+    def get_tag_query_set(self, search: BookmarkSearch):
+        return queries.query_archived_bookmark_tags(
+            self.request.user, self.request.user_profile, search
+        )
+
+
+class SharedBookmarksContext(RequestContext):
+    index_view = "bookmarks:shared"
+    action_view = "bookmarks:shared.action"
+    bookmark_list_partial_view = "bookmarks:partials.bookmark_list.shared"
+    tag_cloud_partial_view = "bookmarks:partials.tag_cloud.shared"
+    tag_modal_partial_view = "bookmarks:partials.tag_modal.shared"
+
+    def get_bookmark_query_set(self, search: BookmarkSearch):
+        user = User.objects.filter(username=search.user).first()
+        public_only = not self.request.user.is_authenticated
+        return queries.query_shared_bookmarks(
+            user, self.request.user_profile, search, public_only
+        )
+
+    def get_tag_query_set(self, search: BookmarkSearch):
+        user = User.objects.filter(username=search.user).first()
+        public_only = not self.request.user.is_authenticated
+        return queries.query_shared_bookmark_tags(
+            user, self.request.user_profile, search, public_only
+        )
+
+
 class BookmarkItem:
     def __init__(self, bookmark: Bookmark, user: User, profile: UserProfile) -> None:
         self.bookmark = bookmark
@@ -67,7 +174,10 @@ class BookmarkItem:
 
 
 class BookmarkListContext:
+    request_context = RequestContext
+
     def __init__(self, request: WSGIRequest) -> None:
+        request_context = self.request_context(request)
         user = request.user
         user_profile = request.user_profile
 
@@ -76,7 +186,7 @@ class BookmarkListContext:
             self.request.GET, user_profile.search_preferences
         )
 
-        query_set = self.get_bookmark_query_set()
+        query_set = request_context.get_bookmark_query_set(self.search)
         page_number = request.GET.get("page")
         paginator = Paginator(query_set, DEFAULT_PAGE_SIZE)
         bookmarks_page = paginator.get_page(page_number)
@@ -86,16 +196,15 @@ class BookmarkListContext:
         self.items = [
             BookmarkItem(bookmark, user, user_profile) for bookmark in bookmarks_page
         ]
-
         self.is_empty = paginator.count == 0
         self.bookmarks_page = bookmarks_page
         self.bookmarks_total = paginator.count
-        self.return_url = self.generate_return_url(
-            self.search, self.get_base_url(), page_number
-        )
-        self.action_url = self.generate_action_url(
-            self.search, self.get_base_action_url(), self.return_url
-        )
+
+        self.return_url = request_context.index()
+        self.action_url = request_context.action(return_url=self.return_url)
+        self.refresh_url = request_context.bookmark_list_partial()
+        self.tag_modal_url = request_context.tag_modal_partial()
+
         self.link_target = user_profile.bookmark_link_target
         self.date_display = user_profile.bookmark_date_display
         self.description_display = user_profile.bookmark_description_display
@@ -131,55 +240,17 @@ class BookmarkListContext:
             else base_action_url + "?" + query_string
         )
 
-    def get_base_url(self):
-        raise Exception("Must be implemented by subclass")
-
-    def get_base_action_url(self):
-        raise Exception("Must be implemented by subclass")
-
-    def get_bookmark_query_set(self):
-        raise Exception("Must be implemented by subclass")
-
 
 class ActiveBookmarkListContext(BookmarkListContext):
-    def get_base_url(self):
-        return reverse("bookmarks:index")
-
-    def get_base_action_url(self):
-        return reverse("bookmarks:index.action")
-
-    def get_bookmark_query_set(self):
-        return queries.query_bookmarks(
-            self.request.user, self.request.user_profile, self.search
-        )
+    request_context = ActiveBookmarksContext
 
 
 class ArchivedBookmarkListContext(BookmarkListContext):
-    def get_base_url(self):
-        return reverse("bookmarks:archived")
-
-    def get_base_action_url(self):
-        return reverse("bookmarks:archived.action")
-
-    def get_bookmark_query_set(self):
-        return queries.query_archived_bookmarks(
-            self.request.user, self.request.user_profile, self.search
-        )
+    request_context = ArchivedBookmarksContext
 
 
 class SharedBookmarkListContext(BookmarkListContext):
-    def get_base_url(self):
-        return reverse("bookmarks:shared")
-
-    def get_base_action_url(self):
-        return reverse("bookmarks:shared.action")
-
-    def get_bookmark_query_set(self):
-        user = User.objects.filter(username=self.search.user).first()
-        public_only = not self.request.user.is_authenticated
-        return queries.query_shared_bookmarks(
-            user, self.request.user_profile, self.search, public_only
-        )
+    request_context = SharedBookmarksContext
 
 
 class TagGroup:
@@ -218,7 +289,10 @@ class TagGroup:
 
 
 class TagCloudContext:
+    request_context = RequestContext
+
     def __init__(self, request: WSGIRequest) -> None:
+        request_context = self.request_context(request)
         user_profile = request.user_profile
 
         self.request = request
@@ -226,7 +300,7 @@ class TagCloudContext:
             self.request.GET, user_profile.search_preferences
         )
 
-        query_set = self.get_tag_query_set()
+        query_set = request_context.get_tag_query_set(self.search)
         tags = list(query_set)
         selected_tags = self.get_selected_tags(tags)
         unique_tags = utils.unique(tags, key=lambda x: str.lower(x.name))
@@ -242,8 +316,7 @@ class TagCloudContext:
         self.selected_tags = unique_selected_tags
         self.has_selected_tags = has_selected_tags
 
-    def get_tag_query_set(self):
-        raise Exception("Must be implemented by subclass")
+        self.refresh_url = request_context.tag_cloud_partial()
 
     def get_selected_tags(self, tags: List[Tag]):
         parsed_query = queries.parse_query_string(self.search.q)
@@ -256,26 +329,15 @@ class TagCloudContext:
 
 
 class ActiveTagCloudContext(TagCloudContext):
-    def get_tag_query_set(self):
-        return queries.query_bookmark_tags(
-            self.request.user, self.request.user_profile, self.search
-        )
+    request_context = ActiveBookmarksContext
 
 
 class ArchivedTagCloudContext(TagCloudContext):
-    def get_tag_query_set(self):
-        return queries.query_archived_bookmark_tags(
-            self.request.user, self.request.user_profile, self.search
-        )
+    request_context = ArchivedBookmarksContext
 
 
 class SharedTagCloudContext(TagCloudContext):
-    def get_tag_query_set(self):
-        user = User.objects.filter(username=self.search.user).first()
-        public_only = not self.request.user.is_authenticated
-        return queries.query_shared_bookmark_tags(
-            user, self.request.user_profile, self.search, public_only
-        )
+    request_context = SharedBookmarksContext
 
 
 class BookmarkAssetItem:

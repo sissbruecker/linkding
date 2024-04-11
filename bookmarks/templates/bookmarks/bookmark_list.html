@@ -11,7 +11,7 @@
     {% for bookmark_item in bookmark_list.items %}
       <li ld-bookmark-item{% if bookmark_item.css_classes %} class="{{ bookmark_item.css_classes }}"{% endif %}>
         <div class="title">
-          <label ld-bulk-edit-checkbox class="form-checkbox">
+          <label class="form-checkbox bulk-edit-checkbox">
             <input type="checkbox" name="bookmark_id" value="{{ bookmark_item.id }}">
             <i class="form-icon"></i>
           </label>
@@ -81,8 +81,8 @@
           {% endif %}
           {# View link is visible for both owned and shared bookmarks #}
           {% if bookmark_list.show_view_action %}
-            <a ld-modal
-               modal-url="{% url 'bookmarks:details_modal' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}"
+            <a ld-fetch="{% url 'bookmarks:details_modal' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}"
+               ld-on="click" ld-target="body|append"
                href="{% url 'bookmarks:details' bookmark_item.id %}">View</a>
           {% endif %}
           {% if bookmark_item.is_editable %}
@@ -118,7 +118,7 @@
               {% if bookmark_item.show_mark_as_read %}
                 <button type="submit" name="mark_as_read" value="{{ bookmark_item.id }}"
                         class="btn btn-link btn-sm btn-icon"
-                        ld-confirm-button confirm-icon="ld-icon-read" confirm-question="Mark as read?">
+                        ld-confirm-button ld-confirm-icon="ld-icon-read" ld-confirm-question="Mark as read?">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
                     <use xlink:href="#ld-icon-unread"></use>
                   </svg>
@@ -128,7 +128,7 @@
               {% if bookmark_item.show_unshare %}
                 <button type="submit" name="unshare" value="{{ bookmark_item.id }}"
                         class="btn btn-link btn-sm btn-icon"
-                        ld-confirm-button confirm-icon="ld-icon-unshare" confirm-question="Unshare?">
+                        ld-confirm-button ld-confirm-icon="ld-icon-unshare" ld-confirm-question="Unshare?">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
                     <use xlink:href="#ld-icon-share"></use>
                   </svg>

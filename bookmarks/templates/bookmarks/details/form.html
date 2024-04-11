@@ -1,9 +1,8 @@
 {% load static %}
 {% load shared %}
 
-<form ld-form action="{% url 'bookmarks:details' details.bookmark.id %}"
-      refresh-url="{% url 'bookmarks:partials.details_form' details.bookmark.id %}"
-      refresh-events="bookmark-page-refresh"
+<form ld-form ld-fire="refresh-bookmark-list,refresh-tag-cloud,refresh-details"
+      action="{% url 'bookmarks:details' details.bookmark.id %}"
       method="post">
   <div class="weblinks">
     <a class="weblink" href="{{ details.bookmark.url }}" rel="noopener"
@@ -35,14 +34,14 @@
           {% csrf_token %}
           <div class="form-group">
             <label class="form-switch">
-              <input ld-form-auto-submit type="checkbox" name="is_archived"
+              <input ld-auto-submit type="checkbox" name="is_archived"
                      {% if details.bookmark.is_archived %}checked{% endif %}>
               <i class="form-icon"></i> Archived
             </label>
           </div>
           <div class="form-group">
             <label class="form-switch">
-              <input ld-form-auto-submit type="checkbox" name="unread"
+              <input ld-auto-submit type="checkbox" name="unread"
                      {% if details.bookmark.unread %}checked{% endif %}>
               <i class="form-icon"></i> Unread
             </label>
@@ -50,7 +49,7 @@
           {% if details.profile.enable_sharing %}
             <div class="form-group">
               <label class="form-switch">
-                <input ld-form-auto-submit type="checkbox" name="shared"
+                <input ld-auto-submit type="checkbox" name="shared"
                        {% if details.bookmark.shared %}checked{% endif %}>
                 <i class="form-icon"></i> Shared
               </label>

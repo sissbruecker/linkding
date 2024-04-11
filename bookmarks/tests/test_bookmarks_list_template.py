@@ -80,7 +80,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         details_modal_url = reverse("bookmarks:details_modal", args=[bookmark.id])
         self.assertInHTML(
             f"""
-                <a ld-modal modal-url="{details_modal_url}?return_url={return_url}" href="{details_url}">View</a>
+                <a ld-fetch="{details_modal_url}?return_url={return_url}" 
+                   ld-on="click" ld-target="body|append" 
+                   href="{details_url}">View</a>
             """,
             html,
             count=count,
@@ -216,7 +218,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             f"""
         <button type="submit" name="unshare" value="{bookmark.id}"
                 class="btn btn-link btn-sm btn-icon"
-                ld-confirm-button confirm-icon="ld-icon-unshare" confirm-question="Unshare?">
+                ld-confirm-button ld-confirm-icon="ld-icon-unshare" ld-confirm-question="Unshare?">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
             <use xlink:href="#ld-icon-share"></use>
           </svg>
@@ -232,7 +234,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             f"""
         <button type="submit" name="mark_as_read" value="{bookmark.id}"
                 class="btn btn-link btn-sm btn-icon"
-                ld-confirm-button confirm-icon="ld-icon-read" confirm-question="Mark as read?">
+                ld-confirm-button ld-confirm-icon="ld-icon-read" ld-confirm-question="Mark as read?">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
             <use xlink:href="#ld-icon-unread"></use>
           </svg>
@@ -782,10 +784,16 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_note_cleans_html(self):
         self.setup_bookmark(notes='<script>alert("test")</script>')
+        self.setup_bookmark(
+            notes='<b ld-fetch="https://example.com" ld-on="click">bold text</b>'
+        )
         html = self.render_template()
 
         note_html = '&lt;script&gt;alert("test")&lt;/script&gt;'
-        self.assertNotes(html, note_html, 1)
+        self.assertIn(note_html, html, 1)
+
+        note_html = "<b>bold text</b>"
+        self.assertIn(note_html, html, 1)
 
     def test_notes_are_hidden_initially_by_default(self):
         self.setup_bookmark(notes="Test note")
