@@ -1,8 +1,9 @@
-import { fireEvents, registerBehavior, swap } from "./index";
+import { Behavior, fireEvents, registerBehavior, swap } from "./index";
 
-class FetchBehavior {
+class FetchBehavior extends Behavior {
   constructor(element) {
-    this.element = element;
+    super(element);
+
     const eventName = element.getAttribute("ld-on");
 
     element.addEventListener(eventName, this.onFetch.bind(this));

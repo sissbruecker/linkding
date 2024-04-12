@@ -1,4 +1,33 @@
 const behaviorRegistry = {};
+const debug = false;
+
+const mutationObserver = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    mutation.removedNodes.forEach((node) => {
+      if (node instanceof HTMLElement && !node.isConnected) {
+        destroyBehaviors(node);
+      }
+    });
+    mutation.addedNodes.forEach((node) => {
+      if (node instanceof HTMLElement && node.isConnected) {
+        applyBehaviors(node);
+      }
+    });
+  });
+});
+
+mutationObserver.observe(document.body, {
+  childList: true,
+  subtree: true,
+});
+
+export class Behavior {
+  constructor(element) {
+    this.element = element;
+  }
+
+  destroy() {}
+}
 
 export function registerBehavior(name, behavior) {
   behaviorRegistry[name] = behavior;
@@ -33,6 +62,32 @@ export function applyBehaviors(container, behaviorNames = null) {
 
       const behaviorInstance = new behavior(element);
       element.__behaviors.push(behaviorInstance);
+      if (debug) {
+        console.log(`[Behavior] ${behaviorInstance.constructor.name} initialized`);
+      }
+    });
+  });
+}
+
+export function destroyBehaviors(element) {
+  const behaviorNames = Object.keys(behaviorRegistry);
+
+  behaviorNames.forEach((behaviorName) => {
+    const elements = Array.from(element.querySelectorAll(`[${behaviorName}]`));
+    elements.push(element);
+
+    elements.forEach((element) => {
+      if (!element.__behaviors) {
+        return;
+      }
+
+      element.__behaviors.forEach((behavior) => {
+        behavior.destroy();
+        if (debug) {
+          console.log(`[Behavior] ${behavior.constructor.name} destroyed`);
+        }
+      });
+      delete element.__behaviors;
     });
   });
 }
@@ -63,10 +118,11 @@ export function swap(element, html, options) {
       break;
     case "innerHTML":
     default:
-      targetElement.innerHTML = "";
+      Array.from(targetElement.children).forEach((child) => {
+        child.remove();
+      });
       targetElement.append(...contents);
   }
-  contents.forEach((content) => applyBehaviors(content));
 }
 
 export function fireEvents(events) {

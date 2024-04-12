@@ -1,7 +1,9 @@
-import { registerBehavior } from "./index";
+import { Behavior, registerBehavior } from "./index";
 
-class GlobalShortcuts {
-  constructor() {
+class GlobalShortcuts extends Behavior {
+  constructor(element) {
+    super(element);
+
     document.addEventListener("keydown", this.onKeyDown.bind(this));
   }
 

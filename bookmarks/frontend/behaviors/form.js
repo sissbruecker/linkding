@@ -1,8 +1,9 @@
-import { fireEvents, registerBehavior } from "./index";
+import { Behavior, fireEvents, registerBehavior } from "./index";
 
-class FormBehavior {
+class FormBehavior extends Behavior {
   constructor(element) {
-    this.element = element;
+    super(element);
+
     element.addEventListener("submit", this.onSubmit.bind(this));
   }
 
@@ -28,8 +29,10 @@ class FormBehavior {
   }
 }
 
-class AutoSubmitBehavior {
+class AutoSubmitBehavior extends Behavior {
   constructor(element) {
+    super(element);
+
     element.addEventListener("change", () => {
       const form = element.closest("form");
       form.dispatchEvent(new Event("submit", { cancelable: true }));

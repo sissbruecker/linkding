@@ -1,8 +1,8 @@
-import { registerBehavior } from "./index";
+import { Behavior, registerBehavior } from "./index";
 
-class DropdownBehavior {
+class DropdownBehavior extends Behavior {
   constructor(element) {
-    this.element = element;
+    super(element);
     this.opened = false;
     this.onOutsideClick = this.onOutsideClick.bind(this);
 

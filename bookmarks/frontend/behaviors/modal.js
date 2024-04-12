@@ -1,8 +1,8 @@
-import { registerBehavior } from "./index";
+import { Behavior, registerBehavior } from "./index";
 
-class ModalBehavior {
+class ModalBehavior extends Behavior {
   constructor(element) {
-    this.element = element;
+    super(element);
 
     const modalOverlay = element.querySelector(".modal-overlay");
     const closeButton = element.querySelector("button.close");
