@@ -12,8 +12,13 @@ class ConfirmButtonBehavior extends Behavior {
     element.addEventListener("click", this.onClick.bind(this));
   }
 
+  destroy() {
+    Behavior.interacting = false;
+  }
+
   onClick(event) {
     event.preventDefault();
+    Behavior.interacting = true;
 
     const container = document.createElement("span");
     container.className = "confirmation";
@@ -64,6 +69,7 @@ class ConfirmButtonBehavior extends Behavior {
 
   reset() {
     setTimeout(() => {
+      Behavior.interacting = false;
       this.container.remove();
       this.element.classList.remove("d-none");
     });

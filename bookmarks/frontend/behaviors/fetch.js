@@ -5,12 +5,27 @@ class FetchBehavior extends Behavior {
     super(element);
 
     const eventName = element.getAttribute("ld-on");
+    const interval = parseInt(element.getAttribute("ld-interval")) * 1000;
 
-    element.addEventListener(eventName, this.onFetch.bind(this));
+    this.onFetch = this.onFetch.bind(this);
+    this.onInterval = this.onInterval.bind(this);
+
+    element.addEventListener(eventName, this.onFetch);
+    if (interval) {
+      this.intervalId = setInterval(this.onInterval, interval);
+    }
   }
 
-  async onFetch(event) {
-    event.preventDefault();
+  destroy() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
+
+  async onFetch(maybeEvent) {
+    if (maybeEvent) {
+      maybeEvent.preventDefault();
+    }
     const url = this.element.getAttribute("ld-fetch");
     const html = await fetch(url).then((response) => response.text());
 
@@ -20,6 +35,13 @@ class FetchBehavior extends Behavior {
 
     const events = this.element.getAttribute("ld-fire");
     fireEvents(events);
+  }
+
+  onInterval() {
+    if (Behavior.interacting) {
+      return;
+    }
+    this.onFetch();
   }
 }
 

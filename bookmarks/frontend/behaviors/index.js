@@ -29,6 +29,8 @@ export class Behavior {
   destroy() {}
 }
 
+Behavior.interacting = false;
+
 export function registerBehavior(name, behavior) {
   behaviorRegistry[name] = behavior;
   applyBehaviors(document, [name]);
@@ -63,7 +65,9 @@ export function applyBehaviors(container, behaviorNames = null) {
       const behaviorInstance = new behavior(element);
       element.__behaviors.push(behaviorInstance);
       if (debug) {
-        console.log(`[Behavior] ${behaviorInstance.constructor.name} initialized`);
+        console.log(
+          `[Behavior] ${behaviorInstance.constructor.name} initialized`,
+        );
       }
     });
   });
