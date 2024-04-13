@@ -18,11 +18,20 @@ logger = logging.getLogger(__name__)
 
 def create_snapshot(url: str, filepath: str):
     singlefile_path = settings.LD_SINGLEFILE_PATH
-    # parse string to list of arguments
+    # default options
+    default_options = [
+        '--browser-arg="--headless=new"',
+        '--browser-arg="--no-sandbox"',
+        '--browser-arg="--load-extension=uBlock0.chromium"',
+        '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36"',
+    ]
+    # parse options to list of arguments
     singlefile_options = shlex.split(settings.LD_SINGLEFILE_OPTIONS)
     temp_filepath = filepath + ".tmp"
     # concat lists
-    args = [singlefile_path] + singlefile_options + [url, temp_filepath]
+    args = (
+        [singlefile_path] + default_options + singlefile_options + [url, temp_filepath]
+    )
     try:
         # Use start_new_session=True to create a new process group
         process = subprocess.Popen(args, start_new_session=True)
