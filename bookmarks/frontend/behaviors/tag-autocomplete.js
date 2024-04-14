@@ -1,9 +1,10 @@
-import { registerBehavior } from "./index";
+import { Behavior, registerBehavior } from "./index";
 import TagAutoCompleteComponent from "../components/TagAutocomplete.svelte";
 import { ApiClient } from "../api";
 
-class TagAutocomplete {
+class TagAutocomplete extends Behavior {
   constructor(element) {
+    super(element);
     const wrapper = document.createElement("div");
     const apiBaseUrl = document.documentElement.dataset.apiBaseUrl || "";
     const apiClient = new ApiClient(apiBaseUrl);

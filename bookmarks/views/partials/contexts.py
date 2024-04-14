@@ -390,3 +390,6 @@ class BookmarkDetailsContext:
         self.assets = [
             BookmarkAssetItem(asset) for asset in bookmark.bookmarkasset_set.all()
         ]
+        self.has_pending_assets = any(
+            asset.status == BookmarkAsset.STATUS_PENDING for asset in self.assets
+        )

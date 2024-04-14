@@ -172,6 +172,10 @@ def details_modal(request, bookmark_id: int):
     return _details(request, bookmark_id, "bookmarks/details_modal.html")
 
 
+def details_assets(request, bookmark_id: int):
+    return _details(request, bookmark_id, "bookmarks/details/assets.html")
+
+
 def convert_tag_string(tag_string: str):
     # Tag strings coming from inputs are space-separated, however services.bookmarks functions expect comma-separated
     # strings

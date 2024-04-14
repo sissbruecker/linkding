@@ -1,8 +1,9 @@
-import { registerBehavior } from "./index";
+import { Behavior, registerBehavior } from "./index";
 
-class BulkEdit {
+class BulkEdit extends Behavior {
   constructor(element) {
-    this.element = element;
+    super(element);
+
     this.active = false;
 
     this.onToggleActive = this.onToggleActive.bind(this);

@@ -1,37 +1,44 @@
-{% if details.assets %}
-  <div class="assets">
-    {% for asset in details.assets %}
-      <div class="asset" data-asset-id="{{ asset.id }}">
-        <div class="asset-icon {{ asset.icon_classes }}">
-          {% include 'bookmarks/details/asset_icon.html' %}
-        </div>
-        <div class="asset-text truncate {{ asset.text_classes }}">
+<div {% if details.has_pending_assets %}
+  ld-fetch="{% url 'bookmarks:details_assets' details.bookmark.id %}"
+  ld-interval="5" ld-target="self|outerHTML"
+{% endif %}>
+  {% if details.assets %}
+    <div class="assets">
+      {% for asset in details.assets %}
+        <div class="asset" data-asset-id="{{ asset.id }}">
+          <div class="asset-icon {{ asset.icon_classes }}">
+            {% include 'bookmarks/details/asset_icon.html' %}
+          </div>
+          <div class="asset-text truncate {{ asset.text_classes }}">
         <span>
           {{ asset.display_name }}
           {% if asset.status == 'pending' %}(queued){% endif %}
           {% if asset.status == 'failure' %}(failed){% endif %}
         </span>
-          {% if asset.file_size %}
-            <span class="filesize">{{ asset.file_size|filesizeformat }}</span>
-          {% endif %}
+            {% if asset.file_size %}
+              <span class="filesize">{{ asset.file_size|filesizeformat }}</span>
+            {% endif %}
+          </div>
+          <div class="asset-actions">
+            {% if asset.file %}
+              <a class="btn btn-link" href="{% url 'bookmarks:assets.view' asset.id %}" target="_blank">View</a>
+            {% endif %}
+            {% if details.is_editable %}
+              <button ld-confirm-button type="submit" name="remove_asset" value="{{ asset.id }}" class="btn btn-link">
+                Remove
+              </button>
+            {% endif %}
+          </div>
         </div>
-        <div class="asset-actions">
-          {% if asset.file %}
-            <a class="btn btn-link" href="{% url 'bookmarks:assets.view' asset.id %}" target="_blank">View</a>
-          {% endif %}
-          {% if details.is_editable %}
-            <button ld-confirm-button type="submit" name="remove_asset" value="{{ asset.id }}" class="btn btn-link">
-              Remove
-            </button>
-          {% endif %}
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
 
-{% if details.is_editable %}
-  <div class="assets-actions">
-    <button type="submit" name="create_snapshot" class="btn btn-link">Create HTML snapshot</button>
-  </div>
-{% endif %}
+  {% if details.is_editable %}
+    <div class="assets-actions">
+      <button type="submit" name="create_snapshot" class="btn btn-link"
+              {% if details.has_pending_assets %}disabled{% endif %}>Create HTML snapshot
+      </button>
+    </div>
+  {% endif %}
+</div>

@@ -1,3 +1,4 @@
+import re
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
@@ -104,6 +105,12 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
     def test_access_with_sharing(self):
         self.details_route_sharing_access_test(self.get_view_name(), True)
+
+    def test_assets_access(self):
+        self.details_route_access_test("bookmarks:details_assets", True)
+
+    def test_assets_access_with_sharing(self):
+        self.details_route_sharing_access_test("bookmarks:details_assets", True)
 
     def test_displays_title(self):
         # with title
@@ -754,6 +761,27 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertTrue(BookmarkAsset.objects.filter(id=asset.id).exists())
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_assets_refresh_when_having_pending_asset(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_COMPLETE)
+        fetch_url = reverse("bookmarks:details_assets", args=[bookmark.id])
+
+        # no pending asset
+        soup = self.get_details(bookmark)
+        files_section = self.find_section(soup, "Files")
+        assets_wrapper = files_section.find("div", {"ld-fetch": fetch_url})
+        self.assertIsNone(assets_wrapper)
+
+        # with pending asset
+        asset.status = BookmarkAsset.STATUS_PENDING
+        asset.save()
+
+        soup = self.get_details(bookmark)
+        files_section = self.find_section(soup, "Files")
+        assets_wrapper = files_section.find("div", {"ld-fetch": fetch_url})
+        self.assertIsNotNone(assets_wrapper)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_snapshot(self):
         with patch.object(
             tasks, "_create_html_snapshot_task"
@@ -765,3 +793,27 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             self.assertEqual(response.status_code, 302)
 
             self.assertEqual(bookmark.bookmarkasset_set.count(), 1)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_snapshot_is_disabled_when_having_pending_asset(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_COMPLETE)
+
+        # no pending asset
+        soup = self.get_details(bookmark)
+        files_section = self.find_section(soup, "Files")
+        create_button = files_section.find(
+            "button", string=re.compile("Create HTML snapshot")
+        )
+        self.assertFalse(create_button.has_attr("disabled"))
+
+        # with pending asset
+        asset.status = BookmarkAsset.STATUS_PENDING
+        asset.save()
+
+        soup = self.get_details(bookmark)
+        files_section = self.find_section(soup, "Files")
+        create_button = files_section.find(
+            "button", string=re.compile("Create HTML snapshot")
+        )
+        self.assertTrue(create_button.has_attr("disabled"))

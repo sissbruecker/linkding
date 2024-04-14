@@ -1,8 +1,8 @@
-import { registerBehavior } from "./index";
+import { Behavior, registerBehavior } from "./index";
 
-class BookmarkItem {
+class BookmarkItem extends Behavior {
   constructor(element) {
-    this.element = element;
+    super(element);
 
     // Toggle notes
     const notesToggle = element.querySelector(".toggle-notes");
@@ -13,9 +13,11 @@ class BookmarkItem {
     // Add tooltip to title if it is truncated
     const titleAnchor = element.querySelector(".title > a");
     const titleSpan = titleAnchor.querySelector("span");
-    if (titleSpan.offsetWidth > titleAnchor.offsetWidth) {
-      titleAnchor.dataset.tooltip = titleSpan.textContent;
-    }
+    requestAnimationFrame(() => {
+      if (titleSpan.offsetWidth > titleAnchor.offsetWidth) {
+        titleAnchor.dataset.tooltip = titleSpan.textContent;
+      }
+    });
   }
 
   onToggleNotes(event) {
