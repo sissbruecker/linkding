@@ -43,7 +43,7 @@ djangorestframework==3.14.0
     # via -r requirements.in
 huey==2.5.0
     # via -r requirements.in
-idna==3.6
+idna==3.7
     # via requests
 josepy==1.14.0
     # via mozilla-django-oidc
