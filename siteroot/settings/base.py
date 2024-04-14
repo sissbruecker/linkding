@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import json
 import os
+import shlex
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -294,8 +295,19 @@ LD_ENABLE_SNAPSHOTS = os.getenv("LD_ENABLE_SNAPSHOTS", False) in (
     "1",
 )
 LD_SINGLEFILE_PATH = os.getenv("LD_SINGLEFILE_PATH", "single-file")
+LD_SINGLEFILE_UBLOCK_OPTIONS = os.getenv(
+    "LD_SINGLEFILE_UBLOCK_OPTIONS",
+    shlex.join(
+        [
+            '--browser-arg="--headless=new"',
+            '--browser-arg="--user-data-dir=./chromium-profile"',
+            '--browser-arg="--no-sandbox"',
+            '--browser-arg="--load-extension=uBlock0.chromium"',
+        ]
+    ),
+)
 LD_SINGLEFILE_OPTIONS = os.getenv("LD_SINGLEFILE_OPTIONS", "")
-LD_SINGLEFILE_TIMEOUT_SEC = float(os.getenv("LD_SINGLEFILE_TIMEOUT_SEC", 60))
+LD_SINGLEFILE_TIMEOUT_SEC = float(os.getenv("LD_SINGLEFILE_TIMEOUT_SEC", 120))
 
 # Monolith isn't used at the moment, as the local snapshot implementation
 # switched to single-file after the prototype. Keeping this around in case

@@ -106,9 +106,8 @@ RUN apk add --no-cache curl jq unzip
 # Fetch the latest release tag
 # Download the library
 # Unzip the library
-ENV GITHUB_REPO gorhill/uBlock
-RUN TAG=$(curl -sL https://api.github.com/repos/$GITHUB_REPO/releases/latest | jq -r '.tag_name') && \
-    DOWNLOAD_URL=https://github.com/$GITHUB_REPO/releases/download/$TAG/uBlock0_$TAG.chromium.zip && \
+RUN TAG=$(curl -sL https://api.github.com/repos/gorhill/uBlock/releases/latest | jq -r '.tag_name') && \
+    DOWNLOAD_URL=https://github.com/gorhill/uBlock/releases/download/$TAG/uBlock0_$TAG.chromium.zip && \
     curl -L -o uBlock0.zip $DOWNLOAD_URL && \
     unzip uBlock0.zip
 # Patch assets.json to enable easylist-cookies by default
@@ -122,7 +121,7 @@ FROM linkding AS linkding-plus
 RUN apk update && apk add nodejs npm chromium
 # install single-file from fork for now, which contains several hotfixes
 RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/4c54b3bc704cfb3e96cec2d24854caca3df0b3b6
-# copy uBlock
-COPY --from=node-build /etc/linkding/uBlock0 /etc/linkding/uBlock0
+# copy uBlock0
+COPY --from=ublock-build /etc/linkding/uBlock0.chromium uBlock0.chromium/
 # enable snapshot support
 ENV LD_ENABLE_SNAPSHOTS=True

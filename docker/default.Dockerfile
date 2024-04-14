@@ -104,9 +104,8 @@ RUN apk add --no-cache curl jq unzip
 # Fetch the latest release tag
 # Download the library
 # Unzip the library
-ENV GITHUB_REPO gorhill/uBlock
-RUN TAG=$(curl -sL https://api.github.com/repos/$GITHUB_REPO/releases/latest | jq -r '.tag_name') && \
-    DOWNLOAD_URL=https://github.com/$GITHUB_REPO/releases/download/$TAG/uBlock0_$TAG.chromium.zip && \
+RUN TAG=$(curl -sL https://api.github.com/repos/gorhill/uBlock/releases/latest | jq -r '.tag_name') && \
+    DOWNLOAD_URL=https://github.com/gorhill/uBlock/releases/download/$TAG/uBlock0_$TAG.chromium.zip && \
     curl -L -o uBlock0.zip $DOWNLOAD_URL && \
     unzip uBlock0.zip
 # Patch assets.json to enable easylist-cookies by default
