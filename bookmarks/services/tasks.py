@@ -1,6 +1,7 @@
 import functools
 import logging
 import os
+from typing import List
 
 import waybackpy
 from django.conf import settings
@@ -228,6 +229,26 @@ def create_html_snapshot(bookmark: Bookmark):
     if not is_html_snapshot_feature_active():
         return
 
+    asset = _create_snapshot_asset(bookmark)
+    asset.save()
+
+
+def create_html_snapshots(bookmark_list: List[Bookmark]):
+    if not is_html_snapshot_feature_active():
+        return
+
+    assets_to_create = []
+    for bookmark in bookmark_list:
+        asset = _create_snapshot_asset(bookmark)
+        assets_to_create.append(asset)
+
+    BookmarkAsset.objects.bulk_create(assets_to_create)
+
+
+MAX_SNAPSHOT_FILENAME_LENGTH = 192
+
+
+def _create_snapshot_asset(bookmark: Bookmark) -> BookmarkAsset:
     timestamp = formats.date_format(timezone.now(), "SHORT_DATE_FORMAT")
     asset = BookmarkAsset(
         bookmark=bookmark,
@@ -236,10 +257,7 @@ def create_html_snapshot(bookmark: Bookmark):
         display_name=f"HTML snapshot from {timestamp}",
         status=BookmarkAsset.STATUS_PENDING,
     )
-    asset.save()
-
-
-MAX_SNAPSHOT_FILENAME_LENGTH = 192
+    return asset
 
 
 def _generate_snapshot_filename(asset: BookmarkAsset) -> str:
@@ -305,3 +323,23 @@ def _create_html_snapshot_task(asset_id: int):
         )
         asset.status = BookmarkAsset.STATUS_FAILURE
         asset.save()
+
+
+def create_missing_html_snapshots(user: User) -> int:
+    if not is_html_snapshot_feature_active():
+        return 0
+
+    bookmarks_without_snapshots = Bookmark.objects.filter(owner=user).exclude(
+        bookmarkasset__asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+        bookmarkasset__status__in=[
+            BookmarkAsset.STATUS_PENDING,
+            BookmarkAsset.STATUS_COMPLETE,
+        ],
+    )
+    bookmarks_without_snapshots |= Bookmark.objects.filter(owner=user).exclude(
+        bookmarkasset__asset_type=BookmarkAsset.TYPE_SNAPSHOT
+    )
+
+    create_html_snapshots(list(bookmarks_without_snapshots))
+
+    return bookmarks_without_snapshots.count()

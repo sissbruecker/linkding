@@ -25,12 +25,10 @@ def general(request):
     profile_form = None
     enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
     has_snapshot_support = django_settings.LD_ENABLE_SNAPSHOTS
-    update_profile_success_message = None
-    refresh_favicons_success_message = None
-    import_success_message = _find_message_with_tag(
+    success_message = _find_message_with_tag(
         messages.get_messages(request), "bookmark_import_success"
     )
-    import_errors_message = _find_message_with_tag(
+    error_message = _find_message_with_tag(
         messages.get_messages(request), "bookmark_import_errors"
     )
     version_info = get_version_info(get_ttl_hash())
@@ -38,12 +36,18 @@ def general(request):
     if request.method == "POST":
         if "update_profile" in request.POST:
             profile_form = update_profile(request)
-            update_profile_success_message = "Profile updated"
+            success_message = "Profile updated"
         if "refresh_favicons" in request.POST:
             tasks.schedule_refresh_favicons(request.user)
-            refresh_favicons_success_message = (
-                "Scheduled favicon update. This may take a while..."
-            )
+            success_message = "Scheduled favicon update. This may take a while..."
+        if "create_missing_html_snapshots" in request.POST:
+            count = tasks.create_missing_html_snapshots(request.user)
+            if count > 0:
+                success_message = (
+                    f"Queued {count} missing snapshots. This may take a while..."
+                )
+            else:
+                success_message = "No missing snapshots found."
 
     if not profile_form:
         profile_form = UserProfileForm(instance=request.user_profile)
@@ -55,10 +59,8 @@ def general(request):
             "form": profile_form,
             "enable_refresh_favicons": enable_refresh_favicons,
             "has_snapshot_support": has_snapshot_support,
-            "update_profile_success_message": update_profile_success_message,
-            "refresh_favicons_success_message": refresh_favicons_success_message,
-            "import_success_message": import_success_message,
-            "import_errors_message": import_errors_message,
+            "success_message": success_message,
+            "error_message": error_message,
             "version_info": version_info,
         },
     )

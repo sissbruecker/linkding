@@ -44,6 +44,24 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
 
         return {**form_data, **overrides}
 
+    def assertSuccessMessage(self, html, message: str, count=1):
+        self.assertInHTML(
+            f"""
+            <div class="toast toast-success mb-4">{ message }</div>
+        """,
+            html,
+            count=count,
+        )
+
+    def assertErrorMessage(self, html, message: str, count=1):
+        self.assertInHTML(
+            f"""
+            <div class="toast toast-error mb-4">{ message }</div>
+        """,
+            html,
+            count=count,
+        )
+
     def test_should_render_successfully(self):
         response = self.client.get(reverse("bookmarks:settings.general"))
 
@@ -138,12 +156,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             self.user.profile.permanent_notes, form_data["permanent_notes"]
         )
         self.assertEqual(self.user.profile.custom_css, form_data["custom_css"])
-        self.assertInHTML(
-            """
-                <p class="form-input-hint">Profile updated</p>
-            """,
-            html,
-        )
+        self.assertSuccessMessage(html, "Profile updated")
 
     def test_update_profile_should_not_be_called_without_respective_form_action(self):
         form_data = {
@@ -156,13 +169,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user.profile.theme, UserProfile.THEME_AUTO)
-        self.assertInHTML(
-            """
-                <p class="form-input-hint">Profile updated</p>
-            """,
-            html,
-            count=0,
-        )
+        self.assertSuccessMessage(html, "Profile updated", count=0)
 
     def test_enable_favicons_should_schedule_icon_update(self):
         with patch.object(
@@ -210,13 +217,8 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             html = response.content.decode()
 
             mock_schedule_refresh_favicons.assert_called_once()
-            self.assertInHTML(
-                """
-                <p class="form-input-hint">
-                    Scheduled favicon update. This may take a while...
-                </p>
-            """,
-                html,
+            self.assertSuccessMessage(
+                html, "Scheduled favicon update. This may take a while..."
             )
 
     def test_refresh_favicons_should_not_be_called_without_respective_form_action(self):
@@ -230,14 +232,8 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             html = response.content.decode()
 
             mock_schedule_refresh_favicons.assert_not_called()
-            self.assertInHTML(
-                """
-                <p class="form-input-hint">
-                    Scheduled favicon update. This may take a while...
-                </p>
-            """,
-                html,
-                count=0,
+            self.assertSuccessMessage(
+                html, "Scheduled favicon update. This may take a while...", count=0
             )
 
     def test_refresh_favicons_should_be_visible_when_favicons_enabled_in_profile(self):
@@ -365,3 +361,57 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         with patch.object(requests, "get", return_value=latest_version_response_mock):
             version_info = get_version_info(random.random())
             self.assertEqual(version_info, app_version)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_missing_html_snapshots(self):
+        with patch.object(
+            tasks, "create_missing_html_snapshots"
+        ) as mock_create_missing_html_snapshots:
+            mock_create_missing_html_snapshots.return_value = 5
+            form_data = {
+                "create_missing_html_snapshots": "",
+            }
+            response = self.client.post(
+                reverse("bookmarks:settings.general"), form_data
+            )
+            html = response.content.decode()
+
+            mock_create_missing_html_snapshots.assert_called_once()
+            self.assertSuccessMessage(
+                html, "Queued 5 missing snapshots. This may take a while..."
+            )
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_missing_html_snapshots_no_missing_snapshots(self):
+        with patch.object(
+            tasks, "create_missing_html_snapshots"
+        ) as mock_create_missing_html_snapshots:
+            mock_create_missing_html_snapshots.return_value = 0
+            form_data = {
+                "create_missing_html_snapshots": "",
+            }
+            response = self.client.post(
+                reverse("bookmarks:settings.general"), form_data
+            )
+            html = response.content.decode()
+
+            mock_create_missing_html_snapshots.assert_called_once()
+            self.assertSuccessMessage(html, "No missing snapshots found.")
+
+    def test_create_missing_html_snapshots_should_not_be_called_without_respective_form_action(
+        self,
+    ):
+        with patch.object(
+            tasks, "create_missing_html_snapshots"
+        ) as mock_create_missing_html_snapshots:
+            mock_create_missing_html_snapshots.return_value = 5
+            form_data = {}
+            response = self.client.post(
+                reverse("bookmarks:settings.general"), form_data
+            )
+            html = response.content.decode()
+
+            mock_create_missing_html_snapshots.assert_not_called()
+            self.assertSuccessMessage(
+                html, "Queued 5 missing snapshots. This may take a while...", count=0
+            )

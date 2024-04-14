@@ -8,6 +8,12 @@
 
     {# Profile section #}
     <section class="content-area">
+      {% if success_message %}
+        <div class="toast toast-success mb-4">{{ success_message }}</div>
+      {% endif %}
+      {% if error_message %}
+        <div class="toast toast-error mb-4">{{ error_message }}</div>
+      {% endif %}
       <h2>Profile</h2>
       <p>
         <a href="{% url 'change_password' %}">Change password</a>
@@ -120,13 +126,6 @@
           {% if request.user_profile.enable_favicons and enable_refresh_favicons %}
             <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
           {% endif %}
-          {% if refresh_favicons_success_message %}
-            <div class="has-success">
-              <p class="form-input-hint">
-                {{ refresh_favicons_success_message }}
-              </p>
-            </div>
-          {% endif %}
         </div>
         <div class="form-group">
           <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
@@ -173,6 +172,7 @@
               Automatically creates HTML snapshots when adding bookmarks. Alternatively, when disabled, snapshots can be
               created manually in the details view of a bookmark.
             </div>
+            <button class="btn mt-2" name="create_missing_html_snapshots">Create missing HTML snapshots</button>
           </div>
         {% endif %}
         <div class="form-group">
@@ -189,13 +189,6 @@
         </div>
         <div class="form-group">
           <input type="submit" name="update_profile" value="Save" class="btn btn-primary mt-2">
-          {% if update_profile_success_message %}
-            <div class="has-success">
-              <p class="form-input-hint">
-                {{ update_profile_success_message }}
-              </p>
-            </div>
-          {% endif %}
         </div>
       </form>
     </section>
@@ -224,20 +217,6 @@
             <input class="form-input" type="file" name="import_file">
             <input type="submit" class="input-group-btn btn btn-primary" value="Upload">
           </div>
-          {% if import_success_message %}
-            <div class="has-success">
-              <p class="form-input-hint">
-                {{ import_success_message }}
-              </p>
-            </div>
-          {% endif %}
-          {% if import_errors_message %}
-            <div class="has-error">
-              <p class="form-input-hint">
-                {{ import_errors_message }}
-              </p>
-            </div>
-          {% endif %}
         </div>
       </form>
     </section>
