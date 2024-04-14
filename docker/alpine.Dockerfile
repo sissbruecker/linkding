@@ -112,7 +112,7 @@ RUN TAG=$(curl -sL https://api.github.com/repos/gorhill/uBlock/releases/latest |
     unzip uBlock0.zip
 # Patch assets.json to enable easylist-cookies by default
 RUN curl -L -o ./uBlock0.chromium/assets/thirdparties/easylist/easylist-cookies.txt https://ublockorigin.github.io/uAssets/thirdparties/easylist-cookies.txt
-RUN jq '."fanboy-cookiemonster" |= del(.off) | ."fanboy-cookiemonster".contentURL += ["assets/thirdparties/easylist/easylist-cookies.txt"]' ./uBlock0.chromium/assets/assets.json > temp.json &&  \
+RUN jq '."assets.json" |= del(.cdnURLs) | ."assets.json".contentURL = ["assets/assets.json"] | ."fanboy-cookiemonster" |= del(.off) | ."fanboy-cookiemonster".contentURL += ["assets/thirdparties/easylist/easylist-cookies.txt"]' ./uBlock0.chromium/assets/assets.json > temp.json && \
     mv temp.json ./uBlock0.chromium/assets/assets.json
 
 
