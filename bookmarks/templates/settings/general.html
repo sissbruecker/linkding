@@ -173,6 +173,14 @@
               Automatically creates HTML snapshots when adding bookmarks. Alternatively, when disabled, snapshots can be
               created manually in the details view of a bookmark.
             </div>
+            <button class="btn mt-2" name="create_missing_html_snapshots">Create missing HTML snapshots</button>
+            {% if create_missing_html_snapshots_success_message %}
+              <div class="has-success">
+                <p class="form-input-hint">
+                  {{ create_missing_html_snapshots_success_message}}
+                </p>
+              </div>
+            {% endif %}
           </div>
         {% endif %}
         <div class="form-group">

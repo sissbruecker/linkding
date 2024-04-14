@@ -27,6 +27,7 @@ def general(request):
     has_snapshot_support = django_settings.LD_ENABLE_SNAPSHOTS
     update_profile_success_message = None
     refresh_favicons_success_message = None
+    create_missing_html_snapshots_success_message = None
     import_success_message = _find_message_with_tag(
         messages.get_messages(request), "bookmark_import_success"
     )
@@ -44,6 +45,11 @@ def general(request):
             refresh_favicons_success_message = (
                 "Scheduled favicon update. This may take a while..."
             )
+        if "create_missing_html_snapshots" in request.POST:
+            count = tasks.create_missing_html_snapshots(request.user)
+            create_missing_html_snapshots_success_message = (
+                f"Queued {count} missing snapshots. This may take a while..."
+            )
 
     if not profile_form:
         profile_form = UserProfileForm(instance=request.user_profile)
@@ -57,6 +63,7 @@ def general(request):
             "has_snapshot_support": has_snapshot_support,
             "update_profile_success_message": update_profile_success_message,
             "refresh_favicons_success_message": refresh_favicons_success_message,
+            "create_missing_html_snapshots_success_message": create_missing_html_snapshots_success_message,
             "import_success_message": import_success_message,
             "import_errors_message": import_errors_message,
             "version_info": version_info,

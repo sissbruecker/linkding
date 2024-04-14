@@ -611,3 +611,89 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         tasks.create_html_snapshot(bookmark)
 
         self.assertEqual(BookmarkAsset.objects.count(), 0)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_missing_html_snapshots(self):
+        bookmarks_with_snapshots = []
+        bookmarks_without_snapshots = []
+
+        # setup bookmarks with snapshots
+        bookmark = self.setup_bookmark()
+        self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+        )
+        bookmarks_with_snapshots.append(bookmark)
+
+        bookmark = self.setup_bookmark()
+        self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_PENDING,
+        )
+        bookmarks_with_snapshots.append(bookmark)
+
+        # setup bookmarks without snapshots
+        bookmark = self.setup_bookmark()
+        bookmarks_without_snapshots.append(bookmark)
+
+        bookmark = self.setup_bookmark()
+        self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_FAILURE,
+        )
+        bookmarks_without_snapshots.append(bookmark)
+
+        bookmark = self.setup_bookmark()
+        self.setup_asset(
+            bookmark=bookmark,
+            asset_type="some_other_type",
+            status=BookmarkAsset.STATUS_PENDING,
+        )
+        bookmarks_without_snapshots.append(bookmark)
+
+        bookmark = self.setup_bookmark()
+        self.setup_asset(
+            bookmark=bookmark,
+            asset_type="some_other_type",
+            status=BookmarkAsset.STATUS_COMPLETE,
+        )
+        bookmarks_without_snapshots.append(bookmark)
+
+        initial_assets = list(BookmarkAsset.objects.all())
+        initial_assets_count = len(initial_assets)
+        initial_asset_ids = [asset.id for asset in initial_assets]
+        count = tasks.create_missing_html_snapshots(self.get_or_create_test_user())
+
+        self.assertEqual(count, 4)
+        self.assertEqual(BookmarkAsset.objects.count(), initial_assets_count + count)
+
+        for bookmark in bookmarks_without_snapshots:
+            new_assets = BookmarkAsset.objects.filter(bookmark=bookmark).exclude(
+                id__in=initial_asset_ids
+            )
+            self.assertEqual(new_assets.count(), 1)
+
+        for bookmark in bookmarks_with_snapshots:
+            new_assets = BookmarkAsset.objects.filter(bookmark=bookmark).exclude(
+                id__in=initial_asset_ids
+            )
+            self.assertEqual(new_assets.count(), 0)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_missing_html_snapshots_respects_current_user(self):
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+
+        other_user = self.setup_user()
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+
+        count = tasks.create_missing_html_snapshots(self.get_or_create_test_user())
+
+        self.assertEqual(count, 3)
+        self.assertEqual(BookmarkAsset.objects.count(), count)

@@ -365,3 +365,51 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         with patch.object(requests, "get", return_value=latest_version_response_mock):
             version_info = get_version_info(random.random())
             self.assertEqual(version_info, app_version)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_missing_html_snapshots(self):
+        with patch.object(
+            tasks, "create_missing_html_snapshots"
+        ) as mock_create_missing_html_snapshots:
+            mock_create_missing_html_snapshots.return_value = 5
+            form_data = {
+                "create_missing_html_snapshots": "",
+            }
+            response = self.client.post(
+                reverse("bookmarks:settings.general"), form_data
+            )
+            html = response.content.decode()
+
+            mock_create_missing_html_snapshots.assert_called_once()
+            self.assertInHTML(
+                """
+                <p class="form-input-hint">
+                    Queued 5 missing snapshots. This may take a while...
+                </p>
+            """,
+                html,
+            )
+
+    def test_create_missing_html_snapshots_should_not_be_called_without_respective_form_action(
+        self,
+    ):
+        with patch.object(
+            tasks, "create_missing_html_snapshots"
+        ) as mock_create_missing_html_snapshots:
+            mock_create_missing_html_snapshots.return_value = 5
+            form_data = {}
+            response = self.client.post(
+                reverse("bookmarks:settings.general"), form_data
+            )
+            html = response.content.decode()
+
+            mock_create_missing_html_snapshots.assert_not_called()
+            self.assertInHTML(
+                """
+                <p class="form-input-hint">
+                    Queued 5 missing snapshots. This may take a while...
+                </p>
+            """,
+                html,
+                count=0,
+            )
