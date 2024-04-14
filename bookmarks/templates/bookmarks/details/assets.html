@@ -36,7 +36,9 @@
 
   {% if details.is_editable %}
     <div class="assets-actions">
-      <button type="submit" name="create_snapshot" class="btn btn-link">Create HTML snapshot</button>
+      <button type="submit" name="create_snapshot" class="btn btn-link"
+              {% if details.has_pending_assets %}disabled{% endif %}>Create HTML snapshot
+      </button>
     </div>
   {% endif %}
 </div>

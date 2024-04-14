@@ -1,3 +1,4 @@
+import re
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
@@ -792,3 +793,27 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             self.assertEqual(response.status_code, 302)
 
             self.assertEqual(bookmark.bookmarkasset_set.count(), 1)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_snapshot_is_disabled_when_having_pending_asset(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_COMPLETE)
+
+        # no pending asset
+        soup = self.get_details(bookmark)
+        files_section = self.find_section(soup, "Files")
+        create_button = files_section.find(
+            "button", string=re.compile("Create HTML snapshot")
+        )
+        self.assertFalse(create_button.has_attr("disabled"))
+
+        # with pending asset
+        asset.status = BookmarkAsset.STATUS_PENDING
+        asset.save()
+
+        soup = self.get_details(bookmark)
+        files_section = self.find_section(soup, "Files")
+        create_button = files_section.find(
+            "button", string=re.compile("Create HTML snapshot")
+        )
+        self.assertTrue(create_button.has_attr("disabled"))
