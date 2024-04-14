@@ -9,8 +9,6 @@ mkdir -p data
 mkdir -p data/favicons
 # Create assets folder if it does not exist
 mkdir -p data/assets
-# Create chromium profile folder if it does not exist
-mkdir -p chromium-profile
 
 # Generate secret key file if it does not exist
 python manage.py generate_secret_key
@@ -25,7 +23,6 @@ python manage.py migrate_tasks
 
 # Ensure folders are owned by the right user
 chown -R www-data: /etc/linkding/data
-chown -R www-data: /etc/linkding/chromium-profile
 
 # Start background task processor using supervisord, unless explicitly disabled
 if [ "$LD_DISABLE_BACKGROUND_TASKS" != "True" ]; then

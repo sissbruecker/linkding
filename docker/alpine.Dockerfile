@@ -123,5 +123,7 @@ RUN apk update && apk add nodejs npm chromium
 RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/4c54b3bc704cfb3e96cec2d24854caca3df0b3b6
 # copy uBlock0
 COPY --from=ublock-build /etc/linkding/uBlock0.chromium uBlock0.chromium/
+# create chromium profile folder for user running background tasks
+RUN mkdir -p chromium-profile && chown -R www-data:www-data chromium-profile
 # enable snapshot support
 ENV LD_ENABLE_SNAPSHOTS=True

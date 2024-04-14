@@ -125,6 +125,8 @@ RUN apt-get install -y gnupg2 apt-transport-https ca-certificates && \
     apt-get update && apt-get install -y nodejs
 # install single-file from fork for now, which contains several hotfixes
 RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/4c54b3bc704cfb3e96cec2d24854caca3df0b3b6
+# create chromium profile folder for user running background tasks
+RUN mkdir -p chromium-profile && chown -R www-data:www-data chromium-profile
 # copy uBlock0
 COPY --from=ublock-build /etc/linkding/uBlock0.chromium uBlock0.chromium/
 # enable snapshot support
