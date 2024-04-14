@@ -45,7 +45,7 @@ The name comes from:
 - Admin panel for user self-service and raw data access
 
 
-**Demo:** https://demo.linkding.link/ ([see here](https://github.com/sissbruecker/linkding/issues/408) if you have trouble accessing it)
+**Demo:** https://demo.linkding.link/
 
 **Screenshot:**
 
