@@ -11,19 +11,27 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
         user = self.get_or_create_test_user()
         self.client.force_login(user)
 
-    def assertFormSuccessHint(self, response, text: str):
-        self.assertContains(response, '<div class="has-success">')
-        self.assertContains(response, text)
+    def assertSuccessMessage(self, response, message: str):
+        self.assertInHTML(
+            f"""
+            <div class="toast toast-success mb-4">{ message }</div>
+        """,
+            response.content.decode("utf-8"),
+        )
 
-    def assertNoFormSuccessHint(self, response):
-        self.assertNotContains(response, '<div class="has-success">')
+    def assertNoSuccessMessage(self, response):
+        self.assertNotContains(response, '<div class="toast toast-success mb-4">')
 
-    def assertFormErrorHint(self, response, text: str):
-        self.assertContains(response, '<div class="has-error">')
-        self.assertContains(response, text)
+    def assertErrorMessage(self, response, message: str):
+        self.assertInHTML(
+            f"""
+            <div class="toast toast-error mb-4">{ message }</div>
+        """,
+            response.content.decode("utf-8"),
+        )
 
-    def assertNoFormErrorHint(self, response):
-        self.assertNotContains(response, '<div class="has-error">')
+    def assertNoErrorMessage(self, response):
+        self.assertNotContains(response, '<div class="toast toast-error mb-4">')
 
     def test_should_import_successfully(self):
         with open(
@@ -36,10 +44,10 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             )
 
             self.assertRedirects(response, reverse("bookmarks:settings.general"))
-            self.assertFormSuccessHint(
-                response, "3 bookmarks were successfully imported"
+            self.assertSuccessMessage(
+                response, "3 bookmarks were successfully imported."
             )
-            self.assertNoFormErrorHint(response)
+            self.assertNoErrorMessage(response)
 
     def test_should_check_authentication(self):
         self.client.logout()
@@ -53,8 +61,8 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.post(reverse("bookmarks:settings.import"), follow=True)
 
         self.assertRedirects(response, reverse("bookmarks:settings.general"))
-        self.assertNoFormSuccessHint(response)
-        self.assertFormErrorHint(response, "Please select a file to import.")
+        self.assertNoSuccessMessage(response)
+        self.assertErrorMessage(response, "Please select a file to import.")
 
     @disable_logging
     def test_should_show_hint_if_import_raises_exception(self):
@@ -68,8 +76,8 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             )
 
             self.assertRedirects(response, reverse("bookmarks:settings.general"))
-            self.assertNoFormSuccessHint(response)
-            self.assertFormErrorHint(
+            self.assertNoSuccessMessage(response)
+            self.assertErrorMessage(
                 response, "An error occurred during bookmark import."
             )
 
@@ -87,10 +95,13 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             )
 
             self.assertRedirects(response, reverse("bookmarks:settings.general"))
-            self.assertFormSuccessHint(
-                response, "2 bookmarks were successfully imported"
+            self.assertSuccessMessage(
+                response, "2 bookmarks were successfully imported."
             )
-            self.assertFormErrorHint(response, "1 bookmarks could not be imported")
+            self.assertErrorMessage(
+                response,
+                "1 bookmarks could not be imported. Please check the logs for more details.",
+            )
 
     def test_should_respect_map_private_flag_option(self):
         with open(

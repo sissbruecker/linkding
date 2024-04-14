@@ -8,6 +8,12 @@
 
     {# Profile section #}
     <section class="content-area">
+      {% if success_message %}
+        <div class="toast toast-success mb-4">{{ success_message }}</div>
+      {% endif %}
+      {% if error_message %}
+        <div class="toast toast-error mb-4">{{ error_message }}</div>
+      {% endif %}
       <h2>Profile</h2>
       <p>
         <a href="{% url 'change_password' %}">Change password</a>
@@ -177,7 +183,7 @@
             {% if create_missing_html_snapshots_success_message %}
               <div class="has-success">
                 <p class="form-input-hint">
-                  {{ create_missing_html_snapshots_success_message}}
+                  {{ create_missing_html_snapshots_success_message }}
                 </p>
               </div>
             {% endif %}
@@ -232,20 +238,6 @@
             <input class="form-input" type="file" name="import_file">
             <input type="submit" class="input-group-btn btn btn-primary" value="Upload">
           </div>
-          {% if import_success_message %}
-            <div class="has-success">
-              <p class="form-input-hint">
-                {{ import_success_message }}
-              </p>
-            </div>
-          {% endif %}
-          {% if import_errors_message %}
-            <div class="has-error">
-              <p class="form-input-hint">
-                {{ import_errors_message }}
-              </p>
-            </div>
-          {% endif %}
         </div>
       </form>
     </section>
