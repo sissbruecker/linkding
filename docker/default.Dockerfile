@@ -96,6 +96,24 @@ CMD curl -f http://localhost:${LD_SERVER_PORT:-9090}/${LD_CONTEXT_PATH}health ||
 
 CMD ["./bootstrap.sh"]
 
+
+FROM node:18-alpine AS ublock-build
+WORKDIR /etc/linkding
+# Install necessary tools
+RUN apk add --no-cache curl jq unzip
+# Fetch the latest release tag
+# Download the library
+# Unzip the library
+RUN TAG=$(curl -sL https://api.github.com/repos/gorhill/uBlock/releases/latest | jq -r '.tag_name') && \
+    DOWNLOAD_URL=https://github.com/gorhill/uBlock/releases/download/$TAG/uBlock0_$TAG.chromium.zip && \
+    curl -L -o uBlock0.zip $DOWNLOAD_URL && \
+    unzip uBlock0.zip
+# Patch assets.json to enable easylist-cookies by default
+RUN curl -L -o ./uBlock0.chromium/assets/thirdparties/easylist/easylist-cookies.txt https://ublockorigin.github.io/uAssets/thirdparties/easylist-cookies.txt
+RUN jq '."fanboy-cookiemonster" |= del(.off) | ."fanboy-cookiemonster".contentURL += ["assets/thirdparties/easylist/easylist-cookies.txt"]' ./uBlock0.chromium/assets/assets.json > temp.json &&  \
+    mv temp.json ./uBlock0.chromium/assets/assets.json
+
+
 FROM linkding AS linkding-plus
 # install chromium
 RUN apt-get update && apt-get -y install chromium
@@ -106,6 +124,8 @@ RUN apt-get install -y gnupg2 apt-transport-https ca-certificates && \
     echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && apt-get install -y nodejs
 # install single-file from fork for now, which contains several hotfixes
-RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/f3730995a52f27d5041a1ad9e7528af4b6b4cf4b
+RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/4c54b3bc704cfb3e96cec2d24854caca3df0b3b6
+# copy uBlock0
+COPY --from=ublock-build /etc/linkding/uBlock0.chromium uBlock0.chromium/
 # enable snapshot support
 ENV LD_ENABLE_SNAPSHOTS=True

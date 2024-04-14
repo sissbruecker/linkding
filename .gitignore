@@ -191,3 +191,6 @@ typings/
 /tmp
 # Database file
 /data
+# ublock + chromium
+/uBlock0.chromium
+/chromium-profile

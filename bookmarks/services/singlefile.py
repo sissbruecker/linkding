@@ -18,11 +18,12 @@ logger = logging.getLogger(__name__)
 
 def create_snapshot(url: str, filepath: str):
     singlefile_path = settings.LD_SINGLEFILE_PATH
-    # parse string to list of arguments
-    singlefile_options = shlex.split(settings.LD_SINGLEFILE_OPTIONS)
+    # parse options to list of arguments
+    ublock_options = shlex.split(settings.LD_SINGLEFILE_UBLOCK_OPTIONS)
+    custom_options = shlex.split(settings.LD_SINGLEFILE_OPTIONS)
     temp_filepath = filepath + ".tmp"
     # concat lists
-    args = [singlefile_path] + singlefile_options + [url, temp_filepath]
+    args = [singlefile_path] + ublock_options + custom_options + [url, temp_filepath]
     try:
         # Use start_new_session=True to create a new process group
         process = subprocess.Popen(args, start_new_session=True)

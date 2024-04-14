@@ -61,6 +61,10 @@ class SingleFileServiceTestCase(TestCase):
 
             expected_args = [
                 "single-file",
+                '--browser-arg="--headless=new"',
+                '--browser-arg="--user-data-dir=./chromium-profile"',
+                '--browser-arg="--no-sandbox"',
+                '--browser-arg="--load-extension=uBlock0.chromium"',
                 "http://example.com",
                 self.html_filepath + ".tmp",
             ]
@@ -79,6 +83,10 @@ class SingleFileServiceTestCase(TestCase):
 
             expected_args = [
                 "single-file",
+                '--browser-arg="--headless=new"',
+                '--browser-arg="--user-data-dir=./chromium-profile"',
+                '--browser-arg="--no-sandbox"',
+                '--browser-arg="--load-extension=uBlock0.chromium"',
                 "--some-option",
                 "some value",
                 "--another-option",
@@ -97,9 +105,9 @@ class SingleFileServiceTestCase(TestCase):
         with mock.patch("subprocess.Popen", return_value=mock_process):
             singlefile.create_snapshot("http://example.com", self.html_filepath)
 
-            mock_process.wait.assert_called_with(timeout=60)
+            mock_process.wait.assert_called_with(timeout=120)
 
-    @override_settings(LD_SINGLEFILE_TIMEOUT_SEC=120)
+    @override_settings(LD_SINGLEFILE_TIMEOUT_SEC=180)
     def test_create_snapshot_custom_timeout_setting(self):
         mock_process = mock.Mock()
         mock_process.wait.return_value = 0
@@ -108,4 +116,4 @@ class SingleFileServiceTestCase(TestCase):
         with mock.patch("subprocess.Popen", return_value=mock_process):
             singlefile.create_snapshot("http://example.com", self.html_filepath)
 
-            mock_process.wait.assert_called_with(timeout=120)
+            mock_process.wait.assert_called_with(timeout=180)
