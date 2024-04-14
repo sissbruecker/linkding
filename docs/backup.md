@@ -13,7 +13,7 @@ The following sections explain how to back up the individual contents.
 
 ## Full backup
 
-linkding provides a CLI command to create a full backup of the data folder. This creates a zip file that contains backups of the database, assets, and favicons.
+Linkding provides a CLI command to create a full backup of the data folder. This creates a zip file that contains backups of the database, assets, and favicons.
 
 > [!NOTE]
 > This method assumes that you are using the default SQLite database.
@@ -44,7 +44,7 @@ If you can't use the full backup method, this section describes alternatives how
 
 ### SQLite database backup
 
-linkding includes a CLI command for creating a backup copy of the database.
+Linkding includes a CLI command for creating a backup copy of the database.
 
 > [!WARNING]
 > While the SQLite database is just a single file, it is not recommended to just copy that file.
