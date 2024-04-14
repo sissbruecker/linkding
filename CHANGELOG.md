@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.29.0 (14/04/2024)
+
+### What's Changed
+* Remove ads and cookie banners from HTML snapshots by @sissbruecker in https://github.com/sissbruecker/linkding/pull/695
+* Add button for creating missing HTML snapshots by @sissbruecker in https://github.com/sissbruecker/linkding/pull/696
+* Refresh file list when there are queued snapshots by @sissbruecker in https://github.com/sissbruecker/linkding/pull/697
+* Bump idna from 3.6 to 3.7 by @dependabot in https://github.com/sissbruecker/linkding/pull/694
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.28.0...v1.29.0
+
+---
+
 ## v1.28.0 (09/04/2024)
 
 ### What's Changed
