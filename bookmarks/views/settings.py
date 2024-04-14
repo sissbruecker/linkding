@@ -42,9 +42,12 @@ def general(request):
             success_message = "Scheduled favicon update. This may take a while..."
         if "create_missing_html_snapshots" in request.POST:
             count = tasks.create_missing_html_snapshots(request.user)
-            success_message = (
-                f"Queued {count} missing snapshots. This may take a while..."
-            )
+            if count > 0:
+                success_message = (
+                    f"Queued {count} missing snapshots. This may take a while..."
+                )
+            else:
+                success_message = "No missing snapshots found."
 
     if not profile_form:
         profile_form = UserProfileForm(instance=request.user_profile)

@@ -381,6 +381,23 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
                 html, "Queued 5 missing snapshots. This may take a while..."
             )
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_missing_html_snapshots_no_missing_snapshots(self):
+        with patch.object(
+            tasks, "create_missing_html_snapshots"
+        ) as mock_create_missing_html_snapshots:
+            mock_create_missing_html_snapshots.return_value = 0
+            form_data = {
+                "create_missing_html_snapshots": "",
+            }
+            response = self.client.post(
+                reverse("bookmarks:settings.general"), form_data
+            )
+            html = response.content.decode()
+
+            mock_create_missing_html_snapshots.assert_called_once()
+            self.assertSuccessMessage(html, "No missing snapshots found.")
+
     def test_create_missing_html_snapshots_should_not_be_called_without_respective_form_action(
         self,
     ):
