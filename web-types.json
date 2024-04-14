@@ -27,6 +27,20 @@
           }
         },
         {
+          "name": "ld-select",
+          "description": "The content element(s) to select from the fetched content, for example `#main-content`",
+          "value": {
+            "required": false
+          }
+        },
+        {
+          "name": "ld-interval",
+          "description": "Automatically fetches the content of the given URL at the given interval, in seconds",
+          "value": {
+            "required": false
+          }
+        },
+        {
           "name": "ld-fire",
           "description": "Fires one or more events once a behavior, such as ld-fetch or ld-form, is finished",
           "value": {

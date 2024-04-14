@@ -1,7 +1,6 @@
 <div ld-modal
      ld-fetch="{% url 'bookmarks:details_modal' details.bookmark.id %}" ld-on="refresh-details"
      ld-select=".content" ld-target=".modal.bookmark-details .content|outerHTML"
-     ld-interval="5"
      class="modal active bookmark-details">
   <div class="modal-overlay" aria-label="Close"></div>
   <div class="modal-container">
