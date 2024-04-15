@@ -23,9 +23,6 @@
             {% if asset.file %}
               <a class="btn btn-link" href="{% url 'bookmarks:assets.view' asset.id %}" target="_blank">View</a>
             {% endif %}
-            {% if asset.is_readable %}
-              <a class="btn btn-link" href="{% url 'bookmarks:assets.read' asset.id %}" target="_blank">Read</a>
-            {% endif %}
             {% if details.is_editable %}
               <button ld-confirm-button type="submit" name="remove_asset" value="{{ asset.id }}" class="btn btn-link">
                 Remove

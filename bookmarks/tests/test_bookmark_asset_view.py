@@ -34,12 +34,12 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
         asset = self.setup_asset(bookmark=bookmark, file=filename)
         return asset
 
-    def test_view_access(self):
+    def view_access_test(self, view_name: str):
         # own bookmark
         bookmark = self.setup_bookmark()
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 200)
 
         # other user's bookmark
@@ -47,14 +47,14 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark(user=other_user)
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 404)
 
         # shared, sharing disabled
         bookmark = self.setup_bookmark(user=other_user, shared=True)
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 404)
 
         # unshared, sharing enabled
@@ -64,31 +64,31 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark(user=other_user, shared=False)
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 404)
 
         # shared, sharing enabled
         bookmark = self.setup_bookmark(user=other_user, shared=True)
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 200)
 
-    def test_view_access_guest_user(self):
+    def view_access_guest_user_test(self, view_name: str):
         self.client.logout()
 
         # unshared, sharing disabled
         bookmark = self.setup_bookmark()
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 404)
 
         # shared, sharing disabled
         bookmark = self.setup_bookmark(shared=True)
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 404)
 
         # unshared, sharing enabled
@@ -98,14 +98,14 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark(shared=False)
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 404)
 
         # shared, sharing enabled
         bookmark = self.setup_bookmark(shared=True)
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 404)
 
         # unshared, public sharing enabled
@@ -114,12 +114,24 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark(shared=False)
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 404)
 
         # shared, public sharing enabled
         bookmark = self.setup_bookmark(shared=True)
         asset = self.setup_asset_with_file(bookmark)
 
-        response = self.client.get(reverse("bookmarks:assets.view", args=[asset.id]))
+        response = self.client.get(reverse(view_name, args=[asset.id]))
         self.assertEqual(response.status_code, 200)
+
+    def test_view_access(self):
+        self.view_access_test("bookmarks:assets.view")
+
+    def test_view_access_guest_user(self):
+        self.view_access_guest_user_test("bookmarks:assets.view")
+
+    def test_reader_view_access(self):
+        self.view_access_test("bookmarks:assets.read")
+
+    def test_reader_view_access_guest_user(self):
+        self.view_access_guest_user_test("bookmarks:assets.read")
