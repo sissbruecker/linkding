@@ -131,3 +131,5 @@ RUN mkdir -p chromium-profile && chown -R www-data:www-data chromium-profile
 COPY --from=ublock-build /etc/linkding/uBlock0.chromium uBlock0.chromium/
 # enable snapshot support
 ENV LD_ENABLE_SNAPSHOTS=True
+
+LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
