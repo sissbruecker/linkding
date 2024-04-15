@@ -351,6 +351,11 @@ class BookmarkAssetItem:
         self.file_size = asset.file_size
         self.status = asset.status
 
+        self.is_readable = (
+            asset.asset_type == BookmarkAsset.TYPE_SNAPSHOT
+            and asset.status == BookmarkAsset.STATUS_COMPLETE
+        )
+
         icon_classes = []
         text_classes = []
         if asset.status == BookmarkAsset.STATUS_PENDING:

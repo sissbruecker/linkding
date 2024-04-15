@@ -1,0 +1,27 @@
+html.reader-mode {
+  --font-size: 1rem;
+  line-height: 1.6;
+
+  body {
+    margin: 3rem 2rem;
+  }
+
+  .container {
+    max-width: 600px;
+  }
+
+  .byline {
+    font-style: italic;
+    font-size: 0.8rem;
+  }
+
+  .reading-time {
+    font-size: 0.7rem;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+

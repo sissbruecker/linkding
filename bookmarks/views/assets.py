@@ -6,11 +6,12 @@ from django.http import (
     HttpResponse,
     Http404,
 )
+from django.shortcuts import render
 
 from bookmarks.models import BookmarkAsset
 
 
-def view(request, asset_id: int):
+def _access_asset(request, asset_id: int):
     try:
         asset = BookmarkAsset.objects.get(pk=asset_id)
     except BookmarkAsset.DoesNotExist:
@@ -28,6 +29,10 @@ def view(request, asset_id: int):
     if not is_owner and not is_shared and not is_public_shared:
         raise Http404("Bookmark does not exist")
 
+    return asset
+
+
+def _get_asset_content(asset):
     filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
 
     if not os.path.exists(filepath):
@@ -40,4 +45,25 @@ def view(request, asset_id: int):
         with open(filepath, "rb") as f:
             content = f.read()
 
+    return content
+
+
+def view(request, asset_id: int):
+    asset = _access_asset(request, asset_id)
+    content = _get_asset_content(asset)
+
     return HttpResponse(content, content_type=asset.content_type)
+
+
+def read(request, asset_id: int):
+    asset = _access_asset(request, asset_id)
+    content = _get_asset_content(asset)
+    content = content.decode("utf-8")
+
+    return render(
+        request,
+        "bookmarks/read.html",
+        {
+            "content": content,
+        },
+    )

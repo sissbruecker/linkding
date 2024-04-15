@@ -1,0 +1,83 @@
+{% load sass_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="reader-mode">
+<head>
+  <meta charset="UTF-8">
+  <title>Reader view</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
+  {% if request.user_profile.theme == 'light' %}
+    <link href="{% sass_src 'theme-light.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+  {% elif request.user_profile.theme == 'dark' %}
+    <link href="{% sass_src 'theme-dark.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+  {% else %}
+    {# Use auto theme as fallback #}
+    <link href="{% sass_src 'theme-dark.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark)"/>
+    <link href="{% sass_src 'theme-light.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: light)"/>
+  {% endif %}
+</head>
+<body>
+<template id="content">{{ content|safe }}</template>
+<script src="{% static 'vendor/Readability.js' %}" type="application/javascript"></script>
+<script type="application/javascript">
+  function estimateReadingTime(charCount, wordsPerMinute) {
+    const avgWordLength = 5;
+    const totalWords = charCount / avgWordLength;
+    return Math.ceil(totalWords / wordsPerMinute);
+  }
+
+  function postProcess(articleContent) {
+    articleContent.querySelectorAll('table').forEach(table => {
+      table.classList.add('table');
+    });
+  }
+
+  function makeReadable() {
+    const content = document.getElementById('content');
+    const contentHtml = content.innerHTML;
+    const dom = new DOMParser().parseFromString(contentHtml, 'text/html');
+    const article = new Readability(dom).parse();
+
+    document.title = article.title;
+
+    const container = document.createElement('div');
+    container.classList.add('container');
+
+    const articleTitle = document.createElement('h1');
+    articleTitle.textContent = article.title;
+    container.append(articleTitle);
+
+    const byline = [article.byline, article.siteName].filter(Boolean);
+    if (byline.length > 0) {
+      const articleByline = document.createElement('p');
+      articleByline.textContent = byline.join(' | ');
+      articleByline.classList.add('byline');
+      container.append(articleByline);
+    }
+
+    if(article.length) {
+      const minTime = estimateReadingTime(article.length, 225);
+      const maxTime = estimateReadingTime(article.length, 175);
+
+      const articleReadingTime = document.createElement('p');
+      articleReadingTime.textContent = `${minTime}-${maxTime} minutes`;
+      articleReadingTime.classList.add('reading-time');
+      container.append(articleReadingTime);
+    }
+
+    const divider = document.createElement('hr');
+    container.append(divider);
+
+    const articleContent = document.createElement('div');
+    articleContent.innerHTML = article.content;
+    postProcess(articleContent);
+    container.append(articleContent);
+
+    content.replaceWith(container);
+  }
+  makeReadable();
+</script>
+</body>
+</html>
