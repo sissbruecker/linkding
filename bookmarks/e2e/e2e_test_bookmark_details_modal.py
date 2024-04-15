@@ -34,6 +34,11 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
             overlay.click(position={"x": 0, "y": 0})
             expect(details_modal).to_be_hidden()
 
+            # close with escape
+            details_modal = self.open_details_modal(bookmark)
+            self.page.keyboard.press("Escape")
+            expect(details_modal).to_be_hidden()
+
     def test_toggle_archived(self):
         bookmark = self.setup_bookmark()
 
