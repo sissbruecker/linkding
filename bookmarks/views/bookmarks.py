@@ -188,6 +188,7 @@ def new(request):
     initial_title = request.GET.get("title")
     initial_description = request.GET.get("description")
     initial_auto_close = "auto_close" in request.GET
+    initial_mark_unread = request.user.profile.default_mark_unread
 
     if request.method == "POST":
         form = BookmarkForm(request.POST)
@@ -210,6 +211,8 @@ def new(request):
             form.initial["description"] = initial_description
         if initial_auto_close:
             form.initial["auto_close"] = "true"
+        if initial_mark_unread:
+            form.initial["unread"] = "true"
 
     context = {
         "form": form,

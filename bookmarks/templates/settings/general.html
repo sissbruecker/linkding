@@ -176,6 +176,17 @@
           </div>
         {% endif %}
         <div class="form-group">
+          <label for="{{ form.default_mark_unread.id_for_label }}" class="form-checkbox">
+            {{ form.default_mark_unread }}
+            <i class="form-icon"></i> Create bookmarks as unread by default
+          </label>
+          <div class="form-input-hint">
+            Sets the default state for the "Mark as unread" option when creating a new bookmark.
+            Setting this option will make all new bookmarks default to unread.
+            This can be overridden when creating each new bookmark.
+          </div>
+        </div>
+        <div class="form-group">
           <details {% if form.custom_css.value %}open{% endif %}>
             <summary>Custom CSS</summary>
             <label for="{{ form.custom_css.id_for_label }}" class="text-assistive">Custom CSS</label>

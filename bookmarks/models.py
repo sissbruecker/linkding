@@ -399,6 +399,7 @@ class UserProfile(models.Model):
     custom_css = models.TextField(blank=True, null=False)
     search_preferences = models.JSONField(default=dict, null=False)
     enable_automatic_html_snapshots = models.BooleanField(default=True, null=False)
+    default_mark_unread = models.BooleanField(default=False, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
@@ -422,6 +423,7 @@ class UserProfileForm(forms.ModelForm):
             "display_archive_bookmark_action",
             "display_remove_bookmark_action",
             "permanent_notes",
+            "default_mark_unread",
             "custom_css",
         ]
 
