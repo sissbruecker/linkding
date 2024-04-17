@@ -210,3 +210,25 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse("bookmarks:edit", args=[bookmark.id]))
 
         self.assertContains(response, '<details class="notes">', count=1)
+
+    def test_should_not_check_unread_by_default(self):
+        response = self.client.get(reverse("bookmarks:new"))
+        html = response.content.decode()
+
+        self.assertInHTML(
+            '<input type="checkbox" name="unread" id="id_unread">',
+            html,
+        )
+
+    def test_should_check_unread_when_configured_in_profile(self):
+        self.user.profile.default_mark_unread = True
+        self.user.profile.save()
+
+        response = self.client.get(reverse("bookmarks:new"))
+        html = response.content.decode()
+
+        self.assertInHTML(
+            '<input type="checkbox" name="unread" value="true" '
+            'id="id_unread" checked="">',
+            html,
+        )

@@ -96,6 +96,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "display_archive_bookmark_action": False,
             "display_remove_bookmark_action": False,
             "permanent_notes": True,
+            "default_mark_unread": True,
             "custom_css": "body { background-color: #000; }",
         }
         response = self.client.post(reverse("bookmarks:settings.general"), form_data)
@@ -154,6 +155,9 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
         self.assertEqual(
             self.user.profile.permanent_notes, form_data["permanent_notes"]
+        )
+        self.assertEqual(
+            self.user.profile.default_mark_unread, form_data["default_mark_unread"]
         )
         self.assertEqual(self.user.profile.custom_css, form_data["custom_css"])
         self.assertSuccessMessage(html, "Profile updated")
