@@ -200,9 +200,13 @@ class AdminBookmark(admin.ModelAdmin):
 
 
 class AdminBookmarkAsset(admin.ModelAdmin):
-    list_display = ("display_name", "date_created", "status")
+    @admin.display(description="Display Name")
+    def custom_display_name(self, obj):
+        return str(obj)
+
+    list_display = ("custom_display_name", "date_created", "status")
     search_fields = (
-        "display_name",
+        "custom_display_name",
         "file",
     )
     list_filter = ("status",)

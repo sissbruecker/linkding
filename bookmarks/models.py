@@ -118,6 +118,9 @@ class BookmarkAsset(models.Model):
                 pass
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.display_name or f"Bookmark Asset #{self.pk}"
+
 
 @receiver(post_delete, sender=BookmarkAsset)
 def bookmark_asset_deleted(sender, instance, **kwargs):
