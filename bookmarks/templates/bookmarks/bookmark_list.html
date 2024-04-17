@@ -47,7 +47,7 @@
         {% else %}
           {% if bookmark_item.description %}
             <div class="description separate">
-              {{ bookmark_item.description }}
+              {{ bookmark_item.description|linebreaks }}
             </div>
           {% endif %}
           {% if bookmark_item.tag_names %}

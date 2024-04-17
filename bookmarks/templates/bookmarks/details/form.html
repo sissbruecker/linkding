@@ -85,7 +85,7 @@
     {% if details.bookmark.resolved_description %}
       <div class="description col-2">
         <dt>Description</dt>
-        <dd>{{ details.bookmark.resolved_description }}</dd>
+        <dd>{{ details.bookmark.resolved_description|linebreaks }}</dd>
       </div>
     {% endif %}
     {% if details.bookmark.notes %}
