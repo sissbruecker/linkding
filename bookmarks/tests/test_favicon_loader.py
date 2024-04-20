@@ -1,8 +1,9 @@
 import io
 import os.path
 import time
+import tempfile
 from pathlib import Path
-from unittest import mock, skip
+from unittest import mock
 
 from django.conf import settings
 from django.test import TestCase, override_settings
@@ -29,16 +30,20 @@ class MockStreamingResponse:
 
 class FaviconLoaderTestCase(TestCase):
     def setUp(self) -> None:
-        self.ensure_favicon_folder()
-        self.clear_favicon_folder()
+        self.temp_favicon_folder = tempfile.TemporaryDirectory()
+        self.favicon_folder_override = self.settings(
+            LD_FAVICON_FOLDER=self.temp_favicon_folder.name
+        )
+        self.favicon_folder_override.enable()
+
+    def tearDown(self) -> None:
+        self.temp_favicon_folder.cleanup()
+        self.favicon_folder_override.disable()
 
     def create_mock_response(self, icon_data=mock_icon_data, content_type="image/png"):
         mock_response = mock.Mock()
         mock_response.raw = io.BytesIO(icon_data)
         return MockStreamingResponse(icon_data, content_type)
-
-    def ensure_favicon_folder(self):
-        Path(settings.LD_FAVICON_FOLDER).mkdir(parents=True, exist_ok=True)
 
     def clear_favicon_folder(self):
         folder = Path(settings.LD_FAVICON_FOLDER)
@@ -177,7 +182,6 @@ class FaviconLoaderTestCase(TestCase):
             self.assertTrue(self.icon_exists("https_example_com.png"))
 
         self.clear_favicon_folder()
-        self.ensure_favicon_folder()
 
         with mock.patch("requests.get") as mock_get:
             mock_get.return_value = self.create_mock_response(
