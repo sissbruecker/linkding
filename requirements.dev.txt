@@ -54,7 +54,7 @@ rcssmin==1.1.1
     # via django-compressor
 rjsmin==1.2.1
     # via django-compressor
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   django
     #   django-debug-toolbar
