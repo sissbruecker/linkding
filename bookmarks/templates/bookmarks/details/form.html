@@ -12,6 +12,17 @@
       {% endif %}
       <span>{{ details.bookmark.url }}</span>
     </a>
+    {% if details.latest_snapshot %}
+      <a class="weblink" href="{% url 'bookmarks:assets.read' details.latest_snapshot.id %}"
+         target="{{ details.profile.bookmark_link_target }}">
+        {% if details.show_link_icons %}
+          <svg class="favicon" xmlns="http://www.w3.org/2000/svg">
+            <use xlink:href="#ld-icon-unread"></use>
+          </svg>
+        {% endif %}
+        <span>Reader mode</span>
+      </a>
+    {% endif %}
     {% if details.bookmark.web_archive_snapshot_url %}
       <a class="weblink" href="{{ details.bookmark.web_archive_snapshot_url }}"
          target="{{ details.profile.bookmark_link_target }}">
@@ -22,7 +33,7 @@
                 fill="currentColor" fill-rule="evenodd"/>
           </svg>
         {% endif %}
-        <span>View on Internet Archive</span>
+        <span>Internet Archive</span>
       </a>
     {% endif %}
   </div>

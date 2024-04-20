@@ -55,6 +55,11 @@ urlpatterns = [
         views.assets.view,
         name="assets.view",
     ),
+    path(
+        "assets/<int:asset_id>/read",
+        views.assets.read,
+        name="assets.read",
+    ),
     # Partials
     path(
         "bookmarks/partials/bookmark-list/active",

@@ -346,6 +346,7 @@ class BookmarkAssetItem:
 
         self.id = asset.id
         self.display_name = asset.display_name
+        self.asset_type = asset.asset_type
         self.content_type = asset.content_type
         self.file = asset.file
         self.file_size = asset.file_size
@@ -392,4 +393,13 @@ class BookmarkDetailsContext:
         ]
         self.has_pending_assets = any(
             asset.status == BookmarkAsset.STATUS_PENDING for asset in self.assets
+        )
+        self.latest_snapshot = next(
+            (
+                asset
+                for asset in self.assets
+                if asset.asset.asset_type == BookmarkAsset.TYPE_SNAPSHOT
+                and asset.status == BookmarkAsset.STATUS_COMPLETE
+            ),
+            None,
         )
