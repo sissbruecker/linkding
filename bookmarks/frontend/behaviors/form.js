@@ -40,5 +40,25 @@ class AutoSubmitBehavior extends Behavior {
   }
 }
 
+class UploadButton extends Behavior {
+  constructor(element) {
+    super(element);
+
+    const fileInput = element.nextElementSibling;
+
+    element.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+      const form = fileInput.closest("form");
+      const event = new Event("submit", { cancelable: true });
+      event.submitter = element;
+      form.dispatchEvent(event);
+    });
+  }
+}
+
 registerBehavior("ld-form", FormBehavior);
 registerBehavior("ld-auto-submit", AutoSubmitBehavior);
+registerBehavior("ld-upload-button", UploadButton);

@@ -91,6 +91,7 @@ class Bookmark(models.Model):
 
 class BookmarkAsset(models.Model):
     TYPE_SNAPSHOT = "snapshot"
+    TYPE_UPLOAD = "upload"
 
     CONTENT_TYPE_HTML = "text/html"
 

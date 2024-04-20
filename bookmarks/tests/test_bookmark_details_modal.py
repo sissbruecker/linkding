@@ -1,12 +1,13 @@
 import re
 from unittest.mock import patch
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import formats
 
 from bookmarks.models import BookmarkAsset, UserProfile
-from bookmarks.services import tasks
+from bookmarks.services import bookmarks, tasks
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
@@ -862,3 +863,34 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             "button", string=re.compile("Create HTML snapshot")
         )
         self.assertTrue(create_button.has_attr("disabled"))
+
+    def test_upload_file(self):
+        bookmark = self.setup_bookmark()
+        file_content = b"file content"
+        upload_file = SimpleUploadedFile("test.txt", file_content)
+
+        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
+            response = self.client.post(
+                self.get_base_url(bookmark),
+                {"upload_asset": "", "upload_asset_file": upload_file},
+            )
+            self.assertEqual(response.status_code, 302)
+
+            mock_upload_asset.assert_called_once()
+
+            args, kwargs = mock_upload_asset.call_args
+            self.assertEqual(args[0], bookmark)
+
+            upload_file = args[1]
+            self.assertEqual(upload_file.name, "test.txt")
+
+    def test_upload_file_without_file(self):
+        bookmark = self.setup_bookmark()
+
+        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
+            response = self.client.post(
+                self.get_base_url(bookmark),
+                {"upload_asset": ""},
+            )
+            self.assertEqual(response.status_code, 400)
+            mock_upload_asset.assert_not_called()

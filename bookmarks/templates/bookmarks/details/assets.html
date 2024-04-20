@@ -9,12 +9,12 @@
           <div class="asset-icon {{ asset.icon_classes }}">
             {% include 'bookmarks/details/asset_icon.html' %}
           </div>
-          <div class="asset-text truncate {{ asset.text_classes }}">
-        <span>
-          {{ asset.display_name }}
-          {% if asset.status == 'pending' %}(queued){% endif %}
-          {% if asset.status == 'failure' %}(failed){% endif %}
-        </span>
+          <div class="asset-text {{ asset.text_classes }}">
+          <span class="truncate">
+            {{ asset.display_name }}
+            {% if asset.status == 'pending' %}(queued){% endif %}
+            {% if asset.status == 'failure' %}(failed){% endif %}
+          </span>
             {% if asset.file_size %}
               <span class="filesize">{{ asset.file_size|filesizeformat }}</span>
             {% endif %}
@@ -39,6 +39,10 @@
       <button type="submit" name="create_snapshot" class="btn btn-link"
               {% if details.has_pending_assets %}disabled{% endif %}>Create HTML snapshot
       </button>
+      <button ld-upload-button id="upload-asset" name="upload_asset" value="{{ details.bookmark.id }}" type="button"
+              class="btn btn-link">Upload file
+      </button>
+      <input id="upload-asset-file" name="upload_asset_file" type="file" class="d-hide">
     </div>
   {% endif %}
 </div>

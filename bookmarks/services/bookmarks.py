@@ -1,12 +1,18 @@
+import logging
+import os
 from typing import Union
 
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import UploadedFile
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, parse_tag_string
-from bookmarks.services.tags import get_or_create_tags
-from bookmarks.services import website_loader
+from bookmarks.models import Bookmark, BookmarkAsset, parse_tag_string
 from bookmarks.services import tasks
+from bookmarks.services import website_loader
+from bookmarks.services.tags import get_or_create_tags
+
+logger = logging.getLogger(__name__)
 
 
 def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
@@ -174,6 +180,46 @@ def unshare_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
     Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
         shared=False, date_modified=timezone.now()
     )
+
+
+def _generate_upload_asset_filename(asset: BookmarkAsset, filename: str):
+    formatted_datetime = asset.date_created.strftime("%Y-%m-%d_%H%M%S")
+    return f"{asset.asset_type}_{formatted_datetime}_{filename}"
+
+
+def upload_asset(bookmark: Bookmark, upload_file: UploadedFile) -> BookmarkAsset:
+    asset = BookmarkAsset(
+        bookmark=bookmark,
+        asset_type=BookmarkAsset.TYPE_UPLOAD,
+        content_type=upload_file.content_type,
+        display_name=upload_file.name,
+        status=BookmarkAsset.STATUS_PENDING,
+        gzip=False,
+    )
+    asset.save()
+
+    try:
+        filename = _generate_upload_asset_filename(asset, upload_file.name)
+        filepath = os.path.join(settings.LD_ASSET_FOLDER, filename)
+        with open(filepath, "wb") as f:
+            for chunk in upload_file.chunks():
+                f.write(chunk)
+        asset.status = BookmarkAsset.STATUS_COMPLETE
+        asset.file = filename
+        asset.file_size = upload_file.size
+        logger.info(
+            f"Successfully uploaded asset file. bookmark={bookmark} file={upload_file.name}"
+        )
+    except Exception as e:
+        logger.error(
+            f"Failed to upload asset file. bookmark={bookmark} file={upload_file.name}",
+            exc_info=e,
+        )
+        asset.status = BookmarkAsset.STATUS_FAILURE
+
+    asset.save()
+
+    return asset
 
 
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
