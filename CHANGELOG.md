@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.30.0 (20/04/2024)
+
+### What's Changed
+* Add reader mode by @sissbruecker in https://github.com/sissbruecker/linkding/pull/703
+* Allow uploading custom files for bookmarks by @sissbruecker in https://github.com/sissbruecker/linkding/pull/713
+* Add option for marking bookmarks as unread by default by @ab623 in https://github.com/sissbruecker/linkding/pull/706
+* Make blocking cookie banners more reliable by @sissbruecker in https://github.com/sissbruecker/linkding/pull/699
+* Close bookmark details with escape by @sissbruecker in https://github.com/sissbruecker/linkding/pull/702
+* Show proper name for bookmark assets in admin by @ab623 in https://github.com/sissbruecker/linkding/pull/708
+* Bump sqlparse from 0.4.4 to 0.5.0 by @dependabot in https://github.com/sissbruecker/linkding/pull/704
+
+### New Contributors
+* @ab623 made their first contribution in https://github.com/sissbruecker/linkding/pull/706
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.29.0...v1.30.0
+
+---
+
 ## v1.29.0 (14/04/2024)
 
 ### What's Changed
