@@ -62,6 +62,13 @@
           }
         },
         {
+          "name": "ld-upload-button",
+          "description": "Opens the related file input when clicked, and submits the form when a file is selected",
+          "value": {
+            "required": false
+          }
+        },
+        {
           "name": "ld-modal",
           "description": "Adds Javascript behavior to a modal HTML component",
           "value": {

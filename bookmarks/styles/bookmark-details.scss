@@ -61,16 +61,22 @@
 
   .assets .asset-text {
     flex: 1 1 0;
+    gap: $unit-2;
+    min-width: 0;
+    display: flex;
+  }
+
+  .assets .asset-text .truncate {
+    flex-shrink: 1;
   }
 
   .assets .asset-text .filesize {
     color: $gray-color;
-    margin-left: $unit-2;
   }
 
   .assets .asset-actions, .assets-actions {
     display: flex;
-    gap: $unit-3;
+    gap: $unit-4;
     align-items: center;
   }
 
