@@ -46,9 +46,7 @@
           </div>
         {% else %}
           {% if bookmark_item.description %}
-            <div class="description separate">
-              {{ bookmark_item.description }}
-            </div>
+            <div class="description separate">{{ bookmark_item.description }}</div>
           {% endif %}
           {% if bookmark_item.tag_names %}
             <div class="tags">
@@ -60,9 +58,7 @@
         {% endif %}
         {% if bookmark_item.notes %}
           <div class="notes bg-gray text-gray-dark">
-            <div class="markdown">
-              {% markdown bookmark_item.notes %}
-            </div>
+            <div class="markdown">{% markdown bookmark_item.notes %}</div>
           </div>
         {% endif %}
         <div class="actions text-gray">

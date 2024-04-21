@@ -303,7 +303,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         if has_description and has_tags:
             self.assertTrue("|" in description.text)
 
-        # contains description text
+        # contains description text, without leading/trailing whitespace
         if has_description:
             description_text = description.find("span", text=bookmark.description)
             self.assertIsNotNone(description_text)
@@ -372,10 +372,10 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             description = soup.select_one(".description")
             self.assertIsNone(description)
         else:
-            # contains description text
+            # contains description text, without leading/trailing whitespace
             description = soup.select_one(".description.separate")
             self.assertIsNotNone(description)
-            self.assertEqual(description.text.strip(), bookmark.description)
+            self.assertEqual(description.text, bookmark.description)
 
         if not has_tags:
             # no tags element
