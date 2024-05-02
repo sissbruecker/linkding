@@ -148,6 +148,8 @@ class BookmarkForm(forms.ModelForm):
         max_length=512, required=False, widget=forms.HiddenInput()
     )
     website_description = forms.CharField(required=False, widget=forms.HiddenInput())
+    preview_image = forms.CharField(required=False, widget=forms.HiddenInput())
+    preview_image_file = forms.CharField(required=False, widget=forms.HiddenInput())
     unread = forms.BooleanField(required=False)
     shared = forms.BooleanField(required=False)
     # Hidden field that determines whether to close window/tab after saving the bookmark
@@ -160,6 +162,8 @@ class BookmarkForm(forms.ModelForm):
             "tag_string",
             "title",
             "description",
+            "preview_image",
+            "preview_image_file",
             "notes",
             "website_title",
             "website_description",

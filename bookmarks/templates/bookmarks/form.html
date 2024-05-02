@@ -5,6 +5,8 @@
   {% csrf_token %}
   {{ form.website_title }}
   {{ form.website_description }}
+  {{ form.preview_image }}
+  {{ form.preview_image_file }}
   {{ form.auto_close|attr:"type:hidden" }}
   <div class="form-group {% if form.url.errors %}has-error{% endif %}">
     <label for="{{ form.url.id_for_label }}" class="form-label">URL</label>
@@ -70,8 +72,8 @@
   <div class="form-group"{% if not request.user_profile.enable_preview_images %} style="display: none;"{% endif %}>
     <label class="form-label">Preview Image</label>
     <div>
-      <img alt="Preview image" style="display: none; height: 200px;" id="id_preview_image">
-      <div style="width: 300px; height: 200px; box-sizing: border-box; border: 3px dashed gray" id="id_preview_image_placeholder"></div>
+      <img alt="Preview image" style="display: none; height: 200px;" id="preview_image_img">
+      <div style="width: 300px; height: 200px; box-sizing: border-box; border: 3px dashed gray" id="preview_image_placeholder"></div>
     </div>
   </div>
   <div class="form-group">
@@ -138,8 +140,10 @@
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
       const websiteTitleInput = document.getElementById('{{ form.website_title.id_for_label }}');
       const websiteDescriptionInput = document.getElementById('{{ form.website_description.id_for_label }}');
-      const previewImage = document.getElementById('id_preview_image');
-      const previewImagePlaceholder = document.getElementById('id_preview_image_placeholder');
+      const previewImageInput = document.getElementById('{{ form.preview_image.id_for_label }}');
+      const previewImageFileInput = document.getElementById('{{ form.preview_image_file.id_for_label }}');
+      const previewImageImg = document.getElementById('preview_image_img');
+      const previewImagePlaceholder = document.getElementById('preview_image_placeholder');
       const editedBookmarkId = {{ bookmark_id }};
 
       function toggleLoadingIcon(input, show) {
@@ -169,6 +173,16 @@
         input.checked = value;
       }
 
+      function updatePreviewImage(previewImageUrl) {
+        previewImageImg.src = previewImageUrl;
+        previewImageImg.style['display'] = previewImageUrl ? 'block' : 'none';
+        previewImagePlaceholder.style['display'] = previewImageUrl ? 'none' : 'block';
+        if (previewImageUrl !== previewImageInput.value) {
+          previewImageInput.value = previewImageUrl;
+          previewImageFileInput.value = '';
+        }
+      }
+
       function checkUrl() {
         toggleLoadingIcon(titleInput, true);
         toggleLoadingIcon(descriptionInput, true);
@@ -186,9 +200,7 @@
             toggleLoadingIcon(titleInput, false);
             toggleLoadingIcon(descriptionInput, false);
 
-            previewImage.src = metadata.preview_image;
-            previewImage.style['display'] = metadata.preview_image ? 'block' : 'none';
-            previewImagePlaceholder.style['display'] = metadata.preview_image ? 'none' : 'block';
+            updatePreviewImage(metadata.preview_image);
 
             // Prefill form and display hint if URL is already bookmarked
             const existingBookmark = data.bookmark;
@@ -238,6 +250,7 @@
       if (editedBookmarkId) {
         updatePlaceholder(titleInput, websiteTitleInput.value);
         updatePlaceholder(descriptionInput, websiteDescriptionInput.value);
+        updatePreviewImage(previewImageInput.value);
       }
     })();
   </script>
