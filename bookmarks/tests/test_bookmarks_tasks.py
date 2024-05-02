@@ -93,7 +93,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_cdx_api_patcher.stop()
         self.mock_load_favicon_patcher.stop()
         self.mock_singlefile_create_snapshot_patcher.stop()
-        self.mock_load_preview_image.stop()
+        self.mock_load_preview_image_patcher.stop()
         huey.storage.flush_results()
         huey.immediate = False
 
