@@ -37,6 +37,15 @@
       </a>
     {% endif %}
   </div>
+  {% if details.show_preview_image %}
+  <div class="preview-image">
+    {% if details.bookmark.preview_image_file %}
+    <img src="{% static details.bookmark.preview_image_file %}" />
+    {% elif details.bookmark.preview_image %}
+    <img src="{{ details.bookmark.preview_image }}" />
+    {% endif %}
+  </div>
+  {% endif %}
   <dl class="grid columns-2 columns-sm-1 gap-0">
     {% if details.is_editable %}
       <div class="status col-2">

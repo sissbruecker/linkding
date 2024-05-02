@@ -390,6 +390,7 @@ class BookmarkDetailsContext:
         self.is_editable = bookmark.owner == user
         self.sharing_enabled = user_profile.enable_sharing
         self.show_link_icons = user_profile.enable_favicons and bookmark.favicon_file
+        self.show_preview_image = user_profile.enable_preview_images and bookmark.preview_image
         # For now hide files section if snapshots are not supported
         self.show_files = settings.LD_ENABLE_SNAPSHOTS
 
