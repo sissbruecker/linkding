@@ -67,6 +67,13 @@
     </div>
     {{ form.description.errors }}
   </div>
+  <div class="form-group"{% if not request.user_profile.enable_preview_images %} style="display: none;"{% endif %}>
+    <label class="form-label">Preview Image</label>
+    <div>
+      <img alt="Preview image" style="display: none; height: 200px;" id="id_preview_image">
+      <div style="width: 300px; height: 200px; box-sizing: border-box; border: 3px dashed gray" id="id_preview_image_placeholder"></div>
+    </div>
+  </div>
   <div class="form-group">
     <details class="notes"{% if form.has_notes %} open{% endif %}>
       <summary>
@@ -131,6 +138,8 @@
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
       const websiteTitleInput = document.getElementById('{{ form.website_title.id_for_label }}');
       const websiteDescriptionInput = document.getElementById('{{ form.website_description.id_for_label }}');
+      const previewImage = document.getElementById('id_preview_image');
+      const previewImagePlaceholder = document.getElementById('id_preview_image_placeholder');
       const editedBookmarkId = {{ bookmark_id }};
 
       function toggleLoadingIcon(input, show) {
@@ -176,6 +185,10 @@
             updatePlaceholder(descriptionInput, metadata.description);
             toggleLoadingIcon(titleInput, false);
             toggleLoadingIcon(descriptionInput, false);
+
+            previewImage.src = metadata.preview_image;
+            previewImage.style['display'] = metadata.preview_image ? 'block' : 'none';
+            previewImagePlaceholder.style['display'] = metadata.preview_image ? 'none' : 'block';
 
             // Prefill form and display hint if URL is already bookmarked
             const existingBookmark = data.bookmark;

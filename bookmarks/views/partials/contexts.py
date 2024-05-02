@@ -145,6 +145,7 @@ class BookmarkItem:
         self.tag_names = bookmark.tag_names
         self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url
         self.favicon_file = bookmark.favicon_file
+        self.preview_image = bookmark.preview_image
         self.is_archived = bookmark.is_archived
         self.unread = bookmark.unread
         self.owner = bookmark.owner
@@ -154,6 +155,8 @@ class BookmarkItem:
             css_classes.append("unread")
         if bookmark.shared:
             css_classes.append("shared")
+        if profile.enable_preview_images:
+            css_classes.append("with-preview-image")
 
         self.css_classes = " ".join(css_classes)
 
@@ -215,6 +218,7 @@ class BookmarkListContext:
         self.show_archive_action = user_profile.display_archive_bookmark_action
         self.show_remove_action = user_profile.display_remove_bookmark_action
         self.show_favicons = user_profile.enable_favicons
+        self.show_preview_images = user_profile.enable_preview_images
         self.show_notes = user_profile.permanent_notes
 
     @staticmethod

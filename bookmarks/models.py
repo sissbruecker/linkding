@@ -53,6 +53,7 @@ def build_tag_string(tag_names: List[str], delimiter: str = ","):
 class Bookmark(models.Model):
     url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     title = models.CharField(max_length=512, blank=True)
+    preview_image = models.CharField(max_length=512, blank=True, null=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     website_title = models.CharField(max_length=512, blank=True, null=True)
@@ -394,6 +395,7 @@ class UserProfile(models.Model):
     enable_sharing = models.BooleanField(default=False, null=False)
     enable_public_sharing = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
+    enable_preview_images = models.BooleanField(default=False, null=False)
     display_url = models.BooleanField(default=False, null=False)
     display_view_bookmark_action = models.BooleanField(default=True, null=False)
     display_edit_bookmark_action = models.BooleanField(default=True, null=False)
@@ -420,6 +422,7 @@ class UserProfileForm(forms.ModelForm):
             "enable_sharing",
             "enable_public_sharing",
             "enable_favicons",
+            "enable_preview_images",
             "enable_automatic_html_snapshots",
             "display_url",
             "display_view_bookmark_action",

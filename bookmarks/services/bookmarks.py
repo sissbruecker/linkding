@@ -234,6 +234,7 @@ def _update_website_metadata(bookmark: Bookmark):
     metadata = website_loader.load_website_metadata(bookmark.url)
     bookmark.website_title = metadata.title
     bookmark.website_description = metadata.description
+    bookmark.preview_image = metadata.preview_image
 
 
 def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):

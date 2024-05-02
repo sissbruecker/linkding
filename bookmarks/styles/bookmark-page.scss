@@ -130,6 +130,23 @@ li[ld-bookmark-item] {
   position: relative;
   margin-top: $unit-2;
 
+  &.with-preview-image {
+    display: flex;
+
+    .content {
+      width: calc(100% - 100px);
+    }
+  }
+
+  .preview-image {
+    width: 100px;
+  }
+
+  .preview-image img {
+    max-width: 100px;
+    max-height: 66px;
+  }
+
   .form-checkbox.bulk-edit-checkbox {
     display: none;
   }

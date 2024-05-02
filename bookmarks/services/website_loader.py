@@ -15,12 +15,14 @@ class WebsiteMetadata:
     url: str
     title: str
     description: str
+    preview_image: str
 
     def to_dict(self):
         return {
             "url": self.url,
             "title": self.title,
             "description": self.description,
+            "preview_image": self.preview_image,
         }
 
 
@@ -30,6 +32,7 @@ class WebsiteMetadata:
 def load_website_metadata(url: str):
     title = None
     description = None
+    preview_image = None
     try:
         start = timezone.now()
         page_text = load_page(url)
@@ -55,10 +58,15 @@ def load_website_metadata(url: str):
                 else None
             )
 
+        image_tag = soup.find("meta", attrs={"property": "og:image"})
+        preview_image = image_tag["content"].strip() if image_tag else None
+
         end = timezone.now()
         logger.debug(f"Parsing duration: {end - start}")
     finally:
-        return WebsiteMetadata(url=url, title=title, description=description)
+        return WebsiteMetadata(
+            url=url, title=title, description=description, preview_image=preview_image
+        )
 
 
 CHUNK_SIZE = 50 * 1024
