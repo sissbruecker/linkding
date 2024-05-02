@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from functools import lru_cache
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -60,6 +61,12 @@ def load_website_metadata(url: str):
 
         image_tag = soup.find("meta", attrs={"property": "og:image"})
         preview_image = image_tag["content"].strip() if image_tag else None
+        if (
+            preview_image
+            and not preview_image.startswith("http://")
+            and not preview_image.startswith("https://")
+        ):
+            preview_image = urljoin(url, preview_image)
 
         end = timezone.now()
         logger.debug(f"Parsing duration: {end - start}")

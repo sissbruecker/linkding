@@ -145,6 +145,34 @@ class WebsiteLoaderTestCase(TestCase):
             metadata = website_loader.load_website_metadata("https://example.com")
             self.assertEqual("http://example.com/image.jpg", metadata.preview_image)
 
+    def test_load_website_metadata_gets_absolute_og_image_path_when_path_starts_with_dots(
+        self,
+    ):
+        with mock.patch(
+            "bookmarks.services.website_loader.load_page"
+        ) as mock_load_page:
+            mock_load_page.return_value = self.render_html_document(
+                "test title", og_image="../image.jpg"
+            )
+            metadata = website_loader.load_website_metadata(
+                "https://example.com/a/b/page.html"
+            )
+            self.assertEqual("https://example.com/a/image.jpg", metadata.preview_image)
+
+    def test_load_website_metadata_gets_absolute_og_image_path_when_path_starts_with_slash(
+        self,
+    ):
+        with mock.patch(
+            "bookmarks.services.website_loader.load_page"
+        ) as mock_load_page:
+            mock_load_page.return_value = self.render_html_document(
+                "test title", og_image="/image.jpg"
+            )
+            metadata = website_loader.load_website_metadata(
+                "https://example.com/a/b/page.html"
+            )
+            self.assertEqual("https://example.com/image.jpg", metadata.preview_image)
+
     def test_load_website_metadata_prefers_description_over_og_description(self):
         with mock.patch(
             "bookmarks.services.website_loader.load_page"
