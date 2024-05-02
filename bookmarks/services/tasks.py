@@ -15,7 +15,7 @@ from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecord
 
 import bookmarks.services.wayback
 from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
-from bookmarks.services import favicon_loader, singlefile
+from bookmarks.services import favicon_loader, singlefile, preview_image_loader
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
@@ -219,6 +219,35 @@ def _schedule_refresh_favicons_task(user_id: int):
     # TODO: Implement bulk task creation
     for bookmark in bookmarks:
         _load_favicon_task(bookmark.id)
+
+
+def load_preview_image(user: User, bookmark: Bookmark):
+    if user.profile.enable_preview_images and not settings.LD_DISABLE_BACKGROUND_TASKS:
+        _load_preview_image_task(bookmark.id)
+
+
+@task()
+def _load_preview_image_task(bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(id=bookmark_id)
+    except Bookmark.DoesNotExist:
+        return
+
+    if not bookmark.preview_image:
+        return
+
+    logger.info(f"Load preview image for bookmark. url={bookmark.url}")
+
+    new_preview_image_file = preview_image_loader.load_preview_image(
+        bookmark.preview_image
+    )
+
+    if new_preview_image_file != bookmark.preview_image_file:
+        bookmark.preview_image_file = new_preview_image_file
+        bookmark.save(update_fields=["preview_image_file"])
+        logger.info(
+            f"Successfully updated preview image for bookmark. url={bookmark.url} preview_image_file={new_preview_image_file}"
+        )
 
 
 def is_html_snapshot_feature_active() -> bool:

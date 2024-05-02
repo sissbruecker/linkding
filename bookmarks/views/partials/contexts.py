@@ -146,6 +146,7 @@ class BookmarkItem:
         self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url
         self.favicon_file = bookmark.favicon_file
         self.preview_image = bookmark.preview_image
+        self.preview_image_file = bookmark.preview_image_file
         self.is_archived = bookmark.is_archived
         self.unread = bookmark.unread
         self.owner = bookmark.owner

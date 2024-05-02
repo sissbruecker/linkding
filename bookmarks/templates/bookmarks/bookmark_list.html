@@ -12,8 +12,10 @@
       <li ld-bookmark-item{% if bookmark_item.css_classes %} class="{{ bookmark_item.css_classes }}"{% endif %}>
         {% if bookmark_list.show_preview_images %}
         <div class="preview-image">
-          {% if bookmark_item.preview_image %}
-          <img src="{{bookmark_item.preview_image}}" />
+          {% if bookmark_item.preview_image_file %}
+          <img src="{% static bookmark_item.preview_image_file %}" />
+          {% elif bookmark_item.preview_image %}
+          <img src="{{ bookmark_item.preview_image }}" />
           {% endif %}
         </div>
         {% endif %}

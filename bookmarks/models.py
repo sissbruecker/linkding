@@ -54,6 +54,7 @@ class Bookmark(models.Model):
     url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     title = models.CharField(max_length=512, blank=True)
     preview_image = models.CharField(max_length=512, blank=True, null=True)
+    preview_image_file = models.CharField(max_length=512, blank=True, null=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     website_title = models.CharField(max_length=512, blank=True, null=True)

@@ -162,6 +162,25 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             count=count,
         )
 
+    def assertPreviewImageVisible(self, html: str, bookmark: Bookmark):
+        self.assertPreviewImageCount(html, bookmark, 1)
+
+    def assertPreviewImageHidden(self, html: str, bookmark: Bookmark):
+        self.assertPreviewImageCount(html, bookmark, 0)
+
+    def assertPreviewImageCount(self, html: str, bookmark: Bookmark, count=1):
+        url = bookmark.preview_image
+        if bookmark.preview_image_file:
+            url = f"/static/{bookmark.preview_image_file}"
+
+        self.assertInHTML(
+            f"""
+            <img src="{url}">
+            """,
+            html,
+            count=count,
+        )
+
     def assertBookmarkURLCount(
         self, html: str, bookmark: Bookmark, link_target: str = "_blank", count=0
     ):
@@ -639,6 +658,36 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         """,
             html,
         )
+
+    def test_preview_image_should_be_visible_when_preview_images_enabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_preview_images = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(preview_image_file="preview.png")
+        html = self.render_template()
+
+        self.assertPreviewImageVisible(html, bookmark)
+
+    def test_preview_image_should_be_hidden_when_preview_images_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_preview_images = False
+        profile.save()
+
+        bookmark = self.setup_bookmark(preview_image_file="preview.png")
+        html = self.render_template()
+
+        self.assertPreviewImageHidden(html, bookmark)
+
+    def test_preview_image_should_be_hidden_when_there_is_no_preview_image(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_preview_images = True
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        html = self.render_template()
+
+        self.assertPreviewImageHidden(html, bookmark)
 
     def test_favicon_should_be_visible_when_favicons_enabled(self):
         profile = self.get_or_create_test_user().profile

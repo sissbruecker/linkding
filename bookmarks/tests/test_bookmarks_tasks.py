@@ -74,11 +74,18 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             self.mock_singlefile_create_snapshot_patcher.start()
         )
 
+        self.mock_load_preview_image_patcher = mock.patch(
+            "bookmarks.services.preview_image_loader.load_preview_image"
+        )
+        self.mock_load_preview_image = self.mock_load_preview_image_patcher.start()
+        self.mock_load_preview_image.return_value = "preview_image.png"
+
         user = self.get_or_create_test_user()
         user.profile.web_archive_integration = (
             UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED
         )
         user.profile.enable_favicons = True
+        user.profile.enable_preview_images = True
         user.profile.save()
 
     def tearDown(self):
@@ -86,6 +93,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_cdx_api_patcher.stop()
         self.mock_load_favicon_patcher.stop()
         self.mock_singlefile_create_snapshot_patcher.stop()
+        self.mock_load_preview_image.stop()
         huey.storage.flush_results()
         huey.immediate = False
 
@@ -504,6 +512,50 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         self.setup_bookmark()
         tasks.schedule_refresh_favicons(self.get_or_create_test_user())
+
+        self.assertEqual(self.executed_count(), 0)
+
+    def test_load_preview_image_should_create_preview_image_file(self):
+        bookmark = self.setup_bookmark(preview_image="https://example.com/image.png")
+
+        tasks.load_preview_image(self.get_or_create_test_user(), bookmark)
+        bookmark.refresh_from_db()
+
+        self.assertEqual(self.executed_count(), 1)
+        self.assertEqual(bookmark.preview_image_file, "preview_image.png")
+
+    def test_load_preview_image_should_update_preview_image_file(self):
+        bookmark = self.setup_bookmark(
+            preview_image="https://example.com/image.png",
+            preview_image_file="preview_image.png",
+        )
+
+        self.mock_load_preview_image.return_value = "preview_image_upd.png"
+
+        tasks.load_preview_image(self.get_or_create_test_user(), bookmark)
+
+        bookmark.refresh_from_db()
+        self.mock_load_preview_image.assert_called_once()
+        self.assertEqual(bookmark.preview_image_file, "preview_image_upd.png")
+
+    def test_load_preview_image_should_handle_missing_bookmark(self):
+        tasks._load_preview_image_task(123)
+
+        self.mock_load_preview_image.assert_not_called()
+
+    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_load_preview_image_should_not_run_when_background_tasks_are_disabled(self):
+        bookmark = self.setup_bookmark(preview_image="https://example.com/image.png")
+        tasks.load_preview_image(self.get_or_create_test_user(), bookmark)
+
+        self.assertEqual(self.executed_count(), 0)
+
+    def test_load_preview_image_should_not_run_when_preview_image_feature_is_disabled(self):
+        self.user.profile.enable_preview_images = False
+        self.user.profile.save()
+
+        bookmark = self.setup_bookmark(preview_image="https://example.com/image.png")
+        tasks.load_preview_image(self.get_or_create_test_user(), bookmark)
 
         self.assertEqual(self.executed_count(), 0)
 
