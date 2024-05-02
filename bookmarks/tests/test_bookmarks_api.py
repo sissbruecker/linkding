@@ -628,7 +628,10 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             website_loader, "load_website_metadata"
         ) as mock_load_website_metadata:
             expected_metadata = WebsiteMetadata(
-                "https://example.com", "Scraped metadata", "Scraped description", None
+                "https://example.com",
+                "Scraped metadata",
+                "Scraped description",
+                "https://example.com/preview.png",
             )
             mock_load_website_metadata.return_value = expected_metadata
 
@@ -643,6 +646,9 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             self.assertIsNotNone(expected_metadata.url, metadata["url"])
             self.assertIsNotNone(expected_metadata.title, metadata["title"])
             self.assertIsNotNone(expected_metadata.description, metadata["description"])
+            self.assertIsNotNone(
+                expected_metadata.preview_image, metadata["preview_image"]
+            )
 
     def test_check_returns_bookmark_if_url_is_bookmarked(self):
         self.authenticate()

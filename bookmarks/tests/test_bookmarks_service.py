@@ -42,7 +42,10 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             website_loader, "load_website_metadata"
         ) as mock_load_website_metadata:
             expected_metadata = WebsiteMetadata(
-                "https://example.com", "Website title", "Website description", None
+                "https://example.com",
+                "Website title",
+                "Website description",
+                "https://example.com/preview.png",
             )
             mock_load_website_metadata.return_value = expected_metadata
 
@@ -62,6 +65,9 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(expected_metadata.title, created_bookmark.website_title)
             self.assertEqual(
                 expected_metadata.description, created_bookmark.website_description
+            )
+            self.assertEqual(
+                expected_metadata.preview_image, created_bookmark.preview_image
             )
 
     def test_create_should_update_existing_bookmark_with_same_url(self):
@@ -157,7 +163,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
                 "https://example.com/updated",
                 "Updated website title",
                 "Updated website description",
-                None,
+                "https://example.com/preview.png",
             )
             mock_load_website_metadata.return_value = expected_metadata
 
@@ -171,6 +177,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(
                 expected_metadata.description, bookmark.website_description
             )
+            self.assertEqual(expected_metadata.preview_image, bookmark.preview_image)
 
     def test_update_should_not_update_website_metadata_if_url_did_not_change(self):
         with patch.object(
