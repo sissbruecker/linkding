@@ -628,7 +628,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             website_loader, "load_website_metadata"
         ) as mock_load_website_metadata:
             expected_metadata = WebsiteMetadata(
-                "https://example.com", "Scraped metadata", "Scraped description"
+                "https://example.com", "Scraped metadata", "Scraped description", None
             )
             mock_load_website_metadata.return_value = expected_metadata
 
