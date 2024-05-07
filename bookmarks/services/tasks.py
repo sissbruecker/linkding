@@ -233,14 +233,9 @@ def _load_preview_image_task(bookmark_id: int):
     except Bookmark.DoesNotExist:
         return
 
-    if not bookmark.preview_image:
-        return
-
     logger.info(f"Load preview image for bookmark. url={bookmark.url}")
 
-    new_preview_image_file = preview_image_loader.load_preview_image(
-        bookmark.preview_image
-    )
+    new_preview_image_file = preview_image_loader.load_preview_image(bookmark.url)
 
     if new_preview_image_file != bookmark.preview_image_file:
         bookmark.preview_image_file = new_preview_image_file

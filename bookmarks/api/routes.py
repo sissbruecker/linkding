@@ -102,7 +102,7 @@ class BookmarkViewSet(
                 url,
                 bookmark.website_title,
                 bookmark.website_description,
-                bookmark.preview_image,
+                None,
             )
         else:
             metadata = website_loader.load_website_metadata(url)

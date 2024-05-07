@@ -53,14 +53,13 @@ def build_tag_string(tag_names: List[str], delimiter: str = ","):
 class Bookmark(models.Model):
     url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     title = models.CharField(max_length=512, blank=True)
-    preview_image = models.CharField(max_length=512, blank=True, null=True)
-    preview_image_file = models.CharField(max_length=512, blank=True, null=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     website_title = models.CharField(max_length=512, blank=True, null=True)
     website_description = models.TextField(blank=True, null=True)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
     favicon_file = models.CharField(max_length=512, blank=True)
+    preview_image_file = models.CharField(max_length=512, blank=True, null=True)
     unread = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     shared = models.BooleanField(default=False)
@@ -148,8 +147,6 @@ class BookmarkForm(forms.ModelForm):
         max_length=512, required=False, widget=forms.HiddenInput()
     )
     website_description = forms.CharField(required=False, widget=forms.HiddenInput())
-    preview_image = forms.CharField(required=False, widget=forms.HiddenInput())
-    preview_image_file = forms.CharField(required=False, widget=forms.HiddenInput())
     unread = forms.BooleanField(required=False)
     shared = forms.BooleanField(required=False)
     # Hidden field that determines whether to close window/tab after saving the bookmark
@@ -162,8 +159,6 @@ class BookmarkForm(forms.ModelForm):
             "tag_string",
             "title",
             "description",
-            "preview_image",
-            "preview_image_file",
             "notes",
             "website_title",
             "website_description",

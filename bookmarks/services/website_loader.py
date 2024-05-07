@@ -16,7 +16,7 @@ class WebsiteMetadata:
     url: str
     title: str
     description: str
-    preview_image: str
+    preview_image: str | None
 
     def to_dict(self):
         return {
