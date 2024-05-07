@@ -40,6 +40,8 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     tasks.create_web_archive_snapshot(current_user, bookmark, False)
     # Load favicon
     tasks.load_favicon(current_user, bookmark)
+    # Load preview image
+    tasks.load_preview_image(current_user, bookmark)
     # Create HTML snapshot
     if current_user.profile.enable_automatic_html_snapshots:
         tasks.create_html_snapshot(bookmark)
@@ -58,6 +60,8 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     bookmark.save()
     # Update favicon
     tasks.load_favicon(current_user, bookmark)
+    # Update preview image
+    tasks.load_preview_image(current_user, bookmark)
 
     if has_url_changed:
         # Update web archive snapshot, if URL changed

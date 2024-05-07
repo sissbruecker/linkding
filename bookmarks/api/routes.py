@@ -99,7 +99,10 @@ class BookmarkViewSet(
         # Either return metadata from existing bookmark, or scrape from URL
         if bookmark:
             metadata = WebsiteMetadata(
-                url, bookmark.website_title, bookmark.website_description
+                url,
+                bookmark.website_title,
+                bookmark.website_description,
+                None,
             )
         else:
             metadata = website_loader.load_website_metadata(url)

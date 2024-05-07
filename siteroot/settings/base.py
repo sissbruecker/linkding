@@ -144,6 +144,7 @@ STATICFILES_FINDERS = [
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "bookmarks", "styles"),
     os.path.join(BASE_DIR, "data", "favicons"),
+    os.path.join(BASE_DIR, "data", "previews"),
 ]
 
 # REST framework
@@ -285,6 +286,9 @@ LD_ENABLE_REFRESH_FAVICONS = os.getenv("LD_ENABLE_REFRESH_FAVICONS", True) in (
     "True",
     "1",
 )
+
+# Previews settings
+LD_PREVIEW_FOLDER = os.path.join(BASE_DIR, "data", "previews")
 
 # Asset / snapshot settings
 LD_ASSET_FOLDER = os.path.join(BASE_DIR, "data", "assets")

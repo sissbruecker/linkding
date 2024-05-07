@@ -20,7 +20,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self, html: str, bookmark: Bookmark, link_target: str = "_blank"
     ):
         favicon_img = (
-            f'<img src="/static/{bookmark.favicon_file}" alt="">'
+            f'<img class="favicon" src="/static/{bookmark.favicon_file}" alt="">'
             if bookmark.favicon_file
             else ""
         )
@@ -148,19 +148,41 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         )
 
     def assertFaviconVisible(self, html: str, bookmark: Bookmark):
-        self.assertFaviconCount(html, bookmark, 1)
+        self.assertFavicon(html, bookmark, True)
 
     def assertFaviconHidden(self, html: str, bookmark: Bookmark):
-        self.assertFaviconCount(html, bookmark, 0)
+        self.assertFavicon(html, bookmark, False)
 
-    def assertFaviconCount(self, html: str, bookmark: Bookmark, count=1):
-        self.assertInHTML(
-            f"""
-            <img src="/static/{bookmark.favicon_file}" alt="">
-            """,
-            html,
-            count=count,
-        )
+    def assertFavicon(self, html: str, bookmark: Bookmark, visible=True):
+        soup = self.make_soup(html)
+
+        favicon = soup.select_one(".favicon")
+
+        if not visible:
+            self.assertIsNone(favicon)
+            return
+
+        url = f"/static/{bookmark.favicon_file}"
+        self.assertIsNotNone(favicon)
+        self.assertEqual(favicon["src"], url)
+
+    def assertPreviewImageVisible(self, html: str, bookmark: Bookmark):
+        self.assertPreviewImage(html, bookmark, True)
+
+    def assertPreviewImageHidden(self, html: str, bookmark: Bookmark):
+        self.assertPreviewImage(html, bookmark, False)
+
+    def assertPreviewImage(self, html: str, bookmark: Bookmark, visible=True):
+        soup = self.make_soup(html)
+        preview_image = soup.select_one(".preview-image")
+
+        if not visible:
+            self.assertIsNone(preview_image)
+            return
+
+        url = f"/static/{bookmark.preview_image_file}"
+        self.assertIsNotNone(preview_image)
+        self.assertEqual(preview_image["src"], url)
 
     def assertBookmarkURLCount(
         self, html: str, bookmark: Bookmark, link_target: str = "_blank", count=0
@@ -639,6 +661,36 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         """,
             html,
         )
+
+    def test_preview_image_should_be_visible_when_preview_images_enabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_preview_images = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(preview_image_file="preview.png")
+        html = self.render_template()
+
+        self.assertPreviewImageVisible(html, bookmark)
+
+    def test_preview_image_should_be_hidden_when_preview_images_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_preview_images = False
+        profile.save()
+
+        bookmark = self.setup_bookmark(preview_image_file="preview.png")
+        html = self.render_template()
+
+        self.assertPreviewImageHidden(html, bookmark)
+
+    def test_preview_image_should_be_hidden_when_there_is_no_preview_image(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_preview_images = True
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        html = self.render_template()
+
+        self.assertPreviewImageHidden(html, bookmark)
 
     def test_favicon_should_be_visible_when_favicons_enabled(self):
         profile = self.get_or_create_test_user().profile

@@ -128,7 +128,24 @@ ul.bookmark-list {
 /* Bookmarks */
 li[ld-bookmark-item] {
   position: relative;
+  display: flex;
+  gap: $unit-2;
   margin-top: $unit-2;
+
+  .content {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  img.preview-image {
+    flex: 0 0 auto;
+    width: 100px;
+    height: 60px;
+    margin-top: $unit-h;
+    object-fit: cover;
+    border-radius: $border-radius;
+    border: solid 1px $border-color-dark;
+  }
 
   .form-checkbox.bulk-edit-checkbox {
     display: none;
@@ -346,7 +363,7 @@ $bulk-edit-transition-duration: 400ms;
     transition: all $bulk-edit-transition-duration;
 
     .form-icon {
-        top: 0;
+      top: 0;
     }
   }
 

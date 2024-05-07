@@ -59,6 +59,7 @@ class Bookmark(models.Model):
     website_description = models.TextField(blank=True, null=True)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
     favicon_file = models.CharField(max_length=512, blank=True)
+    preview_image_file = models.CharField(max_length=512, blank=True, null=True)
     unread = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     shared = models.BooleanField(default=False)
@@ -394,6 +395,7 @@ class UserProfile(models.Model):
     enable_sharing = models.BooleanField(default=False, null=False)
     enable_public_sharing = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
+    enable_preview_images = models.BooleanField(default=False, null=False)
     display_url = models.BooleanField(default=False, null=False)
     display_view_bookmark_action = models.BooleanField(default=True, null=False)
     display_edit_bookmark_action = models.BooleanField(default=True, null=False)
@@ -420,6 +422,7 @@ class UserProfileForm(forms.ModelForm):
             "enable_sharing",
             "enable_public_sharing",
             "enable_favicons",
+            "enable_preview_images",
             "enable_automatic_html_snapshots",
             "display_url",
             "display_view_bookmark_action",

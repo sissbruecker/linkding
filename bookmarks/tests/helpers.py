@@ -39,6 +39,7 @@ class BookmarkFactoryMixin:
         website_description: str = "",
         web_archive_snapshot_url: str = "",
         favicon_file: str = "",
+        preview_image_file: str = "",
         added: datetime = None,
     ):
         if title is None:
@@ -67,6 +68,7 @@ class BookmarkFactoryMixin:
             shared=shared,
             web_archive_snapshot_url=web_archive_snapshot_url,
             favicon_file=favicon_file,
+            preview_image_file=preview_image_file,
         )
         bookmark.save()
         for tag in tags:

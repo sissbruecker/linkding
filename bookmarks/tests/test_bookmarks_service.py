@@ -42,7 +42,10 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             website_loader, "load_website_metadata"
         ) as mock_load_website_metadata:
             expected_metadata = WebsiteMetadata(
-                "https://example.com", "Website title", "Website description"
+                "https://example.com",
+                "Website title",
+                "Website description",
+                "https://example.com/preview.png",
             )
             mock_load_website_metadata.return_value = expected_metadata
 
@@ -157,6 +160,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
                 "https://example.com/updated",
                 "Updated website title",
                 "Updated website description",
+                "https://example.com/preview.png",
             )
             mock_load_website_metadata.return_value = expected_metadata
 

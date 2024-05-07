@@ -128,6 +128,15 @@
           {% endif %}
         </div>
         <div class="form-group">
+          <label for="{{ form.enable_preview_images.id_for_label }}" class="form-checkbox">
+            {{ form.enable_preview_images }}
+            <i class="form-icon"></i> Enable Preview Images
+          </label>
+          <div class="form-input-hint">
+            Automatically loads preview images for bookmarked websites and displays them next to each bookmark.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
             integration</label>
           {{ form.web_archive_integration|add_class:"form-select width-25 width-sm-100" }}

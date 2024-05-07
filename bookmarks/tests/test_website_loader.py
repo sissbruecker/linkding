@@ -29,7 +29,9 @@ class WebsiteLoaderTestCase(TestCase):
         # clear cached metadata before test run
         website_loader.load_website_metadata.cache_clear()
 
-    def render_html_document(self, title, description="", og_description=""):
+    def render_html_document(
+        self, title, description="", og_description="", og_image=""
+    ):
         meta_description = (
             f'<meta name="description" content="{description}">' if description else ""
         )
@@ -37,6 +39,9 @@ class WebsiteLoaderTestCase(TestCase):
             f'<meta property="og:description" content="{og_description}">'
             if og_description
             else ""
+        )
+        meta_og_image = (
+            f'<meta property="og:image" content="{og_image}">' if og_image else ""
         )
         return f"""
         <!DOCTYPE html>
@@ -46,6 +51,7 @@ class WebsiteLoaderTestCase(TestCase):
             <title>{title}</title>
             {meta_description}
             {meta_og_description}
+            {meta_og_image}
         </head>
         <body></body>
         </html>
@@ -105,6 +111,7 @@ class WebsiteLoaderTestCase(TestCase):
             metadata = website_loader.load_website_metadata("https://example.com")
             self.assertEqual("test title", metadata.title)
             self.assertEqual("test description", metadata.description)
+            self.assertIsNone(metadata.preview_image)
 
     def test_load_website_metadata_trims_title_and_description(self):
         with mock.patch(
@@ -127,6 +134,44 @@ class WebsiteLoaderTestCase(TestCase):
             metadata = website_loader.load_website_metadata("https://example.com")
             self.assertEqual("test title", metadata.title)
             self.assertEqual("test og description", metadata.description)
+
+    def test_load_website_metadata_using_og_image(self):
+        with mock.patch(
+            "bookmarks.services.website_loader.load_page"
+        ) as mock_load_page:
+            mock_load_page.return_value = self.render_html_document(
+                "test title", og_image="http://example.com/image.jpg"
+            )
+            metadata = website_loader.load_website_metadata("https://example.com")
+            self.assertEqual("http://example.com/image.jpg", metadata.preview_image)
+
+    def test_load_website_metadata_gets_absolute_og_image_path_when_path_starts_with_dots(
+        self,
+    ):
+        with mock.patch(
+            "bookmarks.services.website_loader.load_page"
+        ) as mock_load_page:
+            mock_load_page.return_value = self.render_html_document(
+                "test title", og_image="../image.jpg"
+            )
+            metadata = website_loader.load_website_metadata(
+                "https://example.com/a/b/page.html"
+            )
+            self.assertEqual("https://example.com/a/image.jpg", metadata.preview_image)
+
+    def test_load_website_metadata_gets_absolute_og_image_path_when_path_starts_with_slash(
+        self,
+    ):
+        with mock.patch(
+            "bookmarks.services.website_loader.load_page"
+        ) as mock_load_page:
+            mock_load_page.return_value = self.render_html_document(
+                "test title", og_image="/image.jpg"
+            )
+            metadata = website_loader.load_website_metadata(
+                "https://example.com/a/b/page.html"
+            )
+            self.assertEqual("https://example.com/image.jpg", metadata.preview_image)
 
     def test_load_website_metadata_prefers_description_over_og_description(self):
         with mock.patch(

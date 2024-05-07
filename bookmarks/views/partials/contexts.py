@@ -145,6 +145,7 @@ class BookmarkItem:
         self.tag_names = bookmark.tag_names
         self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url
         self.favicon_file = bookmark.favicon_file
+        self.preview_image_file = bookmark.preview_image_file
         self.is_archived = bookmark.is_archived
         self.unread = bookmark.unread
         self.owner = bookmark.owner
@@ -215,6 +216,7 @@ class BookmarkListContext:
         self.show_archive_action = user_profile.display_archive_bookmark_action
         self.show_remove_action = user_profile.display_remove_bookmark_action
         self.show_favicons = user_profile.enable_favicons
+        self.show_preview_images = user_profile.enable_preview_images
         self.show_notes = user_profile.permanent_notes
 
     @staticmethod
@@ -384,6 +386,7 @@ class BookmarkDetailsContext:
         self.profile = request.user_profile
         self.is_editable = bookmark.owner == user
         self.sharing_enabled = user_profile.enable_sharing
+        self.preview_image_enabled = user_profile.enable_preview_images
         self.show_link_icons = user_profile.enable_favicons and bookmark.favicon_file
         # For now hide files section if snapshots are not supported
         self.show_files = settings.LD_ENABLE_SNAPSHOTS
