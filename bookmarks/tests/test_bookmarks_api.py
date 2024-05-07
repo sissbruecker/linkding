@@ -643,12 +643,10 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             metadata = response.data["metadata"]
 
             self.assertIsNotNone(metadata)
-            self.assertIsNotNone(expected_metadata.url, metadata["url"])
-            self.assertIsNotNone(expected_metadata.title, metadata["title"])
-            self.assertIsNotNone(expected_metadata.description, metadata["description"])
-            self.assertIsNotNone(
-                expected_metadata.preview_image, metadata["preview_image"]
-            )
+            self.assertEqual(expected_metadata.url, metadata["url"])
+            self.assertEqual(expected_metadata.title, metadata["title"])
+            self.assertEqual(expected_metadata.description, metadata["description"])
+            self.assertEqual(expected_metadata.preview_image, metadata["preview_image"])
 
     def test_check_returns_bookmark_if_url_is_bookmarked(self):
         self.authenticate()
@@ -693,9 +691,10 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
             mock_load_website_metadata.assert_not_called()
             self.assertIsNotNone(metadata)
-            self.assertIsNotNone(bookmark.url, metadata["url"])
-            self.assertIsNotNone(bookmark.website_title, metadata["title"])
-            self.assertIsNotNone(bookmark.website_description, metadata["description"])
+            self.assertEqual(bookmark.url, metadata["url"])
+            self.assertEqual(bookmark.website_title, metadata["title"])
+            self.assertEqual(bookmark.website_description, metadata["description"])
+            self.assertIsNone(metadata["preview_image"])
 
     def test_can_only_access_own_bookmarks(self):
         self.authenticate()

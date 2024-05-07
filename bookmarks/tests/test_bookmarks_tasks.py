@@ -516,7 +516,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(self.executed_count(), 0)
 
     def test_load_preview_image_should_create_preview_image_file(self):
-        bookmark = self.setup_bookmark(preview_image="https://example.com/image.png")
+        bookmark = self.setup_bookmark()
 
         tasks.load_preview_image(self.get_or_create_test_user(), bookmark)
         bookmark.refresh_from_db()
@@ -526,7 +526,6 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_load_preview_image_should_update_preview_image_file(self):
         bookmark = self.setup_bookmark(
-            preview_image="https://example.com/image.png",
             preview_image_file="preview_image.png",
         )
 
@@ -543,18 +542,38 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         self.mock_load_preview_image.assert_not_called()
 
+    def test_load_preview_image_should_not_save_stale_bookmark_data(self):
+        bookmark = self.setup_bookmark()
+
+        # update bookmark during API call to check that saving
+        # the image does not overwrite updated bookmark data
+        def mock_load_preview_image_impl(url):
+            bookmark.title = "Updated title"
+            bookmark.save()
+            return "test.png"
+
+        self.mock_load_preview_image.side_effect = mock_load_preview_image_impl
+
+        tasks.load_preview_image(self.get_or_create_test_user(), bookmark)
+        bookmark.refresh_from_db()
+
+        self.assertEqual(bookmark.title, "Updated title")
+        self.assertEqual(bookmark.preview_image_file, "test.png")
+
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
     def test_load_preview_image_should_not_run_when_background_tasks_are_disabled(self):
-        bookmark = self.setup_bookmark(preview_image="https://example.com/image.png")
+        bookmark = self.setup_bookmark()
         tasks.load_preview_image(self.get_or_create_test_user(), bookmark)
 
         self.assertEqual(self.executed_count(), 0)
 
-    def test_load_preview_image_should_not_run_when_preview_image_feature_is_disabled(self):
+    def test_load_preview_image_should_not_run_when_preview_image_feature_is_disabled(
+        self,
+    ):
         self.user.profile.enable_preview_images = False
         self.user.profile.save()
 
-        bookmark = self.setup_bookmark(preview_image="https://example.com/image.png")
+        bookmark = self.setup_bookmark()
         tasks.load_preview_image(self.get_or_create_test_user(), bookmark)
 
         self.assertEqual(self.executed_count(), 0)

@@ -66,9 +66,6 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(
                 expected_metadata.description, created_bookmark.website_description
             )
-            self.assertEqual(
-                expected_metadata.preview_image, created_bookmark.preview_image
-            )
 
     def test_create_should_update_existing_bookmark_with_same_url(self):
         original_bookmark = self.setup_bookmark(
@@ -177,7 +174,6 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(
                 expected_metadata.description, bookmark.website_description
             )
-            self.assertEqual(expected_metadata.preview_image, bookmark.preview_image)
 
     def test_update_should_not_update_website_metadata_if_url_did_not_change(self):
         with patch.object(

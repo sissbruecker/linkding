@@ -20,7 +20,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self, html: str, bookmark: Bookmark, link_target: str = "_blank"
     ):
         favicon_img = (
-            f'<img src="/static/{bookmark.favicon_file}" alt="">'
+            f'<img class="favicon" src="/static/{bookmark.favicon_file}" alt="">'
             if bookmark.favicon_file
             else ""
         )
@@ -148,38 +148,41 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         )
 
     def assertFaviconVisible(self, html: str, bookmark: Bookmark):
-        self.assertFaviconCount(html, bookmark, 1)
+        self.assertFavicon(html, bookmark, True)
 
     def assertFaviconHidden(self, html: str, bookmark: Bookmark):
-        self.assertFaviconCount(html, bookmark, 0)
+        self.assertFavicon(html, bookmark, False)
 
-    def assertFaviconCount(self, html: str, bookmark: Bookmark, count=1):
-        self.assertInHTML(
-            f"""
-            <img src="/static/{bookmark.favicon_file}" alt="">
-            """,
-            html,
-            count=count,
-        )
+    def assertFavicon(self, html: str, bookmark: Bookmark, visible=True):
+        soup = self.make_soup(html)
+
+        favicon = soup.select_one(".favicon")
+
+        if not visible:
+            self.assertIsNone(favicon)
+            return
+
+        url = f"/static/{bookmark.favicon_file}"
+        self.assertIsNotNone(favicon)
+        self.assertEqual(favicon["src"], url)
 
     def assertPreviewImageVisible(self, html: str, bookmark: Bookmark):
-        self.assertPreviewImageCount(html, bookmark, 1)
+        self.assertPreviewImage(html, bookmark, True)
 
     def assertPreviewImageHidden(self, html: str, bookmark: Bookmark):
-        self.assertPreviewImageCount(html, bookmark, 0)
+        self.assertPreviewImage(html, bookmark, False)
 
-    def assertPreviewImageCount(self, html: str, bookmark: Bookmark, count=1):
-        url = bookmark.preview_image
-        if bookmark.preview_image_file:
-            url = f"/static/{bookmark.preview_image_file}"
+    def assertPreviewImage(self, html: str, bookmark: Bookmark, visible=True):
+        soup = self.make_soup(html)
+        preview_image = soup.select_one(".preview-image")
 
-        self.assertInHTML(
-            f"""
-            <img src="{url}">
-            """,
-            html,
-            count=count,
-        )
+        if not visible:
+            self.assertIsNone(preview_image)
+            return
+
+        url = f"/static/{bookmark.preview_image_file}"
+        self.assertIsNotNone(preview_image)
+        self.assertEqual(preview_image["src"], url)
 
     def assertBookmarkURLCount(
         self, html: str, bookmark: Bookmark, link_target: str = "_blank", count=0

@@ -300,6 +300,36 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             web_archive_link["target"], UserProfile.BOOKMARK_LINK_TARGET_SELF
         )
 
+    def test_preview_image(self):
+        # without image
+        bookmark = self.setup_bookmark()
+        soup = self.get_details(bookmark)
+        image = soup.select_one("div.preview-image img")
+        self.assertIsNone(image)
+
+        # with image
+        bookmark = self.setup_bookmark(preview_image_file="example.png")
+        soup = self.get_details(bookmark)
+        image = soup.select_one("div.preview-image img")
+        self.assertIsNone(image)
+
+        # preview images enabled, no image
+        profile = self.get_or_create_test_user().profile
+        profile.enable_preview_images = True
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        soup = self.get_details(bookmark)
+        image = soup.select_one("div.preview-image img")
+        self.assertIsNone(image)
+
+        # preview images enabled, image present
+        bookmark = self.setup_bookmark(preview_image_file="example.png")
+        soup = self.get_details(bookmark)
+        image = soup.select_one("div.preview-image img")
+        self.assertIsNotNone(image)
+        self.assertEqual(image["src"], "/static/example.png")
+
     def test_status(self):
         # renders form
         bookmark = self.setup_bookmark()

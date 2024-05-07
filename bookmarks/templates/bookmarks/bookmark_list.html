@@ -17,7 +17,7 @@
               <i class="form-icon"></i>
             </label>
             {% if bookmark_item.favicon_file and bookmark_list.show_favicons %}
-              <img src="{% static bookmark_item.favicon_file %}" alt="">
+              <img class="favicon" src="{% static bookmark_item.favicon_file %}" alt="">
             {% endif %}
             <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener">
               <span>{{ bookmark_item.title }}</span>
