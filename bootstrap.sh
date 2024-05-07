@@ -7,6 +7,8 @@ LD_SERVER_PORT="${LD_SERVER_PORT:-9090}"
 mkdir -p data
 # Create favicon folder if it does not exist
 mkdir -p data/favicons
+# Create previews folder if it does not exist
+mkdir -p data/previews
 # Create assets folder if it does not exist
 mkdir -p data/assets
 
