@@ -7,6 +7,7 @@ import waybackpy
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.utils import timezone, formats
 from huey import crontab
 from huey.contrib.djhuey import HUEY as huey
@@ -166,6 +167,12 @@ def is_favicon_feature_active(user: User) -> bool:
     return background_tasks_enabled and user.profile.enable_favicons
 
 
+def is_preview_feature_active(user: User) -> bool:
+    return (
+        user.profile.enable_preview_images and not settings.LD_DISABLE_BACKGROUND_TASKS
+    )
+
+
 def load_favicon(user: User, bookmark: Bookmark):
     if is_favicon_feature_active(user):
         _load_favicon_task(bookmark.id)
@@ -206,6 +213,27 @@ def _schedule_bookmarks_without_favicons_task(user_id: int):
         pass
 
 
+def schedule_bookmarks_without_previews(user: User):
+    if is_preview_feature_active(user):
+        _schedule_bookmarks_without_previews_task(user.id)
+
+
+@task()
+def _schedule_bookmarks_without_previews_task(user_id: int):
+    user = get_user_model().objects.get(id=user_id)
+    bookmarks = Bookmark.objects.filter(
+        Q(preview_image_file__isnull=True) | Q(preview_image_file__exact=True),
+        owner=user,
+    )
+
+    # TODO: Implement bulk task creation
+    for bookmark in bookmarks:
+        try:
+            _load_preview_image_task(bookmark.id)
+        except Exception as exc:
+            logging.exception(exc)
+
+
 def schedule_refresh_favicons(user: User):
     if is_favicon_feature_active(user) and settings.LD_ENABLE_REFRESH_FAVICONS:
         _schedule_refresh_favicons_task(user.id)
@@ -222,7 +250,7 @@ def _schedule_refresh_favicons_task(user_id: int):
 
 
 def load_preview_image(user: User, bookmark: Bookmark):
-    if user.profile.enable_preview_images and not settings.LD_DISABLE_BACKGROUND_TASKS:
+    if is_preview_feature_active(user):
         _load_preview_image_task(bookmark.id)
 
 

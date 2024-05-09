@@ -33,9 +33,19 @@ def load_preview_image(url: str) -> str | None:
 
     logger.debug(f"Loading preview image: {metadata.preview_image}")
     with requests.get(metadata.preview_image, stream=True) as response:
-        content_type = response.headers["Content-Type"]
+        if response.status_code < 200 or response.status_code >= 300:
+            return None
+
+        if "Content-Type" not in response.headers:
+            return None
+
+        content_type = response.headers["Content-Type"].split(";", 1)[0]
         preview_image_hash = _url_to_filename(url)
         file_extension = mimetypes.guess_extension(content_type)
+
+        if not file_extension:
+            return None
+
         preview_image_file = f"{preview_image_hash}{file_extension}"
         preview_image_path = _get_image_path(preview_image_file)
         with open(preview_image_path, "wb") as file:

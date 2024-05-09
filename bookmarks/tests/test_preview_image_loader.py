@@ -13,8 +13,9 @@ mock_image_data = b"mock_image"
 
 
 class MockStreamingResponse:
-    def __init__(self, data=mock_image_data, content_type="image/png"):
+    def __init__(self, data=mock_image_data, content_type="image/png", status_code=200):
         self.chunks = [data]
+        self.status_code = status_code
         self.headers = {"Content-Type": content_type}
 
     def iter_content(self, **kwargs):

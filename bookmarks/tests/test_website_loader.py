@@ -5,8 +5,9 @@ from django.test import TestCase
 
 
 class MockStreamingResponse:
-    def __init__(self, num_chunks, chunk_size, insert_head_after_chunk=None):
+    def __init__(self, num_chunks, chunk_size, insert_head_after_chunk=None, status_code=200):
         self.chunks = []
+        self.status_code = status_code
         for index in range(num_chunks):
             chunk = "".zfill(chunk_size)
             self.chunks.append(chunk.encode("utf-8"))
