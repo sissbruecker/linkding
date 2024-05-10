@@ -213,27 +213,6 @@ def _schedule_bookmarks_without_favicons_task(user_id: int):
         pass
 
 
-def schedule_bookmarks_without_previews(user: User):
-    if is_preview_feature_active(user):
-        _schedule_bookmarks_without_previews_task(user.id)
-
-
-@task()
-def _schedule_bookmarks_without_previews_task(user_id: int):
-    user = get_user_model().objects.get(id=user_id)
-    bookmarks = Bookmark.objects.filter(
-        Q(preview_image_file__isnull=True) | Q(preview_image_file__exact=True),
-        owner=user,
-    )
-
-    # TODO: Implement bulk task creation
-    for bookmark in bookmarks:
-        try:
-            _load_preview_image_task(bookmark.id)
-        except Exception as exc:
-            logging.exception(exc)
-
-
 def schedule_refresh_favicons(user: User):
     if is_favicon_feature_active(user) and settings.LD_ENABLE_REFRESH_FAVICONS:
         _schedule_refresh_favicons_task(user.id)
@@ -271,6 +250,27 @@ def _load_preview_image_task(bookmark_id: int):
         logger.info(
             f"Successfully updated preview image for bookmark. url={bookmark.url} preview_image_file={new_preview_image_file}"
         )
+
+
+def schedule_bookmarks_without_previews(user: User):
+    if is_preview_feature_active(user):
+        _schedule_bookmarks_without_previews_task(user.id)
+
+
+@task()
+def _schedule_bookmarks_without_previews_task(user_id: int):
+    user = get_user_model().objects.get(id=user_id)
+    bookmarks = Bookmark.objects.filter(
+        Q(preview_image_file__exact=""),
+        owner=user,
+    )
+
+    # TODO: Implement bulk task creation
+    for bookmark in bookmarks:
+        try:
+            _load_preview_image_task(bookmark.id)
+        except Exception as exc:
+            logging.exception(exc)
 
 
 def is_html_snapshot_feature_active() -> bool:
