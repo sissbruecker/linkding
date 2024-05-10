@@ -578,6 +578,60 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(self.executed_count(), 0)
 
+    def test_schedule_bookmarks_without_previews_should_load_preview_for_all_bookmarks_without_preview(
+        self,
+    ):
+        user = self.get_or_create_test_user()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark(preview_image_file="test.png")
+        self.setup_bookmark(preview_image_file="test.png")
+        self.setup_bookmark(preview_image_file="test.png")
+
+        tasks.schedule_bookmarks_without_previews(user)
+
+        self.assertEqual(self.executed_count(), 4)
+        self.assertEqual(self.mock_load_preview_image.call_count, 3)
+
+    def test_schedule_bookmarks_without_previews_should_only_update_user_owned_bookmarks(
+        self,
+    ):
+        user = self.get_or_create_test_user()
+        other_user = User.objects.create_user(
+            "otheruser", "otheruser@example.com", "password123"
+        )
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+        self.setup_bookmark(user=other_user)
+
+        tasks.schedule_bookmarks_without_previews(user)
+
+        self.assertEqual(self.mock_load_preview_image.call_count, 3)
+
+    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_schedule_bookmarks_without_previews_should_not_run_when_background_tasks_are_disabled(
+        self,
+    ):
+        self.setup_bookmark()
+        tasks.schedule_bookmarks_without_previews(self.get_or_create_test_user())
+
+        self.assertEqual(self.executed_count(), 0)
+
+    def test_schedule_bookmarks_without_previews_should_not_run_when_preview_feature_is_disabled(
+        self,
+    ):
+        self.user.profile.enable_preview_images = False
+        self.user.profile.save()
+
+        self.setup_bookmark()
+        tasks.schedule_bookmarks_without_previews(self.get_or_create_test_user())
+
+        self.assertEqual(self.executed_count(), 0)
+
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_html_snapshot_should_create_pending_asset(self):
         bookmark = self.setup_bookmark()

@@ -83,6 +83,8 @@ def import_netscape_html(
     tasks.schedule_bookmarks_without_snapshots(user)
     # Load favicons for newly imported bookmarks
     tasks.schedule_bookmarks_without_favicons(user)
+    # Load previews for newly imported bookmarks
+    tasks.schedule_bookmarks_without_previews(user)
 
     end = timezone.now()
     logger.debug(f"Import duration: {end - import_start}")
