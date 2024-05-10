@@ -1306,3 +1306,15 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertEqual(list(query), sorted_bookmarks)
+
+    def test_random_sort(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM)
+
+        bookmarks = self.setup_title_sort_data()
+
+        query1 = queries.query_bookmarks(self.user, self.profile, search)
+        query2 = queries.query_bookmarks(self.user, self.profile, search)
+
+        self.assertEqual(len(bookmarks), len(query1))
+        self.assertEqual(len(bookmarks), len(query2))
+        self.assertNotEqual(list(query1), list(query2))
