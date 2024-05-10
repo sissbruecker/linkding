@@ -537,6 +537,19 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_load_preview_image.assert_called_once()
         self.assertEqual(bookmark.preview_image_file, "preview_image_upd.png")
 
+    def test_load_preview_image_should_set_blank_when_none_is_returned(self):
+        bookmark = self.setup_bookmark(
+            preview_image_file="preview_image.png",
+        )
+
+        self.mock_load_preview_image.return_value = None
+
+        tasks.load_preview_image(self.get_or_create_test_user(), bookmark)
+
+        bookmark.refresh_from_db()
+        self.mock_load_preview_image.assert_called_once()
+        self.assertEqual(bookmark.preview_image_file, "")
+
     def test_load_preview_image_should_handle_missing_bookmark(self):
         tasks._load_preview_image_task(123)
 

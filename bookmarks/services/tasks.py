@@ -245,7 +245,7 @@ def _load_preview_image_task(bookmark_id: int):
     new_preview_image_file = preview_image_loader.load_preview_image(bookmark.url)
 
     if new_preview_image_file != bookmark.preview_image_file:
-        bookmark.preview_image_file = new_preview_image_file
+        bookmark.preview_image_file = new_preview_image_file or ""
         bookmark.save(update_fields=["preview_image_file"])
         logger.info(
             f"Successfully updated preview image for bookmark. url={bookmark.url} preview_image_file={new_preview_image_file}"
