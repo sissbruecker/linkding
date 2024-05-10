@@ -31,6 +31,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "enable_sharing": False,
             "enable_public_sharing": False,
             "enable_favicons": False,
+            "enable_preview_images": False,
             "enable_automatic_html_snapshots": True,
             "tag_search": UserProfile.TAG_SEARCH_STRICT,
             "display_url": False,
@@ -88,6 +89,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "enable_sharing": True,
             "enable_public_sharing": True,
             "enable_favicons": True,
+            "enable_preview_images": True,
             "enable_automatic_html_snapshots": False,
             "tag_search": UserProfile.TAG_SEARCH_LAX,
             "display_url": True,
@@ -130,6 +132,9 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
         self.assertEqual(
             self.user.profile.enable_favicons, form_data["enable_favicons"]
+        )
+        self.assertEqual(
+            self.user.profile.enable_preview_images, form_data["enable_preview_images"]
         )
         self.assertEqual(
             self.user.profile.enable_automatic_html_snapshots,
@@ -290,6 +295,39 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             html,
             count=0,
         )
+
+    def test_enable_preview_image_should_schedule_preview_update(self):
+        with patch.object(
+            tasks, "schedule_bookmarks_without_previews"
+        ) as mock_schedule_bookmarks_without_previews:
+            # Enabling favicons schedules update
+            form_data = self.create_profile_form_data(
+                {
+                    "update_profile": "",
+                    "enable_preview_images": True,
+                }
+            )
+            self.client.post(reverse("bookmarks:settings.general"), form_data)
+
+            mock_schedule_bookmarks_without_previews.assert_called_once_with(self.user)
+
+            # No update scheduled if favicons are already enabled
+            mock_schedule_bookmarks_without_previews.reset_mock()
+
+            self.client.post(reverse("bookmarks:settings.general"), form_data)
+
+            mock_schedule_bookmarks_without_previews.assert_not_called()
+
+            # No update scheduled when disabling favicons
+            form_data = self.create_profile_form_data(
+                {
+                    "enable_preview_images": False,
+                }
+            )
+
+            self.client.post(reverse("bookmarks:settings.general"), form_data)
+
+            mock_schedule_bookmarks_without_previews.assert_not_called()
 
     def test_automatic_html_snapshots_should_be_hidden_when_snapshots_not_supported(
         self,

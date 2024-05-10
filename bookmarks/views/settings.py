@@ -70,11 +70,16 @@ def update_profile(request):
     user = request.user
     profile = user.profile
     favicons_were_enabled = profile.enable_favicons
+    previews_were_enabled = profile.enable_preview_images
     form = UserProfileForm(request.POST, instance=profile)
     if form.is_valid():
         form.save()
+        # Load missing favicons if the feature was just enabled
         if profile.enable_favicons and not favicons_were_enabled:
             tasks.schedule_bookmarks_without_favicons(request.user)
+        # Load missing preview images if the feature was just enabled
+        if profile.enable_preview_images and not previews_were_enabled:
+            tasks.schedule_bookmarks_without_previews(request.user)
     return form
 
 
