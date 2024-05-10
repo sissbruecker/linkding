@@ -75,11 +75,12 @@ class PreviewImageLoaderTestCase(TestCase):
     def get_image_path(self, filename):
         return Path(os.path.join(settings.LD_PREVIEW_FOLDER, filename))
 
-    def image_exists(self, filename):
-        return self.get_image_path(filename).exists()
+    def assertImageExists(self, filename, data):
+        self.assertTrue(self.get_image_path(filename).exists())
+        self.assertEqual(self.get_image_path(filename).read_bytes(), data)
 
-    def get_image_data(self, filename):
-        return self.get_image_path(filename).read_bytes()
+    def assertNoImageExists(self):
+        self.assertFalse(os.listdir(settings.LD_PREVIEW_FOLDER))
 
     def test_load_preview_image(self):
         with mock.patch("requests.get") as mock_get:
@@ -87,8 +88,8 @@ class PreviewImageLoaderTestCase(TestCase):
 
             file = preview_image_loader.load_preview_image("https://example.com")
 
-            self.assertTrue(self.image_exists(file))
-            self.assertEqual(mock_image_data, self.get_image_data(file))
+            self.assertIsNotNone(file)
+            self.assertImageExists(file, mock_image_data)
 
     def test_load_preview_image_returns_none_if_no_preview_image_detected(self):
         with mock.patch("requests.get") as mock_get:
@@ -98,16 +99,35 @@ class PreviewImageLoaderTestCase(TestCase):
             file = preview_image_loader.load_preview_image("https://example.com")
 
             self.assertIsNone(file)
+            self.assertNoImageExists()
 
-    def test_load_preview_image_returns_none_if_no_status_code_is_bad(self):
+    def test_load_preview_image_returns_none_for_invalid_status_code(self):
+        invalid_status_codes = [199, 300, 400, 500]
+
+        for status_code in invalid_status_codes:
+            with mock.patch("requests.get") as mock_get:
+                mock_get.return_value = self.create_mock_response(
+                    status_code=status_code
+                )
+
+                file = preview_image_loader.load_preview_image("https://example.com")
+
+                self.assertIsNone(file)
+                self.assertNoImageExists()
+
+    def test_load_preview_image_returns_none_if_content_length_exceeds_limit(self):
+        # exceeds max size
         with mock.patch("requests.get") as mock_get:
-            mock_get.return_value = self.create_mock_response(status_code=404)
+            mock_get.return_value = self.create_mock_response(
+                content_length=settings.LD_PREVIEW_MAX_SIZE + 1
+            )
 
             file = preview_image_loader.load_preview_image("https://example.com")
 
             self.assertIsNone(file)
+            self.assertNoImageExists()
 
-    def test_load_preview_image_returns_none_if_file_is_huge(self):
+        # equals max size
         with mock.patch("requests.get") as mock_get:
             mock_get.return_value = self.create_mock_response(
                 content_length=settings.LD_PREVIEW_MAX_SIZE
@@ -115,23 +135,44 @@ class PreviewImageLoaderTestCase(TestCase):
 
             file = preview_image_loader.load_preview_image("https://example.com")
 
-            self.assertIsNone(file)
+            self.assertIsNotNone(file)
+            self.assertImageExists(file, mock_image_data)
 
-    def test_load_preview_image_returns_none_if_content_type_is_not_supported(self):
-        with mock.patch("requests.get") as mock_get:
-            mock_get.return_value = self.create_mock_response(content_type="text/html")
+    def test_load_preview_image_returns_none_for_invalid_content_type(self):
+        invalid_content_types = ["text/html", "application/json"]
 
-            file = preview_image_loader.load_preview_image("https://example.com")
+        for content_type in invalid_content_types:
+            with mock.patch("requests.get") as mock_get:
+                mock_get.return_value = self.create_mock_response(
+                    content_type=content_type
+                )
 
-            self.assertIsNone(file)
+                file = preview_image_loader.load_preview_image("https://example.com")
 
-    def test_load_preview_image_returns_none_if_file_size_exeeds_content_length(self):
+                self.assertIsNone(file)
+                self.assertNoImageExists()
+
+        valid_content_types = ["image/png", "image/jpeg", "image/gif"]
+
+        for content_type in valid_content_types:
+            with mock.patch("requests.get") as mock_get:
+                mock_get.return_value = self.create_mock_response(
+                    content_type=content_type
+                )
+
+                file = preview_image_loader.load_preview_image("https://example.com")
+
+                self.assertIsNotNone(file)
+                self.assertImageExists(file, mock_image_data)
+
+    def test_load_preview_image_returns_none_if_download_exceeds_content_length(self):
         with mock.patch("requests.get") as mock_get:
             mock_get.return_value = self.create_mock_response(content_length=1)
 
             file = preview_image_loader.load_preview_image("https://example.com")
 
             self.assertIsNone(file)
+            self.assertNoImageExists()
 
     def test_load_preview_image_creates_folder_if_not_exists(self):
         with mock.patch("requests.get") as mock_get:
@@ -152,7 +193,7 @@ class PreviewImageLoaderTestCase(TestCase):
 
             file = preview_image_loader.load_preview_image("https://example.com")
 
-            self.assertTrue(self.image_exists(file))
+            self.assertImageExists(file, mock_image_data)
             self.assertEqual("png", file.split(".")[-1])
 
         with mock.patch("requests.get") as mock_get:
@@ -160,5 +201,5 @@ class PreviewImageLoaderTestCase(TestCase):
 
             file = preview_image_loader.load_preview_image("https://example.com")
 
-            self.assertTrue(self.image_exists(file))
+            self.assertImageExists(file, mock_image_data)
             self.assertEqual("jpg", file.split(".")[-1])

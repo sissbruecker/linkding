@@ -46,9 +46,9 @@ def load_preview_image(url: str) -> str | None:
             return None
 
         content_length = int(response.headers["Content-Length"])
-        if content_length >= settings.LD_PREVIEW_MAX_SIZE:
+        if content_length > settings.LD_PREVIEW_MAX_SIZE:
             logger.debug(
-                f"Content-Length >= LD_PREVIEW_MAX_SIZE: {image_url} length={content_length}"
+                f"Content-Length exceeds LD_PREVIEW_MAX_SIZE: {image_url} length={content_length}"
             )
             return None
 
