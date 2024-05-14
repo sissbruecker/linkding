@@ -220,6 +220,14 @@ def _assert_token(script, token, expected_types, expected_values=None):
 
 
 class Parser:
+    KNOWN_FUNCTIONS = {
+        "add_tag": [["quoted-string"]],
+        "update_favicon": [],
+        "download_thumbnail": [],
+    }
+    KNOWN_OPERATORS = [":starts_with"]
+    KNOWN_KEYS = ["url"]
+
     def __init__(self, script, tokens):
         self._script = script
         self._tokens = tokens
@@ -232,10 +240,10 @@ class Parser:
         _assert_token(self._script, self._token, expected_types, expected_values)
 
     def _parse_condition(self):
-        self._assert_token(["identifier"])
+        self._assert_token(["identifier"], Parser.KNOWN_KEYS)
         key = self._token
         self._next()
-        self._assert_token(["tag"])
+        self._assert_token(["tag"], Parser.KNOWN_OPERATORS)
         op = self._token
         self._next()
         self._assert_token(["quoted-string"])
@@ -257,7 +265,9 @@ class Parser:
         self._assert_token(["identifier"], expected_values)
         type = self._token
         self._next()
-        condition = self._parse_condition() if type.value != "else" else None
+        condition = None
+        if type.value != "else":
+            condition = self._parse_condition()
         block = self._parse_block()
         else_block = None
         if self._token.value in ["elsif", "else"]:
@@ -265,14 +275,15 @@ class Parser:
         return IfStatement(type, condition, block, else_block)
 
     def _parse_command(self):
-        self._assert_token(["identifier"])
+        self._assert_token(["identifier"], Parser.KNOWN_FUNCTIONS.keys())
         command = self._token
         self._next()
         args = []
-        while self._token.value != ";":
-            self._assert_token(["quoted-string"])
+        for expected_arg in Parser.KNOWN_FUNCTIONS[command.value]:
+            self._assert_token(expected_arg)
             args.append(self._token)
             self._next()
+        self._assert_token([";"])
         self._next()
         return Command(command, args)
 
@@ -286,9 +297,7 @@ class Parser:
 
     def _parse_program(self):
         statements = []
-        while True:
-            if self._token.type == "EOF":
-                break
+        while self._token.type != "EOF":
             statements.append(self._parse_statement())
         return Program(statements)
 
