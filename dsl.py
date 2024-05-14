@@ -1,15 +1,3 @@
-script = """
-if url :starts_with "https://www.google.com" {
-    add_tag "google";
-} elsif url :starts_with "https://www.facebook.com" {
-    add_tag "facebook";
-}
-
-update_favicon;
-download_thumbnail;
-"""
-
-
 def _is_alpha_underline(c: str):
     return c.isalpha() or c == "_"
 
@@ -212,15 +200,14 @@ def _assert_token(script, token, expected_types, expected_values=None):
         raise ParsingError(
             script,
             token.pos,
-            f"Unexpected token: {token}, expected: {'|'.join(expected_types)}",
+            f"Unexpected token: {token}, expected type: {'|'.join(expected_types)}",
         )
-    if expected_values:
-        if token.value not in expected_values:
-            raise ParsingError(
-                script,
-                token.pos,
-                f"Unexpected token: {token}, expected: {'|'.join(expected_values)}",
-            )
+    if expected_values and token.value not in expected_values:
+        raise ParsingError(
+            script,
+            token.pos,
+            f"Unexpected token: {token}, expected value: {'|'.join(expected_values)}",
+        )
 
 
 class Parser:
@@ -310,17 +297,14 @@ class Parser:
 
 
 class Evaluator:
-    def __init__(self, script, program, obj):
+    def __init__(self, script, program, context):
         self._script = script
         self._program = program
-        self._obj = obj
-        self.tags = set()
-        self.should_update_favicon = False
-        self.should_download_thumbnail = False
+        self._context = context
 
     def _evaluate_check(self, check):
         key = check.key.value
-        current_value = self._obj[key].lower()
+        current_value = self._context[key].lower()
         op = check.op.value
         param = check.value.value.lower()
         if op == ":starts_with":
@@ -348,13 +332,13 @@ class Evaluator:
         if command.command.value == "add_tag":
             self._assert_args_len(command, 1)
             _assert_token(self._script, command.args[0], ["quoted-string"])
-            self.tags.add(command.args[0].value)
+            self._context["tags"].add(command.args[0].value)
         elif command.command.value == "update_favicon":
             self._assert_args_len(command, 0)
-            self.should_update_favicon = True
+            self._context["should_update_favicon"] = True
         elif command.command.value == "download_thumbnail":
             self._assert_args_len(command, 0)
-            self.should_download_thumbnail = True
+            self._context["should_download_thumbnail"] = True
         else:
             raise ParsingError(
                 self._script,
@@ -420,28 +404,45 @@ def valdate_script(script):
     return ValidationResult(True)
 
 
-print(script)
-print()
+if __name__ == "__main__":
+    import pprint
 
-valid = valdate_script(script)
-print(valid)
-print()
+    script = """
+if url :starts_with "https://www.google.com" {
+    add_tag "google";
+} elsif url :starts_with "https://www.facebook.com" {
+    add_tag "facebook";
+}
 
-for token in _tokenize(script):
-    print(token)
-print()
+update_favicon;
+download_thumbnail;
+""".lstrip()
 
-parser = Parser(script, _tokenize(script))
-program = parser.parse()
-print(program.dump(script))
-print()
+    print(script)
 
-e = Evaluator(script, program, {"url": "https://www.facebook.com"})
-e.evaluate()
-print(
-    {
-        "tags": e.tags,
-        "should_update_favicon": e.should_update_favicon,
-        "should_download_thumbnail": e.should_download_thumbnail,
+    valid = valdate_script(script)
+    print(valid)
+    print()
+
+    for token in _tokenize(script):
+        print(token.dump(script))
+    print()
+
+    parser = Parser(script, _tokenize(script))
+    program = parser.parse()
+    print(program.dump(script))
+    print()
+
+    context = {
+        "url": "https://www.facebook.com",
+        "tags": set(["video"]),
+        "should_update_favicon": False,
+        "should_download_thumbnail": False,
     }
-)
+    e = Evaluator(
+        script,
+        program,
+        context,
+    )
+    e.evaluate()
+    pprint.pp(context)
