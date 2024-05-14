@@ -3,9 +3,10 @@ if url :starts_with "https://www.google.com" {
     add_tag "google";
 } elsif url :starts_with "https://www.facebook.com" {
     add_tag "facebook";
-} else {
-
 }
+
+update_favicon;
+download_thumbnail;
 """
 
 
@@ -176,9 +177,9 @@ class Parser:
         self._next()
         condition = self._parse_condition() if type.value != "else" else None
         block = self._parse_block()
-        else_block = (
-            self._parse_if_statement(first_if=False) if type.value != "else" else None
-        )
+        else_block = None
+        if self._token.value in ["elsif", "else"]:
+            else_block = self._parse_if_statement(first_if=False)
         return IfStatement(type, condition, block, else_block)
 
     def _parse_command(self):
@@ -219,6 +220,8 @@ class Evaluator:
         self._program = program
         self._obj = obj
         self.tags = set()
+        self.should_update_favicon = False
+        self.should_download_thumbnail = False
 
     def _evaluate_check(self, check):
         key = check.key.value
@@ -245,9 +248,12 @@ class Evaluator:
                 )
             _assert_token(command.args[0], ["quoted-string"])
             self.tags.add(command.args[0].value)
-            return
-
-        raise ValueError(f"Unknown command: {command.command.value}")
+        elif command.command.value == "update_favicon":
+            self.should_update_favicon = True
+        elif command.command.value == "download_thumbnail":
+            self.should_download_thumbnail = True
+        else:
+            raise ValueError(f"Unknown command: {command.command.value}")
 
     def _evaluate_program(self, program):
         for statement in program.statements:
@@ -267,4 +273,10 @@ program = parser.parse()
 print(program)
 e = Evaluator(program, {"url": "https://www.facebook.com"})
 e.evaluate()
-print(e.tags)
+print(
+    {
+        "tags": e.tags,
+        "should_update_favicon": e.should_update_favicon,
+        "should_download_thumbnail": e.should_download_thumbnail,
+    }
+)
