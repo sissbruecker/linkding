@@ -392,7 +392,17 @@ class ParsingError(ValueError):
         self.col = col
 
     def __str__(self):
-        return self.__repr__()
+        res = self.__repr__()
+        lines = [
+            f"{str(i+1).rjust(5)}. {l}" for i, l in enumerate(self.source.split("\n"))
+        ]
+        prev_lines = "\n".join(lines[self.line - 3 : self.line - 1])
+        cur_line = lines[self.line - 1]
+        next_lines = "\n".join(lines[self.line : self.line + 2])
+        res += f"\n\n{prev_lines}\n{cur_line}\n here -"
+        res += "-" * (self.col - 1)
+        res += f"^\n{next_lines}\n"
+        return res
 
 
 def valdate_script(script):
