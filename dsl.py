@@ -316,10 +316,11 @@ class Evaluator:
 
     def _evaluate_check(self, check):
         key = check.key.value
+        current_value = self._obj[key].lower()
         op = check.op.value
-        value = check.value.value
+        param = check.value.value.lower()
         if op == ":starts_with":
-            return self._obj[key].startswith(value.lower())
+            return current_value.startswith(param)
         raise ParsingError(self._script, check.op.pos, f"Unknown operator: {op}")
 
     def _evaluate_if_statement(self, if_statement):
