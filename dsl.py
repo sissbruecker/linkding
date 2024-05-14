@@ -55,7 +55,8 @@ class Token:
 
 def _tokenize(script: str):
     i = 0
-    while i < len(script):
+    l = len(script)
+    while i < l:
         if script[i].isspace():
             i += 1
             continue
@@ -69,11 +70,13 @@ def _tokenize(script: str):
             value = ":"
             pos = i
             i += 1
+            if i >= l:
+                raise ParsingError(script, i, f"Expected an alphabet after colon")
             if not _is_alpha_underline(script[i]):
                 raise ParsingError(
                     script, i, f"Expected an alphabet after colon: '{script[i]}'"
                 )
-            while _is_alnum_underline(script[i]):
+            while i < l and _is_alnum_underline(script[i]):
                 value += script[i]
                 i += 1
             yield Token("tag", value, pos)
@@ -84,13 +87,14 @@ def _tokenize(script: str):
             pos = i
             i += 1
             while True:
-                if script[i] == "\\" and script[i + 1] == '"':
-                    value += '"'
-                    i += 2
-                    continue
-                if script[i] == "\\" and script[i + 1] == "\\":
-                    value += "\\"
-                    i += 2
+                if i >= l:
+                    raise ParsingError(script, i, 'Expected EOF, expected "')
+                if script[i] == "\\":
+                    i += 1
+                    if i >= l:
+                        raise ParsingError(script, i, "Expected EOF")
+                    value += script[i]
+                    i += 1
                     continue
                 if script[i] == '"':
                     i += 1
@@ -104,7 +108,7 @@ def _tokenize(script: str):
             value = script[i]
             pos = i
             i += 1
-            while _is_alnum_underline(script[i]):
+            while i < l and _is_alnum_underline(script[i]):
                 value += script[i]
                 i += 1
             yield Token("identifier", value, pos)
