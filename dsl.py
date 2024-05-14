@@ -221,7 +221,7 @@ class Parser:
         "download_thumbnail": [],
     }
     KNOWN_OPERATORS = [":starts_with", ":is", ":contains", ":matches", ":ends_with"]
-    KNOWN_KEYS = ["url"]
+    KNOWN_KEYS = ["url", "title", "description"]
 
     def __init__(self, script, tokens):
         self._script = script
@@ -429,7 +429,7 @@ if __name__ == "__main__":
     script = """
 if url :starts_with "https://www.google.com" {
     add_tag "google";
-} elsif url :matches "^.+facebook.+$" {
+} elsif title :contains "facebook" {
     add_tag "facebook";
     remove_tag "video";
 }
@@ -455,6 +455,8 @@ download_thumbnail;
 
     context = {
         "url": "https://www.facebook.com",
+        "title": "Facebook",
+        "description": "Some Web Page",
         "tags": set(["video"]),
         "should_update_favicon": False,
         "should_download_thumbnail": False,
