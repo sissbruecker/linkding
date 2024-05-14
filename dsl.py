@@ -216,6 +216,7 @@ def _assert_token(script, token, expected_types, expected_values=None):
 class Parser:
     KNOWN_FUNCTIONS = {
         "add_tag": [["quoted-string"]],
+        "remove_tag": [["quoted-string"]],
         "update_favicon": [],
         "download_thumbnail": [],
     }
@@ -347,6 +348,10 @@ class Evaluator:
             self._assert_args_len(command, 1)
             _assert_token(self._script, command.args[0], ["quoted-string"])
             self._context["tags"].add(command.args[0].value)
+        elif command.command.value == "remove_tag":
+            self._assert_args_len(command, 1)
+            _assert_token(self._script, command.args[0], ["quoted-string"])
+            self._context["tags"].remove(command.args[0].value)
         elif command.command.value == "update_favicon":
             self._assert_args_len(command, 0)
             self._context["should_update_favicon"] = True
@@ -426,6 +431,7 @@ if url :starts_with "https://www.google.com" {
     add_tag "google";
 } elsif url :matches "^.+facebook.+$" {
     add_tag "facebook";
+    remove_tag "video";
 }
 
 update_favicon;
