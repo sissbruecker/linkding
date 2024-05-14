@@ -1,3 +1,6 @@
+import re
+
+
 def _is_alpha_underline(c: str):
     return c.isalpha() or c == "_"
 
@@ -216,7 +219,7 @@ class Parser:
         "update_favicon": [],
         "download_thumbnail": [],
     }
-    KNOWN_OPERATORS = [":starts_with"]
+    KNOWN_OPERATORS = [":starts_with", ":is", ":contains", ":matches", ":ends_with"]
     KNOWN_KEYS = ["url"]
 
     def __init__(self, script, tokens):
@@ -304,11 +307,22 @@ class Evaluator:
 
     def _evaluate_check(self, check):
         key = check.key.value
-        current_value = self._context[key].lower()
+        current_value = self._context[key]
         op = check.op.value
-        param = check.value.value.lower()
+        param = check.value.value
         if op == ":starts_with":
-            return current_value.startswith(param)
+            return current_value.lower().startswith(param.lower())
+        if op == ":is":
+            return current_value.lower() == param.lower()
+        if op == ":contains":
+            return param.lower() in current_value.lower()
+        if op == ":ends_with":
+            return current_value.lower().endswith(param.lower())
+        if op == ":matches":
+            pattern = re.compile(param)
+            matches = pattern.match(current_value)
+            return matches is not None
+
         raise ParsingError(self._script, check.op.pos, f"Unknown operator: {op}")
 
     def _evaluate_if_statement(self, if_statement):
@@ -410,7 +424,7 @@ if __name__ == "__main__":
     script = """
 if url :starts_with "https://www.google.com" {
     add_tag "google";
-} elsif url :starts_with "https://www.facebook.com" {
+} elsif url :matches "^.+facebook.+$" {
     add_tag "facebook";
 }
 
