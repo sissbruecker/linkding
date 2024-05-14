@@ -199,6 +199,12 @@ li[ld-bookmark-item] {
     animation: 0.3s ease 0s appear;
   }
 
+  @media (pointer:coarse) {
+    .title a[data-tooltip]::after {
+      display: none;
+    }
+  }
+
   &.unread .title a {
     font-style: italic;
   }
