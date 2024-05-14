@@ -43,7 +43,7 @@ class Token:
 
     def __repr__(self):
         return f"Token({self.type}, {self.value})"
-    
+
     def dump(self, script):
         value = self.value
         if self.type == "quoted-string":
@@ -70,8 +70,8 @@ def _tokenize(script: str):
             pos = i
             i += 1
             if not _is_alpha_underline(script[i]):
-                raise ValueError(
-                    f"Expected an alphabet after colon: '{script[i]}' {_pos_str(script, i)}"
+                raise ParsingError(
+                    script, i, f"Expected an alphabet after colon: '{script[i]}'"
                 )
             while _is_alnum_underline(script[i]):
                 value += script[i]
@@ -110,7 +110,7 @@ def _tokenize(script: str):
             yield Token("identifier", value, pos)
             continue
 
-        raise ValueError(f"Unexpected character: '{script[i]}' {_pos_str(script, i)}")
+        raise ParsingError(script, i, f"Unexpected character: '{script[i]}'")
 
     yield Token("EOF", "", i)
 
@@ -121,14 +121,15 @@ class Program:
 
     def __repr__(self):
         return f"Program({self.statements})"
-    
+
     def dump(self, script, indent=""):
         res = f"Program(\n"
         res += f"{indent}  statements=["
         for i, statement in enumerate(self.statements):
             if i > 0:
                 res += ","
-            res += f"\n{indent}    {statement.dump(script, indent + "    ")}"
+            s = statement.dump(script, indent + "    ")
+            res += f"\n{indent}    {s}"
         if len(self.statements) > 0:
             res += f"\n{indent}  "
         res += "]\n"
@@ -145,15 +146,18 @@ class IfStatement:
 
     def __repr__(self):
         return f"IfStatement({self.condition}, {self.block}, {self.else_block})"
-    
+
     def dump(self, script, indent=""):
         res = f"IfStatement(\n"
         res += f"{indent}  type={self.type.dump(script)}\n"
         if self.condition:
-            res += f"{indent}  condition={self.condition.dump(script, indent + "  ")}\n"
-        res += f"{indent}  ok={self.block.dump(script, indent + "  ")}\n"
+            condition = self.condition.dump(script, indent + "  ")
+            res += f"{indent}  condition={condition}\n"
+        ok = self.block.dump(script, indent + "  ")
+        res += f"{indent}  ok={ok}\n"
         if self.else_block:
-            res += f"{indent}  else={self.else_block.dump(script, indent + "  ")}\n"
+            else_block = self.else_block.dump(script, indent + "  ")
+            res += f"{indent}  else_block={else_block}\n"
         res += f"{indent})"
         return res
 
@@ -166,7 +170,7 @@ class Check:
 
     def __repr__(self):
         return f"Check({self.key}, {self.op}, {self.value})"
-    
+
     def dump(self, script, indent=""):
         res = f"Check(\n"
         res += f"{indent}  key={self.key.dump(script)}\n"
@@ -183,7 +187,7 @@ class Command:
 
     def __repr__(self):
         return f"Command({self.command}, {self.args})"
-    
+
     def dump(self, script, indent=""):
         res = f"Command(\n"
         res += f"{indent}  command={self.command.dump(script)}\n"
@@ -201,13 +205,17 @@ class Command:
 
 def _assert_token(script, token, expected_types, expected_values=None):
     if token.type not in expected_types:
-        raise ValueError(
-            f"Unexpected token: {token}, expected: {'|'.join(expected_types)} {_pos_str(script, token.pos)}"
+        raise ParsingError(
+            script,
+            token.pos,
+            f"Unexpected token: {token}, expected: {'|'.join(expected_types)}",
         )
     if expected_values:
         if token.value not in expected_values:
-            raise ValueError(
-                f"Unexpected token: {token}, expected: {'|'.join(expected_values)} {_pos_str(script, token.pos)}"
+            raise ParsingError(
+                script,
+                token.pos,
+                f"Unexpected token: {token}, expected: {'|'.join(expected_values)}",
             )
 
 
@@ -303,9 +311,7 @@ class Evaluator:
         value = check.value.value
         if op == ":starts_with":
             return self._obj[key].startswith(value.lower())
-        raise ValueError(
-            f"Unknown operator: {op} {_pos_str(self._script, check.op.pos)}"
-        )
+        raise ParsingError(self._script, check.op.pos, f"Unknown operator: {op}")
 
     def _evaluate_if_statement(self, if_statement):
         ok = if_statement.condition is None or self._evaluate_check(
@@ -318,8 +324,10 @@ class Evaluator:
 
     def _assert_args_len(self, command, expected_len):
         if len(command.args) != expected_len:
-            raise ValueError(
-                f"Expected {expected_len} arguments, got {len(command.args)} {_pos_str(self._script, command.command.pos)}"
+            raise ParsingError(
+                self._script,
+                command.command.pos,
+                f"Expected {expected_len} arguments, got {len(command.args)}",
             )
 
     def _evaluate_command(self, command):
@@ -334,8 +342,10 @@ class Evaluator:
             self._assert_args_len(command, 0)
             self.should_download_thumbnail = True
         else:
-            raise ValueError(
-                f"Unknown command: {command.command.value} {_pos_str(self._script, command.command.pos)}"
+            raise ParsingError(
+                self._script,
+                command.command.pos,
+                f"Unknown command: {command.command.value}",
             )
 
     def _evaluate_program(self, program):
@@ -345,15 +355,52 @@ class Evaluator:
             elif isinstance(statement, Command):
                 self._evaluate_command(statement)
             else:
-                raise ValueError(
-                    f"Unknown statement: {statement} {_pos_str(self._script, statement.pos)}"
+                raise ParsingError(
+                    self._script, statement.pos, f"Unknown statement: {statement}"
                 )
 
     def evaluate(self):
         self._evaluate_program(self._program)
 
 
+class ValidationResult:
+    def __init__(self, valid, error=None):
+        self.valid = valid
+        self.error = error
+
+    def __repr__(self):
+        return f"ValidationResult(valid={self.valid}, error={self.error})"
+
+
+class ParsingError(ValueError):
+    def __init__(self, source, pos, msg) -> None:
+        line, col = _pos_to_line_col(script, pos)
+        msg += f" {_pos_str(source, pos)}"
+        super().__init__(msg)
+        self.source = source
+        self.pos = pos
+        self.line = line
+        self.col = col
+
+    def __str__(self):
+        return self.__repr__()
+
+
+def valdate_script(script):
+    try:
+        parser = Parser(script, _tokenize(script))
+        parser.parse()
+    except ParsingError as e:
+        return ValidationResult(False, e)
+
+    return ValidationResult(True)
+
+
 print(script)
+print()
+
+valid = valdate_script(script)
+print(valid)
 print()
 
 for token in _tokenize(script):
