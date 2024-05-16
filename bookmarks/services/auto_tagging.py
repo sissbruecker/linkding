@@ -57,14 +57,14 @@ def _domains_matches(expected_domain: str, actual_domain: str) -> bool:
 
 
 def _qs_matches(expected_qs: str, actual_qs: str) -> bool:
-    expected_qs = parse_qs(expected_qs)
-    actual_qs = parse_qs(actual_qs)
+    expected_qs = parse_qs(expected_qs, keep_blank_values=True)
+    actual_qs = parse_qs(actual_qs, keep_blank_values=True)
 
     for key in expected_qs:
         if key not in actual_qs:
             return False
         for value in expected_qs[key]:
-            if value not in actual_qs[key]:
+            if value != "" and value not in actual_qs[key]:
                 return False
 
     return True

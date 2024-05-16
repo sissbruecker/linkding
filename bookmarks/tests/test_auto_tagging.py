@@ -14,6 +14,16 @@ class AutoTaggingTestCase(TestCase):
 
         self.assertEqual(tags, set(["example"]))
 
+    def test_auto_tag_by_domain_ignores_case(self):
+        script = """
+            EXAMPLE.com example
+        """
+        url = "https://example.com/"
+
+        tags = auto_tagging.get_tags(script, url)
+
+        self.assertEqual(tags, set(["example"]))
+
     def test_auto_tag_by_domain_should_add_all_tags(self):
         script = """
             example.com one two three
@@ -48,6 +58,16 @@ class AutoTaggingTestCase(TestCase):
             example.com/one one
             example.com/two two
             test.com test
+        """
+        url = "https://example.com/one/"
+
+        tags = auto_tagging.get_tags(script, url)
+
+        self.assertEqual(tags, set(["one"]))
+
+    def test_auto_tag_by_domain_and_path_ignores_case(self):
+        script = """
+            example.com/One one
         """
         url = "https://example.com/one/"
 
@@ -127,12 +147,25 @@ class AutoTaggingTestCase(TestCase):
             example.com/page?c=d&l=p tag3 # false, l=p doesn't exists
             example.com/page?a=bb tag4    # false bb != b
             example.com/page?a=b&a=c tag5 # true, matches both a=b and a=c
+            example.com/page?a=B tag6     # true, matches a=b because case insensitive
+            example.com/page?A=b tag7     # true, matches a=b because case insensitive
         """
         url = "https://example.com/page/some?z=x&a=b&v=b&c=d&o=p&a=c"
 
         tags = auto_tagging.get_tags(script, url)
 
-        self.assertEqual(tags, set(["tag1", "tag2", "tag5"]))
+        self.assertEqual(tags, set(["tag1", "tag2", "tag5", "tag6", "tag7"]))
+
+    def test_auto_tag_by_domain_path_and_qs_with_empty_value(self):
+        script = """
+            example.com/page?a= tag1
+            example.com/page?b= tag2
+        """
+        url = "https://example.com/page/some?a=value"
+
+        tags = auto_tagging.get_tags(script, url)
+
+        self.assertEqual(tags, set(["tag1"]))
 
     def test_auto_tag_by_domain_path_and_qs_works_with_encoded_url(self):
         script = """
