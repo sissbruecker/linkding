@@ -24,10 +24,10 @@ def get_tags(script: str, url: str):
             i = domain_pattern.index("/")
             path_pattern = domain_pattern[i:]
             domain_pattern = domain_pattern[:i]
-        
+
         if path_pattern and "?" in path_pattern:
             i = path_pattern.index("?")
-            qs_pattern = path_pattern[i+1:]
+            qs_pattern = path_pattern[i + 1 :]
             path_pattern = path_pattern[:i]
 
         if not _domains_matches(domain_pattern, parsed_url.netloc):
@@ -66,5 +66,5 @@ def _qs_matches(expected_qs: str, actual_qs: str) -> bool:
         for value in expected_qs[key]:
             if value not in actual_qs[key]:
                 return False
-    
+
     return True
