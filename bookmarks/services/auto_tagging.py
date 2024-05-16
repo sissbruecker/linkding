@@ -4,6 +4,8 @@ import re
 
 def get_tags(script: str, url: str):
     parsed_url = urlparse(url.lower())
+    result = set()
+
     for line in script.lower().split("\n"):
         parts = line.split()
         if len(parts) < 2:
@@ -19,18 +21,11 @@ def get_tags(script: str, url: str):
 
         if not parsed_url.netloc.endswith(domain_pattern):
             continue
-        
+
         if path_pattern and not parsed_url.path.startswith(path_pattern):
             continue
 
-        return parts[1:]
+        for tag in parts[1:]:
+            result.add(tag)
 
-
-script = """
-youtube.com video
-https://www.reddit.com/r/Music/ music
-"""
-
-print(get_tags(script, "https://www.reddit.com/r/Music/qwe"))
-print(get_tags(script, "https://www.youtube.com/qwe"))
-print(get_tags(script, "https://qwe.com/youtube.com"))
+    return result

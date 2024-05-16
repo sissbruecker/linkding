@@ -130,6 +130,18 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
 
             mock_create_html_snapshot.assert_not_called()
 
+    def test_create_should_add_tags_from_auto_tagging(self):
+        tag1 = self.setup_tag()
+        tag2 = self.setup_tag()
+        profile = self.get_or_create_test_user().profile
+        profile.auto_tagging_script = f"example.com {tag2.name}"
+        profile.save()
+
+        bookmark_data = Bookmark(url="https://example.com")
+        bookmark = create_bookmark(bookmark_data, tag1.name, self.user)
+
+        self.assertCountEqual(bookmark.tags.all(), [tag1, tag2])
+
     def test_update_should_create_web_archive_snapshot_if_url_did_change(self):
         with patch.object(
             tasks, "create_web_archive_snapshot"
@@ -200,6 +212,18 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             update_bookmark(bookmark, "tag1,tag2", self.user)
 
             mock_create_html_snapshot.assert_not_called()
+
+    def test_update_should_add_tags_from_auto_tagging(self):
+        tag1 = self.setup_tag()
+        tag2 = self.setup_tag()
+        profile = self.get_or_create_test_user().profile
+        profile.auto_tagging_script = f"example.com {tag2.name}"
+        profile.save()
+        bookmark = self.setup_bookmark(url="https://example.com")
+
+        update_bookmark(bookmark, tag1.name, self.user)
+
+        self.assertCountEqual(bookmark.tags.all(), [tag1, tag2])
 
     def test_archive_bookmark(self):
         bookmark = Bookmark(

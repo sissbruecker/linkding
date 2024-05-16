@@ -10,6 +10,7 @@ from django.utils import timezone
 from bookmarks.models import Bookmark, BookmarkAsset, parse_tag_string
 from bookmarks.services import tasks
 from bookmarks.services import website_loader
+from bookmarks.services import auto_tagging
 from bookmarks.services.tags import get_or_create_tags
 
 logger = logging.getLogger(__name__)
@@ -242,6 +243,14 @@ def _update_website_metadata(bookmark: Bookmark):
 
 def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):
     tag_names = parse_tag_string(tag_string)
+
+    if user.profile.auto_tagging_script:
+        for tag in auto_tagging.get_tags(
+            user.profile.auto_tagging_script, bookmark.url
+        ):
+            if tag not in tag_names:
+                tag_names.append(tag)
+
     tags = get_or_create_tags(tag_names, user)
     bookmark.tags.set(tags)
 
