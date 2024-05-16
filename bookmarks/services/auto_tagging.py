@@ -33,7 +33,7 @@ def get_tags(script: str, url: str):
         if not _domains_matches(domain_pattern, parsed_url.netloc):
             continue
 
-        if path_pattern and not parsed_url.path.startswith(path_pattern):
+        if path_pattern and not _path_matches(path_pattern, parsed_url.path):
             continue
 
         if qs_pattern and not _qs_matches(qs_pattern, parsed_url.query):
@@ -43,6 +43,10 @@ def get_tags(script: str, url: str):
             result.add(tag)
 
     return result
+
+
+def _path_matches(expected_path: str, actual_path: str) -> bool:
+    return actual_path.startswith(expected_path)
 
 
 def _domains_matches(expected_domain: str, actual_domain: str) -> bool:
