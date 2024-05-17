@@ -134,7 +134,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
         profile = self.get_or_create_test_user().profile
-        profile.auto_tagging_script = f"example.com {tag2.name}"
+        profile.auto_tagging_rules = f"example.com {tag2.name}"
         profile.save()
 
         bookmark_data = Bookmark(url="https://example.com")
@@ -217,7 +217,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
         profile = self.get_or_create_test_user().profile
-        profile.auto_tagging_script = f"example.com {tag2.name}"
+        profile.auto_tagging_rules = f"example.com {tag2.name}"
         profile.save()
         bookmark = self.setup_bookmark(url="https://example.com")
 

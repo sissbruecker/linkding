@@ -415,7 +415,7 @@ class UserProfile(models.Model):
     display_remove_bookmark_action = models.BooleanField(default=True, null=False)
     permanent_notes = models.BooleanField(default=False, null=False)
     custom_css = models.TextField(blank=True, null=False)
-    auto_tagging_script = models.TextField(blank=True, null=False)
+    auto_tagging_rules = models.TextField(blank=True, null=False)
     search_preferences = models.JSONField(default=dict, null=False)
     enable_automatic_html_snapshots = models.BooleanField(default=True, null=False)
     default_mark_unread = models.BooleanField(default=False, null=False)
@@ -446,7 +446,7 @@ class UserProfileForm(forms.ModelForm):
             "permanent_notes",
             "default_mark_unread",
             "custom_css",
-            "auto_tagging_script",
+            "auto_tagging_rules",
         ]
 
 

@@ -42,7 +42,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "display_remove_bookmark_action": True,
             "permanent_notes": False,
             "custom_css": "",
-            "auto_tagging_script": "",
+            "auto_tagging_rules": "",
         }
 
         return {**form_data, **overrides}
@@ -103,7 +103,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "permanent_notes": True,
             "default_mark_unread": True,
             "custom_css": "body { background-color: #000; }",
-            "auto_tagging_script": "example.com tag",
+            "auto_tagging_rules": "example.com tag",
         }
         response = self.client.post(reverse("bookmarks:settings.general"), form_data)
         html = response.content.decode()
@@ -171,7 +171,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
         self.assertEqual(self.user.profile.custom_css, form_data["custom_css"])
         self.assertEqual(
-            self.user.profile.auto_tagging_script, form_data["auto_tagging_script"]
+            self.user.profile.auto_tagging_rules, form_data["auto_tagging_rules"]
         )
         self.assertSuccessMessage(html, "Profile updated")
 
