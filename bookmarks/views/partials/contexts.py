@@ -304,7 +304,7 @@ class TagGroup:
             return []
 
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
-        group = TagGroup(sorted_tags[0].name[0].lower())
+        group = TagGroup("Ungrouped")
         for tag in sorted_tags:
             group.tags.append(tag)
 
