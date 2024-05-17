@@ -119,6 +119,21 @@
           </div>
         </div>
         <div class="form-group">
+          <details {% if form.auto_tagging_rules.value %}open{% endif %}>
+            <summary>Auto Tagging</summary>
+            <label for="{{ form.auto_tagging_rules.id_for_label }}" class="text-assistive">Auto Tagging</label>
+            <div class="mt-2">
+              {{ form.auto_tagging_rules|add_class:"form-input custom-css"|attr:"rows:6" }}
+            </div>
+          </details>
+          <div class="form-input-hint">
+            Automatically adds tags to bookmarks based on predefined rules.
+            Each line is a single rule that maps a URL to one or more tags. For example:
+            <pre>youtube.com video
+reddit.com/r/Music music reddit</pre>
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.enable_favicons.id_for_label }}" class="form-checkbox">
             {{ form.enable_favicons }}
             <i class="form-icon"></i> Enable Favicons
