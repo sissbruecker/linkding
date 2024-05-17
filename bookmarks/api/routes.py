@@ -11,6 +11,7 @@ from bookmarks.api.serializers import (
     UserProfileSerializer,
 )
 from bookmarks.models import Bookmark, BookmarkSearch, Tag, User
+from bookmarks.services import auto_tagging
 from bookmarks.services.bookmarks import (
     archive_bookmark,
     unarchive_bookmark,
@@ -107,8 +108,18 @@ class BookmarkViewSet(
         else:
             metadata = website_loader.load_website_metadata(url)
 
+        # Return tags that would be automatically applied to the bookmark
+        profile = request.user.profile
+        auto_tags = []
+        if profile.auto_tagging_rules:
+            auto_tags = auto_tagging.get_tags(profile.auto_tagging_rules, url)
+
         return Response(
-            {"bookmark": existing_bookmark_data, "metadata": metadata.to_dict()},
+            {
+                "bookmark": existing_bookmark_data,
+                "metadata": metadata.to_dict(),
+                "auto_tags": auto_tags,
+            },
             status=status.HTTP_200_OK,
         )
 

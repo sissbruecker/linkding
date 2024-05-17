@@ -23,10 +23,10 @@
     <label for="{{ form.tag_string.id_for_label }}" class="form-label">Tags</label>
     {{ form.tag_string|add_class:"form-input"|attr:"ld-tag-autocomplete"|attr:"autocomplete:off"|attr:"autocapitalize:off" }}
     <div class="form-input-hint">
-      Enter any number of tags separated by space and <strong>without</strong> the hash (#). If a tag does not
-      exist it will be
-      automatically created.
+      Enter any number of tags separated by space and <strong>without</strong> the hash (#).
+      If a tag does not exist it will be automatically created.
     </div>
+    <div class="form-input-hint auto-tags"></div>
     {{ form.tag_string.errors }}
   </div>
   <div class="form-group has-icon-right">
@@ -196,6 +196,18 @@
               updateCheckbox(sharedCheckbox, existingBookmark.shared);
             } else {
               bookmarkExistsHint.style['display'] = 'none';
+            }
+
+            // Preview auto tags
+            const autoTags = data.auto_tags;
+            const autoTagsHint = document.querySelector('.form-input-hint.auto-tags');
+
+            if (autoTags.length > 0) {
+              autoTags.sort();
+              autoTagsHint.style['display'] = 'block';
+              autoTagsHint.innerHTML = `Auto tags: ${autoTags.join(" ")}`;
+            } else {
+              autoTagsHint.style['display'] = 'none';
             }
           });
       }
