@@ -111,6 +111,14 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.tag_grouping.id_for_label }}" class="form-label">Tag grouping</label>
+          {{ form.tag_grouping|add_class:"form-select width-25 width-sm-100" }}
+          <div class="form-input-hint">
+            In alphabetical mode, tags will be grouped by the first letter.
+            If disabled, tags will not be grouped.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.enable_favicons.id_for_label }}" class="form-checkbox">
             {{ form.enable_favicons }}
             <i class="form-icon"></i> Enable Favicons

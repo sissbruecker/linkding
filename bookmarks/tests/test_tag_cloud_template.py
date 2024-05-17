@@ -140,6 +140,43 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             ],
         )
 
+    def test_group_when_grouping_disabled(self):
+        profile = self.get_or_create_test_user().profile
+        profile.tag_grouping = UserProfile.TAG_GROUPING_DISABLED
+        profile.save()
+
+        tags = [
+            self.setup_tag(name="Cockatoo"),
+            self.setup_tag(name="Badger"),
+            self.setup_tag(name="Buffalo"),
+            self.setup_tag(name="Chihuahua"),
+            self.setup_tag(name="Alpaca"),
+            self.setup_tag(name="Coyote"),
+            self.setup_tag(name="Aardvark"),
+            self.setup_tag(name="Bumblebee"),
+            self.setup_tag(name="Armadillo"),
+        ]
+        self.setup_bookmark(tags=tags)
+
+        rendered_template = self.render_template()
+
+        self.assertTagGroups(
+            rendered_template,
+            [
+                [
+                    "Aardvark",
+                    "Alpaca",
+                    "Armadillo",
+                    "Badger",
+                    "Buffalo",
+                    "Bumblebee",
+                    "Chihuahua",
+                    "Cockatoo",
+                    "Coyote",
+                ],
+            ],
+        )
+
     def test_no_duplicate_tag_names(self):
         tags = [
             self.setup_tag(name="shared", user=self.setup_user(enable_sharing=True)),

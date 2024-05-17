@@ -352,6 +352,12 @@ class UserProfile(models.Model):
         (TAG_SEARCH_STRICT, "Strict"),
         (TAG_SEARCH_LAX, "Lax"),
     ]
+    TAG_GROUPING_ALPHABETICAL = "alphabetical"
+    TAG_GROUPING_DISABLED = "disabled"
+    TAG_GROUPING_CHOICES = [
+        (TAG_GROUPING_ALPHABETICAL, "Alphabetical"),
+        (TAG_GROUPING_DISABLED, "Disabled"),
+    ]
     user = models.OneToOneField(
         get_user_model(), related_name="profile", on_delete=models.CASCADE
     )
@@ -392,6 +398,12 @@ class UserProfile(models.Model):
         blank=False,
         default=TAG_SEARCH_STRICT,
     )
+    tag_grouping = models.CharField(
+        max_length=12,
+        choices=TAG_GROUPING_CHOICES,
+        blank=False,
+        default=TAG_GROUPING_ALPHABETICAL,
+    )
     enable_sharing = models.BooleanField(default=False, null=False)
     enable_public_sharing = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
@@ -419,6 +431,7 @@ class UserProfileForm(forms.ModelForm):
             "bookmark_link_target",
             "web_archive_integration",
             "tag_search",
+            "tag_grouping",
             "enable_sharing",
             "enable_public_sharing",
             "enable_favicons",

@@ -264,7 +264,16 @@ class TagGroup:
         return f"<{self.char} TagGroup>"
 
     @staticmethod
-    def create_tag_groups(tags: Set[Tag]):
+    def create_tag_groups(mode: str, tags: Set[Tag]):
+        if mode == UserProfile.TAG_GROUPING_ALPHABETICAL:
+            return TagGroup._create_tag_groups_alphabetical(tags)
+        elif mode == UserProfile.TAG_GROUPING_DISABLED:
+            return TagGroup._create_tag_groups_disabled(tags)
+        else:
+            raise ValueError(f"{mode} is not a valid tag grouping mode")
+
+    @staticmethod
+    def _create_tag_groups_alphabetical(tags: Set[Tag]):
         # Ensure groups, as well as tags within groups, are ordered alphabetically
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
         group = None
@@ -289,6 +298,18 @@ class TagGroup:
             groups.append(cjk_group)
         return groups
 
+    @staticmethod
+    def _create_tag_groups_disabled(tags: Set[Tag]):
+        if len(tags) == 0:
+            return []
+
+        sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
+        group = TagGroup("Ungrouped")
+        for tag in sorted_tags:
+            group.tags.append(tag)
+
+        return [group]
+
 
 class TagCloudContext:
     request_context = RequestContext
@@ -311,7 +332,7 @@ class TagCloudContext:
         )
         has_selected_tags = len(unique_selected_tags) > 0
         unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
-        groups = TagGroup.create_tag_groups(unselected_tags)
+        groups = TagGroup.create_tag_groups(user_profile.tag_grouping, unselected_tags)
 
         self.tags = unique_tags
         self.groups = groups
