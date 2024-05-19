@@ -74,6 +74,12 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     return bookmark
 
 
+def access_bookmark(bookmark: Bookmark):
+    bookmark.date_accessed = timezone.now()
+    bookmark.save()
+    return bookmark
+
+
 def archive_bookmark(bookmark: Bookmark):
     bookmark.is_archived = True
     bookmark.date_modified = timezone.now()

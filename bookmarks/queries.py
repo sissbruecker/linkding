@@ -88,6 +88,12 @@ def _base_bookmarks_query(
         query_set = query_set.filter(shared=False)
 
     # Sort by date added
+    if search.sort == BookmarkSearch.SORT_ACCESSED_ASC:
+        query_set = query_set.order_by("date_accessed", "date_modified")
+    elif search.sort == BookmarkSearch.SORT_ACCESSED_DESC:
+        query_set = query_set.order_by("-date_accessed", "-date_modified")
+
+    # Sort by date added
     if search.sort == BookmarkSearch.SORT_ADDED_ASC:
         query_set = query_set.order_by("date_added")
     elif search.sort == BookmarkSearch.SORT_ADDED_DESC:

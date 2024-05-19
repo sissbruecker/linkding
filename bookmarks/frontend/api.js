@@ -1,6 +1,7 @@
 export class ApiClient {
-  constructor(baseUrl) {
+  constructor(baseUrl, token = "") {
     this.baseUrl = baseUrl;
+    this.token = token;
   }
 
   listBookmarks(search, options = { limit: 100, offset: 0, path: "" }) {
@@ -25,5 +26,16 @@ export class ApiClient {
     return fetch(url)
       .then((response) => response.json())
       .then((data) => data.results);
+  }
+
+  async markBookmarkAccessed(id) {
+    const url = `${this.baseUrl}bookmarks/${id}/access/`;
+
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": this.token,
+      },
+    });
   }
 }

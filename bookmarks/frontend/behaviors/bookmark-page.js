@@ -1,3 +1,4 @@
+import { ApiClient } from "../api";
 import { Behavior, registerBehavior } from "./index";
 
 class BookmarkItem extends Behavior {
@@ -17,6 +18,14 @@ class BookmarkItem extends Behavior {
       if (titleSpan.offsetWidth > titleAnchor.offsetWidth) {
         titleAnchor.dataset.tooltip = titleSpan.textContent;
       }
+    });
+
+    const csrftoken = element.querySelector("[name=csrfmiddlewaretoken]").value;
+    const id = element.querySelector("[name=bookmark_id]").value;
+    const apiBaseUrl = document.documentElement.dataset.apiBaseUrl || "";
+    const apiClient = new ApiClient(apiBaseUrl, csrftoken);
+    titleAnchor.addEventListener("click", async () => {
+      await apiClient.markBookmarkAccessed(id);
     });
   }
 
