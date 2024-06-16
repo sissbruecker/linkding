@@ -48,6 +48,19 @@ class Command(BaseCommand):
                         file_path = os.path.join(root, file)
                         zip_file.write(file_path, os.path.join("favicons", file))
 
+            # Backup the previews folder
+            if not os.path.exists(os.path.join("data", "previews")):
+                self.stdout.write(
+                    self.style.WARNING("No previews folder found. Skipping...")
+                )
+            else:
+                self.stdout.write("Backup bookmark previews...")
+                previews_folder = os.path.join("data", "previews")
+                for root, _, files in os.walk(previews_folder):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        zip_file.write(file_path, os.path.join("previews", file))
+
         self.stdout.write(self.style.SUCCESS(f"Backup created at {backup_file}"))
 
     def backup_database(self, backup_db_file):

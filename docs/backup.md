@@ -8,12 +8,13 @@ The data folder contains the following contents that are relevant for backups:
 - `db.sqlite3` - the SQLite database
 - `assets` - folder that contains HTML snapshots of bookmarks
 - `favicons` - folder that contains downloaded favicons
+- `previews` - folder that contains downloaded preview images
 
 The following sections explain how to back up the individual contents.
 
 ## Full backup
 
-linkding provides a CLI command to create a full backup of the data folder. This creates a zip file that contains backups of the database, assets, and favicons.
+linkding provides a CLI command to create a full backup of the data folder. This creates a zip file that contains backups of the database, assets, favicons, and preview images.
 
 > [!NOTE]
 > This method assumes that you are using the default SQLite database.
@@ -90,7 +91,7 @@ This is the least technical option to back up bookmarks, but has several limitat
 - It only exports your own bookmarks, not those of other users.
 - It does not export URLs of snapshots on the Internet Archive Wayback machine.
 - It does not export HTML snapshots of bookmarks. Even if you backup and restore the assets folder, the bookmarks will not be linked to the snapshots anymore.
-- It does not export favicons.
+- It does not export favicons or preview images.
 
 Only use this method if you are fine with the above limitations.
 
