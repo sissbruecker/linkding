@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.31.0 (16/06/2024)
+
+### What's Changed
+* Add support for bookmark thumbnails by @vslinko in https://github.com/sissbruecker/linkding/pull/721
+* Automatically add tags to bookmarks based on URL pattern by @vslinko in https://github.com/sissbruecker/linkding/pull/736
+* Load bookmark thumbnails after import by @vslinko in https://github.com/sissbruecker/linkding/pull/724
+* Load missing thumbnails after enabling the feature by @sissbruecker in https://github.com/sissbruecker/linkding/pull/725
+* Thumbnails lazy loading by @vslinko in https://github.com/sissbruecker/linkding/pull/734
+* Add option for disabling tag grouping by @vslinko in https://github.com/sissbruecker/linkding/pull/735
+* Preview auto tags in bookmark form by @sissbruecker in https://github.com/sissbruecker/linkding/pull/737
+* Hide tooltip on mobile by @vslinko in https://github.com/sissbruecker/linkding/pull/733
+* Bump requests from 2.31.0 to 2.32.0 by @dependabot in https://github.com/sissbruecker/linkding/pull/740
+
+### New Contributors
+* @vslinko made their first contribution in https://github.com/sissbruecker/linkding/pull/721
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.30.0...v1.31.0
+
+---
+
 ## v1.30.0 (20/04/2024)
 
 ### What's Changed
