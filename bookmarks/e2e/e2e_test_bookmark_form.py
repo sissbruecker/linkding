@@ -85,3 +85,25 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
 
             page.get_by_label("URL").fill(bookmark.url)
             expect(details).to_have_attribute("open", value="")
+
+    def test_create_should_preview_auto_tags(self):
+        profile = self.get_or_create_test_user().profile
+        profile.auto_tagging_rules = "github.com dev github"
+        profile.save()
+
+        with sync_playwright() as p:
+            # Open page with URL that should have auto tags
+            browser = self.setup_browser(p)
+            page = browser.new_page()
+            url = self.live_server_url + reverse("bookmarks:new")
+            url += f"?url=https%3A%2F%2Fgithub.com%2Fsissbruecker%2Flinkding"
+            page.goto(url)
+
+            auto_tags_hint = page.locator(".form-input-hint.auto-tags")
+            expect(auto_tags_hint).to_be_visible()
+            expect(auto_tags_hint).to_have_text("Auto tags: dev github")
+
+            # Change to URL without auto tags
+            page.get_by_label("URL").fill("https://example.com")
+
+            expect(auto_tags_hint).to_be_hidden()

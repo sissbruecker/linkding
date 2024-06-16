@@ -36,12 +36,11 @@
   .form-input-hint.bookmark-exists {
     display: none;
     color: $warning-color;
+  }
 
-    a {
-      color: $warning-color;
-      text-decoration: underline;
-      font-weight: bold;
-    }
+  .form-input-hint.auto-tags {
+    display: none;
+    color: $success-color;
   }
 
   details.notes textarea {

@@ -742,6 +742,34 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             self.assertEqual(bookmark.website_description, metadata["description"])
             self.assertIsNone(metadata["preview_image"])
 
+    def test_check_returns_no_auto_tags_if_none_configured(self):
+        self.authenticate()
+
+        url = reverse("bookmarks:bookmark-check")
+        check_url = urllib.parse.quote_plus("https://example.com")
+        response = self.get(
+            f"{url}?url={check_url}", expected_status_code=status.HTTP_200_OK
+        )
+        auto_tags = response.data["auto_tags"]
+
+        self.assertCountEqual(auto_tags, [])
+
+    def test_check_returns_matching_auto_tags(self):
+        self.authenticate()
+
+        profile = self.get_or_create_test_user().profile
+        profile.auto_tagging_rules = "example.com tag1 tag2"
+        profile.save()
+
+        url = reverse("bookmarks:bookmark-check")
+        check_url = urllib.parse.quote_plus("https://example.com")
+        response = self.get(
+            f"{url}?url={check_url}", expected_status_code=status.HTTP_200_OK
+        )
+        auto_tags = response.data["auto_tags"]
+
+        self.assertCountEqual(auto_tags, ["tag1", "tag2"])
+
     def test_can_only_access_own_bookmarks(self):
         self.authenticate()
         self.setup_bookmark()
