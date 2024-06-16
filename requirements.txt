@@ -61,7 +61,7 @@ python-dateutil==2.8.2
     # via -r requirements.in
 pytz==2023.3.post1
     # via djangorestframework
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r requirements.in
     #   mozilla-django-oidc
