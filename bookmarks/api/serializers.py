@@ -1,4 +1,5 @@
 from django.db.models import prefetch_related_objects
+from django.templatetags.static import static
 from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
@@ -31,6 +32,8 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "website_title",
             "website_description",
             "web_archive_snapshot_url",
+            "favicon_url",
+            "preview_image_url",
             "is_archived",
             "unread",
             "shared",
@@ -42,6 +45,8 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "website_title",
             "website_description",
             "web_archive_snapshot_url",
+            "favicon_url",
+            "preview_image_url",
             "date_added",
             "date_modified",
         ]
@@ -56,6 +61,24 @@ class BookmarkSerializer(serializers.ModelSerializer):
     shared = serializers.BooleanField(required=False, default=False)
     # Override readonly tag_names property to allow passing a list of tag names to create/update
     tag_names = TagListField(required=False, default=[])
+    favicon_url = serializers.SerializerMethodField()
+    preview_image_url = serializers.SerializerMethodField()
+
+    def get_favicon_url(self, obj: Bookmark):
+        if not obj.favicon_file:
+            return None
+        request = self.context.get("request")
+        favicon_file_path = static(obj.favicon_file)
+        favicon_url = request.build_absolute_uri(favicon_file_path)
+        return favicon_url
+
+    def get_preview_image_url(self, obj: Bookmark):
+        if not obj.preview_image_file:
+            return None
+        request = self.context.get("request")
+        preview_image_file_path = static(obj.preview_image_file)
+        preview_image_url = request.build_absolute_uri(preview_image_file_path)
+        return preview_image_url
 
     def create(self, validated_data):
         bookmark = Bookmark()

@@ -36,6 +36,16 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             expectation["website_title"] = bookmark.website_title
             expectation["website_description"] = bookmark.website_description
             expectation["web_archive_snapshot_url"] = bookmark.web_archive_snapshot_url
+            expectation["favicon_url"] = (
+                f"http://testserver/static/{bookmark.favicon_file}"
+                if bookmark.favicon_file
+                else None
+            )
+            expectation["preview_image_url"] = (
+                f"http://testserver/static/{bookmark.preview_image_file}"
+                if bookmark.preview_image_file
+                else None
+            )
             expectation["is_archived"] = bookmark.is_archived
             expectation["unread"] = bookmark.unread
             expectation["shared"] = bookmark.shared
@@ -65,7 +75,11 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_list_bookmarks_with_more_details(self):
         self.authenticate()
         bookmarks = self.setup_numbered_bookmarks(
-            5, with_tags=True, with_web_archive_snapshot_url=True
+            5,
+            with_tags=True,
+            with_web_archive_snapshot_url=True,
+            with_favicon_file=True,
+            with_preview_image_file=True,
         )
 
         response = self.get(
@@ -171,6 +185,23 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         )
         self.assertBookmarkListEqual(response.data["results"], archived_bookmarks)
 
+    def test_list_archived_bookmarks_with_more_details(self):
+        self.authenticate()
+        archived_bookmarks = self.setup_numbered_bookmarks(
+            5,
+            archived=True,
+            with_tags=True,
+            with_web_archive_snapshot_url=True,
+            with_favicon_file=True,
+            with_preview_image_file=True,
+        )
+
+        response = self.get(
+            reverse("bookmarks:bookmark-archived"),
+            expected_status_code=status.HTTP_200_OK,
+        )
+        self.assertBookmarkListEqual(response.data["results"], archived_bookmarks)
+
     def test_list_archived_bookmarks_should_filter_by_query(self):
         self.authenticate()
         search_value = self.get_random_string()
@@ -213,6 +244,26 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.setup_bookmark(shared=False, user=user2)
         self.setup_bookmark(shared=False, user=user3)
         self.setup_bookmark(shared=True, user=user4)
+
+        response = self.get(
+            reverse("bookmarks:bookmark-shared"),
+            expected_status_code=status.HTTP_200_OK,
+        )
+        self.assertBookmarkListEqual(response.data["results"], shared_bookmarks)
+
+    def test_list_shared_bookmarks_with_more_details(self):
+        self.authenticate()
+
+        other_user = self.setup_user(enable_sharing=True)
+        shared_bookmarks = self.setup_numbered_bookmarks(
+            5,
+            shared=True,
+            user=other_user,
+            with_tags=True,
+            with_web_archive_snapshot_url=True,
+            with_favicon_file=True,
+            with_preview_image_file=True,
+        )
 
         response = self.get(
             reverse("bookmarks:bookmark-shared"),
@@ -701,6 +752,8 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             url="https://example.com",
             title="Example title",
             description="Example description",
+            favicon_file="favicon.png",
+            preview_image_file="preview.png",
         )
 
         url = reverse("bookmarks:bookmark-check")
@@ -715,6 +768,12 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.url, bookmark_data["url"])
         self.assertEqual(bookmark.title, bookmark_data["title"])
         self.assertEqual(bookmark.description, bookmark_data["description"])
+        self.assertEqual(
+            "http://testserver/static/favicon.png", bookmark_data["favicon_url"]
+        )
+        self.assertEqual(
+            "http://testserver/static/preview.png", bookmark_data["preview_image_url"]
+        )
 
     def test_check_returns_existing_metadata_if_url_is_bookmarked(self):
         self.authenticate()

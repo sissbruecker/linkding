@@ -49,6 +49,8 @@ Example response:
       "website_title": "Website title",
       "website_description": "Website description",
       "web_archive_snapshot_url": "https://web.archive.org/web/20200926094623/https://example.com",
+      "favicon_url": "http://127.0.0.1:8000/static/https_example_com.png",
+      "preview_image_url": "http://127.0.0.1:8000/static/0ac5c53db923727765216a3a58e70522.jpg",
       "is_archived": false,
       "unread": false,
       "shared": false,

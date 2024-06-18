@@ -87,6 +87,8 @@ class BookmarkFactoryMixin:
         shared: bool = False,
         with_tags: bool = False,
         with_web_archive_snapshot_url: bool = False,
+        with_favicon_file: bool = False,
+        with_preview_image_file: bool = False,
         user: User = None,
     ):
         user = user or self.get_or_create_test_user()
@@ -118,6 +120,12 @@ class BookmarkFactoryMixin:
             web_archive_snapshot_url = ""
             if with_web_archive_snapshot_url:
                 web_archive_snapshot_url = f"https://web.archive.org/web/{i}"
+            favicon_file = ""
+            if with_favicon_file:
+                favicon_file = f"favicon_{i}.png"
+            preview_image_file = ""
+            if with_preview_image_file:
+                preview_image_file = f"preview_image_{i}.png"
             bookmark = self.setup_bookmark(
                 url=url,
                 title=title,
@@ -126,6 +134,8 @@ class BookmarkFactoryMixin:
                 shared=shared,
                 tags=tags,
                 web_archive_snapshot_url=web_archive_snapshot_url,
+                favicon_file=favicon_file,
+                preview_image_file=preview_image_file,
                 user=user,
             )
             bookmarks.append(bookmark)
