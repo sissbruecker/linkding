@@ -52,7 +52,7 @@ class BookmarkViewSet(
         return Bookmark.objects.all().filter(owner=user)
 
     def get_serializer_context(self):
-        return {"user": self.request.user}
+        return {"request": self.request, "user": self.request.user}
 
     @action(methods=["get"], detail=False)
     def archived(self, request):

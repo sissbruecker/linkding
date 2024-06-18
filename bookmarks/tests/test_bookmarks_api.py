@@ -36,6 +36,16 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             expectation["website_title"] = bookmark.website_title
             expectation["website_description"] = bookmark.website_description
             expectation["web_archive_snapshot_url"] = bookmark.web_archive_snapshot_url
+            expectation["favicon_url"] = (
+                f"http://testserver/static/{bookmark.favicon_file}"
+                if bookmark.favicon_file
+                else None
+            )
+            expectation["preview_image_url"] = (
+                f"http://testserver/static/{bookmark.preview_image_file}"
+                if bookmark.preview_image_file
+                else None
+            )
             expectation["is_archived"] = bookmark.is_archived
             expectation["unread"] = bookmark.unread
             expectation["shared"] = bookmark.shared
@@ -65,7 +75,11 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_list_bookmarks_with_more_details(self):
         self.authenticate()
         bookmarks = self.setup_numbered_bookmarks(
-            5, with_tags=True, with_web_archive_snapshot_url=True
+            5,
+            with_tags=True,
+            with_web_archive_snapshot_url=True,
+            with_favicon_file=True,
+            with_preview_image_file=True,
         )
 
         response = self.get(
