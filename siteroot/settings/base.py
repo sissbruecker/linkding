@@ -114,7 +114,7 @@ LOGOUT_REDIRECT_URL = "/" + LD_CONTEXT_PATH + "login"
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = os.environ.get("TZ", "UTC")
 
 USE_I18N = True
 
