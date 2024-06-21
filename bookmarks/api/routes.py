@@ -13,6 +13,7 @@ from bookmarks.api.serializers import (
 from bookmarks.models import Bookmark, BookmarkSearch, Tag, User
 from bookmarks.services import auto_tagging
 from bookmarks.services.bookmarks import (
+    access_bookmark,
     archive_bookmark,
     unarchive_bookmark,
     website_loader,
@@ -76,6 +77,12 @@ class BookmarkViewSet(
         serializer = self.get_serializer(page, many=True)
         data = serializer.data
         return self.get_paginated_response(data)
+
+    @action(methods=["post"], detail=True)
+    def access(self, request, pk):
+        bookmark = self.get_object()
+        access_bookmark(bookmark)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["post"], detail=True)
     def archive(self, request, pk):
