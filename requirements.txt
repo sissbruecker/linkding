@@ -39,7 +39,7 @@ django-sass-processor==1.4
     # via -r requirements.in
 django-widget-tweaks==1.5.0
     # via -r requirements.in
-djangorestframework==3.14.0
+djangorestframework==3.15.2
     # via -r requirements.in
 huey==2.5.0
     # via -r requirements.in
@@ -59,8 +59,6 @@ pyopenssl==24.1.0
     # via josepy
 python-dateutil==2.8.2
     # via -r requirements.in
-pytz==2023.3.post1
-    # via djangorestframework
 requests==2.32.0
     # via
     #   -r requirements.in
