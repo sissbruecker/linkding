@@ -237,6 +237,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [Linkdy](https://github.com/JGeek00/linkdy): An open source mobile and desktop (not yet) client created with Flutter. Available at the [Google Play Store](https://play.google.com/store/apps/details?id=com.jgeek00.linkdy). By [JGeek00](https://github.com/JGeek00).
 - [LinkThing](https://apps.apple.com/us/app/linkthing/id1666031776) An iOS client for linkding. By [amoscardino](https://github.com/amoscardino)
 - [Open all links bookmarklet](https://gist.github.com/ukcuddlyguy/336dd7339e6d35fc64a75ccfc9323c66) A browser bookmarklet to open all links on the current Linkding page in new tabs. By [ukcuddlyguy](https://github.com/ukcuddlyguy)
+- [Pinkt](https://github.com/fibelatti/pinboard-kotlin) An Android client for linkding. By [fibelatti](https://github.com/fibelatti)
 - [Postman collection](https://gist.github.com/gingerbeardman/f0b42502f3bc9344e92ce63afd4360d3) a group of saved request templates for API testing. By [gingerbeardman](https://github.com/gingerbeardman)
 
 ## Acknowledgements + Donations
