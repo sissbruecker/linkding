@@ -25,21 +25,78 @@ All options need to be defined as environment variables in the environment that 
 
 ## List of options
 
-### `LD_SUPERUSER_NAME`
+## Database Options
 
-Values: `String` | Default = None
+### `LD_DB_ENGINE`
 
-When set, creates an initial superuser with the specified username when starting the container.
-Does nothing if the user already exists.
+Values: `postgres` or `sqlite` | Default = `sqlite`
 
-See [`LD_SUPERUSER_PASSWORD`](#ld_superuser_password) on how to configure the respective password.
+Database engine used by linkding to store data.
+Currently, linkding supports SQLite and PostgreSQL.
+By default, linkding uses SQLite, for which you don't need to configure anything.
+All the other database variables below are only required for configured PostgresSQL.
 
-### `LD_SUPERUSER_PASSWORD`
+### `LD_DB_DATABASE`
 
-Values: `String` | Default = None
+Values: `String` | Default =  `linkding`
 
-The password for the initial superuser.
-When left undefined, the superuser will be created without a usable password, which means the user can not authenticate using credentials / through the login form, and can only be authenticated using proxy authentication (see [`LD_ENABLE_AUTH_PROXY`](#ld_enable_auth_proxy)).
+The name of the database. 
+
+### `LD_DB_USER`
+
+Values: `String` | Default =  `linkding`
+
+The name of the user to connect to the database server.
+
+### `LD_DB_PASSWORD`
+
+Values: `String` | Default =  None
+
+The password of the user to connect to the database server.
+The password must be configured when using a database other than SQLite, there is no default value.
+
+### `LD_DB_HOST`
+
+Values: `String` | Default =  `localhost`
+
+The hostname or IP of the database server.
+
+### `LD_DB_PORT`
+
+Values: `Integer` | Default =  None
+
+The port of the database server.
+Should use the default port if left empty, for example `5432` for PostgresSQL.
+
+### `LD_DB_OPTIONS`
+
+Values: `String` | Default = `{}`
+
+A json string with additional options for the database. Passed directly to OPTIONS.
+
+### `LD_FAVICON_PROVIDER`
+
+Values: `String` | Default =  `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url={url}&size=32`
+
+The favicon provider used for downloading icons if they are enabled in the user profile settings.
+The default provider is a Google service that automatically detects the correct favicon for a website, and provides icons in consistent image format (PNG) and in a consistent image size.
+
+This setting allows to configure a custom provider in form of a URL.
+When calling the provider with the URL of a website, it must return the image data for the favicon of that website.
+The configured favicon provider URL must contain a placeholder that will be replaced with the URL of the website for which to download the favicon.
+The available placeholders are:
+- `{url}` - Includes the scheme and hostname of the website, for example `https://example.com`
+- `{domain}` - Includes only the hostname of the website, for example `example.com`
+
+Which placeholder you need to use depends on the respective favicon provider, please check their documentation or usage examples.
+See the default URL for how to insert the placeholder to the favicon provider URL.
+
+Alternative favicon providers:
+- DuckDuckGo: `https://icons.duckduckgo.com/ip3/{domain}.ico`
+
+
+
+## Background Tasks
 
 ### `LD_DISABLE_BACKGROUND_TASKS`
 
@@ -61,6 +118,8 @@ This can be useful if you intend to store non fully qualified domain name URLs, 
 Values: `Integer` as seconds | Default = `60`
 
 Configures the request timeout in the uwsgi application server. This can be useful if you want to import a bookmark file with a high number of bookmarks and run into request timeouts.
+
+## Server Options
 
 ### `LD_SERVER_PORT`
 
@@ -180,80 +239,16 @@ Values: `true` or `false` | Default =  `false`
 
 Set uWSGI [log-x-forwarded-for](https://uwsgi-docs.readthedocs.io/en/latest/Options.html?#log-x-forwarded-for) parameter allowing to keep the real IP of clients in logs when using a reverse proxy.
 
-### `LD_DB_ENGINE`
 
-Values: `postgres` or `sqlite` | Default = `sqlite`
-
-Database engine used by linkding to store data.
-Currently, linkding supports SQLite and PostgreSQL.
-By default, linkding uses SQLite, for which you don't need to configure anything.
-All the other database variables below are only required for configured PostgresSQL.
-
-### `LD_DB_DATABASE`
-
-Values: `String` | Default =  `linkding`
-
-The name of the database. 
-
-### `LD_DB_USER`
-
-Values: `String` | Default =  `linkding`
-
-The name of the user to connect to the database server.
-
-### `LD_DB_PASSWORD`
-
-Values: `String` | Default =  None
-
-The password of the user to connect to the database server.
-The password must be configured when using a database other than SQLite, there is no default value.
-
-### `LD_DB_HOST`
-
-Values: `String` | Default =  `localhost`
-
-The hostname or IP of the database server.
-
-### `LD_DB_PORT`
-
-Values: `Integer` | Default =  None
-
-The port of the database server.
-Should use the default port if left empty, for example `5432` for PostgresSQL.
-
-### `LD_DB_OPTIONS`
-
-Values: `String` | Default = `{}`
-
-A json string with additional options for the database. Passed directly to OPTIONS.
-
-### `LD_FAVICON_PROVIDER`
-
-Values: `String` | Default =  `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url={url}&size=32`
-
-The favicon provider used for downloading icons if they are enabled in the user profile settings.
-The default provider is a Google service that automatically detects the correct favicon for a website, and provides icons in consistent image format (PNG) and in a consistent image size.
-
-This setting allows to configure a custom provider in form of a URL.
-When calling the provider with the URL of a website, it must return the image data for the favicon of that website.
-The configured favicon provider URL must contain a placeholder that will be replaced with the URL of the website for which to download the favicon.
-The available placeholders are:
-- `{url}` - Includes the scheme and hostname of the website, for example `https://example.com`
-- `{domain}` - Includes only the hostname of the website, for example `example.com`
-
-Which placeholder you need to use depends on the respective favicon provider, please check their documentation or usage examples.
-See the default URL for how to insert the placeholder to the favicon provider URL.
-
-Alternative favicon providers:
-- DuckDuckGo: `https://icons.duckduckgo.com/ip3/{domain}.ico`
+## Single File Options
 
 
-### `LD_SINGLEFILE_TIMEOUT_SEC`
+### `LD_ENABLE_SNAPSHOTS`
 
-Values: `Float` | Default =  60.0
+Values: `Bool` | Default = True
 
-When creating HTML archive snapshots, control the timeout for how long to wait for the snapshot to complete, in `seconds`.
-Defaults to 60 seconds; on lower-powered hardware you may need to increase this value. 
+This enables the single-file snapshot functionality. When using the docker images, this value is set in the dockerfile build script.
+
 
 ### `LD_SINGLEFILE_OPTIONS`
 
@@ -263,3 +258,50 @@ When creating HTML archive snapshots, pass additional options to the `single-fil
 See `single-file --help` for complete list of arguments, or browse source: https://github.com/gildas-lormeau/single-file-cli/blob/master/options.js
 
 Example: `LD_SINGLEFILE_OPTIONS=--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) Gecko/20100101 Firefox/124.0"`
+
+
+### `LD_SINGLEFILE_PATH`
+Values: `String` | Default = "single-file"
+
+Path to the single-file executable. Defaults to `single-file` which is stored on the path. This option would rarely need to be updated.
+
+
+### `LD_SINGLEFILE_TIMEOUT_SEC`
+
+Values: `Float` | Default = 120.0
+
+When creating HTML archive snapshots, control the timeout for how long to wait for the snapshot to complete, in `seconds`.
+Defaults to 60 seconds; on lower-powered hardware you may need to increase this value. 
+
+### `LD_SINGLEFILE_UBLOCK_OPTIONS`
+
+Values: `String` | Default = various
+
+When a single file is created, the headless browser it uses also utilises the ublock plugin to remove cookie popup and some ads. The executable can be passed a number of flags to change how this plugin works. This option can be overridden to provide those flags into the executable.
+
+The default flags passed into single-file are:
+
+```
+--browser-arg="--headless=new"
+--browser-arg="--user-data-dir=./chromium-profile"
+--browser-arg="--no-sandbox"
+--browser-arg="--load-extension=uBlock0.chromium"
+```
+
+## Superuser Options
+
+### `LD_SUPERUSER_NAME`
+
+Values: `String` | Default = None
+
+When set, creates an initial superuser with the specified username when starting the container.
+Does nothing if the user already exists.
+
+See [`LD_SUPERUSER_PASSWORD`](#ld_superuser_password) on how to configure the respective password.
+
+### `LD_SUPERUSER_PASSWORD`
+
+Values: `String` | Default = None
+
+The password for the initial superuser.
+When left undefined, the superuser will be created without a usable password, which means the user can not authenticate using credentials / through the login form, and can only be authenticated using proxy authentication (see [`LD_ENABLE_AUTH_PROXY`](#ld_enable_auth_proxy)).
