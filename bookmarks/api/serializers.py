@@ -125,6 +125,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "bookmark_link_target",
             "web_archive_integration",
             "tag_search",
+            "tag_hierarchy",
             "enable_sharing",
             "enable_public_sharing",
             "enable_favicons",
