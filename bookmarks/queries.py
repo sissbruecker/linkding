@@ -66,7 +66,14 @@ def _base_bookmarks_query(
         query_set = query_set.filter(conditions)
 
     for tag_name in query["tag_names"]:
-        query_set = query_set.filter(tags__name__iexact=tag_name)
+        if profile.tag_hierarchy:
+            # Filter for tags with the exact name or a parent tag
+            query_set = query_set.filter(
+                Q(tags__name__iexact=tag_name) | Q(tags__name__istartswith=f"{tag_name}/")
+            )
+        else:
+            # Filter for tags with the exact name
+            query_set = query_set.filter(tags__name__iexact=tag_name)
 
     # Untagged bookmarks
     if query["untagged"]:
