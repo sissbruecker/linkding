@@ -173,6 +173,8 @@ class BookmarkForm(forms.ModelForm):
 
 
 class BookmarkSearch:
+    SORT_ACCESSED_ASC = "accessed_asc"
+    SORT_ACCESSED_DESC = "accessed_desc"
     SORT_ADDED_ASC = "added_asc"
     SORT_ADDED_DESC = "added_desc"
     SORT_TITLE_ASC = "title_asc"
@@ -262,6 +264,8 @@ class BookmarkSearch:
 
 class BookmarkSearchForm(forms.Form):
     SORT_CHOICES = [
+        (BookmarkSearch.SORT_ACCESSED_ASC, "Accessed ↑"),
+        (BookmarkSearch.SORT_ACCESSED_DESC, "Accessed ↓"),
         (BookmarkSearch.SORT_ADDED_ASC, "Added ↑"),
         (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
         (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
