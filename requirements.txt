@@ -76,7 +76,7 @@ sqlparse==0.5.0
     # via django
 supervisor==4.2.5
     # via -r requirements.in
-urllib3==2.1.0
+urllib3==2.2.2
     # via
     #   requests
     #   waybackpy
