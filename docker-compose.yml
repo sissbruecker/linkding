@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   linkding:
     container_name: "${LD_CONTAINER_NAME:-linkding}"
