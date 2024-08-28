@@ -69,6 +69,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
 
 
 FROM python:3.11.8-alpine3.19 AS linkding
+LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
 RUN apk update && apk add bash curl icu libpq mailcap libssl3
 # create www-data user and group
