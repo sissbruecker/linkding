@@ -12,7 +12,7 @@ bleach==6.1.0
     # via -r requirements.in
 bleach-allowlist==1.0.3
     # via -r requirements.in
-certifi==2023.11.17
+certifi==2024.7.4
     # via requests
 cffi==1.16.0
     # via cryptography
