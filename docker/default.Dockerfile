@@ -71,6 +71,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
 
 
 FROM python:3.11.8-slim-bookworm as linkding
+LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 RUN apt-get update && apt-get -y install mime-support libpq-dev libicu-dev libssl3 curl
 WORKDIR /etc/linkding
 # copy prod dependencies
@@ -131,5 +132,3 @@ RUN mkdir -p chromium-profile && chown -R www-data:www-data chromium-profile
 COPY --from=ublock-build /etc/linkding/uBlock0.chromium uBlock0.chromium/
 # enable snapshot support
 ENV LD_ENABLE_SNAPSHOTS=True
-
-LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
