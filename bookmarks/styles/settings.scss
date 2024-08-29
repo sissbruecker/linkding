@@ -7,8 +7,9 @@
     }
   }
 
-  textarea.custom-css {
+  textarea.monospace {
     font-family: monospace;
+    box-sizing: border-box;
   }
 
   .input-group > input[type=submit] {
