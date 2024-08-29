@@ -1,10 +1,11 @@
+import datetime
 import re
 from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import formats
+from django.utils import formats, timezone
 
 from bookmarks.models import BookmarkAsset, UserProfile
 from bookmarks.services import bookmarks, tasks
@@ -180,7 +181,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # no latest snapshot
         bookmark = self.setup_bookmark()
         soup = self.get_details(bookmark)
-        self.assertEqual(self.count_weblinks(soup), 1)
+        self.assertEqual(self.count_weblinks(soup), 2)
 
         # snapshot is not complete
         self.setup_asset(
@@ -194,7 +195,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             status=BookmarkAsset.STATUS_FAILURE,
         )
         soup = self.get_details(bookmark)
-        self.assertEqual(self.count_weblinks(soup), 1)
+        self.assertEqual(self.count_weblinks(soup), 2)
 
         # not a snapshot
         self.setup_asset(
@@ -203,7 +204,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             status=BookmarkAsset.STATUS_COMPLETE,
         )
         soup = self.get_details(bookmark)
-        self.assertEqual(self.count_weblinks(soup), 1)
+        self.assertEqual(self.count_weblinks(soup), 2)
 
         # snapshot is complete
         asset = self.setup_asset(
@@ -212,20 +213,13 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             status=BookmarkAsset.STATUS_COMPLETE,
         )
         soup = self.get_details(bookmark)
-        self.assertEqual(self.count_weblinks(soup), 2)
+        self.assertEqual(self.count_weblinks(soup), 3)
 
         reader_mode_url = reverse("bookmarks:assets.read", args=[asset.id])
         link = self.find_weblink(soup, reader_mode_url)
         self.assertIsNotNone(link)
 
-    def test_internet_archive_link(self):
-        # without snapshot url
-        bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
-        link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
-        self.assertIsNone(link)
-
-        # with snapshot url
+    def test_internet_archive_link_with_snapshot_url(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")
         soup = self.get_details(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
@@ -263,6 +257,21 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         image = link.select_one("svg")
         self.assertIsNotNone(image)
+
+    def test_internet_archive_link_with_fallback_url(self):
+        date_added = timezone.datetime(
+            2023, 8, 11, 21, 45, 11, tzinfo=datetime.timezone.utc
+        )
+        bookmark = self.setup_bookmark(url="https://example.com/", added=date_added)
+        fallback_web_archive_url = (
+            "https://web.archive.org/web/20230811214511/https://example.com/"
+        )
+
+        soup = self.get_details(bookmark)
+        link = self.find_weblink(soup, fallback_web_archive_url)
+        self.assertIsNotNone(link)
+        self.assertEqual(link["href"], fallback_web_archive_url)
+        self.assertEqual(link.text.strip(), "Internet Archive")
 
     def test_weblinks_respect_target_setting(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")

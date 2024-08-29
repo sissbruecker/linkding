@@ -417,6 +417,12 @@ class BookmarkDetailsContext:
         # For now hide files section if snapshots are not supported
         self.show_files = settings.LD_ENABLE_SNAPSHOTS
 
+        self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url
+        if not self.web_archive_snapshot_url:
+            self.web_archive_snapshot_url = generate_fallback_webarchive_url(
+                bookmark.url, bookmark.date_added
+            )
+
         self.assets = [
             BookmarkAssetItem(asset) for asset in bookmark.bookmarkasset_set.all()
         ]

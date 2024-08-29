@@ -23,8 +23,8 @@
         <span>Reader mode</span>
       </a>
     {% endif %}
-    {% if details.bookmark.web_archive_snapshot_url %}
-      <a class="weblink" href="{{ details.bookmark.web_archive_snapshot_url }}"
+    {% if details.web_archive_snapshot_url %}
+      <a class="weblink" href="{{ details.web_archive_snapshot_url }}"
          target="{{ details.profile.bookmark_link_target }}">
         {% if details.show_link_icons %}
           <svg class="favicon" viewBox="0 0 76 86" xmlns="http://www.w3.org/2000/svg">
