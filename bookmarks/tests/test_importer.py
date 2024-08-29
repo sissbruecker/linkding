@@ -444,17 +444,6 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         self.assertEqual(Bookmark.objects.all()[0].description, "Example description")
         self.assertEqual(Bookmark.objects.all()[0].notes, "Updated notes")
 
-    def test_schedule_snapshot_creation(self):
-        user = self.get_or_create_test_user()
-        test_html = self.render_html(tags_html="")
-
-        with patch.object(
-            tasks, "schedule_bookmarks_without_snapshots"
-        ) as mock_schedule_bookmarks_without_snapshots:
-            import_netscape_html(test_html, user)
-
-            mock_schedule_bookmarks_without_snapshots.assert_called_once_with(user)
-
     def test_schedule_favicon_loading(self):
         user = self.get_or_create_test_user()
         test_html = self.render_html(tags_html="")

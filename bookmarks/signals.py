@@ -1,14 +1,6 @@
 from django.conf import settings
-from django.contrib.auth import user_logged_in
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
-
-from bookmarks.services import tasks
-
-
-@receiver(user_logged_in)
-def user_logged_in(sender, request, user, **kwargs):
-    tasks.schedule_bookmarks_without_snapshots(user)
 
 
 @receiver(connection_created)

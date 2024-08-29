@@ -1,3 +1,4 @@
+import datetime
 from typing import Type
 
 from dateutil.relativedelta import relativedelta
@@ -33,15 +34,6 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
                 <span>{bookmark.resolved_title}</span>
             </a>
             """,
-            html,
-        )
-
-    def assertDateLabel(self, html: str, label_content: str):
-        self.assertInHTML(
-            f"""
-        <span>{label_content}</span>
-        <span>|</span>
-        """,
             html,
         )
 
@@ -465,15 +457,6 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         style = bookmark_list["style"]
         self.assertIn("--ld-bookmark-description-max-lines:3;", style)
 
-    def test_should_respect_absolute_date_setting(self):
-        bookmark = self.setup_date_format_test(
-            UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE
-        )
-        html = self.render_template()
-        formatted_date = formats.date_format(bookmark.date_added, "SHORT_DATE_FORMAT")
-
-        self.assertDateLabel(html, formatted_date)
-
     def test_should_render_web_archive_link_with_absolute_date_setting(self):
         bookmark = self.setup_date_format_test(
             UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE,
@@ -486,12 +469,6 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             html, formatted_date, bookmark.web_archive_snapshot_url
         )
 
-    def test_should_respect_relative_date_setting(self):
-        self.setup_date_format_test(UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE)
-        html = self.render_template()
-
-        self.assertDateLabel(html, "1 week ago")
-
     def test_should_render_web_archive_link_with_relative_date_setting(self):
         bookmark = self.setup_date_format_test(
             UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE,
@@ -500,6 +477,27 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         html = self.render_template()
 
         self.assertWebArchiveLink(html, "1 week ago", bookmark.web_archive_snapshot_url)
+
+    def test_should_render_generated_web_archive_link_without_saved_snapshot_url(self):
+        user = self.get_or_create_test_user()
+        user.profile.bookmark_date_display = UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE
+        user.profile.save()
+
+        date_added = timezone.datetime(
+            2023, 8, 11, 21, 45, 11, tzinfo=datetime.timezone.utc
+        )
+        bookmark = self.setup_bookmark(
+            url="https://example.com/article", added=date_added
+        )
+
+        html = self.render_template()
+        formatted_date = formats.date_format(bookmark.date_added, "SHORT_DATE_FORMAT")
+
+        self.assertWebArchiveLink(
+            html,
+            formatted_date,
+            "https://web.archive.org/web/20230811214511/https://example.com/article",
+        )
 
     def test_bookmark_link_target_should_be_blank_by_default(self):
         bookmark = self.setup_bookmark()

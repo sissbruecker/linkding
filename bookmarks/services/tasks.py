@@ -12,9 +12,8 @@ from django.utils import timezone, formats
 from huey import crontab
 from huey.contrib.djhuey import HUEY as huey
 from huey.exceptions import TaskLockedException
-from waybackpy.exceptions import WaybackError, TooManyRequestsError, NoCDXRecordFound
+from waybackpy.exceptions import WaybackError, TooManyRequestsError
 
-import bookmarks.services.wayback
 from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
 from bookmarks.services import favicon_loader, singlefile, preview_image_loader
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT
@@ -66,29 +65,6 @@ def create_web_archive_snapshot(user: User, bookmark: Bookmark, force_update: bo
         _create_web_archive_snapshot_task(bookmark.id, force_update)
 
 
-def _load_newest_snapshot(bookmark: Bookmark):
-    try:
-        logger.info(f"Load existing snapshot for bookmark. url={bookmark.url}")
-        cdx_api = bookmarks.services.wayback.CustomWaybackMachineCDXServerAPI(
-            bookmark.url
-        )
-        existing_snapshot = cdx_api.newest()
-
-        if existing_snapshot:
-            bookmark.web_archive_snapshot_url = existing_snapshot.archive_url
-            bookmark.save(update_fields=["web_archive_snapshot_url"])
-            logger.info(
-                f"Using newest snapshot. url={bookmark.url} from={existing_snapshot.datetime_timestamp}"
-            )
-
-    except NoCDXRecordFound:
-        logger.info(f"Could not find any snapshots for bookmark. url={bookmark.url}")
-    except WaybackError as error:
-        logger.error(
-            f"Failed to load existing snapshot. url={bookmark.url}", exc_info=error
-        )
-
-
 def _create_snapshot(bookmark: Bookmark):
     logger.info(f"Create new snapshot for bookmark. url={bookmark.url}...")
     archive = waybackpy.WaybackMachineSaveAPI(
@@ -117,48 +93,27 @@ def _create_web_archive_snapshot_task(bookmark_id: int, force_update: bool):
         return
     except TooManyRequestsError:
         logger.error(
-            f"Failed to create snapshot due to rate limiting, trying to load newest snapshot as fallback. url={bookmark.url}"
+            f"Failed to create snapshot due to rate limiting. url={bookmark.url}"
         )
     except WaybackError as error:
         logger.error(
-            f"Failed to create snapshot, trying to load newest snapshot as fallback. url={bookmark.url}",
+            f"Failed to create snapshot. url={bookmark.url}",
             exc_info=error,
         )
-
-    # Load the newest snapshot as fallback
-    _load_newest_snapshot(bookmark)
 
 
 @task()
 def _load_web_archive_snapshot_task(bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(id=bookmark_id)
-    except Bookmark.DoesNotExist:
-        return
-    # Skip if snapshot exists
-    if bookmark.web_archive_snapshot_url:
-        return
-    # Load the newest snapshot
-    _load_newest_snapshot(bookmark)
-
-
-def schedule_bookmarks_without_snapshots(user: User):
-    if is_web_archive_integration_active(user):
-        _schedule_bookmarks_without_snapshots_task(user.id)
+    # Loading snapshots from CDX API has been removed, keeping the task function
+    # for now to prevent errors when huey tries to run the task
+    pass
 
 
 @task()
 def _schedule_bookmarks_without_snapshots_task(user_id: int):
-    user = get_user_model().objects.get(id=user_id)
-    bookmarks_without_snapshots = Bookmark.objects.filter(
-        web_archive_snapshot_url__exact="", owner=user
-    )
-
-    # TODO: Implement bulk task creation
-    for bookmark in bookmarks_without_snapshots:
-        # To prevent rate limit errors from the Wayback API only try to load the latest snapshots instead of creating
-        # new ones when processing bookmarks in bulk
-        _load_web_archive_snapshot_task(bookmark.id)
+    # Loading snapshots from CDX API has been removed, keeping the task function
+    # for now to prevent errors when huey tries to run the task
+    pass
 
 
 def is_favicon_feature_active(user: User) -> bool:
