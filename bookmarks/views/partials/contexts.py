@@ -1,12 +1,12 @@
+import re
 import urllib.parse
 from typing import Set, List
-import re
 
+from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator
 from django.db import models
 from django.urls import reverse
-from django.conf import settings
 
 from bookmarks import queries
 from bookmarks import utils
@@ -18,6 +18,7 @@ from bookmarks.models import (
     UserProfile,
     Tag,
 )
+from bookmarks.services.wayback import generate_fallback_webarchive_url
 
 DEFAULT_PAGE_SIZE = 30
 CJK_RE = re.compile(r"[\u4e00-\u9fff]+")
@@ -144,6 +145,10 @@ class BookmarkItem:
         self.notes = bookmark.notes
         self.tag_names = bookmark.tag_names
         self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url
+        if not self.web_archive_snapshot_url:
+            self.web_archive_snapshot_url = generate_fallback_webarchive_url(
+                bookmark.url, bookmark.date_added
+            )
         self.favicon_file = bookmark.favicon_file
         self.preview_image_file = bookmark.preview_image_file
         self.is_archived = bookmark.is_archived

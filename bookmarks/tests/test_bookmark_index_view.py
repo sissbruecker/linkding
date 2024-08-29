@@ -6,11 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
-from bookmarks.tests.helpers import (
-    BookmarkFactoryMixin,
-    HtmlTestMixin,
-    collapse_whitespace,
-)
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
 class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
