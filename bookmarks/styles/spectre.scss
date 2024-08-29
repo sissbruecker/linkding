@@ -195,3 +195,10 @@ ul.menu li:first-child {
     font-size: 16px;
   }
 }
+
+// Hide tooltips on mobile
+@media (pointer:coarse) {
+  .tooltip::after {
+    display: none;
+  }
+}
