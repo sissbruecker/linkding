@@ -1,7 +1,6 @@
-from datetime import datetime
+import datetime
 from typing import Type
 
-import pytz
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponse
@@ -484,7 +483,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         user.profile.bookmark_date_display = UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE
         user.profile.save()
 
-        date_added = datetime(2023, 8, 11, 21, 45, 11, tzinfo=pytz.UTC)
+        date_added = timezone.datetime(
+            2023, 8, 11, 21, 45, 11, tzinfo=datetime.timezone.utc
+        )
         bookmark = self.setup_bookmark(
             url="https://example.com/article", added=date_added
         )
