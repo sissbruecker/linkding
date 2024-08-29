@@ -22,6 +22,8 @@ django-compressor==4.4
     # via -r requirements.dev.in
 django-debug-toolbar==4.2.0
     # via -r requirements.dev.in
+execnet==2.1.1
+    # via pytest-xdist
 greenlet==3.0.3
     # via playwright
 iniconfig==2.0.0
@@ -48,7 +50,10 @@ pytest==8.0.0
     # via
     #   -r requirements.dev.in
     #   pytest-django
+    #   pytest-xdist
 pytest-django==4.7.0
+    # via -r requirements.dev.in
+pytest-xdist==3.6.1
     # via -r requirements.dev.in
 rcssmin==1.1.1
     # via django-compressor

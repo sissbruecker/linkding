@@ -7,7 +7,7 @@ tasks:
 	python manage.py process_tasks
 
 test:
-	pytest
+	pytest -n auto
 
 format:
 	black bookmarks
