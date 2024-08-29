@@ -79,8 +79,6 @@ def import_netscape_html(
     for batch in batches:
         _import_batch(batch, user, options, tag_cache, result)
 
-    # Create snapshots for newly imported bookmarks
-    tasks.schedule_bookmarks_without_snapshots(user)
     # Load favicons for newly imported bookmarks
     tasks.schedule_bookmarks_without_favicons(user)
     # Load previews for newly imported bookmarks

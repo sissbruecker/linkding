@@ -1,6 +1,4 @@
-import datetime
 import os.path
-from dataclasses import dataclass
 from unittest import mock
 
 import waybackpy
@@ -10,8 +8,6 @@ from django.test import TestCase, override_settings
 from huey.contrib.djhuey import HUEY as huey
 from waybackpy.exceptions import WaybackError
 
-import bookmarks.services.favicon_loader
-import bookmarks.services.wayback
 from bookmarks.models import BookmarkAsset, UserProfile
 from bookmarks.services import tasks, singlefile
 from bookmarks.tests.helpers import BookmarkFactoryMixin
@@ -29,12 +25,6 @@ def create_wayback_machine_save_api_mock(
     return mock_api
 
 
-@dataclass
-class MockCdxSnapshot:
-    archive_url: str
-    datetime_timestamp: datetime.datetime
-
-
 class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
     def setUp(self):
@@ -49,17 +39,6 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             waybackpy, "WaybackMachineSaveAPI", return_value=self.mock_save_api
         )
         self.mock_save_api_patcher.start()
-
-        self.mock_cdx_api = mock.Mock()
-        self.mock_cdx_api.newest.return_value = MockCdxSnapshot(
-            "https://example.com/newest_snapshot", datetime.datetime.now()
-        )
-        self.mock_cdx_api_patcher = mock.patch.object(
-            bookmarks.services.wayback,
-            "CustomWaybackMachineCDXServerAPI",
-            return_value=self.mock_cdx_api,
-        )
-        self.mock_cdx_api_patcher.start()
 
         self.mock_load_favicon_patcher = mock.patch(
             "bookmarks.services.favicon_loader.load_favicon"
@@ -90,7 +69,6 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
     def tearDown(self):
         self.mock_save_api_patcher.stop()
-        self.mock_cdx_api_patcher.stop()
         self.mock_load_favicon_patcher.stop()
         self.mock_singlefile_create_snapshot_patcher.stop()
         self.mock_load_preview_image_patcher.stop()
@@ -142,45 +120,6 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(bookmark.web_archive_snapshot_url, "https://other.com")
 
-    def test_create_web_archive_snapshot_should_use_newest_snapshot_as_fallback(self):
-        bookmark = self.setup_bookmark()
-        self.mock_save_api.save.side_effect = WaybackError
-
-        tasks.create_web_archive_snapshot(
-            self.get_or_create_test_user(), bookmark, False
-        )
-
-        bookmark.refresh_from_db()
-        self.mock_cdx_api.newest.assert_called_once()
-        self.assertEqual(
-            "https://example.com/newest_snapshot",
-            bookmark.web_archive_snapshot_url,
-        )
-
-    def test_create_web_archive_snapshot_should_ignore_missing_newest_snapshot(self):
-        bookmark = self.setup_bookmark()
-        self.mock_save_api.save.side_effect = WaybackError
-        self.mock_cdx_api.newest.return_value = None
-
-        tasks.create_web_archive_snapshot(
-            self.get_or_create_test_user(), bookmark, False
-        )
-
-        bookmark.refresh_from_db()
-        self.assertEqual("", bookmark.web_archive_snapshot_url)
-
-    def test_create_web_archive_snapshot_should_ignore_newest_snapshot_errors(self):
-        bookmark = self.setup_bookmark()
-        self.mock_save_api.save.side_effect = WaybackError
-        self.mock_cdx_api.newest.side_effect = WaybackError
-
-        tasks.create_web_archive_snapshot(
-            self.get_or_create_test_user(), bookmark, False
-        )
-
-        bookmark.refresh_from_db()
-        self.assertEqual("", bookmark.web_archive_snapshot_url)
-
     def test_create_web_archive_snapshot_should_not_save_stale_bookmark_data(self):
         bookmark = self.setup_bookmark()
 
@@ -201,69 +140,6 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(
             "https://example.com/created_snapshot",
             bookmark.web_archive_snapshot_url,
-        )
-
-    def test_load_web_archive_snapshot_should_update_snapshot_url(self):
-        bookmark = self.setup_bookmark()
-
-        tasks._load_web_archive_snapshot_task(bookmark.id)
-
-        bookmark.refresh_from_db()
-
-        self.assertEqual(self.executed_count(), 1)
-        self.mock_cdx_api.newest.assert_called_once()
-        self.assertEqual(
-            "https://example.com/newest_snapshot", bookmark.web_archive_snapshot_url
-        )
-
-    def test_load_web_archive_snapshot_should_handle_missing_bookmark_id(self):
-        tasks._load_web_archive_snapshot_task(123)
-
-        self.assertEqual(self.executed_count(), 1)
-        self.mock_cdx_api.newest.assert_not_called()
-
-    def test_load_web_archive_snapshot_should_skip_if_snapshot_exists(self):
-        bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com")
-
-        tasks._load_web_archive_snapshot_task(bookmark.id)
-
-        self.assertEqual(self.executed_count(), 1)
-        self.mock_cdx_api.newest.assert_not_called()
-
-    def test_load_web_archive_snapshot_should_handle_missing_snapshot(self):
-        bookmark = self.setup_bookmark()
-        self.mock_cdx_api.newest.return_value = None
-
-        tasks._load_web_archive_snapshot_task(bookmark.id)
-
-        self.assertEqual("", bookmark.web_archive_snapshot_url)
-
-    def test_load_web_archive_snapshot_should_handle_wayback_errors(self):
-        bookmark = self.setup_bookmark()
-        self.mock_cdx_api.newest.side_effect = WaybackError
-
-        tasks._load_web_archive_snapshot_task(bookmark.id)
-
-        self.assertEqual("", bookmark.web_archive_snapshot_url)
-
-    def test_load_web_archive_snapshot_should_not_save_stale_bookmark_data(self):
-        bookmark = self.setup_bookmark()
-
-        # update bookmark during API call to check that saving
-        # the snapshot does not overwrite updated bookmark data
-        def mock_newest_impl():
-            bookmark.title = "Updated title"
-            bookmark.save()
-            return mock.DEFAULT
-
-        self.mock_cdx_api.newest.side_effect = mock_newest_impl
-
-        tasks._load_web_archive_snapshot_task(bookmark.id)
-        bookmark.refresh_from_db()
-
-        self.assertEqual("Updated title", bookmark.title)
-        self.assertEqual(
-            "https://example.com/newest_snapshot", bookmark.web_archive_snapshot_url
         )
 
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
@@ -289,59 +165,6 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         tasks.create_web_archive_snapshot(
             self.get_or_create_test_user(), bookmark, False
         )
-
-        self.assertEqual(self.executed_count(), 0)
-
-    def test_schedule_bookmarks_without_snapshots_should_load_snapshot_for_all_bookmarks_without_snapshot(
-        self,
-    ):
-        user = self.get_or_create_test_user()
-        self.setup_bookmark()
-        self.setup_bookmark()
-        self.setup_bookmark()
-        self.setup_bookmark(web_archive_snapshot_url="https://example.com")
-        self.setup_bookmark(web_archive_snapshot_url="https://example.com")
-        self.setup_bookmark(web_archive_snapshot_url="https://example.com")
-
-        tasks.schedule_bookmarks_without_snapshots(user)
-
-        self.assertEqual(self.executed_count(), 4)
-        self.assertEqual(self.mock_cdx_api.newest.call_count, 3)
-
-    def test_schedule_bookmarks_without_snapshots_should_only_update_user_owned_bookmarks(
-        self,
-    ):
-        user = self.get_or_create_test_user()
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
-        self.setup_bookmark()
-        self.setup_bookmark()
-        self.setup_bookmark()
-        self.setup_bookmark(user=other_user)
-        self.setup_bookmark(user=other_user)
-        self.setup_bookmark(user=other_user)
-
-        tasks.schedule_bookmarks_without_snapshots(user)
-
-        self.assertEqual(self.mock_cdx_api.newest.call_count, 3)
-
-    @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
-    def test_schedule_bookmarks_without_snapshots_should_not_run_when_background_tasks_are_disabled(
-        self,
-    ):
-        tasks.schedule_bookmarks_without_snapshots(self.user)
-
-        self.assertEqual(self.executed_count(), 0)
-
-    def test_schedule_bookmarks_without_snapshots_should_not_run_when_web_archive_integration_is_disabled(
-        self,
-    ):
-        self.user.profile.web_archive_integration = (
-            UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED
-        )
-        self.user.profile.save()
-        tasks.schedule_bookmarks_without_snapshots(self.user)
 
         self.assertEqual(self.executed_count(), 0)
 
