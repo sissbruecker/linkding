@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.31.1 (30/08/2024)
+
+### What's Changed
+* Include favicons and thumbnails in REST API by @sissbruecker in https://github.com/sissbruecker/linkding/pull/763
+* Add Pinkt to the Community section by @fibelatti in https://github.com/sissbruecker/linkding/pull/772
+* removed version line from docker compose yaml by @volumedata21 in https://github.com/sissbruecker/linkding/pull/800
+* Add resource linkding logo by @QYG2297248353 in https://github.com/sissbruecker/linkding/pull/788
+* Allow use of standard docker `TZ` env var by @watsonbox in https://github.com/sissbruecker/linkding/pull/765
+* Add OCI source annotation to link back to source repo by @Ramblurr in https://github.com/sissbruecker/linkding/pull/701
+* Generate fallback URLs for web archive links by @sissbruecker in https://github.com/sissbruecker/linkding/pull/804
+* Fix overflow in settings page by @sissbruecker in https://github.com/sissbruecker/linkding/pull/805
+* Bump django from 5.0.3 to 5.0.8 by @dependabot in https://github.com/sissbruecker/linkding/pull/795
+* Bump certifi from 2023.11.17 to 2024.7.4 by @dependabot in https://github.com/sissbruecker/linkding/pull/775
+* Bump djangorestframework from 3.14.0 to 3.15.2 by @dependabot in https://github.com/sissbruecker/linkding/pull/769
+* Bump urllib3 from 2.1.0 to 2.2.2 by @dependabot in https://github.com/sissbruecker/linkding/pull/762
+
+### New Contributors
+* @fibelatti made their first contribution in https://github.com/sissbruecker/linkding/pull/772
+* @volumedata21 made their first contribution in https://github.com/sissbruecker/linkding/pull/800
+* @QYG2297248353 made their first contribution in https://github.com/sissbruecker/linkding/pull/788
+* @watsonbox made their first contribution in https://github.com/sissbruecker/linkding/pull/765
+* @Ramblurr made their first contribution in https://github.com/sissbruecker/linkding/pull/701
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.31.0...v1.31.1
+
+---
+
 ## v1.31.0 (16/06/2024)
 
 ### What's Changed
