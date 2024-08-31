@@ -469,10 +469,13 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_update_global_settings(self):
         superuser = self.setup_superuser()
         self.client.force_login(superuser)
+        selectable_user = self.setup_user()
 
+        # Update global settings
         form_data = {
             "update_global_settings": "",
             "landing_page": GlobalSettings.LANDING_PAGE_SHARED_BOOKMARKS,
+            "guest_profile_user": selectable_user.id,
         }
         response = self.client.post(reverse("bookmarks:settings.general"), form_data)
         self.assertEqual(response.status_code, 200)
@@ -480,6 +483,22 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
 
         global_settings = GlobalSettings.get()
         self.assertEqual(global_settings.landing_page, form_data["landing_page"])
+        self.assertEqual(global_settings.guest_profile_user, selectable_user)
+
+        # Revert settings
+        form_data = {
+            "update_global_settings": "",
+            "landing_page": GlobalSettings.LANDING_PAGE_LOGIN,
+            "guest_profile_user": "",
+        }
+        response = self.client.post(reverse("bookmarks:settings.general"), form_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertSuccessMessage(response.content.decode(), "Global settings updated")
+
+        global_settings = GlobalSettings.get()
+        global_settings.refresh_from_db()
+        self.assertEqual(global_settings.landing_page, form_data["landing_page"])
+        self.assertIsNone(global_settings.guest_profile_user)
 
     def test_update_global_settings_should_not_be_called_without_respective_form_action(
         self,

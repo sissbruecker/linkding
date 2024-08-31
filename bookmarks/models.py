@@ -508,6 +508,9 @@ class GlobalSettings(models.Model):
         blank=False,
         default=LANDING_PAGE_LOGIN,
     )
+    guest_profile_user = models.ForeignKey(
+        get_user_model(), on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     @classmethod
     def get(cls):
@@ -526,6 +529,8 @@ class GlobalSettings(models.Model):
 class GlobalSettingsForm(forms.ModelForm):
     class Meta:
         model = GlobalSettings
-        fields = [
-            "landing_page",
-        ]
+        fields = ["landing_page", "guest_profile_user"]
+
+    def __init__(self, *args, **kwargs):
+        super(GlobalSettingsForm, self).__init__(*args, **kwargs)
+        self.fields["guest_profile_user"].empty_label = "Standard profile"
