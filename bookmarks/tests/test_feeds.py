@@ -23,6 +23,26 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.client.force_login(user)
         self.token = FeedToken.objects.get_or_create(user=user)[0]
 
+    def assertFeedItems(self, response, bookmarks):
+        self.assertContains(response, "<item>", count=len(bookmarks))
+
+        for bookmark in bookmarks:
+            categories = []
+            for tag in bookmark.tag_names:
+                categories.append(f"<category>{tag}</category>")
+
+            expected_item = (
+                "<item>"
+                f"<title>{bookmark.resolved_title}</title>"
+                f"<link>{bookmark.url}</link>"
+                f"<description>{bookmark.resolved_description}</description>"
+                f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
+                f"<guid>{bookmark.url}</guid>"
+                f"{''.join(categories)}"
+                "</item>"
+            )
+            self.assertContains(response, expected_item, count=1)
+
     def test_all_returns_404_for_unknown_feed_token(self):
         response = self.client.get(reverse("bookmarks:feeds.all", args=["foo"]))
 
@@ -54,51 +74,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             reverse("bookmarks:feeds.all", args=[self.token.key])
         )
         self.assertEqual(response.status_code, 200)
-
-        self.assertContains(response, "<item>", count=len(bookmarks))
-
-        for bookmark in bookmarks:
-            expected_item = (
-                "<item>"
-                f"<title>{bookmark.resolved_title}</title>"
-                f"<link>{bookmark.url}</link>"
-                f"<description>{bookmark.resolved_description}</description>"
-                f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
-                f"<guid>{bookmark.url}</guid>"
-                "</item>"
-            )
-            self.assertContains(response, expected_item, count=1)
-
-    def test_all_with_query(self):
-        tag1 = self.setup_tag()
-        bookmark1 = self.setup_bookmark()
-        bookmark2 = self.setup_bookmark(tags=[tag1])
-        bookmark3 = self.setup_bookmark(tags=[tag1])
-
-        self.setup_bookmark()
-        self.setup_bookmark()
-        self.setup_bookmark()
-
-        feed_url = reverse("bookmarks:feeds.all", args=[self.token.key])
-
-        url = feed_url + f"?q={bookmark1.title}"
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark1.url}</guid>", count=1)
-
-        url = feed_url + "?q=" + urllib.parse.quote("#" + tag1.name)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=2)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
-        self.assertContains(response, f"<guid>{bookmark3.url}</guid>", count=1)
-
-        url = feed_url + "?q=" + urllib.parse.quote(f"#{tag1.name} {bookmark2.title}")
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
+        self.assertFeedItems(response, bookmarks)
 
     def test_all_returns_only_user_owned_bookmarks(self):
         other_user = User.objects.create_user(
@@ -114,23 +90,6 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "<item>", count=0)
-
-    def test_strip_control_characters(self):
-        self.setup_bookmark(
-            title="test\n\r\t\0\x08title", description="test\n\r\t\0\x08description"
-        )
-        response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key])
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<title>test\n\r\ttitle</title>", count=1)
-        self.assertContains(
-            response, f"<description>test\n\r\tdescription</description>", count=1
-        )
-
-    def test_sanitize_with_none_text(self):
-        self.assertEqual("", sanitize(None))
 
     def test_unread_returns_404_for_unknown_feed_token(self):
         response = self.client.get(reverse("bookmarks:feeds.unread", args=["foo"]))
@@ -169,51 +128,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             reverse("bookmarks:feeds.unread", args=[self.token.key])
         )
         self.assertEqual(response.status_code, 200)
-
-        self.assertContains(response, "<item>", count=len(unread_bookmarks))
-
-        for bookmark in unread_bookmarks:
-            expected_item = (
-                "<item>"
-                f"<title>{bookmark.resolved_title}</title>"
-                f"<link>{bookmark.url}</link>"
-                f"<description>{bookmark.resolved_description}</description>"
-                f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
-                f"<guid>{bookmark.url}</guid>"
-                "</item>"
-            )
-            self.assertContains(response, expected_item, count=1)
-
-    def test_unread_with_query(self):
-        tag1 = self.setup_tag()
-        bookmark1 = self.setup_bookmark(unread=True)
-        bookmark2 = self.setup_bookmark(unread=True, tags=[tag1])
-        bookmark3 = self.setup_bookmark(unread=True, tags=[tag1])
-
-        self.setup_bookmark(unread=True)
-        self.setup_bookmark(unread=True)
-        self.setup_bookmark(unread=True)
-
-        feed_url = reverse("bookmarks:feeds.unread", args=[self.token.key])
-
-        url = feed_url + f"?q={bookmark1.title}"
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark1.url}</guid>", count=1)
-
-        url = feed_url + "?q=" + urllib.parse.quote("#" + tag1.name)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=2)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
-        self.assertContains(response, f"<guid>{bookmark3.url}</guid>", count=1)
-
-        url = feed_url + "?q=" + urllib.parse.quote(f"#{tag1.name} {bookmark2.title}")
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
+        self.assertFeedItems(response, unread_bookmarks)
 
     def test_unread_returns_only_user_owned_bookmarks(self):
         other_user = User.objects.create_user(
@@ -265,53 +180,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             reverse("bookmarks:feeds.shared", args=[self.token.key])
         )
         self.assertEqual(response.status_code, 200)
-
-        self.assertContains(response, "<item>", count=len(shared_bookmarks))
-
-        for bookmark in shared_bookmarks:
-            expected_item = (
-                "<item>"
-                f"<title>{bookmark.resolved_title}</title>"
-                f"<link>{bookmark.url}</link>"
-                f"<description>{bookmark.resolved_description}</description>"
-                f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
-                f"<guid>{bookmark.url}</guid>"
-                "</item>"
-            )
-            self.assertContains(response, expected_item, count=1)
-
-    def test_shared_with_query(self):
-        user = self.setup_user(enable_sharing=True)
-
-        tag1 = self.setup_tag(user=user)
-        bookmark1 = self.setup_bookmark(shared=True, user=user)
-        bookmark2 = self.setup_bookmark(shared=True, tags=[tag1], user=user)
-        bookmark3 = self.setup_bookmark(shared=True, tags=[tag1], user=user)
-
-        self.setup_bookmark(shared=True, user=user)
-        self.setup_bookmark(shared=True, user=user)
-        self.setup_bookmark(shared=True, user=user)
-
-        feed_url = reverse("bookmarks:feeds.shared", args=[self.token.key])
-
-        url = feed_url + f"?q={bookmark1.title}"
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark1.url}</guid>", count=1)
-
-        url = feed_url + "?q=" + urllib.parse.quote("#" + tag1.name)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=2)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
-        self.assertContains(response, f"<guid>{bookmark3.url}</guid>", count=1)
-
-        url = feed_url + "?q=" + urllib.parse.quote(f"#{tag1.name} {bookmark2.title}")
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
+        self.assertFeedItems(response, shared_bookmarks)
 
     def test_public_shared_does_not_require_auth(self):
         response = self.client.get(reverse("bookmarks:feeds.public_shared"))
@@ -351,34 +220,19 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
 
         response = self.client.get(reverse("bookmarks:feeds.public_shared"))
         self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, public_shared_bookmarks)
 
-        self.assertContains(response, "<item>", count=len(public_shared_bookmarks))
+    def test_with_query(self):
+        tag1 = self.setup_tag()
+        bookmark1 = self.setup_bookmark()
+        bookmark2 = self.setup_bookmark(tags=[tag1])
+        bookmark3 = self.setup_bookmark(tags=[tag1])
 
-        for bookmark in public_shared_bookmarks:
-            expected_item = (
-                "<item>"
-                f"<title>{bookmark.resolved_title}</title>"
-                f"<link>{bookmark.url}</link>"
-                f"<description>{bookmark.resolved_description}</description>"
-                f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
-                f"<guid>{bookmark.url}</guid>"
-                "</item>"
-            )
-            self.assertContains(response, expected_item, count=1)
+        self.setup_bookmark()
+        self.setup_bookmark()
+        self.setup_bookmark()
 
-    def test_public_shared_with_query(self):
-        user = self.setup_user(enable_sharing=True, enable_public_sharing=True)
-
-        tag1 = self.setup_tag(user=user)
-        bookmark1 = self.setup_bookmark(shared=True, user=user)
-        bookmark2 = self.setup_bookmark(shared=True, tags=[tag1], user=user)
-        bookmark3 = self.setup_bookmark(shared=True, tags=[tag1], user=user)
-
-        self.setup_bookmark(shared=True, user=user)
-        self.setup_bookmark(shared=True, user=user)
-        self.setup_bookmark(shared=True, user=user)
-
-        feed_url = reverse("bookmarks:feeds.shared", args=[self.token.key])
+        feed_url = reverse("bookmarks:feeds.all", args=[self.token.key])
 
         url = feed_url + f"?q={bookmark1.title}"
         response = self.client.get(url)
@@ -398,3 +252,59 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=1)
         self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
+
+    def test_with_tags(self):
+        bookmarks = [
+            self.setup_bookmark(description="test description"),
+            self.setup_bookmark(
+                description="test description",
+                tags=[self.setup_tag(), self.setup_tag()],
+            ),
+        ]
+
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, bookmarks)
+
+    def test_with_limit(self):
+        self.setup_numbered_bookmarks(200)
+
+        # without limit - defaults to 100
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=100)
+
+        # with increased limit
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?limit=200"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=200)
+
+        # with decreased limit
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?limit=5"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=5)
+
+    def test_strip_control_characters(self):
+        self.setup_bookmark(
+            title="test\n\r\t\0\x08title", description="test\n\r\t\0\x08description"
+        )
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=1)
+        self.assertContains(response, f"<title>test\n\r\ttitle</title>", count=1)
+        self.assertContains(
+            response, f"<description>test\n\r\tdescription</description>", count=1
+        )
+
+    def test_sanitize_with_none_text(self):
+        self.assertEqual("", sanitize(None))
