@@ -6,7 +6,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from requests import RequestException
 
-from bookmarks.models import UserProfile
+from bookmarks.models import UserProfile, GlobalSettings
 from bookmarks.services import tasks
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 from bookmarks.views.settings import app_version, get_version_info
@@ -465,3 +465,63 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             self.assertSuccessMessage(
                 html, "Queued 5 missing snapshots. This may take a while...", count=0
             )
+
+    def test_update_global_settings(self):
+        superuser = self.setup_superuser()
+        self.client.force_login(superuser)
+
+        form_data = {
+            "update_global_settings": "",
+            "landing_page": GlobalSettings.LANDING_PAGE_SHARED_BOOKMARKS,
+        }
+        response = self.client.post(reverse("bookmarks:settings.general"), form_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertSuccessMessage(response.content.decode(), "Global settings updated")
+
+        global_settings = GlobalSettings.get()
+        self.assertEqual(global_settings.landing_page, form_data["landing_page"])
+
+    def test_update_global_settings_should_not_be_called_without_respective_form_action(
+        self,
+    ):
+        superuser = self.setup_superuser()
+        self.client.force_login(superuser)
+
+        form_data = {
+            "landing_page": GlobalSettings.LANDING_PAGE_SHARED_BOOKMARKS,
+        }
+        response = self.client.post(reverse("bookmarks:settings.general"), form_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertSuccessMessage(
+            response.content.decode(), "Global settings updated", count=0
+        )
+
+    def test_update_global_settings_checks_for_superuser(self):
+        form_data = {
+            "update_global_settings": "",
+            "landing_page": GlobalSettings.LANDING_PAGE_SHARED_BOOKMARKS,
+        }
+        response = self.client.post(reverse("bookmarks:settings.general"), form_data)
+        self.assertEqual(response.status_code, 403)
+
+    def test_global_settings_only_visible_for_superuser(self):
+        response = self.client.get(reverse("bookmarks:settings.general"))
+        html = response.content.decode()
+
+        self.assertInHTML(
+            "<h2>Global settings</h2>",
+            html,
+            count=0,
+        )
+
+        superuser = self.setup_superuser()
+        self.client.force_login(superuser)
+
+        response = self.client.get(reverse("bookmarks:settings.general"))
+        html = response.content.decode()
+
+        self.assertInHTML(
+            "<h2>Global settings</h2>",
+            html,
+            count=1,
+        )
