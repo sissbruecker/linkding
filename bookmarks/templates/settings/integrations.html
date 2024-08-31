@@ -64,11 +64,17 @@
         All URLs support the following URL parameters:
       </p>
       <ul style="list-style-position: outside;">
+        <li>A <code>limit</code> parameter for specifying the maximum number of bookmarks to include in the feed. By
+          default, only the latest 100 matching bookmarks are included.
+        </li>
         <li>A <code>q</code> URL parameter for specifying a search query. You can get an example by doing a search in
           the bookmarks view and then copying the parameter from the URL.
         </li>
-        <li>A <code>limit</code> parameter for specifying the maximum number of bookmarks to include in the feed. By
-          default, only the latest 100 matching bookmarks are included.
+        <li>An <code>unread</code> parameter for filtering for unread or read bookmarks. Use <code>yes</code> for unread
+          bookmarks and <code>no</code> for read bookmarks.
+        </li>
+        <li>A <code>shared</code> parameter for filtering for shared or unshared bookmarks. Use <code>yes</code> for
+          shared bookmarks and <code>no</code> for unshared bookmarks.
         </li>
       </ul>
       <p>
