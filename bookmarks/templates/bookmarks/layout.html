@@ -114,16 +114,16 @@
     </div>
   {% endif %}
   <div class="d-flex justify-between">
-    <a href="{% url 'bookmarks:index' %}" class="d-flex align-center">
+    <a href="{% url 'bookmarks:root' %}" class="d-flex align-center">
       <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
       <h1>LINKDING</h1>
     </a>
     {% if request.user.is_authenticated %}
       {# Only show nav items menu when logged in #}
       {% include 'bookmarks/nav_menu.html' %}
-    {% elif has_public_shares %}
-      {# Otherwise show link to shared bookmarks if there are publicly shared bookmarks #}
-      <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared bookmarks</a>
+    {% else %}
+      {# Otherwise show login link #}
+      <a href="{% url 'login' %}" class="btn btn-link">Login</a>
     {% endif %}
   </div>
 </header>

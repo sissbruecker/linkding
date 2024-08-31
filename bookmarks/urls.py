@@ -1,6 +1,5 @@
 from django.urls import path, include
 from django.urls import re_path
-from django.views.generic import RedirectView
 
 from bookmarks import views
 from bookmarks.api.routes import router
@@ -14,10 +13,8 @@ from bookmarks.views import partials
 
 app_name = "bookmarks"
 urlpatterns = [
-    # Redirect root to bookmarks index
-    re_path(
-        r"^$", RedirectView.as_view(pattern_name="bookmarks:index", permanent=False)
-    ),
+    # Root view handling redirection based on user authentication
+    re_path(r"^$", views.root, name="root"),
     # Bookmarks
     path("bookmarks", views.bookmarks.index, name="index"),
     path("bookmarks/action", views.bookmarks.index_action, name="index.action"),

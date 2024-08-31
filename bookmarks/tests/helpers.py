@@ -24,6 +24,11 @@ class BookmarkFactoryMixin:
 
         return self.user
 
+    def setup_superuser(self):
+        return User.objects.create_superuser(
+            "superuser", "superuser@example.com", "password123"
+        )
+
     def setup_bookmark(
         self,
         is_archived: bool = False,
