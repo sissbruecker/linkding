@@ -6,13 +6,20 @@ import requests
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
-from bookmarks.models import Bookmark, UserProfileForm, FeedToken
+from bookmarks.models import (
+    Bookmark,
+    UserProfileForm,
+    FeedToken,
+    GlobalSettings,
+    GlobalSettingsForm,
+)
 from bookmarks.services import exporter, tasks
 from bookmarks.services import importer
 from bookmarks.utils import app_version
@@ -23,6 +30,7 @@ logger = logging.getLogger(__name__)
 @login_required
 def general(request):
     profile_form = None
+    global_settings_form = None
     enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
     has_snapshot_support = django_settings.LD_ENABLE_SNAPSHOTS
     success_message = _find_message_with_tag(
@@ -37,6 +45,9 @@ def general(request):
         if "update_profile" in request.POST:
             profile_form = update_profile(request)
             success_message = "Profile updated"
+        if "update_global_settings" in request.POST:
+            global_settings_form = update_global_settings(request)
+            success_message = "Global settings updated"
         if "refresh_favicons" in request.POST:
             tasks.schedule_refresh_favicons(request.user)
             success_message = "Scheduled favicon update. This may take a while..."
@@ -52,11 +63,15 @@ def general(request):
     if not profile_form:
         profile_form = UserProfileForm(instance=request.user_profile)
 
+    if request.user.is_superuser and not global_settings_form:
+        global_settings_form = GlobalSettingsForm(instance=GlobalSettings.get())
+
     return render(
         request,
         "settings/general.html",
         {
             "form": profile_form,
+            "global_settings_form": global_settings_form,
             "enable_refresh_favicons": enable_refresh_favicons,
             "has_snapshot_support": has_snapshot_support,
             "success_message": success_message,
@@ -80,6 +95,17 @@ def update_profile(request):
         # Load missing preview images if the feature was just enabled
         if profile.enable_preview_images and not previews_were_enabled:
             tasks.schedule_bookmarks_without_previews(request.user)
+    return form
+
+
+def update_global_settings(request):
+    user = request.user
+    if not user.is_superuser:
+        raise PermissionDenied()
+
+    form = GlobalSettingsForm(request.POST, instance=GlobalSettings.get())
+    if form.is_valid():
+        form.save()
     return form
 
 

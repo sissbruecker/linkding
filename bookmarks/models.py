@@ -492,3 +492,40 @@ class FeedToken(models.Model):
 
     def __str__(self):
         return self.key
+
+
+class GlobalSettings(models.Model):
+    LANDING_PAGE_LOGIN = "login"
+    LANDING_PAGE_SHARED_BOOKMARKS = "shared_bookmarks"
+    LANDING_PAGE_CHOICES = [
+        (LANDING_PAGE_LOGIN, "Login"),
+        (LANDING_PAGE_SHARED_BOOKMARKS, "Shared Bookmarks"),
+    ]
+
+    landing_page = models.CharField(
+        max_length=50,
+        choices=LANDING_PAGE_CHOICES,
+        blank=False,
+        default=LANDING_PAGE_LOGIN,
+    )
+
+    @classmethod
+    def get(cls):
+        instance = GlobalSettings.objects.first()
+        if not instance:
+            instance = GlobalSettings()
+            instance.save()
+        return instance
+
+    def save(self, *args, **kwargs):
+        if not self.pk and GlobalSettings.objects.exists():
+            raise Exception("There is already one instance of GlobalSettings")
+        return super(GlobalSettings, self).save(*args, **kwargs)
+
+
+class GlobalSettingsForm(forms.ModelForm):
+    class Meta:
+        model = GlobalSettings
+        fields = [
+            "landing_page",
+        ]
