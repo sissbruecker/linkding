@@ -253,6 +253,64 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertContains(response, "<item>", count=1)
         self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
 
+    def test_unread_parameter(self):
+        self.setup_bookmark(unread=True),
+        self.setup_bookmark(unread=True),
+        self.setup_bookmark(unread=False),
+        self.setup_bookmark(unread=False),
+        self.setup_bookmark(unread=False),
+        self.setup_bookmark(unread=False),
+
+        # without unread parameter
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=6)
+
+        # with unread=yes
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?unread=yes"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=2)
+
+        # with unread=no
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?unread=no"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=4)
+
+    def test_shared_parameter(self):
+        self.setup_bookmark(shared=True)
+        self.setup_bookmark(shared=True)
+        self.setup_bookmark(shared=False)
+        self.setup_bookmark(shared=False)
+        self.setup_bookmark(shared=False)
+        self.setup_bookmark(shared=False)
+
+        # without shared parameter
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=6)
+
+        # with shared=yes
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?shared=yes"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=2)
+
+        # with shared=no
+        response = self.client.get(
+            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?shared=no"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<item>", count=4)
+
     def test_with_tags(self):
         bookmarks = [
             self.setup_bookmark(description="test description"),
