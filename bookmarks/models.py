@@ -169,7 +169,9 @@ class BookmarkForm(forms.ModelForm):
 
     @property
     def has_notes(self):
-        return self.instance and self.instance.notes
+        return self.initial.get("notes", None) or (
+            self.instance and self.instance.notes
+        )
 
 
 class BookmarkSearch:
