@@ -5,7 +5,7 @@ from bookmarks.models import GlobalSettings
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
-class AnonymousViewTestCase(TestCase, BookmarkFactoryMixin):
+class RootViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_unauthenticated_user_redirect_to_login_by_default(self):
         response = self.client.get(reverse("bookmarks:root"))
         self.assertRedirects(response, reverse("login"))
