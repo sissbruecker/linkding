@@ -1,11 +1,11 @@
-@import "spectre/variables.css";
-@import "spectre/_normalize.css";
-@import "spectre/base.css";
-@import "spectre/typography.css";
-@import "spectre/asian.css";
-@import "spectre/tables.css";
-@import "spectre/buttons.css";
-@import "spectre/forms.css";
+@import "theme/variables.css";
+@import "theme/_normalize.css";
+@import "theme/base.css";
+@import "theme/typography.css";
+@import "theme/asian.css";
+@import "theme/tables.css";
+@import "theme/buttons.css";
+@import "theme/forms.css";
 
 :root {
     --contrast-5: hsla(214, 65%, 85%, 0.06);

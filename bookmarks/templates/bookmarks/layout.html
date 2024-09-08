@@ -17,19 +17,18 @@
   <meta name="robots" content="index,follow">
   <meta name="author" content="Sascha Ißbrücker">
   <title>linkding</title>
-  {# Include SASS styles, files are resolved from bookmarks/styles #}
   {# Include specific theme variant based on user profile setting #}
   {% if request.user_profile.theme == 'light' %}
-    <link href="{% static 'theme-light-new.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'theme-light.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
     <meta name="theme-color" content="#5856e0">
   {% elif request.user_profile.theme == 'dark' %}
-    <link href="{% sass_src 'theme-dark.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'theme-dark.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
     <meta name="theme-color" content="#161822">
   {% else %}
     {# Use auto theme as fallback #}
-    <link href="{% sass_src 'theme-dark.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
+    <link href="{% static 'theme-dark.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
           media="(prefers-color-scheme: dark)"/>
-    <link href="{% sass_src 'theme-light.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
+    <link href="{% static 'theme-light.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
           media="(prefers-color-scheme: light)"/>
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161822">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#5856e0">
