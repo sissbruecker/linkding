@@ -3,7 +3,7 @@
     --input-bg-color: transparent;
     --input-text-color: var(--body-text-color);
     --input-border-color: var(--gray-300);
-    --input-placeholder-color: var(--secondary-text-color);
+    --input-placeholder-color: var(--tertiary-text-color);
     --input-box-shadow: var(--box-shadow-xs);
 
     --checkbox-bg-color: transparent;

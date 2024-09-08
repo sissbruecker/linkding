@@ -18,6 +18,7 @@
     justify-content: flex-end;
 
     /* Regular input */
+
     & input[type='search'] {
         height: var(--control-size);
         -webkit-appearance: none;
@@ -25,6 +26,7 @@
 
     /* Enhanced auto-complete input */
     /* This needs a bit more wrangling to make the CSS component align with the attached button */
+
     & .form-autocomplete {
         height: var(--control-size);
 
@@ -51,6 +53,7 @@
     }
 
     /* Group search options button with search button */
+
     & .input-group input[type='submit'] {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
@@ -66,6 +69,7 @@
     }
 
     /* Search option menu styles */
+
     & .dropdown {
         & .menu {
             padding: var(--unit-4);
@@ -129,7 +133,7 @@ li[ld-bookmark-item] {
     position: relative;
     display: flex;
     gap: var(--unit-2);
-    margin-top: var(--unit-2);
+    margin-top: var(--unit-3);
 
     & .content {
         flex: 1 1 0;
@@ -198,7 +202,7 @@ li[ld-bookmark-item] {
         animation: 0.3s ease 0s appear;
     }
 
-    @media (pointer:coarse) {
+    @media (pointer: coarse) {
         & .title a[data-tooltip]::after {
             display: none;
         }
@@ -246,15 +250,14 @@ li[ld-bookmark-item] {
 
     & .actions {
         font-size: var(--font-size-sm);
+        color: var(--tertiary-text-color);
 
         & a, & button.btn-link {
-            color: var(--secondary-text-color);
-            padding: 0 6px;
+            color: var(--tertiary-text-color);
+            padding: 0;
             height: auto;
             vertical-align: unset;
             border: none;
-            border: solid 1px var(--gray-200);
-            border-radius: var(--border-radius);
             box-sizing: border-box;
             transition: none;
             text-decoration: none;
@@ -271,6 +274,11 @@ li[ld-bookmark-item] {
 
 .bookmark-pagination {
     margin-top: var(--unit-4);
+
+    /* Remove left padding from first pagination link */
+    & .page-item:first-child a {
+        padding-left: 0;
+    }
 }
 
 .tag-cloud {
@@ -294,7 +302,7 @@ li[ld-bookmark-item] {
     }
 
     & .group {
-        margin-bottom: var(--unit-2);
+        margin-bottom: var(--unit-3);
     }
 
     & .highlight-char {
@@ -347,11 +355,13 @@ ul.bookmark-list {
     }
 
     /* remove overflow after opening animation, otherwise tag autocomplete overlay gets cut off */
+
     &.active:not(.activating) .bulk-edit-bar {
         overflow: visible;
     }
 
     /* All checkbox */
+
     & .form-checkbox.bulk-edit-checkbox.all {
         display: block;
         width: var(--bulk-edit-toggle-width);
@@ -360,6 +370,7 @@ ul.bookmark-list {
     }
 
     /* Bookmark checkboxes */
+
     & li[ld-bookmark-item] .form-checkbox.bulk-edit-checkbox {
         display: block;
         position: absolute;
@@ -385,6 +396,7 @@ ul.bookmark-list {
     }
 
     /* Actions */
+
     & .bulk-edit-actions {
         display: flex;
         align-items: center;

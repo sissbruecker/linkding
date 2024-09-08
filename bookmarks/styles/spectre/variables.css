@@ -1,7 +1,4 @@
 :root {
-    /* Core variables */
-    --version: "0.5.9";
-
     /* Color palette */
     --gray-50: rgb(249 250 251);
     --gray-100: rgb(243 244 246);
@@ -34,10 +31,11 @@
     --error-color-shade: hsla(0, 72%, 51%, 0.1);
 
     /* Core colors */
-    --body-text-color: #3b4351;
+    --body-text-color: var(--gray-700);
     --contrast-text-color: #fff;
     --primary-text-color: #5755d9;
     --secondary-text-color: var(--gray-500);
+    --tertiary-text-color: var(--gray-400);
 
     --link-color: var(--primary-text-color);
     --secondary-link-color: rgba(87, 85, 217, 0.64);
@@ -83,8 +81,7 @@
     --font-size: 0.7rem;
     --font-size-sm: 0.65rem;
     --font-size-lg: 0.8rem;
-    --line-height: 1.2rem;
-
+    --line-height: 1rem;
 
     /* Sizes */
     --layout-spacing: var(--unit-2);
@@ -93,9 +90,9 @@
     --border-radius: var(--unit-1);
     --border-width: var(--unit-o);
     --border-width-lg: var(--unit-h);
-    --control-size: var(--unit-9);
-    --control-size-sm: var(--unit-7);
-    --control-size-lg: var(--unit-10);
+    --control-size: var(--unit-8);
+    --control-size-sm: var(--unit-6);
+    --control-size-lg: var(--unit-9);
     --control-padding-x: var(--unit-2);
     --control-padding-x-sm: calc(var(--unit-2) * 0.75);
     --control-padding-x-lg: calc(var(--unit-2) * 1.5);
