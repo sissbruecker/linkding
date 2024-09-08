@@ -14,22 +14,22 @@
       </svg>
     </a>
     <ul class="menu">
-      <li>
-        <a href="{% url 'bookmarks:index' %}" class="btn btn-link">Active</a>
+      <li class="menu-item">
+        <a href="{% url 'bookmarks:index' %}" class="menu-link">Active</a>
       </li>
-      <li>
-        <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archived</a>
+      <li class="menu-item">
+        <a href="{% url 'bookmarks:archived' %}" class="menu-link">Archived</a>
       </li>
       {% if request.user_profile.enable_sharing %}
-        <li>
-          <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared</a>
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:shared' %}" class="menu-link">Shared</a>
         </li>
       {% endif %}
-      <li>
-        <a href="{% url 'bookmarks:index' %}?unread=yes" class="btn btn-link">Unread</a>
+      <li class="menu-item">
+        <a href="{% url 'bookmarks:index' %}?unread=yes" class="menu-link">Unread</a>
       </li>
-      <li>
-        <a href="{% url 'bookmarks:index' %}?q=!untagged" class="btn btn-link">Untagged</a>
+      <li class="menu-item">
+        <a href="{% url 'bookmarks:index' %}?q=!untagged" class="menu-link">Untagged</a>
       </li>
     </ul>
   </div>

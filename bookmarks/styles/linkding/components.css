@@ -1,0 +1,48 @@
+/* Shared components */
+
+/* Content area component */
+section.content-area {
+    h2 {
+        font-size: var(--font-size-lg);
+    }
+
+    .content-area-header {
+        border-bottom: solid 1px var(--border-color);
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: var(--unit-5);
+        padding-bottom: var(--unit-1);
+        margin-bottom: var(--unit-3);
+
+        h2 {
+            flex: 0 0 auto;
+            line-height: var(--unit-9);
+            margin: 0;
+        }
+
+        .header-controls {
+            flex: 1 1 0;
+            display: flex;
+        }
+    }
+}
+
+/* Confirm button component */
+span.confirmation {
+    display: flex;
+    align-items: baseline;
+    gap: var(--unit-1);
+    color: var(--error-color) !important;
+
+    svg {
+        align-self: center;
+    }
+
+    .btn.btn-link {
+        color: var(--error-color) !important;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

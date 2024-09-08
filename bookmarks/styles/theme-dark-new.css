@@ -1,0 +1,78 @@
+@import "spectre/variables.css";
+@import "spectre/_normalize.css";
+@import "spectre/base.css";
+@import "spectre/typography.css";
+@import "spectre/asian.css";
+@import "spectre/tables.css";
+@import "spectre/buttons.css";
+@import "spectre/forms.css";
+
+:root {
+    --contrast-5: hsla(214, 65%, 85%, 0.06);
+    --contrast-10: hsla(214, 60%, 80%, 0.14);
+    --contrast-20: hsla(214, 64%, 82%, 0.23);
+    --contrast-30: hsla(214, 69%, 84%, 0.32);
+    --contrast-40: hsla(214, 73%, 86%, 0.41);
+    --contrast-50: hsla(214, 78%, 88%, 0.5);
+    --contrast-60: hsla(214, 82%, 90%, 0.58);
+    --contrast-70: hsla(214, 87%, 92%, 0.69);
+    --contrast-80: hsla(214, 91%, 94%, 0.8);
+    --contrast-90: hsla(214, 96%, 96%, 0.9);
+    --contrast: hsl(214, 100%, 98%);
+
+    --primary-color: hsl(241, 75%, 64%);
+    --primary-color-highlight: hsl(241, 75%, 68%);
+
+    --body-bg: var(--gray-900);
+
+    --body-text-color: var(--contrast);
+    --primary-text-color: #9d9bff;
+
+    --box-shadow-xs: none;
+
+    --btn-bg-color: var(--contrast-30);
+    --btn-hover-bg-color: var(--contrast-40);
+    --btn-border-color: none;
+    --btn-text-color: var(--body-text-color);
+    --btn-box-shadow: none;
+
+    --input-bg-color: var(--contrast-10);
+    --input-text-color: var(--body-text-color);
+    --input-border-color: var(--contrast-20);
+    --input-placeholder-color: var(--contrast-50);
+    --input-box-shadow: none;
+
+    --checkbox-bg-color: var(--contrast-20);
+    --switch-bg-color: var(--contrast-20);
+    --checkbox-checked-bg-color: var(--primary-color);
+    --checkbox-border-color: var(--contrast-30);
+    --checkbox-icon-color: var(--light-color);
+
+
+    /*
+    --body-bg: var(--gray-900);
+
+    --body-text-color: #fafafa;
+    --primary-text-color: #9d9bff;
+
+    --box-shadow-xs: rgba(255, 255, 255, 0.2) 0px 1px 2px 0px;
+
+    --btn-bg-color: var(--gray-700);
+    --btn-hover-bg-color: var(--gray-600);
+    --btn-border-color: var(--btn-bg-color);
+    --btn-text-color: var(--body-text-color);
+    --btn-box-shadow: none;
+
+    --input-bg-color: var(--gray-800);
+    --input-text-color: var(--body-text-color);
+    --input-border-color: var(--gray-600);
+    --input-placeholder-color: var(--gray-color);
+    --input-box-shadow: none;
+
+    --checkbox-bg-color: var(--gray-800);
+    --switch-bg-color: var(--gray-600);
+    --checkbox-checked-bg-color: var(--primary-color);
+    --checkbox-border-color: var(--gray-600);
+    --checkbox-icon-color: var(--light-color);
+     */
+}

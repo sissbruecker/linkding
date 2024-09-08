@@ -1,0 +1,24 @@
+@import "spectre/variables.css";
+@import "spectre/_normalize.css";
+@import "spectre/base.css";
+@import "spectre/typography.css";
+@import "spectre/asian.css";
+@import "spectre/tables.css";
+@import "spectre/buttons.css";
+@import "spectre/forms.css";
+@import "spectre/code.css";
+@import "spectre/dropdowns.css";
+@import "spectre/menus.css";
+@import "spectre/empty.css";
+@import "spectre/modals.css";
+@import "spectre/pagination.css";
+@import "spectre/tabs.css";
+@import "spectre/toasts.css";
+@import "spectre/autocomplete.css";
+@import "spectre/animations.css";
+@import "spectre/utilities.css";
+
+@import "linkding/responsive.css";
+@import "linkding/layout.css";
+@import "linkding/components.css";
+@import "linkding/bookmark-page.css";

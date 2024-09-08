@@ -1,0 +1,36 @@
+/* Autocomplete */
+.form-autocomplete {
+    position: relative;
+
+    & .form-autocomplete-input {
+        align-content: flex-start;
+        display: flex;
+        flex-wrap: wrap;
+        height: auto;
+        min-height: var(--unit-8);
+        padding: var(--unit-h);
+
+        &.is-focused {
+            outline: var(--focus-outline);
+            outline-offset: calc(var(--focus-outline-offset) * -1);
+        }
+
+        & .form-input {
+            border-color: transparent;
+            box-shadow: none;
+            display: inline-block;
+            flex: 1 0 auto;
+            height: var(--unit-6);
+            line-height: var(--unit-4);
+            margin: var(--unit-h);
+            width: auto;
+        }
+    }
+
+    & .menu {
+        left: 0;
+        position: absolute;
+        top: 100%;
+        width: 100%;
+    }
+}

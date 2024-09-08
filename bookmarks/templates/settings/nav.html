@@ -10,7 +10,7 @@
         <a href="{% url 'bookmarks:settings.integrations' %}">Integrations</a>
     </li>
     {% if request.user.is_superuser %}
-    <li class="tab-item tooltip tooltip-bottom" data-tooltip="The admin panel provides additional features &#010; such as user management and bulk operations.">
+    <li class="tab-item">
         <a href="{% url 'admin:index' %}" target="_blank">
             <span>Admin</span>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="ml-1" style="width: 1.2em; height: 1.2em; vertical-align: -0.2em;">

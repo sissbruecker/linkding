@@ -1,0 +1,35 @@
+/* Toasts */
+.toast {
+    background: var(--gray-600);
+    border-radius: var(--border-radius);
+    color: var(--contrast-text-color);
+    display: block;
+    padding: var(--layout-spacing);
+    width: 100%;
+
+    &.toast-primary {
+        background: var(--primary-color);
+    }
+
+    &.toast-success {
+        background: var(--success-color);
+    }
+
+    &.toast-warning {
+        background: var(--warning-color);
+    }
+
+    &.toast-error {
+        background: var(--error-color);
+    }
+
+    .btn-clear {
+        margin: var(--unit-h);
+    }
+
+    p {
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
