@@ -17,16 +17,16 @@
 
     .menu-item {
         margin-top: 0;
-        padding: 0 var(--unit-3);
+        padding: 0 var(--unit-4);
         position: relative;
         text-decoration: none;
 
         &:first-of-type {
-            padding-top: var(--unit-1);
+            padding-top: var(--unit-2);
         }
 
         &:last-of-type {
-            padding-bottom: var(--unit-1);
+            padding-bottom: var(--unit-2);
         }
 
         & > a, .btn.btn-link {
