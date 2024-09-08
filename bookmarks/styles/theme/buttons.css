@@ -193,6 +193,11 @@
             align-self: center;
         }
     }
+
+    /* Button with icon */
+    & svg {
+        color: var(--gray-600)
+    }
 }
 
 /* Button groups */

@@ -57,7 +57,7 @@
   grid-column: span min(3, var(--grid-columns));
 }
 
-@media (max-width: var(--size-md)) {
+@media (max-width: 840px) {
   .hide-md {
     display: none !important;
   }
@@ -86,7 +86,7 @@
   }
 }
 
-@media (max-width: var(--size-sm)) {
+@media (max-width: 600px) {
   .hide-sm {
     display: none !important;
   }

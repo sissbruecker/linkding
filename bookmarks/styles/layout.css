@@ -2,7 +2,7 @@
 body {
     margin: 20px 10px;
 
-    @media (min-width: var(--size-sm)) {
+    @media (min-width: 600px) {
         /* Horizontal offset accounts for checkboxes that show up in bulk edit mode */
         margin: 20px 32px;
     }

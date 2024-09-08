@@ -24,6 +24,10 @@
             line-height: var(--unit-4);
             margin: var(--unit-h);
             width: auto;
+
+            &:focus {
+                outline: none;
+            }
         }
     }
 

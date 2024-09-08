@@ -27,6 +27,12 @@ section.content-area {
     }
 }
 
+@media (max-width: 600px) {
+    section.content-area .content-area-header {
+        flex-direction: column;
+    }
+}
+
 /* Confirm button component */
 span.confirmation {
     display: flex;

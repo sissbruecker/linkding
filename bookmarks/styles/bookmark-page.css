@@ -3,19 +3,20 @@
 }
 
 /* Bookmark area header controls */
-.bookmarks-page .content-area-header {
-    --searchbox-max-width: 350px;
-
-    @media (max-width: var(--size-sm)) {
-        --searchbox-max-width: initial;
-        flex-direction: column;
-    }
-}
-
 .bookmarks-page .search-container {
     flex: 1 1 0;
     display: flex;
-    justify-content: flex-end;
+    max-width: 300px;
+    margin-left: auto;
+
+    & form {
+        width: 100%;
+    }
+
+    @media (max-width: 600px) {
+        max-width: initial;
+        margin-left: 0;
+    }
 
     /* Regular input */
 
@@ -43,25 +44,22 @@
         }
     }
 
-    & .input-group {
-        flex: 1 1 0;
-        max-width: var(--searchbox-max-width);
-    }
-
-    & .input-group > :first-child {
-        flex: 1 1 0;
-    }
-
     /* Group search options button with search button */
+    height: var(--control-size);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-xs);
 
-    & .input-group input[type='submit'] {
+    & input, & .form-autocomplete-input {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
+        box-shadow: none;
     }
 
     & .dropdown-toggle {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
+        box-shadow: none;
+        outline-offset: calc(var(--focus-outline-offset) * -1);
     }
 
     & .dropdown {
@@ -241,7 +239,7 @@ li[ld-bookmark-item] {
         column-gap: var(--unit-2);
     }
 
-    @media (max-width: var(--size-sm)) {
+    @media (max-width: 600px) {
         & .extra-actions {
             width: 100%;
             margin-top: var(--unit-1);
@@ -276,6 +274,7 @@ li[ld-bookmark-item] {
     margin-top: var(--unit-4);
 
     /* Remove left padding from first pagination link */
+
     & .page-item:first-child a {
         padding-left: 0;
     }
