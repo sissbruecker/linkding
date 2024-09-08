@@ -22,5 +22,6 @@
 @import "responsive.css";
 @import "layout.css";
 @import "components.css";
+@import "bookmark-form.css";
 @import "bookmark-page.css";
 @import "markdown.css";

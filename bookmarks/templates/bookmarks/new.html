@@ -2,12 +2,14 @@
 {% load bookmarks %}
 
 {% block content %}
-  <section class="content-area">
-    <div class="content-area-header">
-      <h2>New bookmark</h2>
-    </div>
-    <form action="{% url 'bookmarks:new' %}" method="post" class="width-50 width-md-100" novalidate>
-      {% bookmark_form form return_url auto_close=auto_close %}
-    </form>
-  </section>
+  <div class="bookmarks-form-page">
+    <section class="content-area">
+      <div class="content-area-header">
+        <h2>New bookmark</h2>
+      </div>
+      <form action="{% url 'bookmarks:new' %}" method="post" novalidate>
+        {% bookmark_form form return_url auto_close=auto_close %}
+      </form>
+    </section>
+  </div>
 {% endblock %}

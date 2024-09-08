@@ -52,3 +52,9 @@ span.confirmation {
         }
     }
 }
+
+/* Divider */
+.divider {
+    border-bottom: solid 1px var(--border-color-low);
+    margin: var(--unit-5) 0;
+}

@@ -1,0 +1,48 @@
+.bookmarks-form-page {
+  section {
+    max-width: 550px;
+    margin: 0 auto;
+  }
+}
+
+.bookmarks-form {
+  & .btn.btn-link.form-icon {
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    visibility: hidden;
+    --btn-icon-color: var(--tertiary-text-color);
+
+    & > svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  & .has-icon-right > input, & .has-icon-right > textarea {
+    padding-right: 30px;
+  }
+
+  & .has-icon-right > input:placeholder-shown ~ .btn.form-icon,
+  & .has-icon-right > textarea:placeholder-shown ~ .btn.form-icon {
+    visibility: visible;
+  }
+
+  & .form-icon.loading {
+    visibility: hidden;
+  }
+
+  & .form-input-hint.bookmark-exists {
+    display: none;
+    color: var(--warning-color);
+  }
+
+  & .form-input-hint.auto-tags {
+    display: none;
+    color: var(--success-color);
+  }
+
+  & details.notes textarea {
+    box-sizing: border-box;
+  }
+}

@@ -250,6 +250,8 @@ textarea.form-input {
 }
 
 .form-checkbox {
+    font-weight: 500;
+
     .form-icon {
         border-radius: var(--border-radius);
     }
