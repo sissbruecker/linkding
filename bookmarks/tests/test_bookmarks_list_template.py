@@ -203,7 +203,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def assertNotes(self, html: str, notes_html: str, count=1):
         self.assertInHTML(
             f"""
-        <div class="notes bg-gray text-gray-dark">
+        <div class="notes">
           <div class="markdown">
             {notes_html}
           </div>

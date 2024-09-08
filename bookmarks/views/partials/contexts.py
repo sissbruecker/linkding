@@ -383,8 +383,8 @@ class BookmarkAssetItem:
         icon_classes = []
         text_classes = []
         if asset.status == BookmarkAsset.STATUS_PENDING:
-            icon_classes.append("text-gray")
-            text_classes.append("text-gray")
+            icon_classes.append("text-secondary")
+            text_classes.append("text-secondary")
         elif asset.status == BookmarkAsset.STATUS_FAILURE:
             icon_classes.append("text-error")
             text_classes.append("text-error")

@@ -324,6 +324,8 @@ ul.bookmark-list {
         max-height: 300px;
         margin: var(--unit-1) 0;
         overflow-y: auto;
+        background: var(--body-bg-contrast);
+        border-radius: var(--border-radius);
     }
 
     & .notes .markdown {
