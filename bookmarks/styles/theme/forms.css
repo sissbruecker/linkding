@@ -154,10 +154,6 @@ textarea.form-input {
         outline-offset: calc(var(--focus-outline-offset) * -1);
     }
 
-    &::-ms-expand {
-        display: none;
-    }
-
     /* Select sizes */
 
     &.select-sm {
