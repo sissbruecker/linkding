@@ -7,7 +7,6 @@
     list-style: none;
     margin: 0;
     min-width: var(--control-width-xs);
-    padding: var(--unit-2);
     transform: translateY(var(--layout-spacing-sm));
     z-index: var(--zindex-3);
 
@@ -18,11 +17,19 @@
 
     .menu-item {
         margin-top: 0;
-        padding: 0 var(--unit-2);
+        padding: 0 var(--unit-3);
         position: relative;
         text-decoration: none;
 
-        & > a {
+        &:first-of-type {
+            padding-top: var(--unit-1);
+        }
+
+        &:last-of-type {
+            padding-bottom: var(--unit-1);
+        }
+
+        & > a, .btn.btn-link {
             border-radius: var(--border-radius);
             color: inherit;
             display: block;
@@ -52,7 +59,7 @@
         }
     }
 
-    .menu-badge {
+    & .menu-badge {
         align-items: center;
         display: flex;
         height: 100%;
@@ -63,5 +70,10 @@
         .label {
             margin-right: var(--unit-2);
         }
+    }
+
+    & .divider {
+        border-bottom: solid 1px var(--border-color-low);
+        margin: var(--unit-2) 0;
     }
 }

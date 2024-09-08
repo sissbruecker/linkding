@@ -31,7 +31,7 @@
     --error-color-shade: hsla(0, 72%, 51%, 0.1);
 
     /* Core colors */
-    --body-text-color: var(--gray-700);
+    --body-text-color: var(--gray-600);
     --secondary-text-color: var(--gray-500);
     --tertiary-text-color: var(--gray-400);
     --contrast-text-color: #fff;
