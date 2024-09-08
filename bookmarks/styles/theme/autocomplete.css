@@ -38,5 +38,18 @@
         position: absolute;
         top: 100%;
         width: 100%;
+
+        & .menu-item.selected > a, & .menu-item > a:hover {
+            background: var(--primary-color-shade);
+            color: var(--primary-color);
+        }
+
+        & .group-item, & .group-item:hover {
+            color: var(--tertiary-text-color);
+            text-transform: uppercase;
+            background: none;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
     }
 }
