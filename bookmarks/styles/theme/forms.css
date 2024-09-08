@@ -1,12 +1,12 @@
 /* Forms */
 :root {
-    --input-bg-color: transparent;
+    --input-bg-color: var(--body-bg);
     --input-text-color: var(--body-text-color);
     --input-border-color: var(--gray-300);
     --input-placeholder-color: var(--tertiary-text-color);
     --input-box-shadow: var(--box-shadow-xs);
 
-    --checkbox-bg-color: transparent;
+    --checkbox-bg-color: var(--body-bg);
     --checkbox-checked-bg-color: var(--primary-color);
     --checkbox-border-color: var(--gray-300);
     --checkbox-icon-color: #fff;
@@ -37,6 +37,7 @@ legend {
     display: block;
     line-height: var(--line-height);
     padding: calc(var(--control-padding-y) + var(--border-width)) 0;
+    font-weight: 500;
 
     &.label-sm {
         font-size: var(--font-size-sm);

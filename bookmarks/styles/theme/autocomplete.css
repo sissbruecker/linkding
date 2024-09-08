@@ -9,6 +9,7 @@
         height: auto;
         min-height: var(--unit-8);
         padding: var(--unit-h);
+        background: var(--input-bg-color);
 
         &.is-focused {
             outline: var(--focus-outline);
@@ -16,6 +17,7 @@
         }
 
         & .form-input {
+            background: transparent;
             border-color: transparent;
             box-shadow: none;
             display: inline-block;

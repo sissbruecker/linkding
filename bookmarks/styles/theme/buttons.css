@@ -4,6 +4,7 @@
     --btn-hover-bg-color: var(--gray-50);
     --btn-border-color: var(--gray-300);
     --btn-text-color: var(--body-text-color);
+    --btn-icon-color: var(--gray-600);
     --btn-font-weight: 400;
     --btn-box-shadow: var(--box-shadow-xs);
 
@@ -63,12 +64,20 @@
         pointer-events: none;
     }
 
+    &:focus,
+    &:hover,
+    &:active,
+    &.active {
+        text-decoration: none;
+    }
+
     /* Button Primary */
 
     &.btn-primary {
         background: var(--btn-primary-bg-color);
         border-color: transparent;
         color: var(--btn-primary-text-color);
+        --btn-icon-color: var(--btn-primary-text-color);
 
         &:hover {
             background: var(--btn-primary-hover-bg-color);
@@ -81,6 +90,7 @@
         background: var(--btn-success-bg-color);
         border-color: transparent;
         color: var(--btn-success-text-color);
+        --btn-icon-color: var(--btn-success-text-color);
 
         &:hover {
             background: var(--btn-success-hover-bg-color);
@@ -91,6 +101,7 @@
         background: var(--btn-error-bg-color);
         border-color: transparent;
         color: var(--btn-error-text-color);
+        --btn-icon-color: var(--btn-error-text-color);
 
         &:hover {
             background: var(--btn-error-hover-bg-color);
@@ -104,9 +115,11 @@
         border-color: transparent;
         box-shadow: none;
         color: var(--btn-link-text-color);
+        --btn-icon-color: var(--btn-link-text-color);
 
         &:hover {
             color: var(--btn-link-hover-text-color);
+            --btn-icon-color: var(--btn-link-hover-text-color);
         }
 
         &:focus,
@@ -194,9 +207,10 @@
         }
     }
 
-    /* Button with icon */
+    /* Button icons */
+
     & svg {
-        color: var(--gray-600)
+        color: var(--btn-icon-color)
     }
 }
 

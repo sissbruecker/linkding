@@ -81,11 +81,15 @@
             justify-content: space-between;
         }
 
+        & .form-group:first-of-type .form-label {
+            padding-top: 0;
+        }
+
         & .radio-group {
             margin-bottom: var(--unit-1);
 
             & .form-label {
-                padding-bottom: 0;
+                padding-bottom: var(--unit-1);
             }
 
             & .form-radio.form-inline {
@@ -111,7 +115,7 @@ ul.bookmark-list {
     padding: 0;
 
     /* Increase line-height for better separation within / between items */
-    line-height: 1.1rem;
+    line-height: 1.15rem;
 }
 
 @keyframes appear {
@@ -216,7 +220,7 @@ li[ld-bookmark-item] {
     }
 
     & .description {
-        color: var(--secondary-text-color);
+        color: var(--body-text-color);
     }
 
     & .description.separate {
@@ -252,6 +256,7 @@ li[ld-bookmark-item] {
 
         & a, & button.btn-link {
             color: var(--tertiary-text-color);
+            --btn-icon-color: var(--tertiary-text-color);
             padding: 0;
             height: auto;
             vertical-align: unset;
@@ -265,6 +270,7 @@ li[ld-bookmark-item] {
             &:active,
             &.active {
                 color: var(--secondary-text-color);
+                --btn-icon-color: var(--secondary-text-color);
             }
         }
     }
@@ -346,11 +352,12 @@ ul.bookmark-list {
         max-height: 0;
         overflow: hidden;
         transition: max-height var(--bulk-edit-transition-duration);
+        background: var(--gray-50);
     }
 
     &.active .bulk-edit-bar {
         max-height: 37px;
-        border-bottom: solid 1px var(--border-color);
+        border-bottom: solid 1px var(--border-color-low);
     }
 
     /* remove overflow after opening animation, otherwise tag autocomplete overlay gets cut off */
@@ -400,7 +407,7 @@ ul.bookmark-list {
         display: flex;
         align-items: center;
         padding: var(--unit-1) 0;
-        border-top: solid 1px var(--border-color);
+        border-top: solid 1px var(--border-color-low);
         gap: var(--unit-2);
 
         & button {

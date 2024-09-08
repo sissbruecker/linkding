@@ -7,7 +7,7 @@ section.content-area {
     }
 
     .content-area-header {
-        border-bottom: solid 1px var(--border-color);
+        border-bottom: solid 1px var(--border-color-low);
         display: flex;
         flex-wrap: wrap;
         column-gap: var(--unit-5);
