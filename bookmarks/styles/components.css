@@ -11,7 +11,7 @@ section.content-area {
         display: flex;
         flex-wrap: wrap;
         column-gap: var(--unit-5);
-        padding-bottom: var(--unit-1);
+        padding-bottom: var(--unit-2);
         margin-bottom: var(--unit-3);
 
         h2 {
