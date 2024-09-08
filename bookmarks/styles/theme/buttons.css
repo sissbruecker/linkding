@@ -4,7 +4,7 @@
     --btn-hover-bg-color: var(--gray-50);
     --btn-border-color: var(--gray-300);
     --btn-text-color: var(--body-text-color);
-    --btn-icon-color: var(--gray-600);
+    --btn-icon-color: var(--gray-500);
     --btn-font-weight: 400;
     --btn-box-shadow: var(--box-shadow-xs);
 
@@ -32,7 +32,9 @@
     color: var(--btn-text-color);
     font-weight: var(--btn-font-weight);
     cursor: pointer;
-    display: inline-block;
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
     font-size: var(--font-size);
     height: var(--control-size);
     line-height: var(--line-height);
@@ -210,7 +212,8 @@
     /* Button icons */
 
     & svg {
-        color: var(--btn-icon-color)
+        color: var(--btn-icon-color);
+        align-self: center;
     }
 }
 
