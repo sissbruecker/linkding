@@ -89,6 +89,7 @@
     --layout-spacing-sm: var(--unit-1);
     --layout-spacing-lg: var(--unit-4);
     --border-radius: var(--unit-1);
+    --border-radius-lg: var(--unit-2);
     --border-width: var(--unit-o);
     --border-width-lg: var(--unit-h);
     --control-size: var(--unit-8);

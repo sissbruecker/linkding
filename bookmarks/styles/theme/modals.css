@@ -46,7 +46,7 @@
 .modal-container {
     background: var(--modal-container-bg-color);
     border: solid 1px var(--modal-container-border-color);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-lg);
     box-shadow: var(--box-shadow-lg);
     display: flex;
     flex-direction: column;
