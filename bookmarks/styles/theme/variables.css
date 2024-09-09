@@ -40,6 +40,8 @@
     --link-color: var(--primary-text-color);
     --secondary-link-color: rgba(87, 85, 217, 0.64);
 
+    --icon-color: var(--gray-500);
+
     --border-color: var(--gray-300);
     --border-color-low: var(--gray-200);
 

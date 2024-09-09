@@ -1,6 +1,7 @@
 /* Forms */
 :root {
     --input-bg-color: var(--body-bg);
+    --input-disabled-bg-color: var(--gray-100);
     --input-text-color: var(--body-text-color);
     --input-border-color: var(--gray-300);
     --input-placeholder-color: var(--tertiary-text-color);
@@ -8,6 +9,7 @@
 
     --checkbox-bg-color: var(--body-bg);
     --checkbox-checked-bg-color: var(--primary-color);
+    --checkbox-disabled-bg-color: var(--gray-100);
     --checkbox-border-color: var(--gray-300);
     --checkbox-icon-color: #fff;
 
@@ -477,6 +479,26 @@ textarea.form-input {
 
         &:focus {
             outline-color: var(--error-color);
+        }
+    }
+}
+
+/* Form disabled and readonly */
+.form-input,
+.form-select {
+    &:disabled,
+    &.disabled {
+        background-color: var(--input-disabled-bg-color);
+        cursor: not-allowed;
+    }
+}
+
+input {
+    &:disabled,
+    &.disabled {
+        & + .form-icon {
+            background: var(--checkbox-disabled-bg-color);
+            cursor: not-allowed;
         }
     }
 }

@@ -52,7 +52,7 @@
     & .asset {
       display: flex;
       align-items: center;
-      gap: var(--unit-3);
+      gap: var(--unit-2);
       padding: var(--unit-2) 0;
       border-top: var(--unit-o) solid var(--border-color-low);
     }

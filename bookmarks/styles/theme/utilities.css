@@ -7,6 +7,10 @@
     color: var(--secondary-text-color);
 }
 
+.text-tertiary {
+    color: var(--tertiary-text-color);
+}
+
 .text-success {
     color: var(--success-color);
 }
@@ -17,6 +21,10 @@
 
 .text-error {
     color: var(--error-color);
+}
+
+.icon-color {
+    color: var(--icon-color);
 }
 
 /* Display */

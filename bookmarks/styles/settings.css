@@ -1,0 +1,22 @@
+.settings-page {
+  section.content-area {
+    margin-bottom: var(--unit-10);
+
+    h2 {
+      margin-bottom: var(--unit-3);
+    }
+  }
+
+  textarea.monospace {
+    font-family: monospace;
+    box-sizing: border-box;
+  }
+
+  .input-group > input[type=submit] {
+    height: auto;
+  }
+
+  section.about table {
+    max-width: 400px;
+  }
+}

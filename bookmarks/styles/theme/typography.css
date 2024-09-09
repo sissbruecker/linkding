@@ -112,6 +112,6 @@ dl {
     }
 
     & dd {
-        margin: var(--unit-2) 0 var(--unit-4) 0;
+        margin: var(--unit-1) 0 var(--unit-4) 0;
     }
 }
