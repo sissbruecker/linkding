@@ -81,6 +81,18 @@
     & .asset-text .filesize {
       color: var(--tertiary-text-color);
     }
+
+    & .asset-actions {
+      display: flex;
+      gap: var(--unit-4);
+      align-items: center;
+
+      & .btn.btn-link {
+        height: unset;
+        padding: 0;
+        border: none;
+      }
+    }
   }
 
   & .assets-actions {
@@ -89,7 +101,7 @@
     align-items: center;
     margin-top: var(--unit-2);
 
-    & .btn {
+    & .btn.btn-link {
       height: unset;
       padding: 0;
       border: none;

@@ -53,7 +53,7 @@
     gap: var(--unit-4);
     max-height: 75vh;
     max-width: var(--control-width-md);
-    padding: var(--unit-4);
+    padding: var(--unit-6);
     width: 100%;
 
     & .modal-header {
