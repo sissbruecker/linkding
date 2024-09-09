@@ -1,6 +1,6 @@
 <div class="actions">
   <div class="left-actions">
-    <a class="btn"
+    <a class="btn btn-wide"
        href="{% url 'bookmarks:edit' details.bookmark.id %}?return_url={{ details.edit_return_url|urlencode }}">Edit</a>
   </div>
   <div class="right-actions">
@@ -8,7 +8,7 @@
           method="post">
       {% csrf_token %}
       <button ld-confirm-button type="submit" name="remove" value="{{ details.bookmark.id }}"
-              class="btn btn-link text-error">
+              class="btn btn-error btn-wide">
         Delete...
       </button>
     </form>

@@ -100,13 +100,11 @@
     }
 
     &.btn-error {
-        background: var(--btn-error-bg-color);
-        border-color: transparent;
-        color: var(--btn-error-text-color);
-        --btn-icon-color: var(--btn-error-text-color);
+        --btn-border-color: var(--error-color);
+        --btn-text-color: var(--error-color);
 
         &:hover {
-            background: var(--btn-error-hover-bg-color);
+            --btn-hover-bg-color: var(--error-color-shade);
         }
     }
 
