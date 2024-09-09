@@ -9,7 +9,7 @@
             background: var(--primary-color);
             background-clip: padding-box;
             border-radius: .5rem;
-            box-shadow: 0 0 0 1px var(--body-bg);
+            box-shadow: 0 0 0 1px var(--body-color);
             color: var(--contrast-text-color);
             content: attr(data-badge);
             display: inline-block;

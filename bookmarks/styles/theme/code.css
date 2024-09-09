@@ -1,7 +1,7 @@
 /* Code */
 :root {
-    --code-bg-color: var(--body-bg-contrast);
-    --code-color: var(--body-text-color);
+    --code-bg-color: var(--body-color-contrast);
+    --code-color: var(--text-color);
 }
 
 code {
@@ -16,7 +16,7 @@ code {
 .code {
     border-radius: var(--border-radius);
     background: var(--code-bg-color);
-    color: var(--body-text-color);
+    color: var(--text-color);
     position: relative;
 
     & code {

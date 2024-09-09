@@ -1,9 +1,9 @@
 /* Buttons */
 :root {
-    --btn-bg-color: transparent;
+    --btn-bg-color: var(--body-color);
     --btn-hover-bg-color: var(--gray-50);
     --btn-border-color: var(--gray-300);
-    --btn-text-color: var(--body-text-color);
+    --btn-text-color: var(--text-color);
     --btn-icon-color: var(--icon-color);
     --btn-font-weight: 400;
     --btn-box-shadow: var(--box-shadow-xs);

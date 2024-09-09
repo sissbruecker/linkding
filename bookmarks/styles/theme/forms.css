@@ -1,13 +1,13 @@
 /* Forms */
 :root {
-    --input-bg-color: var(--body-bg);
+    --input-bg-color: var(--body-color);
     --input-disabled-bg-color: var(--gray-100);
-    --input-text-color: var(--body-text-color);
+    --input-text-color: var(--text-color);
     --input-border-color: var(--gray-300);
     --input-placeholder-color: var(--tertiary-text-color);
     --input-box-shadow: var(--box-shadow-xs);
 
-    --checkbox-bg-color: var(--body-bg);
+    --checkbox-bg-color: var(--body-color);
     --checkbox-checked-bg-color: var(--primary-color);
     --checkbox-disabled-bg-color: var(--gray-100);
     --checkbox-border-color: var(--gray-300);
@@ -397,7 +397,7 @@ textarea.form-input {
     display: flex;
 
     .input-group-addon {
-        background: var(--body-bg);
+        background: var(--body-color);
         border: var(--border-width) solid var(--input-border-color);
         border-radius: var(--border-radius);
         line-height: var(--line-height);

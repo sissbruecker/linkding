@@ -73,7 +73,7 @@
     }
 
     & .divider {
-        border-bottom: solid 1px var(--border-color-low);
+        border-bottom: solid 1px var(--secondary-border-color);
         margin: var(--unit-2) 0;
     }
 }

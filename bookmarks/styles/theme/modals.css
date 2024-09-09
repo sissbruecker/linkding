@@ -1,4 +1,12 @@
 /* Modals */
+:root {
+    --modal-overlay-bg-color: rgba(243, 244, 246, 0.6);
+    --modal-container-bg-color: var(--body-color);
+    --modal-container-border-color: var(--gray-200);
+    --modal-border-radius: var(--border-radius-lg);
+    --modal-box-shadow: var(--box-shadow-lg);
+}
+
 .modal {
     align-items: center;
     bottom: 0;
@@ -46,8 +54,8 @@
 .modal-container {
     background: var(--modal-container-bg-color);
     border: solid 1px var(--modal-container-border-color);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--box-shadow-lg);
+    border-radius: var(--modal-border-radius);
+    box-shadow: var(--modal-box-shadow);
     display: flex;
     flex-direction: column;
     gap: var(--unit-4);
@@ -57,7 +65,7 @@
     width: 100%;
 
     & .modal-header {
-        color: var(--body-text-color);
+        color: var(--text-color);
 
         & button.close {
             background: none;

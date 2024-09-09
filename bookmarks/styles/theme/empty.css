@@ -1,6 +1,6 @@
 /* Empty states (or Blank slates) */
 .empty {
-    background: var(--body-bg-contrast);
+    background: var(--body-color-contrast);
     border-radius: var(--border-radius);
     color: var(--secondary-text-color);
     text-align: center;

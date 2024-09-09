@@ -7,7 +7,7 @@ section.content-area {
     }
 
     .content-area-header {
-        border-bottom: solid 1px var(--border-color-low);
+        border-bottom: solid 1px var(--secondary-border-color);
         display: flex;
         flex-wrap: wrap;
         column-gap: var(--unit-5);
@@ -55,6 +55,6 @@ span.confirmation {
 
 /* Divider */
 .divider {
-    border-bottom: solid 1px var(--border-color-low);
+    border-bottom: solid 1px var(--secondary-border-color);
     margin: var(--unit-5) 0;
 }

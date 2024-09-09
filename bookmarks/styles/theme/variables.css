@@ -31,26 +31,22 @@
     --error-color-shade: hsla(0, 72%, 51%, 0.1);
 
     /* Core colors */
-    --body-text-color: var(--gray-600);
+    --text-color: var(--gray-600);
     --secondary-text-color: var(--gray-500);
     --tertiary-text-color: var(--gray-400);
     --contrast-text-color: #fff;
     --primary-text-color: #5755d9;
 
     --link-color: var(--primary-text-color);
-    --secondary-link-color: rgba(87, 85, 217, 0.64);
+    --secondary-link-color: rgba(87, 85, 217, 0.7);
 
     --icon-color: var(--gray-500);
 
     --border-color: var(--gray-300);
-    --border-color-low: var(--gray-200);
+    --secondary-border-color: var(--gray-200);
 
-    --body-bg: #fff;
-    --body-bg-contrast: var(--gray-100);
-
-    --modal-overlay-bg-color: rgba(243, 244, 246, 0.6);
-    --modal-container-bg-color: var(--body-bg);
-    --modal-container-border-color: var(--gray-200);
+    --body-color: #fff;
+    --body-color-contrast: var(--gray-100);
 
     /* Fonts */
     --base-font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto;

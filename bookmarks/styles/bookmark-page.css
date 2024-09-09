@@ -220,7 +220,7 @@ li[ld-bookmark-item] {
     }
 
     & .description {
-        color: var(--body-text-color);
+        color: var(--text-color);
     }
 
     & .description.separate {
@@ -324,7 +324,7 @@ ul.bookmark-list {
         max-height: 300px;
         margin: var(--unit-1) 0;
         overflow-y: auto;
-        background: var(--body-bg-contrast);
+        background: var(--body-color-contrast);
         border-radius: var(--border-radius);
     }
 
@@ -359,7 +359,7 @@ ul.bookmark-list {
 
     &.active .bulk-edit-bar {
         max-height: 37px;
-        border-bottom: solid 1px var(--border-color-low);
+        border-bottom: solid 1px var(--secondary-border-color);
     }
 
     /* remove overflow after opening animation, otherwise tag autocomplete overlay gets cut off */
@@ -409,7 +409,7 @@ ul.bookmark-list {
         display: flex;
         align-items: center;
         padding: var(--unit-1) 0;
-        border-top: solid 1px var(--border-color-low);
+        border-top: solid 1px var(--secondary-border-color);
         gap: var(--unit-2);
 
         & button {

@@ -23,9 +23,9 @@
     --primary-color: hsl(241, 75%, 64%);
     --primary-color-highlight: hsl(241, 75%, 68%);
 
-    --body-bg: var(--gray-900);
+    --body-color: var(--gray-900);
 
-    --body-text-color: var(--contrast);
+    --text-color: var(--contrast);
     --primary-text-color: #9d9bff;
 
     --box-shadow-xs: none;
@@ -33,11 +33,11 @@
     --btn-bg-color: var(--contrast-30);
     --btn-hover-bg-color: var(--contrast-40);
     --btn-border-color: none;
-    --btn-text-color: var(--body-text-color);
+    --btn-text-color: var(--text-color);
     --btn-box-shadow: none;
 
     --input-bg-color: var(--contrast-10);
-    --input-text-color: var(--body-text-color);
+    --input-text-color: var(--text-color);
     --input-border-color: var(--contrast-20);
     --input-placeholder-color: var(--contrast-50);
     --input-box-shadow: none;
@@ -50,9 +50,9 @@
 
 
     /*
-    --body-bg: var(--gray-900);
+    --body-color: var(--gray-900);
 
-    --body-text-color: #fafafa;
+    --text-color: #fafafa;
     --primary-text-color: #9d9bff;
 
     --box-shadow-xs: rgba(255, 255, 255, 0.2) 0px 1px 2px 0px;
@@ -60,11 +60,11 @@
     --btn-bg-color: var(--gray-700);
     --btn-hover-bg-color: var(--gray-600);
     --btn-border-color: var(--btn-bg-color);
-    --btn-text-color: var(--body-text-color);
+    --btn-text-color: var(--text-color);
     --btn-box-shadow: none;
 
     --input-bg-color: var(--gray-800);
-    --input-text-color: var(--body-text-color);
+    --input-text-color: var(--text-color);
     --input-border-color: var(--gray-600);
     --input-placeholder-color: var(--gray-color);
     --input-box-shadow: none;
