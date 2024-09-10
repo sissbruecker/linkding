@@ -245,12 +245,18 @@ def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):
     tag_names = parse_tag_string(tag_string)
 
     if user.profile.auto_tagging_rules:
-        auto_tag_names = auto_tagging.get_tags(
-            user.profile.auto_tagging_rules, bookmark.url
-        )
-        for auto_tag_name in auto_tag_names:
-            if auto_tag_name not in tag_names:
-                tag_names.append(auto_tag_name)
+        try:
+            auto_tag_names = auto_tagging.get_tags(
+                user.profile.auto_tagging_rules, bookmark.url
+            )
+            for auto_tag_name in auto_tag_names:
+                if auto_tag_name not in tag_names:
+                    tag_names.append(auto_tag_name)
+        except Exception as e:
+            logger.error(
+                f"Failed to auto-tag bookmark. url={bookmark.url}",
+                exc_info=e,
+            )
 
     tags = get_or_create_tags(tag_names, user)
     bookmark.tags.set(tags)
