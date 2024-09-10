@@ -39,12 +39,12 @@
             &:focus,
             &:hover {
                 background: var(--primary-color-shade);
-                color: var(--primary-color);
+                color: var(--primary-text-color);
             }
             &:active,
             &.active {
                 background: var(--primary-color-shade);
-                color: var(--primary-color);
+                color: var(--primary-text-color);
             }
         }
 
