@@ -84,7 +84,8 @@ class Bookmark(models.Model):
 
     @property
     def tag_names(self):
-        return [tag.name for tag in self.tags.all()]
+        names = [tag.name for tag in self.tags.all()]
+        return sorted(names)
 
     def __str__(self):
         return self.resolved_title + " (" + self.url[:30] + "...)"
