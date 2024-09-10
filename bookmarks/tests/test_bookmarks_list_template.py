@@ -457,6 +457,22 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         style = bookmark_list["style"]
         self.assertIn("--ld-bookmark-description-max-lines:3;", style)
 
+    def test_bookmark_tag_ordering(self):
+        bookmark = self.setup_bookmark()
+        tag3 = self.setup_tag(name="tag3")
+        tag1 = self.setup_tag(name="tag1")
+        tag2 = self.setup_tag(name="tag2")
+        bookmark.tags.add(tag3, tag1, tag2)
+
+        html = self.render_template()
+        soup = self.make_soup(html)
+        tags = soup.select_one(".tags")
+        tag_links = tags.find_all("a")
+        self.assertEqual(len(tag_links), 3)
+        self.assertEqual(tag_links[0].text, "#tag1")
+        self.assertEqual(tag_links[1].text, "#tag2")
+        self.assertEqual(tag_links[2].text, "#tag3")
+
     def test_should_render_web_archive_link_with_absolute_date_setting(self):
         bookmark = self.setup_date_format_test(
             UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE,
