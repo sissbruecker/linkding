@@ -1,9 +1,20 @@
+:root {
+    --menu-bg-color: var(--body-color);
+    --menu-border-color: var(--gray-200);
+    --menu-border-radius: var(--border-radius);
+    --menu-box-shadow: var(--box-shadow);
+    --menu-item-color: var(--text-color);
+    --menu-item-hover-color: var(--primary-text-color);
+    --menu-item-bg-color: transparent;
+    --menu-item-hover-bg-color: var(--primary-color-shade);
+}
+
 /* Menus */
 .menu {
-    background: var(--modal-container-bg-color);
-    border: solid 1px var(--modal-container-border-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
+    background: var(--menu-bg-color);
+    border: solid 1px var(--menu-border-color);
+    border-radius: var(--menu-border-radius);
+    box-shadow: var(--menu-box-shadow);
     list-style: none;
     margin: 0;
     min-width: var(--control-width-xs);
@@ -30,21 +41,20 @@
         }
 
         & > a, .btn.btn-link {
-            border-radius: var(--border-radius);
-            color: inherit;
+            border-radius: var(--menu-border-radius);
+            color: var(--menu-item-color);
+            background: var(--menu-item-bg-color);
             display: block;
             margin: 0 calc(-1 * var(--unit-2));
             padding: var(--unit-1) var(--unit-2);
             text-decoration: none;
+
             &:focus,
-            &:hover {
-                background: var(--primary-color-shade);
-                color: var(--primary-text-color);
-            }
+            &:hover,
             &:active,
             &.active {
-                background: var(--primary-color-shade);
-                color: var(--primary-text-color);
+                background: var(--menu-item-hover-bg-color);
+                color: var(--menu-item-hover-color);
             }
         }
 

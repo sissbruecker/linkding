@@ -3,14 +3,15 @@
     --input-bg-color: var(--body-color);
     --input-disabled-bg-color: var(--gray-100);
     --input-text-color: var(--text-color);
-    --input-border-color: var(--gray-300);
+    --input-hint-color: var(--secondary-text-color);
+    --input-border-color: var(--border-color);
     --input-placeholder-color: var(--tertiary-text-color);
     --input-box-shadow: var(--box-shadow-xs);
 
     --checkbox-bg-color: var(--body-color);
     --checkbox-checked-bg-color: var(--primary-color);
     --checkbox-disabled-bg-color: var(--gray-100);
-    --checkbox-border-color: var(--gray-300);
+    --checkbox-border-color: var(--border-color);
     --checkbox-icon-color: #fff;
 
     --switch-bg-color: var(--gray-300);
@@ -120,7 +121,7 @@ textarea.form-input {
 
 /* Form element: Input hint */
 .form-input-hint {
-    color: var(--secondary-text-color);
+    color: var(--input-hint-color);
     font-size: var(--font-size-sm);
     margin-top: var(--unit-1);
 

@@ -1,88 +1,6 @@
 @import "theme-light.css";
 
 :root {
-    --contrast-5: hsla(214, 65%, 85%, 0.06);
-    --contrast-10: hsla(214, 60%, 80%, 0.14);
-    --contrast-20: hsla(214, 64%, 82%, 0.23);
-    --contrast-30: hsla(214, 69%, 84%, 0.32);
-    --contrast-40: hsla(214, 73%, 86%, 0.41);
-    --contrast-50: hsla(214, 78%, 88%, 0.5);
-    --contrast-60: hsla(214, 82%, 90%, 0.58);
-    --contrast-70: hsla(214, 87%, 92%, 0.69);
-    --contrast-80: hsla(214, 91%, 94%, 0.8);
-    --contrast-90: hsla(214, 96%, 96%, 0.9);
-
-    --contrast-5: rgba(249, 250, 251, 0.06);
-    --contrast-10: rgba(249, 250, 251, 0.14);
-    --contrast-20: rgba(249, 250, 251, 0.23);
-    --contrast-30: rgba(249, 250, 251, 0.32);
-    --contrast-40: rgba(249, 250, 251, 0.41);
-    --contrast-50: rgba(249, 250, 251, 0.5);
-    --contrast-60: rgba(249, 250, 251, 0.58);
-    --contrast-70: rgba(249, 250, 251, 0.69);
-    --contrast-80: rgba(249, 250, 251, 0.8);
-    --contrast-90: rgba(249, 250, 251, 0.9);
-    --contrast: rgba(249, 250, 251, 1);
-
-    --primary-color: hsl(241, 75%, 64%);
-    --primary-color-highlight: hsl(241, 75%, 68%);
-
-    --body-color: var(--gray-900);
-
-    --text-color: var(--contrast);
-    --primary-text-color: #9d9bff;
-
-    --box-shadow-xs: none;
-
-    --btn-bg-color: var(--contrast-5);
-    --btn-icon-color: var(--contrast-60);
-    --btn-hover-bg-color: var(--contrast-20);
-    --btn-border-color: var(--contrast-10);
-    --btn-text-color: var(--text-color);
-    --btn-box-shadow: none;
-
-    --input-bg-color: var(--contrast-5);
-    --input-text-color: var(--text-color);
-    --input-border-color: var(--contrast-10);
-    --input-placeholder-color: var(--contrast-50);
-    --input-box-shadow: none;
-
-    --checkbox-bg-color: var(--contrast-20);
-    --switch-bg-color: var(--contrast-20);
-    --checkbox-checked-bg-color: var(--primary-color);
-    --checkbox-border-color: var(--contrast-30);
-    --checkbox-icon-color: var(--light-color);
-
-
-    /*
-    --body-color: var(--gray-900);
-
-    --text-color: #fafafa;
-    --primary-text-color: #9d9bff;
-
-    --box-shadow-xs: rgba(255, 255, 255, 0.2) 0px 1px 2px 0px;
-
-    --btn-bg-color: var(--gray-700);
-    --btn-hover-bg-color: var(--gray-600);
-    --btn-border-color: var(--btn-bg-color);
-    --btn-text-color: var(--text-color);
-    --btn-box-shadow: none;
-
-    --input-bg-color: var(--gray-800);
-    --input-text-color: var(--text-color);
-    --input-border-color: var(--gray-600);
-    --input-placeholder-color: var(--gray-color);
-    --input-box-shadow: none;
-
-    --checkbox-bg-color: var(--gray-800);
-    --switch-bg-color: var(--gray-600);
-    --checkbox-checked-bg-color: var(--primary-color);
-    --checkbox-border-color: var(--gray-600);
-    --checkbox-icon-color: var(--light-color);
-     */
-}
-
-:root {
     /* Color palette */
     --gray-50: rgb(249 250 251);
     --gray-50: rgb(249, 250, 251);
@@ -96,12 +14,23 @@
     --gray-800: rgb(31 41 55);
     --gray-900: rgb(17 24 39);
 
+    --contrast-5: hsla(241, 65%, 85%, 0.06);
+    --contrast-10: hsla(241, 60%, 80%, 0.14);
+    --contrast-20: hsla(241, 64%, 82%, 0.23);
+    --contrast-30: hsla(241, 69%, 84%, 0.32);
+    --contrast-40: hsla(241, 73%, 86%, 0.41);
+    --contrast-50: hsla(241, 78%, 88%, 0.5);
+    --contrast-60: hsla(241, 82%, 90%, 0.58);
+    --contrast-70: hsla(241, 87%, 92%, 0.69);
+    --contrast-80: hsla(241, 91%, 94%, 0.8);
+    --contrast-90: hsla(241, 96%, 96%, 0.9);
+
     --primary-color: hsl(241, 75%, 64%);
     --primary-color-highlight: hsl(241, 75%, 68%);
     --primary-color-shade: hsl(241, 75%, 64%, 0.42);
 
-    --alternative-color: hsl(179, 62%, 44%);
-    --alternative-color-dark: hsl(179, 62%, 55%);
+    --alternative-color: hsl(179, 50%, 58%);
+    --alternative-color-dark: hsl(179, 50%, 70%);
 
     --success-color: hsl(142, 76%, 36%);
     --success-color-highlight: hsl(142, 76%, 40%);
@@ -111,27 +40,27 @@
     --warning-color-highlight: hsl(38, 92%, 55%);
     --warning-color-shade: hsla(38, 92%, 50%, 0.1);
 
-    --error-color: hsl(0, 72%, 51%);
+    --error-color: hsl(0, 80%, 60%);
     --error-color-highlight: hsl(0, 72%, 60%);
     --error-color-shade: hsla(0, 72%, 51%, 0.1);
 
     /* Core colors */
     --text-color: var(--gray-300);
-    --secondary-text-color: var(--gray-400);
-    --tertiary-text-color: var(--gray-500);
+    --secondary-text-color: var(--gray-300);
+    --tertiary-text-color: var(--gray-400);
     --contrast-text-color: #fff;
-    --primary-text-color: #a597ff;
+    --primary-text-color: hsl(241, 80%, 80%);
     /*--primary-text-color: #9d9bff*/;
 
     --link-color: var(--primary-text-color);
     --secondary-link-color: rgba(87, 85, 217, 0.7);
 
-    --icon-color: var(--gray-500);
+    --icon-color: var(--secondary-text-color);
 
-    --border-color: var(--gray-600);
-    --secondary-border-color: var(--gray-700);
+    --border-color: var(--contrast-30);
+    --secondary-border-color: hsl(241, 20%, 25%);
 
-    --body-color: var(--gray-900);
+    --body-color: hsl(241, 20%, 12%);
     --body-color-contrast: var(--gray-800);
 
     /* Fonts */
@@ -221,9 +150,75 @@
 }
 
 :root {
-    --modal-overlay-bg-color: rgba(107, 114, 128, 0.65);
-    --modal-container-bg-color: hsl(255, 0%, 15%);
-    --modal-container-border-color: var(--gray-600);
+    --input-bg-color: var(--contrast-5);
+    --input-disabled-bg-color: var(--gray-100);
+    --input-text-color: var(--text-color);
+    --input-hint-color: var(--tertiary-text-color);
+    --input-border-color: var(--border-color);
+    --input-placeholder-color: var(--tertiary-text-color);
+    --input-box-shadow: var(--box-shadow-xs);
+
+    --checkbox-bg-color: var(--contrast-10);
+    --checkbox-checked-bg-color: var(--primary-color);
+    --checkbox-disabled-bg-color: var(--gray-100);
+    --checkbox-border-color: var(--border-color);
+    --checkbox-icon-color: #fff;
+
+    --switch-bg-color: var(--contrast-10);
+    --switch-border-color: var(--border-color);
+    --switch-toggle-color: var(--text-color);
+}
+
+:root {
+    --btn-bg-color: var(--contrast-5);
+    --btn-hover-bg-color: var(--contrast-20);
+    --btn-border-color: var(--border-color);
+    --btn-text-color: var(--text-color);
+    --btn-icon-color: var(--icon-color);
+    --btn-font-weight: 400;
+    --btn-box-shadow: var(--box-shadow-xs);
+
+    --btn-primary-bg-color: var(--primary-color);
+    --btn-primary-hover-bg-color: var(--primary-color-highlight);
+    --btn-primary-text-color: var(--contrast-text-color);
+
+    --btn-success-bg-color: var(--success-color);
+    --btn-success-hover-bg-color: var(--success-color-highlight);
+    --btn-success-text-color: var(--contrast-text-color);
+
+    --btn-error-bg-color: var(--error-color);
+    --btn-error-hover-bg-color: var(--error-color-highlight);
+    --btn-error-text-color: var(--contrast-text-color);
+
+    --btn-link-text-color: var(--link-color);
+    --btn-link-hover-text-color: var(--link-color);
+}
+
+:root {
+    --modal-overlay-bg-color: hsla(229, 21%, 16%, 0.55);
+    --modal-container-bg-color: hsl(241, 20%, 18%);
+    --modal-container-border-color: var(--contrast-30);
     --modal-border-radius: var(--border-radius-lg);
     --modal-box-shadow: none;
+}
+
+:root {
+    --menu-bg-color: hsl(241, 20%, 18%);
+    --menu-border-color: var(--contrast-30);
+    --menu-border-radius: var(--border-radius);
+    --menu-box-shadow: none;
+    --menu-item-color: var(--text-color);
+    --menu-item-hover-color: var(--text-color);
+    --menu-item-bg-color: transparent;
+    --menu-item-hover-bg-color: var(--contrast-20);
+}
+
+:root {
+    --bookmark-title-color: var(--primary-text-color);
+    --bookmark-title-weight: 600;
+    --bookmark-description-color: var(--text-color);
+    --bookmark-description-weight: 400;
+    --bookmark-actions-color: var(--tertiary-text-color);
+    --bookmark-actions-hover-color: var(--secondary-text-color);
+    --bookmark-actions-weight: 400;
 }

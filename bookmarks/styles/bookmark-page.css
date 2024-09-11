@@ -1,3 +1,14 @@
+:root {
+    --bookmark-title-color: var(--primary-text-color);
+    --bookmark-title-weight: 400;
+    --bookmark-description-color: var(--text-color);
+    --bookmark-description-weight: 400;
+    --bookmark-actions-color: var(--tertiary-text-color);
+    --bookmark-actions-hover-color: var(--secondary-text-color);
+    --bookmark-actions-weight: 400;
+}
+
+/* Bookmark page grid */
 .bookmarks-page.grid {
     grid-gap: var(--unit-9);
 }
@@ -56,15 +67,11 @@
     }
 
     & .dropdown-toggle {
+        border-left: none;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
-        border-left: none;
         box-shadow: none;
         outline-offset: calc(var(--focus-outline-offset) * -1);
-    }
-
-    & .dropdown {
-        margin-left: -1px;
     }
 
     /* Search option menu styles */
@@ -176,6 +183,8 @@ li[ld-bookmark-item] {
     }
 
     & .title a {
+        color: var(--bookmark-title-color);
+        font-weight: var(--bookmark-title-weight);
         display: block;
         width: 100%;
         white-space: nowrap;
@@ -221,7 +230,8 @@ li[ld-bookmark-item] {
     }
 
     & .description {
-        color: var(--text-color);
+        color: var(--bookmark-description-color);
+        font-weight: var(--bookmark-description-weight);
     }
 
     & .description.separate {
@@ -252,12 +262,13 @@ li[ld-bookmark-item] {
     }
 
     & .actions {
+        color: var(--bookmark-actions-color);
         font-size: var(--font-size-sm);
-        color: var(--tertiary-text-color);
 
         & a, & button.btn-link {
-            color: var(--tertiary-text-color);
-            --btn-icon-color: var(--tertiary-text-color);
+            color: var(--bookmark-actions-color);
+            --btn-icon-color: var(--bookmark-actions-color);
+            font-weight: var(--bookmark-actions-weight);
             padding: 0;
             height: auto;
             vertical-align: unset;
@@ -270,8 +281,8 @@ li[ld-bookmark-item] {
             &:hover,
             &:active,
             &.active {
-                color: var(--secondary-text-color);
-                --btn-icon-color: var(--secondary-text-color);
+                color: var(--bookmark-actions-hover-color);
+                --btn-icon-color: var(--bookmark-actions-hover-color);
             }
         }
     }

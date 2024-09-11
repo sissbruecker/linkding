@@ -40,8 +40,8 @@
         width: 100%;
 
         & .menu-item.selected > a, & .menu-item > a:hover {
-            background: var(--primary-color-shade);
-            color: var(--primary-color);
+            background: var(--menu-item-hover-bg-color);
+            color: var(--menu-item-hover-color);
         }
 
         & .group-item, & .group-item:hover {
