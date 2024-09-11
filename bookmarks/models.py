@@ -407,6 +407,7 @@ class UserProfile(models.Model):
         blank=False,
         default=TAG_GROUPING_ALPHABETICAL,
     )
+    tag_hierarchy = models.BooleanField(default=False, null=False)
     enable_sharing = models.BooleanField(default=False, null=False)
     enable_public_sharing = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
@@ -436,6 +437,7 @@ class UserProfileForm(forms.ModelForm):
             "web_archive_integration",
             "tag_search",
             "tag_grouping",
+            "tag_hierarchy",
             "enable_sharing",
             "enable_public_sharing",
             "enable_favicons",
