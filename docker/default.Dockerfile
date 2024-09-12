@@ -1,7 +1,7 @@
 FROM node:18-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
-COPY rollup.config.mjs package.json package-lock.json ./
+COPY rollup.config.mjs postcss.config.js package.json package-lock.json ./
 RUN npm ci
 # copy files needed for JS build
 COPY bookmarks/frontend ./bookmarks/frontend
@@ -30,6 +30,8 @@ RUN pip install -U pip && pip install -r requirements.txt
 # copy files needed for Django build
 COPY . .
 COPY --from=node-build /etc/linkding .
+# remove style sources
+RUN rm -rf bookmarks/styles
 # run Django part of the build
 RUN mkdir data && \
     python manage.py collectstatic
