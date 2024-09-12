@@ -1,15 +1,15 @@
 :root {
     /* Color palette */
-    --gray-50: rgb(249 250 251);
-    --gray-100: rgb(243 244 246);
-    --gray-200: rgb(229 231 235);
-    --gray-300: rgb(209 213 219);
-    --gray-400: rgb(156 163 175);
-    --gray-500: rgb(107 114 128);
-    --gray-600: rgb(75 85 99);
-    --gray-700: rgb(55 65 81);
-    --gray-800: rgb(31 41 55);
-    --gray-900: rgb(17 24 39);
+    --gray-50: rgb(249, 250, 251);
+    --gray-100: rgb(243, 244, 246);
+    --gray-200: rgb(229, 231, 235);
+    --gray-300: rgb(209, 213, 219);
+    --gray-400: rgb(156, 163, 175);
+    --gray-500: rgb(107, 114, 128);
+    --gray-600: rgb(75, 85, 99);
+    --gray-700: rgb(55, 65, 81);
+    --gray-800: rgb(31, 41, 55);
+    --gray-900: rgb(17, 24, 39);
 
     --primary-color: hsl(241, 63%, 59%);
     --primary-color-highlight: hsl(241, 63%, 64%);
@@ -131,5 +131,5 @@
     /* Shadows */
     --box-shadow-xs: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
     --box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --box-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);;
+    --box-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }

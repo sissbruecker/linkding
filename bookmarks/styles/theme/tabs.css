@@ -1,4 +1,11 @@
 /* Tabs */
+:root {
+    --tab-color: var(--text-color);
+    --tab-hover-color: var(--primary-text-color);
+    --tab-active-color: var(--primary-text-color);
+    --tab-highlight-color: var(--primary-color);
+}
+
 .tab {
     align-items: center;
     border-bottom: var(--border-width) solid var(--border-color);
@@ -12,7 +19,7 @@
 
         & a {
             border-bottom: var(--border-width-lg) solid transparent;
-            color: inherit;
+            color: var(--tab-color);
             display: block;
             margin: 0 var(--unit-2) 0 0;
             padding: var(--unit-2) var(--unit-1) calc(var(--unit-2) - var(--border-width-lg)) var(--unit-1);
@@ -20,14 +27,14 @@
 
             &:focus,
             &:hover {
-                color: var(--primary-text-color);
+                color: var(--tab-hover-color);
             }
         }
 
         &.active a,
         & a.active {
-            border-bottom-color: var(--primary-color);
-            color: var(--primary-text-color);
+            border-bottom-color: var(--tab-highlight-color);
+            color: var(--tab-active-color);
         }
 
         &.tab-action {

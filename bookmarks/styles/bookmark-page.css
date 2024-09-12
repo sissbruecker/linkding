@@ -6,6 +6,7 @@
     --bookmark-actions-color: var(--secondary-text-color);
     --bookmark-actions-hover-color: var(--text-color);
     --bookmark-actions-weight: 400;
+    --bulk-actions-bg-color: var(--gray-50);
 }
 
 /* Bookmark page grid */
@@ -366,7 +367,7 @@ ul.bookmark-list {
         max-height: 0;
         overflow: hidden;
         transition: max-height var(--bulk-edit-transition-duration);
-        background: var(--gray-50);
+        background: var(--bulk-actions-bg-color);
     }
 
     &.active .bulk-edit-bar {
