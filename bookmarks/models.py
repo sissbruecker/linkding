@@ -84,7 +84,8 @@ class Bookmark(models.Model):
 
     @property
     def tag_names(self):
-        return [tag.name for tag in self.tags.all()]
+        names = [tag.name for tag in self.tags.all()]
+        return sorted(names)
 
     def __str__(self):
         return self.resolved_title + " (" + self.url[:30] + "...)"
@@ -169,7 +170,9 @@ class BookmarkForm(forms.ModelForm):
 
     @property
     def has_notes(self):
-        return self.instance and self.instance.notes
+        return self.initial.get("notes", None) or (
+            self.instance and self.instance.notes
+        )
 
 
 class BookmarkSearch:

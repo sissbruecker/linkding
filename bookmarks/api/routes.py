@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -18,6 +20,8 @@ from bookmarks.services.bookmarks import (
     website_loader,
 )
 from bookmarks.services.website_loader import WebsiteMetadata
+
+logger = logging.getLogger(__name__)
 
 
 class BookmarkViewSet(
@@ -112,7 +116,13 @@ class BookmarkViewSet(
         profile = request.user.profile
         auto_tags = []
         if profile.auto_tagging_rules:
-            auto_tags = auto_tagging.get_tags(profile.auto_tagging_rules, url)
+            try:
+                auto_tags = auto_tagging.get_tags(profile.auto_tagging_rules, url)
+            except Exception as e:
+                logger.error(
+                    f"Failed to auto-tag bookmark. url={bookmark.url}",
+                    exc_info=e,
+                )
 
         return Response(
             {
