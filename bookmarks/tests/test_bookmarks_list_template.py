@@ -44,7 +44,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             f"""
         <a href="{url}"
            title="Show snapshot on the Internet Archive Wayback Machine" target="{link_target}" rel="noopener">
-            {label_content} ∞
+            {label_content}
         </a>
         <span>|</span>
         """,

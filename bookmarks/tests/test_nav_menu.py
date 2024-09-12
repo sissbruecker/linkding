@@ -18,7 +18,7 @@ class NavMenuTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f"""
-            <a href="{reverse('bookmarks:shared')}" class="btn btn-link">Shared</a>
+            <a href="{reverse('bookmarks:shared')}" class="menu-link">Shared</a>
         """,
             html,
             count=0,
@@ -31,7 +31,7 @@ class NavMenuTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f"""
-            <a href="{reverse('bookmarks:shared')}" class="btn btn-link">Shared</a>
+            <a href="{reverse('bookmarks:shared')}" class="menu-link">Shared</a>
         """,
             html,
             count=2,
