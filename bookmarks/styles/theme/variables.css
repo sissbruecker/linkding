@@ -15,7 +15,7 @@
     --primary-color-highlight: hsl(241, 63%, 64%);
     --primary-color-shade: hsl(241, 63%, 59%, 0.075);
 
-    --alternative-color: hsl(179, 94%, 34%);
+    --alternative-color: hsl(179, 94%, 29%);
     --alternative-color-dark: hsl(179, 94%, 29%);
 
     --success-color: hsl(142, 76%, 36%);
@@ -31,9 +31,9 @@
     --error-color-shade: hsla(0, 72%, 51%, 0.1);
 
     /* Core colors */
-    --text-color: var(--gray-600);
+    --text-color: var(--gray-700);
     --secondary-text-color: var(--gray-500);
-    --tertiary-text-color: var(--gray-400);
+    --tertiary-text-color: var(--gray-500);
     --contrast-text-color: #fff;
     --primary-text-color: #5755d9;
 

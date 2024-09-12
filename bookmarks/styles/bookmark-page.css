@@ -1,10 +1,10 @@
 :root {
     --bookmark-title-color: var(--primary-text-color);
-    --bookmark-title-weight: 400;
+    --bookmark-title-weight: 500;
     --bookmark-description-color: var(--text-color);
     --bookmark-description-weight: 400;
-    --bookmark-actions-color: var(--tertiary-text-color);
-    --bookmark-actions-hover-color: var(--secondary-text-color);
+    --bookmark-actions-color: var(--secondary-text-color);
+    --bookmark-actions-hover-color: var(--text-color);
     --bookmark-actions-weight: 400;
 }
 
@@ -123,7 +123,7 @@ ul.bookmark-list {
     padding: 0;
 
     /* Increase line-height for better separation within / between items */
-    line-height: 1.15rem;
+    line-height: 1.2rem;
 }
 
 @keyframes appear {

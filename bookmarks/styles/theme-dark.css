@@ -46,8 +46,8 @@
 
     /* Core colors */
     --text-color: var(--gray-300);
-    --secondary-text-color: var(--gray-300);
-    --tertiary-text-color: var(--gray-400);
+    --secondary-text-color: var(--gray-400);
+    --tertiary-text-color: var(--gray-500);
     --contrast-text-color: #fff;
     --primary-text-color: hsl(241, 80%, 80%);
     /*--primary-text-color: #9d9bff*/;
@@ -214,11 +214,11 @@
 }
 
 :root {
-    --bookmark-title-color: var(--primary-text-color);
+    --bookmark-title-color: var(--text-color);
     --bookmark-title-weight: 600;
-    --bookmark-description-color: var(--text-color);
+    --bookmark-description-color: var(--secondary-text-color);
     --bookmark-description-weight: 400;
-    --bookmark-actions-color: var(--tertiary-text-color);
+    --bookmark-actions-color: var(--secondary-text-color);
     --bookmark-actions-hover-color: var(--secondary-text-color);
     --bookmark-actions-weight: 400;
 }
