@@ -19,7 +19,7 @@
       <p>
         <a href="{% url 'change_password' %}">Change password</a>
       </p>
-      <form action="{% url 'bookmarks:settings.general' %}" method="post" novalidate>
+      <form action="{% url 'bookmarks:settings.update' %}" method="post" novalidate data-turbo="false">
         {% csrf_token %}
         <div class="form-group">
           <label for="{{ form.theme.id_for_label }}" class="form-label">Theme</label>
@@ -247,7 +247,7 @@ reddit.com/r/Music music reddit</pre>
     {% if global_settings_form %}
       <section class="content-area">
         <h2>Global settings</h2>
-        <form action="{% url 'bookmarks:settings.general' %}" method="post" novalidate>
+        <form action="{% url 'bookmarks:settings.update' %}" method="post" novalidate>
           {% csrf_token %}
           <div class="form-group">
             <label for="{{ global_settings_form.landing_page.id_for_label }}" class="form-label">Landing page</label>
@@ -306,7 +306,7 @@ reddit.com/r/Music music reddit</pre>
     <section class="content-area">
       <h2>Export</h2>
       <p>Export all bookmarks in Netscape HTML format.</p>
-      <a class="btn btn-primary" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
+      <a class="btn btn-primary" target="_blank" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
       {% if export_error %}
         <div class="has-error">
           <p class="form-input-hint">
@@ -344,35 +344,37 @@ reddit.com/r/Music music reddit</pre>
   </div>
 
   <script>
-    const enableSharing = document.getElementById("{{ form.enable_sharing.id_for_label }}");
-    const enablePublicSharing = document.getElementById("{{ form.enable_public_sharing.id_for_label }}");
-    const bookmarkDescriptionDisplay = document.getElementById("{{ form.bookmark_description_display.id_for_label }}");
-    const bookmarkDescriptionMaxLines = document.getElementById("{{ form.bookmark_description_max_lines.id_for_label }}");
+    (function init() {
+      const enableSharing = document.getElementById("{{ form.enable_sharing.id_for_label }}");
+      const enablePublicSharing = document.getElementById("{{ form.enable_public_sharing.id_for_label }}");
+      const bookmarkDescriptionDisplay = document.getElementById("{{ form.bookmark_description_display.id_for_label }}");
+      const bookmarkDescriptionMaxLines = document.getElementById("{{ form.bookmark_description_max_lines.id_for_label }}");
 
-    // Automatically disable public bookmark sharing if bookmark sharing is disabled
-    function updatePublicSharing() {
-      if (enableSharing.checked) {
-        enablePublicSharing.disabled = false;
-      } else {
-        enablePublicSharing.disabled = true;
-        enablePublicSharing.checked = false;
+      // Automatically disable public bookmark sharing if bookmark sharing is disabled
+      function updatePublicSharing() {
+        if (enableSharing.checked) {
+          enablePublicSharing.disabled = false;
+        } else {
+          enablePublicSharing.disabled = true;
+          enablePublicSharing.checked = false;
+        }
       }
-    }
 
-    updatePublicSharing();
-    enableSharing.addEventListener("change", updatePublicSharing);
+      updatePublicSharing();
+      enableSharing.addEventListener("change", updatePublicSharing);
 
-    // Automatically hide the bookmark description max lines input if the description display is set to inline
-    function updateBookmarkDescriptionMaxLines() {
-      if (bookmarkDescriptionDisplay.value === "inline") {
-        bookmarkDescriptionMaxLines.closest(".form-group").classList.add("d-hide");
-      } else {
-        bookmarkDescriptionMaxLines.closest(".form-group").classList.remove("d-hide");
+      // Automatically hide the bookmark description max lines input if the description display is set to inline
+      function updateBookmarkDescriptionMaxLines() {
+        if (bookmarkDescriptionDisplay.value === "inline") {
+          bookmarkDescriptionMaxLines.closest(".form-group").classList.add("d-hide");
+        } else {
+          bookmarkDescriptionMaxLines.closest(".form-group").classList.remove("d-hide");
+        }
       }
-    }
 
-    updateBookmarkDescriptionMaxLines();
-    bookmarkDescriptionDisplay.addEventListener("change", updateBookmarkDescriptionMaxLines);
+      updateBookmarkDescriptionMaxLines();
+      bookmarkDescriptionDisplay.addEventListener("change", updateBookmarkDescriptionMaxLines);
+    })();
   </script>
 
 {% endblock %}

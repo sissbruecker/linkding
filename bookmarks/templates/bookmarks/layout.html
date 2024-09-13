@@ -35,6 +35,9 @@
   {% if request.user_profile.custom_css %}
     <style>{{ request.user_profile.custom_css }}</style>
   {% endif %}
+  <meta name="turbo-cache-control" content="no-preview">
+{#  <meta name="turbo-prefetch" content="false">#}
+  <script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
 </head>
 <body ld-global-shortcuts>
 
@@ -129,6 +132,5 @@
   {% block content %}
   {% endblock %}
 </div>
-<script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
 </body>
 </html>

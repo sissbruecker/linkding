@@ -106,6 +106,7 @@ urlpatterns = [
     # Settings
     path("settings", views.settings.general, name="settings.index"),
     path("settings/general", views.settings.general, name="settings.general"),
+    path("settings/update", views.settings.update, name="settings.update"),
     path(
         "settings/integrations",
         views.settings.integrations,

@@ -29,41 +29,19 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def general(request):
-    profile_form = None
-    global_settings_form = None
     enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
     has_snapshot_support = django_settings.LD_ENABLE_SNAPSHOTS
     success_message = _find_message_with_tag(
-        messages.get_messages(request), "bookmark_import_success"
+        messages.get_messages(request), "settings_success_message"
     )
     error_message = _find_message_with_tag(
-        messages.get_messages(request), "bookmark_import_errors"
+        messages.get_messages(request), "settings_error_message"
     )
     version_info = get_version_info(get_ttl_hash())
 
-    if request.method == "POST":
-        if "update_profile" in request.POST:
-            profile_form = update_profile(request)
-            success_message = "Profile updated"
-        if "update_global_settings" in request.POST:
-            global_settings_form = update_global_settings(request)
-            success_message = "Global settings updated"
-        if "refresh_favicons" in request.POST:
-            tasks.schedule_refresh_favicons(request.user)
-            success_message = "Scheduled favicon update. This may take a while..."
-        if "create_missing_html_snapshots" in request.POST:
-            count = tasks.create_missing_html_snapshots(request.user)
-            if count > 0:
-                success_message = (
-                    f"Queued {count} missing snapshots. This may take a while..."
-                )
-            else:
-                success_message = "No missing snapshots found."
-
-    if not profile_form:
-        profile_form = UserProfileForm(instance=request.user_profile)
-
-    if request.user.is_superuser and not global_settings_form:
+    profile_form = UserProfileForm(instance=request.user_profile)
+    global_settings_form = None
+    if request.user.is_superuser:
         global_settings_form = GlobalSettingsForm(instance=GlobalSettings.get())
 
     return render(
@@ -79,6 +57,40 @@ def general(request):
             "version_info": version_info,
         },
     )
+
+
+@login_required
+def update(request):
+    if request.method == "POST":
+        if "update_profile" in request.POST:
+            update_profile(request)
+            messages.success(request, "Profile updated", "settings_success_message")
+        if "update_global_settings" in request.POST:
+            update_global_settings(request)
+            messages.success(
+                request, "Global settings updated", "settings_success_message"
+            )
+        if "refresh_favicons" in request.POST:
+            tasks.schedule_refresh_favicons(request.user)
+            messages.success(
+                request,
+                "Scheduled favicon update. This may take a while...",
+                "settings_success_message",
+            )
+        if "create_missing_html_snapshots" in request.POST:
+            count = tasks.create_missing_html_snapshots(request.user)
+            if count > 0:
+                messages.success(
+                    request,
+                    f"Queued {count} missing snapshots. This may take a while...",
+                    "settings_success_message",
+                )
+            else:
+                messages.success(
+                    request, "No missing snapshots found.", "settings_success_message"
+                )
+
+    return HttpResponseRedirect(reverse("bookmarks:settings.general"))
 
 
 def update_profile(request):
@@ -178,7 +190,7 @@ def bookmark_import(request):
 
     if import_file is None:
         messages.error(
-            request, "Please select a file to import.", "bookmark_import_errors"
+            request, "Please select a file to import.", "settings_error_message"
         )
         return HttpResponseRedirect(reverse("bookmarks:settings.general"))
 
@@ -186,21 +198,20 @@ def bookmark_import(request):
         content = import_file.read().decode()
         result = importer.import_netscape_html(content, request.user, import_options)
         success_msg = str(result.success) + " bookmarks were successfully imported."
-        messages.success(request, success_msg, "bookmark_import_success")
+        messages.success(request, success_msg, "settings_success_message")
         if result.failed > 0:
             err_msg = (
                 str(result.failed)
                 + " bookmarks could not be imported. Please check the logs for more details."
             )
-            messages.error(request, err_msg, "bookmark_import_errors")
+            messages.error(request, err_msg, "settings_error_message")
     except:
         logging.exception("Unexpected error during bookmark import")
         messages.error(
             request,
             "An error occurred during bookmark import.",
-            "bookmark_import_errors",
+            "settings_error_message",
         )
-        pass
 
     return HttpResponseRedirect(reverse("bookmarks:settings.general"))
 

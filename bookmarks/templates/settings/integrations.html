@@ -52,10 +52,10 @@
       <h2>RSS Feeds</h2>
       <p>The following URLs provide RSS feeds for your bookmarks:</p>
       <ul style="list-style-position: outside;">
-        <li><a href="{{ all_feed_url }}">All bookmarks</a></li>
-        <li><a href="{{ unread_feed_url }}">Unread bookmarks</a></li>
-        <li><a href="{{ shared_feed_url }}">Shared bookmarks</a></li>
-        <li><a href="{{ public_shared_feed_url }}">Public shared bookmarks</a><br><span class="text-small text-secondary">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span>
+        <li><a target="_blank" href="{{ all_feed_url }}">All bookmarks</a></li>
+        <li><a target="_blank" href="{{ unread_feed_url }}">Unread bookmarks</a></li>
+        <li><a target="_blank" href="{{ shared_feed_url }}">Shared bookmarks</a></li>
+        <li><a target="_blank" href="{{ public_shared_feed_url }}">Public shared bookmarks</a><br><span class="text-small text-secondary">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span>
         </li>
       </ul>
       <p>
@@ -80,7 +80,7 @@
           credential.</strong>
         Any party with access to these URLs can read all your bookmarks.
         If you think that a URL was compromised you can delete the feed token for your user in the <a
-          href="{% url 'admin:bookmarks_feedtoken_changelist' %}">admin panel</a>.
+          target="_blank" href="{% url 'admin:bookmarks_feedtoken_changelist' %}">admin panel</a>.
         After deleting the feed token, new URLs will be generated when you reload this settings page.
       </p>
     </section>
