@@ -53,7 +53,6 @@ jobs:
       - name: Run build
         run: |
           npm run build
-          python manage.py compilescss
-          python manage.py collectstatic --ignore=*.scss
+          python manage.py collectstatic
       - name: Run tests
         run: python manage.py test bookmarks.e2e --pattern="e2e_test_*.py"
