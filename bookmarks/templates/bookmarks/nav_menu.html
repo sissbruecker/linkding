@@ -1,88 +1,83 @@
 {% load shared %}
 {% htmlmin %}
-{# Basic menu list #}
-<div class="hide-md">
-  <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
-  <div class="dropdown">
-    <a href="#" class="btn btn-link dropdown-toggle" tabindex="0" style="padding-right: 0.2rem">
-      Bookmarks
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-           style="height:1rem;width:1rem;vertical-align: middle;">
-        <path fill-rule="evenodd"
-              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              clip-rule="evenodd"/>
-      </svg>
-    </a>
-    <ul class="menu">
-      <li>
-        <a href="{% url 'bookmarks:index' %}" class="btn btn-link">Active</a>
-      </li>
-      <li>
-        <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archived</a>
-      </li>
-      {% if request.user_profile.enable_sharing %}
-        <li>
-          <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared</a>
+  {# Basic menu list #}
+  <div class="hide-md">
+    <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
+    <div class="dropdown">
+      <button class="btn btn-link dropdown-toggle" tabindex="0">
+        Bookmarks
+      </button>
+      <ul class="menu">
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:index' %}" class="menu-link">Active</a>
         </li>
-      {% endif %}
-      <li>
-        <a href="{% url 'bookmarks:index' %}?unread=yes" class="btn btn-link">Unread</a>
-      </li>
-      <li>
-        <a href="{% url 'bookmarks:index' %}?q=!untagged" class="btn btn-link">Untagged</a>
-      </li>
-    </ul>
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:archived' %}" class="menu-link">Archived</a>
+        </li>
+        {% if request.user_profile.enable_sharing %}
+          <li class="menu-item">
+            <a href="{% url 'bookmarks:shared' %}" class="menu-link">Shared</a>
+          </li>
+        {% endif %}
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:index' %}?unread=yes" class="menu-link">Unread</a>
+        </li>
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:index' %}?q=!untagged" class="menu-link">Untagged</a>
+        </li>
+      </ul>
+    </div>
+    <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
+    <form class="d-inline" action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-link">Logout</button>
+    </form>
   </div>
-  <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
-  <form class="d-inline" action="{% url 'logout' %}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-link">Logout</button>
-  </form>
-</div>
-{# Menu drop-down for smaller devices #}
-<div class="show-md">
-  <a href="{% url 'bookmarks:new' %}" class="btn btn-primary">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-         style="width: 24px; height: 24px">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-    </svg>
-  </a>
-  <div ld-dropdown class="dropdown dropdown-right">
-    <a href="#" class="btn btn-link dropdown-toggle" tabindex="0">
+  {# Menu drop-down for smaller devices #}
+  <div class="show-md">
+    <a href="{% url 'bookmarks:new' %}" class="btn btn-primary">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
            style="width: 24px; height: 24px">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
       </svg>
     </a>
-    <!-- menu component -->
-    <ul class="menu">
-      <li>
-        <a href="{% url 'bookmarks:index' %}" class="btn btn-link">Bookmarks</a>
-      </li>
-      <li style="padding-left: 1rem">
-        <a href="{% url 'bookmarks:archived' %}" class="btn btn-link">Archived</a>
-      </li>
-      {% if request.user_profile.enable_sharing %}
-        <li style="padding-left: 1rem">
-          <a href="{% url 'bookmarks:shared' %}" class="btn btn-link">Shared</a>
+    <div ld-dropdown class="dropdown dropdown-right">
+      <button class="btn btn-link dropdown-toggle" tabindex="0">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+             style="width: 24px; height: 24px">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <!-- menu component -->
+      <ul class="menu">
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:index' %}" class="menu-link">Bookmarks</a>
         </li>
-      {% endif %}
-      <li style="padding-left: 1rem">
-        <a href="{% url 'bookmarks:index' %}?unread=yes" class="btn btn-link">Unread</a>
-      </li>
-      <li style="padding-left: 1rem">
-        <a href="{% url 'bookmarks:index' %}?q=!untagged" class="btn btn-link">Untagged</a>
-      </li>
-      <li>
-        <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
-      </li>
-      <li>
-        <form class="d-inline" action="{% url 'logout' %}" method="post">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-link">Logout</button>
-        </form>
-      </li>
-    </ul>
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:archived' %}" class="menu-link">Archived</a>
+        </li>
+        {% if request.user_profile.enable_sharing %}
+          <li class="menu-item">
+            <a href="{% url 'bookmarks:shared' %}" class="menu-link">Shared</a>
+          </li>
+        {% endif %}
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:index' %}?unread=yes" class="menu-link">Unread</a>
+        </li>
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:index' %}?q=!untagged" class="menu-link">Untagged</a>
+        </li>
+        <div class="divider"></div>
+        <li class="menu-item">
+          <a href="{% url 'bookmarks:settings.index' %}" class="menu-link">Settings</a>
+        </li>
+        <li class="menu-item">
+          <form class="d-inline" action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-link menu-link">Logout</button>
+          </form>
+        </li>
+      </ul>
+    </div>
   </div>
-</div>
 {% endhtmlmin %}

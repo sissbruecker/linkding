@@ -1,0 +1,39 @@
+/* Main layout */
+body {
+    margin: 20px 10px;
+
+    @media (min-width: 600px) {
+        /* Horizontal offset accounts for checkboxes that show up in bulk edit mode */
+        margin: 20px 32px;
+    }
+}
+
+header {
+    margin-bottom: var(--unit-9);
+
+    .logo {
+        width: 28px;
+        height: 28px;
+    }
+
+    a:hover {
+        text-decoration: none;
+    }
+
+    h1 {
+        margin: 0 0 0 var(--unit-3);
+        font-size: var(--font-size-lg);
+    }
+}
+
+header .toasts {
+    margin-bottom: 20px;
+
+    .toast {
+        margin-bottom: 0.4rem;
+    }
+
+    .toast a.btn-clear:visited {
+        color: currentColor;
+    }
+}

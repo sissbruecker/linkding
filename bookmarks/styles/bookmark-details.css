@@ -1,0 +1,150 @@
+/* Common styles */
+.bookmark-details {
+  & h2 {
+    flex: 1 1 0;
+    align-items: flex-start;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  & .weblinks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--unit-2);
+  }
+
+  & a.weblink {
+    display: flex;
+    align-items: center;
+    gap: var(--unit-2);
+  }
+
+  & a.weblink img, & a.weblink svg {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    color: var(--text-color);
+  }
+
+  & a.weblink span {
+    flex: 1 1 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  & .preview-image {
+    margin: var(--unit-4 0);
+
+    img {
+      max-width: 100%;
+      max-height: 200px;
+    }
+  }
+
+  & dl {
+    margin-bottom: 0;
+  }
+
+  & .assets {
+    margin-top: var(--unit-2);
+
+    & .asset {
+      display: flex;
+      align-items: center;
+      gap: var(--unit-2);
+      padding: var(--unit-2) 0;
+      border-top: var(--unit-o) solid var(--secondary-border-color);
+    }
+
+    & .asset:last-child {
+      border-bottom: var(--unit-o) solid var(--secondary-border-color);
+    }
+
+    & .asset-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    & .asset-text {
+      flex: 1 1 0;
+      gap: var(--unit-2);
+      min-width: 0;
+      display: flex;
+    }
+
+    & .asset-text .truncate {
+      flex-shrink: 1;
+    }
+
+    & .asset-text .filesize {
+      color: var(--tertiary-text-color);
+    }
+
+    & .asset-actions {
+      display: flex;
+      gap: var(--unit-4);
+      align-items: center;
+
+      & .btn.btn-link {
+        height: unset;
+        padding: 0;
+        border: none;
+      }
+    }
+  }
+
+  & .assets-actions {
+    display: flex;
+    gap: var(--unit-4);
+    align-items: center;
+    margin-top: var(--unit-2);
+
+    & .btn.btn-link {
+      height: unset;
+      padding: 0;
+      border: none;
+    }
+  }
+
+  & .tags a {
+    color: var(--alternative-color);
+  }
+
+  & .status form {
+    display: flex;
+    gap: var(--unit-2);
+  }
+
+  & .status .form-group, .status .form-switch {
+    margin: 0;
+  }
+
+  & .actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Bookmark details view specific */
+.bookmark-details.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit-6);
+}
+
+/* Bookmark details modal specific */
+.bookmark-details.modal {
+  & .modal-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--unit-2);
+  }
+
+  & .modal-body {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}

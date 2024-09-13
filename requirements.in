@@ -3,7 +3,6 @@ bleach
 bleach-allowlist
 Django
 django-registration
-django-sass-processor
 django-widget-tweaks
 djangorestframework
 huey

@@ -58,18 +58,18 @@
             {% endif %}
           {% endif %}
           {% if bookmark_item.notes %}
-            <div class="notes bg-gray text-gray-dark">
+            <div class="notes">
               <div class="markdown">{% markdown bookmark_item.notes %}</div>
             </div>
           {% endif %}
-          <div class="actions text-gray">
+          <div class="actions">
             {% if bookmark_item.display_date %}
               {% if bookmark_item.web_archive_snapshot_url %}
                 <a href="{{ bookmark_item.web_archive_snapshot_url }}"
                   title="Show snapshot on the Internet Archive Wayback Machine"
                   target="{{ bookmark_list.link_target }}"
                   rel="noopener">
-                  {{ bookmark_item.display_date }} ∞
+                  {{ bookmark_item.display_date }}
                 </a>
               {% else %}
                 <span>{{ bookmark_item.display_date }}</span>

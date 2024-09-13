@@ -8,8 +8,6 @@ from .base import *
 
 # Turn on debug mode
 DEBUG = True
-# Turn on SASS compilation
-SASS_PROCESSOR_ENABLED = True
 
 # Enable debug toolbar
 INSTALLED_APPS.append("debug_toolbar")

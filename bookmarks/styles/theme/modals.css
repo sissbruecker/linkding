@@ -1,0 +1,93 @@
+/* Modals */
+:root {
+    --modal-overlay-bg-color: rgba(243, 244, 246, 0.6);
+    --modal-container-bg-color: var(--body-color);
+    --modal-container-border-color: var(--gray-200);
+    --modal-border-radius: var(--border-radius-lg);
+    --modal-box-shadow: var(--box-shadow-lg);
+}
+
+.modal {
+    align-items: center;
+    bottom: 0;
+    display: none;
+    justify-content: center;
+    left: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: var(--layout-spacing);
+    position: fixed;
+    right: 0;
+    top: 0;
+
+    &:target,
+    &.active {
+        display: flex;
+        opacity: 1;
+        z-index: var(--zindex-4);
+
+        & .modal-overlay {
+            animation: fade-in .15s ease 1;
+            background: var(--modal-overlay-bg-color);
+            bottom: 0;
+            cursor: default;
+            display: block;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+        & .modal-container {
+            animation: fade-in .15s ease 1;
+            z-index: var(--zindex-0);
+        }
+    }
+
+    &.active.closing {
+        & .modal-overlay, & .modal-container {
+            animation: fade-out .15s ease 1;
+        }
+    }
+}
+
+.modal-container {
+    background: var(--modal-container-bg-color);
+    border: solid 1px var(--modal-container-border-color);
+    border-radius: var(--modal-border-radius);
+    box-shadow: var(--modal-box-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: var(--unit-4);
+    max-height: 75vh;
+    max-width: var(--control-width-md);
+    padding: var(--unit-6);
+    width: 100%;
+
+    & .modal-header {
+        color: var(--text-color);
+
+        & button.close {
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 0;
+            cursor: pointer;
+            opacity: .85;
+            color: var(--secondary-text-color);
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    & .modal-body {
+        overflow-y: auto;
+        position: relative;
+    }
+
+    & .modal-footer {
+        text-align: right;
+    }
+}

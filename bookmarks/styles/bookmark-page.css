@@ -1,0 +1,457 @@
+:root {
+    --bookmark-title-color: var(--primary-text-color);
+    --bookmark-title-weight: 500;
+    --bookmark-description-color: var(--text-color);
+    --bookmark-description-weight: 400;
+    --bookmark-actions-color: var(--secondary-text-color);
+    --bookmark-actions-hover-color: var(--text-color);
+    --bookmark-actions-weight: 400;
+    --bulk-actions-bg-color: var(--gray-50);
+}
+
+/* Bookmark page grid */
+.bookmarks-page.grid {
+    grid-gap: var(--unit-9);
+}
+
+/* Bookmark area header controls */
+.bookmarks-page .search-container {
+    flex: 1 1 0;
+    display: flex;
+    max-width: 300px;
+    margin-left: auto;
+
+    & form {
+        width: 100%;
+    }
+
+    @media (max-width: 600px) {
+        max-width: initial;
+        margin-left: 0;
+    }
+
+    /* Regular input */
+
+    & input[type='search'] {
+        height: var(--control-size);
+        -webkit-appearance: none;
+    }
+
+    /* Enhanced auto-complete input */
+    /* This needs a bit more wrangling to make the CSS component align with the attached button */
+
+    & .form-autocomplete {
+        height: var(--control-size);
+
+        & .form-autocomplete-input {
+            width: 100%;
+            height: var(--control-size);
+
+            & input[type='search'] {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                border: none;
+            }
+        }
+    }
+
+    /* Group search options button with search button */
+    height: var(--control-size);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-xs);
+
+    & input, & .form-autocomplete-input {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        box-shadow: none;
+    }
+
+    & .dropdown-toggle {
+        border-left: none;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        box-shadow: none;
+        outline-offset: calc(var(--focus-outline-offset) * -1);
+    }
+
+    /* Search option menu styles */
+
+    & .dropdown {
+        & .menu {
+            padding: var(--unit-4);
+            min-width: 250px;
+            font-size: var(--font-size-sm);
+        }
+
+        & .menu .actions {
+            margin-top: var(--unit-4);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        & .form-group:first-of-type {
+            margin-top: 0;
+        }
+
+        & .form-group {
+            margin-bottom: var(--unit-3);
+        }
+
+        & .radio-group {
+            & .form-label {
+                margin-bottom: var(--unit-1);
+            }
+
+            & .form-radio.form-inline {
+                margin: 0 var(--unit-2) 0 0;
+                padding: 0;
+                display: inline-flex;
+                align-items: center;
+                column-gap: var(--unit-1);
+            }
+
+            & .form-icon {
+                top: 0;
+                position: relative;
+            }
+        }
+    }
+}
+
+/* Bookmark list */
+ul.bookmark-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    /* Increase line-height for better separation within / between items */
+    line-height: 1.1rem;
+}
+
+@keyframes appear {
+    0% {
+        opacity: 0;
+    }
+    90% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Bookmarks */
+li[ld-bookmark-item] {
+    position: relative;
+    display: flex;
+    gap: var(--unit-2);
+    margin-top: 0;
+    margin-bottom: var(--unit-3);
+
+    & .content {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    & img.preview-image {
+        flex: 0 0 auto;
+        width: 100px;
+        height: 60px;
+        margin-top: var(--unit-h);
+        object-fit: cover;
+        border-radius: var(--border-radius);
+        border: solid 1px var(--border-color);
+    }
+
+    & .form-checkbox.bulk-edit-checkbox {
+        display: none;
+    }
+
+    & .title {
+        position: relative;
+    }
+
+    & .title img {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    & .title img + a {
+        padding-left: 22px;
+    }
+
+    & .title a {
+        color: var(--bookmark-title-color);
+        font-weight: var(--bookmark-title-weight);
+        display: block;
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    & .title a[data-tooltip]:hover::after, & .title a[data-tooltip]:focus::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        z-index: 10;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: max-content;
+        max-width: 90%;
+        height: fit-content;
+        background-color: #292f62;
+        color: #fff;
+        padding: var(--unit-1);
+        border-radius: var(--border-radius);
+        border: 1px solid #424a8c;
+        font-size: var(--font-size-sm);
+        font-style: normal;
+        white-space: normal;
+        pointer-events: none;
+        animation: 0.3s ease 0s appear;
+    }
+
+    @media (pointer: coarse) {
+        & .title a[data-tooltip]::after {
+            display: none;
+        }
+    }
+
+    &.unread .title a {
+        font-style: italic;
+    }
+
+    & .url-path, & .url-display {
+        font-size: var(--font-size-sm);
+        color: var(--secondary-link-color);
+    }
+
+    & .description {
+        color: var(--bookmark-description-color);
+        font-weight: var(--bookmark-description-weight);
+    }
+
+    & .description.separate {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: var(--ld-bookmark-description-max-lines, 1);
+        overflow: hidden;
+    }
+
+    & .tags {
+        & a, & a:visited:hover {
+            color: var(--alternative-color);
+        }
+    }
+
+    & .actions, & .extra-actions {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        column-gap: var(--unit-2);
+    }
+
+    @media (max-width: 600px) {
+        & .extra-actions {
+            width: 100%;
+            margin-top: var(--unit-1);
+        }
+    }
+
+    & .actions {
+        color: var(--bookmark-actions-color);
+        font-size: var(--font-size-sm);
+
+        & a, & button.btn-link {
+            color: var(--bookmark-actions-color);
+            --btn-icon-color: var(--bookmark-actions-color);
+            font-weight: var(--bookmark-actions-weight);
+            padding: 0;
+            height: auto;
+            vertical-align: unset;
+            border: none;
+            box-sizing: border-box;
+            transition: none;
+            text-decoration: none;
+
+            &:focus,
+            &:hover,
+            &:active,
+            &.active {
+                color: var(--bookmark-actions-hover-color);
+                --btn-icon-color: var(--bookmark-actions-hover-color);
+            }
+        }
+    }
+}
+
+.bookmark-pagination {
+    margin-top: var(--unit-4);
+
+    /* Remove left padding from first pagination link */
+
+    & .page-item:first-child a {
+        padding-left: 0;
+    }
+}
+
+.tag-cloud {
+    /* Increase line-height for better separation within / between items */
+    line-height: 1.1rem;
+
+    & .selected-tags {
+        margin-bottom: var(--unit-4);
+
+        & a,
+        & a:visited:hover {
+            color: var(--error-color);
+        }
+    }
+
+    & .unselected-tags {
+        & a,
+        & a:visited:hover {
+            color: var(--alternative-color);
+        }
+    }
+
+    & .group {
+        margin-bottom: var(--unit-3);
+    }
+
+    & .highlight-char {
+        font-weight: bold;
+        text-transform: uppercase;
+        color: var(--alternative-color-dark);
+    }
+}
+
+/* Bookmark notes */
+ul.bookmark-list {
+    & .notes {
+        display: none;
+        max-height: 300px;
+        margin: var(--unit-1) 0;
+        overflow-y: auto;
+        background: var(--body-color-contrast);
+        border-radius: var(--border-radius);
+    }
+
+    & .notes .markdown {
+        padding: var(--unit-2) var(--unit-3);
+    }
+
+    &.show-notes .notes,
+    & li.show-notes .notes {
+        display: block;
+    }
+}
+
+/* Bookmark bulk edit */
+:root {
+    --bulk-edit-toggle-width: 16px;
+    --bulk-edit-toggle-offset: 8px;
+    --bulk-edit-bar-offset: calc(var(--bulk-edit-toggle-width) + (2 * var(--bulk-edit-toggle-offset)));
+    --bulk-edit-transition-duration: 400ms;
+}
+
+[ld-bulk-edit] {
+    & .bulk-edit-bar {
+        margin-top: -1px;
+        margin-left: calc(-1 * var(--bulk-edit-bar-offset));
+        margin-bottom: var(--unit-4);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height var(--bulk-edit-transition-duration);
+        background: var(--bulk-actions-bg-color);
+    }
+
+    &.active .bulk-edit-bar {
+        max-height: 37px;
+        border-bottom: solid 1px var(--secondary-border-color);
+    }
+
+    /* Hide section border when bulk edit bar is opened, otherwise borders overlap in dark mode due to using contrast colors */
+    &.active section:first-of-type .content-area-header {
+        border-bottom-color: transparent;
+    }
+
+    /* remove overflow after opening animation, otherwise tag autocomplete overlay gets cut off */
+
+    &.active:not(.activating) .bulk-edit-bar {
+        overflow: visible;
+    }
+
+    /* All checkbox */
+
+    & .form-checkbox.bulk-edit-checkbox.all {
+        display: block;
+        width: var(--bulk-edit-toggle-width);
+        margin: 0 0 0 var(--bulk-edit-toggle-offset);
+        padding: 0;
+    }
+
+    /* Bookmark checkboxes */
+
+    & li[ld-bookmark-item] .form-checkbox.bulk-edit-checkbox {
+        display: block;
+        position: absolute;
+        width: var(--bulk-edit-toggle-width);
+        min-height: var(--bulk-edit-toggle-width);
+        left: calc(-1 * var(--bulk-edit-toggle-width) - var(--bulk-edit-toggle-offset));
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 0;
+        margin: 0;
+        visibility: hidden;
+        opacity: 0;
+        transition: all var(--bulk-edit-transition-duration);
+
+        .form-icon {
+            top: 0;
+        }
+    }
+
+    &.active li[ld-bookmark-item] .form-checkbox.bulk-edit-checkbox {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Actions */
+
+    & .bulk-edit-actions {
+        display: flex;
+        align-items: center;
+        padding: var(--unit-1) 0;
+        border-top: solid 1px var(--secondary-border-color);
+        gap: var(--unit-2);
+
+        & button {
+            --control-padding-x-sm: 0;
+        }
+
+        & button:hover {
+            text-decoration: underline;
+        }
+
+        & > input,
+        & .form-autocomplete,
+        & select {
+            width: auto;
+            max-width: 140px;
+            -webkit-appearance: none;
+        }
+
+        & .select-across {
+            margin: 0 0 0 auto;
+            font-size: var(--font-size-sm);
+        }
+    }
+}

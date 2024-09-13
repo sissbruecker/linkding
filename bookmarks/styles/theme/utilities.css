@@ -1,0 +1,296 @@
+/* Colors */
+.text-primary {
+    color: var(--primary-text-color);
+}
+
+.text-secondary {
+    color: var(--secondary-text-color);
+}
+
+.text-tertiary {
+    color: var(--tertiary-text-color);
+}
+
+.text-success {
+    color: var(--success-color);
+}
+
+.text-warning {
+    color: var(--warning-color);
+}
+
+.text-error {
+    color: var(--error-color);
+}
+
+.icon-color {
+    color: var(--icon-color);
+}
+
+/* Display */
+.d-block {
+    display: block;
+}
+
+.d-inline {
+    display: inline;
+}
+
+.d-inline-block {
+    display: inline-block;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.d-inline-flex {
+    display: inline-flex;
+}
+
+.d-none,
+.d-hide {
+    display: none !important;
+}
+
+.d-visible {
+    visibility: visible;
+}
+
+.d-invisible {
+    visibility: hidden;
+}
+
+.text-hide {
+    background: transparent;
+    border: 0;
+    color: transparent;
+    font-size: 0;
+    line-height: 0;
+    text-shadow: none;
+}
+
+.text-assistive {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+/* Loading */
+.loading {
+    color: transparent !important;
+    min-height: var(--unit-4);
+    pointer-events: none;
+    position: relative;
+
+    &::after {
+        animation: loading 500ms infinite linear;
+        background: transparent;
+        border: var(--border-width-lg) solid var(--primary-color);
+        border-radius: 50%;
+        border-right-color: transparent;
+        border-top-color: transparent;
+        content: "";
+        display: block;
+        height: var(--unit-4);
+        left: 50%;
+        margin-left: calc(-1 * var(--unit-2));
+        margin-top: calc(-1 * var(--unit-2));
+        opacity: 1;
+        padding: 0;
+        position: absolute;
+        top: 50%;
+        width: var(--unit-4);
+        z-index: var(--zindex-0);
+    }
+
+    &.loading-lg {
+        min-height: var(--unit-10);
+
+        &::after {
+            height: var(--unit-8);
+            margin-left: calc(-1 * var(--unit-4));
+            margin-top: calc(-1 * var(--unit-4));
+            width: var(--unit-8);
+        }
+    }
+}
+
+/* Position */
+.m-0 {
+    margin: 0 !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.ml-0 {
+    margin-left: 0 !important;
+}
+
+.mr-0 {
+    margin-right: 0 !important;
+}
+
+.mt-0 {
+    margin-top: 0 !important;
+}
+
+.mx-0 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.my-0 {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+}
+
+.m-1 {
+    margin: var(--unit-1) !important;
+}
+
+.mb-1 {
+    margin-bottom: var(--unit-1) !important;
+}
+
+.ml-1 {
+    margin-left: var(--unit-1) !important;
+}
+
+.mr-1 {
+    margin-right: var(--unit-1) !important;
+}
+
+.mt-1 {
+    margin-top: var(--unit-1) !important;
+}
+
+.mx-1 {
+    margin-left: var(--unit-1) !important;
+    margin-right: var(--unit-1) !important;
+}
+
+.my-1 {
+    margin-bottom: var(--unit-1) !important;
+    margin-top: var(--unit-1) !important;
+}
+
+.m-2 {
+    margin: var(--unit-2) !important;
+}
+
+.mb-2 {
+    margin-bottom: var(--unit-2) !important;
+}
+
+.ml-2 {
+    margin-left: var(--unit-2) !important;
+}
+
+.mr-2 {
+    margin-right: var(--unit-2) !important;
+}
+
+.mt-2 {
+    margin-top: var(--unit-2) !important;
+}
+
+.mx-2 {
+    margin-left: var(--unit-2) !important;
+    margin-right: var(--unit-2) !important;
+}
+
+.my-2 {
+    margin-bottom: var(--unit-2) !important;
+    margin-top: var(--unit-2) !important;
+}
+
+.m-4 {
+    margin: var(--unit-4) !important;
+}
+
+.mb-4 {
+    margin-bottom: var(--unit-4) !important;
+}
+
+.ml-4 {
+    margin-left: var(--unit-4) !important;
+}
+
+.mr-4 {
+    margin-right: var(--unit-4) !important;
+}
+
+.mt-4 {
+    margin-top: var(--unit-4) !important;
+}
+
+.mx-4 {
+    margin-left: var(--unit-4) !important;
+    margin-right: var(--unit-4) !important;
+}
+
+.my-4 {
+    margin-bottom: var(--unit-4) !important;
+    margin-top: var(--unit-4) !important;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Text */
+.text-normal {
+    font-weight: normal;
+}
+
+.text-bold {
+    font-weight: bold;
+}
+
+.text-italic {
+    font-style: italic;
+}
+
+.text-large {
+    font-size: 1.2em;
+}
+
+.text-small {
+    font-size: .9em;
+}
+
+.text-tiny {
+    font-size: .8em;
+}
+
+.text-muted {
+    opacity: .8;
+}
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Flex */
+.align-baseline {
+    align-items: baseline;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}

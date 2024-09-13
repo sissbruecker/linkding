@@ -1,10 +1,11 @@
 FROM node:18-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
-COPY rollup.config.mjs package.json package-lock.json ./
+COPY rollup.config.mjs postcss.config.js package.json package-lock.json ./
 RUN npm ci
 # copy files needed for JS build
 COPY bookmarks/frontend ./bookmarks/frontend
+COPY bookmarks/styles ./bookmarks/styles
 # run build
 RUN npm run build
 
@@ -25,18 +26,15 @@ WORKDIR /etc/linkding
 FROM python-base AS python-build
 # install build dependencies
 COPY requirements.txt requirements.txt
-COPY requirements.dev.txt requirements.dev.txt
-# remove playwright from requirements as there is not always a distro and it's not needed for the build
-RUN sed -i '/playwright/d' requirements.dev.txt
-RUN pip install -U pip && pip install -r requirements.txt -r requirements.dev.txt
+RUN pip install -U pip && pip install -r requirements.txt
 # copy files needed for Django build
 COPY . .
 COPY --from=node-build /etc/linkding .
+# remove style sources
+RUN rm -rf bookmarks/styles
 # run Django part of the build
 RUN mkdir data && \
-    python manage.py compilescss && \
-    python manage.py collectstatic --ignore=*.scss && \
-    python manage.py compilescss --delete-files
+    python manage.py collectstatic
 
 
 FROM python-base AS prod-deps

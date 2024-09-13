@@ -10,6 +10,7 @@
 !/manage.py
 !/package.json
 !/package-lock.json
+!/postcss.config.js
 !/requirements.dev.txt
 !/requirements.txt
 !/rollup.config.mjs

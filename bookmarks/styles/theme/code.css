@@ -1,0 +1,30 @@
+/* Code */
+:root {
+    --code-bg-color: var(--body-color-contrast);
+    --code-color: var(--text-color);
+}
+
+code {
+    border-radius: var(--border-radius);
+    line-height: 1.25;
+    padding: .1rem .2rem;
+    background: var(--code-bg-color);
+    color: var(--code-color);
+    font-size: 85%;
+}
+
+.code {
+    border-radius: var(--border-radius);
+    background: var(--code-bg-color);
+    color: var(--text-color);
+    position: relative;
+
+    & code {
+        color: inherit;
+        display: block;
+        line-height: 1.5;
+        overflow-x: auto;
+        padding: var(--unit-2);
+        width: 100%;
+    }
+}

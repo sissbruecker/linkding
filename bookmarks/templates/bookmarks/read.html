@@ -1,4 +1,3 @@
-{% load sass_tags %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" class="reader-mode">
@@ -6,16 +5,21 @@
   <meta charset="UTF-8">
   <title>Reader view</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
+  {# Include specific theme variant based on user profile setting #}
   {% if request.user_profile.theme == 'light' %}
-    <link href="{% sass_src 'theme-light.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'theme-light.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+    <meta name="theme-color" content="#5856e0">
   {% elif request.user_profile.theme == 'dark' %}
-    <link href="{% sass_src 'theme-dark.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'theme-dark.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+    <meta name="theme-color" content="#161822">
   {% else %}
     {# Use auto theme as fallback #}
-    <link href="{% sass_src 'theme-dark.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
+    <link href="{% static 'theme-dark.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
           media="(prefers-color-scheme: dark)"/>
-    <link href="{% sass_src 'theme-light.scss' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
+    <link href="{% static 'theme-light.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
           media="(prefers-color-scheme: light)"/>
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161822">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#5856e0">
   {% endif %}
 </head>
 <body>

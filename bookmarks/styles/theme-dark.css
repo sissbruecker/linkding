@@ -1,0 +1,143 @@
+@import "theme-light.css";
+
+:root {
+    /* Color palette */
+    --contrast-5: hsla(241, 65%, 85%, 0.06);
+    --contrast-10: hsla(241, 60%, 80%, 0.14);
+    --contrast-20: hsla(241, 64%, 82%, 0.23);
+    --contrast-30: hsla(241, 69%, 84%, 0.32);
+    --contrast-40: hsla(241, 73%, 86%, 0.41);
+    --contrast-50: hsla(241, 78%, 88%, 0.5);
+    --contrast-60: hsla(241, 82%, 90%, 0.58);
+    --contrast-70: hsla(241, 87%, 92%, 0.69);
+    --contrast-80: hsla(241, 91%, 94%, 0.8);
+    --contrast-90: hsla(241, 96%, 96%, 0.9);
+
+    --primary-color: hsl(241, 75%, 64%);
+    --primary-color-highlight: hsl(241, 75%, 68%);
+    --primary-color-shade: hsl(241, 75%, 64%, 0.42);
+
+    --alternative-color: hsl(179, 50%, 58%);
+    --alternative-color-dark: hsl(179, 80%, 75%);
+
+    --success-color: hsl(142, 76%, 36%);
+    --success-color-highlight: hsl(142, 76%, 40%);
+    --success-color-shade: hsla(142, 76%, 36%, 0.1);
+
+    --warning-color: hsl(38, 92%, 50%);
+    --warning-color-highlight: hsl(38, 92%, 55%);
+    --warning-color-shade: hsla(38, 92%, 50%, 0.1);
+
+    --error-color: hsl(0, 80%, 60%);
+    --error-color-highlight: hsl(0, 72%, 60%);
+    --error-color-shade: hsla(0, 72%, 51%, 0.1);
+
+    /* Core colors */
+    --text-color: var(--gray-300);
+    --secondary-text-color: var(--gray-400);
+    --tertiary-text-color: var(--gray-500);
+    --contrast-text-color: #fff;
+    --primary-text-color: hsl(241, 82%, 82%);
+
+    --link-color: var(--primary-text-color);
+    --secondary-link-color: hsla(241, 82%, 82%, 0.8);
+
+    --icon-color: var(--text-color);
+
+    --border-color: var(--contrast-30);
+    --secondary-border-color: var(--contrast-20);
+
+    --body-color: hsl(241, 15%, 14%);
+    --body-color-contrast: var(--contrast-10);
+
+    /* Focus */
+    --focus-outline: 2px solid hsl(241, 100%, 78%);
+    --focus-outline-offset: 2px;
+
+    /* Shadows */
+    --box-shadow-xs: none;
+    --box-shadow: none;
+    --box-shadow-lg: none;
+}
+
+:root {
+    --input-bg-color: var(--contrast-5);
+    --input-disabled-bg-color: var(--contrast-30);
+    --input-text-color: var(--text-color);
+    --input-hint-color: var(--secondary-text-color);
+    --input-border-color: var(--border-color);
+    --input-placeholder-color: var(--tertiary-text-color);
+    --input-box-shadow: var(--box-shadow-xs);
+
+    --checkbox-bg-color: var(--contrast-10);
+    --checkbox-checked-bg-color: var(--primary-color);
+    --checkbox-disabled-bg-color: var(--contrast-30);
+    --checkbox-border-color: var(--border-color);
+    --checkbox-icon-color: #fff;
+
+    --switch-bg-color: var(--contrast-10);
+    --switch-border-color: var(--border-color);
+    --switch-toggle-color: var(--text-color);
+}
+
+:root {
+    --btn-bg-color: var(--contrast-5);
+    --btn-hover-bg-color: var(--contrast-20);
+    --btn-border-color: var(--border-color);
+    --btn-text-color: var(--text-color);
+    --btn-icon-color: var(--icon-color);
+    --btn-font-weight: 400;
+    --btn-box-shadow: var(--box-shadow-xs);
+
+    --btn-primary-bg-color: var(--primary-color);
+    --btn-primary-hover-bg-color: var(--primary-color-highlight);
+    --btn-primary-text-color: var(--contrast-text-color);
+
+    --btn-success-bg-color: var(--success-color);
+    --btn-success-hover-bg-color: var(--success-color-highlight);
+    --btn-success-text-color: var(--contrast-text-color);
+
+    --btn-error-bg-color: var(--error-color);
+    --btn-error-hover-bg-color: var(--error-color-highlight);
+    --btn-error-text-color: var(--contrast-text-color);
+
+    --btn-link-text-color: var(--link-color);
+    --btn-link-hover-text-color: var(--link-color);
+}
+
+:root {
+    --modal-overlay-bg-color: hsla(229, 21%, 16%, 0.55);
+    --modal-container-bg-color: hsl(241, 20%, 20%);
+    --modal-container-border-color: var(--contrast-30);
+    --modal-border-radius: var(--border-radius-lg);
+    --modal-box-shadow: none;
+}
+
+:root {
+    --menu-bg-color: hsl(241, 20%, 20%);
+    --menu-border-color: var(--contrast-30);
+    --menu-border-radius: var(--border-radius);
+    --menu-box-shadow: none;
+    --menu-item-color: var(--text-color);
+    --menu-item-hover-color: var(--text-color);
+    --menu-item-bg-color: transparent;
+    --menu-item-hover-bg-color: var(--contrast-20);
+}
+
+:root {
+    --tab-color: var(--text-color);
+    --tab-hover-color: var(--primary-text-color);
+    --tab-active-color: var(--primary-text-color);
+    --tab-highlight-color: var(--primary-text-color);
+}
+
+:root {
+    --bookmark-title-color: var(--primary-text-color);
+    --bookmark-title-weight: 500;
+    --bookmark-description-color: var(--text-color);
+    --bookmark-description-weight: 400;
+    --bookmark-actions-color: var(--secondary-text-color);
+    --bookmark-actions-hover-color: var(--text-color);
+    --bookmark-actions-weight: 400;
+    --bulk-actions-bg-color: var(--contrast-5);
+}

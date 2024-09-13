@@ -1,0 +1,135 @@
+:root {
+    /* Color palette */
+    --gray-50: rgb(249, 250, 251);
+    --gray-100: rgb(243, 244, 246);
+    --gray-200: rgb(229, 231, 235);
+    --gray-300: rgb(209, 213, 219);
+    --gray-400: rgb(156, 163, 175);
+    --gray-500: rgb(107, 114, 128);
+    --gray-600: rgb(75, 85, 99);
+    --gray-700: rgb(55, 65, 81);
+    --gray-800: rgb(31, 41, 55);
+    --gray-900: rgb(17, 24, 39);
+
+    --primary-color: hsl(241, 63%, 59%);
+    --primary-color-highlight: hsl(241, 63%, 64%);
+    --primary-color-shade: hsl(241, 63%, 59%, 0.075);
+
+    --alternative-color: hsl(179, 94%, 29%);
+    --alternative-color-dark: hsl(179, 94%, 22%);
+
+    --success-color: hsl(142, 76%, 36%);
+    --success-color-highlight: hsl(142, 76%, 40%);
+    --success-color-shade: hsla(142, 76%, 36%, 0.1);
+
+    --warning-color: hsl(38, 92%, 50%);
+    --warning-color-highlight: hsl(38, 92%, 55%);
+    --warning-color-shade: hsla(38, 92%, 50%, 0.1);
+
+    --error-color: hsl(0, 72%, 51%);
+    --error-color-highlight: hsl(0, 72%, 60%);
+    --error-color-shade: hsla(0, 72%, 51%, 0.1);
+
+    /* Core colors */
+    --text-color: var(--gray-700);
+    --secondary-text-color: var(--gray-500);
+    --tertiary-text-color: var(--gray-500);
+    --contrast-text-color: #fff;
+    --primary-text-color: hsl(241, 63%, 55%);
+
+    --link-color: var(--primary-text-color);
+    --secondary-link-color: hsla(241, 63%, 54%, 0.8);
+
+    --icon-color: var(--gray-500);
+
+    --border-color: var(--gray-300);
+    --secondary-border-color: var(--gray-200);
+
+    --body-color: #fff;
+    --body-color-contrast: var(--gray-100);
+
+    /* Fonts */
+    --base-font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto;
+    --mono-font-family: "SF Mono", "Segoe UI Mono", "Roboto Mono", Menlo, Courier, monospace;
+    --fallback-font-family: "Helvetica Neue", sans-serif;
+    --cjk-zh-hans-font-family: var(--base-font-family), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", var(--fallback-font-family);
+    --cjk-zh-hant-font-family: var(--base-font-family), "PingFang TC", "Hiragino Sans CNS", "Microsoft JhengHei", var(--fallback-font-family);
+    --cjk-jp-font-family: var(--base-font-family), "Hiragino Sans", "Hiragino Kaku Gothic Pro", "Yu Gothic", YuGothic, Meiryo, var(--fallback-font-family);
+    --cjk-ko-font-family: var(--base-font-family), "Malgun Gothic", var(--fallback-font-family);
+    --body-font-family: var(--base-font-family), var(--fallback-font-family);
+
+    /* Unit sizes */
+    --unit-o: 0.05rem;
+    --unit-h: 0.1rem;
+    --unit-1: 0.2rem;
+    --unit-2: 0.4rem;
+    --unit-3: 0.6rem;
+    --unit-4: 0.8rem;
+    --unit-5: 1rem;
+    --unit-6: 1.2rem;
+    --unit-7: 1.4rem;
+    --unit-8: 1.6rem;
+    --unit-9: 1.8rem;
+    --unit-10: 2rem;
+    --unit-12: 2.4rem;
+    --unit-16: 3.2rem;
+
+    /* Font sizes */
+    --html-font-size: 20px;
+    --html-line-height: 1.5;
+    --font-size: 0.7rem;
+    --font-size-sm: 0.65rem;
+    --font-size-lg: 0.8rem;
+    --line-height: 1rem;
+
+    /* Sizes */
+    --layout-spacing: var(--unit-2);
+    --layout-spacing-sm: var(--unit-1);
+    --layout-spacing-lg: var(--unit-4);
+    --border-radius: var(--unit-1);
+    --border-radius-lg: var(--unit-2);
+    --border-width: var(--unit-o);
+    --border-width-lg: var(--unit-h);
+    --control-size: var(--unit-8);
+    --control-size-sm: var(--unit-6);
+    --control-size-lg: var(--unit-9);
+    --control-padding-x: var(--unit-2);
+    --control-padding-x-sm: calc(var(--unit-2) * 0.75);
+    --control-padding-x-lg: calc(var(--unit-2) * 1.5);
+    --control-padding-y: calc((var(--control-size) - var(--line-height)) / 2 - var(--border-width));
+    --control-padding-y-sm: calc((var(--control-size-sm) - var(--line-height)) / 2 - var(--border-width));
+    --control-padding-y-lg: calc((var(--control-size-lg) - var(--line-height)) / 2 - var(--border-width));
+    --control-icon-size: 0.8rem;
+
+    --control-width-xs: 180px;
+    --control-width-sm: 320px;
+    --control-width-md: 640px;
+    --control-width-lg: 960px;
+    --control-width-xl: 1280px;
+
+    /* Responsive breakpoints */
+    --size-xs: 480px;
+    --size-sm: 600px;
+    --size-md: 840px;
+    --size-lg: 960px;
+    --size-xl: 1280px;
+    --size-2x: 1440px;
+
+    --responsive-breakpoint: var(--size-xs);
+
+    /* Z-index */
+    --zindex-0: 1;
+    --zindex-1: 100;
+    --zindex-2: 200;
+    --zindex-3: 300;
+    --zindex-4: 400;
+
+    /* Focus */
+    --focus-outline: 2px solid var(--primary-color);
+    --focus-outline-offset: 2px;
+
+    /* Shadows */
+    --box-shadow-xs: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+    --box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --box-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}

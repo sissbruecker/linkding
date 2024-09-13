@@ -1,8 +1,6 @@
 black
 coverage
-django-compressor
 django-debug-toolbar
-libsass
 playwright
 pytest
 pytest-django

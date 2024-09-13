@@ -1,0 +1,55 @@
+/* Autocomplete */
+.form-autocomplete {
+    position: relative;
+
+    & .form-autocomplete-input {
+        align-content: flex-start;
+        display: flex;
+        flex-wrap: wrap;
+        height: auto;
+        min-height: var(--unit-8);
+        padding: var(--unit-h);
+        background: var(--input-bg-color);
+
+        &.is-focused {
+            outline: var(--focus-outline);
+            outline-offset: calc(var(--focus-outline-offset) * -1);
+        }
+
+        & .form-input {
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+            display: inline-block;
+            flex: 1 0 auto;
+            height: var(--unit-6);
+            line-height: var(--unit-4);
+            margin: var(--unit-h);
+            width: auto;
+
+            &:focus {
+                outline: none;
+            }
+        }
+    }
+
+    & .menu {
+        left: 0;
+        position: absolute;
+        top: 100%;
+        width: 100%;
+
+        & .menu-item.selected > a, & .menu-item > a:hover {
+            background: var(--menu-item-hover-bg-color);
+            color: var(--menu-item-hover-color);
+        }
+
+        & .group-item, & .group-item:hover {
+            color: var(--tertiary-text-color);
+            text-transform: uppercase;
+            background: none;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+    }
+}

@@ -1,9 +1,9 @@
 .settings-page {
   section.content-area {
-    margin-bottom: $unit-10;
+    margin-bottom: var(--unit-10);
 
     h2 {
-      margin-bottom: $unit-3;
+      margin-bottom: var(--unit-3);
     }
   }
 
@@ -17,6 +17,10 @@
   }
 
   section.about table {
-    max-width: 500px;
+    max-width: 400px;
+  }
+
+  & .form-group {
+    margin-bottom: var(--unit-4);
   }
 }

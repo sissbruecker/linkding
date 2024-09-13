@@ -1,0 +1,21 @@
+/* Empty states (or Blank slates) */
+.empty {
+    background: var(--body-color-contrast);
+    border-radius: var(--border-radius);
+    color: var(--secondary-text-color);
+    text-align: center;
+    padding: var(--unit-16) var(--unit-8);
+
+    .empty-icon {
+        margin-bottom: var(--layout-spacing-lg);
+    }
+
+    .empty-title,
+    .empty-subtitle {
+        margin: var(--layout-spacing) auto;
+    }
+
+    .empty-action {
+        margin-top: var(--layout-spacing-lg);
+    }
+}

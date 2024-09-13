@@ -35,10 +35,8 @@
       <h2>REST API</h2>
       <p>The following token can be used to authenticate 3rd-party applications against the REST API:</p>
       <div class="form-group">
-        <div class="columns">
-          <div class="column width-50 width-md-100">
-            <input class="form-input" value="{{ api_token }}" readonly>
-          </div>
+        <div class="width-50 width-md-100">
+          <input class="form-input" value="{{ api_token }}" readonly>
         </div>
       </div>
       <p>
@@ -57,7 +55,7 @@
         <li><a href="{{ all_feed_url }}">All bookmarks</a></li>
         <li><a href="{{ unread_feed_url }}">Unread bookmarks</a></li>
         <li><a href="{{ shared_feed_url }}">Shared bookmarks</a></li>
-        <li><a href="{{ public_shared_feed_url }}">Public shared bookmarks</a><br><span class="text-small text-gray">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span>
+        <li><a href="{{ public_shared_feed_url }}">Public shared bookmarks</a><br><span class="text-small text-secondary">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span>
         </li>
       </ul>
       <p>

@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rollup -c",
+    "build": "npm run build-js && npm run build-theme-light && npm run build-theme-dark",
+    "build-js": "rollup -c",
+    "build-theme-light": "postcss -o bookmarks/static/theme-light.css bookmarks/styles/theme-light.css",
+    "build-theme-dark": "postcss -o bookmarks/static/theme-dark.css bookmarks/styles/theme-dark.css",
     "dev": "rollup -c -w"
   },
   "repository": {
@@ -22,6 +25,11 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/wasm-node": "^4.13.0",
+    "cssnano": "^7.0.6",
+    "postcss": "^8.4.45",
+    "postcss-cli": "^11.0.0",
+    "postcss-import": "^16.1.0",
+    "postcss-nesting": "^13.0.0",
     "rollup-plugin-svelte": "^7.2.0",
     "spectre.css": "^0.5.8",
     "svelte": "^4.0.0"

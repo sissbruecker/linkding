@@ -1,10 +1,10 @@
 {% load widget_tweaks %}
 
 <div class="search-container">
-  <form id="search" class="input-group" action="" method="get" role="search">
+  <form id="search" action="" method="get" role="search">
     <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
            value="{{ search.q }}">
-    <input type="submit" value="Search" class="btn input-group-btn">
+    <input type="submit" value="Search" class="d-none">
     {% for hidden_field in search_form.hidden_fields %}
       {{ hidden_field }}
     {% endfor %}

@@ -34,14 +34,15 @@
     <div class="has-icon-right">
       {{ form.title|add_class:"form-input"|attr:"autocomplete:off" }}
       <i class="form-icon loading"></i>
-      <a class="btn btn-link form-icon" title="Edit title from website">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/>
-          <path fill-rule="evenodd"
-                d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                clip-rule="evenodd"/>
+      <button type="button" class="btn btn-link form-icon" title="Edit title from website">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"/>
+          <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"/>
+          <path d="M16 5l3 3"/>
         </svg>
-      </a>
+      </button>
     </div>
     <div class="form-input-hint">
       Optional, leave empty to use title from website.
@@ -53,14 +54,15 @@
     <div class="has-icon-right">
       {{ form.description|add_class:"form-input"|attr:"rows:2" }}
       <i class="form-icon loading"></i>
-      <a class="btn btn-link form-icon" title="Edit description from website">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/>
-          <path fill-rule="evenodd"
-                d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                clip-rule="evenodd"/>
+      <button type="button" class="btn btn-link form-icon" title="Edit description from website">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"/>
+          <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"/>
+          <path d="M16 5l3 3"/>
         </svg>
-      </a>
+      </button>
     </div>
     <div class="form-input-hint">
       Optional, leave empty to use description from website.
@@ -74,11 +76,11 @@
       </summary>
       <label for="{{ form.notes.id_for_label }}" class="text-assistive">Notes</label>
       {{ form.notes|add_class:"form-input"|attr:"rows:8" }}
-      <div class="form-input-hint">
-        Additional notes, supports Markdown.
-      </div>
-      {{ form.notes.errors }}
     </details>
+    <div class="form-input-hint">
+      Additional notes, supports Markdown.
+    </div>
+    {{ form.notes.errors }}
   </div>
   <div class="form-group">
     <label for="{{ form.unread.id_for_label }}" class="form-checkbox">
@@ -106,12 +108,12 @@
       </div>
     </div>
   {% endif %}
-  <br/>
-  <div class="form-group">
+  <div class="divider"></div>
+  <div class="form-group d-flex justify-between">
     {% if auto_close %}
-      <input type="submit" value="Save and close" class="btn btn-primary mr-2">
+      <input type="submit" value="Save and close" class="btn btn-primary btn-wide">
     {% else %}
-      <input type="submit" value="Save" class="btn btn-primary mr-2">
+      <input type="submit" value="Save" class="btn btn-primary btn btn-primary btn-wide">
     {% endif %}
     <a href="{{ cancel_url }}" class="btn">Nevermind</a>
   </div>

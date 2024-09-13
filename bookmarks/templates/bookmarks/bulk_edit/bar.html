@@ -1,7 +1,7 @@
 {% load shared %}
 {% htmlmin %}
   <div class="bulk-edit-bar">
-    <div class="bulk-edit-actions bg-gray">
+    <div class="bulk-edit-actions">
       <label class="form-checkbox bulk-edit-checkbox all">
         <input type="checkbox">
         <i class="form-icon"></i>
@@ -27,7 +27,9 @@
         <input ld-tag-autocomplete variant="small"
                name="bulk_tag_string" class="form-input input-sm" placeholder="Tag names...">
       </div>
-      <button ld-confirm-button type="submit" name="bulk_execute" class="btn btn-link btn-sm">Execute</button>
+      <button ld-confirm-button type="submit" name="bulk_execute" class="btn btn-link btn-sm">
+        <span>Execute</span>
+      </button>
 
       <label class="form-checkbox select-across d-none">
         <input type="checkbox" name="bulk_select_across">
