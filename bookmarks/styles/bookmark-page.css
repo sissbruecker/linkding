@@ -90,15 +90,17 @@
             justify-content: space-between;
         }
 
-        & .form-group:first-of-type .form-label {
-            padding-top: 0;
+        & .form-group:first-of-type {
+            margin-top: 0;
+        }
+
+        & .form-group {
+            margin-bottom: var(--unit-3);
         }
 
         & .radio-group {
-            margin-bottom: var(--unit-1);
-
             & .form-label {
-                padding-bottom: var(--unit-1);
+                margin-bottom: var(--unit-1);
             }
 
             & .form-radio.form-inline {
@@ -144,7 +146,8 @@ li[ld-bookmark-item] {
     position: relative;
     display: flex;
     gap: var(--unit-2);
-    margin-top: var(--unit-3);
+    margin-top: 0;
+    margin-bottom: var(--unit-3);
 
     & .content {
         flex: 1 1 0;
@@ -363,7 +366,7 @@ ul.bookmark-list {
     & .bulk-edit-bar {
         margin-top: -1px;
         margin-left: calc(-1 * var(--bulk-edit-bar-offset));
-        margin-bottom: var(--unit-3);
+        margin-bottom: var(--unit-4);
         max-height: 0;
         overflow: hidden;
         transition: max-height var(--bulk-edit-transition-duration);

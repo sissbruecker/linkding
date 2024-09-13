@@ -19,4 +19,8 @@
   section.about table {
     max-width: 400px;
   }
+
+  & .form-group {
+    margin-bottom: var(--unit-4);
+  }
 }

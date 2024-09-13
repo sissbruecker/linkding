@@ -12,7 +12,7 @@ section.content-area {
         flex-wrap: wrap;
         column-gap: var(--unit-5);
         padding-bottom: var(--unit-2);
-        margin-bottom: var(--unit-3);
+        margin-bottom: var(--unit-4);
 
         h2 {
             flex: 0 0 auto;

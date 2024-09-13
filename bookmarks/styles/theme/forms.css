@@ -20,8 +20,11 @@
 }
 
 .form-group {
+    &:first-of-type {
+        margin-top: var(--unit-4);
+    }
     &:not(:last-child) {
-        margin-bottom: var(--layout-spacing);
+        margin-bottom: var(--unit-4);
     }
 }
 
@@ -39,18 +42,8 @@ legend {
 .form-label {
     display: block;
     line-height: var(--line-height);
-    padding: calc(var(--control-padding-y) + var(--border-width)) 0;
+    margin-bottom: var(--unit-2);
     font-weight: 500;
-
-    &.label-sm {
-        font-size: var(--font-size-sm);
-        padding: calc(var(--control-padding-y-sm) + var(--border-width)) 0;
-    }
-
-    &.label-lg {
-        font-size: var(--font-size-lg);
-        padding: calc(var(--control-padding-y-lg) + var(--border-width)) 0;
-    }
 }
 
 /* Form element: Input */
