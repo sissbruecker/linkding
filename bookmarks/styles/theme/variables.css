@@ -35,10 +35,10 @@
     --secondary-text-color: var(--gray-500);
     --tertiary-text-color: var(--gray-500);
     --contrast-text-color: #fff;
-    --primary-text-color: #5755d9;
+    --primary-text-color: hsl(241, 63%, 55%);
 
     --link-color: var(--primary-text-color);
-    --secondary-link-color: rgba(87, 85, 217, 0.7);
+    --secondary-link-color: hsla(241, 63%, 54%, 0.8);
 
     --icon-color: var(--gray-500);
 

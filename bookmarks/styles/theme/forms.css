@@ -46,6 +46,14 @@ legend {
     font-weight: 500;
 }
 
+details summary .form-label {
+    margin-bottom: 0;
+}
+
+details[open] summary .form-label {
+    margin-bottom: var(--unit-2);
+}
+
 /* Form element: Input */
 .form-input {
     appearance: none;

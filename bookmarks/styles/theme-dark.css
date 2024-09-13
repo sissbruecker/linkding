@@ -37,17 +37,17 @@
     --secondary-text-color: var(--gray-400);
     --tertiary-text-color: var(--gray-500);
     --contrast-text-color: #fff;
-    --primary-text-color: hsl(241, 82%, 84%);
+    --primary-text-color: hsl(241, 82%, 82%);
 
     --link-color: var(--primary-text-color);
-    --secondary-link-color: hsla(241, 82%, 84%, 0.8);
+    --secondary-link-color: hsla(241, 82%, 82%, 0.8);
 
     --icon-color: var(--text-color);
 
     --border-color: var(--contrast-30);
     --secondary-border-color: var(--contrast-20);
 
-    --body-color: hsl(241, 20%, 12%);
+    --body-color: hsl(241, 15%, 14%);
     --body-color-contrast: var(--contrast-10);
 
     /* Focus */
@@ -107,14 +107,14 @@
 
 :root {
     --modal-overlay-bg-color: hsla(229, 21%, 16%, 0.55);
-    --modal-container-bg-color: hsl(241, 20%, 18%);
+    --modal-container-bg-color: hsl(241, 20%, 20%);
     --modal-container-border-color: var(--contrast-30);
     --modal-border-radius: var(--border-radius-lg);
     --modal-box-shadow: none;
 }
 
 :root {
-    --menu-bg-color: hsl(241, 20%, 18%);
+    --menu-bg-color: hsl(241, 20%, 20%);
     --menu-border-color: var(--contrast-30);
     --menu-border-radius: var(--border-radius);
     --menu-box-shadow: none;
@@ -133,7 +133,7 @@
 
 :root {
     --bookmark-title-color: var(--primary-text-color);
-    --bookmark-title-weight: 600;
+    --bookmark-title-weight: 500;
     --bookmark-description-color: var(--text-color);
     --bookmark-description-weight: 400;
     --bookmark-actions-color: var(--secondary-text-color);

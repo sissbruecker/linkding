@@ -126,7 +126,7 @@ ul.bookmark-list {
     padding: 0;
 
     /* Increase line-height for better separation within / between items */
-    line-height: 1.2rem;
+    line-height: 1.1rem;
 }
 
 @keyframes appear {
@@ -378,6 +378,11 @@ ul.bookmark-list {
         border-bottom: solid 1px var(--secondary-border-color);
     }
 
+    /* Hide section border when bulk edit bar is opened, otherwise borders overlap in dark mode due to using contrast colors */
+    &.active section:first-of-type .content-area-header {
+        border-bottom-color: transparent;
+    }
+
     /* remove overflow after opening animation, otherwise tag autocomplete overlay gets cut off */
 
     &.active:not(.activating) .bulk-edit-bar {
@@ -429,7 +434,7 @@ ul.bookmark-list {
         gap: var(--unit-2);
 
         & button {
-            padding: 0 !important;
+            --control-padding-x-sm: 0;
         }
 
         & button:hover {

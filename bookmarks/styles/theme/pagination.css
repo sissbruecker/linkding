@@ -21,7 +21,7 @@
 
             &:focus,
             &:hover {
-                color: var(--primary-color);
+                color: var(--primary-text-color);
             }
         }
 

@@ -51,6 +51,10 @@ a.active {
     text-decoration: underline;
 }
 
+summary {
+    cursor: pointer;
+}
+
 summary:focus-visible {
     outline: var(--focus-outline);
     outline-offset: var(--focus-outline-offset);
