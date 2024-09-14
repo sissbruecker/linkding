@@ -43,12 +43,12 @@ class SingleFileServiceTestCase(TestCase):
         with mock.patch("subprocess.Popen") as mock_popen:
             mock_popen.side_effect = subprocess.CalledProcessError(1, "command")
 
-            with self.assertRaises(singlefile.SingeFileError):
+            with self.assertRaises(singlefile.SingleFileError):
                 singlefile.create_snapshot("http://example.com", self.html_filepath)
 
         # so also check that it raises error if output file isn't created
         with mock.patch("subprocess.Popen"):
-            with self.assertRaises(singlefile.SingeFileError):
+            with self.assertRaises(singlefile.SingleFileError):
                 singlefile.create_snapshot("http://example.com", self.html_filepath)
 
     def test_create_snapshot_empty_options(self):
