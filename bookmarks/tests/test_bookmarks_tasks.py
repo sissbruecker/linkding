@@ -536,7 +536,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_html_snapshot_should_handle_error(self):
         bookmark = self.setup_bookmark(url="https://example.com")
 
-        self.mock_singlefile_create_snapshot.side_effect = singlefile.SingeFileError(
+        self.mock_singlefile_create_snapshot.side_effect = singlefile.SingleFileError(
             "Error"
         )
         tasks.create_html_snapshot(bookmark)

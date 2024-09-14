@@ -9,7 +9,7 @@ import subprocess
 from django.conf import settings
 
 
-class SingeFileError(Exception):
+class SingleFileError(Exception):
     pass
 
 
@@ -31,7 +31,7 @@ def create_snapshot(url: str, filepath: str):
 
         # check if the file was created
         if not os.path.exists(temp_filepath):
-            raise SingeFileError("Failed to create snapshot")
+            raise SingleFileError("Failed to create snapshot")
 
         with open(temp_filepath, "rb") as raw_file, gzip.open(
             filepath, "wb"
@@ -47,12 +47,12 @@ def create_snapshot(url: str, filepath: str):
             )
             process.terminate()
             process.wait(timeout=20)
-            raise SingeFileError("Timeout expired while creating snapshot")
+            raise SingleFileError("Timeout expired while creating snapshot")
         except subprocess.TimeoutExpired:
             # Kill the whole process group, which should also clean up any chromium
             # processes spawned by single-file
             logger.error("Timeout expired while terminating. Killing process...")
             os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-            raise SingeFileError("Timeout expired while creating snapshot")
+            raise SingleFileError("Timeout expired while creating snapshot")
     except subprocess.CalledProcessError as error:
-        raise SingeFileError(f"Failed to create snapshot: {error.stderr}")
+        raise SingleFileError(f"Failed to create snapshot: {error.stderr}")
