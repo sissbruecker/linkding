@@ -1,22 +1,22 @@
 const behaviorRegistry = {};
 const debug = false;
 
-window.addEventListener("turbo:load", () => {
-  const mutationObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.removedNodes.forEach((node) => {
-        if (node instanceof HTMLElement && !node.isConnected) {
-          destroyBehaviors(node);
-        }
-      });
-      mutation.addedNodes.forEach((node) => {
-        if (node instanceof HTMLElement && node.isConnected) {
-          applyBehaviors(node);
-        }
-      });
+const mutationObserver = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    mutation.removedNodes.forEach((node) => {
+      if (node instanceof HTMLElement && !node.isConnected) {
+        destroyBehaviors(node);
+      }
+    });
+    mutation.addedNodes.forEach((node) => {
+      if (node instanceof HTMLElement && node.isConnected) {
+        applyBehaviors(node);
+      }
     });
   });
+});
 
+window.addEventListener("turbo:load", () => {
   mutationObserver.observe(document.body, {
     childList: true,
     subtree: true,
