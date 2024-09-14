@@ -74,6 +74,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             f"""
                 <a ld-fetch="{details_modal_url}?return_url={return_url}" 
                    ld-on="click" ld-target="body|append" 
+                   data-turbo-prefetch="false"
                    href="{details_url}">View</a>
             """,
             html,
