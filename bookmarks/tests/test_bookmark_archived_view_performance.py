@@ -1,10 +1,10 @@
-from django.contrib.auth.models import User
+from django.db import connections
+from django.db.utils import DEFAULT_DB_ALIAS
 from django.test import TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-from django.db import connections
-from django.db.utils import DEFAULT_DB_ALIAS
 
+from bookmarks.models import GlobalSettings
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -20,9 +20,12 @@ class BookmarkArchivedViewPerformanceTestCase(
         return connections[DEFAULT_DB_ALIAS]
 
     def test_should_not_increase_number_of_queries_per_bookmark(self):
+        # create global settings
+        GlobalSettings.get()
+
         # create initial bookmarks
         num_initial_bookmarks = 10
-        for index in range(num_initial_bookmarks):
+        for _ in range(num_initial_bookmarks):
             self.setup_bookmark(user=self.user, is_archived=True)
 
         # capture number of queries
@@ -37,7 +40,7 @@ class BookmarkArchivedViewPerformanceTestCase(
 
         # add more bookmarks
         num_additional_bookmarks = 10
-        for index in range(num_additional_bookmarks):
+        for _ in range(num_additional_bookmarks):
             self.setup_bookmark(user=self.user, is_archived=True)
 
         # assert num queries doesn't increase

@@ -514,6 +514,7 @@ class GlobalSettings(models.Model):
     guest_profile_user = models.ForeignKey(
         get_user_model(), on_delete=models.SET_NULL, null=True, blank=True
     )
+    enable_link_prefetch = models.BooleanField(default=False, null=False)
 
     @classmethod
     def get(cls):
@@ -532,7 +533,7 @@ class GlobalSettings(models.Model):
 class GlobalSettingsForm(forms.ModelForm):
     class Meta:
         model = GlobalSettings
-        fields = ["landing_page", "guest_profile_user"]
+        fields = ["landing_page", "guest_profile_user", "enable_link_prefetch"]
 
     def __init__(self, *args, **kwargs):
         super(GlobalSettingsForm, self).__init__(*args, **kwargs)

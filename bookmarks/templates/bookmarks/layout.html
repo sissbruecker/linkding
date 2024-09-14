@@ -36,7 +36,9 @@
     <style>{{ request.user_profile.custom_css }}</style>
   {% endif %}
   <meta name="turbo-cache-control" content="no-preview">
-{#  <meta name="turbo-prefetch" content="false">#}
+  {% if not request.global_settings.enable_link_prefetch %}
+    <meta name="turbo-prefetch" content="false">
+  {% endif %}
   <script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
 </head>
 <body ld-global-shortcuts>

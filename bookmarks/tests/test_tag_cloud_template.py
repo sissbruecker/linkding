@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
-from bookmarks.middlewares import UserProfileMiddleware
+from bookmarks.middlewares import LinkdingMiddleware
 from bookmarks.models import UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 from bookmarks.views.partials import contexts
@@ -21,7 +21,7 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         rf = RequestFactory()
         request = rf.get(url)
         request.user = user or self.get_or_create_test_user()
-        middleware = UserProfileMiddleware(lambda r: HttpResponse())
+        middleware = LinkdingMiddleware(lambda r: HttpResponse())
         middleware(request)
 
         tag_cloud_context = context_type(request)

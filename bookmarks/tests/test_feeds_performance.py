@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
-from bookmarks.models import FeedToken
+from bookmarks.models import FeedToken, GlobalSettings
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -15,13 +15,16 @@ class FeedsPerformanceTestCase(TestCase, BookmarkFactoryMixin):
         self.client.force_login(user)
         self.token = FeedToken.objects.get_or_create(user=user)[0]
 
+        # create global settings
+        GlobalSettings.get()
+
     def get_connection(self):
         return connections[DEFAULT_DB_ALIAS]
 
     def test_all_max_queries(self):
         # set up some bookmarks with associated tags
         num_initial_bookmarks = 10
-        for index in range(num_initial_bookmarks):
+        for _ in range(num_initial_bookmarks):
             self.setup_bookmark(tags=[self.setup_tag()])
 
         # capture number of queries

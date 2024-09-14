@@ -6,7 +6,7 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin
 from bookmarks.middlewares import standard_profile
 
 
-class UserProfileMiddlewareTestCase(TestCase, BookmarkFactoryMixin):
+class LinkdingMiddlewareTestCase(TestCase, BookmarkFactoryMixin):
     def test_unauthenticated_user_should_use_standard_profile_by_default(self):
         response = self.client.get(reverse("login"))
 
