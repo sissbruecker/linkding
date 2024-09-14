@@ -9,7 +9,7 @@ from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils import timezone, formats
 
-from bookmarks.middlewares import UserProfileMiddleware
+from bookmarks.middlewares import LinkdingMiddleware
 from bookmarks.models import Bookmark, UserProfile, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 from bookmarks.views.partials import contexts
@@ -74,6 +74,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             f"""
                 <a ld-fetch="{details_modal_url}?return_url={return_url}" 
                    ld-on="click" ld-target="body|append" 
+                   data-turbo-prefetch="false"
                    href="{details_url}">View</a>
             """,
             html,
@@ -270,7 +271,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         rf = RequestFactory()
         request = rf.get(url)
         request.user = user or self.get_or_create_test_user()
-        middleware = UserProfileMiddleware(lambda r: HttpResponse())
+        middleware = LinkdingMiddleware(lambda r: HttpResponse())
         middleware(request)
 
         bookmark_list_context = context_type(request)

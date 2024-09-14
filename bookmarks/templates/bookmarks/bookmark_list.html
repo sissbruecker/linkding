@@ -26,7 +26,7 @@
           {% if bookmark_list.show_url %}
             <div class="url-path truncate">
               <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener"
-                class="url-display">
+                 class="url-display">
                 {{ bookmark_item.url }}
               </a>
             </div>
@@ -66,9 +66,9 @@
             {% if bookmark_item.display_date %}
               {% if bookmark_item.web_archive_snapshot_url %}
                 <a href="{{ bookmark_item.web_archive_snapshot_url }}"
-                  title="Show snapshot on the Internet Archive Wayback Machine"
-                  target="{{ bookmark_list.link_target }}"
-                  rel="noopener">
+                   title="Show snapshot on the Internet Archive Wayback Machine"
+                   target="{{ bookmark_list.link_target }}"
+                   rel="noopener">
                   {{ bookmark_item.display_date }}
                 </a>
               {% else %}
@@ -79,8 +79,9 @@
             {# View link is visible for both owned and shared bookmarks #}
             {% if bookmark_list.show_view_action %}
               <a ld-fetch="{% url 'bookmarks:details_modal' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}"
-                ld-on="click" ld-target="body|append"
-                href="{% url 'bookmarks:details' bookmark_item.id %}">View</a>
+                 ld-on="click" ld-target="body|append"
+                 data-turbo-prefetch="false"
+                 href="{% url 'bookmarks:details' bookmark_item.id %}">View</a>
             {% endif %}
             {% if bookmark_item.is_editable %}
               {# Bookmark owner actions #}

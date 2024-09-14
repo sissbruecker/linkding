@@ -8,28 +8,33 @@ class CustomRemoteUserMiddleware(RemoteUserMiddleware):
     header = settings.LD_AUTH_PROXY_USERNAME_HEADER
 
 
+default_global_settings = GlobalSettings()
+
 standard_profile = UserProfile()
 standard_profile.enable_favicons = True
 
 
-class UserProfileMiddleware:
+class LinkdingMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        # add global settings to request
+        try:
+            global_settings = GlobalSettings.get()
+        except:
+            global_settings = default_global_settings
+        request.global_settings = global_settings
+
+        # add user profile to request
         if request.user.is_authenticated:
             request.user_profile = request.user.profile
         else:
             # check if a custom profile for guests exists, otherwise use standard profile
-            guest_profile = None
-            try:
-                global_settings = GlobalSettings.get()
-                if global_settings.guest_profile_user:
-                    guest_profile = global_settings.guest_profile_user.profile
-            except:
-                pass
-
-            request.user_profile = guest_profile or standard_profile
+            if global_settings.guest_profile_user:
+                request.user_profile = global_settings.guest_profile_user.profile
+            else:
+                request.user_profile = standard_profile
 
         response = self.get_response(request)
 

@@ -68,17 +68,18 @@ class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
 
         token = FeedToken.objects.first()
         self.assertInHTML(
-            f'<a href="http://testserver/feeds/{token.key}/all">All bookmarks</a>', html
-        )
-        self.assertInHTML(
-            f'<a href="http://testserver/feeds/{token.key}/unread">Unread bookmarks</a>',
+            f'<a target="_blank" href="http://testserver/feeds/{token.key}/all">All bookmarks</a>',
             html,
         )
         self.assertInHTML(
-            f'<a href="http://testserver/feeds/{token.key}/shared">Shared bookmarks</a>',
+            f'<a target="_blank" href="http://testserver/feeds/{token.key}/unread">Unread bookmarks</a>',
             html,
         )
         self.assertInHTML(
-            f'<a href="http://testserver/feeds/shared">Public shared bookmarks</a>',
+            f'<a target="_blank" href="http://testserver/feeds/{token.key}/shared">Shared bookmarks</a>',
+            html,
+        )
+        self.assertInHTML(
+            '<a target="_blank" href="http://testserver/feeds/shared">Public shared bookmarks</a>',
             html,
         )

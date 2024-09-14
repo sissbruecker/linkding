@@ -58,3 +58,8 @@ span.confirmation {
     border-bottom: solid 1px var(--secondary-border-color);
     margin: var(--unit-5) 0;
 }
+
+/* Turbo progress bar */
+.turbo-progress-bar {
+    background-color: var(--primary-color);
+}

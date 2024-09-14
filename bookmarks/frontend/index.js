@@ -1,3 +1,4 @@
+import "@hotwired/turbo";
 import "./behaviors/bookmark-page";
 import "./behaviors/bulk-edit";
 import "./behaviors/confirm-button";

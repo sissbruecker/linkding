@@ -77,7 +77,7 @@
 
 {# Replace search input with auto-complete component #}
 <script type="application/javascript">
-  window.addEventListener("load", function () {
+  (function init() {
     const currentTagsString = '{{ tags_string }}';
     const currentTags = currentTagsString.split(' ');
     const uniqueTags = [...new Set(currentTags)]
@@ -104,5 +104,5 @@
       }
     })
     input.replaceWith(wrapper.firstElementChild);
-  });
+  })();
 </script>

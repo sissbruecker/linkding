@@ -16,9 +16,13 @@ const mutationObserver = new MutationObserver((mutations) => {
   });
 });
 
-mutationObserver.observe(document.body, {
-  childList: true,
-  subtree: true,
+window.addEventListener("turbo:load", () => {
+  mutationObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+
+  applyBehaviors(document.body);
 });
 
 export class Behavior {
