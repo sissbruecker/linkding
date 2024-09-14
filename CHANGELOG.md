@@ -1,5 +1,36 @@
 # Changelog
 
+## v1.33.0 (14/09/2024)
+
+### What's Changed
+* Theme improvements by @sissbruecker in https://github.com/sissbruecker/linkding/pull/822
+* Speed up navigation by @sissbruecker in https://github.com/sissbruecker/linkding/pull/824
+* Rename "SingeFileError" to "SingleFileError" by @curiousleo in https://github.com/sissbruecker/linkding/pull/823
+* Bump svelte from 4.2.12 to 4.2.19 by @dependabot in https://github.com/sissbruecker/linkding/pull/806
+
+### New Contributors
+* @curiousleo made their first contribution in https://github.com/sissbruecker/linkding/pull/823
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.32.0...v1.33.0
+
+---
+
+## v1.32.0 (10/09/2024)
+
+### What's Changed
+* Allow configuring landing page for unauthenticated users by @sissbruecker in https://github.com/sissbruecker/linkding/pull/808
+* Allow configuring guest user profile by @sissbruecker in https://github.com/sissbruecker/linkding/pull/809
+* Return bookmark tags in RSS feeds by @sissbruecker in https://github.com/sissbruecker/linkding/pull/810
+* Additional filter parameters for RSS feeds by @sissbruecker in https://github.com/sissbruecker/linkding/pull/811
+* Allow pre-filling notes in new bookmark form by @sissbruecker in https://github.com/sissbruecker/linkding/pull/812
+* Fix inconsistent tag order in bookmarks by @sissbruecker in https://github.com/sissbruecker/linkding/pull/819
+* Fix auto-tagging when URL includes port by @sissbruecker in https://github.com/sissbruecker/linkding/pull/820
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.31.1...v1.32.0
+
+---
+
 ## v1.31.1 (30/08/2024)
 
 ### What's Changed
