@@ -4,8 +4,9 @@ class BulkEdit extends Behavior {
   constructor(element) {
     super(element);
 
-    this.active = false;
+    this.active = element.classList.contains("active");
 
+    this.init = this.init.bind(this);
     this.onToggleActive = this.onToggleActive.bind(this);
     this.onToggleAll = this.onToggleAll.bind(this);
     this.onToggleBookmark = this.onToggleBookmark.bind(this);
@@ -13,7 +14,11 @@ class BulkEdit extends Behavior {
 
     this.init();
     // Reset when bookmarks are refreshed
-    document.addEventListener("refresh-bookmark-list-done", () => this.init());
+    document.addEventListener("refresh-bookmark-list-done", this.init);
+  }
+
+  destroy() {
+    document.removeEventListener("refresh-bookmark-list-done", this.init);
   }
 
   init() {

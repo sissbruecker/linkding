@@ -4,7 +4,12 @@ class GlobalShortcuts extends Behavior {
   constructor(element) {
     super(element);
 
-    document.addEventListener("keydown", this.onKeyDown.bind(this));
+    this.onKeyDown = this.onKeyDown.bind(this);
+    document.addEventListener("keydown", this.onKeyDown);
+  }
+
+  destroy() {
+    document.removeEventListener("keydown", this.onKeyDown);
   }
 
   onKeyDown(event) {
