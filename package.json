@@ -32,7 +32,6 @@
     "postcss-import": "^16.1.0",
     "postcss-nesting": "^13.0.0",
     "rollup-plugin-svelte": "^7.2.0",
-    "spectre.css": "^0.5.8",
     "svelte": "^4.0.0"
   },
   "devDependencies": {

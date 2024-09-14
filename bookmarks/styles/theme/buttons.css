@@ -84,6 +84,13 @@
         &:hover {
             background: var(--btn-primary-hover-bg-color);
         }
+
+        &.loading {
+            &::after {
+                border-bottom-color: var(--btn-primary-text-color);
+                border-left-color: var(--btn-primary-text-color);
+            }
+        }
     }
 
     /* Button Colors */
