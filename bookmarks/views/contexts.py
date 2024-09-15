@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator
 from django.db import models
+from django.http import Http404
 from django.urls import reverse
 
 from bookmarks import queries
@@ -39,7 +40,6 @@ class RequestContext:
         self.tag_cloud_partial_url = reverse(self.tag_cloud_partial_view)
         self.tag_modal_partial_url = reverse(self.tag_modal_partial_view)
         self.query_params = request.GET.copy()
-        self.query_params.pop("details", None)
 
     def get_url(self, view_url: str, add: dict = None, remove: dict = None) -> str:
         query_params = self.query_params.copy()
@@ -54,8 +54,11 @@ class RequestContext:
     def index(self) -> str:
         return self.get_url(self.index_url)
 
-    def action(self) -> str:
-        return self.get_url(self.action_url)
+    def action(self, remove: dict = None) -> str:
+        return self.get_url(self.action_url, remove=remove)
+
+    def details(self, bookmark_id: int) -> str:
+        return self.get_url(self.index_url, add={"details": bookmark_id})
 
     def bookmark_list_partial(self) -> str:
         return self.get_url(self.bookmark_list_partial_url)
@@ -132,7 +135,13 @@ class SharedBookmarksContext(RequestContext):
 
 
 class BookmarkItem:
-    def __init__(self, bookmark: Bookmark, user: User, profile: UserProfile) -> None:
+    def __init__(
+        self,
+        context: RequestContext,
+        bookmark: Bookmark,
+        user: User,
+        profile: UserProfile,
+    ) -> None:
         self.bookmark = bookmark
 
         is_editable = bookmark.owner == user
@@ -154,6 +163,7 @@ class BookmarkItem:
         self.is_archived = bookmark.is_archived
         self.unread = bookmark.unread
         self.owner = bookmark.owner
+        self.details_url = context.details(bookmark.id)
 
         css_classes = []
         if bookmark.unread:
@@ -200,7 +210,8 @@ class BookmarkListContext:
         models.prefetch_related_objects(bookmarks_page.object_list, "owner", "tags")
 
         self.items = [
-            BookmarkItem(bookmark, user, user_profile) for bookmark in bookmarks_page
+            BookmarkItem(request_context, bookmark, user, user_profile)
+            for bookmark in bookmarks_page
         ]
         self.is_empty = paginator.count == 0
         self.bookmarks_page = bookmarks_page
@@ -396,17 +407,18 @@ class BookmarkAssetItem:
 
 
 class BookmarkDetailsContext:
+    request_context = RequestContext
+
     def __init__(self, request: WSGIRequest, bookmark: Bookmark):
+        request_context = self.request_context(request)
+
         user = request.user
         user_profile = request.user_profile
 
-        self.edit_return_url = utils.get_safe_return_url(
-            request.GET.get("return_url"),
-            reverse("bookmarks:details", args=[bookmark.id]),
-        )
-        self.delete_return_url = utils.get_safe_return_url(
-            request.GET.get("return_url"), reverse("bookmarks:index")
-        )
+        self.edit_return_url = request_context.details(bookmark.id)
+        self.action_url = request_context.action()
+        self.delete_url = request_context.action(remove={"details": ""})
+        self.close_url = request_context.index()
 
         self.bookmark = bookmark
         self.profile = request.user_profile
@@ -438,3 +450,42 @@ class BookmarkDetailsContext:
             ),
             None,
         )
+
+
+class ActiveBookmarkDetailsContext(BookmarkDetailsContext):
+    request_context = ActiveBookmarksContext
+
+
+class ArchivedBookmarkDetailsContext(BookmarkDetailsContext):
+    request_context = ArchivedBookmarksContext
+
+
+class SharedBookmarkDetailsContext(BookmarkDetailsContext):
+    request_context = SharedBookmarksContext
+
+
+def get_details_context(
+    request: WSGIRequest, context_type
+) -> BookmarkDetailsContext | None:
+    bookmark_id = request.GET.get("details")
+    if not bookmark_id:
+        return None
+
+    try:
+        bookmark = Bookmark.objects.get(pk=int(bookmark_id))
+    except Bookmark.DoesNotExist:
+        raise Http404("Bookmark does not exist")
+
+    is_owner = bookmark.owner == request.user
+    is_shared = (
+        request.user.is_authenticated
+        and bookmark.shared
+        and bookmark.owner.profile.enable_sharing
+    )
+    is_public_shared = bookmark.shared and bookmark.owner.profile.enable_public_sharing
+    if not is_owner and not is_shared and not is_public_shared:
+        raise Http404("Bookmark does not exist")
+    if request.method == "POST" and not is_owner:
+        raise Http404("Bookmark does not exist")
+
+    return context_type(request, bookmark)

@@ -1,19 +1,20 @@
-<div ld-modal
-     ld-fetch="{% url 'bookmarks:details_modal' details.bookmark.id %}" ld-on="refresh-details"
-     ld-select=".content" ld-target=".modal.bookmark-details .content|outerHTML"
-     class="modal active bookmark-details">
-  <div class="modal-overlay" aria-label="Close"></div>
+<div id="details-modal" class="modal active bookmark-details">
+  <a href="{{ details.close_url }}">
+    <div class="modal-overlay" aria-label="Close"></div>
+  </a>
   <div class="modal-container">
     <div class="modal-header">
       {% include 'bookmarks/details/title.html' %}
-      <button class="close">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-             stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <path d="M18 6l-12 12"></path>
-          <path d="M6 6l12 12"></path>
-        </svg>
-      </button>
+      <a href="{{ details.close_url }}">
+        <button class="close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+               stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M18 6l-12 12"></path>
+            <path d="M6 6l12 12"></path>
+          </svg>
+        </button>
+      </a>
     </div>
     <div class="modal-body">
       <div class="content">

@@ -48,12 +48,17 @@ def index(request):
 
     bookmark_list = contexts.ActiveBookmarkListContext(request)
     tag_cloud = contexts.ActiveTagCloudContext(request)
+    bookmark_details = contexts.get_details_context(
+        request, contexts.ActiveBookmarkDetailsContext
+    )
+
     return render(
         request,
         "bookmarks/index.html",
         {
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
+            "details": bookmark_details,
         },
     )
 
@@ -307,6 +312,18 @@ def mark_as_read(request, bookmark_id: int):
     bookmark.save()
 
 
+def update_state(request, bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404("Bookmark does not exist")
+
+    bookmark.is_archived = request.POST.get("is_archived") == "on"
+    bookmark.unread = request.POST.get("unread") == "on"
+    bookmark.shared = request.POST.get("shared") == "on"
+    bookmark.save()
+
+
 @login_required
 def index_action(request):
     search = BookmarkSearch.from_request(request.GET)
@@ -356,6 +373,10 @@ def handle_action(request, query: QuerySet[Bookmark] = None):
         mark_as_read(request, request.POST["mark_as_read"])
     if "unshare" in request.POST:
         unshare(request, request.POST["unshare"])
+
+    # State updates
+    if "bookmark_id" in request.POST:
+        update_state(request, request.POST["bookmark_id"])
 
     # Bulk actions
     if "bulk_execute" in request.POST:

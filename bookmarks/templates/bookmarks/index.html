@@ -40,5 +40,10 @@
         {% include 'bookmarks/tag_cloud.html' %}
       </div>
     </section>
+
+    {# Bookmark details #}
+    {% if details %}
+      {% include 'bookmarks/details_modal.html' %}
+    {% endif %}
   </div>
 {% endblock %}
