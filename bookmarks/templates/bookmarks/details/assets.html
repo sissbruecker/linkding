@@ -1,7 +1,4 @@
-<div {% if details.has_pending_assets %}
-  ld-fetch="{% url 'bookmarks:details_assets' details.bookmark.id %}"
-  ld-interval="5" ld-target="self|outerHTML"
-{% endif %}>
+<div>
   {% if details.assets %}
     <div class="assets">
       {% for asset in details.assets %}

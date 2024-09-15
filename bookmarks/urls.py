@@ -36,11 +36,6 @@ urlpatterns = [
         views.bookmarks.details_modal,
         name="details_modal",
     ),
-    path(
-        "bookmarks/<int:bookmark_id>/details_assets",
-        views.bookmarks.details_assets,
-        name="details_assets",
-    ),
     # Assets
     path(
         "assets/<int:asset_id>",
