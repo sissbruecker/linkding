@@ -7,15 +7,17 @@ class ModalBehavior extends Behavior {
     this.onClose = this.onClose.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
 
-    const overlayCloseLink = element.querySelector("a:has(.modal-overlay)");
-    const closeButtonLink = element.querySelector("a:has(button.close)");
-    overlayCloseLink.addEventListener("click", this.onClose);
-    closeButtonLink.addEventListener("click", this.onClose);
+    this.overlayLink = element.querySelector("a:has(.modal-overlay)");
+    this.buttonLink = element.querySelector("a:has(button.close)");
 
+    this.overlayLink.addEventListener("click", this.onClose);
+    this.buttonLink.addEventListener("click", this.onClose);
     document.addEventListener("keydown", this.onKeyDown);
   }
 
   destroy() {
+    this.overlayLink.removeEventListener("click", this.onClose);
+    this.buttonLink.removeEventListener("click", this.onClose);
     document.removeEventListener("keydown", this.onKeyDown);
   }
 
@@ -46,7 +48,8 @@ class ModalBehavior extends Behavior {
         // Navigate to close URL if there is one
         const closeUrl = this.element.dataset.closeUrl;
         if (closeUrl) {
-          Turbo.visit(closeUrl, { action: "replace" });
+          console.log("Navigating to close URL:", closeUrl);
+          Turbo.visit(closeUrl, { action: "replace", frame: "details-modal" });
         }
       }
     }, { once: true });

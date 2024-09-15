@@ -11,12 +11,11 @@
     {% include 'bookmarks/tag_cloud.html' %}
   </template>
 </turbo-stream>
-{% if details %}
-  <turbo-stream action="replace" method="morph" target="details-modal">
-    <template>
+
+<turbo-stream action="update" method="morph" target="details-modal">
+  <template>
+    {% if details %}
       {% include 'bookmarks/details_modal.html' %}
-    </template>
-  </turbo-stream>
-{% else %}
-  <turbo-stream action="remove" target="details-modal"></turbo-stream>
-{% endif %}
+    {% endif %}
+  </template>
+</turbo-stream>

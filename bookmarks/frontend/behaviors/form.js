@@ -33,10 +33,16 @@ class AutoSubmitBehavior extends Behavior {
   constructor(element) {
     super(element);
 
-    element.addEventListener("change", () => {
-      const form = element.closest("form");
-      form.requestSubmit();
-    });
+    this.submit = this.submit.bind(this);
+    element.addEventListener("change", this.submit);
+  }
+
+  destroy() {
+    this.element.removeEventListener("change", this.submit);
+  }
+
+  submit() {
+    this.element.closest("form").requestSubmit();
   }
 }
 

@@ -1,12 +1,12 @@
-<div id="details-modal" class="modal active bookmark-details"
+<div class="modal active bookmark-details"
      ld-modal data-close-url="{{ details.close_url }}">
-  <a href="{{ details.close_url }}" data-turbo="false">
+  <a href="{{ details.close_url }}">
     <div class="modal-overlay" aria-label="Close"></div>
   </a>
   <div class="modal-container">
     <div class="modal-header">
       {% include 'bookmarks/details/title.html' %}
-      <a href="{{ details.close_url }}" data-turbo="false">
+      <a href="{{ details.close_url }}">
         <button class="close">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
