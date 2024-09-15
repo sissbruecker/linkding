@@ -355,8 +355,8 @@ def handle_action(request, query: QuerySet[Bookmark] = None):
         remove_asset(request, request.POST["remove_asset"])
 
     # State updates
-    if "bookmark_id" in request.POST:
-        update_state(request, request.POST["bookmark_id"])
+    if "update_state" in request.POST:
+        update_state(request, request.POST["update_state"])
 
     # Bulk actions
     if "bulk_execute" in request.POST:

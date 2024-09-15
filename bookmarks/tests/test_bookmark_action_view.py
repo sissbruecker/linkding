@@ -257,7 +257,7 @@ class BookmarkActionViewTestCase(
         response = self.client.post(
             reverse("bookmarks:index.action"),
             {
-                "bookmark_id": bookmark.id,
+                "update_state": bookmark.id,
                 "is_archived": "on",
                 "unread": "on",
                 "shared": "on",
@@ -277,7 +277,7 @@ class BookmarkActionViewTestCase(
         response = self.client.post(
             reverse("bookmarks:index.action"),
             {
-                "bookmark_id": bookmark.id,
+                "update_state": bookmark.id,
                 "is_archived": "on",
                 "unread": "on",
                 "shared": "on",
