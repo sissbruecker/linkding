@@ -65,7 +65,17 @@
     width: 100%;
 
     & .modal-header {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--unit-2);
         color: var(--text-color);
+
+        & h2 {
+            flex: 1 1 0;
+            align-items: flex-start;
+            font-size: 1rem;
+            margin: 0;
+        }
 
         & button.close {
             background: none;

@@ -30,7 +30,6 @@ class RequestContext:
     action_view = "bookmarks:index.action"
     bookmark_list_partial_view = "bookmarks:partials.bookmark_list.active"
     tag_cloud_partial_view = "bookmarks:partials.tag_cloud.active"
-    tag_modal_partial_view = "bookmarks:partials.tag_modal.active"
 
     def __init__(self, request: WSGIRequest):
         self.request = request
@@ -38,7 +37,6 @@ class RequestContext:
         self.action_url = reverse(self.action_view)
         self.bookmark_list_partial_url = reverse(self.bookmark_list_partial_view)
         self.tag_cloud_partial_url = reverse(self.tag_cloud_partial_view)
-        self.tag_modal_partial_url = reverse(self.tag_modal_partial_view)
         self.query_params = request.GET.copy()
         self.query_params.pop("details", None)
 
@@ -67,14 +65,11 @@ class RequestContext:
     def tag_cloud_partial(self) -> str:
         return self.get_url(self.tag_cloud_partial_url)
 
-    def tag_modal_partial(self) -> str:
-        return self.get_url(self.tag_modal_partial_url)
-
     def get_bookmark_query_set(self, search: BookmarkSearch):
-        raise Exception("Must be implemented by subclass")
+        raise NotImplementedError("Must be implemented by subclass")
 
     def get_tag_query_set(self, search: BookmarkSearch):
-        raise Exception("Must be implemented by subclass")
+        raise NotImplementedError("Must be implemented by subclass")
 
 
 class ActiveBookmarksContext(RequestContext):
@@ -82,7 +77,6 @@ class ActiveBookmarksContext(RequestContext):
     action_view = "bookmarks:index.action"
     bookmark_list_partial_view = "bookmarks:partials.bookmark_list.active"
     tag_cloud_partial_view = "bookmarks:partials.tag_cloud.active"
-    tag_modal_partial_view = "bookmarks:partials.tag_modal.active"
 
     def get_bookmark_query_set(self, search: BookmarkSearch):
         return queries.query_bookmarks(
@@ -100,7 +94,6 @@ class ArchivedBookmarksContext(RequestContext):
     action_view = "bookmarks:archived.action"
     bookmark_list_partial_view = "bookmarks:partials.bookmark_list.archived"
     tag_cloud_partial_view = "bookmarks:partials.tag_cloud.archived"
-    tag_modal_partial_view = "bookmarks:partials.tag_modal.archived"
 
     def get_bookmark_query_set(self, search: BookmarkSearch):
         return queries.query_archived_bookmarks(
@@ -118,7 +111,6 @@ class SharedBookmarksContext(RequestContext):
     action_view = "bookmarks:shared.action"
     bookmark_list_partial_view = "bookmarks:partials.bookmark_list.shared"
     tag_cloud_partial_view = "bookmarks:partials.tag_cloud.shared"
-    tag_modal_partial_view = "bookmarks:partials.tag_modal.shared"
 
     def get_bookmark_query_set(self, search: BookmarkSearch):
         user = User.objects.filter(username=search.user).first()
@@ -221,7 +213,6 @@ class BookmarkListContext:
         self.return_url = request_context.index()
         self.action_url = request_context.action()
         self.refresh_url = request_context.bookmark_list_partial()
-        self.tag_modal_url = request_context.tag_modal_partial()
 
         self.link_target = user_profile.bookmark_link_target
         self.date_display = user_profile.bookmark_date_display

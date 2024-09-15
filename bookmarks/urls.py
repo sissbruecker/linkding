@@ -69,11 +69,6 @@ urlpatterns = [
         name="partials.tag_cloud.active",
     ),
     path(
-        "bookmarks/partials/tag-modal/active",
-        partials.active_tag_modal,
-        name="partials.tag_modal.active",
-    ),
-    path(
         "bookmarks/partials/bookmark-list/archived",
         partials.archived_bookmark_list,
         name="partials.bookmark_list.archived",
@@ -84,11 +79,6 @@ urlpatterns = [
         name="partials.tag_cloud.archived",
     ),
     path(
-        "bookmarks/partials/tag-modal/archived",
-        partials.archived_tag_modal,
-        name="partials.tag_modal.archived",
-    ),
-    path(
         "bookmarks/partials/bookmark-list/shared",
         partials.shared_bookmark_list,
         name="partials.bookmark_list.shared",
@@ -97,11 +87,6 @@ urlpatterns = [
         "bookmarks/partials/tag-cloud/shared",
         partials.shared_tag_cloud,
         name="partials.tag_cloud.shared",
-    ),
-    path(
-        "bookmarks/partials/tag-modal/shared",
-        partials.shared_tag_modal,
-        name="partials.tag_modal.shared",
     ),
     # Settings
     path("settings", views.settings.general, name="settings.index"),

@@ -1,6 +1,6 @@
 import { Behavior, registerBehavior } from "./index";
 
-class ModalBehavior extends Behavior {
+class DetailsModalBehavior extends Behavior {
   constructor(element) {
     super(element);
 
@@ -41,19 +41,22 @@ class ModalBehavior extends Behavior {
   onClose(event) {
     event.preventDefault();
     this.element.classList.add("closing");
-    this.element.addEventListener("animationend", (event) => {
-      if (event.animationName === "fade-out") {
-        this.element.remove();
+    this.element.addEventListener(
+      "animationend",
+      (event) => {
+        if (event.animationName === "fade-out") {
+          this.element.remove();
 
-        // Navigate to close URL if there is one
-        const closeUrl = this.element.dataset.closeUrl;
-        if (closeUrl) {
-          console.log("Navigating to close URL:", closeUrl);
-          Turbo.visit(closeUrl, { action: "replace", frame: "details-modal" });
+          const closeUrl = this.overlayLink.href;
+          Turbo.visit(closeUrl, {
+            action: "replace",
+            frame: "details-modal",
+          });
         }
-      }
-    }, { once: true });
+      },
+      { once: true },
+    );
   }
 }
 
-registerBehavior("ld-modal", ModalBehavior);
+registerBehavior("ld-details-modal", DetailsModalBehavior);
