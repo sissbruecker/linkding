@@ -174,10 +174,6 @@ def _details(request, bookmark_id: int, template: str):
     )
 
 
-def details(request, bookmark_id: int):
-    return _details(request, bookmark_id, "bookmarks/details.html")
-
-
 def details_modal(request, bookmark_id: int):
     return _details(request, bookmark_id, "bookmarks/details_modal.html")
 

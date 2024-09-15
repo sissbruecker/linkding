@@ -5,7 +5,7 @@
   </a>
   <div class="modal-container">
     <div class="modal-header">
-      {% include 'bookmarks/details/title.html' %}
+      <h2>{{ details.bookmark.resolved_title }}</h2>
       <a href="{{ details.close_url }}">
         <button class="close">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -25,7 +25,22 @@
 
     {% if details.is_editable %}
       <div class="modal-footer">
-        {% include 'bookmarks/details/actions.html' %}
+        <div class="actions">
+          <div class="left-actions">
+            <a class="btn btn-wide"
+               href="{% url 'bookmarks:edit' details.bookmark.id %}?return_url={{ details.edit_return_url|urlencode }}">Edit</a>
+          </div>
+          <div class="right-actions">
+            <form action="{{ details.delete_url }}" method="post" data-turbo-action="replace">
+              {% csrf_token %}
+              <input type="hidden" name="disable_turbo" value="true">
+              <button ld-confirm-button class="btn btn-error btn-wide"
+                      type="submit" name="remove" value="{{ details.bookmark.id }}">
+                Delete...
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     {% endif %}
   </div>
