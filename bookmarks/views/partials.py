@@ -28,13 +28,19 @@ def active_bookmark_update(request):
 def archived_bookmark_update(request):
     bookmark_list = contexts.ArchivedBookmarkListContext(request)
     tag_cloud = contexts.ArchivedTagCloudContext(request)
-    return render_bookmark_update(request, bookmark_list, tag_cloud)
+    details = contexts.get_details_context(
+        request, contexts.ArchivedBookmarkDetailsContext
+    )
+    return render_bookmark_update(request, bookmark_list, tag_cloud, details)
 
 
 def shared_bookmark_update(request):
     bookmark_list = contexts.SharedBookmarkListContext(request)
     tag_cloud = contexts.SharedTagCloudContext(request)
-    return render_bookmark_update(request, bookmark_list, tag_cloud)
+    details = contexts.get_details_context(
+        request, contexts.SharedBookmarkDetailsContext
+    )
+    return render_bookmark_update(request, bookmark_list, tag_cloud, details)
 
 
 @login_required

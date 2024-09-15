@@ -70,12 +70,17 @@ def archived(request):
 
     bookmark_list = contexts.ArchivedBookmarkListContext(request)
     tag_cloud = contexts.ArchivedTagCloudContext(request)
+    bookmark_details = contexts.get_details_context(
+        request, contexts.ArchivedBookmarkDetailsContext
+    )
+
     return render(
         request,
         "bookmarks/archive.html",
         {
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
+            "details": bookmark_details,
         },
     )
 
@@ -86,6 +91,9 @@ def shared(request):
 
     bookmark_list = contexts.SharedBookmarkListContext(request)
     tag_cloud = contexts.SharedTagCloudContext(request)
+    bookmark_details = contexts.get_details_context(
+        request, contexts.SharedBookmarkDetailsContext
+    )
     public_only = not request.user.is_authenticated
     users = queries.query_shared_bookmark_users(
         request.user_profile, bookmark_list.search, public_only
@@ -93,7 +101,12 @@ def shared(request):
     return render(
         request,
         "bookmarks/shared.html",
-        {"bookmark_list": bookmark_list, "tag_cloud": tag_cloud, "users": users},
+        {
+            "bookmark_list": bookmark_list,
+            "tag_cloud": tag_cloud,
+            "details": bookmark_details,
+            "users": users,
+        },
     )
 
 

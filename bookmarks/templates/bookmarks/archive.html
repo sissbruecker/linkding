@@ -39,5 +39,12 @@
         {% include 'bookmarks/tag_cloud.html' %}
       </div>
     </section>
+
+    {# Bookmark details #}
+    <turbo-frame id="details-modal" target="_top">
+      {% if details %}
+        {% include 'bookmarks/details_modal.html' %}
+      {% endif %}
+    </turbo-frame>
   </div>
 {% endblock %}
