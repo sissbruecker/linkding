@@ -62,6 +62,12 @@ Values: `Integer` as seconds | Default = `60`
 
 Configures the request timeout in the uwsgi application server. This can be useful if you want to import a bookmark file with a high number of bookmarks and run into request timeouts.
 
+### `LD_SERVER_HOST`
+
+Values: Valid address for socket to bind to | Default = `[::]`
+
+Allows to set a custom host for the UWSGI server running in the container. The default creates a dual stack socket, which will respond to IPv4 and IPv6 requests. IPv4 requests are logged as IPv4-mapped IPv6 addresses, such as "::ffff:127.0.0.1". If reverting to an IPv4-only socket is desired, this can be set to "0.0.0.0".
+
 ### `LD_SERVER_PORT`
 
 Values: Valid port number | Default = `9090`
