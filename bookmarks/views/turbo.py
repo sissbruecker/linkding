@@ -3,7 +3,10 @@ from django.shortcuts import render as django_render
 
 
 def accept(request):
-    return "text/vnd.turbo-stream.html" in request.headers.get("Accept", "")
+    is_turbo_request = "text/vnd.turbo-stream.html" in request.headers.get("Accept", "")
+    disable_turbo = request.POST.get("disable_turbo", "false") == "true"
+
+    return is_turbo_request and not disable_turbo
 
 
 def render(request: HttpRequest, template_name: str, context: dict) -> HttpResponse:

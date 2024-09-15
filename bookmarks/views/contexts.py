@@ -475,7 +475,9 @@ def get_details_context(
     try:
         bookmark = Bookmark.objects.get(pk=int(bookmark_id))
     except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
+        # just ignore, might end up in a situation where the bookmark was deleted
+        # in between navigating back and forth
+        return None
 
     is_owner = bookmark.owner == request.user
     is_shared = (

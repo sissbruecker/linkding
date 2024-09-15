@@ -78,7 +78,7 @@
             {% endif %}
             {# View link is visible for both owned and shared bookmarks #}
             {% if bookmark_list.show_view_action %}
-              <a href="{{ bookmark_item.details_url }}">View</a>
+              <a href="{{ bookmark_item.details_url }}" data-turbo-action="replace">View</a>
             {% endif %}
             {% if bookmark_item.is_editable %}
               {# Bookmark owner actions #}

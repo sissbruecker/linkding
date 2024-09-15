@@ -7,10 +7,10 @@ class ModalBehavior extends Behavior {
     this.onClose = this.onClose.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
 
-    const modalOverlay = element.querySelector(".modal-overlay");
-    const closeButton = element.querySelector("button.close");
-    modalOverlay.addEventListener("click", this.onClose);
-    closeButton.addEventListener("click", this.onClose);
+    const overlayCloseLink = element.querySelector("a:has(.modal-overlay)");
+    const closeButtonLink = element.querySelector("a:has(button.close)");
+    overlayCloseLink.addEventListener("click", this.onClose);
+    closeButtonLink.addEventListener("click", this.onClose);
 
     document.addEventListener("keydown", this.onKeyDown);
   }
@@ -32,19 +32,24 @@ class ModalBehavior extends Behavior {
     }
 
     if (event.key === "Escape") {
-      event.preventDefault();
-      this.onClose();
+      this.onClose(event);
     }
   }
 
-  onClose() {
-    document.removeEventListener("keydown", this.onKeyDown);
+  onClose(event) {
+    event.preventDefault();
     this.element.classList.add("closing");
     this.element.addEventListener("animationend", (event) => {
       if (event.animationName === "fade-out") {
         this.element.remove();
+
+        // Navigate to close URL if there is one
+        const closeUrl = this.element.dataset.closeUrl;
+        if (closeUrl) {
+          Turbo.visit(closeUrl, { action: "replace" });
+        }
       }
-    });
+    }, { once: true });
   }
 }
 

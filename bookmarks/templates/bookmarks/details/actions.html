@@ -4,10 +4,11 @@
        href="{% url 'bookmarks:edit' details.bookmark.id %}?return_url={{ details.edit_return_url|urlencode }}">Edit</a>
   </div>
   <div class="right-actions">
-    <form action="{{ details.delete_url }}" method="post">
+    <form action="{{ details.delete_url }}" method="post" data-turbo-action="replace">
       {% csrf_token %}
-      <button ld-confirm-button type="submit" name="remove" value="{{ details.bookmark.id }}"
-              class="btn btn-error btn-wide">
+      <input type="hidden" name="disable_turbo" value="true">
+      <button ld-confirm-button class="btn btn-error btn-wide"
+              type="submit" name="remove" value="{{ details.bookmark.id }}">
         Delete...
       </button>
     </form>

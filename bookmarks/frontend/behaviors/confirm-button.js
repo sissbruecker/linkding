@@ -3,20 +3,11 @@ import { Behavior, registerBehavior } from "./index";
 class ConfirmButtonBehavior extends Behavior {
   constructor(element) {
     super(element);
-    element.dataset.type = element.type;
-    element.dataset.name = element.name;
-    element.dataset.value = element.value;
-    element.removeAttribute("type");
-    element.removeAttribute("name");
-    element.removeAttribute("value");
     element.addEventListener("click", this.onClick.bind(this));
   }
 
   destroy() {
     this.reset();
-    this.element.setAttribute("type", this.element.dataset.type);
-    this.element.setAttribute("name", this.element.dataset.name);
-    this.element.setAttribute("value", this.element.dataset.value);
   }
 
   onClick(event) {
@@ -56,9 +47,9 @@ class ConfirmButtonBehavior extends Behavior {
     cancelButton.addEventListener("click", this.reset.bind(this));
 
     const confirmButton = document.createElement(this.element.nodeName);
-    confirmButton.type = this.element.dataset.type;
-    confirmButton.name = this.element.dataset.name;
-    confirmButton.value = this.element.dataset.value;
+    confirmButton.type = this.element.type;
+    confirmButton.name = this.element.name;
+    confirmButton.value = this.element.value;
     confirmButton.innerText = question ? "Yes" : "Confirm";
     confirmButton.className = buttonClasses;
     confirmButton.addEventListener("click", this.reset.bind(this));
