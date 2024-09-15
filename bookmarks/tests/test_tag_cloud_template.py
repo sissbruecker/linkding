@@ -8,7 +8,7 @@ from django.test import TestCase, RequestFactory
 from bookmarks.middlewares import LinkdingMiddleware
 from bookmarks.models import UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
-from bookmarks.views.partials import contexts
+from bookmarks.views import contexts
 
 
 class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):

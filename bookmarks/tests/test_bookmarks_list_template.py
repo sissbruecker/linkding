@@ -12,7 +12,7 @@ from django.utils import timezone, formats
 from bookmarks.middlewares import LinkdingMiddleware
 from bookmarks.models import Bookmark, UserProfile, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
-from bookmarks.views.partials import contexts
+from bookmarks.views import contexts
 
 
 class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
