@@ -129,68 +129,6 @@ def search_action(request):
     return HttpResponseRedirect(url)
 
 
-def _details(request, bookmark_id: int, template: str):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
-    is_owner = bookmark.owner == request.user
-    is_shared = (
-        request.user.is_authenticated
-        and bookmark.shared
-        and bookmark.owner.profile.enable_sharing
-    )
-    is_public_shared = bookmark.shared and bookmark.owner.profile.enable_public_sharing
-    if not is_owner and not is_shared and not is_public_shared:
-        raise Http404("Bookmark does not exist")
-
-    if request.method == "POST":
-        if not is_owner:
-            raise Http404("Bookmark does not exist")
-
-        return_url = get_safe_return_url(
-            request.GET.get("return_url"),
-            reverse("bookmarks:details", args=[bookmark.id]),
-        )
-
-        if "remove_asset" in request.POST:
-            asset_id = request.POST["remove_asset"]
-            try:
-                asset = bookmark.bookmarkasset_set.get(pk=asset_id)
-            except BookmarkAsset.DoesNotExist:
-                raise Http404("Asset does not exist")
-            asset.delete()
-        if "create_snapshot" in request.POST:
-            tasks.create_html_snapshot(bookmark)
-        if "upload_asset" in request.POST:
-            file = request.FILES.get("upload_asset_file")
-            if not file:
-                return HttpResponseBadRequest("No file uploaded")
-            bookmark_actions.upload_asset(bookmark, file)
-        else:
-            bookmark.is_archived = request.POST.get("is_archived") == "on"
-            bookmark.unread = request.POST.get("unread") == "on"
-            bookmark.shared = request.POST.get("shared") == "on"
-            bookmark.save()
-
-        return HttpResponseRedirect(return_url)
-
-    details_context = contexts.BookmarkDetailsContext(request, bookmark)
-
-    return render(
-        request,
-        template,
-        {
-            "details": details_context,
-        },
-    )
-
-
-def details_modal(request, bookmark_id: int):
-    return _details(request, bookmark_id, "bookmarks/details_modal.html")
-
-
 def convert_tag_string(tag_string: str):
     # Tag strings coming from inputs are space-separated, however services.bookmarks functions expect comma-separated
     # strings
