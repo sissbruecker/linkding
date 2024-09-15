@@ -321,6 +321,37 @@ def mark_as_read(request, bookmark_id: int):
     bookmark.save()
 
 
+def create_html_snapshot(request, bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404("Bookmark does not exist")
+
+    tasks.create_html_snapshot(bookmark)
+
+
+def upload_asset(request, bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404("Bookmark does not exist")
+
+    file = request.FILES.get("upload_asset_file")
+    if not file:
+        raise ValueError("No file uploaded")
+
+    bookmark_actions.upload_asset(bookmark, file)
+
+
+def remove_asset(request, asset_id: int):
+    try:
+        asset = BookmarkAsset.objects.get(pk=asset_id, bookmark__owner=request.user)
+    except BookmarkAsset.DoesNotExist:
+        raise Http404("Asset does not exist")
+
+    asset.delete()
+
+
 def update_state(request, bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
@@ -382,6 +413,12 @@ def handle_action(request, query: QuerySet[Bookmark] = None):
         mark_as_read(request, request.POST["mark_as_read"])
     if "unshare" in request.POST:
         unshare(request, request.POST["unshare"])
+    if "create_html_snapshot" in request.POST:
+        create_html_snapshot(request, request.POST["create_html_snapshot"])
+    if "upload_asset" in request.POST:
+        upload_asset(request, request.POST["upload_asset"])
+    if "remove_asset" in request.POST:
+        remove_asset(request, request.POST["remove_asset"])
 
     # State updates
     if "bookmark_id" in request.POST:

@@ -29,15 +29,25 @@ class UploadButton extends Behavior {
     this.fileInput.addEventListener("change", this.onChange);
   }
 
-  onClick() {
+  destroy() {
+    this.element.removeEventListener("click", this.onClick);
+    this.fileInput.removeEventListener("change", this.onChange);
+  }
+
+  onClick(event) {
+    event.preventDefault();
     this.fileInput.click();
   }
 
   onChange() {
+    // Check if the file input has a file selected
+    if (!this.fileInput.files.length) {
+      return;
+    }
     const form = this.fileInput.closest("form");
-    const event = new Event("submit", { cancelable: true });
-    event.submitter = this.element;
-    form.dispatchEvent(event);
+    form.requestSubmit(this.element);
+    // remove selected file so it doesn't get submitted again
+    this.fileInput.value = "";
   }
 }
 

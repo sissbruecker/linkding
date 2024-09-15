@@ -1,7 +1,7 @@
 {% load static %}
 {% load shared %}
 
-<form action="{{ details.action_url }}" method="post">
+<form action="{{ details.action_url }}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <input type="hidden" name="bookmark_id" value="{{ details.bookmark.id }}">
 

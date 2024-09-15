@@ -1,10 +1,14 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import model_to_dict
 from django.http import HttpResponse
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from bookmarks.models import Bookmark
+from bookmarks.models import Bookmark, BookmarkAsset
+from bookmarks.services import tasks, bookmarks
 from bookmarks.tests.helpers import (
     BookmarkFactoryMixin,
     BookmarkListTestMixin,
@@ -162,6 +166,129 @@ class BookmarkActionViewTestCase(
 
         self.assertEqual(response.status_code, 404)
         self.assertTrue(bookmark.shared)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_html_snapshot(self):
+        bookmark = self.setup_bookmark()
+        with patch.object(tasks, "_create_html_snapshot_task"):
+            self.client.post(
+                reverse("bookmarks:index.action"),
+                {
+                    "create_html_snapshot": [bookmark.id],
+                },
+            )
+            self.assertEqual(bookmark.bookmarkasset_set.count(), 1)
+            asset = bookmark.bookmarkasset_set.first()
+            self.assertEqual(asset.asset_type, BookmarkAsset.TYPE_SNAPSHOT)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_can_only_create_html_snapshot_for_own_bookmarks(self):
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        with patch.object(tasks, "_create_html_snapshot_task"):
+            response = self.client.post(
+                reverse("bookmarks:index.action"),
+                {
+                    "create_html_snapshot": [bookmark.id],
+                },
+            )
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(bookmark.bookmarkasset_set.count(), 0)
+
+    def test_upload_asset(self):
+        bookmark = self.setup_bookmark()
+        file_content = b"file content"
+        upload_file = SimpleUploadedFile("test.txt", file_content)
+
+        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
+            response = self.client.post(
+                reverse("bookmarks:index.action"),
+                {"upload_asset": bookmark.id, "upload_asset_file": upload_file},
+            )
+            self.assertEqual(response.status_code, 302)
+
+            mock_upload_asset.assert_called_once()
+
+            args, _ = mock_upload_asset.call_args
+            self.assertEqual(args[0], bookmark)
+
+            upload_file = args[1]
+            self.assertEqual(upload_file.name, "test.txt")
+
+    def test_can_only_upload_asset_for_own_bookmarks(self):
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        file_content = b"file content"
+        upload_file = SimpleUploadedFile("test.txt", file_content)
+
+        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
+            response = self.client.post(
+                reverse("bookmarks:index.action"),
+                {"upload_asset": bookmark.id, "upload_asset_file": upload_file},
+            )
+            self.assertEqual(response.status_code, 404)
+
+            mock_upload_asset.assert_not_called()
+
+    def test_remove_asset(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark)
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"), {"remove_asset": asset.id}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(BookmarkAsset.objects.filter(id=asset.id).exists())
+
+    def test_can_only_remove_own_asset(self):
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        asset = self.setup_asset(bookmark)
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"), {"remove_asset": asset.id}
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(BookmarkAsset.objects.filter(id=asset.id).exists())
+
+    def test_update_state(self):
+        bookmark = self.setup_bookmark()
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"),
+            {
+                "bookmark_id": bookmark.id,
+                "is_archived": "on",
+                "unread": "on",
+                "shared": "on",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        bookmark.refresh_from_db()
+        self.assertTrue(bookmark.unread)
+        self.assertTrue(bookmark.is_archived)
+        self.assertTrue(bookmark.shared)
+
+    def test_can_only_update_own_bookmark_state(self):
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"),
+            {
+                "bookmark_id": bookmark.id,
+                "is_archived": "on",
+                "unread": "on",
+                "shared": "on",
+            },
+        )
+        self.assertEqual(response.status_code, 404)
+
+        bookmark.refresh_from_db()
+        self.assertFalse(bookmark.unread)
+        self.assertFalse(bookmark.is_archived)
+        self.assertFalse(bookmark.shared)
 
     def test_bulk_archive(self):
         bookmark1 = self.setup_bookmark()
