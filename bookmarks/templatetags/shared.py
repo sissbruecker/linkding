@@ -28,12 +28,13 @@ def add_tag_to_query(context, tag_name: str):
     params = context.request.GET.copy()
 
     # Append to or create query string
-    if params.__contains__("q"):
-        query_string = params.__getitem__("q") + " "
-    else:
-        query_string = ""
-    query_string = query_string + "#" + tag_name
-    params.__setitem__("q", query_string)
+    query_string = params.get("q", "")
+    query_string = (query_string + " #" + tag_name).strip()
+    params.setlist("q", [query_string])
+
+    # Remove details ID and page number
+    params.pop("details", None)
+    params.pop("page", None)
 
     return params.urlencode()
 
@@ -61,6 +62,10 @@ def remove_tag_from_query(context, tag_name: str):
         # Rebuild query string
         query_string = " ".join(query_parts)
         params.__setitem__("q", query_string)
+
+    # Remove details ID and page number
+    params.pop("details", None)
+    params.pop("page", None)
 
     return params.urlencode()
 
