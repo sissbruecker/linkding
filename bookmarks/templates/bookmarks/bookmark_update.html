@@ -12,8 +12,10 @@
   </template>
 </turbo-stream>
 {% if details %}
-  <turbo-stream action="update" target="details-modal">
-    {% include 'bookmarks/details_modal.html' %}
+  <turbo-stream action="replace" method="morph" target="details-modal">
+    <template>
+      {% include 'bookmarks/details_modal.html' %}
+    </template>
   </turbo-stream>
 {% else %}
   <turbo-stream action="remove" target="details-modal"></turbo-stream>

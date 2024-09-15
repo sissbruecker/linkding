@@ -35,7 +35,7 @@ class AutoSubmitBehavior extends Behavior {
 
     element.addEventListener("change", () => {
       const form = element.closest("form");
-      form.dispatchEvent(new Event("submit", { cancelable: true }));
+      form.requestSubmit();
     });
   }
 }

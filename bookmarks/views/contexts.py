@@ -40,6 +40,7 @@ class RequestContext:
         self.tag_cloud_partial_url = reverse(self.tag_cloud_partial_view)
         self.tag_modal_partial_url = reverse(self.tag_modal_partial_view)
         self.query_params = request.GET.copy()
+        self.query_params.pop("details", None)
 
     def get_url(self, view_url: str, add: dict = None, remove: dict = None) -> str:
         query_params = self.query_params.copy()
@@ -51,11 +52,11 @@ class RequestContext:
         encoded_params = query_params.urlencode()
         return view_url + "?" + encoded_params if encoded_params else view_url
 
-    def index(self) -> str:
-        return self.get_url(self.index_url)
+    def index(self, add: dict = None, remove: dict = None) -> str:
+        return self.get_url(self.index_url, add=add, remove=remove)
 
-    def action(self, remove: dict = None) -> str:
-        return self.get_url(self.action_url, remove=remove)
+    def action(self, add: dict = None, remove: dict = None) -> str:
+        return self.get_url(self.action_url, add=add, remove=remove)
 
     def details(self, bookmark_id: int) -> str:
         return self.get_url(self.index_url, add={"details": bookmark_id})
@@ -416,8 +417,8 @@ class BookmarkDetailsContext:
         user_profile = request.user_profile
 
         self.edit_return_url = request_context.details(bookmark.id)
-        self.action_url = request_context.action()
-        self.delete_url = request_context.action(remove={"details": ""})
+        self.action_url = request_context.action(add={"details": bookmark.id})
+        self.delete_url = request_context.action()
         self.close_url = request_context.index()
 
         self.bookmark = bookmark

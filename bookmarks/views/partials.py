@@ -4,13 +4,14 @@ from django.shortcuts import render
 from bookmarks.views import contexts, turbo
 
 
-def render_bookmark_update(request, bookmark_list, tag_cloud):
+def render_bookmark_update(request, bookmark_list, tag_cloud, details):
     return turbo.render(
         request,
         "bookmarks/bookmark_update.html",
         {
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
+            "details": details,
         },
     )
 
@@ -18,7 +19,10 @@ def render_bookmark_update(request, bookmark_list, tag_cloud):
 def active_bookmark_update(request):
     bookmark_list = contexts.ActiveBookmarkListContext(request)
     tag_cloud = contexts.ActiveTagCloudContext(request)
-    return render_bookmark_update(request, bookmark_list, tag_cloud)
+    details = contexts.get_details_context(
+        request, contexts.ActiveBookmarkDetailsContext
+    )
+    return render_bookmark_update(request, bookmark_list, tag_cloud, details)
 
 
 def archived_bookmark_update(request):
