@@ -3,11 +3,14 @@ import { Behavior, registerBehavior } from "./index";
 class ConfirmButtonBehavior extends Behavior {
   constructor(element) {
     super(element);
-    element.addEventListener("click", this.onClick.bind(this));
+
+    this.onClick = this.onClick.bind(this);
+    element.addEventListener("click", this.onClick);
   }
 
   destroy() {
     this.reset();
+    this.element.removeEventListener("click", this.onClick);
   }
 
   onClick(event) {
