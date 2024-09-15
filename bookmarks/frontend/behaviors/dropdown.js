@@ -16,6 +16,10 @@ class DropdownBehavior extends Behavior {
     });
   }
 
+  destroy() {
+    this.close();
+  }
+
   open() {
     this.element.classList.add("active");
     document.addEventListener("click", this.onOutsideClick);

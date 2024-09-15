@@ -89,9 +89,9 @@
     }
     const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
     const input = document.querySelector('#search input[name="q"]')
-    const wrapper = document.createElement('div')
+    const container = document.createElement('div')
     new linkding.SearchAutoComplete({
-      target: wrapper,
+      target: container,
       props: {
         name: 'q',
         placeholder: 'Search for words or #tags',
@@ -103,6 +103,12 @@
         search,
       }
     })
-    input.replaceWith(wrapper.firstElementChild);
+
+    const autoComplete = container.firstElementChild;
+    input.replaceWith(autoComplete);
+
+    document.addEventListener("turbo:before-cache", () => {
+      autoComplete.replaceWith(input);
+    }, {once: true});
   })();
 </script>

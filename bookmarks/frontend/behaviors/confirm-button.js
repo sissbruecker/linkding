@@ -13,7 +13,10 @@ class ConfirmButtonBehavior extends Behavior {
   }
 
   destroy() {
-    Behavior.interacting = false;
+    this.reset();
+    this.element.setAttribute("type", this.element.dataset.type);
+    this.element.setAttribute("name", this.element.dataset.name);
+    this.element.setAttribute("value", this.element.dataset.value);
   }
 
   onClick(event) {
@@ -70,7 +73,10 @@ class ConfirmButtonBehavior extends Behavior {
   reset() {
     setTimeout(() => {
       Behavior.interacting = false;
-      this.container.remove();
+      if (this.container) {
+        this.container.remove();
+        this.container = null;
+      }
       this.element.classList.remove("d-none");
     });
   }

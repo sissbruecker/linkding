@@ -5,23 +5,35 @@ import { ApiClient } from "../api";
 class TagAutocomplete extends Behavior {
   constructor(element) {
     super(element);
-    const wrapper = document.createElement("div");
+    const input = element.querySelector("input");
+    if (!input) {
+      console.warning("TagAutocomplete: input element not found");
+      return;
+    }
+
+    const container = document.createElement("div");
     const apiBaseUrl = document.documentElement.dataset.apiBaseUrl || "";
     const apiClient = new ApiClient(apiBaseUrl);
 
     new TagAutoCompleteComponent({
-      target: wrapper,
+      target: container,
       props: {
-        id: element.id,
-        name: element.name,
-        value: element.value,
-        placeholder: element.getAttribute("placeholder") || "",
+        id: input.id,
+        name: input.name,
+        value: input.value,
+        placeholder: input.getAttribute("placeholder") || "",
         apiClient: apiClient,
-        variant: element.getAttribute("variant"),
+        variant: input.getAttribute("variant"),
       },
     });
 
-    element.replaceWith(wrapper.firstElementChild);
+    this.input = input;
+    this.autocomplete = container.firstElementChild;
+    input.replaceWith(this.autocomplete);
+  }
+
+  destroy() {
+    this.autocomplete.replaceWith(this.input);
   }
 }
 
