@@ -11,7 +11,7 @@ from django.http import (
 from django.shortcuts import render
 from django.urls import reverse
 
-from bookmarks import queries
+from bookmarks import queries, utils
 from bookmarks.models import (
     Bookmark,
     BookmarkAsset,
@@ -19,6 +19,7 @@ from bookmarks.models import (
     BookmarkSearch,
     build_tag_string,
 )
+from bookmarks.services import bookmarks as bookmark_actions, tasks
 from bookmarks.services.bookmarks import (
     create_bookmark,
     update_bookmark,
@@ -34,9 +35,8 @@ from bookmarks.services.bookmarks import (
     share_bookmarks,
     unshare_bookmarks,
 )
-from bookmarks.services import bookmarks as bookmark_actions, tasks
 from bookmarks.utils import get_safe_return_url
-from bookmarks.views.partials import contexts
+from bookmarks.views import contexts, partials, turbo
 
 _default_page_size = 30
 
@@ -311,22 +311,40 @@ def mark_as_read(request, bookmark_id: int):
 def index_action(request):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_bookmarks(request.user, request.user_profile, search)
-    return action(request, query)
+    handle_action(request, query)
+
+    if turbo.accept(request):
+        return partials.active_bookmark_update(request)
+
+    return utils.redirect_with_query(request, reverse("bookmarks:index"))
 
 
 @login_required
 def archived_action(request):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
-    return action(request, query)
+    handle_action(request, query)
+
+    if turbo.accept(request):
+        return partials.archived_bookmark_update(request)
+
+    return utils.redirect_with_query(request, reverse("bookmarks:archived"))
 
 
 @login_required
 def shared_action(request):
-    return action(request)
+    if "bulk_execute" in request.POST:
+        return HttpResponseBadRequest("View does not support bulk actions")
+
+    handle_action(request)
+
+    if turbo.accept(request):
+        return partials.shared_bookmark_update(request)
+
+    return utils.redirect_with_query(request, reverse("bookmarks:shared"))
 
 
-def action(request, query: QuerySet[Bookmark] = None):
+def handle_action(request, query: QuerySet[Bookmark] = None):
     # Single bookmark actions
     if "archive" in request.POST:
         archive(request, request.POST["archive"])
@@ -342,7 +360,7 @@ def action(request, query: QuerySet[Bookmark] = None):
     # Bulk actions
     if "bulk_execute" in request.POST:
         if query is None:
-            return HttpResponseBadRequest("View does not support bulk actions")
+            raise ValueError("Query must be provided for bulk actions")
 
         bulk_action = request.POST["bulk_action"]
 
@@ -374,11 +392,6 @@ def action(request, query: QuerySet[Bookmark] = None):
             share_bookmarks(bookmark_ids, request.user)
         if "bulk_unshare" == bulk_action:
             unshare_bookmarks(bookmark_ids, request.user)
-
-    return_url = get_safe_return_url(
-        request.GET.get("return_url"), reverse("bookmarks:index")
-    )
-    return HttpResponseRedirect(return_url)
 
 
 @login_required

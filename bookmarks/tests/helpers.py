@@ -2,6 +2,7 @@ import random
 import logging
 from datetime import datetime
 from typing import List
+from unittest import TestCase
 
 from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
@@ -218,6 +219,75 @@ class BookmarkFactoryMixin:
 class HtmlTestMixin:
     def make_soup(self, html: str):
         return BeautifulSoup(html, features="html.parser")
+
+
+class BookmarkListTestMixin(TestCase, HtmlTestMixin):
+    def assertVisibleBookmarks(
+        self, response, bookmarks: List[Bookmark], link_target: str = "_blank"
+    ):
+        soup = self.make_soup(response.content.decode())
+        bookmark_list = soup.select_one(
+            f'ul.bookmark-list[data-bookmarks-total="{len(bookmarks)}"]'
+        )
+        self.assertIsNotNone(bookmark_list)
+
+        bookmark_items = bookmark_list.select("li[ld-bookmark-item]")
+        self.assertEqual(len(bookmark_items), len(bookmarks))
+
+        for bookmark in bookmarks:
+            bookmark_item = bookmark_list.select_one(
+                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
+            )
+            self.assertIsNotNone(bookmark_item)
+
+    def assertInvisibleBookmarks(
+        self, response, bookmarks: List[Bookmark], link_target: str = "_blank"
+    ):
+        soup = self.make_soup(response.content.decode())
+
+        for bookmark in bookmarks:
+            bookmark_item = soup.select_one(
+                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
+            )
+            self.assertIsNone(bookmark_item)
+
+
+class TagCloudTestMixin(TestCase, HtmlTestMixin):
+    def assertVisibleTags(self, response, tags: List[Tag]):
+        soup = self.make_soup(response.content.decode())
+        tag_cloud = soup.select_one("div.tag-cloud")
+        self.assertIsNotNone(tag_cloud)
+
+        tag_items = tag_cloud.select("a[data-is-tag-item]")
+        self.assertEqual(len(tag_items), len(tags))
+
+        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
+
+        for tag in tags:
+            self.assertTrue(tag.name in tag_item_names)
+
+    def assertInvisibleTags(self, response, tags: List[Tag]):
+        soup = self.make_soup(response.content.decode())
+        tag_items = soup.select("a[data-is-tag-item]")
+
+        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
+
+        for tag in tags:
+            self.assertFalse(tag.name in tag_item_names)
+
+    def assertSelectedTags(self, response, tags: List[Tag]):
+        soup = self.make_soup(response.content.decode())
+        selected_tags = soup.select_one("p.selected-tags")
+        self.assertIsNotNone(selected_tags)
+
+        tag_list = selected_tags.select("a")
+        self.assertEqual(len(tag_list), len(tags))
+
+        for tag in tags:
+            self.assertTrue(
+                tag.name in selected_tags.text,
+                msg=f"Selected tags do not contain: {tag.name}",
+            )
 
 
 class LinkdingApiTestCase(APITestCase):

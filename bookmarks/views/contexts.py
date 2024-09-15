@@ -54,8 +54,8 @@ class RequestContext:
     def index(self) -> str:
         return self.get_url(self.index_url)
 
-    def action(self, return_url: str) -> str:
-        return self.get_url(self.action_url, add={"return_url": return_url})
+    def action(self) -> str:
+        return self.get_url(self.action_url)
 
     def bookmark_list_partial(self) -> str:
         return self.get_url(self.bookmark_list_partial_url)
@@ -207,7 +207,7 @@ class BookmarkListContext:
         self.bookmarks_total = paginator.count
 
         self.return_url = request_context.index()
-        self.action_url = request_context.action(return_url=self.return_url)
+        self.action_url = request_context.action()
         self.refresh_url = request_context.bookmark_list_partial()
         self.tag_modal_url = request_context.tag_modal_partial()
 

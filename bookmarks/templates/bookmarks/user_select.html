@@ -14,9 +14,11 @@
   </div>
 </form>
 <script>
-  const form = document.getElementById('user-select');
-  const select = form.querySelector('select');
-  select.addEventListener('change', () => {
-    form.submit();
-  });
+  (function init() {
+    const form = document.getElementById('user-select');
+    const select = form.querySelector('select');
+    select.addEventListener('change', () => {
+      form.submit();
+    });
+  })();
 </script>

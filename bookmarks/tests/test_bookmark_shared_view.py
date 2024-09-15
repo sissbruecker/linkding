@@ -6,11 +6,16 @@ from django.test import TestCase
 from django.urls import reverse
 
 from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
-from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
+from bookmarks.tests.helpers import (
+    BookmarkFactoryMixin,
+    BookmarkListTestMixin,
+    TagCloudTestMixin,
+)
 
 
-class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-
+class BookmarkSharedViewTestCase(
+    TestCase, BookmarkFactoryMixin, BookmarkListTestMixin, TagCloudTestMixin
+):
     def authenticate(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
@@ -23,57 +28,6 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             html,
             count=count,
         )
-
-    def assertVisibleBookmarks(
-        self, response, bookmarks: List[Bookmark], link_target: str = "_blank"
-    ):
-        soup = self.make_soup(response.content.decode())
-        bookmark_list = soup.select_one(
-            f'ul.bookmark-list[data-bookmarks-total="{len(bookmarks)}"]'
-        )
-        self.assertIsNotNone(bookmark_list)
-
-        bookmark_items = bookmark_list.select("li[ld-bookmark-item]")
-        self.assertEqual(len(bookmark_items), len(bookmarks))
-
-        for bookmark in bookmarks:
-            bookmark_item = bookmark_list.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
-            )
-            self.assertIsNotNone(bookmark_item)
-
-    def assertInvisibleBookmarks(
-        self, response, bookmarks: List[Bookmark], link_target: str = "_blank"
-    ):
-        soup = self.make_soup(response.content.decode())
-
-        for bookmark in bookmarks:
-            bookmark_item = soup.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
-            )
-            self.assertIsNone(bookmark_item)
-
-    def assertVisibleTags(self, response, tags: List[Tag]):
-        soup = self.make_soup(response.content.decode())
-        tag_cloud = soup.select_one("div.tag-cloud")
-        self.assertIsNotNone(tag_cloud)
-
-        tag_items = tag_cloud.select("a[data-is-tag-item]")
-        self.assertEqual(len(tag_items), len(tags))
-
-        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
-
-        for tag in tags:
-            self.assertTrue(tag.name in tag_item_names)
-
-    def assertInvisibleTags(self, response, tags: List[Tag]):
-        soup = self.make_soup(response.content.decode())
-        tag_items = soup.select("a[data-is-tag-item]")
-
-        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
-
-        for tag in tags:
-            self.assertFalse(tag.name in tag_item_names)
 
     def assertVisibleUserOptions(self, response, users: List[User]):
         html = response.content.decode()
@@ -593,7 +547,7 @@ class BookmarkSharedViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertEqual(
             actions_form.attrs["action"],
-            "/bookmarks/shared/action?q=%23foo&return_url=%2Fbookmarks%2Fshared%3Fq%3D%2523foo",
+            "/bookmarks/shared/action?q=%23foo",
         )
 
     def test_encode_search_params(self):

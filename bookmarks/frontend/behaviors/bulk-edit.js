@@ -13,12 +13,12 @@ class BulkEdit extends Behavior {
     this.onActionSelected = this.onActionSelected.bind(this);
 
     this.init();
-    // Reset when bookmarks are refreshed
-    document.addEventListener("refresh-bookmark-list-done", this.init);
+    // Reset when bookmarks are updated
+    document.addEventListener("bookmark-list-updated", this.init);
   }
 
   destroy() {
-    document.removeEventListener("refresh-bookmark-list-done", this.init);
+    document.removeEventListener("bookmark-list-updated", this.init);
   }
 
   init() {

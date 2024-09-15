@@ -18,14 +18,11 @@
         </div>
       </div>
 
-      <form ld-form ld-fire="refresh-bookmark-list,refresh-tag-cloud"
-            class="bookmark-actions"
+      <form class="bookmark-actions"
             action="{{ bookmark_list.action_url|safe }}"
             method="post" autocomplete="off">
         {% csrf_token %}
-        <div ld-fetch="{{ bookmark_list.refresh_url }}" ld-on="refresh-bookmark-list"
-             ld-fire="refresh-bookmark-list-done"
-             class="bookmark-list-container">
+        <div id="bookmark-list-container">
           {% include 'bookmarks/bookmark_list.html' %}
         </div>
       </form>
@@ -43,8 +40,7 @@
       <div class="content-area-header">
         <h2>Tags</h2>
       </div>
-      <div ld-fetch="{{ tag_cloud.refresh_url }}" ld-on="refresh-tag-cloud"
-           class="tag-cloud-container">
+      <div id="tag-cloud-container">
         {% include 'bookmarks/tag_cloud.html' %}
       </div>
     </section>
