@@ -1,16 +1,13 @@
 from bs4 import BeautifulSoup
-from django.db.models import QuerySet
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
-from bookmarks.models import BookmarkSearch, Tag
+from bookmarks.models import BookmarkSearch
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
 class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-    def render_template(
-        self, url: str, tags: QuerySet[Tag] = Tag.objects.all(), mode: str = ""
-    ):
+    def render_template(self, url: str, mode: str = ""):
         rf = RequestFactory()
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
@@ -21,32 +18,31 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             {
                 "request": request,
                 "search": search,
-                "tags": tags,
                 "mode": mode,
             },
         )
         template_to_render = Template(
-            "{% load bookmarks %}" "{% bookmark_search search tags mode %}"
+            "{% load bookmarks %} {% bookmark_search search mode %}"
         )
         return template_to_render.render(context)
 
     def assertHiddenInput(self, form: BeautifulSoup, name: str, value: str = None):
-        input = form.select_one(f'input[name="{name}"][type="hidden"]')
-        self.assertIsNotNone(input)
+        element = form.select_one(f'input[name="{name}"][type="hidden"]')
+        self.assertIsNotNone(element)
 
         if value is not None:
-            self.assertEqual(input["value"], value)
+            self.assertEqual(element["value"], value)
 
     def assertNoHiddenInput(self, form: BeautifulSoup, name: str):
-        input = form.select_one(f'input[name="{name}"][type="hidden"]')
-        self.assertIsNone(input)
+        element = form.select_one(f'input[name="{name}"][type="hidden"]')
+        self.assertIsNone(element)
 
     def assertSearchInput(self, form: BeautifulSoup, name: str, value: str = None):
-        input = form.select_one(f'input[name="{name}"][type="search"]')
-        self.assertIsNotNone(input)
+        element = form.select_one(f'input[name="{name}"][type="search"]')
+        self.assertIsNotNone(element)
 
         if value is not None:
-            self.assertEqual(input["value"], value)
+            self.assertEqual(element["value"], value)
 
     def assertSelect(self, form: BeautifulSoup, name: str, value: str = None):
         select = form.select_one(f'select[name="{name}"]')
