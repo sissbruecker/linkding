@@ -38,7 +38,7 @@ class BookmarkSharedViewTestCase(
                 f'<option value="{user.username}">{user.username}</option>'
             )
         user_select_html = f"""
-        <select name="user" class="form-select" required="" id="id_user">
+        <select name="user" class="form-select" id="id_user" ld-auto-submit>
             {''.join(user_options)}
         </select>
         """

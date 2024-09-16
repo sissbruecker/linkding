@@ -282,7 +282,7 @@ class BookmarkSearchForm(forms.Form):
     ]
 
     q = forms.CharField()
-    user = forms.ChoiceField()
+    user = forms.ChoiceField(required=False)
     sort = forms.ChoiceField(choices=SORT_CHOICES)
     shared = forms.ChoiceField(choices=FILTER_SHARED_CHOICES, widget=forms.RadioSelect)
     unread = forms.ChoiceField(choices=FILTER_UNREAD_CHOICES, widget=forms.RadioSelect)
