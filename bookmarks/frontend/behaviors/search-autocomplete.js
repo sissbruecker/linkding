@@ -15,7 +15,7 @@ class SearchAutocomplete extends Behavior {
     new SearchAutoCompleteComponent({
       target: container,
       props: {
-        name: 'q',
+        name: "q",
         placeholder: input.getAttribute("placeholder") || "",
         value: input.value,
         linkTarget: input.dataset.linkTarget,
@@ -24,7 +24,7 @@ class SearchAutocomplete extends Behavior {
           user: input.dataset.user,
           shared: input.dataset.shared,
           unread: input.dataset.unread,
-        }
+        },
       },
     });
 
