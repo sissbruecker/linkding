@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.34.0 (16/09/2024)
+
+### What's Changed
+* Fix several issues around browser back navigation by @sissbruecker in https://github.com/sissbruecker/linkding/pull/825
+* Speed up response times for certain actions by @sissbruecker in https://github.com/sissbruecker/linkding/pull/829
+* Implement IPv6 capability by @itz-Jana in https://github.com/sissbruecker/linkding/pull/826
+
+### New Contributors
+* @itz-Jana made their first contribution in https://github.com/sissbruecker/linkding/pull/826
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.33.0...v1.34.0
+
+---
+
 ## v1.33.0 (14/09/2024)
 
 ### What's Changed
