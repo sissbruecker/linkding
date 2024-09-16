@@ -1,5 +1,5 @@
 import { Behavior, registerBehavior } from "./index";
-import SearchAutoCompleteComponent from "../components/SearchAutocomplete.svelte";
+import SearchAutoCompleteComponent from "../components/SearchAutoComplete.svelte";
 
 class SearchAutocomplete extends Behavior {
   constructor(element) {
