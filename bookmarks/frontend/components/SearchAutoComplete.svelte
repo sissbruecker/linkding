@@ -1,5 +1,7 @@
 <script>
   import {SearchHistory} from "./SearchHistory";
+  import {api} from "../api";
+  import {cache} from "../cache";
   import {clampText, debounce, getCurrentWord, getCurrentWordBounds} from "../util";
 
   const searchHistory = new SearchHistory()
@@ -7,9 +9,7 @@
   export let name;
   export let placeholder;
   export let value;
-  export let tags;
   export let mode = '';
-  export let apiClient;
   export let search;
   export let linkTarget = '_blank';
 
@@ -88,17 +88,18 @@
     }
 
     // Tag suggestions
+    const tags = await cache.getTags();
     let tagSuggestions = []
     const currentWord = getCurrentWord(input)
     if (currentWord && currentWord.length > 1 && currentWord[0] === '#') {
       const searchTag = currentWord.substring(1, currentWord.length)
-      tagSuggestions = (tags || []).filter(tagName => tagName.toLowerCase().indexOf(searchTag.toLowerCase()) === 0)
+      tagSuggestions = (tags || []).filter(tag => tag.name.toLowerCase().indexOf(searchTag.toLowerCase()) === 0)
         .slice(0, 5)
-        .map(tagName => ({
+        .map(tag => ({
           type: 'tag',
           index: nextIndex(),
-          label: `#${tagName}`,
-          tagName: tagName
+          label: `#${tag.name}`,
+          tagName: tag.name
         }))
     }
 
@@ -119,7 +120,7 @@
         ...search,
         q: value
       }
-      const fetchedBookmarks = await apiClient.listBookmarks(suggestionSearch, {limit: 5, offset: 0, path})
+      const fetchedBookmarks = await api.listBookmarks(suggestionSearch, {limit: 5, offset: 0, path})
       bookmarks = fetchedBookmarks.map(bookmark => {
         const fullLabel = bookmark.title || bookmark.website_title || bookmark.url
         const label = clampText(fullLabel, 60)

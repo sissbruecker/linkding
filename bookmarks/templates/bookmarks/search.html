@@ -78,16 +78,12 @@
 {# Replace search input with auto-complete component #}
 <script type="application/javascript">
   (function init() {
-    const currentTagsString = '{{ tags_string }}';
-    const currentTags = currentTagsString.split(' ');
-    const uniqueTags = [...new Set(currentTags)]
     const search = {
       q: '{{ search.q }}',
       user: '{{ search.user }}',
       shared: '{{ search.shared }}',
       unread: '{{ search.unread }}',
     }
-    const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
     const input = document.querySelector('#search input[name="q"]')
     const container = document.createElement('div')
     new linkding.SearchAutoComplete({
@@ -96,10 +92,8 @@
         name: 'q',
         placeholder: 'Search for words or #tags',
         value: input.value,
-        tags: uniqueTags,
         mode: '{{ mode }}',
         linkTarget: '{{ request.user_profile.bookmark_link_target }}',
-        apiClient,
         search,
       }
     })

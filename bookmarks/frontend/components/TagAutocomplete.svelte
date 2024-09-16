@@ -1,14 +1,13 @@
 <script>
+  import {cache} from "../cache";
   import {getCurrentWord, getCurrentWordBounds} from "../util";
 
   export let id;
   export let name;
   export let value;
   export let placeholder;
-  export let apiClient;
   export let variant = 'default';
 
-  let tags = [];
   let isFocus = false;
   let isOpen = false;
   let input = null;
@@ -16,18 +15,6 @@
 
   let suggestions = [];
   let selectedIndex = 0;
-
-  init();
-
-  async function init() {
-    // For now we cache all tags on load as the template did before
-    try {
-      tags = await apiClient.getTags({limit: 5000, offset: 0});
-      tags.sort((left, right) => left.name.toLowerCase().localeCompare(right.name.toLowerCase()))
-    } catch (e) {
-      console.warn('TagAutocomplete: Error loading tag list');
-    }
-  }
 
   function handleFocus() {
     isFocus = true;
@@ -38,9 +25,10 @@
     close();
   }
 
-  function handleInput(e) {
+  async function handleInput(e) {
     input = e.target;
 
+    const tags = await cache.getTags();
     const word = getCurrentWord(input);
 
     suggestions = word

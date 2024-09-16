@@ -9,6 +9,8 @@ import "./behaviors/details-modal";
 import "./behaviors/global-shortcuts";
 import "./behaviors/tag-autocomplete";
 import "./behaviors/tag-modal";
+
 export { default as TagAutoComplete } from "./components/TagAutocomplete.svelte";
 export { default as SearchAutoComplete } from "./components/SearchAutoComplete.svelte";
-export { ApiClient } from "./api";
+export { api } from "./api";
+export { cache } from "./cache";

@@ -1,6 +1,5 @@
 import { Behavior, registerBehavior } from "./index";
 import TagAutoCompleteComponent from "../components/TagAutocomplete.svelte";
-import { ApiClient } from "../api";
 
 class TagAutocomplete extends Behavior {
   constructor(element) {
@@ -12,8 +11,6 @@ class TagAutocomplete extends Behavior {
     }
 
     const container = document.createElement("div");
-    const apiBaseUrl = document.documentElement.dataset.apiBaseUrl || "";
-    const apiClient = new ApiClient(apiBaseUrl);
 
     new TagAutoCompleteComponent({
       target: container,
@@ -22,7 +19,6 @@ class TagAutocomplete extends Behavior {
         name: input.name,
         value: input.value,
         placeholder: input.getAttribute("placeholder") || "",
-        apiClient: apiClient,
         variant: input.getAttribute("variant"),
       },
     });
