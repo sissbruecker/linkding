@@ -3,7 +3,6 @@ import "./behaviors/bookmark-page";
 import "./behaviors/bulk-edit";
 import "./behaviors/confirm-button";
 import "./behaviors/dropdown";
-import "./behaviors/fetch";
 import "./behaviors/form";
 import "./behaviors/details-modal";
 import "./behaviors/global-shortcuts";

@@ -1,4 +1,4 @@
-import { Behavior, fireEvents, registerBehavior } from "./index";
+import { Behavior, registerBehavior } from "./index";
 
 class AutoSubmitBehavior extends Behavior {
   constructor(element) {
