@@ -1,0 +1,10 @@
+<html>
+{% include 'bookmarks/head.html' %}
+<body>
+<turbo-frame id="details-modal">
+  {% if details %}
+    {% include 'bookmarks/details/modal.html' %}
+  {% endif %}
+</turbo-frame>
+</body>
+</html>

@@ -581,3 +581,15 @@ class BookmarkSharedViewTestCase(
         url = reverse("bookmarks:shared") + "?page=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
+
+    def test_turbo_frame_details_modal_renders_details_modal_update(self):
+        bookmark = self.setup_bookmark()
+        url = reverse("bookmarks:shared") + f"?bookmark_id={bookmark.id}"
+        response = self.client.get(url, headers={"Turbo-Frame": "details-modal"})
+
+        self.assertEqual(200, response.status_code)
+
+        soup = self.make_soup(response.content.decode())
+        self.assertIsNotNone(soup.select_one("turbo-frame#details-modal"))
+        self.assertIsNone(soup.select_one("#bookmark-list-container"))
+        self.assertIsNone(soup.select_one("#tag-cloud-container"))

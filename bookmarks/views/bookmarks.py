@@ -52,7 +52,7 @@ def index(request):
         request, contexts.ActiveBookmarkDetailsContext
     )
 
-    return render(
+    return render_bookmarks_view(
         request,
         "bookmarks/index.html",
         {
@@ -74,7 +74,7 @@ def archived(request):
         request, contexts.ArchivedBookmarkDetailsContext
     )
 
-    return render(
+    return render_bookmarks_view(
         request,
         "bookmarks/archive.html",
         {
@@ -98,7 +98,7 @@ def shared(request):
     users = queries.query_shared_bookmark_users(
         request.user_profile, bookmark_list.search, public_only
     )
-    return render(
+    return render_bookmarks_view(
         request,
         "bookmarks/shared.html",
         {
@@ -107,6 +107,21 @@ def shared(request):
             "details": bookmark_details,
             "users": users,
         },
+    )
+
+
+def render_bookmarks_view(request, template_name, context):
+    if turbo.is_frame(request, "details-modal"):
+        return render(
+            request,
+            "bookmarks/updates/details-modal-frame.html",
+            context,
+        )
+
+    return render(
+        request,
+        template_name,
+        context,
     )
 
 

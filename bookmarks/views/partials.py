@@ -2,9 +2,9 @@ from bookmarks.views import contexts, turbo
 
 
 def render_bookmark_update(request, bookmark_list, tag_cloud, details):
-    return turbo.render(
+    return turbo.stream(
         request,
-        "bookmarks/bookmark_update.html",
+        "bookmarks/updates/bookmark_view_stream.html",
         {
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
