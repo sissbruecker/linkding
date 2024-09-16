@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Bootstrap script that gets executed in new Docker containers
 
+LD_SERVER_HOST="${LD_SERVER_HOST:-[::]}"
 LD_SERVER_PORT="${LD_SERVER_PORT:-9090}"
 
 # Create data folder if it does not exist
@@ -32,4 +33,4 @@ if [ "$LD_DISABLE_BACKGROUND_TASKS" != "True" ]; then
 fi
 
 # Start uwsgi server
-exec uwsgi --http :$LD_SERVER_PORT uwsgi.ini
+exec uwsgi --http $LD_SERVER_HOST:$LD_SERVER_PORT uwsgi.ini
