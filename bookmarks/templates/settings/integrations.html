@@ -27,7 +27,7 @@
         <li>After saving the bookmark the linkding window closes and you are back on your website</li>
       </ul>
       <p>Drag the following bookmarklet to your browser's toolbar:</p>
-      <a href="javascript: {% include 'bookmarks/bookmarklet.js' %}"
+      <a href="javascript: {% include 'bookmarks/bookmarklet.js' %}" data-turbo="false"
          class="btn btn-primary">📎 Add bookmark</a>
     </section>
 
@@ -43,7 +43,7 @@
         <strong>Please treat this token as you would any other credential.</strong>
         Any party with access to this token can access and manage all your bookmarks.
         If you think that a token was compromised you can revoke (delete) it in the <a
-          href="{% url 'admin:authtoken_tokenproxy_changelist' %}">admin panel</a>.
+          target="_blank" href="{% url 'admin:authtoken_tokenproxy_changelist' %}">admin panel</a>.
         After deleting the token, a new one will be generated when you reload this settings page.
       </p>
     </section>
