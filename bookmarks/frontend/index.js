@@ -7,6 +7,7 @@ import "./behaviors/fetch";
 import "./behaviors/form";
 import "./behaviors/details-modal";
 import "./behaviors/global-shortcuts";
+import "./behaviors/search-autocomplete";
 import "./behaviors/tag-autocomplete";
 import "./behaviors/tag-modal";
 

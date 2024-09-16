@@ -6,7 +6,7 @@ class TagAutocomplete extends Behavior {
     super(element);
     const input = element.querySelector("input");
     if (!input) {
-      console.warning("TagAutocomplete: input element not found");
+      console.warn("TagAutocomplete: input element not found");
       return;
     }
 
