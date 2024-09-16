@@ -1,14 +1,11 @@
 import datetime
 import re
-from unittest.mock import patch
 
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import formats, timezone
 
 from bookmarks.models import BookmarkAsset, UserProfile
-from bookmarks.services import bookmarks, tasks
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
@@ -17,23 +14,23 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         user = self.get_or_create_test_user()
         self.client.force_login(user)
 
-    def get_view_name(self):
-        return "bookmarks:details_modal"
-
-    def get_base_url(self, bookmark):
-        return reverse(self.get_view_name(), args=[bookmark.id])
-
     def get_details_form(self, soup, bookmark):
-        expected_url = reverse("bookmarks:details", args=[bookmark.id])
-        return soup.find("form", {"action": expected_url})
+        form_url = reverse("bookmarks:index.action") + f"?details={bookmark.id}"
+        return soup.find("form", {"action": form_url, "enctype": "multipart/form-data"})
 
-    def get_details(self, bookmark, return_url=""):
-        url = self.get_base_url(bookmark)
-        if return_url:
-            url += f"?return_url={return_url}"
+    def get_index_details_modal(self, bookmark):
+        url = reverse("bookmarks:index") + f"?details={bookmark.id}"
         response = self.client.get(url)
         soup = self.make_soup(response.content)
-        return soup
+        modal = soup.find("turbo-frame", {"id": "details-modal"})
+        return modal
+
+    def get_shared_details_modal(self, bookmark):
+        url = reverse("bookmarks:shared") + f"?details={bookmark.id}"
+        response = self.client.get(url)
+        soup = self.make_soup(response.content)
+        modal = soup.find("turbo-frame", {"id": "details-modal"})
+        return modal
 
     def find_section(self, soup, section_name):
         dt = soup.find("dt", string=section_name)
@@ -54,35 +51,68 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def find_asset(self, soup, asset):
         return soup.find("div", {"data-asset-id": asset.id})
 
-    def details_route_access_test(self, view_name: str, shareable: bool):
+    def details_route_access_test(self):
         # own bookmark
         bookmark = self.setup_bookmark()
-
-        response = self.client.get(reverse(view_name, args=[bookmark.id]))
+        response = self.client.get(
+            reverse("bookmarks:index") + f"?details={bookmark.id}"
+        )
         self.assertEqual(response.status_code, 200)
 
         # other user's bookmark
         other_user = self.setup_user()
         bookmark = self.setup_bookmark(user=other_user)
-
-        response = self.client.get(reverse(view_name, args=[bookmark.id]))
+        response = self.client.get(
+            reverse("bookmarks:index") + f"?details={bookmark.id}"
+        )
         self.assertEqual(response.status_code, 404)
 
-        # non-existent bookmark
-        response = self.client.get(reverse(view_name, args=[9999]))
-        self.assertEqual(response.status_code, 404)
+        # non-existent bookmark - just returns without modal in response
+        response = self.client.get(reverse("bookmarks:index") + "?details=9999")
+        self.assertEqual(response.status_code, 200)
 
         # guest user
         self.client.logout()
-        response = self.client.get(reverse(view_name, args=[bookmark.id]))
-        self.assertEqual(response.status_code, 404 if shareable else 302)
+        response = self.client.get(
+            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+        )
+        self.assertEqual(response.status_code, 404)
 
-    def details_route_sharing_access_test(self, view_name: str, shareable: bool):
+    def test_access(self):
+        # own bookmark
+        bookmark = self.setup_bookmark()
+        response = self.client.get(
+            reverse("bookmarks:index") + f"?details={bookmark.id}"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # other user's bookmark
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        response = self.client.get(
+            reverse("bookmarks:index") + f"?details={bookmark.id}"
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # non-existent bookmark - just returns without modal in response
+        response = self.client.get(reverse("bookmarks:index") + "?details=9999")
+        self.assertEqual(response.status_code, 200)
+
+        # guest user
+        self.client.logout()
+        response = self.client.get(
+            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_access_with_sharing(self):
         # shared bookmark, sharing disabled
         other_user = self.setup_user()
         bookmark = self.setup_bookmark(shared=True, user=other_user)
 
-        response = self.client.get(reverse(view_name, args=[bookmark.id]))
+        response = self.client.get(
+            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+        )
         self.assertEqual(response.status_code, 404)
 
         # shared bookmark, sharing enabled
@@ -90,37 +120,31 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.enable_sharing = True
         profile.save()
 
-        response = self.client.get(reverse(view_name, args=[bookmark.id]))
-        self.assertEqual(response.status_code, 200 if shareable else 404)
+        response = self.client.get(
+            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+        )
+        self.assertEqual(response.status_code, 200)
 
         # shared bookmark, guest user, no public sharing
         self.client.logout()
-        response = self.client.get(reverse(view_name, args=[bookmark.id]))
-        self.assertEqual(response.status_code, 404 if shareable else 302)
+        response = self.client.get(
+            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+        )
+        self.assertEqual(response.status_code, 404)
 
         # shared bookmark, guest user, public sharing
         profile.enable_public_sharing = True
         profile.save()
 
-        response = self.client.get(reverse(view_name, args=[bookmark.id]))
-        self.assertEqual(response.status_code, 200 if shareable else 302)
-
-    def test_access(self):
-        self.details_route_access_test(self.get_view_name(), True)
-
-    def test_access_with_sharing(self):
-        self.details_route_sharing_access_test(self.get_view_name(), True)
-
-    def test_assets_access(self):
-        self.details_route_access_test("bookmarks:details_assets", True)
-
-    def test_assets_access_with_sharing(self):
-        self.details_route_sharing_access_test("bookmarks:details_assets", True)
+        response = self.client.get(
+            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+        )
+        self.assertEqual(response.status_code, 200)
 
     def test_displays_title(self):
         # with title
         bookmark = self.setup_bookmark(title="Test title")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         title = soup.find("h2")
         self.assertIsNotNone(title)
@@ -128,7 +152,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # with website title
         bookmark = self.setup_bookmark(title="", website_title="Website title")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         title = soup.find("h2")
         self.assertIsNotNone(title)
@@ -136,7 +160,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # with URL only
         bookmark = self.setup_bookmark(title="", website_title="")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         title = soup.find("h2")
         self.assertIsNotNone(title)
@@ -145,7 +169,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_website_link(self):
         # basics
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.url)
         self.assertIsNotNone(link)
         self.assertEqual(link["href"], bookmark.url)
@@ -153,7 +177,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # favicons disabled
         bookmark = self.setup_bookmark(favicon_file="example.png")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.url)
         image = link.select_one("img")
         self.assertIsNone(image)
@@ -164,14 +188,14 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.save()
 
         bookmark = self.setup_bookmark(favicon_file="")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.url)
         image = link.select_one("img")
         self.assertIsNone(image)
 
         # favicons enabled, favicon present
         bookmark = self.setup_bookmark(favicon_file="example.png")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.url)
         image = link.select_one("img")
         self.assertIsNotNone(image)
@@ -180,7 +204,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_reader_mode_link(self):
         # no latest snapshot
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         self.assertEqual(self.count_weblinks(soup), 2)
 
         # snapshot is not complete
@@ -194,7 +218,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             asset_type=BookmarkAsset.TYPE_SNAPSHOT,
             status=BookmarkAsset.STATUS_FAILURE,
         )
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         self.assertEqual(self.count_weblinks(soup), 2)
 
         # not a snapshot
@@ -203,7 +227,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             asset_type="upload",
             status=BookmarkAsset.STATUS_COMPLETE,
         )
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         self.assertEqual(self.count_weblinks(soup), 2)
 
         # snapshot is complete
@@ -212,7 +236,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             asset_type=BookmarkAsset.TYPE_SNAPSHOT,
             status=BookmarkAsset.STATUS_COMPLETE,
         )
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         self.assertEqual(self.count_weblinks(soup), 3)
 
         reader_mode_url = reverse("bookmarks:assets.read", args=[asset.id])
@@ -221,7 +245,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
     def test_internet_archive_link_with_snapshot_url(self):
         bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         self.assertIsNotNone(link)
         self.assertEqual(link["href"], bookmark.web_archive_snapshot_url)
@@ -231,7 +255,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark(
             web_archive_snapshot_url="https://example.com/", favicon_file="example.png"
         )
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         image = link.select_one("svg")
         self.assertIsNone(image)
@@ -244,7 +268,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark(
             web_archive_snapshot_url="https://example.com/", favicon_file=""
         )
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         image = link.select_one("svg")
         self.assertIsNone(image)
@@ -253,7 +277,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark(
             web_archive_snapshot_url="https://example.com/", favicon_file="example.png"
         )
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         image = link.select_one("svg")
         self.assertIsNotNone(image)
@@ -267,7 +291,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             "https://web.archive.org/web/20230811214511/https://example.com/"
         )
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, fallback_web_archive_url)
         self.assertIsNotNone(link)
         self.assertEqual(link["href"], fallback_web_archive_url)
@@ -281,7 +305,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_BLANK
         profile.save()
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         website_link = self.find_weblink(soup, bookmark.url)
         self.assertIsNotNone(website_link)
@@ -297,7 +321,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_SELF
         profile.save()
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         website_link = self.find_weblink(soup, bookmark.url)
         self.assertIsNotNone(website_link)
@@ -312,13 +336,13 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_preview_image(self):
         # without image
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         image = soup.select_one("div.preview-image img")
         self.assertIsNone(image)
 
         # with image
         bookmark = self.setup_bookmark(preview_image_file="example.png")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         image = soup.select_one("div.preview-image img")
         self.assertIsNone(image)
 
@@ -328,13 +352,13 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.save()
 
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         image = soup.select_one("div.preview-image img")
         self.assertIsNone(image)
 
         # preview images enabled, image present
         bookmark = self.setup_bookmark(preview_image_file="example.png")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         image = soup.select_one("div.preview-image img")
         self.assertIsNotNone(image)
         self.assertEqual(image["src"], "/static/example.png")
@@ -342,18 +366,15 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_status(self):
         # renders form
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         form = self.get_details_form(soup, bookmark)
         self.assertIsNotNone(form)
-        self.assertEqual(
-            form["action"], reverse("bookmarks:details", args=[bookmark.id])
-        )
         self.assertEqual(form["method"], "post")
 
         # sharing disabled
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.get_section(soup, "Status")
 
         archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
@@ -369,7 +390,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.save()
 
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.get_section(soup, "Status")
 
         archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
@@ -381,7 +402,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # unchecked
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.get_section(soup, "Status")
 
         archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
@@ -393,7 +414,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # checked
         bookmark = self.setup_bookmark(is_archived=True, unread=True, shared=True)
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.get_section(soup, "Status")
 
         archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
@@ -406,106 +427,29 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_status_visibility(self):
         # own bookmark
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.find_section(soup, "Status")
         self.assertIsNotNone(section)
 
         # other user's bookmark
         other_user = self.setup_user(enable_sharing=True)
         bookmark = self.setup_bookmark(user=other_user, shared=True)
-        soup = self.get_details(bookmark)
+        soup = self.get_shared_details_modal(bookmark)
         section = self.find_section(soup, "Status")
         self.assertIsNone(section)
 
         # guest user
         self.client.logout()
+        other_user.profile.enable_public_sharing = True
+        other_user.profile.save()
         bookmark = self.setup_bookmark(user=other_user, shared=True)
-        soup = self.get_details(bookmark)
+        soup = self.get_shared_details_modal(bookmark)
         section = self.find_section(soup, "Status")
         self.assertIsNone(section)
-
-    def test_status_update(self):
-        bookmark = self.setup_bookmark()
-
-        # update status
-        response = self.client.post(
-            self.get_base_url(bookmark),
-            {"is_archived": "on", "unread": "on", "shared": "on"},
-        )
-        self.assertEqual(response.status_code, 302)
-
-        bookmark.refresh_from_db()
-        self.assertTrue(bookmark.is_archived)
-        self.assertTrue(bookmark.unread)
-        self.assertTrue(bookmark.shared)
-
-        # update individual status
-        response = self.client.post(
-            self.get_base_url(bookmark),
-            {"is_archived": "", "unread": "on", "shared": ""},
-        )
-        self.assertEqual(response.status_code, 302)
-
-        bookmark.refresh_from_db()
-        self.assertFalse(bookmark.is_archived)
-        self.assertTrue(bookmark.unread)
-        self.assertFalse(bookmark.shared)
-
-    def test_status_update_access(self):
-        # no sharing
-        other_user = self.setup_user()
-        bookmark = self.setup_bookmark(user=other_user)
-        response = self.client.post(
-            self.get_base_url(bookmark),
-            {"is_archived": "on", "unread": "on", "shared": "on"},
-        )
-        self.assertEqual(response.status_code, 404)
-
-        # shared, sharing disabled
-        bookmark = self.setup_bookmark(user=other_user, shared=True)
-        response = self.client.post(
-            self.get_base_url(bookmark),
-            {"is_archived": "on", "unread": "on", "shared": "on"},
-        )
-        self.assertEqual(response.status_code, 404)
-
-        # shared, sharing enabled
-        bookmark = self.setup_bookmark(user=other_user, shared=True)
-        profile = other_user.profile
-        profile.enable_sharing = True
-        profile.save()
-
-        response = self.client.post(
-            self.get_base_url(bookmark),
-            {"is_archived": "on", "unread": "on", "shared": "on"},
-        )
-        self.assertEqual(response.status_code, 404)
-
-        # shared, public sharing enabled
-        bookmark = self.setup_bookmark(user=other_user, shared=True)
-        profile = other_user.profile
-        profile.enable_public_sharing = True
-        profile.save()
-
-        response = self.client.post(
-            self.get_base_url(bookmark),
-            {"is_archived": "on", "unread": "on", "shared": "on"},
-        )
-        self.assertEqual(response.status_code, 404)
-
-        # guest user
-        self.client.logout()
-        bookmark = self.setup_bookmark(user=other_user, shared=True)
-
-        response = self.client.post(
-            self.get_base_url(bookmark),
-            {"is_archived": "on", "unread": "on", "shared": "on"},
-        )
-        self.assertEqual(response.status_code, 404)
 
     def test_date_added(self):
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.get_section(soup, "Date added")
 
         expected_date = formats.date_format(bookmark.date_added, "DATETIME_FORMAT")
@@ -515,7 +459,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_tags(self):
         # without tags
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         section = self.find_section(soup, "Tags")
         self.assertIsNone(section)
@@ -523,7 +467,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # with tags
         bookmark = self.setup_bookmark(tags=[self.setup_tag(), self.setup_tag()])
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.get_section(soup, "Tags")
 
         for tag in bookmark.tags.all():
@@ -535,14 +479,14 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_description(self):
         # without description
         bookmark = self.setup_bookmark(description="", website_description="")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         section = self.find_section(soup, "Description")
         self.assertIsNone(section)
 
         # with description
         bookmark = self.setup_bookmark(description="Test description")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         section = self.get_section(soup, "Description")
         self.assertEqual(section.text.strip(), bookmark.description)
@@ -551,7 +495,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark(
             description="", website_description="Website description"
         )
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         section = self.get_section(soup, "Description")
         self.assertEqual(section.text.strip(), bookmark.website_description)
@@ -559,14 +503,14 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_notes(self):
         # without notes
         bookmark = self.setup_bookmark()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         section = self.find_section(soup, "Notes")
         self.assertIsNone(section)
 
         # with notes
         bookmark = self.setup_bookmark(notes="Test notes")
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         section = self.get_section(soup, "Notes")
         self.assertEqual(section.decode_contents(), "<p>Test notes</p>")
@@ -575,52 +519,42 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark()
 
         # with default return URL
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         edit_link = soup.find("a", string="Edit")
         self.assertIsNotNone(edit_link)
-        details_url = reverse("bookmarks:details", args=[bookmark.id])
-        expected_url = (
-            reverse("bookmarks:edit", args=[bookmark.id]) + "?return_url=" + details_url
-        )
-        self.assertEqual(edit_link["href"], expected_url)
-
-        # with custom return URL
-        soup = self.get_details(bookmark, return_url="/custom")
-        edit_link = soup.find("a", string="Edit")
-        self.assertIsNotNone(edit_link)
-        expected_url = (
-            reverse("bookmarks:edit", args=[bookmark.id]) + "?return_url=/custom"
-        )
-        self.assertEqual(edit_link["href"], expected_url)
+        details_url = reverse("bookmarks:index") + f"?details={bookmark.id}"
+        expected_url = "/bookmarks/1/edit?return_url=/bookmarks%3Fdetails%3D1"
+        self.assertEqual(expected_url, edit_link["href"])
 
     def test_delete_button(self):
         bookmark = self.setup_bookmark()
 
-        # basics
-        soup = self.get_details(bookmark)
-        delete_button = soup.find("button", {"type": "submit", "name": "remove"})
+        modal = self.get_index_details_modal(bookmark)
+        delete_button = modal.find("button", {"type": "submit", "name": "remove"})
         self.assertIsNotNone(delete_button)
-        self.assertEqual(delete_button.text.strip(), "Delete...")
-        self.assertEqual(delete_button["value"], str(bookmark.id))
+        self.assertEqual("Delete...", delete_button.text.strip())
+        self.assertEqual(str(bookmark.id), delete_button["value"])
 
         form = delete_button.find_parent("form")
         self.assertIsNotNone(form)
-        expected_url = reverse("bookmarks:index.action") + f"?return_url=/bookmarks"
-        self.assertEqual(form["action"], expected_url)
-
-        # with custom return URL
-        soup = self.get_details(bookmark, return_url="/custom")
-        delete_button = soup.find("button", {"type": "submit", "name": "remove"})
-        form = delete_button.find_parent("form")
-        expected_url = reverse("bookmarks:index.action") + f"?return_url=/custom"
-        self.assertEqual(form["action"], expected_url)
+        expected_url = reverse("bookmarks:index.action")
+        self.assertEqual(expected_url, form["action"])
 
     def test_actions_visibility(self):
+        # own bookmark
+        bookmark = self.setup_bookmark()
+
+        soup = self.get_index_details_modal(bookmark)
+        edit_link = soup.find("a", string="Edit")
+        delete_button = soup.find("button", {"type": "submit", "name": "remove"})
+        self.assertIsNotNone(edit_link)
+        self.assertIsNotNone(delete_button)
+
         # with sharing
         other_user = self.setup_user(enable_sharing=True)
         bookmark = self.setup_bookmark(user=other_user, shared=True)
 
-        soup = self.get_details(bookmark)
+        soup = self.get_shared_details_modal(bookmark)
         edit_link = soup.find("a", string="Edit")
         delete_button = soup.find("button", {"type": "submit", "name": "remove"})
         self.assertIsNone(edit_link)
@@ -632,7 +566,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.save()
         bookmark = self.setup_bookmark(user=other_user, shared=True)
 
-        soup = self.get_details(bookmark)
+        soup = self.get_shared_details_modal(bookmark)
         edit_link = soup.find("a", string="Edit")
         delete_button = soup.find("button", {"type": "submit", "name": "remove"})
         self.assertIsNone(edit_link)
@@ -642,7 +576,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.client.logout()
         bookmark = self.setup_bookmark(user=other_user, shared=True)
 
-        soup = self.get_details(bookmark)
+        soup = self.get_shared_details_modal(bookmark)
         edit_link = soup.find("a", string="Edit")
         delete_button = soup.find("button", {"type": "submit", "name": "remove"})
         self.assertIsNone(edit_link)
@@ -651,7 +585,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_assets_visibility_no_snapshot_support(self):
         bookmark = self.setup_bookmark()
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.find_section(soup, "Files")
         self.assertIsNone(section)
 
@@ -659,7 +593,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
     def test_assets_visibility_with_snapshot_support(self):
         bookmark = self.setup_bookmark()
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.find_section(soup, "Files")
         self.assertIsNotNone(section)
 
@@ -668,7 +602,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # no assets
         bookmark = self.setup_bookmark()
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.get_section(soup, "Files")
         asset_list = section.find("div", {"class": "assets"})
         self.assertIsNone(asset_list)
@@ -677,7 +611,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark()
         self.setup_asset(bookmark)
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.get_section(soup, "Files")
         asset_list = section.find("div", {"class": "assets"})
         self.assertIsNotNone(asset_list)
@@ -691,7 +625,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             self.setup_asset(bookmark),
         ]
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         section = self.get_section(soup, "Files")
         asset_list = section.find("div", {"class": "assets"})
 
@@ -717,7 +651,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset.file = ""
         asset.save()
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         asset_item = self.find_asset(soup, asset)
         view_url = reverse("bookmarks:assets.view", args=[asset.id])
         view_link = asset_item.find("a", {"href": view_url})
@@ -729,7 +663,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         pending_asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_PENDING)
         failed_asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_FAILURE)
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         asset_item = self.find_asset(soup, pending_asset)
         asset_text = asset_item.select_one(".asset-text span")
@@ -746,7 +680,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset2 = self.setup_asset(bookmark, file_size=54639)
         asset3 = self.setup_asset(bookmark, file_size=11492020)
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         asset_item = self.find_asset(soup, asset1)
         asset_text = asset_item.select_one(".asset-text")
@@ -766,7 +700,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # with file
         asset = self.setup_asset(bookmark)
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         asset_item = self.find_asset(soup, asset)
         view_link = asset_item.find("a", string="View")
@@ -779,7 +713,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # without file
         asset.file = ""
         asset.save()
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         asset_item = self.find_asset(soup, asset)
         view_link = asset_item.find("a", string="View")
@@ -793,7 +727,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         other_user = self.setup_user(enable_sharing=True, enable_public_sharing=True)
         bookmark = self.setup_bookmark(shared=True, user=other_user)
         asset = self.setup_asset(bookmark)
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
 
         asset_item = self.find_asset(soup, asset)
         view_link = asset_item.find("a", string="View")
@@ -805,7 +739,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # shared bookmark, guest user
         self.client.logout()
-        soup = self.get_details(bookmark)
+        soup = self.get_shared_details_modal(bookmark)
 
         asset_item = self.find_asset(soup, asset)
         view_link = asset_item.find("a", string="View")
@@ -815,77 +749,13 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertIsNotNone(view_link)
         self.assertIsNone(delete_button)
 
-    def test_remove_asset(self):
-        # remove asset
-        bookmark = self.setup_bookmark()
-        asset = self.setup_asset(bookmark)
-
-        response = self.client.post(
-            self.get_base_url(bookmark), {"remove_asset": asset.id}
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(BookmarkAsset.objects.filter(id=asset.id).exists())
-
-        # non-existent asset
-        response = self.client.post(self.get_base_url(bookmark), {"remove_asset": 9999})
-        self.assertEqual(response.status_code, 404)
-
-        # post without asset ID does not remove
-        asset = self.setup_asset(bookmark)
-        response = self.client.post(self.get_base_url(bookmark))
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(BookmarkAsset.objects.filter(id=asset.id).exists())
-
-        # guest user
-        asset = self.setup_asset(bookmark)
-        self.client.logout()
-        response = self.client.post(
-            self.get_base_url(bookmark), {"remove_asset": asset.id}
-        )
-        self.assertEqual(response.status_code, 404)
-        self.assertTrue(BookmarkAsset.objects.filter(id=asset.id).exists())
-
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
-    def test_assets_refresh_when_having_pending_asset(self):
-        bookmark = self.setup_bookmark()
-        asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_COMPLETE)
-        fetch_url = reverse("bookmarks:details_assets", args=[bookmark.id])
-
-        # no pending asset
-        soup = self.get_details(bookmark)
-        files_section = self.find_section(soup, "Files")
-        assets_wrapper = files_section.find("div", {"ld-fetch": fetch_url})
-        self.assertIsNone(assets_wrapper)
-
-        # with pending asset
-        asset.status = BookmarkAsset.STATUS_PENDING
-        asset.save()
-
-        soup = self.get_details(bookmark)
-        files_section = self.find_section(soup, "Files")
-        assets_wrapper = files_section.find("div", {"ld-fetch": fetch_url})
-        self.assertIsNotNone(assets_wrapper)
-
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
-    def test_create_snapshot(self):
-        with patch.object(
-            tasks, "_create_html_snapshot_task"
-        ) as mock_create_html_snapshot_task:
-            bookmark = self.setup_bookmark()
-            response = self.client.post(
-                self.get_base_url(bookmark), {"create_snapshot": ""}
-            )
-            self.assertEqual(response.status_code, 302)
-
-            self.assertEqual(bookmark.bookmarkasset_set.count(), 1)
-
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_snapshot_is_disabled_when_having_pending_asset(self):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_COMPLETE)
 
         # no pending asset
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         files_section = self.find_section(soup, "Files")
         create_button = files_section.find(
             "button", string=re.compile("Create HTML snapshot")
@@ -896,40 +766,9 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset.status = BookmarkAsset.STATUS_PENDING
         asset.save()
 
-        soup = self.get_details(bookmark)
+        soup = self.get_index_details_modal(bookmark)
         files_section = self.find_section(soup, "Files")
         create_button = files_section.find(
             "button", string=re.compile("Create HTML snapshot")
         )
         self.assertTrue(create_button.has_attr("disabled"))
-
-    def test_upload_file(self):
-        bookmark = self.setup_bookmark()
-        file_content = b"file content"
-        upload_file = SimpleUploadedFile("test.txt", file_content)
-
-        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
-            response = self.client.post(
-                self.get_base_url(bookmark),
-                {"upload_asset": "", "upload_asset_file": upload_file},
-            )
-            self.assertEqual(response.status_code, 302)
-
-            mock_upload_asset.assert_called_once()
-
-            args, kwargs = mock_upload_asset.call_args
-            self.assertEqual(args[0], bookmark)
-
-            upload_file = args[1]
-            self.assertEqual(upload_file.name, "test.txt")
-
-    def test_upload_file_without_file(self):
-        bookmark = self.setup_bookmark()
-
-        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
-            response = self.client.post(
-                self.get_base_url(bookmark),
-                {"upload_asset": ""},
-            )
-            self.assertEqual(response.status_code, 400)
-            mock_upload_asset.assert_not_called()

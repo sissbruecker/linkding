@@ -5,9 +5,10 @@ class BookmarkItem extends Behavior {
     super(element);
 
     // Toggle notes
-    const notesToggle = element.querySelector(".toggle-notes");
-    if (notesToggle) {
-      notesToggle.addEventListener("click", this.onToggleNotes.bind(this));
+    this.onToggleNotes = this.onToggleNotes.bind(this);
+    this.notesToggle = element.querySelector(".toggle-notes");
+    if (this.notesToggle) {
+      this.notesToggle.addEventListener("click", this.onToggleNotes);
     }
 
     // Add tooltip to title if it is truncated
@@ -18,6 +19,12 @@ class BookmarkItem extends Behavior {
         titleAnchor.dataset.tooltip = titleSpan.textContent;
       }
     });
+  }
+
+  destroy() {
+    if (this.notesToggle) {
+      this.notesToggle.removeEventListener("click", this.onToggleNotes);
+    }
   }
 
   onToggleNotes(event) {

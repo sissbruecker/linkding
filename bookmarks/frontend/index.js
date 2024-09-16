@@ -3,11 +3,14 @@ import "./behaviors/bookmark-page";
 import "./behaviors/bulk-edit";
 import "./behaviors/confirm-button";
 import "./behaviors/dropdown";
-import "./behaviors/fetch";
 import "./behaviors/form";
-import "./behaviors/modal";
+import "./behaviors/details-modal";
 import "./behaviors/global-shortcuts";
+import "./behaviors/search-autocomplete";
 import "./behaviors/tag-autocomplete";
+import "./behaviors/tag-modal";
+
 export { default as TagAutoComplete } from "./components/TagAutocomplete.svelte";
 export { default as SearchAutoComplete } from "./components/SearchAutoComplete.svelte";
-export { ApiClient } from "./api";
+export { api } from "./api";
+export { cache } from "./cache";

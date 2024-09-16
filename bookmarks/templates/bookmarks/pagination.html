@@ -1,9 +1,9 @@
 {% load shared %}
 
 <ul class="pagination">
-  {% if page.has_previous %}
+  {% if prev_link %}
     <li class="page-item">
-      <a href="?{% update_query_string page=page.previous_page_number %}" tabindex="-1">Previous</a>
+      <a href="?{{ prev_link }}" tabindex="-1">Previous</a>
     </li>
   {% else %}
     <li class="page-item disabled">
@@ -11,10 +11,10 @@
     </li>
   {% endif %}
 
-  {% for page_number in visible_page_numbers %}
-    {% if page_number >= 0 %}
-      <li class="page-item {% if page.number == page_number %}active{% endif %}">
-        <a href="?{% update_query_string page=page_number %}">{{ page_number }}</a>
+  {% for page_link in page_links %}
+    {% if page_link %}
+      <li class="page-item {% if page_link.active %}active{% endif %}">
+        <a href="?{{ page_link.link }}">{{ page_link.number }}</a>
       </li>
     {% else %}
       <li class="page-item">
@@ -23,9 +23,9 @@
     {% endif %}
   {% endfor %}
 
-  {% if page.has_next %}
+  {% if next_link %}
     <li class="page-item">
-      <a href="?{% update_query_string page=page.next_page_number %}" tabindex="-1">Next</a>
+      <a href="?{{ next_link }}" tabindex="-1">Next</a>
     </li>
   {% else %}
     <li class="page-item disabled">

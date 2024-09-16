@@ -11,21 +11,17 @@
       <div class="content-area-header">
         <h2>Shared bookmarks</h2>
         <div class="header-controls">
-          {% bookmark_search bookmark_list.search tag_cloud.tags mode='shared' %}
-          <button ld-fetch="{{ bookmark_list.tag_modal_url }}" ld-target="body|append" ld-on="click"
-                  class="btn ml-2 show-md">Tags
+          {% bookmark_search bookmark_list.search mode='shared' %}
+          <button ld-tag-modal class="btn ml-2 show-md">Tags
           </button>
         </div>
       </div>
 
-      <form ld-form ld-fire="refresh-bookmark-list,refresh-tag-cloud"
-            class="bookmark-actions"
+      <form class="bookmark-actions"
             action="{{ bookmark_list.action_url|safe }}"
             method="post" autocomplete="off">
         {% csrf_token %}
-        <div ld-fetch="{{ bookmark_list.refresh_url }}" ld-on="refresh-bookmark-list"
-             ld-fire="refresh-bookmark-list-done"
-             class="bookmark-list-container">
+        <div id="bookmark-list-container">
           {% include 'bookmarks/bookmark_list.html' %}
         </div>
       </form>
@@ -43,10 +39,16 @@
       <div class="content-area-header">
         <h2>Tags</h2>
       </div>
-      <div ld-fetch="{{ tag_cloud.refresh_url }}" ld-on="refresh-tag-cloud"
-           class="tag-cloud-container">
+      <div id="tag-cloud-container">
         {% include 'bookmarks/tag_cloud.html' %}
       </div>
     </section>
+
+    {# Bookmark details #}
+    <turbo-frame id="details-modal" target="_top">
+      {% if details %}
+        {% include 'bookmarks/details/modal.html' %}
+      {% endif %}
+    </turbo-frame>
   </div>
 {% endblock %}

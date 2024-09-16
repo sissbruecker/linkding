@@ -1,0 +1,47 @@
+<div class="modal active bookmark-details"
+     ld-details-modal>
+  <a href="{{ details.close_url }}" data-turbo-frame="details-modal">
+    <div class="modal-overlay" aria-label="Close"></div>
+  </a>
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2>{{ details.bookmark.resolved_title }}</h2>
+      <a href="{{ details.close_url }}" data-turbo-frame="details-modal">
+        <button class="close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+               stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M18 6l-12 12"></path>
+            <path d="M6 6l12 12"></path>
+          </svg>
+        </button>
+      </a>
+    </div>
+    <div class="modal-body">
+      <div class="content">
+        {% include 'bookmarks/details/form.html' %}
+      </div>
+    </div>
+
+    {% if details.is_editable %}
+      <div class="modal-footer">
+        <div class="actions">
+          <div class="left-actions">
+            <a class="btn btn-wide"
+               href="{% url 'bookmarks:edit' details.bookmark.id %}?return_url={{ details.edit_return_url|urlencode }}">Edit</a>
+          </div>
+          <div class="right-actions">
+            <form action="{{ details.delete_url }}" method="post" data-turbo-action="replace">
+              {% csrf_token %}
+              <input type="hidden" name="disable_turbo" value="true">
+              <button ld-confirm-button class="btn btn-error btn-wide"
+                      type="submit" name="remove" value="{{ details.bookmark.id }}">
+                Delete...
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>

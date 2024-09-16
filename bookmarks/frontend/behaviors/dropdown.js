@@ -4,20 +4,16 @@ class DropdownBehavior extends Behavior {
   constructor(element) {
     super(element);
     this.opened = false;
+    this.onClick = this.onClick.bind(this);
     this.onOutsideClick = this.onOutsideClick.bind(this);
 
-    const toggle = element.querySelector(".dropdown-toggle");
-    toggle.addEventListener("click", () => {
-      if (this.opened) {
-        this.close();
-      } else {
-        this.open();
-      }
-    });
+    this.toggle = element.querySelector(".dropdown-toggle");
+    this.toggle.addEventListener("click", this.onClick);
   }
 
   destroy() {
     this.close();
+    this.toggle.removeEventListener("click", this.onClick);
   }
 
   open() {
@@ -28,6 +24,14 @@ class DropdownBehavior extends Behavior {
   close() {
     this.element.classList.remove("active");
     document.removeEventListener("click", this.onOutsideClick);
+  }
+
+  onClick() {
+    if (this.opened) {
+      this.close();
+    } else {
+      this.open();
+    }
   }
 
   onOutsideClick(event) {

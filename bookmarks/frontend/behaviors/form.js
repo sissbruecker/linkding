@@ -1,64 +1,55 @@
-import { Behavior, fireEvents, registerBehavior } from "./index";
-
-class FormBehavior extends Behavior {
-  constructor(element) {
-    super(element);
-
-    element.addEventListener("submit", this.onSubmit.bind(this));
-  }
-
-  async onSubmit(event) {
-    event.preventDefault();
-
-    const url = this.element.action;
-    const formData = new FormData(this.element);
-    if (event.submitter) {
-      formData.append(event.submitter.name, event.submitter.value);
-    }
-
-    await fetch(url, {
-      method: "POST",
-      body: formData,
-      redirect: "manual", // ignore redirect
-    });
-
-    const events = this.element.getAttribute("ld-fire");
-    if (fireEvents) {
-      fireEvents(events);
-    }
-  }
-}
+import { Behavior, registerBehavior } from "./index";
 
 class AutoSubmitBehavior extends Behavior {
   constructor(element) {
     super(element);
 
-    element.addEventListener("change", () => {
-      const form = element.closest("form");
-      form.dispatchEvent(new Event("submit", { cancelable: true }));
-    });
+    this.submit = this.submit.bind(this);
+    element.addEventListener("change", this.submit);
+  }
+
+  destroy() {
+    this.element.removeEventListener("change", this.submit);
+  }
+
+  submit() {
+    this.element.closest("form").requestSubmit();
   }
 }
 
 class UploadButton extends Behavior {
   constructor(element) {
     super(element);
+    this.fileInput = element.nextElementSibling;
 
-    const fileInput = element.nextElementSibling;
+    this.onClick = this.onClick.bind(this);
+    this.onChange = this.onChange.bind(this);
 
-    element.addEventListener("click", () => {
-      fileInput.click();
-    });
+    element.addEventListener("click", this.onClick);
+    this.fileInput.addEventListener("change", this.onChange);
+  }
 
-    fileInput.addEventListener("change", () => {
-      const form = fileInput.closest("form");
-      const event = new Event("submit", { cancelable: true });
-      event.submitter = element;
-      form.dispatchEvent(event);
-    });
+  destroy() {
+    this.element.removeEventListener("click", this.onClick);
+    this.fileInput.removeEventListener("change", this.onChange);
+  }
+
+  onClick(event) {
+    event.preventDefault();
+    this.fileInput.click();
+  }
+
+  onChange() {
+    // Check if the file input has a file selected
+    if (!this.fileInput.files.length) {
+      return;
+    }
+    const form = this.fileInput.closest("form");
+    form.requestSubmit(this.element);
+    // remove selected file so it doesn't get submitted again
+    this.fileInput.value = "";
   }
 }
 
-registerBehavior("ld-form", FormBehavior);
 registerBehavior("ld-auto-submit", AutoSubmitBehavior);
 registerBehavior("ld-upload-button", UploadButton);

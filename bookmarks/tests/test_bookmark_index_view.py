@@ -1,84 +1,23 @@
 import urllib.parse
-from typing import List
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
-from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
+from bookmarks.models import BookmarkSearch, UserProfile
+from bookmarks.tests.helpers import (
+    BookmarkFactoryMixin,
+    BookmarkListTestMixin,
+    TagCloudTestMixin,
+)
 
 
-class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-
+class BookmarkIndexViewTestCase(
+    TestCase, BookmarkFactoryMixin, BookmarkListTestMixin, TagCloudTestMixin
+):
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
-
-    def assertVisibleBookmarks(
-        self, response, bookmarks: List[Bookmark], link_target: str = "_blank"
-    ):
-        soup = self.make_soup(response.content.decode())
-        bookmark_list = soup.select_one(
-            f'ul.bookmark-list[data-bookmarks-total="{len(bookmarks)}"]'
-        )
-        self.assertIsNotNone(bookmark_list)
-
-        bookmark_items = bookmark_list.select("li[ld-bookmark-item]")
-        self.assertEqual(len(bookmark_items), len(bookmarks))
-
-        for bookmark in bookmarks:
-            bookmark_item = bookmark_list.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
-            )
-            self.assertIsNotNone(bookmark_item)
-
-    def assertInvisibleBookmarks(
-        self, response, bookmarks: List[Bookmark], link_target: str = "_blank"
-    ):
-        soup = self.make_soup(response.content.decode())
-
-        for bookmark in bookmarks:
-            bookmark_item = soup.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
-            )
-            self.assertIsNone(bookmark_item)
-
-    def assertVisibleTags(self, response, tags: List[Tag]):
-        soup = self.make_soup(response.content.decode())
-        tag_cloud = soup.select_one("div.tag-cloud")
-        self.assertIsNotNone(tag_cloud)
-
-        tag_items = tag_cloud.select("a[data-is-tag-item]")
-        self.assertEqual(len(tag_items), len(tags))
-
-        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
-
-        for tag in tags:
-            self.assertTrue(tag.name in tag_item_names)
-
-    def assertInvisibleTags(self, response, tags: List[Tag]):
-        soup = self.make_soup(response.content.decode())
-        tag_items = soup.select("a[data-is-tag-item]")
-
-        tag_item_names = [tag_item.text.strip() for tag_item in tag_items]
-
-        for tag in tags:
-            self.assertFalse(tag.name in tag_item_names)
-
-    def assertSelectedTags(self, response, tags: List[Tag]):
-        soup = self.make_soup(response.content.decode())
-        selected_tags = soup.select_one("p.selected-tags")
-        self.assertIsNotNone(selected_tags)
-
-        tag_list = selected_tags.select("a")
-        self.assertEqual(len(tag_list), len(tags))
-
-        for tag in tags:
-            self.assertTrue(
-                tag.name in selected_tags.text,
-                msg=f"Selected tags do not contain: {tag.name}",
-            )
 
     def assertEditLink(self, response, url):
         html = response.content.decode()
@@ -285,24 +224,21 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         base_url = reverse("bookmarks:index")
 
         # without params
-        return_url = urllib.parse.quote_plus(base_url)
-        url = f"{action_url}?return_url={return_url}"
+        url = f"{action_url}"
 
         response = self.client.get(base_url)
         self.assertBulkActionForm(response, url)
 
         # with query
         url_params = "?q=foo"
-        return_url = urllib.parse.quote_plus(base_url + url_params)
-        url = f"{action_url}?q=foo&return_url={return_url}"
+        url = f"{action_url}?q=foo"
 
         response = self.client.get(base_url + url_params)
         self.assertBulkActionForm(response, url)
 
         # with query and sort
         url_params = "?q=foo&sort=title_asc"
-        return_url = urllib.parse.quote_plus(base_url + url_params)
-        url = f"{action_url}?q=foo&sort=title_asc&return_url={return_url}"
+        url = f"{action_url}?q=foo&sort=title_asc"
 
         response = self.client.get(base_url + url_params)
         self.assertBulkActionForm(response, url)
@@ -503,7 +439,7 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertEqual(
             actions_form.attrs["action"],
-            "/bookmarks/action?q=%23foo&return_url=%2Fbookmarks%3Fq%3D%2523foo",
+            "/bookmarks/action?q=%23foo",
         )
 
     def test_encode_search_params(self):
@@ -533,3 +469,15 @@ class BookmarkIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         url = reverse("bookmarks:index") + "?page=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
+
+    def test_turbo_frame_details_modal_renders_details_modal_update(self):
+        bookmark = self.setup_bookmark()
+        url = reverse("bookmarks:index") + f"?bookmark_id={bookmark.id}"
+        response = self.client.get(url, headers={"Turbo-Frame": "details-modal"})
+
+        self.assertEqual(200, response.status_code)
+
+        soup = self.make_soup(response.content.decode())
+        self.assertIsNotNone(soup.select_one("turbo-frame#details-modal"))
+        self.assertIsNone(soup.select_one("#bookmark-list-container"))
+        self.assertIsNone(soup.select_one("#tag-cloud-container"))

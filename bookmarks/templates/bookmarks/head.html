@@ -1,0 +1,40 @@
+{% load static %}
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="{% static 'favicon.ico' %}" sizes="48x48">
+  <link rel="icon" href="{% static 'favicon.svg' %}" sizes="any" type="image/svg+xml">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
+  <link rel="mask-icon" href="{% static 'safari-pinned-tab.svg' %}" color="#5856e0">
+  <link rel="manifest" href="{% url 'bookmarks:manifest' %}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
+  <meta name="description" content="Self-hosted bookmark service">
+  <meta name="robots" content="index,follow">
+  <meta name="author" content="Sascha Ißbrücker">
+  <title>linkding</title>
+  {# Include specific theme variant based on user profile setting #}
+  {% if request.user_profile.theme == 'light' %}
+    <link href="{% static 'theme-light.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+    <meta name="theme-color" content="#5856e0">
+  {% elif request.user_profile.theme == 'dark' %}
+    <link href="{% static 'theme-dark.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>
+    <meta name="theme-color" content="#161822">
+  {% else %}
+    {# Use auto theme as fallback #}
+    <link href="{% static 'theme-dark.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark)"/>
+    <link href="{% static 'theme-light.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: light)"/>
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161822">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#5856e0">
+  {% endif %}
+  {% if request.user_profile.custom_css %}
+    <style>{{ request.user_profile.custom_css }}</style>
+  {% endif %}
+  <meta name="turbo-cache-control" content="no-preview">
+  {% if not request.global_settings.enable_link_prefetch %}
+    <meta name="turbo-prefetch" content="false">
+  {% endif %}
+  <script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
+</head>

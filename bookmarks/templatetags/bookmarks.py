@@ -6,8 +6,6 @@ from bookmarks.models import (
     BookmarkForm,
     BookmarkSearch,
     BookmarkSearchForm,
-    Tag,
-    build_tag_string,
     User,
 )
 
@@ -34,9 +32,7 @@ def bookmark_form(
 @register.inclusion_tag(
     "bookmarks/search.html", name="bookmark_search", takes_context=True
 )
-def bookmark_search(context, search: BookmarkSearch, tags: [Tag], mode: str = ""):
-    tag_names = [tag.name for tag in tags]
-    tags_string = build_tag_string(tag_names, " ")
+def bookmark_search(context, search: BookmarkSearch, mode: str = ""):
     search_form = BookmarkSearchForm(search, editable_fields=["q"])
 
     if mode == "shared":
@@ -50,7 +46,6 @@ def bookmark_search(context, search: BookmarkSearch, tags: [Tag], mode: str = ""
         "search": search,
         "search_form": search_form,
         "preferences_form": preferences_form,
-        "tags_string": tags_string,
         "mode": mode,
     }
 

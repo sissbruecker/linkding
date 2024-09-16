@@ -172,3 +172,12 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
             rendered_template, 2, True, href="?q=cake&sort=title_asc&page=2"
         )
         self.assertNextLink(rendered_template, 3, href="?q=cake&sort=title_asc&page=3")
+
+    def test_removes_details_parameter(self):
+        rendered_template = self.render_template(
+            100, 10, 2, url="/test?details=1&page=2"
+        )
+        self.assertPrevLink(rendered_template, 1, href="?page=1")
+        self.assertPageLink(rendered_template, 1, False, href="?page=1")
+        self.assertPageLink(rendered_template, 2, True, href="?page=2")
+        self.assertNextLink(rendered_template, 3, href="?page=3")

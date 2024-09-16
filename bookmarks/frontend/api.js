@@ -1,4 +1,4 @@
-export class ApiClient {
+export class Api {
   constructor(baseUrl) {
     this.baseUrl = baseUrl;
   }
@@ -27,3 +27,6 @@ export class ApiClient {
       .then((data) => data.results);
   }
 }
+
+const apiBaseUrl = document.documentElement.dataset.apiBaseUrl || "";
+export const api = new Api(apiBaseUrl);

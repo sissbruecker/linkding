@@ -1,9 +1,14 @@
 {% load widget_tweaks %}
 
-<div class="search-container">
+<div ld-search-autocomplete class="search-container">
   <form id="search" action="" method="get" role="search">
     <input type="search" class="form-input" name="q" placeholder="Search for words or #tags"
-           value="{{ search.q }}">
+           value="{{ search.q }}"
+           data-link-target="{{ request.user_profile.bookmark_link_target }}"
+           data-mode="{{ mode }}"
+           data-user="{{ search.user }}"
+           data-shared="{{ search.shared }}"
+           data-unread="{{ search.unread }}">
     <input type="submit" value="Search" class="d-none">
     {% for hidden_field in search_form.hidden_fields %}
       {{ hidden_field }}
@@ -73,42 +78,3 @@
     </div>
   </div>
 </div>
-
-
-{# Replace search input with auto-complete component #}
-<script type="application/javascript">
-  (function init() {
-    const currentTagsString = '{{ tags_string }}';
-    const currentTags = currentTagsString.split(' ');
-    const uniqueTags = [...new Set(currentTags)]
-    const search = {
-      q: '{{ search.q }}',
-      user: '{{ search.user }}',
-      shared: '{{ search.shared }}',
-      unread: '{{ search.unread }}',
-    }
-    const apiClient = new linkding.ApiClient('{% url 'bookmarks:api-root' %}')
-    const input = document.querySelector('#search input[name="q"]')
-    const container = document.createElement('div')
-    new linkding.SearchAutoComplete({
-      target: container,
-      props: {
-        name: 'q',
-        placeholder: 'Search for words or #tags',
-        value: input.value,
-        tags: uniqueTags,
-        mode: '{{ mode }}',
-        linkTarget: '{{ request.user_profile.bookmark_link_target }}',
-        apiClient,
-        search,
-      }
-    })
-
-    const autoComplete = container.firstElementChild;
-    input.replaceWith(autoComplete);
-
-    document.addEventListener("turbo:before-cache", () => {
-      autoComplete.replaceWith(input);
-    }, {once: true});
-  })();
-</script>

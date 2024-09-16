@@ -1,7 +1,4 @@
-<div {% if details.has_pending_assets %}
-  ld-fetch="{% url 'bookmarks:details_assets' details.bookmark.id %}"
-  ld-interval="5" ld-target="self|outerHTML"
-{% endif %}>
+<div>
   {% if details.assets %}
     <div class="assets">
       {% for asset in details.assets %}
@@ -36,10 +33,10 @@
 
   {% if details.is_editable %}
     <div class="assets-actions">
-      <button type="submit" name="create_snapshot" class="btn btn-sm"
+      <button type="submit" name="create_html_snapshot" value="{{ details.bookmark.id }}" class="btn btn-sm"
               {% if details.has_pending_assets %}disabled{% endif %}>Create HTML snapshot
       </button>
-      <button ld-upload-button id="upload-asset" name="upload_asset" value="{{ details.bookmark.id }}" type="button"
+      <button ld-upload-button id="upload-asset" name="upload_asset" value="{{ details.bookmark.id }}" type="submit"
               class="btn btn-sm">Upload file
       </button>
       <input id="upload-asset-file" name="upload_asset_file" type="file" class="d-hide">

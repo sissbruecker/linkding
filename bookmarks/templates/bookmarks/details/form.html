@@ -1,9 +1,10 @@
 {% load static %}
 {% load shared %}
 
-<form ld-form ld-fire="refresh-bookmark-list,refresh-tag-cloud,refresh-details"
-      action="{% url 'bookmarks:details' details.bookmark.id %}"
-      method="post">
+<form action="{{ details.action_url }}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="hidden" name="update_state" value="{{ details.bookmark.id }}">
+
   <div class="weblinks">
     <a class="weblink" href="{{ details.bookmark.url }}" rel="noopener"
        target="{{ details.profile.bookmark_link_target }}">
@@ -47,7 +48,6 @@
       <div class="status col-2">
         <dt>Status</dt>
         <dd class="d-flex" style="gap: .8rem">
-          {% csrf_token %}
           <div class="form-group">
             <label class="form-switch">
               <input ld-auto-submit type="checkbox" name="is_archived"

@@ -1,9 +1,7 @@
-from django.test import override_settings
 from django.urls import reverse
-from playwright.sync_api import sync_playwright, expect, Locator
+from playwright.sync_api import sync_playwright, expect
 
 from bookmarks.e2e.helpers import LinkdingE2ETestCase
-from bookmarks.models import Bookmark
 
 
 class TagCloudModalE2ETestCase(LinkdingE2ETestCase):
@@ -26,7 +24,7 @@ class TagCloudModalE2ETestCase(LinkdingE2ETestCase):
             # verify modal is visible
             modal = page.locator(".modal")
             expect(modal).to_be_visible()
-            expect(modal.locator(".modal-title")).to_have_text("Tags")
+            expect(modal.locator("h2")).to_have_text("Tags")
 
             # close with close button
             modal.locator("button.close").click()

@@ -11,7 +11,7 @@ from django.http import (
 from django.shortcuts import render
 from django.urls import reverse
 
-from bookmarks import queries
+from bookmarks import queries, utils
 from bookmarks.models import (
     Bookmark,
     BookmarkAsset,
@@ -19,6 +19,7 @@ from bookmarks.models import (
     BookmarkSearch,
     build_tag_string,
 )
+from bookmarks.services import bookmarks as bookmark_actions, tasks
 from bookmarks.services.bookmarks import (
     create_bookmark,
     update_bookmark,
@@ -34,9 +35,8 @@ from bookmarks.services.bookmarks import (
     share_bookmarks,
     unshare_bookmarks,
 )
-from bookmarks.services import bookmarks as bookmark_actions, tasks
 from bookmarks.utils import get_safe_return_url
-from bookmarks.views.partials import contexts
+from bookmarks.views import contexts, partials, turbo
 
 _default_page_size = 30
 
@@ -48,12 +48,17 @@ def index(request):
 
     bookmark_list = contexts.ActiveBookmarkListContext(request)
     tag_cloud = contexts.ActiveTagCloudContext(request)
-    return render(
+    bookmark_details = contexts.get_details_context(
+        request, contexts.ActiveBookmarkDetailsContext
+    )
+
+    return render_bookmarks_view(
         request,
         "bookmarks/index.html",
         {
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
+            "details": bookmark_details,
         },
     )
 
@@ -65,12 +70,17 @@ def archived(request):
 
     bookmark_list = contexts.ArchivedBookmarkListContext(request)
     tag_cloud = contexts.ArchivedTagCloudContext(request)
-    return render(
+    bookmark_details = contexts.get_details_context(
+        request, contexts.ArchivedBookmarkDetailsContext
+    )
+
+    return render_bookmarks_view(
         request,
         "bookmarks/archive.html",
         {
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
+            "details": bookmark_details,
         },
     )
 
@@ -81,14 +91,37 @@ def shared(request):
 
     bookmark_list = contexts.SharedBookmarkListContext(request)
     tag_cloud = contexts.SharedTagCloudContext(request)
+    bookmark_details = contexts.get_details_context(
+        request, contexts.SharedBookmarkDetailsContext
+    )
     public_only = not request.user.is_authenticated
     users = queries.query_shared_bookmark_users(
         request.user_profile, bookmark_list.search, public_only
     )
-    return render(
+    return render_bookmarks_view(
         request,
         "bookmarks/shared.html",
-        {"bookmark_list": bookmark_list, "tag_cloud": tag_cloud, "users": users},
+        {
+            "bookmark_list": bookmark_list,
+            "tag_cloud": tag_cloud,
+            "details": bookmark_details,
+            "users": users,
+        },
+    )
+
+
+def render_bookmarks_view(request, template_name, context):
+    if turbo.is_frame(request, "details-modal"):
+        return render(
+            request,
+            "bookmarks/updates/details-modal-frame.html",
+            context,
+        )
+
+    return render(
+        request,
+        template_name,
+        context,
     )
 
 
@@ -109,76 +142,6 @@ def search_action(request):
     query_string = urllib.parse.urlencode(query_params)
     url = base_url if not query_string else base_url + "?" + query_string
     return HttpResponseRedirect(url)
-
-
-def _details(request, bookmark_id: int, template: str):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
-    is_owner = bookmark.owner == request.user
-    is_shared = (
-        request.user.is_authenticated
-        and bookmark.shared
-        and bookmark.owner.profile.enable_sharing
-    )
-    is_public_shared = bookmark.shared and bookmark.owner.profile.enable_public_sharing
-    if not is_owner and not is_shared and not is_public_shared:
-        raise Http404("Bookmark does not exist")
-
-    if request.method == "POST":
-        if not is_owner:
-            raise Http404("Bookmark does not exist")
-
-        return_url = get_safe_return_url(
-            request.GET.get("return_url"),
-            reverse("bookmarks:details", args=[bookmark.id]),
-        )
-
-        if "remove_asset" in request.POST:
-            asset_id = request.POST["remove_asset"]
-            try:
-                asset = bookmark.bookmarkasset_set.get(pk=asset_id)
-            except BookmarkAsset.DoesNotExist:
-                raise Http404("Asset does not exist")
-            asset.delete()
-        if "create_snapshot" in request.POST:
-            tasks.create_html_snapshot(bookmark)
-        if "upload_asset" in request.POST:
-            file = request.FILES.get("upload_asset_file")
-            if not file:
-                return HttpResponseBadRequest("No file uploaded")
-            bookmark_actions.upload_asset(bookmark, file)
-        else:
-            bookmark.is_archived = request.POST.get("is_archived") == "on"
-            bookmark.unread = request.POST.get("unread") == "on"
-            bookmark.shared = request.POST.get("shared") == "on"
-            bookmark.save()
-
-        return HttpResponseRedirect(return_url)
-
-    details_context = contexts.BookmarkDetailsContext(request, bookmark)
-
-    return render(
-        request,
-        template,
-        {
-            "details": details_context,
-        },
-    )
-
-
-def details(request, bookmark_id: int):
-    return _details(request, bookmark_id, "bookmarks/details.html")
-
-
-def details_modal(request, bookmark_id: int):
-    return _details(request, bookmark_id, "bookmarks/details_modal.html")
-
-
-def details_assets(request, bookmark_id: int):
-    return _details(request, bookmark_id, "bookmarks/details/assets.html")
 
 
 def convert_tag_string(tag_string: str):
@@ -307,26 +270,87 @@ def mark_as_read(request, bookmark_id: int):
     bookmark.save()
 
 
+def create_html_snapshot(request, bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404("Bookmark does not exist")
+
+    tasks.create_html_snapshot(bookmark)
+
+
+def upload_asset(request, bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404("Bookmark does not exist")
+
+    file = request.FILES.get("upload_asset_file")
+    if not file:
+        raise ValueError("No file uploaded")
+
+    bookmark_actions.upload_asset(bookmark, file)
+
+
+def remove_asset(request, asset_id: int):
+    try:
+        asset = BookmarkAsset.objects.get(pk=asset_id, bookmark__owner=request.user)
+    except BookmarkAsset.DoesNotExist:
+        raise Http404("Asset does not exist")
+
+    asset.delete()
+
+
+def update_state(request, bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
+    except Bookmark.DoesNotExist:
+        raise Http404("Bookmark does not exist")
+
+    bookmark.is_archived = request.POST.get("is_archived") == "on"
+    bookmark.unread = request.POST.get("unread") == "on"
+    bookmark.shared = request.POST.get("shared") == "on"
+    bookmark.save()
+
+
 @login_required
 def index_action(request):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_bookmarks(request.user, request.user_profile, search)
-    return action(request, query)
+    handle_action(request, query)
+
+    if turbo.accept(request):
+        return partials.active_bookmark_update(request)
+
+    return utils.redirect_with_query(request, reverse("bookmarks:index"))
 
 
 @login_required
 def archived_action(request):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
-    return action(request, query)
+    handle_action(request, query)
+
+    if turbo.accept(request):
+        return partials.archived_bookmark_update(request)
+
+    return utils.redirect_with_query(request, reverse("bookmarks:archived"))
 
 
 @login_required
 def shared_action(request):
-    return action(request)
+    if "bulk_execute" in request.POST:
+        return HttpResponseBadRequest("View does not support bulk actions")
+
+    handle_action(request)
+
+    if turbo.accept(request):
+        return partials.shared_bookmark_update(request)
+
+    return utils.redirect_with_query(request, reverse("bookmarks:shared"))
 
 
-def action(request, query: QuerySet[Bookmark] = None):
+def handle_action(request, query: QuerySet[Bookmark] = None):
     # Single bookmark actions
     if "archive" in request.POST:
         archive(request, request.POST["archive"])
@@ -338,11 +362,21 @@ def action(request, query: QuerySet[Bookmark] = None):
         mark_as_read(request, request.POST["mark_as_read"])
     if "unshare" in request.POST:
         unshare(request, request.POST["unshare"])
+    if "create_html_snapshot" in request.POST:
+        create_html_snapshot(request, request.POST["create_html_snapshot"])
+    if "upload_asset" in request.POST:
+        upload_asset(request, request.POST["upload_asset"])
+    if "remove_asset" in request.POST:
+        remove_asset(request, request.POST["remove_asset"])
+
+    # State updates
+    if "update_state" in request.POST:
+        update_state(request, request.POST["update_state"])
 
     # Bulk actions
     if "bulk_execute" in request.POST:
         if query is None:
-            return HttpResponseBadRequest("View does not support bulk actions")
+            raise ValueError("Query must be provided for bulk actions")
 
         bulk_action = request.POST["bulk_action"]
 
@@ -374,11 +408,6 @@ def action(request, query: QuerySet[Bookmark] = None):
             share_bookmarks(bookmark_ids, request.user)
         if "bulk_unshare" == bulk_action:
             unshare_bookmarks(bookmark_ids, request.user)
-
-    return_url = get_safe_return_url(
-        request.GET.get("return_url"), reverse("bookmarks:index")
-    )
-    return HttpResponseRedirect(return_url)
 
 
 @login_required

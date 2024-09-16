@@ -1,13 +1,24 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import model_to_dict
-from django.test import TestCase
+from django.http import HttpResponse
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from bookmarks.models import Bookmark
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.models import Bookmark, BookmarkAsset
+from bookmarks.services import tasks, bookmarks
+from bookmarks.tests.helpers import (
+    BookmarkFactoryMixin,
+    BookmarkListTestMixin,
+    TagCloudTestMixin,
+)
 
 
-class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
+class BookmarkActionViewTestCase(
+    TestCase, BookmarkFactoryMixin, BookmarkListTestMixin, TagCloudTestMixin
+):
 
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
@@ -155,6 +166,129 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(response.status_code, 404)
         self.assertTrue(bookmark.shared)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_create_html_snapshot(self):
+        bookmark = self.setup_bookmark()
+        with patch.object(tasks, "_create_html_snapshot_task"):
+            self.client.post(
+                reverse("bookmarks:index.action"),
+                {
+                    "create_html_snapshot": [bookmark.id],
+                },
+            )
+            self.assertEqual(bookmark.bookmarkasset_set.count(), 1)
+            asset = bookmark.bookmarkasset_set.first()
+            self.assertEqual(asset.asset_type, BookmarkAsset.TYPE_SNAPSHOT)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_can_only_create_html_snapshot_for_own_bookmarks(self):
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        with patch.object(tasks, "_create_html_snapshot_task"):
+            response = self.client.post(
+                reverse("bookmarks:index.action"),
+                {
+                    "create_html_snapshot": [bookmark.id],
+                },
+            )
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(bookmark.bookmarkasset_set.count(), 0)
+
+    def test_upload_asset(self):
+        bookmark = self.setup_bookmark()
+        file_content = b"file content"
+        upload_file = SimpleUploadedFile("test.txt", file_content)
+
+        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
+            response = self.client.post(
+                reverse("bookmarks:index.action"),
+                {"upload_asset": bookmark.id, "upload_asset_file": upload_file},
+            )
+            self.assertEqual(response.status_code, 302)
+
+            mock_upload_asset.assert_called_once()
+
+            args, _ = mock_upload_asset.call_args
+            self.assertEqual(args[0], bookmark)
+
+            upload_file = args[1]
+            self.assertEqual(upload_file.name, "test.txt")
+
+    def test_can_only_upload_asset_for_own_bookmarks(self):
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        file_content = b"file content"
+        upload_file = SimpleUploadedFile("test.txt", file_content)
+
+        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
+            response = self.client.post(
+                reverse("bookmarks:index.action"),
+                {"upload_asset": bookmark.id, "upload_asset_file": upload_file},
+            )
+            self.assertEqual(response.status_code, 404)
+
+            mock_upload_asset.assert_not_called()
+
+    def test_remove_asset(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark)
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"), {"remove_asset": asset.id}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(BookmarkAsset.objects.filter(id=asset.id).exists())
+
+    def test_can_only_remove_own_asset(self):
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        asset = self.setup_asset(bookmark)
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"), {"remove_asset": asset.id}
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(BookmarkAsset.objects.filter(id=asset.id).exists())
+
+    def test_update_state(self):
+        bookmark = self.setup_bookmark()
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"),
+            {
+                "update_state": bookmark.id,
+                "is_archived": "on",
+                "unread": "on",
+                "shared": "on",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        bookmark.refresh_from_db()
+        self.assertTrue(bookmark.unread)
+        self.assertTrue(bookmark.is_archived)
+        self.assertTrue(bookmark.shared)
+
+    def test_can_only_update_own_bookmark_state(self):
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"),
+            {
+                "update_state": bookmark.id,
+                "is_archived": "on",
+                "unread": "on",
+                "shared": "on",
+            },
+        )
+        self.assertEqual(response.status_code, 404)
+
+        bookmark.refresh_from_db()
+        self.assertFalse(bookmark.unread)
+        self.assertFalse(bookmark.is_archived)
+        self.assertFalse(bookmark.shared)
 
     def test_bulk_archive(self):
         bookmark1 = self.setup_bookmark()
@@ -791,58 +925,119 @@ class BookmarkActionViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertBookmarksAreUnmodified([bookmark1, bookmark2, bookmark3])
 
-    def test_should_redirect_to_return_url(self):
-        bookmark1 = self.setup_bookmark()
-        bookmark2 = self.setup_bookmark()
-        bookmark3 = self.setup_bookmark()
+    def test_index_action_redirects_to_index_with_query_params(self):
+        url = reverse("bookmarks:index.action") + "?q=foo&page=2"
+        redirect_url = reverse("bookmarks:index") + "?q=foo&page=2"
+        response = self.client.post(url)
 
-        url = (
-            reverse("bookmarks:index.action")
-            + "?return_url="
-            + reverse("bookmarks:settings.index")
-        )
-        response = self.client.post(
-            url,
-            {
-                "bulk_action": ["bulk_archive"],
-                "bulk_execute": [""],
-                "bookmark_id": [
-                    str(bookmark1.id),
-                    str(bookmark2.id),
-                    str(bookmark3.id),
-                ],
-            },
-        )
+        self.assertRedirects(response, redirect_url)
 
-        self.assertRedirects(response, reverse("bookmarks:settings.index"))
+    def test_archived_action_redirects_to_archived_with_query_params(self):
+        url = reverse("bookmarks:archived.action") + "?q=foo&page=2"
+        redirect_url = reverse("bookmarks:archived") + "?q=foo&page=2"
+        response = self.client.post(url)
 
-    def test_should_not_redirect_to_external_url(self):
-        bookmark1 = self.setup_bookmark()
-        bookmark2 = self.setup_bookmark()
-        bookmark3 = self.setup_bookmark()
+        self.assertRedirects(response, redirect_url)
 
-        def post_with(return_url, follow=None):
-            url = reverse("bookmarks:index.action") + f"?return_url={return_url}"
-            return self.client.post(
-                url,
-                {
-                    "bulk_action": ["bulk_archive"],
-                    "bulk_execute": [""],
-                    "bookmark_id": [
-                        str(bookmark1.id),
-                        str(bookmark2.id),
-                        str(bookmark3.id),
-                    ],
-                },
-                follow=follow,
+    def test_shared_action_redirects_to_shared_with_query_params(self):
+        url = reverse("bookmarks:shared.action") + "?q=foo&page=2"
+        redirect_url = reverse("bookmarks:shared") + "?q=foo&page=2"
+        response = self.client.post(url)
+
+        self.assertRedirects(response, redirect_url)
+
+    def bookmark_update_fixture(self):
+        user = self.get_or_create_test_user()
+        profile = user.profile
+        profile.enable_sharing = True
+        profile.save()
+
+        return {
+            "active": self.setup_numbered_bookmarks(3),
+            "archived": self.setup_numbered_bookmarks(3, archived=True),
+            "shared": self.setup_numbered_bookmarks(3, shared=True),
+        }
+
+    def assertBookmarkUpdateResponse(self, response: HttpResponse):
+        self.assertEqual(response.status_code, 200)
+
+        html = response.content.decode("utf-8")
+        soup = self.make_soup(html)
+
+        # bookmark list update
+        self.assertIsNotNone(
+            soup.select_one(
+                "turbo-stream[action='update'][target='bookmark-list-container']"
             )
+        )
 
-        response = post_with("https://example.com")
-        self.assertRedirects(response, reverse("bookmarks:index"))
-        response = post_with("//example.com")
-        self.assertRedirects(response, reverse("bookmarks:index"))
-        response = post_with("://example.com")
-        self.assertRedirects(response, reverse("bookmarks:index"))
+        # tag cloud update
+        self.assertIsNotNone(
+            soup.select_one(
+                "turbo-stream[action='update'][target='tag-cloud-container']"
+            )
+        )
 
-        response = post_with("/foo//example.com", follow=True)
-        self.assertEqual(response.status_code, 404)
+        # update event
+        self.assertInHTML(
+            """
+            <script>
+                document.dispatchEvent(new CustomEvent('bookmark-list-updated'));
+            </script>
+            """,
+            html,
+        )
+
+    def test_index_action_with_turbo_returns_bookmark_update(self):
+        fixture = self.bookmark_update_fixture()
+        response = self.client.post(
+            reverse("bookmarks:index.action"),
+            HTTP_ACCEPT="text/vnd.turbo-stream.html",
+        )
+
+        visible_tags = self.get_tags_from_bookmarks(
+            fixture["active"] + fixture["shared"]
+        )
+        invisible_tags = self.get_tags_from_bookmarks(fixture["archived"])
+
+        self.assertBookmarkUpdateResponse(response)
+        self.assertVisibleBookmarks(response, fixture["active"] + fixture["shared"])
+        self.assertInvisibleBookmarks(response, fixture["archived"])
+        self.assertVisibleTags(response, visible_tags)
+        self.assertInvisibleTags(response, invisible_tags)
+
+    def test_archived_action_with_turbo_returns_bookmark_update(self):
+        fixture = self.bookmark_update_fixture()
+        response = self.client.post(
+            reverse("bookmarks:archived.action"),
+            HTTP_ACCEPT="text/vnd.turbo-stream.html",
+        )
+
+        visible_tags = self.get_tags_from_bookmarks(fixture["archived"])
+        invisible_tags = self.get_tags_from_bookmarks(
+            fixture["active"] + fixture["shared"]
+        )
+
+        self.assertBookmarkUpdateResponse(response)
+        self.assertVisibleBookmarks(response, fixture["archived"])
+        self.assertInvisibleBookmarks(response, fixture["active"] + fixture["shared"])
+        self.assertVisibleTags(response, visible_tags)
+        self.assertInvisibleTags(response, invisible_tags)
+
+    def test_shared_action_with_turbo_returns_bookmark_update(self):
+        fixture = self.bookmark_update_fixture()
+        response = self.client.post(
+            reverse("bookmarks:shared.action"),
+            HTTP_ACCEPT="text/vnd.turbo-stream.html",
+        )
+
+        visible_tags = self.get_tags_from_bookmarks(fixture["shared"])
+        invisible_tags = self.get_tags_from_bookmarks(
+            fixture["active"] + fixture["archived"]
+        )
+
+        self.assertBookmarkUpdateResponse(response)
+        self.assertVisibleBookmarks(response, fixture["shared"])
+        self.assertInvisibleBookmarks(response, fixture["active"] + fixture["archived"])
+        self.assertVisibleTags(response, visible_tags)
+        self.assertInvisibleTags(response, invisible_tags)

@@ -1,10 +1,12 @@
 import logging
 import re
 import unicodedata
+import urllib.parse
 from datetime import datetime
 from typing import Optional
 
 from dateutil.relativedelta import relativedelta
+from django.http import HttpResponseRedirect
 from django.template.defaultfilters import pluralize
 from django.utils import timezone, formats
 
@@ -112,6 +114,14 @@ def get_safe_return_url(return_url: str, fallback_url: str):
     if not return_url or not re.match(r"^/[a-z]+", return_url):
         return fallback_url
     return return_url
+
+
+def redirect_with_query(request, redirect_url):
+    query_string = urllib.parse.urlencode(request.GET)
+    if query_string:
+        redirect_url += "?" + query_string
+
+    return HttpResponseRedirect(redirect_url)
 
 
 def generate_username(email):

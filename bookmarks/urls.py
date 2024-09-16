@@ -9,7 +9,6 @@ from bookmarks.feeds import (
     SharedBookmarksFeed,
     PublicSharedBookmarksFeed,
 )
-from bookmarks.views import partials
 
 app_name = "bookmarks"
 urlpatterns = [
@@ -31,21 +30,6 @@ urlpatterns = [
     path("bookmarks/new", views.bookmarks.new, name="new"),
     path("bookmarks/close", views.bookmarks.close, name="close"),
     path("bookmarks/<int:bookmark_id>/edit", views.bookmarks.edit, name="edit"),
-    path(
-        "bookmarks/<int:bookmark_id>/details",
-        views.bookmarks.details,
-        name="details",
-    ),
-    path(
-        "bookmarks/<int:bookmark_id>/details_modal",
-        views.bookmarks.details_modal,
-        name="details_modal",
-    ),
-    path(
-        "bookmarks/<int:bookmark_id>/details_assets",
-        views.bookmarks.details_assets,
-        name="details_assets",
-    ),
     # Assets
     path(
         "assets/<int:asset_id>",
@@ -56,52 +40,6 @@ urlpatterns = [
         "assets/<int:asset_id>/read",
         views.assets.read,
         name="assets.read",
-    ),
-    # Partials
-    path(
-        "bookmarks/partials/bookmark-list/active",
-        partials.active_bookmark_list,
-        name="partials.bookmark_list.active",
-    ),
-    path(
-        "bookmarks/partials/tag-cloud/active",
-        partials.active_tag_cloud,
-        name="partials.tag_cloud.active",
-    ),
-    path(
-        "bookmarks/partials/tag-modal/active",
-        partials.active_tag_modal,
-        name="partials.tag_modal.active",
-    ),
-    path(
-        "bookmarks/partials/bookmark-list/archived",
-        partials.archived_bookmark_list,
-        name="partials.bookmark_list.archived",
-    ),
-    path(
-        "bookmarks/partials/tag-cloud/archived",
-        partials.archived_tag_cloud,
-        name="partials.tag_cloud.archived",
-    ),
-    path(
-        "bookmarks/partials/tag-modal/archived",
-        partials.archived_tag_modal,
-        name="partials.tag_modal.archived",
-    ),
-    path(
-        "bookmarks/partials/bookmark-list/shared",
-        partials.shared_bookmark_list,
-        name="partials.bookmark_list.shared",
-    ),
-    path(
-        "bookmarks/partials/tag-cloud/shared",
-        partials.shared_tag_cloud,
-        name="partials.tag_cloud.shared",
-    ),
-    path(
-        "bookmarks/partials/tag-modal/shared",
-        partials.shared_tag_modal,
-        name="partials.tag_modal.shared",
     ),
     # Settings
     path("settings", views.settings.general, name="settings.index"),

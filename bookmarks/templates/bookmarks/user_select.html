@@ -6,17 +6,10 @@
   {% endfor %}
   <div class="form-group">
     <div class="d-flex">
-      {{ form.user|add_class:"form-select" }}
+      {% render_field form.user class+="form-select" ld-auto-submit="" %}
       <noscript>
         <button type="submit" class="btn btn-link ml-2">Apply</button>
       </noscript>
     </div>
   </div>
 </form>
-<script>
-  const form = document.getElementById('user-select');
-  const select = form.querySelector('select');
-  select.addEventListener('change', () => {
-    form.submit();
-  });
-</script>

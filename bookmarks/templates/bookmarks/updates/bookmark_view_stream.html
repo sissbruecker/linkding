@@ -1,0 +1,21 @@
+<turbo-stream action="update" target="bookmark-list-container">
+  <template>
+    {% include 'bookmarks/bookmark_list.html' %}
+    <script>
+      document.dispatchEvent(new CustomEvent('bookmark-list-updated'));
+    </script>
+  </template>
+</turbo-stream>
+<turbo-stream action="update" target="tag-cloud-container">
+  <template>
+    {% include 'bookmarks/tag_cloud.html' %}
+  </template>
+</turbo-stream>
+
+<turbo-stream action="update" method="morph" target="details-modal">
+  <template>
+    {% if details %}
+      {% include 'bookmarks/details/modal.html' %}
+    {% endif %}
+  </template>
+</turbo-stream>
