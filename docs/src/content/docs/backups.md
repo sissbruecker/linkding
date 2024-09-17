@@ -1,4 +1,7 @@
-# Backups
+---
+title: "Backups"
+description: "How to back up your Linkding installation"
+---
 
 Linkding stores all data in the application's data folder.
 The full path to that folder in the Docker container is `/etc/linkding/data`.
@@ -16,9 +19,10 @@ The following sections explain how to back up the individual contents.
 
 linkding provides a CLI command to create a full backup of the data folder. This creates a zip file that contains backups of the database, assets, favicons, and preview images.
 
-> [!NOTE]
-> This method assumes that you are using the default SQLite database.
-> If you are using a different database, such as Postgres, you'll have to back up the database and other contents of the data folder manually.
+:::note
+This method assumes that you are using the default SQLite database.
+If you are using a different database, such as Postgres, you'll have to back up the database and other contents of the data folder manually.
+:::
 
 To create a full backup, execute the following command:
 ```shell
@@ -47,14 +51,16 @@ If you can't use the full backup method, this section describes alternatives how
 
 linkding includes a CLI command for creating a backup copy of the database.
 
-> [!WARNING]
-> While the SQLite database is just a single file, it is not recommended to just copy that file.
-> This method is not transaction safe and may result in a [corrupted database](https://www.sqlite.org/howtocorrupt.html).
-> Use one of the backup methods described below.
+:::caution
+While the SQLite database is just a single file, it is not recommended to just copy that file.
+This method is not transaction safe and may result in a [corrupted database](https://www.sqlite.org/howtocorrupt.html).
+Use one of the backup methods described below.
+:::
 
-> [!WARNING]
-> This method is deprecated and may be removed in the future.
-> Please use the full backup method described above.
+:::caution
+This method is deprecated and may be removed in the future.
+Please use the full backup method described above.
+:::
 
 To create a backup, execute the following command:
 ```shell

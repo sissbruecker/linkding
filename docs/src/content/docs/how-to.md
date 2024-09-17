@@ -1,13 +1,9 @@
-# How To
+---
+title: "How to"
+description: "Collection of tips and tricks around using linkding"
+---
 
 Collection of tips and tricks around using linkding.
-
-**Table of Contents:**
-
-* [Using the bookmarklet on Android/Chrome](#using-the-bookmarklet-on-androidchrome)
-* [Using HTTP Shortcuts app on Android](#using-http-shortcuts-app-on-android)
-* [Create a share action on iOS for adding bookmarks to linkding](#create-a-share-action-on-ios-for-adding-bookmarks-to-linkding)
-* [Increase the font size](#increase-the-font-size)
 
 ## Using the bookmarklet on Android/Chrome
 
@@ -33,7 +29,7 @@ For more info see here: https://paul.kinlan.me/use-bookmarklets-on-chrome-on-and
 
 - Install HTTP Shortcuts from [Play Store](https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts) or [F-Droid](https://f-droid.org/en/packages/ch.rmy.android.http_shortcuts/).
 
-- Copy the URL of [linkding_shortcut.json](https://raw.githubusercontent.com/sissbruecker/linkding/master/docs/linkding_shortcut.json).
+- Copy the URL of [linkding_shortcut.json](https://raw.githubusercontent.com/sissbruecker/linkding/master/docs/src/assets/linkding_shortcut.json).
 
 - Open HTTP Shortcuts, tap the 3-dot-button at the top-right corner, tap `Import/Export`, then tap `Import from URL`.
 
@@ -48,7 +44,7 @@ Try using share button on an app, a new item `Send to...` should appear on the s
 This how-to explains how to make use of the app shortcuts iOS app to create a share action that can be used in Safari for adding bookmarks to your linkding instance.
 
 To install the shortcut:
-- Download the [Shortcut](https://raw.githubusercontent.com/sissbruecker/linkding/master/docs/Add%20To%20Linkding.shortcut) on your iOS device
+- Download the [Shortcut](https://raw.githubusercontent.com/sissbruecker/linkding/master/docs/src/assets/Add%20To%20Linkding.shortcut) on your iOS device
 - Tap the downloaded file, which brings up the Shortcuts app
 - Confirm that you want to add the shortcut
 - In the shortcut, change `https://linkding.mydomain.com` to the URL of your linkding instance
@@ -64,8 +60,9 @@ To use the shortcut:
 
 At the bottom of the share sheet there is a button for configuring share actions. You can use this to move the "Add To Linkding" action to the top of the share sheet if you like.
 
-> [!NOTE]  
-> You can also check the [Community section](https://github.com/sissbruecker/linkding#community) for other pre-made shortcuts that you can use.
+:::note
+You can also check the [Community section](/community) for other pre-made shortcuts that you can use.
+:::
 
 ## Increase the font size
 
