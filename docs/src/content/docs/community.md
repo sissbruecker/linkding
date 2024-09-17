@@ -3,7 +3,7 @@ title: "Community"
 description: "Community projects around linkding"
 ---
 
-This section lists community projects around using linkding, in alphabetical order. If you have a project that you want to share with the linkding community, feel free to [submit a PR](https://github.com/sissbruecker/linkding/edit/master/docs/community.md) to add your project to this section.
+This section lists community projects around using linkding, in alphabetical order. If you have a project that you want to share with the linkding community, feel free to [submit a PR](https://github.com/sissbruecker/linkding/edit/master/docs/src/content/docs/community.md) to add your project to this section.
 
 - [aiolinkding](https://github.com/bachya/aiolinkding) A Python3, async library to interact with the linkding REST API. By [bachya](https://github.com/bachya)
 - [feed2linkding](https://codeberg.org/strubbl/feed2linkding) A commandline utility to add all web feed item links to linkding via API call. By [Strubbl](https://github.com/Strubbl)

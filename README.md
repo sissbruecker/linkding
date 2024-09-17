@@ -50,7 +50,7 @@ The full documentation is now available at [linkding.link](https://linkding.link
 
 If you want to contribute to the documentation, you can find the source files in the `docs` folder.
 
-If you want to contribute a community project, feel free to [submit a PR](https://github.com/sissbruecker/linkding/edit/master/docs/community.md).
+If you want to contribute a community project, feel free to [submit a PR](https://github.com/sissbruecker/linkding/edit/master/docs/src/content/docs/community.md).
 
 ## Contributing
 
