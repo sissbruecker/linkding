@@ -1,3 +1,8 @@
+---
+title: "Options"
+description: "Options for configuring linkding"
+---
+
 # Options
 
 This document lists the options that linkding can be configured with and explains how to use them in the individual install scenarios.
