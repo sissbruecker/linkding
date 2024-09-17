@@ -1,3 +1,8 @@
+---
+title: "Admin"
+description: "How to use the linkding admin app"
+---
+
 # Administration
 
 This document describes how to make use of the admin app that comes as part of each linkding installation. This is the default Django admin app with some linkding specific customizations.

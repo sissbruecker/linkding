@@ -1,3 +1,8 @@
+---
+title: "Troubleshooting"
+description: "Common issues and solutions"
+---
+
 # Troubleshooting
 
 ## Login fails with `403 CSRF verfication failed`

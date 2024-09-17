@@ -1,3 +1,8 @@
+---
+title: "API"
+description: "How to use the REST API of linkding"
+---
+
 # API
 
 The application provides a REST API that can be used by 3rd party applications to manage bookmarks.

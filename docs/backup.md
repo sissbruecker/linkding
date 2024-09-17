@@ -1,3 +1,8 @@
+---
+title: "Backups"
+description: "How to back up your Linkding installation"
+---
+
 # Backups
 
 Linkding stores all data in the application's data folder.

@@ -1,3 +1,8 @@
+---
+title: "How to"
+description: "Collection of tips and tricks around using linkding"
+---
+
 # How To
 
 Collection of tips and tricks around using linkding.
