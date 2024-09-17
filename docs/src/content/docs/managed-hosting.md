@@ -9,7 +9,7 @@ Self-hosting web applications still requires a lot of technical know-how and com
 
 The following services provide fully managed hosting for linkding, including automatic updates and backups:
 
-- [PikaPods.com](https://www.pikapods.com/) - Managed hosting for linkding, EU and US regions available. [1-click setup link](https://www.pikapods.com/pods?run=linkding) ([Disclosure](acknowledgements.md#pikapods))
+- [PikaPods.com](https://www.pikapods.com/) - Managed hosting for linkding, EU and US regions available. [1-click setup link](https://www.pikapods.com/pods?run=linkding) ([Disclosure](acknowledgements#pikapods))
 
 ## Self-Managed
 
