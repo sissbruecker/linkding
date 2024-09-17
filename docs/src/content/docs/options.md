@@ -3,8 +3,6 @@ title: "Options"
 description: "Options for configuring linkding"
 ---
 
-# Options
-
 This document lists the options that linkding can be configured with and explains how to use them in the individual install scenarios.
 
 ## Using options
@@ -23,10 +21,6 @@ For multiple options, use one `-e` argument per option.
 
 For docker-compose options are configured using an `.env` file. 
 Follow the docker-compose setup in the README and copy `.env.sample` to `.env`. Then modify the options in `.env`.
-
-### Manual setup
-
-All options need to be defined as environment variables in the environment that linkding runs in.
 
 ## List of options
 

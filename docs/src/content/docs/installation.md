@@ -3,13 +3,11 @@ title: "Installation"
 description: "How to install linkding"
 ---
 
-# Installation
-
 linkding is designed to be run with container solutions like [Docker](https://docs.docker.com/get-started/).
 The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
 
 linkding uses an SQLite database by default.
-Alternatively linkding supports PostgreSQL, see the [database options](docs/Options.md#LD_DB_ENGINE) for more information.
+Alternatively, linkding supports PostgreSQL, see the [database options](options#ld_db_engine) for more information.
 
 ##  Using Docker
 
@@ -64,7 +62,7 @@ To complete the setup, you still have to [create an initial user](#user-setup), 
 
 ##  Using Docker Compose
 
-To install linkding using [Docker Compose](https://docs.docker.com/compose/), you can use the [`docker-compose.yml`](https://github.com/sissbruecker/linkding/blob/master/docker-compose.yml) file. Copy the [`.env.sample`](https://github.com/sissbruecker/linkding/blob/master/.env.sample) file to `.env`, configure the parameters, and then run:
+To install linkding using [Docker Compose](https://docs.docker.com/compose/), you can download the [`docker-compose.yml`](https://github.com/sissbruecker/linkding/blob/master/docker-compose.yml) file. Also download the [`.env.sample`](https://github.com/sissbruecker/linkding/blob/master/.env.sample) file, rename it to `.env`, configure the parameters, and then run:
 ```shell
 docker-compose up -d
 ```
@@ -73,7 +71,7 @@ To complete the setup, you still have to [create an initial user](#user-setup), 
 
 ## User Setup
 
-For security reasons, the linkding Docker image does not provide an initial user, so you have to create one after setting up an installation. To do so, replace the credentials in the following command and run it:
+The linkding Docker image does not provide an initial user, so you have to create one after setting up an installation. To do so, replace the credentials in the following command and run it:
 
 **Docker**
 ```shell
@@ -87,7 +85,7 @@ docker-compose exec linkding python manage.py createsuperuser --username=joe --e
 
 The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
 
-Alternatively you can automatically create an initial superuser on startup using the [`LD_SUPERUSER_NAME` option](docs/Options.md#LD_SUPERUSER_NAME).
+Alternatively, you can automatically create an initial superuser on startup using the [`LD_SUPERUSER_NAME` option](options#ld_superuser_name).
 
 ## Reverse Proxy Setup
 
@@ -114,7 +112,7 @@ An example virtual host that proxies to linkding might look like:
 
 For a full example, see the docker-compose configuration in [jhauris/apache2-reverse-proxy](https://github.com/jhauris/linkding/tree/apache2-reverse-proxy)
 
-If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
+If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](options#ld_csrf_trusted_origins).
 
 </details>
 
@@ -123,7 +121,7 @@ If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGIN
 
 Caddy does not change the headers by default, and should not need any further configuration.
 
-If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
+If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](options#ld_csrf_trusted_origins).
 
 </details>
 
@@ -142,13 +140,4 @@ location /linkding {
 
 </details>
 
-Instead of configuring header forwarding in your proxy, you can also configure the URL from which you want to access your linkding instance with the  [`LD_CSRF_TRUSTED_ORIGINS` option](docs/Options.md#LD_CSRF_TRUSTED_ORIGINS).
-
-## Managed Hosting Options
-
-Self-hosting web applications still requires a lot of technical know-how and commitment to maintenance, in order to keep everything up-to-date and secure. This section is intended to provide simple alternatives in form of managed hosting solutions.
-
-- [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) - Guide for hosting a linkding installation on [fly.io](https://fly.io). By [fspoettel](https://github.com/fspoettel)
-- [PikaPods.com](https://www.pikapods.com/) - Managed hosting for linkding, EU and US regions available. [1-click setup link](https://www.pikapods.com/pods?run=linkding) ([Disclosure](#pikapods))
-- [CapRover](https://caprover.com/) - Linkding is included as a default one-click app
-- [linkding on railway.app](https://github.com/tianheg/linkding-on-railway) - Guide for hosting a linkding installation on [railway.app](https://railway.app/). By [tianheg](https://github.com/tianheg)
+Instead of configuring header forwarding in your proxy, you can also configure the URL from which you want to access your linkding instance with the  [`LD_CSRF_TRUSTED_ORIGINS` option](options#ld_csrf_trusted_origins).

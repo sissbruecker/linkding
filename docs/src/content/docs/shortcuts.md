@@ -3,8 +3,6 @@ title: "Keyboard Shortcuts"
 description: "Keyboard Shortcuts"
 ---
 
-# Keyboard Shortcuts
-
 The following keyboard shortcuts are currently available:
 
 | Action                                                                                    | Shortcut                            |

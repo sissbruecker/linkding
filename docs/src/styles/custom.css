@@ -1,0 +1,12 @@
+:root[data-theme='light'],
+[data-theme='light'] ::backdrop {
+    --sl-color-accent: hsl(241, 63%, 59%);
+    --sl-color-text-accent: hsl(241, 63%, 55%);
+
+    --sl-nav-gap: 1rem;
+}
+
+/* Align site search */
+.header .title-wrapper + div.sl-flex {
+    justify-content: flex-end;
+}

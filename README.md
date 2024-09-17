@@ -49,7 +49,7 @@ The name comes from:
 
 **Screenshot:**
 
-![Screenshot](/docs/linkding-screenshot.png?raw=true "Screenshot")
+![Screenshot](/docs/assets/linkding-screenshot.png?raw=true "Screenshot")
 
 ## Installation
 
