@@ -61,7 +61,7 @@ To use the shortcut:
 At the bottom of the share sheet there is a button for configuring share actions. You can use this to move the "Add To Linkding" action to the top of the share sheet if you like.
 
 :::note
-You can also check the [Community section](community) for other pre-made shortcuts that you can use.
+You can also check the [Community section](/community) for other pre-made shortcuts that you can use.
 :::
 
 ## Increase the font size

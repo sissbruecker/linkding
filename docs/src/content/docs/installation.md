@@ -7,7 +7,7 @@ linkding is designed to be run with container solutions like [Docker](https://do
 The Docker image is compatible with ARM platforms, so it can be run on a Raspberry Pi.
 
 linkding uses an SQLite database by default.
-Alternatively, linkding supports PostgreSQL, see the [database options](options#ld_db_engine) for more information.
+Alternatively, linkding supports PostgreSQL, see the [database options](/options#ld_db_engine) for more information.
 
 ##  Using Docker
 
@@ -85,7 +85,7 @@ docker-compose exec linkding python manage.py createsuperuser --username=joe --e
 
 The command will prompt you for a secure password. After the command has completed you can start using the application by logging into the UI with your credentials.
 
-Alternatively, you can automatically create an initial superuser on startup using the [`LD_SUPERUSER_NAME` option](options#ld_superuser_name).
+Alternatively, you can automatically create an initial superuser on startup using the [`LD_SUPERUSER_NAME` option](/options#ld_superuser_name).
 
 ## Reverse Proxy Setup
 
@@ -112,7 +112,7 @@ An example virtual host that proxies to linkding might look like:
 
 For a full example, see the docker-compose configuration in [jhauris/apache2-reverse-proxy](https://github.com/jhauris/linkding/tree/apache2-reverse-proxy)
 
-If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](options#ld_csrf_trusted_origins).
+If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](/options#ld_csrf_trusted_origins).
 
 </details>
 
@@ -121,7 +121,7 @@ If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGIN
 
 Caddy does not change the headers by default, and should not need any further configuration.
 
-If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](options#ld_csrf_trusted_origins).
+If you still run into CSRF issues, please check out the [`LD_CSRF_TRUSTED_ORIGINS` option](/options#ld_csrf_trusted_origins).
 
 </details>
 
@@ -140,4 +140,4 @@ location /linkding {
 
 </details>
 
-Instead of configuring header forwarding in your proxy, you can also configure the URL from which you want to access your linkding instance with the  [`LD_CSRF_TRUSTED_ORIGINS` option](options#ld_csrf_trusted_origins).
+Instead of configuring header forwarding in your proxy, you can also configure the URL from which you want to access your linkding instance with the  [`LD_CSRF_TRUSTED_ORIGINS` option](/options#ld_csrf_trusted_origins).
