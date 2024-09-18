@@ -1,12 +1,13 @@
+import binascii
 import logging
 import os
 from typing import List
 
-import binascii
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
@@ -422,6 +423,10 @@ class UserProfile(models.Model):
     search_preferences = models.JSONField(default=dict, null=False)
     enable_automatic_html_snapshots = models.BooleanField(default=True, null=False)
     default_mark_unread = models.BooleanField(default=False, null=False)
+    items_per_page = models.IntegerField(
+        null=False, default=30, validators=[MinValueValidator(10)]
+    )
+    sticky_pagination = models.BooleanField(default=False, null=False)
 
 
 class UserProfileForm(forms.ModelForm):
@@ -450,6 +455,8 @@ class UserProfileForm(forms.ModelForm):
             "default_mark_unread",
             "custom_css",
             "auto_tagging_rules",
+            "items_per_page",
+            "sticky_pagination",
         ]
 
 

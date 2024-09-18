@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-def general(request):
+def general(request, status=200, context_overrides=None):
     enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
     has_snapshot_support = django_settings.LD_ENABLE_SNAPSHOTS
     success_message = _find_message_with_tag(
@@ -44,6 +44,9 @@ def general(request):
     if request.user.is_superuser:
         global_settings_form = GlobalSettingsForm(instance=GlobalSettings.get())
 
+    if context_overrides is None:
+        context_overrides = {}
+
     return render(
         request,
         "settings/general.html",
@@ -55,7 +58,9 @@ def general(request):
             "success_message": success_message,
             "error_message": error_message,
             "version_info": version_info,
+            **context_overrides,
         },
+        status=status,
     )
 
 
@@ -63,8 +68,7 @@ def general(request):
 def update(request):
     if request.method == "POST":
         if "update_profile" in request.POST:
-            update_profile(request)
-            messages.success(request, "Profile updated", "settings_success_message")
+            return update_profile(request)
         if "update_global_settings" in request.POST:
             update_global_settings(request)
             messages.success(
@@ -101,13 +105,22 @@ def update_profile(request):
     form = UserProfileForm(request.POST, instance=profile)
     if form.is_valid():
         form.save()
+        messages.success(request, "Profile updated", "settings_success_message")
         # Load missing favicons if the feature was just enabled
         if profile.enable_favicons and not favicons_were_enabled:
             tasks.schedule_bookmarks_without_favicons(request.user)
         # Load missing preview images if the feature was just enabled
         if profile.enable_preview_images and not previews_were_enabled:
             tasks.schedule_bookmarks_without_previews(request.user)
-    return form
+
+        return HttpResponseRedirect(reverse("bookmarks:settings.general"))
+
+    messages.error(
+        request,
+        "Profile update failed, check the form below for errors",
+        "settings_error_message",
+    )
+    return general(request, 422, {"form": form})
 
 
 def update_global_settings(request):

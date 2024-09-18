@@ -21,7 +21,6 @@ from bookmarks.models import (
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 
-DEFAULT_PAGE_SIZE = 30
 CJK_RE = re.compile(r"[\u4e00-\u9fff]+")
 
 
@@ -181,7 +180,7 @@ class BookmarkListContext:
 
         query_set = request_context.get_bookmark_query_set(self.search)
         page_number = request.GET.get("page")
-        paginator = Paginator(query_set, DEFAULT_PAGE_SIZE)
+        paginator = Paginator(query_set, user_profile.items_per_page)
         bookmarks_page = paginator.get_page(page_number)
         # Prefetch related objects, this avoids n+1 queries when accessing fields in templates
         models.prefetch_related_objects(bookmarks_page.object_list, "owner", "tags")
