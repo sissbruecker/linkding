@@ -300,6 +300,28 @@ li[ld-bookmark-item] {
     & .page-item:first-child a {
         padding-left: 0;
     }
+
+    &.sticky {
+        position: sticky;
+        bottom: 0;
+        border-top: solid 1px var(--secondary-border-color);
+        background: var(--body-color);
+        padding-bottom: var(--unit-h);
+
+        &:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: calc(-1 * calc(var(--bulk-edit-toggle-width) + var(--bulk-edit-toggle-offset)));
+            width: calc(var(--bulk-edit-toggle-width) + var(--bulk-edit-toggle-offset));
+            background: var(--body-color);
+        }
+    }
+
+    & .pagination {
+        overflow: hidden;
+    }
 }
 
 .tag-cloud {
@@ -379,6 +401,7 @@ ul.bookmark-list {
     }
 
     /* Hide section border when bulk edit bar is opened, otherwise borders overlap in dark mode due to using contrast colors */
+
     &.active section:first-of-type .content-area-header {
         border-bottom-color: transparent;
     }
@@ -387,6 +410,19 @@ ul.bookmark-list {
 
     &.active:not(.activating) .bulk-edit-bar {
         overflow: visible;
+    }
+
+    /* make sticky pagination expand to cover checkboxes to the left */
+
+    &.active .bookmark-pagination.sticky:before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        bottom: 0;
+        left: calc(-1 * calc(var(--bulk-edit-toggle-width) + var(--bulk-edit-toggle-offset)));
+        width: calc(var(--bulk-edit-toggle-width) + var(--bulk-edit-toggle-offset));
+        background: var(--body-color);
+        border-top: solid 1px var(--secondary-border-color);
     }
 
     /* All checkbox */

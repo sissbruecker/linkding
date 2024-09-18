@@ -43,6 +43,8 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "permanent_notes": False,
             "custom_css": "",
             "auto_tagging_rules": "",
+            "items_per_page": "30",
+            "sticky_pagination": False,
         }
 
         return {**form_data, **overrides}
@@ -111,6 +113,8 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "default_mark_unread": True,
             "custom_css": "body { background-color: #000; }",
             "auto_tagging_rules": "example.com tag",
+            "items_per_page": "10",
+            "sticky_pagination": True,
         }
         response = self.client.post(
             reverse("bookmarks:settings.update"), form_data, follow=True
@@ -182,6 +186,13 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(
             self.user.profile.auto_tagging_rules, form_data["auto_tagging_rules"]
         )
+        self.assertEqual(
+            self.user.profile.items_per_page, int(form_data["items_per_page"])
+        )
+        self.assertEqual(
+            self.user.profile.sticky_pagination, form_data["sticky_pagination"]
+        )
+
         self.assertSuccessMessage(html, "Profile updated")
 
     def test_update_profile_should_not_be_called_without_respective_form_action(self):

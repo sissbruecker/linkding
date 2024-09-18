@@ -955,3 +955,37 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertInHTML(
             '<p class="empty-title h5">You have no bookmarks yet</p>', html
         )
+
+    def test_pagination_is_not_sticky_by_default(self):
+        self.setup_bookmark()
+        html = self.render_template()
+
+        self.assertIn('<div class="bookmark-pagination">', html)
+
+    def test_pagination_is_sticky_when_enabled_in_profile(self):
+        self.setup_bookmark()
+        profile = self.get_or_create_test_user().profile
+        profile.sticky_pagination = True
+        profile.save()
+        html = self.render_template()
+
+        self.assertIn('<div class="bookmark-pagination sticky">', html)
+
+    def test_items_per_page_is_30_by_default(self):
+        self.setup_numbered_bookmarks(50)
+        html = self.render_template()
+
+        soup = self.make_soup(html)
+        bookmarks = soup.select("li[ld-bookmark-item]")
+        self.assertEqual(30, len(bookmarks))
+
+    def test_items_per_page_is_configurable(self):
+        self.setup_numbered_bookmarks(50)
+        profile = self.get_or_create_test_user().profile
+        profile.items_per_page = 10
+        profile.save()
+        html = self.render_template()
+
+        soup = self.make_soup(html)
+        bookmarks = soup.select("li[ld-bookmark-item]")
+        self.assertEqual(10, len(bookmarks))

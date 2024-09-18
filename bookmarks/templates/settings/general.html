@@ -101,6 +101,29 @@
             Whether to open bookmarks a new page or in the same page.
           </div>
         </div>
+        <div class="form-group{% if form.items_per_page.errors %} has-error{% endif %}">
+          <label for="{{ form.items_per_page.id_for_label }}" class="form-label">Items per page</label>
+          {{ form.items_per_page|add_class:"form-input width-25 width-sm-100"|attr:"min:10" }}
+          {% if form.items_per_page.errors %}
+            <div class="form-input-hint is-error">
+              {{ form.items_per_page.errors }}
+            </div>
+          {% else %}
+          {% endif %}
+          <div class="form-input-hint">
+            The number of bookmarks to display per page.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.sticky_pagination.id_for_label }}" class="form-checkbox">
+            {{ form.sticky_pagination }}
+            <i class="form-icon"></i> Sticky pagination
+          </label>
+          <div class="form-input-hint">
+            When enabled, the pagination controls will stick to the bottom of the screen, so that they are always
+            visible without having to scroll to the end of the page first.
+          </div>
+        </div>
         <div class="form-group">
           <label for="{{ form.tag_search.id_for_label }}" class="form-label">Tag search</label>
           {{ form.tag_search|add_class:"form-select width-25 width-sm-100" }}

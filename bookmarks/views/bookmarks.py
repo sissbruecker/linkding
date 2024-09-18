@@ -38,8 +38,6 @@ from bookmarks.services.bookmarks import (
 from bookmarks.utils import get_safe_return_url
 from bookmarks.views import contexts, partials, turbo
 
-_default_page_size = 30
-
 
 @login_required
 def index(request):
