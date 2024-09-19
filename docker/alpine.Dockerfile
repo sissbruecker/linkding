@@ -10,8 +10,7 @@ COPY bookmarks/styles ./bookmarks/styles
 RUN npm run build
 
 
-# Use 3.11 for now, as django4-background-tasks doesn't work with 3.12 yet
-FROM python:3.11.8-alpine3.19 AS python-base
+FROM python:3.12.6-alpine3.20 AS python-base
 # Add required packages
 # alpine-sdk linux-headers pkgconfig: build Python packages from source
 # libpq-dev: build Postgres client from source
@@ -66,7 +65,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.11.8-alpine3.19 AS linkding
+FROM python:3.12.6-alpine3.20 AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
 RUN apk update && apk add bash curl icu libpq mailcap libssl3
