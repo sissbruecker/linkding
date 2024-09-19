@@ -57,7 +57,7 @@ pyopenssl==24.1.0
     # via josepy
 python-dateutil==2.8.2
     # via -r requirements.in
-requests==2.32.0
+requests==2.32.3
     # via
     #   -r requirements.in
     #   mozilla-django-oidc
