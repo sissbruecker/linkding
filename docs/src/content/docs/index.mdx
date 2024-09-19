@@ -1,0 +1,69 @@
+---
+title: linkding
+description: A self-hosted bookmarking service that is designed to be minimal, fast and easy to set up.
+template: splash
+hero:
+  tagline: A self-hosted bookmark manager designed be to be minimal, fast, and easy to set up.
+  actions:
+    - text: Get started
+      link: /installation
+      icon: right-arrow
+    - text: GitHub
+      link: https://github.com/sissbruecker/linkding
+      icon: external
+      variant: minimal
+      attrs:
+        target: _blank
+    - text: Demo
+      link: https://demo.linkding.link
+      icon: external
+      variant: minimal
+      attrs:
+        target: _blank
+---
+
+import { CardGrid } from '@astrojs/starlight/components';
+import Card from '../../components/Card.astro';
+
+<a href="/linkding-screenshot.png" className="hero-image light">
+<img src="/linkding-screenshot.png"/>
+</a>
+<a href="/linkding-screenshot-dark.png" className="hero-image dark">
+<img src="/linkding-screenshot-dark.png"/>
+</a>
+
+
+## Features
+
+<CardGrid>
+	<Card title="Focused" icon="focus">
+		Optimized for readability, allowing to quickly add and find bookmarks without distractions.
+	</Card>
+	<Card title="Customizable" icon="settings">
+		Features can be enabled or disabled as needed, adjustable UI through a number of settings.
+	</Card>
+	<Card title="Metadata" icon="plus">
+		Automatically fetches titles, descriptions, icons and preview images of bookmarked websites.
+	</Card>
+	<Card title="Archiving" icon="archive">
+		Automatically create snapshots of bookmarked websites, either as local HTML file or on the Internet Archive.
+	</Card>
+	<Card title="Bulk editing" icon="checkbox">
+		Apply any operation to a selection of bookmarks or the whole collection.
+	</Card>
+	<Card title="Import / Export" icon="file-export">
+		Import and export bookmarks in the Netscape HTML format.
+	</Card>
+	<Card title="Multi-User" icon="users">
+		Supports multiple users, with the ability to share bookmarks with other users or guests.
+	</Card>
+	<Card title="Browser extension" icon="puzzle">
+		Extensions for [Firefox](https://addons.mozilla.org/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe) allow adding and searching bookmarks from within the browser.
+	</Card>
+	<Card title="REST API" icon="cloud">
+		REST API for developing scripts or 3rd party apps.
+	</Card>
+	<Card title="Low maintenance" icon="mood-smile">
+		A single Docker container, using SQLite as database. Automated migrations, zero breaking changes.
+	</Card>
+</CardGrid>

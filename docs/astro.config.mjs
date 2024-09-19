@@ -18,6 +18,7 @@ export default defineConfig({
 					label: 'Getting Started',
 					items: [
 						{ label: 'Installation', slug: 'installation' },
+						{ label: 'Options', slug: 'options' },
 						{ label: 'Managed Hosting', slug: 'managed-hosting' },
 						{ label: 'Browser Extension', slug: 'browser-extension' },
 					],
@@ -25,7 +26,6 @@ export default defineConfig({
 				{
 					label: 'Guides',
 					items: [
-						{ label: 'Options', slug: 'options' },
 						{ label: 'Backups', slug: 'backups' },
 						{ label: 'Admin', slug: 'admin' },
 						{ label: 'Keyboard Shortcuts', slug: 'shortcuts' },

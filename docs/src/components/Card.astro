@@ -1,0 +1,45 @@
+---
+import {icons} from './icons';
+interface Props {
+    icon: keyof typeof icons;
+    title: string;
+}
+
+const {icon, title} = Astro.props;
+---
+
+<article class="card sl-flex">
+  <p class="title sl-flex">
+      {icon && <span class="icon" set:html={icons[icon]}/>}
+    <span set:html={title}/>
+  </p>
+  <div class="body">
+    <slot/>
+  </div>
+</article>
+
+<style>
+    .card {
+        flex-direction: column;
+        gap: clamp(0.5rem, calc(0.125rem + 1vw), 1rem);
+    }
+
+    .title {
+        font-weight: 600;
+        font-size: var(--sl-text-h4);
+        color: var(--sl-color-white);
+        line-height: var(--sl-line-height-headings);
+        gap: .8rem;
+        align-items: center;
+    }
+
+    .card .icon {
+        border-radius: 0.25rem;
+        color: var(--sl-color-text-accent);
+    }
+
+    .card .body {
+        margin: 0;
+        font-size: clamp(var(--sl-text-sm), calc(0.5rem + 1vw), var(--sl-text-body));
+    }
+</style>
