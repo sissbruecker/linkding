@@ -210,7 +210,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def assertNotesToggle(self, html: str, count=1):
         self.assertInHTML(
-            f"""
+            """
         <button type="button" class="btn btn-link btn-sm btn-icon toggle-notes">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
             <use xlink:href="#ld-icon-note"></use>
@@ -314,7 +314,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         # contains description text, without leading/trailing whitespace
         if has_description:
-            description_text = description.find("span", text=bookmark.description)
+            description_text = description.find("span", string=bookmark.description)
             self.assertIsNotNone(description_text)
 
         if not has_tags:
@@ -331,7 +331,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             self.assertEqual(len(tag_links), len(bookmark.tags.all()))
 
             for tag in bookmark.tags.all():
-                tag_link = tags.find("a", text=f"#{tag.name}")
+                tag_link = tags.find("a", string=f"#{tag.name}")
                 self.assertIsNotNone(tag_link)
                 self.assertEqual(tag_link["href"], f"?q=%23{tag.name}")
 
@@ -400,7 +400,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             self.assertEqual(len(tag_links), len(bookmark.tags.all()))
 
             for tag in bookmark.tags.all():
-                tag_link = tags.find("a", text=f"#{tag.name}")
+                tag_link = tags.find("a", string=f"#{tag.name}")
                 self.assertIsNotNone(tag_link)
                 self.assertEqual(tag_link["href"], f"?q=%23{tag.name}")
 

@@ -2,7 +2,7 @@ import logging
 import re
 import unicodedata
 import urllib.parse
-from datetime import datetime
+import datetime
 from typing import Optional
 
 from dateutil.relativedelta import relativedelta
@@ -33,7 +33,9 @@ weekday_names = {
 }
 
 
-def humanize_absolute_date(value: datetime, now: Optional[datetime] = None):
+def humanize_absolute_date(
+    value: datetime.datetime, now: Optional[datetime.datetime] = None
+):
     if not now:
         now = timezone.now()
     delta = relativedelta(now, value)
@@ -51,7 +53,9 @@ def humanize_absolute_date(value: datetime, now: Optional[datetime] = None):
         return weekday_names[value.isoweekday()]
 
 
-def humanize_relative_date(value: datetime, now: Optional[datetime] = None):
+def humanize_relative_date(
+    value: datetime.datetime, now: Optional[datetime.datetime] = None
+):
     if not now:
         now = timezone.now()
     delta = relativedelta(now, value)
@@ -87,21 +91,21 @@ def parse_timestamp(value: str):
         raise ValueError(f"{value} is not a valid timestamp")
 
     try:
-        return datetime.utcfromtimestamp(timestamp).astimezone()
+        return datetime.datetime.fromtimestamp(timestamp, datetime.UTC)
     except (OverflowError, ValueError, OSError):
         pass
 
     # Value exceeds the max. allowed timestamp
     # Try parsing as microseconds
     try:
-        return datetime.utcfromtimestamp(timestamp / 1000).astimezone()
+        return datetime.datetime.fromtimestamp(timestamp / 1000, datetime.UTC)
     except (OverflowError, ValueError, OSError):
         pass
 
     # Value exceeds the max. allowed timestamp
     # Try parsing as nanoseconds
     try:
-        return datetime.utcfromtimestamp(timestamp / 1000000).astimezone()
+        return datetime.datetime.fromtimestamp(timestamp / 1000000, datetime.UTC)
     except (OverflowError, ValueError, OSError):
         pass
 

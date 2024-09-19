@@ -15,7 +15,7 @@ class LoginViewTestCase(TestCase, HtmlTestMixin):
         response = self.client.get("/login/")
         soup = self.make_soup(response.content.decode())
 
-        oidc_login_link = soup.find("a", text="Login with OIDC")
+        oidc_login_link = soup.find("a", string="Login with OIDC")
 
         self.assertIsNone(oidc_login_link)
 
@@ -24,6 +24,6 @@ class LoginViewTestCase(TestCase, HtmlTestMixin):
         response = self.client.get("/login/")
         soup = self.make_soup(response.content.decode())
 
-        oidc_login_link = soup.find("a", text="Login with OIDC")
+        oidc_login_link = soup.find("a", string="Login with OIDC")
 
         self.assertIsNotNone(oidc_login_link)
