@@ -522,8 +522,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         soup = self.get_index_details_modal(bookmark)
         edit_link = soup.find("a", string="Edit")
         self.assertIsNotNone(edit_link)
-        details_url = reverse("bookmarks:index") + f"?details={bookmark.id}"
-        expected_url = "/bookmarks/1/edit?return_url=/bookmarks%3Fdetails%3D1"
+        expected_url = f"/bookmarks/{bookmark.id}/edit?return_url=/bookmarks%3Fdetails%3D{bookmark.id}"
         self.assertEqual(expected_url, edit_link["href"])
 
     def test_delete_button(self):
