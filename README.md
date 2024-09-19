@@ -35,7 +35,7 @@ The name comes from:
 
 **Screenshot:**
 
-![Screenshot](/docs/src/assets/linkding-screenshot.png?raw=true "Screenshot")
+![Screenshot](/docs/public/linkding-screenshot.png?raw=true "Screenshot")
 
 ## Getting Started
 
