@@ -154,14 +154,29 @@ li[ld-bookmark-item] {
         min-width: 0;
     }
 
-    & img.preview-image {
+    & .preview-image {
         flex: 0 0 auto;
         width: 100px;
         height: 60px;
         margin-top: var(--unit-h);
-        object-fit: cover;
         border-radius: var(--border-radius);
         border: solid 1px var(--border-color);
+        object-fit: cover;
+
+        &.placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--body-color-contrast);
+
+            & .img {
+                width: var(--unit-12);
+                height: var(--unit-12);
+                background-color: var(--tertiary-text-color);
+                -webkit-mask: url(preview-placeholder.svg) no-repeat center;
+                mask: url(preview-placeholder.svg) no-repeat center;
+            }
+        }
     }
 
     & .form-checkbox.bulk-edit-checkbox {
