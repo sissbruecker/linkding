@@ -171,6 +171,11 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertIsNotNone(preview_image)
         self.assertEqual(preview_image["src"], url)
 
+    def assertPreviewImagePlaceholder(self, html: str):
+        soup = self.make_soup(html)
+        placeholder = soup.select_one(".preview-image.placeholder")
+        self.assertIsNotNone(placeholder)
+
     def assertBookmarkURLCount(
         self, html: str, bookmark: Bookmark, link_target: str = "_blank", count=0
     ):
@@ -691,15 +696,15 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertPreviewImageHidden(html, bookmark)
 
-    def test_preview_image_should_be_hidden_when_there_is_no_preview_image(self):
+    def test_preview_image_shows_placeholder_when_there_is_no_preview_image(self):
         profile = self.get_or_create_test_user().profile
         profile.enable_preview_images = True
         profile.save()
 
-        bookmark = self.setup_bookmark()
+        self.setup_bookmark()
         html = self.render_template()
 
-        self.assertPreviewImageHidden(html, bookmark)
+        self.assertPreviewImagePlaceholder(html)
 
     def test_favicon_should_be_visible_when_favicons_enabled(self):
         profile = self.get_or_create_test_user().profile
