@@ -4,7 +4,11 @@ from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
 from bookmarks.models import Bookmark, Tag, build_tag_string, UserProfile
-from bookmarks.services.bookmarks import create_bookmark, update_bookmark
+from bookmarks.services.bookmarks import (
+    create_bookmark,
+    update_bookmark,
+    enhance_with_website_metadata,
+)
 from bookmarks.services.tags import get_or_create_tag
 
 
@@ -99,7 +103,14 @@ class BookmarkSerializer(serializers.ModelSerializer):
         bookmark.unread = validated_data["unread"]
         bookmark.shared = validated_data["shared"]
         tag_string = build_tag_string(validated_data["tag_names"])
-        return create_bookmark(bookmark, tag_string, self.context["user"])
+
+        saved_bookmark = create_bookmark(bookmark, tag_string, self.context["user"])
+        # Unless scraping is explicitly disabled, enhance bookmark with website
+        # metadata to preserve backwards compatibility with clients that expect
+        # title and description to be populated automatically when left empty
+        if not self.context.get("disable_scraping", False):
+            enhance_with_website_metadata(saved_bookmark)
+        return saved_bookmark
 
     def update(self, instance: Bookmark, validated_data):
         # Update fields if they were provided in the payload

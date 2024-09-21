@@ -54,6 +54,8 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             expectation["date_modified"] = bookmark.date_modified.isoformat().replace(
                 "+00:00", "Z"
             )
+            expectation["website_title"] = None
+            expectation["website_description"] = None
             expectations.append(expectation)
 
         for data in data_list:
@@ -392,6 +394,44 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.tags.count(), 2)
         self.assertEqual(bookmark.tags.filter(name=data["tag_names"][0]).count(), 1)
         self.assertEqual(bookmark.tags.filter(name=data["tag_names"][1]).count(), 1)
+
+    def test_create_bookmark_enhances_with_metadata_by_default(self):
+        self.authenticate()
+
+        data = {"url": "https://example.com/"}
+        with patch.object(website_loader, "load_website_metadata") as mock_load:
+            mock_load.return_value = WebsiteMetadata(
+                url="https://example.com/",
+                title="Website title",
+                description="Website description",
+                preview_image=None,
+            )
+            self.post(reverse("bookmarks:bookmark-list"), data, status.HTTP_201_CREATED)
+        bookmark = Bookmark.objects.get(url=data["url"])
+        self.assertEqual(bookmark.title, "Website title")
+        self.assertEqual(bookmark.description, "Website description")
+
+    def test_create_bookmark_does_not_enhance_with_metadata_if_scraping_is_disabled(
+        self,
+    ):
+        self.authenticate()
+
+        data = {"url": "https://example.com/"}
+        with patch.object(website_loader, "load_website_metadata") as mock_load:
+            mock_load.return_value = WebsiteMetadata(
+                url="https://example.com/",
+                title="Website title",
+                description="Website description",
+                preview_image=None,
+            )
+            self.post(
+                reverse("bookmarks:bookmark-list") + "?disable_scraping",
+                data,
+                status.HTTP_201_CREATED,
+            )
+        bookmark = Bookmark.objects.get(url=data["url"])
+        self.assertEqual(bookmark.title, "")
+        self.assertEqual(bookmark.description, "")
 
     def test_create_bookmark_with_same_url_updates_existing_bookmark(self):
         self.authenticate()

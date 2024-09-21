@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 @dataclass
 class WebsiteMetadata:
     url: str
-    title: str
-    description: str
+    title: str | None
+    description: str | None
     preview_image: str | None
 
     def to_dict(self):
@@ -43,12 +43,13 @@ def load_website_metadata(url: str):
         start = timezone.now()
         soup = BeautifulSoup(page_text, "html.parser")
 
-        title = soup.title.string.strip() if soup.title is not None else None
+        if soup.title and soup.title.string:
+            title = soup.title.string.strip()
         description_tag = soup.find("meta", attrs={"name": "description"})
         description = (
             description_tag["content"].strip()
             if description_tag and description_tag["content"]
-            else None
+            else ""
         )
 
         if not description:
@@ -56,7 +57,7 @@ def load_website_metadata(url: str):
             description = (
                 description_tag["content"].strip()
                 if description_tag and description_tag["content"]
-                else None
+                else ""
             )
 
         image_tag = soup.find("meta", attrs={"property": "og:image"})

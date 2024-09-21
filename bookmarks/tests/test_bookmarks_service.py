@@ -25,6 +25,7 @@ from bookmarks.services.bookmarks import (
     share_bookmarks,
     unshare_bookmarks,
     upload_asset,
+    enhance_with_website_metadata,
 )
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
@@ -895,3 +896,61 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertIsNone(asset.file_size)
             self.assertEqual(BookmarkAsset.STATUS_FAILURE, asset.status)
             self.assertEqual("", asset.file)
+
+    def test_enhance_with_website_metadata(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+        with patch.object(
+            website_loader, "load_website_metadata"
+        ) as mock_load_website_metadata:
+            mock_load_website_metadata.return_value = website_loader.WebsiteMetadata(
+                url="https://example.com",
+                title="Website title",
+                description="Website description",
+                preview_image=None,
+            )
+
+            # missing title and description
+            bookmark.title = ""
+            bookmark.description = ""
+            bookmark.save()
+            enhance_with_website_metadata(bookmark)
+            bookmark.refresh_from_db()
+
+            self.assertEqual("Website title", bookmark.title)
+            self.assertEqual("Website description", bookmark.description)
+
+            # missing title only
+            bookmark.title = ""
+            bookmark.description = "Initial description"
+            bookmark.save()
+            enhance_with_website_metadata(bookmark)
+            bookmark.refresh_from_db()
+
+            self.assertEqual("Website title", bookmark.title)
+            self.assertEqual("Initial description", bookmark.description)
+
+            # missing description only
+            bookmark.title = "Initial title"
+            bookmark.description = ""
+            bookmark.save()
+            enhance_with_website_metadata(bookmark)
+            bookmark.refresh_from_db()
+
+            self.assertEqual("Initial title", bookmark.title)
+            self.assertEqual("Website description", bookmark.description)
+
+            # metadata returns None
+            mock_load_website_metadata.return_value = website_loader.WebsiteMetadata(
+                url="https://example.com",
+                title=None,
+                description=None,
+                preview_image=None,
+            )
+            bookmark.title = ""
+            bookmark.description = ""
+            bookmark.save()
+            enhance_with_website_metadata(bookmark)
+            bookmark.refresh_from_db()
+
+            self.assertEqual("", bookmark.title)
+            self.assertEqual("", bookmark.description)

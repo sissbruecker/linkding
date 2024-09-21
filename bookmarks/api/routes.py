@@ -56,7 +56,12 @@ class BookmarkViewSet(
         return Bookmark.objects.all().filter(owner=user)
 
     def get_serializer_context(self):
-        return {"request": self.request, "user": self.request.user}
+        disable_scraping = "disable_scraping" in self.request.GET
+        return {
+            "request": self.request,
+            "user": self.request.user,
+            "disable_scraping": disable_scraping,
+        }
 
     @action(methods=["get"], detail=False)
     def archived(self, request):

@@ -70,6 +70,17 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     return bookmark
 
 
+def enhance_with_website_metadata(bookmark: Bookmark):
+    metadata = website_loader.load_website_metadata(bookmark.url)
+    if not bookmark.title:
+        bookmark.title = metadata.title or ""
+
+    if not bookmark.description:
+        bookmark.description = metadata.description or ""
+
+    bookmark.save()
+
+
 def archive_bookmark(bookmark: Bookmark):
     bookmark.is_archived = True
     bookmark.date_modified = timezone.now()
@@ -229,12 +240,6 @@ def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.notes = from_bookmark.notes
     to_bookmark.unread = from_bookmark.unread
     to_bookmark.shared = from_bookmark.shared
-
-
-def _update_website_metadata(bookmark: Bookmark):
-    metadata = website_loader.load_website_metadata(bookmark.url)
-    bookmark.website_title = metadata.title
-    bookmark.website_description = metadata.description
 
 
 def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):
