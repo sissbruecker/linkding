@@ -38,6 +38,8 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "tag_names",
             "date_added",
             "date_modified",
+            "website_title",
+            "website_description",
         ]
         read_only_fields = [
             "web_archive_snapshot_url",
@@ -45,6 +47,8 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "preview_image_url",
             "date_added",
             "date_modified",
+            "website_title",
+            "website_description",
         ]
         list_serializer_class = BookmarkListSerializer
 
@@ -59,6 +63,9 @@ class BookmarkSerializer(serializers.ModelSerializer):
     tag_names = TagListField(required=False, default=[])
     favicon_url = serializers.SerializerMethodField()
     preview_image_url = serializers.SerializerMethodField()
+    # Add dummy website title and description fields for backwards compatibility but keep them empty
+    website_title = serializers.SerializerMethodField()
+    website_description = serializers.SerializerMethodField()
 
     def get_favicon_url(self, obj: Bookmark):
         if not obj.favicon_file:
@@ -75,6 +82,12 @@ class BookmarkSerializer(serializers.ModelSerializer):
         preview_image_file_path = static(obj.preview_image_file)
         preview_image_url = request.build_absolute_uri(preview_image_file_path)
         return preview_image_url
+
+    def get_website_title(self, obj: Bookmark):
+        return None
+
+    def get_website_description(self, obj: Bookmark):
+        return None
 
     def create(self, validated_data):
         bookmark = Bookmark()

@@ -85,6 +85,19 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         )
         self.assertBookmarkListEqual(response.data["results"], bookmarks)
 
+    def test_list_bookmarks_returns_none_for_website_title_and_description(self):
+        self.authenticate()
+        bookmark = self.setup_bookmark()
+        bookmark.website_title = "Website title"
+        bookmark.website_description = "Website description"
+        bookmark.save()
+
+        response = self.get(
+            reverse("bookmarks:bookmark-list"), expected_status_code=status.HTTP_200_OK
+        )
+        self.assertIsNone(response.data["results"][0]["website_title"])
+        self.assertIsNone(response.data["results"][0]["website_description"])
+
     def test_list_bookmarks_does_not_return_archived_bookmarks(self):
         self.authenticate()
         bookmarks = self.setup_numbered_bookmarks(5)
