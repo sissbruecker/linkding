@@ -87,6 +87,39 @@ GET /api/bookmarks/<id>/
 
 Retrieves a single bookmark by ID.
 
+**Check**
+
+```
+GET /api/bookmarks/check/?url=https%3A%2F%2Fexample.com
+```
+
+Allows to check if a URL is already bookmarked. If the URL is already bookmarked, the `bookmark` property in the response holds the bookmark data, otherwise it is `null`.
+
+Also returns a `metadata` property that contains metadata scraped from the website. Finally, the `auto_tags` property contains the tag names that would be automatically added when creating a bookmark for that URL.
+
+Example response:
+
+```json
+{
+  "bookmark": {
+    "id": 1,
+    "url": "https://example.com",
+    "title": "Example title",
+    "description": "Example description",
+    ...
+  },
+  "metadata": {
+    "title": "Scraped website title",
+    "description": "Scraped website description",
+    ...
+  },
+  "auto_tags": [
+    "tag1",
+    "tag2"
+  ]
+}
+```
+
 **Create**
 
 ```
@@ -95,6 +128,12 @@ POST /api/bookmarks/
 
 Creates a new bookmark. Tags are simply assigned using their names. Including
 `is_archived: true` saves a bookmark directly to the archive.
+
+If the title and description are not provided or empty, the application automatically tries to scrape them from the bookmarked website. This behavior can be disabled by adding the `disable_scraping` query parameter to the API request. If you have an application where you want to keep using scraped metadata, but also allow users to leave the title or description empty, you should:
+
+- Fetch the scraped title and description using the `/check` endpoint.
+- Prefill the title and description fields in your app with the fetched values and allow users to clear those values.
+- Add the `disable_scraping` query parameter to prevent the API from adding them back again.
 
 Example payload:
 
