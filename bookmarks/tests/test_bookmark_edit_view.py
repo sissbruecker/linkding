@@ -80,8 +80,6 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
             title="edited title",
             description="edited description",
             notes="edited notes",
-            website_title="website title",
-            website_description="website description",
         )
 
         response = self.client.get(reverse("bookmarks:edit", args=[bookmark.id]))
@@ -126,22 +124,6 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
             <textarea name="notes" cols="40" rows="8" class="form-input" id="id_notes">
                 {bookmark.notes}
             </textarea>
-        """,
-            html,
-        )
-
-        self.assertInHTML(
-            f"""
-            <input type="hidden" name="website_title"  id="id_website_title"
-                    value="{bookmark.website_title}">
-        """,
-            html,
-        )
-
-        self.assertInHTML(
-            f"""
-            <input type="hidden" name="website_description"  id="id_website_description"
-                    value="{bookmark.website_description}">
         """,
             html,
         )

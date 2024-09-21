@@ -101,16 +101,7 @@ class BookmarkViewSet(
             self.get_serializer(bookmark).data if bookmark else None
         )
 
-        # Either return metadata from existing bookmark, or scrape from URL
-        if bookmark:
-            metadata = WebsiteMetadata(
-                url,
-                bookmark.website_title,
-                bookmark.website_description,
-                None,
-            )
-        else:
-            metadata = website_loader.load_website_metadata(url)
+        metadata = website_loader.load_website_metadata(url)
 
         # Return tags that would be automatically applied to the bookmark
         profile = request.user.profile
@@ -120,7 +111,7 @@ class BookmarkViewSet(
                 auto_tags = auto_tagging.get_tags(profile.auto_tagging_rules, url)
             except Exception as e:
                 logger.error(
-                    f"Failed to auto-tag bookmark. url={bookmark.url}",
+                    f"Failed to auto-tag bookmark. url={url}",
                     exc_info=e,
                 )
 

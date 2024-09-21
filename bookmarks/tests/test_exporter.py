@@ -98,7 +98,5 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         bookmark.title = ""
         bookmark.description = ""
-        bookmark.website_title = None
-        bookmark.website_description = None
         bookmark.save()
         exporter.export_netscape_html([bookmark])

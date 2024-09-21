@@ -2,6 +2,7 @@
 
 from django.db import migrations
 from django.db.models import F, Q
+from django.db.models.expressions import RawSQL
 
 from bookmarks.models import Bookmark
 
@@ -9,13 +10,15 @@ from bookmarks.models import Bookmark
 def forwards(apps, schema_editor):
     Bookmark.objects.filter(
         Q(title__isnull=True) | Q(title__exact=""),
-        website_title__isnull=False,
-    ).update(title=F("website_title"))
+    ).extra(
+        where=["website_title IS NOT NULL"]
+    ).update(title=RawSQL("website_title", ()))
 
     Bookmark.objects.filter(
         Q(description__isnull=True) | Q(description__exact=""),
-        website_description__isnull=False,
-    ).update(description=F("website_description"))
+    ).extra(where=["website_description IS NOT NULL"]).update(
+        description=RawSQL("website_description", ())
+    )
 
 
 def reverse(apps, schema_editor):

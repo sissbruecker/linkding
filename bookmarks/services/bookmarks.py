@@ -26,8 +26,6 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
         _merge_bookmark_data(bookmark, existing_bookmark)
         return update_bookmark(existing_bookmark, tag_string, current_user)
 
-    # Update website info
-    _update_website_metadata(bookmark)
     # Set currently logged in user as owner
     bookmark.owner = current_user
     # Set dates
@@ -67,8 +65,6 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     if has_url_changed:
         # Update web archive snapshot, if URL changed
         tasks.create_web_archive_snapshot(current_user, bookmark, True)
-        # Only update website metadata if URL changed
-        _update_website_metadata(bookmark)
         bookmark.save()
 
     return bookmark

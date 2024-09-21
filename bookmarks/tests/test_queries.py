@@ -36,14 +36,6 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(description=random_sentence(including_word="TERM1")),
             self.setup_bookmark(notes=random_sentence(including_word="term1")),
             self.setup_bookmark(notes=random_sentence(including_word="TERM1")),
-            self.setup_bookmark(website_title=random_sentence(including_word="term1")),
-            self.setup_bookmark(website_title=random_sentence(including_word="TERM1")),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="term1")
-            ),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="TERM1")
-            ),
         ]
         self.term1_term2_bookmarks = [
             self.setup_bookmark(url="http://example.com/term1/term2"),
@@ -55,30 +47,16 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
                 description=random_sentence(including_word="term1"),
                 title=random_sentence(including_word="term2"),
             ),
-            self.setup_bookmark(
-                website_title=random_sentence(including_word="term1"),
-                title=random_sentence(including_word="term2"),
-            ),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="term1"),
-                title=random_sentence(including_word="term2"),
-            ),
         ]
         self.tag1_bookmarks = [
             self.setup_bookmark(tags=[tag1]),
             self.setup_bookmark(title=random_sentence(), tags=[tag1]),
             self.setup_bookmark(description=random_sentence(), tags=[tag1]),
-            self.setup_bookmark(website_title=random_sentence(), tags=[tag1]),
-            self.setup_bookmark(website_description=random_sentence(), tags=[tag1]),
         ]
         self.tag1_as_term_bookmarks = [
             self.setup_bookmark(url="http://example.com/tag1"),
             self.setup_bookmark(title=random_sentence(including_word="tag1")),
             self.setup_bookmark(description=random_sentence(including_word="tag1")),
-            self.setup_bookmark(website_title=random_sentence(including_word="tag1")),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="tag1")
-            ),
         ]
         self.term1_tag1_bookmarks = [
             self.setup_bookmark(url="http://example.com/term1", tags=[tag1]),
@@ -87,12 +65,6 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             ),
             self.setup_bookmark(
                 description=random_sentence(including_word="term1"), tags=[tag1]
-            ),
-            self.setup_bookmark(
-                website_title=random_sentence(including_word="term1"), tags=[tag1]
-            ),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="term1"), tags=[tag1]
             ),
         ]
         self.tag2_bookmarks = [
@@ -136,22 +108,6 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(
                 notes=random_sentence(including_word="TERM1"), tags=[self.setup_tag()]
             ),
-            self.setup_bookmark(
-                website_title=random_sentence(including_word="term1"),
-                tags=[self.setup_tag()],
-            ),
-            self.setup_bookmark(
-                website_title=random_sentence(including_word="TERM1"),
-                tags=[self.setup_tag()],
-            ),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="term1"),
-                tags=[self.setup_tag()],
-            ),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="TERM1"),
-                tags=[self.setup_tag()],
-            ),
         ]
         self.term1_term2_bookmarks = [
             self.setup_bookmark(
@@ -167,16 +123,6 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
                 title=random_sentence(including_word="term2"),
                 tags=[self.setup_tag()],
             ),
-            self.setup_bookmark(
-                website_title=random_sentence(including_word="term1"),
-                title=random_sentence(including_word="term2"),
-                tags=[self.setup_tag()],
-            ),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="term1"),
-                title=random_sentence(including_word="term2"),
-                tags=[self.setup_tag()],
-            ),
         ]
         self.tag1_bookmarks = [
             self.setup_bookmark(tags=[tag1, self.setup_tag()]),
@@ -184,21 +130,11 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(
                 description=random_sentence(), tags=[tag1, self.setup_tag()]
             ),
-            self.setup_bookmark(
-                website_title=random_sentence(), tags=[tag1, self.setup_tag()]
-            ),
-            self.setup_bookmark(
-                website_description=random_sentence(), tags=[tag1, self.setup_tag()]
-            ),
         ]
         self.tag1_as_term_bookmarks = [
             self.setup_bookmark(url="http://example.com/tag1"),
             self.setup_bookmark(title=random_sentence(including_word="tag1")),
             self.setup_bookmark(description=random_sentence(including_word="tag1")),
-            self.setup_bookmark(website_title=random_sentence(including_word="tag1")),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="tag1")
-            ),
         ]
         self.term1_tag1_bookmarks = [
             self.setup_bookmark(
@@ -210,14 +146,6 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             ),
             self.setup_bookmark(
                 description=random_sentence(including_word="term1"),
-                tags=[tag1, self.setup_tag()],
-            ),
-            self.setup_bookmark(
-                website_title=random_sentence(including_word="term1"),
-                tags=[tag1, self.setup_tag()],
-            ),
-            self.setup_bookmark(
-                website_description=random_sentence(including_word="term1"),
                 tags=[tag1, self.setup_tag()],
             ),
         ]
@@ -1260,30 +1188,18 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(title="A_1_2"),
             self.setup_bookmark(title="b_1_1"),
             self.setup_bookmark(title="B_1_2"),
-            self.setup_bookmark(title="", website_title="a_2_1"),
-            self.setup_bookmark(title="", website_title="A_2_2"),
-            self.setup_bookmark(title="", website_title="b_2_1"),
-            self.setup_bookmark(title="", website_title="B_2_2"),
-            self.setup_bookmark(title="", website_title="", url="a_3_1"),
-            self.setup_bookmark(title="", website_title="", url="A_3_2"),
-            self.setup_bookmark(title="", website_title="", url="b_3_1"),
-            self.setup_bookmark(title="", website_title="", url="B_3_2"),
-            self.setup_bookmark(title="a_4_1", website_title="0"),
-            self.setup_bookmark(title="A_4_2", website_title="0"),
-            self.setup_bookmark(title="b_4_1", website_title="0"),
-            self.setup_bookmark(title="B_4_2", website_title="0"),
+            self.setup_bookmark(title="", url="a_3_1"),
+            self.setup_bookmark(title="", url="A_3_2"),
+            self.setup_bookmark(title="", url="b_3_1"),
+            self.setup_bookmark(title="", url="B_3_2"),
             self.setup_bookmark(title="a_5_1", url="0"),
             self.setup_bookmark(title="A_5_2", url="0"),
             self.setup_bookmark(title="b_5_1", url="0"),
             self.setup_bookmark(title="B_5_2", url="0"),
-            self.setup_bookmark(title="", website_title="a_6_1", url="0"),
-            self.setup_bookmark(title="", website_title="A_6_2", url="0"),
-            self.setup_bookmark(title="", website_title="b_6_1", url="0"),
-            self.setup_bookmark(title="", website_title="B_6_2", url="0"),
-            self.setup_bookmark(title="a_7_1", website_title="0", url="0"),
-            self.setup_bookmark(title="A_7_2", website_title="0", url="0"),
-            self.setup_bookmark(title="b_7_1", website_title="0", url="0"),
-            self.setup_bookmark(title="B_7_2", website_title="0", url="0"),
+            self.setup_bookmark(title="", url="0"),
+            self.setup_bookmark(title="", url="0"),
+            self.setup_bookmark(title="", url="0"),
+            self.setup_bookmark(title="", url="0"),
         ]
         return bookmarks
 

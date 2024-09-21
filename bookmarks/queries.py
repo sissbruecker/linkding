@@ -53,8 +53,6 @@ def _base_bookmarks_query(
             Q(title__icontains=term)
             | Q(description__icontains=term)
             | Q(notes__icontains=term)
-            | Q(website_title__icontains=term)
-            | Q(website_description__icontains=term)
             | Q(url__icontains=term)
         )
 
@@ -97,10 +95,6 @@ def _base_bookmarks_query(
         query_set = query_set.annotate(
             effective_title=Case(
                 When(Q(title__isnull=False) & ~Q(title__exact=""), then=Lower("title")),
-                When(
-                    Q(website_title__isnull=False) & ~Q(website_title__exact=""),
-                    then=Lower("website_title"),
-                ),
                 default=Lower("url"),
                 output_field=CharField(),
             )
