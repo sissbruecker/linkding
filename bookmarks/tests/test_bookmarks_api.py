@@ -33,8 +33,6 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             expectation["title"] = bookmark.title
             expectation["description"] = bookmark.description
             expectation["notes"] = bookmark.notes
-            expectation["website_title"] = bookmark.website_title
-            expectation["website_description"] = bookmark.website_description
             expectation["web_archive_snapshot_url"] = bookmark.web_archive_snapshot_url
             expectation["favicon_url"] = (
                 f"http://testserver/static/{bookmark.favicon_file}"
@@ -56,6 +54,8 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             expectation["date_modified"] = bookmark.date_modified.isoformat().replace(
                 "+00:00", "Z"
             )
+            expectation["website_title"] = None
+            expectation["website_description"] = None
             expectations.append(expectation)
 
         for data in data_list:
@@ -86,6 +86,19 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             reverse("bookmarks:bookmark-list"), expected_status_code=status.HTTP_200_OK
         )
         self.assertBookmarkListEqual(response.data["results"], bookmarks)
+
+    def test_list_bookmarks_returns_none_for_website_title_and_description(self):
+        self.authenticate()
+        bookmark = self.setup_bookmark()
+        bookmark.website_title = "Website title"
+        bookmark.website_description = "Website description"
+        bookmark.save()
+
+        response = self.get(
+            reverse("bookmarks:bookmark-list"), expected_status_code=status.HTTP_200_OK
+        )
+        self.assertIsNone(response.data["results"][0]["website_title"])
+        self.assertIsNone(response.data["results"][0]["website_description"])
 
     def test_list_bookmarks_does_not_return_archived_bookmarks(self):
         self.authenticate()
@@ -381,6 +394,44 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.tags.count(), 2)
         self.assertEqual(bookmark.tags.filter(name=data["tag_names"][0]).count(), 1)
         self.assertEqual(bookmark.tags.filter(name=data["tag_names"][1]).count(), 1)
+
+    def test_create_bookmark_enhances_with_metadata_by_default(self):
+        self.authenticate()
+
+        data = {"url": "https://example.com/"}
+        with patch.object(website_loader, "load_website_metadata") as mock_load:
+            mock_load.return_value = WebsiteMetadata(
+                url="https://example.com/",
+                title="Website title",
+                description="Website description",
+                preview_image=None,
+            )
+            self.post(reverse("bookmarks:bookmark-list"), data, status.HTTP_201_CREATED)
+        bookmark = Bookmark.objects.get(url=data["url"])
+        self.assertEqual(bookmark.title, "Website title")
+        self.assertEqual(bookmark.description, "Website description")
+
+    def test_create_bookmark_does_not_enhance_with_metadata_if_scraping_is_disabled(
+        self,
+    ):
+        self.authenticate()
+
+        data = {"url": "https://example.com/"}
+        with patch.object(website_loader, "load_website_metadata") as mock_load:
+            mock_load.return_value = WebsiteMetadata(
+                url="https://example.com/",
+                title="Website title",
+                description="Website description",
+                preview_image=None,
+            )
+            self.post(
+                reverse("bookmarks:bookmark-list") + "?disable_scraping",
+                data,
+                status.HTTP_201_CREATED,
+            )
+        bookmark = Bookmark.objects.get(url=data["url"])
+        self.assertEqual(bookmark.title, "")
+        self.assertEqual(bookmark.description, "")
 
     def test_create_bookmark_with_same_url_updates_existing_bookmark(self):
         self.authenticate()
@@ -775,18 +826,24 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             "http://testserver/static/preview.png", bookmark_data["preview_image_url"]
         )
 
-    def test_check_returns_existing_metadata_if_url_is_bookmarked(self):
+    def test_check_returns_scraped_metadata_if_url_is_bookmarked(self):
         self.authenticate()
 
-        bookmark = self.setup_bookmark(
+        self.setup_bookmark(
             url="https://example.com",
-            website_title="Existing title",
-            website_description="Existing description",
         )
 
         with patch.object(
             website_loader, "load_website_metadata"
         ) as mock_load_website_metadata:
+            expected_metadata = WebsiteMetadata(
+                "https://example.com",
+                "Scraped metadata",
+                "Scraped description",
+                "https://example.com/preview.png",
+            )
+            mock_load_website_metadata.return_value = expected_metadata
+
             url = reverse("bookmarks:bookmark-check")
             check_url = urllib.parse.quote_plus("https://example.com")
             response = self.get(
@@ -794,12 +851,11 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             )
             metadata = response.data["metadata"]
 
-            mock_load_website_metadata.assert_not_called()
             self.assertIsNotNone(metadata)
-            self.assertEqual(bookmark.url, metadata["url"])
-            self.assertEqual(bookmark.website_title, metadata["title"])
-            self.assertEqual(bookmark.website_description, metadata["description"])
-            self.assertIsNone(metadata["preview_image"])
+            self.assertEqual(expected_metadata.url, metadata["url"])
+            self.assertEqual(expected_metadata.title, metadata["title"])
+            self.assertEqual(expected_metadata.description, metadata["description"])
+            self.assertEqual(expected_metadata.preview_image, metadata["preview_image"])
 
     def test_check_returns_no_auto_tags_if_none_configured(self):
         self.authenticate()

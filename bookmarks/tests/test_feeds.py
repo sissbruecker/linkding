@@ -31,11 +31,18 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             for tag in bookmark.tag_names:
                 categories.append(f"<category>{tag}</category>")
 
+            if bookmark.resolved_description:
+                expected_description = (
+                    f"<description>{bookmark.resolved_description}</description>"
+                )
+            else:
+                expected_description = "<description/>"
+
             expected_item = (
                 "<item>"
                 f"<title>{bookmark.resolved_title}</title>"
                 f"<link>{bookmark.url}</link>"
-                f"<description>{bookmark.resolved_description}</description>"
+                f"{expected_description}"
                 f"<pubDate>{rfc2822_date(bookmark.date_added)}</pubDate>"
                 f"<guid>{bookmark.url}</guid>"
                 f"{''.join(categories)}"
@@ -63,7 +70,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
     def test_all_returns_all_unarchived_bookmarks(self):
         bookmarks = [
             self.setup_bookmark(description="test description"),
-            self.setup_bookmark(website_description="test website description"),
+            self.setup_bookmark(description=""),
             self.setup_bookmark(unread=True, description="test description"),
         ]
         self.setup_bookmark(is_archived=True)
@@ -118,9 +125,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
 
         unread_bookmarks = [
             self.setup_bookmark(unread=True, description="test description"),
-            self.setup_bookmark(
-                unread=True, website_description="test website description"
-            ),
+            self.setup_bookmark(unread=True, description=""),
             self.setup_bookmark(unread=True, description="test description"),
         ]
 

@@ -122,7 +122,7 @@
       }
       const fetchedBookmarks = await api.listBookmarks(suggestionSearch, {limit: 5, offset: 0, path})
       bookmarks = fetchedBookmarks.map(bookmark => {
-        const fullLabel = bookmark.title || bookmark.website_title || bookmark.url
+        const fullLabel = bookmark.title || bookmark.url
         const label = clampText(fullLabel, 60)
         return {
           type: 'bookmark',

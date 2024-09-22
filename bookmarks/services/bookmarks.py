@@ -26,8 +26,6 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
         _merge_bookmark_data(bookmark, existing_bookmark)
         return update_bookmark(existing_bookmark, tag_string, current_user)
 
-    # Update website info
-    _update_website_metadata(bookmark)
     # Set currently logged in user as owner
     bookmark.owner = current_user
     # Set dates
@@ -67,11 +65,20 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     if has_url_changed:
         # Update web archive snapshot, if URL changed
         tasks.create_web_archive_snapshot(current_user, bookmark, True)
-        # Only update website metadata if URL changed
-        _update_website_metadata(bookmark)
         bookmark.save()
 
     return bookmark
+
+
+def enhance_with_website_metadata(bookmark: Bookmark):
+    metadata = website_loader.load_website_metadata(bookmark.url)
+    if not bookmark.title:
+        bookmark.title = metadata.title or ""
+
+    if not bookmark.description:
+        bookmark.description = metadata.description or ""
+
+    bookmark.save()
 
 
 def archive_bookmark(bookmark: Bookmark):
@@ -233,12 +240,6 @@ def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.notes = from_bookmark.notes
     to_bookmark.unread = from_bookmark.unread
     to_bookmark.shared = from_bookmark.shared
-
-
-def _update_website_metadata(bookmark: Bookmark):
-    metadata = website_loader.load_website_metadata(bookmark.url)
-    bookmark.website_title = metadata.title
-    bookmark.website_description = metadata.description
 
 
 def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):

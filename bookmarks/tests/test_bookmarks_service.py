@@ -25,8 +25,8 @@ from bookmarks.services.bookmarks import (
     share_bookmarks,
     unshare_bookmarks,
     upload_asset,
+    enhance_with_website_metadata,
 )
-from bookmarks.services.website_loader import WebsiteMetadata
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 User = get_user_model()
@@ -37,22 +37,14 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
     def setUp(self) -> None:
         self.get_or_create_test_user()
 
-    def test_create_should_update_website_metadata(self):
+    def test_create_should_not_update_website_metadata(self):
         with patch.object(
             website_loader, "load_website_metadata"
         ) as mock_load_website_metadata:
-            expected_metadata = WebsiteMetadata(
-                "https://example.com",
-                "Website title",
-                "Website description",
-                "https://example.com/preview.png",
-            )
-            mock_load_website_metadata.return_value = expected_metadata
-
             bookmark_data = Bookmark(
                 url="https://example.com",
-                title="Updated Title",
-                description="Updated description",
+                title="Initial Title",
+                description="Initial description",
                 unread=True,
                 shared=True,
                 is_archived=True,
@@ -62,10 +54,9 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             )
 
             created_bookmark.refresh_from_db()
-            self.assertEqual(expected_metadata.title, created_bookmark.website_title)
-            self.assertEqual(
-                expected_metadata.description, created_bookmark.website_description
-            )
+            self.assertEqual("Initial Title", created_bookmark.title)
+            self.assertEqual("Initial description", created_bookmark.description)
+            mock_load_website_metadata.assert_not_called()
 
     def test_create_should_update_existing_bookmark_with_same_url(self):
         original_bookmark = self.setup_bookmark(
@@ -164,37 +155,28 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
 
             mock_create_web_archive_snapshot.assert_not_called()
 
-    def test_update_should_update_website_metadata_if_url_did_change(self):
-        with patch.object(
-            website_loader, "load_website_metadata"
-        ) as mock_load_website_metadata:
-            expected_metadata = WebsiteMetadata(
-                "https://example.com/updated",
-                "Updated website title",
-                "Updated website description",
-                "https://example.com/preview.png",
-            )
-            mock_load_website_metadata.return_value = expected_metadata
-
-            bookmark = self.setup_bookmark()
-            bookmark.url = "https://example.com/updated"
-            update_bookmark(bookmark, "tag1,tag2", self.user)
-
-            bookmark.refresh_from_db()
-            mock_load_website_metadata.assert_called_once()
-            self.assertEqual(expected_metadata.title, bookmark.website_title)
-            self.assertEqual(
-                expected_metadata.description, bookmark.website_description
-            )
-
-    def test_update_should_not_update_website_metadata_if_url_did_not_change(self):
+    def test_update_should_not_update_website_metadata(self):
         with patch.object(
             website_loader, "load_website_metadata"
         ) as mock_load_website_metadata:
             bookmark = self.setup_bookmark()
             bookmark.title = "updated title"
             update_bookmark(bookmark, "tag1,tag2", self.user)
+            bookmark.refresh_from_db()
 
+            self.assertEqual("updated title", bookmark.title)
+            mock_load_website_metadata.assert_not_called()
+
+    def test_update_should_not_update_website_metadata_if_url_did_change(self):
+        with patch.object(
+            website_loader, "load_website_metadata"
+        ) as mock_load_website_metadata:
+            bookmark = self.setup_bookmark(title="initial title")
+            bookmark.url = "https://example.com/updated"
+            update_bookmark(bookmark, "tag1,tag2", self.user)
+
+            bookmark.refresh_from_db()
+            self.assertEqual("initial title", bookmark.title)
             mock_load_website_metadata.assert_not_called()
 
     def test_update_should_update_favicon(self):
@@ -914,3 +896,61 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertIsNone(asset.file_size)
             self.assertEqual(BookmarkAsset.STATUS_FAILURE, asset.status)
             self.assertEqual("", asset.file)
+
+    def test_enhance_with_website_metadata(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+        with patch.object(
+            website_loader, "load_website_metadata"
+        ) as mock_load_website_metadata:
+            mock_load_website_metadata.return_value = website_loader.WebsiteMetadata(
+                url="https://example.com",
+                title="Website title",
+                description="Website description",
+                preview_image=None,
+            )
+
+            # missing title and description
+            bookmark.title = ""
+            bookmark.description = ""
+            bookmark.save()
+            enhance_with_website_metadata(bookmark)
+            bookmark.refresh_from_db()
+
+            self.assertEqual("Website title", bookmark.title)
+            self.assertEqual("Website description", bookmark.description)
+
+            # missing title only
+            bookmark.title = ""
+            bookmark.description = "Initial description"
+            bookmark.save()
+            enhance_with_website_metadata(bookmark)
+            bookmark.refresh_from_db()
+
+            self.assertEqual("Website title", bookmark.title)
+            self.assertEqual("Initial description", bookmark.description)
+
+            # missing description only
+            bookmark.title = "Initial title"
+            bookmark.description = ""
+            bookmark.save()
+            enhance_with_website_metadata(bookmark)
+            bookmark.refresh_from_db()
+
+            self.assertEqual("Initial title", bookmark.title)
+            self.assertEqual("Website description", bookmark.description)
+
+            # metadata returns None
+            mock_load_website_metadata.return_value = website_loader.WebsiteMetadata(
+                url="https://example.com",
+                title=None,
+                description=None,
+                preview_image=None,
+            )
+            bookmark.title = ""
+            bookmark.description = ""
+            bookmark.save()
+            enhance_with_website_metadata(bookmark)
+            bookmark.refresh_from_db()
+
+            self.assertEqual("", bookmark.title)
+            self.assertEqual("", bookmark.description)

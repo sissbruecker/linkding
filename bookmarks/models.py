@@ -56,7 +56,9 @@ class Bookmark(models.Model):
     title = models.CharField(max_length=512, blank=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
+    # Obsolete field, kept to not remove column when generating migrations
     website_title = models.CharField(max_length=512, blank=True, null=True)
+    # Obsolete field, kept to not remove column when generating migrations
     website_description = models.TextField(blank=True, null=True)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
     favicon_file = models.CharField(max_length=512, blank=True)
@@ -74,14 +76,12 @@ class Bookmark(models.Model):
     def resolved_title(self):
         if self.title:
             return self.title
-        elif self.website_title:
-            return self.website_title
         else:
             return self.url
 
     @property
     def resolved_description(self):
-        return self.website_description if not self.description else self.description
+        return self.description
 
     @property
     def tag_names(self):
@@ -141,14 +141,9 @@ class BookmarkForm(forms.ModelForm):
     # Use URLField for URL
     url = forms.CharField(validators=[BookmarkURLValidator()])
     tag_string = forms.CharField(required=False)
-    # Do not require title and description in form as we fill these automatically if they are empty
+    # Do not require title and description as they may be empty
     title = forms.CharField(max_length=512, required=False)
     description = forms.CharField(required=False, widget=forms.Textarea())
-    # Include website title and description as hidden field as they only provide info when editing bookmarks
-    website_title = forms.CharField(
-        max_length=512, required=False, widget=forms.HiddenInput()
-    )
-    website_description = forms.CharField(required=False, widget=forms.HiddenInput())
     unread = forms.BooleanField(required=False)
     shared = forms.BooleanField(required=False)
     # Hidden field that determines whether to close window/tab after saving the bookmark
@@ -162,8 +157,6 @@ class BookmarkForm(forms.ModelForm):
             "title",
             "description",
             "notes",
-            "website_title",
-            "website_description",
             "unread",
             "shared",
             "auto_close",

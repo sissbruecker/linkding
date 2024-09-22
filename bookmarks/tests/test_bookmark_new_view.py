@@ -96,7 +96,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             '<textarea name="description" class="form-input" cols="40" '
-            'rows="2" id="id_description">Example Site Description</textarea>',
+            'rows="3" id="id_description">Example Site Description</textarea>',
             html,
         )
 
@@ -115,6 +115,9 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
                 </summary>
                 <label for="id_notes" class="text-assistive">Notes</label>
                 <textarea name="notes" cols="40" rows="8" class="form-input" id="id_notes">**Find** more info [here](http://example.com)</textarea>
+                <div class="form-input-hint">
+                    Additional notes, supports Markdown.
+                </div>
             </details>
             """,
             html,

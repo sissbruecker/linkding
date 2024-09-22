@@ -135,6 +135,9 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
 
             details_modal = self.open_details_modal(bookmark)
 
+            # Wait for confirm button to be initialized
+            self.page.wait_for_timeout(1000)
+
             # Delete bookmark, verify return url
             with self.page.expect_navigation(url=self.live_server_url + url):
                 details_modal.get_by_text("Delete...").click()

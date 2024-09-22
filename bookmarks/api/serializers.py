@@ -4,7 +4,11 @@ from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
 from bookmarks.models import Bookmark, Tag, build_tag_string, UserProfile
-from bookmarks.services.bookmarks import create_bookmark, update_bookmark
+from bookmarks.services.bookmarks import (
+    create_bookmark,
+    update_bookmark,
+    enhance_with_website_metadata,
+)
 from bookmarks.services.tags import get_or_create_tag
 
 
@@ -29,8 +33,6 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "notes",
-            "website_title",
-            "website_description",
             "web_archive_snapshot_url",
             "favicon_url",
             "preview_image_url",
@@ -40,15 +42,17 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "tag_names",
             "date_added",
             "date_modified",
-        ]
-        read_only_fields = [
             "website_title",
             "website_description",
+        ]
+        read_only_fields = [
             "web_archive_snapshot_url",
             "favicon_url",
             "preview_image_url",
             "date_added",
             "date_modified",
+            "website_title",
+            "website_description",
         ]
         list_serializer_class = BookmarkListSerializer
 
@@ -63,6 +67,9 @@ class BookmarkSerializer(serializers.ModelSerializer):
     tag_names = TagListField(required=False, default=[])
     favicon_url = serializers.SerializerMethodField()
     preview_image_url = serializers.SerializerMethodField()
+    # Add dummy website title and description fields for backwards compatibility but keep them empty
+    website_title = serializers.SerializerMethodField()
+    website_description = serializers.SerializerMethodField()
 
     def get_favicon_url(self, obj: Bookmark):
         if not obj.favicon_file:
@@ -80,6 +87,12 @@ class BookmarkSerializer(serializers.ModelSerializer):
         preview_image_url = request.build_absolute_uri(preview_image_file_path)
         return preview_image_url
 
+    def get_website_title(self, obj: Bookmark):
+        return None
+
+    def get_website_description(self, obj: Bookmark):
+        return None
+
     def create(self, validated_data):
         bookmark = Bookmark()
         bookmark.url = validated_data["url"]
@@ -90,7 +103,14 @@ class BookmarkSerializer(serializers.ModelSerializer):
         bookmark.unread = validated_data["unread"]
         bookmark.shared = validated_data["shared"]
         tag_string = build_tag_string(validated_data["tag_names"])
-        return create_bookmark(bookmark, tag_string, self.context["user"])
+
+        saved_bookmark = create_bookmark(bookmark, tag_string, self.context["user"])
+        # Unless scraping is explicitly disabled, enhance bookmark with website
+        # metadata to preserve backwards compatibility with clients that expect
+        # title and description to be populated automatically when left empty
+        if not self.context.get("disable_scraping", False):
+            enhance_with_website_metadata(saved_bookmark)
+        return saved_bookmark
 
     def update(self, instance: Bookmark, validated_data):
         # Update fields if they were provided in the payload

@@ -3,12 +3,13 @@
 
 <div class="bookmarks-form">
   {% csrf_token %}
-  {{ form.website_title }}
-  {{ form.website_description }}
   {{ form.auto_close|attr:"type:hidden" }}
   <div class="form-group {% if form.url.errors %}has-error{% endif %}">
     <label for="{{ form.url.id_for_label }}" class="form-label">URL</label>
-    {{ form.url|add_class:"form-input"|attr:"autofocus"|attr:"placeholder: " }}
+    <div class="has-icon-right">
+      {{ form.url|add_class:"form-input"|attr:"autofocus"|attr:"placeholder: " }}
+      <i class="form-icon loading"></i>
+    </div>
     {% if form.url.errors %}
       <div class="form-input-hint">
         {{ form.url.errors }}
@@ -29,44 +30,14 @@
     <div class="form-input-hint auto-tags"></div>
     {{ form.tag_string.errors }}
   </div>
-  <div class="form-group has-icon-right">
+  <div class="form-group">
     <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
-    <div class="has-icon-right">
-      {{ form.title|add_class:"form-input"|attr:"autocomplete:off" }}
-      <i class="form-icon loading"></i>
-      <button type="button" class="btn btn-link form-icon" title="Edit title from website">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"/>
-          <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"/>
-          <path d="M16 5l3 3"/>
-        </svg>
-      </button>
-    </div>
-    <div class="form-input-hint">
-      Optional, leave empty to use title from website.
-    </div>
+    {{ form.title|add_class:"form-input"|attr:"autocomplete:off" }}
     {{ form.title.errors }}
   </div>
   <div class="form-group">
     <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
-    <div class="has-icon-right">
-      {{ form.description|add_class:"form-input"|attr:"rows:2" }}
-      <i class="form-icon loading"></i>
-      <button type="button" class="btn btn-link form-icon" title="Edit description from website">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"/>
-          <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"/>
-          <path d="M16 5l3 3"/>
-        </svg>
-      </button>
-    </div>
-    <div class="form-input-hint">
-      Optional, leave empty to use description from website.
-    </div>
+    {{ form.description|add_class:"form-input"|attr:"rows:3" }}
     {{ form.description.errors }}
   </div>
   <div class="form-group">
@@ -76,10 +47,10 @@
       </summary>
       <label for="{{ form.notes.id_for_label }}" class="text-assistive">Notes</label>
       {{ form.notes|add_class:"form-input"|attr:"rows:8" }}
+      <div class="form-input-hint">
+        Additional notes, supports Markdown.
+      </div>
     </details>
-    <div class="form-input-hint">
-      Additional notes, supports Markdown.
-    </div>
     {{ form.notes.errors }}
   </div>
   <div class="form-group">
@@ -119,9 +90,8 @@
   </div>
   <script type="application/javascript">
     /**
-     * - Pre-fill title and description placeholders with metadata from website as soon as URL changes
+     * - Pre-fill title and description with metadata from website as soon as URL changes
      * - Show hint if URL is already bookmarked
-     * - Setup buttons that allow editing of scraped website values
      */
     (function init() {
       const urlInput = document.getElementById('{{ form.url.id_for_label }}');
@@ -131,21 +101,12 @@
       const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
       const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
-      const websiteTitleInput = document.getElementById('{{ form.website_title.id_for_label }}');
-      const websiteDescriptionInput = document.getElementById('{{ form.website_description.id_for_label }}');
+      const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
       const editedBookmarkId = {{ bookmark_id }};
 
       function toggleLoadingIcon(input, show) {
         const icon = input.parentNode.querySelector('i.form-icon');
         icon.style['visibility'] = show ? 'visible' : 'hidden';
-      }
-
-      function updatePlaceholder(input, value) {
-        if (value) {
-          input.setAttribute('placeholder', value);
-        } else {
-          input.removeAttribute('placeholder');
-        }
       }
 
       function updateInput(input, value) {
@@ -163,10 +124,11 @@
       }
 
       function checkUrl() {
-        toggleLoadingIcon(titleInput, true);
-        toggleLoadingIcon(descriptionInput, true);
-        updatePlaceholder(titleInput, null);
-        updatePlaceholder(descriptionInput, null);
+        if (!urlInput.value) {
+          return;
+        }
+
+        toggleLoadingIcon(urlInput, true);
 
         const websiteUrl = encodeURIComponent(urlInput.value);
         const requestUrl = `{% url 'bookmarks:api-root' %}bookmarks/check?url=${websiteUrl}`;
@@ -174,16 +136,14 @@
           .then(response => response.json())
           .then(data => {
             const metadata = data.metadata;
-            updatePlaceholder(titleInput, metadata.title);
-            updatePlaceholder(descriptionInput, metadata.description);
-            toggleLoadingIcon(titleInput, false);
-            toggleLoadingIcon(descriptionInput, false);
+            toggleLoadingIcon(urlInput, false);
 
-            // Prefill form and display hint if URL is already bookmarked
+            // Display hint if URL is already bookmarked
             const existingBookmark = data.bookmark;
-            const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
+            bookmarkExistsHint.style['display'] = existingBookmark ? 'block' : 'none';
 
-            if (existingBookmark && !editedBookmarkId) {
+            // Prefill form with existing bookmark data
+            if (existingBookmark) {
               // Workaround: tag input will be replaced by tag autocomplete, so
               // defer getting the input until we need it
               const tagsInput = document.getElementById('{{ form.tag_string.id_for_label }}');
@@ -197,7 +157,9 @@
               updateCheckbox(unreadCheckbox, existingBookmark.unread);
               updateCheckbox(sharedCheckbox, existingBookmark.shared);
             } else {
-              bookmarkExistsHint.style['display'] = 'none';
+              // Set title and description to website metadata
+              updateInput(titleInput, metadata.title);
+              updateInput(descriptionInput, metadata.description);
             }
 
             // Preview auto tags
@@ -214,31 +176,10 @@
           });
       }
 
-      function setupEditAutoValueButton(input) {
-        const editAutoValueButton = input.parentNode.querySelector('.btn.form-icon');
-        if (!editAutoValueButton) return;
-        editAutoValueButton.addEventListener('click', function (event) {
-          event.preventDefault();
-          input.value = input.getAttribute('placeholder');
-          input.focus();
-          input.select();
-        });
-      }
-
-      setupEditAutoValueButton(titleInput);
-      setupEditAutoValueButton(descriptionInput);
-
-      // Fetch initial website data if we have a URL, and we are not editing an existing bookmark
-      // For existing bookmarks we get the website metadata through hidden inputs
-      if (urlInput.value && !editedBookmarkId) {
+      // Fetch website metadata when page loads and when URL changes, unless we are editing an existing bookmark
+      if (!editedBookmarkId) {
         checkUrl();
-      }
-      urlInput.addEventListener('input', checkUrl);
-
-      // Set initial website title and description for edited bookmarks
-      if (editedBookmarkId) {
-        updatePlaceholder(titleInput, websiteTitleInput.value);
-        updatePlaceholder(descriptionInput, websiteDescriptionInput.value);
+        urlInput.addEventListener('input', checkUrl);
       }
     })();
   </script>
