@@ -37,7 +37,7 @@
   </div>
   <div class="form-group">
     <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
-    {{ form.description|add_class:"form-input"|attr:"rows:2" }}
+    {{ form.description|add_class:"form-input"|attr:"rows:3" }}
     {{ form.description.errors }}
   </div>
   <div class="form-group">
@@ -47,10 +47,10 @@
       </summary>
       <label for="{{ form.notes.id_for_label }}" class="text-assistive">Notes</label>
       {{ form.notes|add_class:"form-input"|attr:"rows:8" }}
+      <div class="form-input-hint">
+        Additional notes, supports Markdown.
+      </div>
     </details>
-    <div class="form-input-hint">
-      Additional notes, supports Markdown.
-    </div>
     {{ form.notes.errors }}
   </div>
   <div class="form-group">
