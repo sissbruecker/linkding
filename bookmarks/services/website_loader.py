@@ -49,7 +49,7 @@ def load_website_metadata(url: str):
         description = (
             description_tag["content"].strip()
             if description_tag and description_tag["content"]
-            else ""
+            else None
         )
 
         if not description:
@@ -57,7 +57,7 @@ def load_website_metadata(url: str):
             description = (
                 description_tag["content"].strip()
                 if description_tag and description_tag["content"]
-                else ""
+                else None
             )
 
         image_tag = soup.find("meta", attrs={"property": "og:image"})
