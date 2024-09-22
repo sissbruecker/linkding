@@ -112,7 +112,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f"""
-            <textarea name="description" cols="40" rows="2" class="form-input" id="id_description">
+            <textarea name="description" cols="40" rows="3" class="form-input" id="id_description">
                 {bookmark.description}
             </textarea>
         """,
