@@ -103,6 +103,8 @@
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
       const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
       const editedBookmarkId = {{ bookmark_id }};
+      let isTitleModified = !!titleInput.value;
+      let isDescriptionModified = !!descriptionInput.value;
 
       function toggleLoadingIcon(input, show) {
         const icon = input.parentNode.querySelector('i.form-icon');
@@ -157,9 +159,13 @@
               updateCheckbox(unreadCheckbox, existingBookmark.unread);
               updateCheckbox(sharedCheckbox, existingBookmark.shared);
             } else {
-              // Set title and description to website metadata
-              updateInput(titleInput, metadata.title);
-              updateInput(descriptionInput, metadata.description);
+              // Update title and description with website metadata, unless they have been modified
+              if (!isTitleModified) {
+                updateInput(titleInput, metadata.title);
+              }
+              if (!isDescriptionModified) {
+                updateInput(descriptionInput, metadata.description);
+              }
             }
 
             // Preview auto tags
@@ -180,6 +186,12 @@
       if (!editedBookmarkId) {
         checkUrl();
         urlInput.addEventListener('input', checkUrl);
+        titleInput.addEventListener('input', () => {
+          isTitleModified = true;
+        });
+        descriptionInput.addEventListener('input', () => {
+          isDescriptionModified = true;
+        });
       }
     })();
   </script>
