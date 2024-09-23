@@ -35,7 +35,7 @@
     "svelte": "^4.0.0"
   },
   "devDependencies": {
-    "prettier": "^3.0.2"
+    "prettier": "^3.3.3"
   },
   "web-types": "./web-types.json"
 }

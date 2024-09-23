@@ -12,7 +12,7 @@
     box-sizing: border-box;
   }
 
-  .input-group > input[type=submit] {
+  .input-group > input[type="submit"] {
     height: auto;
   }
 

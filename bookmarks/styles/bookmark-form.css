@@ -1,38 +1,39 @@
 .bookmarks-form-page {
-    section {
-        max-width: 550px;
-        margin: 0 auto;
-    }
+  section {
+    max-width: 550px;
+    margin: 0 auto;
+  }
 }
 
 .bookmarks-form {
-    & .has-icon-right > input, & .has-icon-right > textarea {
-        padding-right: 30px;
-    }
+  & .has-icon-right > input,
+  & .has-icon-right > textarea {
+    padding-right: 30px;
+  }
 
-    & .form-icon.loading {
-        visibility: hidden;
-    }
+  & .form-icon.loading {
+    visibility: hidden;
+  }
 
-    & .form-group .clear-button {
-        display: none;
-        padding: 0;
-        border: none;
-        height: auto;
-        font-size: var(--font-size-sm);
-    }
+  & .form-group .clear-button {
+    display: none;
+    padding: 0;
+    border: none;
+    height: auto;
+    font-size: var(--font-size-sm);
+  }
 
-    & .form-input-hint.bookmark-exists {
-        display: none;
-        color: var(--warning-color);
-    }
+  & .form-input-hint.bookmark-exists {
+    display: none;
+    color: var(--warning-color);
+  }
 
-    & .form-input-hint.auto-tags {
-        display: none;
-        color: var(--success-color);
-    }
+  & .form-input-hint.auto-tags {
+    display: none;
+    color: var(--success-color);
+  }
 
-    & details.notes textarea {
-        box-sizing: border-box;
-    }
+  & details.notes textarea {
+    box-sizing: border-box;
+  }
 }

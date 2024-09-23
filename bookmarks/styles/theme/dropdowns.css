@@ -4,7 +4,7 @@
   position: relative;
 
   .menu {
-    animation: fade-in .15s ease 1;
+    animation: fade-in 0.15s ease 1;
     display: none;
     left: 0;
     max-height: 50vh;

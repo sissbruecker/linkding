@@ -1,75 +1,76 @@
 /* Tabs */
 :root {
-    --tab-color: var(--text-color);
-    --tab-hover-color: var(--primary-text-color);
-    --tab-active-color: var(--primary-text-color);
-    --tab-highlight-color: var(--primary-color);
+  --tab-color: var(--text-color);
+  --tab-hover-color: var(--primary-text-color);
+  --tab-active-color: var(--primary-text-color);
+  --tab-highlight-color: var(--primary-color);
 }
 
 .tab {
-    align-items: center;
-    border-bottom: var(--border-width) solid var(--border-color);
-    display: flex;
-    flex-wrap: wrap;
-    list-style: none;
-    margin: var(--unit-1) 0 calc(var(--unit-1) - var(--border-width)) 0;
+  align-items: center;
+  border-bottom: var(--border-width) solid var(--border-color);
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: var(--unit-1) 0 calc(var(--unit-1) - var(--border-width)) 0;
 
+  & .tab-item {
+    margin-top: 0;
+
+    & a {
+      border-bottom: var(--border-width-lg) solid transparent;
+      color: var(--tab-color);
+      display: block;
+      margin: 0 var(--unit-2) 0 0;
+      padding: var(--unit-2) var(--unit-1)
+        calc(var(--unit-2) - var(--border-width-lg)) var(--unit-1);
+      text-decoration: none;
+
+      &:focus,
+      &:hover {
+        color: var(--tab-hover-color);
+      }
+    }
+
+    &.active a,
+    & a.active {
+      border-bottom-color: var(--tab-highlight-color);
+      color: var(--tab-active-color);
+    }
+
+    &.tab-action {
+      flex: 1 0 auto;
+      text-align: right;
+    }
+
+    & .btn-clear {
+      margin-top: calc(-1 * var(--unit-1));
+    }
+  }
+
+  &.tab-block {
     & .tab-item {
-        margin-top: 0;
+      flex: 1 0 0;
+      text-align: center;
 
-        & a {
-            border-bottom: var(--border-width-lg) solid transparent;
-            color: var(--tab-color);
-            display: block;
-            margin: 0 var(--unit-2) 0 0;
-            padding: var(--unit-2) var(--unit-1) calc(var(--unit-2) - var(--border-width-lg)) var(--unit-1);
-            text-decoration: none;
+      & a {
+        margin: 0;
+      }
 
-            &:focus,
-            &:hover {
-                color: var(--tab-hover-color);
-            }
+      & .badge {
+        &[data-badge]::after {
+          position: absolute;
+          right: var(--unit-h);
+          top: var(--unit-h);
+          transform: translate(0, 0);
         }
-
-        &.active a,
-        & a.active {
-            border-bottom-color: var(--tab-highlight-color);
-            color: var(--tab-active-color);
-        }
-
-        &.tab-action {
-            flex: 1 0 auto;
-            text-align: right;
-        }
-
-        & .btn-clear {
-            margin-top: calc(-1 * var(--unit-1));
-        }
+      }
     }
+  }
 
-    &.tab-block {
-        & .tab-item {
-            flex: 1 0 0;
-            text-align: center;
-
-            & a {
-                margin: 0;
-            }
-
-            & .badge {
-                &[data-badge]::after {
-                    position: absolute;
-                    right: var(--unit-h);
-                    top: var(--unit-h);
-                    transform: translate(0, 0);
-                }
-            }
-        }
+  &:not(.tab-block) {
+    & .badge {
+      padding-right: 0;
     }
-
-    &:not(.tab-block) {
-        & .badge {
-            padding-right: 0;
-        }
-    }
+  }
 }

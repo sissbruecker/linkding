@@ -1,26 +1,26 @@
 /* Tables */
 .table {
-    border-collapse: collapse;
-    border-spacing: 0;
-    width: 100%;
-    text-align: left;
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  text-align: left;
 
-    /* Scrollable tables */
+  /* Scrollable tables */
 
-    &.table-scroll {
-        display: block;
-        overflow-x: auto;
-        padding-bottom: 0.75rem;
-        white-space: nowrap;
-    }
+  &.table-scroll {
+    display: block;
+    overflow-x: auto;
+    padding-bottom: 0.75rem;
+    white-space: nowrap;
+  }
 
-    & td,
-    & th {
-        border-bottom: var(--border-width) solid var(--border-color);
-        padding: var(--unit-3) var(--unit-2);
-    }
+  & td,
+  & th {
+    border-bottom: var(--border-width) solid var(--border-color);
+    padding: var(--unit-3) var(--unit-2);
+  }
 
-    & th {
-        border-bottom-width: var(--border-width-lg);
-    }
+  & th {
+    border-bottom-width: var(--border-width-lg);
+  }
 }

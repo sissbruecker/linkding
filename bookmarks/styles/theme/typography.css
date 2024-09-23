@@ -6,11 +6,11 @@ h3,
 h4,
 h5,
 h6 {
-    color: inherit;
-    font-weight: 500;
-    line-height: 1.2;
-    margin-bottom: 0.5em;
-    margin-top: 0;
+  color: inherit;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+  margin-top: 0;
 }
 .h1,
 .h2,
@@ -18,100 +18,100 @@ h6 {
 .h4,
 .h5,
 .h6 {
-    font-weight: 500;
+  font-weight: 500;
 }
 h1,
 .h1 {
-    font-size: 2rem;
+  font-size: 2rem;
 }
 h2,
 .h2 {
-    font-size: 1.6rem;
+  font-size: 1.6rem;
 }
 h3,
 .h3 {
-    font-size: 1.4rem;
+  font-size: 1.4rem;
 }
 h4,
 .h4 {
-    font-size: 1.2rem;
+  font-size: 1.2rem;
 }
 h5,
 .h5 {
-    font-size: 1rem;
+  font-size: 1rem;
 }
 h6,
 .h6 {
-    font-size: 0.8rem;
+  font-size: 0.8rem;
 }
 
 /* Paragraphs */
 p {
-    margin: 0 0 var(--line-height);
+  margin: 0 0 var(--line-height);
 }
 
 /* Semantic text elements */
 a,
 ins,
 u {
-    text-decoration-skip-ink: auto;
+  text-decoration-skip-ink: auto;
 }
 
 abbr[title] {
-    border-bottom: var(--border-width) dotted;
-    cursor: help;
-    text-decoration: none;
+  border-bottom: var(--border-width) dotted;
+  cursor: help;
+  text-decoration: none;
 }
 
 /* Blockquote */
 blockquote {
-    border-left: var(--border-width-lg) solid var(--border-color);
-    margin-left: 0;
-    padding: var(--unit-2) var(--unit-4);
+  border-left: var(--border-width-lg) solid var(--border-color);
+  margin-left: 0;
+  padding: var(--unit-2) var(--unit-4);
 
-    & p:last-child {
-        margin-bottom: 0;
-    }
+  & p:last-child {
+    margin-bottom: 0;
+  }
 }
 
 /* Lists */
 ul,
 ol {
+  margin: var(--unit-4) 0 var(--unit-4) var(--unit-4);
+  padding: 0;
+
+  & ul,
+  & ol {
     margin: var(--unit-4) 0 var(--unit-4) var(--unit-4);
-    padding: 0;
+  }
 
-    & ul,
-    & ol {
-        margin: var(--unit-4) 0 var(--unit-4) var(--unit-4);
-    }
-
-    & li {
-        margin-top: var(--unit-2);
-    }
+  & li {
+    margin-top: var(--unit-2);
+  }
 }
 
 ul {
-    list-style: disc inside;
+  list-style: disc inside;
 
-    & ul {
-        list-style-type: circle;
-    }
+  & ul {
+    list-style-type: circle;
+  }
 }
 
 ol {
-    list-style: decimal inside;
+  list-style: decimal inside;
 
-    & ol {
-        list-style-type: lower-alpha;
-    }
+  & ol {
+    list-style-type: lower-alpha;
+  }
 }
 
 dl {
-    & dt {
-        font-weight: bold;
-    }
+  & dt {
+    font-weight: bold;
+  }
 
-    & dd {
-        margin: var(--unit-1) 0 var(--unit-4) 0;
-    }
+  & dd {
+    margin: var(--unit-1) 0 var(--unit-4) 0;
+  }
 }

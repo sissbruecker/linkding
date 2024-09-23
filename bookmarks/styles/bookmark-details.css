@@ -12,7 +12,8 @@
     gap: var(--unit-2);
   }
 
-  & a.weblink img, & a.weblink svg {
+  & a.weblink img,
+  & a.weblink svg {
     flex: 0 0 auto;
     width: 16px;
     height: 16px;
@@ -110,7 +111,8 @@
     gap: var(--unit-2);
   }
 
-  & .status .form-group, .status .form-switch {
+  & .status .form-group,
+  .status .form-switch {
     margin: 0;
   }
 

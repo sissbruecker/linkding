@@ -2,64 +2,64 @@
 
 /* Content area component */
 section.content-area {
+  h2 {
+    font-size: var(--font-size-lg);
+  }
+
+  .content-area-header {
+    border-bottom: solid 1px var(--secondary-border-color);
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--unit-5);
+    padding-bottom: var(--unit-2);
+    margin-bottom: var(--unit-4);
+
     h2 {
-        font-size: var(--font-size-lg);
+      flex: 0 0 auto;
+      line-height: var(--unit-9);
+      margin: 0;
     }
 
-    .content-area-header {
-        border-bottom: solid 1px var(--secondary-border-color);
-        display: flex;
-        flex-wrap: wrap;
-        column-gap: var(--unit-5);
-        padding-bottom: var(--unit-2);
-        margin-bottom: var(--unit-4);
-
-        h2 {
-            flex: 0 0 auto;
-            line-height: var(--unit-9);
-            margin: 0;
-        }
-
-        .header-controls {
-            flex: 1 1 0;
-            display: flex;
-        }
+    .header-controls {
+      flex: 1 1 0;
+      display: flex;
     }
+  }
 }
 
 @media (max-width: 600px) {
-    section.content-area .content-area-header {
-        flex-direction: column;
-    }
+  section.content-area .content-area-header {
+    flex-direction: column;
+  }
 }
 
 /* Confirm button component */
 span.confirmation {
-    display: flex;
-    align-items: baseline;
-    gap: var(--unit-1);
+  display: flex;
+  align-items: baseline;
+  gap: var(--unit-1);
+  color: var(--error-color) !important;
+
+  svg {
+    align-self: center;
+  }
+
+  .btn.btn-link {
     color: var(--error-color) !important;
 
-    svg {
-        align-self: center;
+    &:hover {
+      text-decoration: underline;
     }
-
-    .btn.btn-link {
-        color: var(--error-color) !important;
-
-        &:hover {
-            text-decoration: underline;
-        }
-    }
+  }
 }
 
 /* Divider */
 .divider {
-    border-bottom: solid 1px var(--secondary-border-color);
-    margin: var(--unit-5) 0;
+  border-bottom: solid 1px var(--secondary-border-color);
+  margin: var(--unit-5) 0;
 }
 
 /* Turbo progress bar */
 .turbo-progress-bar {
-    background-color: var(--primary-color);
+  background-color: var(--primary-color);
 }

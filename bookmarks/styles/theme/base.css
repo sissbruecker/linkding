@@ -2,60 +2,60 @@
 *,
 *::before,
 *::after {
-    box-sizing: inherit;
+  box-sizing: inherit;
 }
 
 html {
-    box-sizing: border-box;
-    font-size: var(--html-font-size);
-    line-height: var(--html-line-height);
-    -webkit-tap-highlight-color: transparent;
-    scrollbar-gutter: stable;
+  box-sizing: border-box;
+  font-size: var(--html-font-size);
+  line-height: var(--html-line-height);
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-gutter: stable;
 }
 
 /* Reserve space for vert. scrollbar to avoid layout shifting when scrollbars are added */
 html {
-    scrollbar-gutter: stable;
+  scrollbar-gutter: stable;
 }
 
 @media (pointer: coarse) {
-    html {
-        scrollbar-gutter: initial;
-    }
+  html {
+    scrollbar-gutter: initial;
+  }
 }
 
 body {
-    background: var(--body-color);
-    color: var(--text-color);
-    font-family: var(--body-font-family);
-    font-size: var(--font-size);
-    overflow-x: hidden;
-    text-rendering: optimizeLegibility;
+  background: var(--body-color);
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: var(--font-size);
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
 }
 
 a {
-    color: var(--link-color);
-    outline: none;
-    text-decoration: none;
+  color: var(--link-color);
+  outline: none;
+  text-decoration: none;
 }
 
 a:focus-visible {
-    outline: var(--focus-outline);
-    outline-offset: var(--focus-outline-offset);
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }
 
 a:focus,
 a:hover,
 a:active,
 a.active {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 summary {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 summary:focus-visible {
-    outline: var(--focus-outline);
-    outline-offset: var(--focus-outline-offset);
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }

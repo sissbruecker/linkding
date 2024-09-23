@@ -1,89 +1,90 @@
 :root {
-    --menu-bg-color: var(--body-color);
-    --menu-border-color: var(--gray-200);
-    --menu-border-radius: var(--border-radius);
-    --menu-box-shadow: var(--box-shadow);
-    --menu-item-color: var(--text-color);
-    --menu-item-hover-color: var(--primary-text-color);
-    --menu-item-bg-color: transparent;
-    --menu-item-hover-bg-color: var(--primary-color-shade);
+  --menu-bg-color: var(--body-color);
+  --menu-border-color: var(--gray-200);
+  --menu-border-radius: var(--border-radius);
+  --menu-box-shadow: var(--box-shadow);
+  --menu-item-color: var(--text-color);
+  --menu-item-hover-color: var(--primary-text-color);
+  --menu-item-bg-color: transparent;
+  --menu-item-hover-bg-color: var(--primary-color-shade);
 }
 
 /* Menus */
 .menu {
-    background: var(--menu-bg-color);
-    border: solid 1px var(--menu-border-color);
-    border-radius: var(--menu-border-radius);
-    box-shadow: var(--menu-box-shadow);
-    list-style: none;
-    margin: 0;
-    min-width: var(--control-width-xs);
-    transform: translateY(var(--layout-spacing-sm));
-    z-index: var(--zindex-3);
+  background: var(--menu-bg-color);
+  border: solid 1px var(--menu-border-color);
+  border-radius: var(--menu-border-radius);
+  box-shadow: var(--menu-box-shadow);
+  list-style: none;
+  margin: 0;
+  min-width: var(--control-width-xs);
+  transform: translateY(var(--layout-spacing-sm));
+  z-index: var(--zindex-3);
 
-    &.menu-nav {
-        background: transparent;
-        box-shadow: none;
+  &.menu-nav {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .menu-item {
+    margin-top: 0;
+    padding: 0 var(--unit-4);
+    position: relative;
+    text-decoration: none;
+
+    &:first-of-type {
+      padding-top: var(--unit-2);
     }
 
-    .menu-item {
-        margin-top: 0;
-        padding: 0 var(--unit-4);
-        position: relative;
-        text-decoration: none;
-
-        &:first-of-type {
-            padding-top: var(--unit-2);
-        }
-
-        &:last-of-type {
-            padding-bottom: var(--unit-2);
-        }
-
-        & > a, .btn.btn-link {
-            border-radius: var(--menu-border-radius);
-            color: var(--menu-item-color);
-            background: var(--menu-item-bg-color);
-            display: block;
-            margin: 0 calc(-1 * var(--unit-2));
-            padding: var(--unit-1) var(--unit-2);
-            text-decoration: none;
-
-            &:focus,
-            &:hover,
-            &:active,
-            &.active {
-                background: var(--menu-item-hover-bg-color);
-                color: var(--menu-item-hover-color);
-            }
-        }
-
-        .form-checkbox,
-        .form-radio,
-        .form-switch {
-            margin: var(--unit-h) 0;
-        }
-
-        & + .menu-item {
-            margin-top: var(--unit-1);
-        }
+    &:last-of-type {
+      padding-bottom: var(--unit-2);
     }
 
-    & .menu-badge {
-        align-items: center;
-        display: flex;
-        height: 100%;
-        position: absolute;
-        right: 0;
-        top: 0;
+    & > a,
+    .btn.btn-link {
+      border-radius: var(--menu-border-radius);
+      color: var(--menu-item-color);
+      background: var(--menu-item-bg-color);
+      display: block;
+      margin: 0 calc(-1 * var(--unit-2));
+      padding: var(--unit-1) var(--unit-2);
+      text-decoration: none;
 
-        .label {
-            margin-right: var(--unit-2);
-        }
+      &:focus,
+      &:hover,
+      &:active,
+      &.active {
+        background: var(--menu-item-hover-bg-color);
+        color: var(--menu-item-hover-color);
+      }
     }
 
-    & .divider {
-        border-bottom: solid 1px var(--secondary-border-color);
-        margin: var(--unit-2) 0;
+    .form-checkbox,
+    .form-radio,
+    .form-switch {
+      margin: var(--unit-h) 0;
     }
+
+    & + .menu-item {
+      margin-top: var(--unit-1);
+    }
+  }
+
+  & .menu-badge {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    .label {
+      margin-right: var(--unit-2);
+    }
+  }
+
+  & .divider {
+    border-bottom: solid 1px var(--secondary-border-color);
+    margin: var(--unit-2) 0;
+  }
 }

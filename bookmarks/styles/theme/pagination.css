@@ -1,61 +1,61 @@
 /* Pagination */
 .pagination {
-    display: flex;
-    list-style: none;
-    margin: var(--unit-1) 0;
-    padding: var(--unit-1) 0;
+  display: flex;
+  list-style: none;
+  margin: var(--unit-1) 0;
+  padding: var(--unit-1) 0;
 
-    & .page-item {
-        margin: var(--unit-1) var(--unit-o);
+  & .page-item {
+    margin: var(--unit-1) var(--unit-o);
 
-        & span {
-            display: inline-block;
-            padding: var(--unit-1) var(--unit-1);
-        }
-
-        & a {
-            border-radius: var(--border-radius);
-            display: inline-block;
-            padding: var(--unit-1) var(--unit-2);
-            text-decoration: none;
-
-            &:focus,
-            &:hover {
-                color: var(--primary-text-color);
-            }
-        }
-
-        &.disabled {
-            & a {
-                cursor: default;
-                opacity: .5;
-                pointer-events: none;
-            }
-        }
-
-        &.active {
-            & a {
-                background: var(--primary-color);
-                color: var(--contrast-text-color);
-            }
-        }
-
-        &.page-prev,
-        &.page-next {
-            flex: 1 0 50%;
-        }
-
-        &.page-next {
-            text-align: right;
-        }
-
-        & .page-item-title {
-            margin: 0;
-        }
-
-        & .page-item-subtitle {
-            margin: 0;
-            opacity: .5;
-        }
+    & span {
+      display: inline-block;
+      padding: var(--unit-1) var(--unit-1);
     }
+
+    & a {
+      border-radius: var(--border-radius);
+      display: inline-block;
+      padding: var(--unit-1) var(--unit-2);
+      text-decoration: none;
+
+      &:focus,
+      &:hover {
+        color: var(--primary-text-color);
+      }
+    }
+
+    &.disabled {
+      & a {
+        cursor: default;
+        opacity: 0.5;
+        pointer-events: none;
+      }
+    }
+
+    &.active {
+      & a {
+        background: var(--primary-color);
+        color: var(--contrast-text-color);
+      }
+    }
+
+    &.page-prev,
+    &.page-next {
+      flex: 1 0 50%;
+    }
+
+    &.page-next {
+      text-align: right;
+    }
+
+    & .page-item-title {
+      margin: 0;
+    }
+
+    & .page-item-subtitle {
+      margin: 0;
+      opacity: 0.5;
+    }
+  }
 }

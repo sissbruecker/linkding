@@ -3,41 +3,41 @@ html:lang(zh),
 html:lang(zh-Hans),
 .lang-zh,
 .lang-zh-hans {
-    font-family: var(--cjk-zh-hans-font-family);
+  font-family: var(--cjk-zh-hans-font-family);
 }
 
 html:lang(zh-Hant),
 .lang-zh-hant {
-    font-family: var(--cjk-zh-hant-font-family);
+  font-family: var(--cjk-zh-hant-font-family);
 }
 
 html:lang(ja),
 .lang-ja {
-    font-family: var(--cjk-jp-font-family);
+  font-family: var(--cjk-jp-font-family);
 }
 
 html:lang(ko),
 .lang-ko {
-    font-family: var(--cjk-ko-font-family);
+  font-family: var(--cjk-ko-font-family);
 }
 
 :lang(zh),
 :lang(ja),
 .lang-cjk {
-    & ins,
-    & u {
-        border-bottom: var(--border-width) solid;
-        text-decoration: none;
-    }
+  & ins,
+  & u {
+    border-bottom: var(--border-width) solid;
+    text-decoration: none;
+  }
 
-    & del + del,
-    & del + s,
-    & ins + ins,
-    & ins + u,
-    & s + del,
-    & s + s,
-    & u + ins,
-    & u + u {
-        margin-left: .125em;
-    }
+  & del + del,
+  & del + s,
+  & ins + ins,
+  & ins + u,
+  & s + del,
+  & s + s,
+  & u + ins,
+  & u + u {
+    margin-left: 0.125em;
+  }
 }
