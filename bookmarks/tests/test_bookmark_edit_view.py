@@ -141,6 +141,42 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
             html,
         )
 
+    def test_should_prevent_changing_url_to_existing_url_for_same_owner(self):
+        edited_bookmark = self.setup_bookmark(url="http://example.com/edited")
+        existing_bookmark = self.setup_bookmark(url="http://example.com/existing")
+
+        form_data = self.create_form_data(
+            {"id": edited_bookmark.id, "url": existing_bookmark.url}
+        )
+        response = self.client.post(
+            reverse("bookmarks:edit", args=[edited_bookmark.id]), form_data
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertInHTML(
+            "<li>A bookmark with this URL already exists.</li>",
+            response.content.decode(),
+        )
+        edited_bookmark.refresh_from_db()
+        self.assertNotEqual(edited_bookmark.url, existing_bookmark.url)
+
+    def test_should_allow_changing_url_to_existing_url_for_different_owner(self):
+        edited_bookmark = self.setup_bookmark(url="http://example.com/edited")
+        existing_bookmark = self.setup_bookmark(
+            url="http://example.com/existing", user=User.objects.create_user("other")
+        )
+
+        form_data = self.create_form_data(
+            {"id": edited_bookmark.id, "url": existing_bookmark.url}
+        )
+        response = self.client.post(
+            reverse("bookmarks:edit", args=[edited_bookmark.id]), form_data
+        )
+
+        self.assertEqual(response.status_code, 302)
+        edited_bookmark.refresh_from_db()
+        self.assertEqual(edited_bookmark.url, existing_bookmark.url)
+
     def test_should_redirect_to_return_url(self):
         bookmark = self.setup_bookmark()
         form_data = self.create_form_data()

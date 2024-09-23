@@ -168,6 +168,22 @@ class BookmarkForm(forms.ModelForm):
             self.instance and self.instance.notes
         )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        url = cleaned_data.get("url")
+
+        if self.instance.pk and url:
+            # Ensure there is no existing Bookmark with the same URL
+            existing_bookmark = (
+                Bookmark.objects.filter(url=url, owner=self.instance.owner)
+                .exclude(pk=self.instance.pk)
+                .first()
+            )
+            if existing_bookmark:
+                self.add_error("url", "A bookmark with this URL already exists.")
+
+        return cleaned_data
+
 
 class BookmarkSearch:
     SORT_ADDED_ASC = "added_asc"
