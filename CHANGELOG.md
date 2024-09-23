@@ -1,5 +1,30 @@
 # Changelog
 
+##  (23/09/2024)
+
+### What's Changed
+* Add configuration options for pagination by @sissbruecker in https://github.com/sissbruecker/linkding/pull/835
+* Show placeholder if there is no preview image by @sissbruecker in https://github.com/sissbruecker/linkding/pull/842
+* Allow bookmarks to have empty title and description by @sissbruecker in https://github.com/sissbruecker/linkding/pull/843
+* Add clear buttons in bookmark form by @sissbruecker in https://github.com/sissbruecker/linkding/pull/846
+* Add basic fail2ban support by @sissbruecker in https://github.com/sissbruecker/linkding/pull/847
+* Add documentation website by @sissbruecker in https://github.com/sissbruecker/linkding/pull/833
+* Add go-linkding to community projects by @piero-vic in https://github.com/sissbruecker/linkding/pull/836
+* Fix a broken link to options documentation by @zbrox in https://github.com/sissbruecker/linkding/pull/844
+* Use HTTPS repository link for devcontainer by @voltagex in https://github.com/sissbruecker/linkding/pull/837
+* Bump requests version to 3.23.3 by @voltagex in https://github.com/sissbruecker/linkding/pull/839
+* Bump path-to-regexp and astro in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/840
+* Bump dependencies by @sissbruecker in https://github.com/sissbruecker/linkding/pull/841
+
+### New Contributors
+* @piero-vic made their first contribution in https://github.com/sissbruecker/linkding/pull/836
+* @voltagex made their first contribution in https://github.com/sissbruecker/linkding/pull/839
+* @zbrox made their first contribution in https://github.com/sissbruecker/linkding/pull/844
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.34.0...v1.35.0
+
+---
+
 ## v1.34.0 (16/09/2024)
 
 ### What's Changed
