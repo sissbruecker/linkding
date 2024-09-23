@@ -9,7 +9,7 @@
     {# Bookmark list #}
     <section class="content-area col-2">
       <div class="content-area-header mb-0">
-        <h2>Bookmarks</h2>
+        <h2>Bookmarks ({{ bookmark_list.items | length }})</h2>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search %}
           {% include 'bookmarks/bulk_edit/toggle.html' %}
