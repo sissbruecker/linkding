@@ -31,12 +31,22 @@
     {{ form.tag_string.errors }}
   </div>
   <div class="form-group">
-    <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+    <div class="d-flex justify-between align-baseline">
+      <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+      <button ld-clear-button data-for="{{ form.title.id_for_label }}" class="btn btn-link clear-button"
+              type="button">Clear
+      </button>
+    </div>
     {{ form.title|add_class:"form-input"|attr:"autocomplete:off" }}
     {{ form.title.errors }}
   </div>
   <div class="form-group">
-    <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+    <div class="d-flex justify-between align-baseline">
+      <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+      <button ld-clear-button data-for="{{ form.description.id_for_label }}" class="btn btn-link clear-button"
+              type="button">Clear
+      </button>
+    </div>
     {{ form.description|add_class:"form-input"|attr:"rows:3" }}
     {{ form.description.errors }}
   </div>
@@ -116,6 +126,7 @@
           return;
         }
         input.value = value;
+        input.dispatchEvent(new Event('value-changed'));
       }
 
       function updateCheckbox(input, value) {

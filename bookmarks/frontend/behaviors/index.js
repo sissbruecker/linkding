@@ -16,7 +16,24 @@ const mutationObserver = new MutationObserver((mutations) => {
   });
 });
 
-document.addEventListener("turbo:load", () => {
+// Update behaviors on Turbo events
+// - turbo:load: initial page load, only listen once, afterward can rely on turbo:render
+// - turbo:render: after page navigation, including back/forward, and failed form submissions
+// - turbo:before-cache: before page navigation, reset DOM before caching
+document.addEventListener(
+  "turbo:load",
+  () => {
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    applyBehaviors(document.body);
+  },
+  { once: true },
+);
+
+document.addEventListener("turbo:render", () => {
   mutationObserver.observe(document.body, {
     childList: true,
     subtree: true,
@@ -41,7 +58,6 @@ Behavior.interacting = false;
 
 export function registerBehavior(name, behavior) {
   behaviorRegistry[name] = behavior;
-  applyBehaviors(document, [name]);
 }
 
 export function applyBehaviors(container, behaviorNames = null) {
