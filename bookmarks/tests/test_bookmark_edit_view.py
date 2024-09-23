@@ -26,6 +26,11 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         }
         return {**form_data, **overrides}
 
+    def test_should_render_successfully(self):
+        bookmark = self.setup_bookmark()
+        response = self.client.get(reverse("bookmarks:edit", args=[bookmark.id]))
+        self.assertEqual(response.status_code, 200)
+
     def test_should_edit_bookmark(self):
         bookmark = self.setup_bookmark()
         form_data = self.create_form_data({"id": bookmark.id})
@@ -45,6 +50,14 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         tags = bookmark.tags.order_by("name").all()
         self.assertEqual(tags[0].name, "editedtag1")
         self.assertEqual(tags[1].name, "editedtag2")
+
+    def test_should_return_422_with_invalid_form(self):
+        bookmark = self.setup_bookmark()
+        form_data = self.create_form_data({"id": bookmark.id, "url": ""})
+        response = self.client.post(
+            reverse("bookmarks:edit", args=[bookmark.id]), form_data
+        )
+        self.assertEqual(response.status_code, 422)
 
     def test_should_edit_unread_state(self):
         bookmark = self.setup_bookmark()

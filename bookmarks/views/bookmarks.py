@@ -150,7 +150,6 @@ def convert_tag_string(tag_string: str):
 
 @login_required
 def new(request):
-    status = 200
     initial_url = request.GET.get("url")
     initial_title = request.GET.get("title")
     initial_description = request.GET.get("description")
@@ -169,8 +168,6 @@ def new(request):
                 return HttpResponseRedirect(reverse("bookmarks:close"))
             else:
                 return HttpResponseRedirect(reverse("bookmarks:index"))
-        else:
-            status = 422
     else:
         form = BookmarkForm()
         if initial_url:
@@ -186,6 +183,7 @@ def new(request):
         if initial_mark_unread:
             form.initial["unread"] = "true"
 
+    status = 422 if request.method == "POST" and not form.is_valid() else 200
     context = {
         "form": form,
         "auto_close": initial_auto_close,
@@ -216,9 +214,10 @@ def edit(request, bookmark_id: int):
 
     form.initial["tag_string"] = build_tag_string(bookmark.tag_names, " ")
 
+    status = 422 if request.method == "POST" and not form.is_valid() else 200
     context = {"form": form, "bookmark_id": bookmark_id, "return_url": return_url}
 
-    return render(request, "bookmarks/edit.html", context)
+    return render(request, "bookmarks/edit.html", context, status=status)
 
 
 def remove(request, bookmark_id: int):

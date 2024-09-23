@@ -43,6 +43,7 @@ class PasswordChangeViewTestCase(TestCase, BookmarkFactoryMixin):
 
         response = self.client.post(reverse("change_password"), form_data)
 
+        self.assertEqual(response.status_code, 422)
         self.assertIn("old_password", response.context_data["form"].errors)
 
     def test_should_return_error_for_mismatching_new_password(self):
@@ -54,4 +55,5 @@ class PasswordChangeViewTestCase(TestCase, BookmarkFactoryMixin):
 
         response = self.client.post(reverse("change_password"), form_data)
 
+        self.assertEqual(response.status_code, 422)
         self.assertIn("new_password2", response.context_data["form"].errors)

@@ -22,6 +22,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         if not overrides:
             overrides = {}
         form_data = {
+            "update_profile": "",
             "theme": UserProfile.THEME_AUTO,
             "bookmark_date_display": UserProfile.BOOKMARK_DATE_DISPLAY_RELATIVE,
             "bookmark_description_display": UserProfile.BOOKMARK_DESCRIPTION_DISPLAY_INLINE,
@@ -195,6 +196,12 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertSuccessMessage(html, "Profile updated")
 
+    def test_update_profile_with_invalid_form_returns_422(self):
+        form_data = self.create_profile_form_data({"items_per_page": "-1"})
+        response = self.client.post(reverse("bookmarks:settings.update"), form_data)
+
+        self.assertEqual(response.status_code, 422)
+
     def test_update_profile_should_not_be_called_without_respective_form_action(self):
         form_data = {
             "theme": UserProfile.THEME_DARK,
@@ -217,7 +224,6 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             # Enabling favicons schedules update
             form_data = self.create_profile_form_data(
                 {
-                    "update_profile": "",
                     "enable_favicons": True,
                 }
             )
@@ -331,7 +337,6 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             # Enabling favicons schedules update
             form_data = self.create_profile_form_data(
                 {
-                    "update_profile": "",
                     "enable_preview_images": True,
                 }
             )
