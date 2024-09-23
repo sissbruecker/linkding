@@ -46,6 +46,11 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(tags[0].name, "tag1")
         self.assertEqual(tags[1].name, "tag2")
 
+    def test_should_return_422_with_invalid_form(self):
+        form_data = self.create_form_data({"url": ""})
+        response = self.client.post(reverse("bookmarks:new"), form_data)
+        self.assertEqual(response.status_code, 422)
+
     def test_should_create_new_unread_bookmark(self):
         form_data = self.create_form_data({"unread": True})
 

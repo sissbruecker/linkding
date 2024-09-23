@@ -40,6 +40,13 @@ class LinkdingLoginView(auth_views.LoginView):
         return response
 
 
+class LinkdingPasswordChangeView(auth_views.PasswordChangeView):
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        response.status_code = 422
+        return response
+
+
 urlpatterns = [
     path("admin/", linkding_admin_site.urls),
     path(
@@ -50,7 +57,7 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path(
         "change-password/",
-        auth_views.PasswordChangeView.as_view(),
+        LinkdingPasswordChangeView.as_view(),
         name="change_password",
     ),
     path(
