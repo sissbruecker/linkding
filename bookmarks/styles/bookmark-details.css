@@ -28,7 +28,7 @@
   }
 
   & .preview-image {
-    margin: var(--unit-4 0);
+    margin: var(--unit-4) 0;
 
     img {
       max-width: 100%;
