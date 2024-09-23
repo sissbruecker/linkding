@@ -1,3 +1,4 @@
+import secrets
 import gzip
 import os
 import subprocess
@@ -9,9 +10,10 @@ from bookmarks.services import singlefile
 
 
 class SingleFileServiceTestCase(TestCase):
-    html_content = "<html><body><h1>Hello, World!</h1></body></html>"
-    html_filepath = "temp.html.gz"
-    temp_html_filepath = "temp.html.gz.tmp"
+    def setUp(self):
+        self.html_content = "<html><body><h1>Hello, World!</h1></body></html>"
+        self.html_filepath = secrets.token_hex(8) + ".html.gz"
+        self.temp_html_filepath = self.html_filepath + ".tmp"
 
     def tearDown(self):
         if os.path.exists(self.html_filepath):
