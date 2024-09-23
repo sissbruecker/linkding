@@ -34,6 +34,11 @@ class LinkdingLoginView(auth_views.LoginView):
         context["enable_oidc"] = settings.LD_ENABLE_OIDC
         return context
 
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        response.status_code = 401
+        return response
+
 
 urlpatterns = [
     path("admin/", linkding_admin_site.urls),
