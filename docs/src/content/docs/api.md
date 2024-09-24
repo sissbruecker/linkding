@@ -127,11 +127,9 @@ POST /api/bookmarks/
 Creates a new bookmark. Tags are simply assigned using their names. Including
 `is_archived: true` saves a bookmark directly to the archive.
 
-If the title and description are not provided or empty, the application automatically tries to scrape them from the bookmarked website. This behavior can be disabled by adding the `disable_scraping` query parameter to the API request. If you have an application where you want to keep using scraped metadata, but also allow users to leave the title or description empty, you should:
+If the provided URL is already bookmarked, this silently updates the existing bookmark instead of creating a new one. If you are implementing a user interface, consider notifying users about this behavior. You can use the `/check` endpoint to check if a URL is already bookmarked and at the same time get the existing bookmark data. This behavior may change in the future to return an error instead.
 
-- Fetch the scraped title and description using the `/check` endpoint.
-- Prefill the title and description fields in your app with the fetched values and allow users to clear those values.
-- Add the `disable_scraping` query parameter to prevent the API from adding them back again.
+If the title and description are not provided or empty, the application automatically tries to scrape them from the bookmarked website. This behavior can be disabled by adding the `disable_scraping` query parameter to the API request.
 
 Example payload:
 
@@ -163,6 +161,8 @@ When using `POST`, at least all required fields must be provided (currently only
 When using `PATCH`, only the fields that should be updated need to be provided.
 Regardless which method is used, any field that is not provided is not modified.
 Tags are simply assigned using their names.
+
+If the provided URL is already bookmarked this returns an error.
 
 Example payload:
 

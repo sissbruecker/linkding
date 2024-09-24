@@ -685,6 +685,29 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         updated_bookmark = Bookmark.objects.get(id=bookmark.id)
         self.assertCountEqual(updated_bookmark.tags.all(), [tag1, tag2])
 
+    def test_update_bookmark_should_prevent_duplicate_urls(self):
+        self.authenticate()
+        edited_bookmark = self.setup_bookmark(url="https://example.com/edited")
+        existing_bookmark = self.setup_bookmark(url="https://example.com/existing")
+        other_user_bookmark = self.setup_bookmark(
+            url="https://example.com/other", user=self.setup_user()
+        )
+
+        # if the URL isn't modified it's not a duplicate
+        data = {"url": edited_bookmark.url}
+        url = reverse("bookmarks:bookmark-detail", args=[edited_bookmark.id])
+        self.put(url, data, expected_status_code=status.HTTP_200_OK)
+
+        # if the URL is already bookmarked by another user, it's not a duplicate
+        data = {"url": other_user_bookmark.url}
+        url = reverse("bookmarks:bookmark-detail", args=[edited_bookmark.id])
+        self.put(url, data, expected_status_code=status.HTTP_200_OK)
+
+        # if the URL is already bookmarked by the same user, it's a duplicate
+        data = {"url": existing_bookmark.url}
+        url = reverse("bookmarks:bookmark-detail", args=[edited_bookmark.id])
+        self.put(url, data, expected_status_code=status.HTTP_400_BAD_REQUEST)
+
     def test_patch_bookmark(self):
         self.authenticate()
         bookmark = self.setup_bookmark()

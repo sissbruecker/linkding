@@ -141,6 +141,40 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
             html,
         )
 
+    def test_should_prevent_duplicate_urls(self):
+        edited_bookmark = self.setup_bookmark(url="http://example.com/edited")
+        existing_bookmark = self.setup_bookmark(url="http://example.com/existing")
+        other_user_bookmark = self.setup_bookmark(
+            url="http://example.com/other-user", user=User.objects.create_user("other")
+        )
+
+        # if the URL isn't modified it's not a duplicate
+        form_data = self.create_form_data({"url": edited_bookmark.url})
+        response = self.client.post(
+            reverse("bookmarks:edit", args=[edited_bookmark.id]), form_data
+        )
+        self.assertEqual(response.status_code, 302)
+
+        # if the URL is already bookmarked by another user, it's not a duplicate
+        form_data = self.create_form_data({"url": other_user_bookmark.url})
+        response = self.client.post(
+            reverse("bookmarks:edit", args=[edited_bookmark.id]), form_data
+        )
+        self.assertEqual(response.status_code, 302)
+
+        # if the URL is already bookmarked by the same user, it's a duplicate
+        form_data = self.create_form_data({"url": existing_bookmark.url})
+        response = self.client.post(
+            reverse("bookmarks:edit", args=[edited_bookmark.id]), form_data
+        )
+        self.assertEqual(response.status_code, 422)
+        self.assertInHTML(
+            "<li>A bookmark with this URL already exists.</li>",
+            response.content.decode(),
+        )
+        edited_bookmark.refresh_from_db()
+        self.assertNotEqual(edited_bookmark.url, existing_bookmark.url)
+
     def test_should_redirect_to_return_url(self):
         bookmark = self.setup_bookmark()
         form_data = self.create_form_data()

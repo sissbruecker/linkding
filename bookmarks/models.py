@@ -168,6 +168,24 @@ class BookmarkForm(forms.ModelForm):
             self.instance and self.instance.notes
         )
 
+    def clean_url(self):
+        # When creating a bookmark, the service logic prevents duplicate URLs by
+        # updating the existing bookmark instead, which is also communicated in
+        # the form's UI. When editing a bookmark, there is no assumption that
+        # it would update a different bookmark if the URL is a duplicate, so
+        # raise a validation error in that case.
+        url = self.cleaned_data["url"]
+        if self.instance.pk:
+            is_duplicate = (
+                Bookmark.objects.filter(owner=self.instance.owner, url=url)
+                .exclude(pk=self.instance.pk)
+                .exists()
+            )
+            if is_duplicate:
+                raise forms.ValidationError("A bookmark with this URL already exists.")
+
+        return url
+
 
 class BookmarkSearch:
     SORT_ADDED_ASC = "added_asc"
