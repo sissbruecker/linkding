@@ -14,6 +14,20 @@ class AutoTaggingTestCase(TestCase):
 
         self.assertEqual(tags, {"example"})
 
+    def test_auto_tag_by_domain_handles_invalid_urls(self):
+        script = """
+            example.com example
+            test.com test
+        """
+
+        url = "https://"
+        tags = auto_tagging.get_tags(script, url)
+        self.assertEqual(tags, set([]))
+
+        url = "example.com"
+        tags = auto_tagging.get_tags(script, url)
+        self.assertEqual(tags, set([]))
+
     def test_auto_tag_by_domain_works_with_port(self):
         script = """
             example.com example

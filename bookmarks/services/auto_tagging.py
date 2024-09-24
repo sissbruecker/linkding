@@ -7,6 +7,9 @@ def get_tags(script: str, url: str):
     parsed_url = urlparse(url.lower())
     result = set()
 
+    if not parsed_url.hostname:
+        return result
+
     for line in script.lower().split("\n"):
         if "#" in line:
             i = line.index("#")
