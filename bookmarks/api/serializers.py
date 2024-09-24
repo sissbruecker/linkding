@@ -49,6 +49,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "web_archive_snapshot_url",
             "favicon_url",
             "preview_image_url",
+            "tag_names",
             "date_added",
             "date_modified",
             "website_title",
@@ -56,15 +57,9 @@ class BookmarkSerializer(serializers.ModelSerializer):
         ]
         list_serializer_class = BookmarkListSerializer
 
-    # Override optional char fields to provide default value
-    title = serializers.CharField(required=False, allow_blank=True, default="")
-    description = serializers.CharField(required=False, allow_blank=True, default="")
-    notes = serializers.CharField(required=False, allow_blank=True, default="")
-    is_archived = serializers.BooleanField(required=False, default=False)
-    unread = serializers.BooleanField(required=False, default=False)
-    shared = serializers.BooleanField(required=False, default=False)
-    # Override readonly tag_names property to allow passing a list of tag names to create/update
-    tag_names = TagListField(required=False, default=[])
+    # Custom tag_names field to allow passing a list of tag names to create/update
+    tag_names = TagListField(required=False)
+    # Custom fields to return URLs for favicon and preview image
     favicon_url = serializers.SerializerMethodField()
     preview_image_url = serializers.SerializerMethodField()
     # Add dummy website title and description fields for backwards compatibility but keep them empty
@@ -94,15 +89,9 @@ class BookmarkSerializer(serializers.ModelSerializer):
         return None
 
     def create(self, validated_data):
-        bookmark = Bookmark()
-        bookmark.url = validated_data["url"]
-        bookmark.title = validated_data["title"]
-        bookmark.description = validated_data["description"]
-        bookmark.notes = validated_data["notes"]
-        bookmark.is_archived = validated_data["is_archived"]
-        bookmark.unread = validated_data["unread"]
-        bookmark.shared = validated_data["shared"]
-        tag_string = build_tag_string(validated_data["tag_names"])
+        tag_names = validated_data.pop("tag_names", [])
+        tag_string = build_tag_string(tag_names)
+        bookmark = Bookmark(**validated_data)
 
         saved_bookmark = create_bookmark(bookmark, tag_string, self.context["user"])
         # Unless scraping is explicitly disabled, enhance bookmark with website
@@ -113,15 +102,12 @@ class BookmarkSerializer(serializers.ModelSerializer):
         return saved_bookmark
 
     def update(self, instance: Bookmark, validated_data):
-        # Update fields if they were provided in the payload
-        for key in ["url", "title", "description", "notes", "unread", "shared"]:
-            if key in validated_data:
-                setattr(instance, key, validated_data[key])
+        tag_names = validated_data.pop("tag_names", instance.tag_names)
+        tag_string = build_tag_string(tag_names)
 
-        # Use tag string from payload, or use bookmark's current tags as fallback
-        tag_string = build_tag_string(instance.tag_names)
-        if "tag_names" in validated_data:
-            tag_string = build_tag_string(validated_data["tag_names"])
+        for field_name, field in self.fields.items():
+            if not field.read_only and field_name in validated_data:
+                setattr(instance, field_name, validated_data[field_name])
 
         return update_bookmark(instance, tag_string, self.context["user"])
 

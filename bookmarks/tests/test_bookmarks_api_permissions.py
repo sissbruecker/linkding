@@ -87,6 +87,16 @@ class BookmarksApiPermissionsTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
         self.authenticate()
         self.put(url, data, expected_status_code=status.HTTP_200_OK)
 
+    def test_update_bookmark_only_updates_own_bookmarks(self):
+        self.authenticate()
+
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        data = {"url": "https://example.com/"}
+        url = reverse("bookmarks:bookmark-detail", args=[bookmark.id])
+
+        self.put(url, data, expected_status_code=status.HTTP_404_NOT_FOUND)
+
     def test_patch_bookmark_requires_authentication(self):
         bookmark = self.setup_bookmark()
         data = {"url": "https://example.com"}
@@ -96,6 +106,16 @@ class BookmarksApiPermissionsTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
 
         self.authenticate()
         self.patch(url, data, expected_status_code=status.HTTP_200_OK)
+
+    def test_patch_bookmark_only_updates_own_bookmarks(self):
+        self.authenticate()
+
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        data = {"url": "https://example.com"}
+        url = reverse("bookmarks:bookmark-detail", args=[bookmark.id])
+
+        self.patch(url, data, expected_status_code=status.HTTP_404_NOT_FOUND)
 
     def test_delete_bookmark_requires_authentication(self):
         bookmark = self.setup_bookmark()
