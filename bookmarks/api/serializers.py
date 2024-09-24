@@ -111,6 +111,24 @@ class BookmarkSerializer(serializers.ModelSerializer):
 
         return update_bookmark(instance, tag_string, self.context["user"])
 
+    def validate(self, attrs):
+        # When creating a bookmark, the service logic prevents duplicate URLs by
+        # updating the existing bookmark instead. When editing a bookmark,
+        # there is no assumption that it would update a different bookmark if
+        # the URL is a duplicate, so raise a validation error in that case.
+        if self.instance and "url" in attrs:
+            is_duplicate = (
+                Bookmark.objects.filter(owner=self.instance.owner, url=attrs["url"])
+                .exclude(pk=self.instance.pk)
+                .exists()
+            )
+            if is_duplicate:
+                raise serializers.ValidationError(
+                    {"url": "A bookmark with this URL already exists."}
+                )
+
+        return attrs
+
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
