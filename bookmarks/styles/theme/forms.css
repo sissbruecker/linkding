@@ -197,6 +197,16 @@ textarea.form-input {
       no-repeat right 0.35rem center / 0.4rem 0.5rem;
     padding-right: calc(var(--control-icon-size) + var(--control-padding-x));
   }
+
+  /* Options */
+  & option {
+    /* On Windows with Chrome / Edge, options seems to use the same
+    background color as the select. However for the dark theme the
+    background is a semi-transparent white, resulting in an opaque white
+    background for the dropdown. Use the modal background color to force
+    a dark background instead. */
+    background: var(--modal-container-bg-color);
+  }
 }
 
 /* Form element: Checkbox and Radio */

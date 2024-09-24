@@ -141,3 +141,10 @@
   --bookmark-actions-weight: 400;
   --bulk-actions-bg-color: var(--contrast-5);
 }
+
+/* Try to force dark color scheme for all native elements (e.g. upload button
+in file inputs, native select dropdown). For the select dropdown some browsers
+ignore this and use whatever users have configured in their system settings. */
+:root {
+  color-scheme: dark;
+}
