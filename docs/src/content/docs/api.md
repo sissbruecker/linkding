@@ -155,34 +155,13 @@ Example payload:
 
 ```
 PUT /api/bookmarks/<id>/
-```
-
-Updates a bookmark.
-This is a full update, which requires at least a URL, and fields that are not specified are cleared or reset to their defaults.
-Tags are simply assigned using their names.
-
-Example payload:
-
-```json
-{
-  "url": "https://example.com",
-  "title": "Example title",
-  "description": "Example description",
-  "tag_names": [
-    "tag1",
-    "tag2"
-  ]
-}
-```
-
-**Patch**
-
-```
 PATCH /api/bookmarks/<id>/
 ```
 
-Updates a bookmark partially.
-Allows to modify individual fields of a bookmark.
+Updates a bookmark.
+When using `POST`, at least all required fields must be provided (currently only `url`).
+When using `PATCH`, only the fields that should be updated need to be provided.
+Regardless which method is used, any field that is not provided is not modified.
 Tags are simply assigned using their names.
 
 Example payload:
