@@ -46,6 +46,7 @@
 [data-has-hero] header {
     background: transparent;
     border-bottom: solid 1px transparent;
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
 }
 
