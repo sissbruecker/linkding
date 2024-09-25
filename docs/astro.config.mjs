@@ -45,6 +45,9 @@ export default defineConfig({
 			customCss: [
 				'./src/styles/custom.css',
 			],
+			editLink: {
+				baseUrl: 'https://github.com/sissbruecker/linkding/edit/master/docs/',
+			},
 		}),
 	],
 });
