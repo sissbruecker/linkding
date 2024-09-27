@@ -12,6 +12,7 @@ class NetscapeBookmark:
     description: str
     notes: str
     date_added: str
+    date_modified: str
     tag_names: List[str]
     to_read: bool
     private: bool
@@ -27,6 +28,7 @@ class BookmarkParser(HTMLParser):
         self.bookmark = None
         self.href = ""
         self.add_date = ""
+        self.last_modified = ""
         self.tags = ""
         self.title = ""
         self.description = ""
@@ -72,6 +74,7 @@ class BookmarkParser(HTMLParser):
             description="",
             notes="",
             date_added=self.add_date,
+            date_modified=self.last_modified,
             tag_names=tag_names,
             to_read=self.toread == "1",
             # Mark as private by default, also when attribute is not specified
@@ -97,6 +100,7 @@ class BookmarkParser(HTMLParser):
         self.bookmark = None
         self.href = ""
         self.add_date = ""
+        self.last_modified = ""
         self.tags = ""
         self.title = ""
         self.description = ""
