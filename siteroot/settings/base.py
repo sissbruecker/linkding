@@ -128,14 +128,6 @@ STATIC_URL = "/" + LD_CONTEXT_PATH + "static/"
 # Collect static files in static folder
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-STATICFILES_DIRS = [
-    # Resolve theme files from style source folder
-    os.path.join(BASE_DIR, "bookmarks", "styles"),
-    # Resolve downloaded files in dev environment
-    os.path.join(BASE_DIR, "data", "favicons"),
-    os.path.join(BASE_DIR, "data", "previews"),
-]
-
 # REST framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
