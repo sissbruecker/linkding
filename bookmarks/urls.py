@@ -65,4 +65,6 @@ urlpatterns = [
     path("health", views.health, name="health"),
     # Manifest
     path("manifest.json", views.manifest, name="manifest"),
+    # Custom CSS
+    path("custom_css", views.custom_css, name="custom_css"),
 ]

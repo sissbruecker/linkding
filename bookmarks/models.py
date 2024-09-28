@@ -1,4 +1,5 @@
 import binascii
+import hashlib
 import logging
 import os
 from typing import List
@@ -430,6 +431,7 @@ class UserProfile(models.Model):
     display_remove_bookmark_action = models.BooleanField(default=True, null=False)
     permanent_notes = models.BooleanField(default=False, null=False)
     custom_css = models.TextField(blank=True, null=False)
+    custom_css_hash = models.CharField(blank=True, null=False, max_length=32)
     auto_tagging_rules = models.TextField(blank=True, null=False)
     search_preferences = models.JSONField(default=dict, null=False)
     enable_automatic_html_snapshots = models.BooleanField(default=True, null=False)
@@ -438,6 +440,15 @@ class UserProfile(models.Model):
         null=False, default=30, validators=[MinValueValidator(10)]
     )
     sticky_pagination = models.BooleanField(default=False, null=False)
+
+    def save(self, *args, **kwargs):
+        if self.custom_css:
+            self.custom_css_hash = hashlib.md5(
+                self.custom_css.encode("utf-8")
+            ).hexdigest()
+        else:
+            self.custom_css_hash = ""
+        super().save(*args, **kwargs)
 
 
 class UserProfileForm(forms.ModelForm):

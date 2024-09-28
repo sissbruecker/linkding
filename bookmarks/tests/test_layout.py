@@ -2,10 +2,10 @@ from django.test import TestCase
 from django.urls import reverse
 
 from bookmarks.models import GlobalSettings
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
-class LayoutTestCase(TestCase, BookmarkFactoryMixin):
+class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
@@ -63,3 +63,38 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin):
             html,
             count=0,
         )
+
+    def test_does_not_link_custom_css_when_empty(self):
+        response = self.client.get(reverse("bookmarks:index"))
+        html = response.content.decode()
+        soup = self.make_soup(html)
+
+        link = soup.select_one("link[rel='stylesheet'][href*='custom_css']")
+        self.assertIsNone(link)
+
+    def test_does_link_custom_css_when_not_empty(self):
+        profile = self.get_or_create_test_user().profile
+        profile.custom_css = "body { background-color: red; }"
+        profile.save()
+
+        response = self.client.get(reverse("bookmarks:index"))
+        html = response.content.decode()
+        soup = self.make_soup(html)
+
+        link = soup.select_one("link[rel='stylesheet'][href*='custom_css']")
+        self.assertIsNotNone(link)
+
+    def test_custom_css_link_href(self):
+        profile = self.get_or_create_test_user().profile
+        profile.custom_css = "body { background-color: red; }"
+        profile.save()
+
+        response = self.client.get(reverse("bookmarks:index"))
+        html = response.content.decode()
+        soup = self.make_soup(html)
+
+        link = soup.select_one("link[rel='stylesheet'][href*='custom_css']")
+        expected_url = (
+            reverse("bookmarks:custom_css") + f"?hash={profile.custom_css_hash}"
+        )
+        self.assertEqual(link["href"], expected_url)
