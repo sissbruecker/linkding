@@ -1,3 +1,4 @@
+import hashlib
 import random
 from unittest.mock import patch, Mock
 
@@ -216,6 +217,31 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user.profile.theme, UserProfile.THEME_AUTO)
         self.assertSuccessMessage(html, "Profile updated", count=0)
+
+    def test_update_profile_updates_custom_css_hash(self):
+        form_data = self.create_profile_form_data(
+            {
+                "custom_css": "body { background-color: #000; }",
+            }
+        )
+        self.client.post(reverse("bookmarks:settings.update"), form_data, follow=True)
+        self.user.profile.refresh_from_db()
+
+        expected_hash = hashlib.md5(form_data["custom_css"].encode("utf-8")).hexdigest()
+        self.assertEqual(expected_hash, self.user.profile.custom_css_hash)
+
+        form_data["custom_css"] = "body { background-color: #fff; }"
+        self.client.post(reverse("bookmarks:settings.update"), form_data, follow=True)
+        self.user.profile.refresh_from_db()
+
+        expected_hash = hashlib.md5(form_data["custom_css"].encode("utf-8")).hexdigest()
+        self.assertEqual(expected_hash, self.user.profile.custom_css_hash)
+
+        form_data["custom_css"] = ""
+        self.client.post(reverse("bookmarks:settings.update"), form_data, follow=True)
+        self.user.profile.refresh_from_db()
+
+        self.assertEqual("", self.user.profile.custom_css_hash)
 
     def test_enable_favicons_should_schedule_icon_update(self):
         with patch.object(

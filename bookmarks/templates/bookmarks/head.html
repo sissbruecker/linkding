@@ -30,7 +30,7 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#5856e0">
   {% endif %}
   {% if request.user_profile.custom_css %}
-    <style>{{ request.user_profile.custom_css }}</style>
+    <link href="{% url 'bookmarks:custom_css' %}?hash={{ request.user_profile.custom_css_hash }}" rel="stylesheet" type="text/css"/>
   {% endif %}
   <meta name="turbo-cache-control" content="no-preview">
   {% if not request.global_settings.enable_link_prefetch %}
