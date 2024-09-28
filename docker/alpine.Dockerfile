@@ -1,4 +1,4 @@
-FROM node:18-alpine AS node-build
+FROM node:20-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY rollup.config.mjs postcss.config.js package.json package-lock.json ./
@@ -10,7 +10,7 @@ COPY bookmarks/styles ./bookmarks/styles
 RUN npm run build
 
 
-FROM python:3.12.6-alpine3.20 AS python-base
+FROM python:3.12.6-alpine3.20 AS build-deps
 # Add required packages
 # alpine-sdk linux-headers pkgconfig: build Python packages from source
 # libpq-dev: build Postgres client from source
@@ -18,24 +18,8 @@ FROM python:3.12.6-alpine3.20 AS python-base
 # libffi-dev openssl-dev rust cargo: build Python cryptography from source
 RUN apk update && apk add alpine-sdk linux-headers libpq-dev pkgconfig icu-dev sqlite-dev libffi-dev openssl-dev rust cargo
 WORKDIR /etc/linkding
-
-
-FROM python-base AS python-build
-# install build dependencies
+# install python dependencies
 COPY requirements.txt requirements.txt
-RUN pip install -U pip && pip install -r requirements.txt
-# copy files needed for Django build
-COPY . .
-COPY --from=node-build /etc/linkding .
-# remove style sources
-RUN rm -rf bookmarks/styles
-# run Django part of the build
-RUN mkdir data && \
-    python manage.py collectstatic
-
-
-FROM python-base AS prod-deps
-COPY requirements.txt ./requirements.txt
 # Need to build psycopg2 from source for ARM platforms
 RUN sed -i 's/psycopg2-binary/psycopg2/g' requirements.txt
 RUN mkdir /opt/venv && \
@@ -44,7 +28,7 @@ RUN mkdir /opt/venv && \
     /opt/venv/bin/pip install -r requirements.txt
 
 
-FROM python-base AS compile-icu
+FROM build-deps AS compile-icu
 # Defines SQLite version
 # Since this is only needed for downloading the header files this probably
 # doesn't need to be up-to-date, assuming the SQLite APIs used by the ICU
@@ -74,19 +58,23 @@ RUN set -x ; \
   addgroup -g 82 -S www-data ; \
   adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
 WORKDIR /etc/linkding
-# copy prod dependencies
-COPY --from=prod-deps /opt/venv /opt/venv
-# copy output from build stage
-COPY --from=python-build /etc/linkding/static static/
+# copy python dependencies
+COPY --from=build-deps /opt/venv /opt/venv
+# copy output from node build
+COPY --from=node-build /etc/linkding/bookmarks/static bookmarks/static/
 # copy compiled icu extension
 COPY --from=compile-icu /etc/linkding/libicu.so libicu.so
 # copy application code
 COPY . .
+# Activate virtual env
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH=/opt/venv/bin:$PATH
+# Generate static files, remove source styles that are not needed
+RUN mkdir data && \
+    python manage.py collectstatic
+
 # Expose uwsgi server at port 9090
 EXPOSE 9090
-# Activate virtual env
-ENV VIRTUAL_ENV /opt/venv
-ENV PATH /opt/venv/bin:$PATH
 # Allow running containers as an an arbitrary user in the root group, to support deployment scenarios like OpenShift, Podman
 RUN chmod g+w . && \
     chmod +x ./bootstrap.sh

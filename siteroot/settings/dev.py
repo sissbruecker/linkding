@@ -20,6 +20,14 @@ INTERNAL_IPS = [
 # Allow access through ngrok
 CSRF_TRUSTED_ORIGINS = ["https://*.ngrok-free.app"]
 
+STATICFILES_DIRS = [
+    # Resolve theme files from style source folder
+    os.path.join(BASE_DIR, "bookmarks", "styles"),
+    # Resolve downloaded files in dev environment
+    os.path.join(BASE_DIR, "data", "favicons"),
+    os.path.join(BASE_DIR, "data", "previews"),
+]
+
 # Enable debug logging
 LOGGING = {
     "version": 1,
