@@ -86,18 +86,20 @@ CMD ["./bootstrap.sh"]
 FROM node:18-alpine AS ublock-build
 WORKDIR /etc/linkding
 # Install necessary tools
-RUN apk add --no-cache curl jq unzip
-# Fetch the latest release tag
-# Download the library
-# Unzip the library
-RUN TAG=$(curl -sL https://api.github.com/repos/gorhill/uBlock/releases/latest | jq -r '.tag_name') && \
-    DOWNLOAD_URL=https://github.com/gorhill/uBlock/releases/download/$TAG/uBlock0_$TAG.chromium.zip && \
-    curl -L -o uBlock0.zip $DOWNLOAD_URL && \
-    unzip uBlock0.zip
-# Patch assets.json to enable easylist-cookies by default
-RUN curl -L -o ./uBlock0.chromium/assets/thirdparties/easylist/easylist-cookies.txt https://ublockorigin.github.io/uAssets/thirdparties/easylist-cookies.txt
-RUN jq '."assets.json" |= del(.cdnURLs) | ."assets.json".contentURL = ["assets/assets.json"] | ."fanboy-cookiemonster" |= del(.off) | ."fanboy-cookiemonster".contentURL += ["assets/thirdparties/easylist/easylist-cookies.txt"]' ./uBlock0.chromium/assets/assets.json > temp.json && \
-    mv temp.json ./uBlock0.chromium/assets/assets.json
+# Download and unzip the latest uBlock Origin Lite release
+# Patch manifest to enable annoyances by default
+# Patch ruleset-manager.js to use rulesets enabled in manifest by default
+RUN apk add --no-cache curl jq unzip && \
+    TAG=$(curl -sL https://api.github.com/repos/uBlockOrigin/uBOL-home/releases/latest | jq -r '.tag_name') && \
+    DOWNLOAD_URL=https://github.com/uBlockOrigin/uBOL-home/releases/download/$TAG/$TAG.chromium.mv3.zip && \
+    echo "Downloading $DOWNLOAD_URL" && \
+    curl -L -o uBOLite.zip $DOWNLOAD_URL && \
+    unzip uBOLite.zip -d uBOLite.chromium.mv3 && \
+    rm uBOLite.zip && \
+    jq '.declarative_net_request.rule_resources |= map(if .id == "annoyances-overlays" or .id == "annoyances-cookies" or .id == "annoyances-social" or .id == "annoyances-widgets" or .id == "annoyances-others" then .enabled = true else . end)' \
+        uBOLite.chromium.mv3/manifest.json > temp.json && \
+    mv temp.json uBOLite.chromium.mv3/manifest.json && \
+    sed -i 's/const out = \[ '\''default'\'' \];/const out = await dnr.getEnabledRulesets();/' uBOLite.chromium.mv3/js/ruleset-manager.js
 
 
 FROM linkding AS linkding-plus
@@ -111,9 +113,9 @@ RUN apt-get install -y gnupg2 apt-transport-https ca-certificates && \
     apt-get update && apt-get install -y nodejs
 # install single-file from fork for now, which contains several hotfixes
 RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/4c54b3bc704cfb3e96cec2d24854caca3df0b3b6
+# copy uBlock
+COPY --from=ublock-build /etc/linkding/uBOLite.chromium.mv3 uBOLite.chromium.mv3/
 # create chromium profile folder for user running background tasks
 RUN mkdir -p chromium-profile && chown -R www-data:www-data chromium-profile
-# copy uBlock0
-COPY --from=ublock-build /etc/linkding/uBlock0.chromium uBlock0.chromium/
 # enable snapshot support
 ENV LD_ENABLE_SNAPSHOTS=True

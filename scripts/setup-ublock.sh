@@ -1,13 +1,18 @@
-rm -rf ublock0.chromium
+rm -rf uBOLite.chromium.mv3
 
-TAG=$(curl -sL https://api.github.com/repos/gorhill/uBlock/releases/latest | jq -r '.tag_name')
-DOWNLOAD_URL=https://github.com/gorhill/uBlock/releases/download/$TAG/uBlock0_$TAG.chromium.zip
-curl -L -o uBlock0.zip $DOWNLOAD_URL
-unzip uBlock0.zip
-rm uBlock0.zip
+# Download uBlock Origin Lite
+TAG=$(curl -sL https://api.github.com/repos/uBlockOrigin/uBOL-home/releases/latest | jq -r '.tag_name')
+DOWNLOAD_URL=https://github.com/uBlockOrigin/uBOL-home/releases/download/$TAG/$TAG.chromium.mv3.zip
+echo "Downloading $DOWNLOAD_URL"
+curl -L -o uBOLite.zip $DOWNLOAD_URL
+unzip uBOLite.zip -d uBOLite.chromium.mv3
+rm uBOLite.zip
 
-curl -L -o ./uBlock0.chromium/assets/thirdparties/easylist/easylist-cookies.txt https://ublockorigin.github.io/uAssets/thirdparties/easylist-cookies.txt
-jq '."assets.json" |= del(.cdnURLs) | ."assets.json".contentURL = ["assets/assets.json"] | ."fanboy-cookiemonster" |= del(.off) | ."fanboy-cookiemonster".contentURL += ["assets/thirdparties/easylist/easylist-cookies.txt"]' ./uBlock0.chromium/assets/assets.json > temp.json
-mv temp.json ./uBlock0.chromium/assets/assets.json
+# Patch uBlock Origin Lite to respect rulesets enabled in manifest.json
+sed -i '' "s/const out = \[ 'default' \];/const out = await dnr.getEnabledRulesets();/" uBOLite.chromium.mv3/js/ruleset-manager.js
+
+# Enable annoyances rulesets in manifest.json
+jq '.declarative_net_request.rule_resources |= map(if .id == "annoyances-overlays" or .id == "annoyances-cookies" or .id == "annoyances-social" or .id == "annoyances-widgets" or .id == "annoyances-others" then .enabled = true else . end)' uBOLite.chromium.mv3/manifest.json > temp.json
+mv temp.json uBOLite.chromium.mv3/manifest.json
 
 mkdir -p chromium-profile
