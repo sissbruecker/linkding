@@ -66,7 +66,7 @@ class SingleFileServiceTestCase(TestCase):
                 '--browser-arg="--headless=new"',
                 '--browser-arg="--user-data-dir=./chromium-profile"',
                 '--browser-arg="--no-sandbox"',
-                '--browser-arg="--load-extension=uBlock0.chromium"',
+                '--browser-arg="--load-extension=uBOLite.chromium.mv3"',
                 "http://example.com",
                 self.html_filepath + ".tmp",
             ]
@@ -88,7 +88,7 @@ class SingleFileServiceTestCase(TestCase):
                 '--browser-arg="--headless=new"',
                 '--browser-arg="--user-data-dir=./chromium-profile"',
                 '--browser-arg="--no-sandbox"',
-                '--browser-arg="--load-extension=uBlock0.chromium"',
+                '--browser-arg="--load-extension=uBOLite.chromium.mv3"',
                 "--some-option",
                 "some value",
                 "--another-option",

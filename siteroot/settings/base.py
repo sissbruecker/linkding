@@ -296,7 +296,7 @@ LD_SINGLEFILE_UBLOCK_OPTIONS = os.getenv(
             '--browser-arg="--headless=new"',
             '--browser-arg="--user-data-dir=./chromium-profile"',
             '--browser-arg="--no-sandbox"',
-            '--browser-arg="--load-extension=uBlock0.chromium"',
+            '--browser-arg="--load-extension=uBOLite.chromium.mv3"',
         ]
     ),
 )
