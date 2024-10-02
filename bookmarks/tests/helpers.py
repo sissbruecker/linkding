@@ -45,6 +45,7 @@ class BookmarkFactoryMixin:
         favicon_file: str = "",
         preview_image_file: str = "",
         added: datetime = None,
+        modified: datetime = None,
     ):
         if title is None:
             title = get_random_string(length=32)
@@ -57,13 +58,15 @@ class BookmarkFactoryMixin:
             url = "https://example.com/" + unique_id
         if added is None:
             added = timezone.now()
+        if modified is None:
+            modified = timezone.now()    
         bookmark = Bookmark(
             url=url,
             title=title,
             description=description,
             notes=notes,
             date_added=added,
-            date_modified=timezone.now(),
+            date_modified=modified,
             owner=user,
             is_archived=is_archived,
             unread=unread,
