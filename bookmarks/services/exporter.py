@@ -40,9 +40,10 @@ def append_bookmark(doc: BookmarkDocument, bookmark: Bookmark):
     toread = "1" if bookmark.unread else "0"
     private = "0" if bookmark.shared else "1"
     added = int(bookmark.date_added.timestamp())
+    modified = int(bookmark.date_modified.timestamp())
 
     doc.append(
-        f'<DT><A HREF="{url}" ADD_DATE="{added}" PRIVATE="{private}" TOREAD="{toread}" TAGS="{tags}">{title}</A>'
+        f'<DT><A HREF="{url}" ADD_DATE="{added}" LAST_MODIFIED="{modified}" PRIVATE="{private}" TOREAD="{toread}" TAGS="{tags}">{title}</A>'
     )
 
     if desc:

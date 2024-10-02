@@ -26,6 +26,9 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
             self.assertEqual(bookmark.title, html_tag.title)
             self.assertEqual(bookmark.description, html_tag.description)
             self.assertEqual(bookmark.date_added, parse_timestamp(html_tag.add_date))
+            self.assertEqual(
+                bookmark.date_modified, parse_timestamp(html_tag.last_modified)
+            )
             self.assertEqual(bookmark.unread, html_tag.to_read)
             self.assertEqual(bookmark.shared, not html_tag.private)
 
@@ -45,6 +48,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Example title",
                 description="Example description",
                 add_date="1",
+                last_modified="11",
                 tags="example-tag",
             ),
             BookmarkHtmlTag(
@@ -52,6 +56,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Foo title",
                 description="",
                 add_date="2",
+                last_modified="22",
                 tags="",
             ),
             BookmarkHtmlTag(
@@ -59,6 +64,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Bar title",
                 description="Bar description",
                 add_date="3",
+                last_modified="33",
                 tags="bar-tag, other-tag",
             ),
             BookmarkHtmlTag(
@@ -66,6 +72,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Baz title",
                 description="Baz description",
                 add_date="4",
+                last_modified="44",
                 to_read=True,
             ),
         ]
@@ -90,6 +97,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Example title",
                 description="Example description",
                 add_date="1",
+                last_modified="11",
                 tags="example-tag",
             ),
             BookmarkHtmlTag(
@@ -97,6 +105,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Foo title",
                 description="",
                 add_date="2",
+                last_modified="22",
                 tags="",
             ),
             BookmarkHtmlTag(
@@ -104,20 +113,23 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Bar title",
                 description="Bar description",
                 add_date="3",
+                last_modified="33",
                 tags="bar-tag, other-tag",
             ),
             BookmarkHtmlTag(
                 href="https://example.com/unread",
                 title="Unread title",
                 description="Unread description",
-                add_date="3",
+                add_date="4",
+                last_modified="44",
                 to_read=True,
             ),
             BookmarkHtmlTag(
                 href="https://example.com/private",
                 title="Private title",
                 description="Private description",
-                add_date="4",
+                add_date="5",
+                last_modified="55",
                 private=True,
             ),
         ]
@@ -136,6 +148,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Updated Example title",
                 description="Updated Example description",
                 add_date="111",
+                last_modified="1111",
                 tags="updated-example-tag",
             ),
             BookmarkHtmlTag(
@@ -143,6 +156,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Updated Foo title",
                 description="Updated Foo description",
                 add_date="222",
+                last_modified="2222",
                 tags="new-tag",
             ),
             BookmarkHtmlTag(
@@ -150,6 +164,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Updated Bar title",
                 description="Updated Bar description",
                 add_date="333",
+                last_modified="3333",
                 tags="updated-bar-tag, updated-other-tag",
             ),
             BookmarkHtmlTag(
@@ -157,6 +172,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Unread title",
                 description="Unread description",
                 add_date="3",
+                last_modified="3",
                 to_read=False,
             ),
             BookmarkHtmlTag(
@@ -164,9 +180,15 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
                 title="Private title",
                 description="Private description",
                 add_date="4",
+                last_modified="4",
                 private=False,
             ),
-            BookmarkHtmlTag(href="https://baz.com", add_date="444", tags="baz-tag"),
+            BookmarkHtmlTag(
+                href="https://baz.com",
+                add_date="444",
+                last_modified="4444",
+                tags="baz-tag",
+            ),
         ]
 
         # Import updated data
@@ -290,6 +312,19 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
             self.assertEqual(
                 Bookmark.objects.all()[0].date_added, timezone.datetime(2021, 1, 1)
             )
+
+    def test_use_add_date_when_no_last_modified(self):
+        test_html = self.render_html(
+            tags_html=f"""
+            <DT><A HREF="https://example.com" ADD_DATE="1">Example.com</A>
+            <DD>Example.com
+        """
+        )
+
+        import_netscape_html(test_html, self.get_or_create_test_user())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(Bookmark.objects.all()[0].date_modified, parse_timestamp("1"))
 
     def test_keep_title_if_imported_bookmark_has_empty_title(self):
         test_html = self.render_html(

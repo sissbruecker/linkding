@@ -18,6 +18,7 @@ class ParserTestCase(TestCase, ImportTestMixin):
             self.assertEqual(bookmark.href, html_tag.href)
             self.assertEqual(bookmark.title, html_tag.title)
             self.assertEqual(bookmark.date_added, html_tag.add_date)
+            self.assertEqual(bookmark.date_modified, html_tag.last_modified)
             self.assertEqual(bookmark.description, html_tag.description)
             self.assertEqual(bookmark.tag_names, parse_tag_string(html_tag.tags))
             self.assertEqual(bookmark.to_read, html_tag.to_read)
@@ -30,6 +31,7 @@ class ParserTestCase(TestCase, ImportTestMixin):
                 title="Example title",
                 description="Example description",
                 add_date="1",
+                last_modified="11",
                 tags="example-tag",
             ),
             BookmarkHtmlTag(
@@ -37,6 +39,7 @@ class ParserTestCase(TestCase, ImportTestMixin):
                 title="Foo title",
                 description="",
                 add_date="2",
+                last_modified="22",
                 tags="",
             ),
             BookmarkHtmlTag(
@@ -44,13 +47,14 @@ class ParserTestCase(TestCase, ImportTestMixin):
                 title="Bar title",
                 description="Bar description",
                 add_date="3",
+                last_modified="33",
                 tags="bar-tag, other-tag",
             ),
             BookmarkHtmlTag(
                 href="https://example.com/baz",
                 title="Baz title",
                 description="Baz description",
-                add_date="3",
+                add_date="4",
                 to_read=True,
             ),
         ]
@@ -72,9 +76,17 @@ class ParserTestCase(TestCase, ImportTestMixin):
                 title="Example title",
                 description="Example description",
                 add_date="1",
+                last_modified="1",
                 tags="example-tag",
             ),
-            BookmarkHtmlTag(href="", title="", description="", add_date="", tags=""),
+            BookmarkHtmlTag(
+                href="",
+                title="",
+                description="",
+                add_date="",
+                last_modified="",
+                tags="",
+            ),
         ]
         html = self.render_html(html_tags)
         bookmarks = parse(html)
