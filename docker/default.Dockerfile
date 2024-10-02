@@ -115,7 +115,9 @@ RUN apt-get install -y gnupg2 apt-transport-https ca-certificates && \
 RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/4c54b3bc704cfb3e96cec2d24854caca3df0b3b6
 # copy uBlock
 COPY --from=ublock-build /etc/linkding/uBOLite.chromium.mv3 uBOLite.chromium.mv3/
-# create chromium profile folder for user running background tasks
-RUN mkdir -p chromium-profile && chown -R www-data:www-data chromium-profile
+# create chromium profile folder for user running background tasks and set permissions
+RUN mkdir -p chromium-profile &&  \
+    chown -R www-data:www-data chromium-profile &&  \
+    chown -R www-data:www-data uBOLite.chromium.mv3
 # enable snapshot support
 ENV LD_ENABLE_SNAPSHOTS=True
