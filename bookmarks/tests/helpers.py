@@ -323,6 +323,7 @@ class BookmarkHtmlTag:
         title: str = "",
         description: str = "",
         add_date: str = "",
+        last_modified: str = "",
         tags: str = "",
         to_read: bool = False,
         private: bool = True,
@@ -331,6 +332,7 @@ class BookmarkHtmlTag:
         self.title = title
         self.description = description
         self.add_date = add_date
+        self.last_modified = last_modified
         self.tags = tags
         self.to_read = to_read
         self.private = private
@@ -342,6 +344,7 @@ class ImportTestMixin:
         <DT>
         <A {f'HREF="{tag.href}"' if tag.href else ''}
            {f'ADD_DATE="{tag.add_date}"' if tag.add_date else ''}
+           {f'LAST_MODIFIED="{tag.last_modified}"' if tag.last_modified else ''}
            {f'TAGS="{tag.tags}"' if tag.tags else ''}
            TOREAD="{1 if tag.to_read else 0}"
            PRIVATE="{1 if tag.private else 0}">
