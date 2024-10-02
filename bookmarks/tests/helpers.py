@@ -59,7 +59,7 @@ class BookmarkFactoryMixin:
         if added is None:
             added = timezone.now()
         if modified is None:
-            modified = timezone.now()    
+            modified = timezone.now()
         bookmark = Bookmark(
             url=url,
             title=title,
