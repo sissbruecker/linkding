@@ -1,6 +1,31 @@
 # Changelog
 
-##  (23/09/2024)
+## v1.36.0 (02/10/2024)
+
+### What's Changed
+* Replace uBlock Origin with uBlock Origin Lite by @sissbruecker in https://github.com/sissbruecker/linkding/pull/866
+* Add LAST_MODIFIED attribute when exporting by @ixzhao in https://github.com/sissbruecker/linkding/pull/860
+* Return client error status code for invalid form submissions by @sissbruecker in https://github.com/sissbruecker/linkding/pull/849
+* Fix header.svg text by @vladh in https://github.com/sissbruecker/linkding/pull/850
+* Do not clear fields in POST requests (API behavior change) by @sissbruecker in https://github.com/sissbruecker/linkding/pull/852
+* Prevent duplicates when editing by @sissbruecker in https://github.com/sissbruecker/linkding/pull/853
+* Fix jumping details modal on back navigation by @sissbruecker in https://github.com/sissbruecker/linkding/pull/854
+* Fix select dropdown menu background in dark theme by @sissbruecker in https://github.com/sissbruecker/linkding/pull/858
+* Do not escape valid characters in custom CSS by @sissbruecker in https://github.com/sissbruecker/linkding/pull/863
+* Simplify Docker build by @sissbruecker in https://github.com/sissbruecker/linkding/pull/865
+* Improve error handling for auto tagging by @sissbruecker in https://github.com/sissbruecker/linkding/pull/855
+* Bump rollup from 4.13.0 to 4.22.4 by @dependabot in https://github.com/sissbruecker/linkding/pull/851
+* Bump rollup from 4.21.3 to 4.22.4 in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/856
+
+### New Contributors
+* @vladh made their first contribution in https://github.com/sissbruecker/linkding/pull/850
+* @ixzhao made their first contribution in https://github.com/sissbruecker/linkding/pull/860
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.35.0...v1.36.0
+
+---
+
+## v1.35.0 (23/09/2024)
 
 ### What's Changed
 * Add configuration options for pagination by @sissbruecker in https://github.com/sissbruecker/linkding/pull/835
