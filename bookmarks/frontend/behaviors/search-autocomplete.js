@@ -25,6 +25,8 @@ class SearchAutocomplete extends Behavior {
           shared: input.dataset.shared,
           unread: input.dataset.unread,
         },
+        fetchType: input.getAttribute("data-fetch-type") || "static",
+        matchType: input.getAttribute("data-match-type") || "starts_with",
       },
     });
 

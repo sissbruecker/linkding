@@ -1,7 +1,11 @@
 import logging
 
+from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
+
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
@@ -140,7 +144,30 @@ class TagViewSet(
 
     def get_queryset(self):
         user = self.request.user
-        return Tag.objects.all().filter(owner=user)
+        queryset = Tag.objects.filter(owner=user)
+
+        word = self.request.query_params.get("word", None)
+        if word:
+            min_length = getattr(settings, "LD_TAG_MINIMUM_CHARACTER", 1)
+            if len(word) < min_length:
+                raise ValidationError(
+                    {"word": f"Word must be at least {min_length} characters long."}
+                )
+
+            match_type = getattr(settings, "LD_TAG_MATCH_TYPE", "starts_with")
+            if match_type == "contains":
+                queryset = queryset.filter(name__icontains=word)
+            elif match_type == "starts_with":
+                queryset = queryset.filter(name__istartswith=word)
+            else:
+                # Handle unexpected match_type values
+                raise ImproperlyConfigured(
+                    {
+                        "match_type": f"Invalid LD_TAG_MATCH_TYPE setting: '{match_type}'. "
+                        "Expected 'contains' or 'starts_with'."
+                    }
+                )
+        return queryset
 
     def get_serializer_context(self):
         return {"user": self.request.user}

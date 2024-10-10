@@ -268,3 +268,31 @@ When creating HTML archive snapshots, pass additional options to the `single-fil
 See `single-file --help` for complete list of arguments, or browse source: https://github.com/gildas-lormeau/single-file-cli/blob/master/options.js
 
 Example: `LD_SINGLEFILE_OPTIONS=--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) Gecko/20100101 Firefox/124.0"`
+
+LD_TAG_FETCH_TYPE
+LD_TAG_MATCH_TYPE
+LD_TAG_MINIMUM_CHARACTER
+
+### `LD_TAG_FETCH_TYPE`
+
+Values: `static` or `dynamic` | Default = `static`
+
+How tag autocompletion should fetch data. There are two supported methods:
+  * `static` - frontend will fetch all tags from backend but only once, and will match them in browser.
+  * `dynamic` - frontend will fetch tags from backend when searching for them, matching will be performed at database level.
+
+### `LD_TAG_MATCH_TYPE`
+
+Values: `starts_with` or `contains` | Default = `starts_with`
+
+How tags should be matched against string. There are two supported methods:
+ * `starts_with` - will match tags that starts with searched string
+ * `contains` - will match tags that contain searched string
+
+### `LD_TAG_MINIMUM_CHARACTER`
+
+Values `Int` | Default = 1
+
+How many characters should be required when searching for tag.
+
+This settings works only on backend side (when `LD_TAG_FETCH_TYPE` = `dynamic`).

@@ -14,4 +14,4 @@ import "./behaviors/tag-modal";
 export { default as TagAutoComplete } from "./components/TagAutocomplete.svelte";
 export { default as SearchAutoComplete } from "./components/SearchAutoComplete.svelte";
 export { api } from "./api";
-export { cache } from "./cache";
+export { tags } from "./tags";

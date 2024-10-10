@@ -19,8 +19,11 @@ export class Api {
       .then((data) => data.results);
   }
 
-  getTags(options = { limit: 100, offset: 0 }) {
-    const url = `${this.baseUrl}tags/?limit=${options.limit}&offset=${options.offset}`;
+  getTags(options = { limit: 100, offset: 0, word: undefined }) {
+    let url = `${this.baseUrl}tags/?limit=${options.limit}&offset=${options.offset}`;
+    if (options.word) {
+      url += `&word=${options.word}`;
+    }
 
     return fetch(url)
       .then((response) => response.json())
