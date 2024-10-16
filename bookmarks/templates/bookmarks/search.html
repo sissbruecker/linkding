@@ -8,7 +8,9 @@
            data-mode="{{ mode }}"
            data-user="{{ search.user }}"
            data-shared="{{ search.shared }}"
-           data-unread="{{ search.unread }}">
+           data-unread="{{ search.unread }}"
+           data-match-type="{{ tag_match_type }}"
+           data-fetch-type="{{ tag_fetch_type }}">
     <input type="submit" value="Search" class="d-none">
     {% for hidden_field in search_form.hidden_fields %}
       {{ hidden_field }}

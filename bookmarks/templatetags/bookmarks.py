@@ -1,6 +1,7 @@
 from typing import List
 
 from django import template
+from django.conf import settings
 
 from bookmarks.models import (
     BookmarkForm,
@@ -26,6 +27,8 @@ def bookmark_form(
         "auto_close": auto_close,
         "bookmark_id": bookmark_id,
         "cancel_url": cancel_url,
+        "tag_match_type": settings.LD_TAG_MATCH_TYPE,
+        "tag_fetch_type": settings.LD_TAG_FETCH_TYPE,
     }
 
 
@@ -47,6 +50,8 @@ def bookmark_search(context, search: BookmarkSearch, mode: str = ""):
         "search_form": search_form,
         "preferences_form": preferences_form,
         "mode": mode,
+        "tag_match_type": settings.LD_TAG_MATCH_TYPE,
+        "tag_fetch_type": settings.LD_TAG_FETCH_TYPE,
     }
 
 

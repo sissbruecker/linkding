@@ -1,7 +1,7 @@
 <script>
   import {SearchHistory} from "./SearchHistory";
   import {api} from "../api";
-  import {cache} from "../cache";
+  import {tags as cache} from "../tags";
   import {clampText, debounce, getCurrentWord, getCurrentWordBounds} from "../util";
 
   const searchHistory = new SearchHistory()
@@ -12,6 +12,8 @@
   export let mode = '';
   export let search;
   export let linkTarget = '_blank';
+  export let fetchType = 'static';
+  export let matchType = 'starts_with';
 
   let isFocus = false;
   let isOpen = false;
@@ -88,19 +90,20 @@
     }
 
     // Tag suggestions
-    const tags = await cache.getTags();
     let tagSuggestions = []
     const currentWord = getCurrentWord(input)
     if (currentWord && currentWord.length > 1 && currentWord[0] === '#') {
       const searchTag = currentWord.substring(1, currentWord.length)
-      tagSuggestions = (tags || []).filter(tag => tag.name.toLowerCase().indexOf(searchTag.toLowerCase()) === 0)
-        .slice(0, 5)
-        .map(tag => ({
-          type: 'tag',
-          index: nextIndex(),
-          label: `#${tag.name}`,
-          tagName: tag.name
-        }))
+      tagSuggestions = (await cache.getTags(fetchType, matchType, searchTag))
+              .slice(0, 5)
+              .map((tag) => {
+                return {
+                  type: 'tag',
+                  index: nextIndex(),
+                  label: `#${tag.name}`,
+                  tagName: tag.name
+                }
+              })
     }
 
     // Recent search suggestions

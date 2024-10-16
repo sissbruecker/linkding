@@ -1,12 +1,15 @@
 <script>
-  import {cache} from "../cache";
-  import {getCurrentWord, getCurrentWordBounds} from "../util";
+  import {tags as cache} from "../tags";
+  import {debounce, getCurrentWord, getCurrentWordBounds} from "../util";
 
   export let id;
   export let name;
   export let value;
   export let placeholder;
   export let variant = 'default';
+
+  export let fetchType = 'static';
+  export let matchType = 'starts_with';
 
   let isFocus = false;
   let isOpen = false;
@@ -28,12 +31,12 @@
   async function handleInput(e) {
     input = e.target;
 
-    const tags = await cache.getTags();
-    const word = getCurrentWord(input);
+    debouncedFetchTags(input);
+  }
 
-    suggestions = word
-      ? tags.filter(tag => tag.name.toLowerCase().indexOf(word.toLowerCase()) === 0)
-      : [];
+  async function fetchTags(input) {
+    const word = getCurrentWord(input);
+    suggestions = await cache.getTags(fetchType, matchType, word);
 
     if (word && suggestions.length > 0) {
       open();
@@ -41,6 +44,8 @@
       close();
     }
   }
+
+  const debouncedFetchTags = debounce(fetchTags);
 
   function handleKeyDown(e) {
     if (isOpen && (e.keyCode === 13 || e.keyCode === 9)) {
@@ -101,6 +106,7 @@
       }
     }, 0);
   }
+
 </script>
 
 <div class="form-autocomplete" class:small={variant === 'small'}>

@@ -308,3 +308,7 @@ LD_SINGLEFILE_TIMEOUT_SEC = float(os.getenv("LD_SINGLEFILE_TIMEOUT_SEC", 120))
 # it turns out to be useful in the future.
 LD_MONOLITH_PATH = os.getenv("LD_MONOLITH_PATH", "monolith")
 LD_MONOLITH_OPTIONS = os.getenv("LD_MONOLITH_OPTIONS", "-a -v -s")
+
+LD_TAG_FETCH_TYPE = os.getenv("LD_TAG_FETCH_TYPE", "static")
+LD_TAG_MATCH_TYPE = os.getenv("LD_TAG_MATCH_TYPE", "starts_with")
+LD_TAG_MINIMUM_CHARACTER = int(os.getenv("LD_TAG_MINIMUM_CHARACTER", 1))
