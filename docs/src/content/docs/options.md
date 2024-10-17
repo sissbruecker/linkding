@@ -268,3 +268,9 @@ When creating HTML archive snapshots, pass additional options to the `single-fil
 See `single-file --help` for complete list of arguments, or browse source: https://github.com/gildas-lormeau/single-file-cli/blob/master/options.js
 
 Example: `LD_SINGLEFILE_OPTIONS=--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) Gecko/20100101 Firefox/124.0"`
+
+### `LD_DISABLE_REQUEST_LOGS`
+
+Values: `true` or `false` | Default =  `false`
+
+Set uWSGI [disable-logging](https://uwsgi-docs.readthedocs.io/en/latest/Options.html#disable-logging) parameter to disable request logs, except for requests with a client (4xx) or server (5xx) error response.
