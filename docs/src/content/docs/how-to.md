@@ -69,7 +69,7 @@ You can also check the [Community section](/community) for other pre-made shortc
 The font size can be adjusted globally by adding the following CSS to the custom CSS field in the settings:
 
 ```css
-html {
+:root {
   --font-size: 0.75rem;
   --font-size-sm: 0.7rem;
   --font-size-lg: 0.9rem;
