@@ -6,6 +6,7 @@ description: "Community projects around linkding"
 This section lists community projects around using linkding, in alphabetical order. If you have a project that you want to share with the linkding community, feel free to [submit a PR](https://github.com/sissbruecker/linkding/edit/master/docs/src/content/docs/community.md) to add your project to this section.
 
 - [aiolinkding](https://github.com/bachya/aiolinkding) A Python3, async library to interact with the linkding REST API. By [bachya](https://github.com/bachya)
+- [cosmicding](https://github.com/vkhitrin/cosmicding) Desktop client built using [libcosmic](https://github.com/pop-os/libcosmic). By [vkhitrin](https://github.com/vkhitrin)
 - [feed2linkding](https://codeberg.org/strubbl/feed2linkding) A commandline utility to add all web feed item links to linkding via API call. By [Strubbl](https://github.com/Strubbl)
 - [go-linkding](https://github.com/piero-vic/go-linkding) A Go client library to interact with the linkding REST API. By [piero-vic](https://github.com/piero-vic)
 - [Helm Chart](https://charts.pascaliske.dev/charts/linkding/) Helm Chart for deploying linkding inside a Kubernetes cluster. By [pascaliske](https://github.com/pascaliske)
