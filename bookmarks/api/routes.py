@@ -6,6 +6,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
 
+from django.http import HttpResponse
+from django.db.models import prefetch_related_objects
+
 from bookmarks import queries
 from bookmarks.api.serializers import (
     BookmarkSerializer,
@@ -20,6 +23,7 @@ from bookmarks.services.bookmarks import (
     website_loader,
 )
 from bookmarks.services.website_loader import WebsiteMetadata
+from bookmarks.services import exporter
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +132,28 @@ class BookmarkViewSet(
             },
             status=status.HTTP_200_OK,
         )
+
+    @action(methods=["get"], detail=False)
+    def export(self, request):
+        # noinspection PyBroadException
+        try:
+            bookmarks = Bookmark.objects.filter(owner=request.user)
+            # Prefetch tags to prevent n+1 queries
+            prefetch_related_objects(bookmarks, "tags")
+            file_content = exporter.export_netscape_html(bookmarks)
+
+            response = HttpResponse(content_type="text/plain; charset=UTF-8")
+            response["Content-Disposition"] = 'attachment; filename="bookmarks.html"'
+            response.write(file_content)
+
+            return response
+        except:
+            return Response(
+                {
+                    "error": "Failed to export bookmarks."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class TagViewSet(
