@@ -64,7 +64,14 @@
           {% endif %}
           <div class="actions">
             {% if bookmark_item.display_date %}
-              {% if bookmark_item.web_archive_snapshot_url %}
+              {% if bookmark_item.show_locally_archived_link and bookmark_item.local_snapshot_url %}
+                <a href="{{ bookmark_item.local_snapshot_url }}/read"
+                   title="View local snapshot"
+                   target="{{ bookmark_list.link_target }}"
+                   rel="noopener">
+                  {{ bookmark_item.display_date }}
+                </a>
+              {% elif bookmark_item.web_archive_snapshot_url %}
                 <a href="{{ bookmark_item.web_archive_snapshot_url }}"
                    title="Show snapshot on the Internet Archive Wayback Machine"
                    target="{{ bookmark_list.link_target }}"

@@ -1071,6 +1071,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(response.data["enable_favicons"], profile.enable_favicons)
         self.assertEqual(response.data["display_url"], profile.display_url)
         self.assertEqual(response.data["permanent_notes"], profile.permanent_notes)
+        self.assertEqual(response.data["locally_archived_snapshot_link"], profile.locally_archived_snapshot_link)
         self.assertEqual(
             response.data["search_preferences"], profile.search_preferences
         )
@@ -1096,6 +1097,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         profile.enable_favicons = True
         profile.display_url = True
         profile.permanent_notes = True
+        profile.locally_archived_snapshot_link = True
         profile.search_preferences = {
             "sort": BookmarkSearch.SORT_TITLE_ASC,
             "shared": BookmarkSearch.FILTER_SHARED_OFF,

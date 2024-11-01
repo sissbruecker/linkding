@@ -73,6 +73,16 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.locally_archived_snapshot_link.id_for_label }}" class="form-checkbox">
+            {{ form.locally_archived_snapshot_link }}
+            <i class="form-icon"></i> Set bookmark archive link to locally archived snapshot
+          </label>
+          <div class="form-input-hint">
+            When enabled, the bookmark archive link sets to the most recent locally archived snapshot.
+            By default, it will set to the Web Archive link."
+          </div>
+        </div>
+        <div class="form-group">
           <label class="form-label">Bookmark actions</label>
           <label for="{{ form.display_view_bookmark_action.id_for_label }}" class="form-checkbox">
             {{ form.display_view_bookmark_action }}
