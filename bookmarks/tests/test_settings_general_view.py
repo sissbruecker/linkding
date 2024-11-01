@@ -43,6 +43,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "display_archive_bookmark_action": True,
             "display_remove_bookmark_action": True,
             "permanent_notes": False,
+            "locally_archived_snapshot_link": False,
             "custom_css": "",
             "auto_tagging_rules": "",
             "items_per_page": "30",
@@ -112,6 +113,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "display_archive_bookmark_action": False,
             "display_remove_bookmark_action": False,
             "permanent_notes": True,
+            "locally_archived_snapshot_link": True,
             "default_mark_unread": True,
             "custom_css": "body { background-color: #000; }",
             "auto_tagging_rules": "example.com tag",
@@ -180,6 +182,9 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
         self.assertEqual(
             self.user.profile.permanent_notes, form_data["permanent_notes"]
+        )
+        self.assertEqual(
+            self.user.profile.locally_archived_snapshot_link, form_data["locally_archived_snapshot_link"]
         )
         self.assertEqual(
             self.user.profile.default_mark_unread, form_data["default_mark_unread"]

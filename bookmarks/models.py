@@ -430,6 +430,7 @@ class UserProfile(models.Model):
     display_archive_bookmark_action = models.BooleanField(default=True, null=False)
     display_remove_bookmark_action = models.BooleanField(default=True, null=False)
     permanent_notes = models.BooleanField(default=False, null=False)
+    locally_archived_snapshot_link = models.BooleanField(default=False, null=False)
     custom_css = models.TextField(blank=True, null=False)
     custom_css_hash = models.CharField(blank=True, null=False, max_length=32)
     auto_tagging_rules = models.TextField(blank=True, null=False)
@@ -474,6 +475,7 @@ class UserProfileForm(forms.ModelForm):
             "display_archive_bookmark_action",
             "display_remove_bookmark_action",
             "permanent_notes",
+            "locally_archived_snapshot_link",
             "default_mark_unread",
             "custom_css",
             "auto_tagging_rules",
