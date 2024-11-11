@@ -134,6 +134,7 @@ class BookmarkItem:
             self.web_archive_snapshot_url = generate_fallback_webarchive_url(
                 bookmark.url, bookmark.date_added
             )
+        self.latest_snapshot_id = bookmark.latest_snapshot_id
         self.favicon_file = bookmark.favicon_file
         self.preview_image_file = bookmark.preview_image_file
         self.is_archived = bookmark.is_archived
@@ -162,6 +163,11 @@ class BookmarkItem:
 
         self.has_extra_actions = (
             self.show_notes_button or self.show_mark_as_read or self.show_unshare
+        )
+
+        self.show_html_snapshot = self.latest_snapshot_id and (
+            profile.web_archive_integration
+            == UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED
         )
 
 

@@ -320,6 +320,8 @@ def _create_html_snapshot_task(asset_id: int):
         asset.file = filename
         asset.gzip = True
         asset.save()
+        asset.bookmark.latest_snapshot_id = asset.id
+        asset.bookmark.save()
         logger.info(
             f"Successfully created HTML snapshot for bookmark. url={asset.bookmark.url}"
         )
