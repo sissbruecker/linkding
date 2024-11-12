@@ -4,11 +4,11 @@
   <div class="hide-md">
     <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
     <div class="dropdown">
-      <button class="btn btn-link dropdown-toggle" tabindex="0">
+      <button class="btn btn-link dropdown-toggle {% if request.path|starts_with:'/bookmarks' and not request.path|starts_with:'/bookmarks/new' %}active{% endif %}" tabindex="0">
         Bookmarks
       </button>
       <ul class="menu">
-        <li class="menu-item">
+        <li class="menu-item ">
           <a href="{% url 'bookmarks:index' %}" class="menu-link">Active</a>
         </li>
         <li class="menu-item">
@@ -27,7 +27,7 @@
         </li>
       </ul>
     </div>
-    <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
+    <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link {% if request.path|starts_with:"/settings" %}active{% endif %}">Settings</a>
     <form class="d-inline" action="{% url 'logout' %}" method="post">
       {% csrf_token %}
       <button type="submit" class="btn btn-link">Logout</button>

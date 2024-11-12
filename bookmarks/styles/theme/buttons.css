@@ -21,7 +21,7 @@
   --btn-error-text-color: var(--contrast-text-color);
 
   --btn-link-text-color: var(--link-color);
-  --btn-link-hover-text-color: var(--link-color);
+  --btn-link-hover-text-color: var(--secondary-link-color);
 }
 
 .btn {
@@ -135,9 +135,15 @@
 
     &:focus,
     &:hover,
-    &:active,
-    &.active {
+    &:active {
       text-decoration: none;
+    }
+
+    &.active {
+      text-decoration: underline;
+      text-decoration-color: var(--btn-link-text-color);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.5em;
     }
   }
 

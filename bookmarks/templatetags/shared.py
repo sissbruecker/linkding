@@ -87,6 +87,11 @@ def hash_tag(tag_name):
     return "#" + tag_name
 
 
+@register.filter(name="starts_with")
+def starts_with(text, prefix):
+    return text.startswith(prefix)
+
+
 @register.filter(name="first_char")
 def first_char(text):
     return text[0]

@@ -102,7 +102,7 @@
   --btn-error-text-color: var(--contrast-text-color);
 
   --btn-link-text-color: var(--link-color);
-  --btn-link-hover-text-color: var(--link-color);
+  --btn-link-hover-text-color: var(--secondary-link-color);
 }
 
 :root {
