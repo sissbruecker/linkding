@@ -104,6 +104,7 @@ def shared(request):
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
             "users": users,
+            "include_feed": True,
         },
     )
 
