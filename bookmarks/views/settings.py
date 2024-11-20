@@ -7,7 +7,6 @@ from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import prefetch_related_objects
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -233,14 +232,17 @@ def bookmark_import(request):
 def bookmark_export(request):
     # noinspection PyBroadException
     try:
-        bookmarks = Bookmark.objects.filter(owner=request.user)
         # Prefetch tags to prevent n+1 queries
-        prefetch_related_objects(bookmarks, "tags")
+        bookmarks = Bookmark.objects.filter(owner=request.user).prefetch_related("tags")
         file_content = exporter.export_netscape_html(bookmarks)
+        def _newline_appended():
+            for line in file_content:
+                yield line
+                yield "\r\n"
 
         response = HttpResponse(content_type="text/plain; charset=UTF-8")
         response["Content-Disposition"] = 'attachment; filename="bookmarks.html"'
-        response.write(file_content)
+        response.writelines(_newline_appended())
 
         return response
     except:
