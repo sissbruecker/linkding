@@ -1,33 +1,30 @@
 import html
-from typing import List
+import itertools
+from typing import Iterable
 
 from bookmarks.models import Bookmark
 
-BookmarkDocument = List[str]
+
+def export_netscape_html(bookmarks: Iterable[Bookmark]):
+    def _append_bookmarks():
+        for bookmark in bookmarks:
+            yield from append_bookmark(bookmark)
+
+    return itertools.chain(append_header(), append_list_start(), _append_bookmarks(), append_list_end())
 
 
-def export_netscape_html(bookmarks: List[Bookmark]):
-    doc = []
-    append_header(doc)
-    append_list_start(doc)
-    [append_bookmark(doc, bookmark) for bookmark in bookmarks]
-    append_list_end(doc)
-
-    return "\n\r".join(doc)
+def append_header():
+    yield "<!DOCTYPE NETSCAPE-Bookmark-file-1>"
+    yield '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">'
+    yield "<TITLE>Bookmarks</TITLE>"
+    yield "<H1>Bookmarks</H1>"
 
 
-def append_header(doc: BookmarkDocument):
-    doc.append("<!DOCTYPE NETSCAPE-Bookmark-file-1>")
-    doc.append('<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">')
-    doc.append("<TITLE>Bookmarks</TITLE>")
-    doc.append("<H1>Bookmarks</H1>")
+def append_list_start():
+    yield "<DL><p>"
 
 
-def append_list_start(doc: BookmarkDocument):
-    doc.append("<DL><p>")
-
-
-def append_bookmark(doc: BookmarkDocument, bookmark: Bookmark):
+def append_bookmark(bookmark: Bookmark):
     url = bookmark.url
     title = html.escape(bookmark.resolved_title or "")
     desc = html.escape(bookmark.resolved_description or "")
@@ -42,13 +39,12 @@ def append_bookmark(doc: BookmarkDocument, bookmark: Bookmark):
     added = int(bookmark.date_added.timestamp())
     modified = int(bookmark.date_modified.timestamp())
 
-    doc.append(
-        f'<DT><A HREF="{url}" ADD_DATE="{added}" LAST_MODIFIED="{modified}" PRIVATE="{private}" TOREAD="{toread}" TAGS="{tags}">{title}</A>'
-    )
+    yield  f'<DT><A HREF="{url}" ADD_DATE="{added}" LAST_MODIFIED="{modified}" PRIVATE="{private}" TOREAD="{toread}" TAGS="{tags}">{title}</A>'
+    
 
     if desc:
-        doc.append(f"<DD>{desc}")
+        yield f"<DD>{desc}"
 
 
-def append_list_end(doc: BookmarkDocument):
-    doc.append("</DL><p>")
+def append_list_end():
+    yield "</DL><p>"

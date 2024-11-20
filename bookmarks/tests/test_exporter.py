@@ -74,7 +74,7 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
                 is_archived=True,
             ),
         ]
-        html = exporter.export_netscape_html(bookmarks)
+        html = "\r\n".join(exporter.export_netscape_html(bookmarks))
 
         lines = [
             '<DT><A HREF="https://example.com/1" ADD_DATE="1" LAST_MODIFIED="11" PRIVATE="1" TOREAD="0" TAGS="">Title 1</A>',
@@ -89,7 +89,7 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
             '<DT><A HREF="https://example.com/7" ADD_DATE="7" LAST_MODIFIED="77" PRIVATE="1" TOREAD="0" TAGS="linkding:archived">Title 7</A>',
             '<DT><A HREF="https://example.com/8" ADD_DATE="8" LAST_MODIFIED="88" PRIVATE="1" TOREAD="0" TAGS="tag4,tag5,linkding:archived">Title 8</A>',
         ]
-        self.assertIn("\n\r".join(lines), html)
+        self.assertIn("\r\n".join(lines), html)
 
     def test_escape_html(self):
         bookmark = self.setup_bookmark(
@@ -97,7 +97,7 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
             description="The <style> HTML element contains style information for a document, or part of a document.",
             notes="Interesting notes about the <style> HTML element.",
         )
-        html = exporter.export_netscape_html([bookmark])
+        html = "\r\n".join(exporter.export_netscape_html([bookmark]))
 
         self.assertIn("&lt;style&gt;: The Style Information element", html)
         self.assertIn(
@@ -111,4 +111,4 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
         bookmark.title = ""
         bookmark.description = ""
         bookmark.save()
-        exporter.export_netscape_html([bookmark])
+        "\r\n".join(exporter.export_netscape_html([bookmark]))
