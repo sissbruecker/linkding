@@ -27,7 +27,7 @@ cryptography==43.0.1
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
-django==5.1.1
+django==5.1.4
     # via
     #   -r requirements.in
     #   django-registration
