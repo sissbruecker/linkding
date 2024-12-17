@@ -276,12 +276,6 @@
   opacity: 0.8;
 }
 
-.truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Flex */
 .align-baseline {
   align-items: baseline;
@@ -294,3 +288,17 @@
 .justify-between {
   justify-content: space-between;
 }
+
+
+/* jmason customisation: */
+div.truncate {
+    overflow: normal;
+    white-space: wrap;
+    display: flex;
+    flex-direction: column;
+}
+
+div.truncate span.tags {
+    order: 2;
+}
+
