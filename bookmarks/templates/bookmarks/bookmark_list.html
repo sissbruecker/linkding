@@ -31,7 +31,7 @@
               </a>
             </div>
           {% endif %}
-          {% if bookmark_list.description_display == 'inline' %}
+          {% if False %} <!-- force separate display (jm) -->
             <div class="description inline truncate">
               {% if bookmark_item.tag_names %}
                 <span class="tags">
@@ -47,7 +47,7 @@
             </div>
           {% else %}
             {% if bookmark_item.description %}
-              <div class="description separate">{{ bookmark_item.description }}</div>
+              <div class="description separate">{{ bookmark_item.description|linebreaks }}</div>
             {% endif %}
             {% if bookmark_item.tag_names %}
               <div class="tags">
