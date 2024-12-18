@@ -196,3 +196,5 @@ typings/
 /chromium-profile
 # direnv
 /.direnv
+
+*.swp
