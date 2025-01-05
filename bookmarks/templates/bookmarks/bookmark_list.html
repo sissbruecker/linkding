@@ -47,7 +47,7 @@
             </div>
           {% else %}
             {% if bookmark_item.description %}
-              <div class="description separate">{{ bookmark_item.description|linebreaks }}</div>
+            <div class="description separate">{% autoescape off %}{{ bookmark_item.description|linebreaks }}{% endautoescape %}</div>
             {% endif %}
             {% if bookmark_item.tag_names %}
               <div class="tags">

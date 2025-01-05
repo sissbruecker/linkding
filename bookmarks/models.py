@@ -384,7 +384,7 @@ class UserProfile(models.Model):
         max_length=10,
         choices=BOOKMARK_DATE_DISPLAY_CHOICES,
         blank=False,
-        default=BOOKMARK_DATE_DISPLAY_RELATIVE,
+        default=BOOKMARK_DATE_DISPLAY_ABSOLUTE,
     )
     bookmark_description_display = models.CharField(
         max_length=10,
@@ -394,7 +394,7 @@ class UserProfile(models.Model):
     )
     bookmark_description_max_lines = models.IntegerField(
         null=False,
-        default=1,
+        default=1000,
     )
     bookmark_link_target = models.CharField(
         max_length=10,
