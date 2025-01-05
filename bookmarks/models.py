@@ -390,7 +390,7 @@ class UserProfile(models.Model):
         max_length=10,
         choices=BOOKMARK_DESCRIPTION_DISPLAY_CHOICES,
         blank=False,
-        default=BOOKMARK_DESCRIPTION_DISPLAY_INLINE,
+        default=BOOKMARK_DESCRIPTION_DISPLAY_SEPARATE,
     )
     bookmark_description_max_lines = models.IntegerField(
         null=False,
