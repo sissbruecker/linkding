@@ -190,27 +190,26 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         # Without modifications
         url = "/test"
         rendered_template = self.render_template(url)
+        soup = self.make_soup(rendered_template)
+        button = soup.select_one("button[aria-label='Search preferences']")
 
-        self.assertIn(
-            '<button type="button" class="btn dropdown-toggle">', rendered_template
-        )
+        self.assertNotIn("badge", button["class"])
 
         # With modifications
         url = "/test?sort=title_asc"
         rendered_template = self.render_template(url)
+        soup = self.make_soup(rendered_template)
+        button = soup.select_one("button[aria-label='Search preferences']")
 
-        self.assertIn(
-            '<button type="button" class="btn dropdown-toggle badge">',
-            rendered_template,
-        )
+        self.assertIn("badge", button["class"])
 
         # Ignores non-preferences modifications
         url = "/test?q=foo&user=john"
         rendered_template = self.render_template(url)
+        soup = self.make_soup(rendered_template)
+        button = soup.select_one("button[aria-label='Search preferences']")
 
-        self.assertIn(
-            '<button type="button" class="btn dropdown-toggle">', rendered_template
-        )
+        self.assertNotIn("badge", button["class"])
 
     def test_modified_labels(self):
         # Without modifications
