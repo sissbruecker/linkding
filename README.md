@@ -25,7 +25,7 @@ The name comes from:
 - Automatically archive websites, either as local HTML file or on Internet Archive
 - Import and export bookmarks in Netscape HTML format
 - Installable as a Progressive Web App (PWA)
-- Extensions for [Firefox](https://addons.mozilla.org/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a bookmarklet
+- Extensions for [Firefox](https://addons.mozilla.org/firefox/addon/linkding-extension/) and [Chrome](https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe), as well as a [bookmarklet](https://linkding.link/how-to/#using-the-bookmarklet-on-androidchrome)
 - SSO support via OIDC or authentication proxies
 - REST API for developing 3rd party apps
 - Admin panel for user self-service and raw data access
