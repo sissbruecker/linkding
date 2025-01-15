@@ -15,7 +15,8 @@
     {% endfor %}
   </form>
   <div ld-dropdown class="search-options dropdown dropdown-right">
-    <button type="button" class="btn dropdown-toggle{% if search.has_modified_preferences %} badge{% endif %}">
+    <button type="button" aria-label="Search preferences"
+            class="btn dropdown-toggle{% if search.has_modified_preferences %} badge{% endif %}">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2"
            stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -41,8 +42,11 @@
           </div>
         {% endif %}
         {% if 'shared' in preferences_form.editable_fields %}
-          <div class="form-group radio-group">
-            <div class="form-label{% if 'shared' in search.modified_params %} text-bold{% endif %}">Shared filter</div>
+          <div class="form-group radio-group" role="radiogroup" aria-labelledby="search-shared-label">
+            <label id="search-shared-label"
+                   class="form-label{% if 'shared' in search.modified_params %} text-bold{% endif %}">
+              Shared filter
+            </label>
             {% for radio in preferences_form.shared %}
               <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
                 {{ radio.tag }}
@@ -53,8 +57,11 @@
           </div>
         {% endif %}
         {% if 'unread' in preferences_form.editable_fields %}
-          <div class="form-group radio-group">
-            <div class="form-label{% if 'unread' in search.modified_params %} text-bold{% endif %}">Unread filter</div>
+          <div class="form-group radio-group" role="radiogroup" aria-labelledby="search-unread-label">
+            <label id="search-unread-label"
+                   class="form-label{% if 'unread' in search.modified_params %} text-bold{% endif %}">
+              Unread filter
+            </label>
             {% for radio in preferences_form.unread %}
               <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
                 {{ radio.tag }}

@@ -3,11 +3,11 @@
   {# Basic menu list #}
   <div class="hide-md">
     <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
-    <div class="dropdown">
+    <div ld-dropdown class="dropdown">
       <button class="btn btn-link dropdown-toggle" tabindex="0">
         Bookmarks
       </button>
-      <ul class="menu">
+      <ul class="menu" role="list">
         <li class="menu-item">
           <a href="{% url 'bookmarks:index' %}" class="menu-link">Active</a>
         </li>
@@ -49,7 +49,7 @@
         </svg>
       </button>
       <!-- menu component -->
-      <ul class="menu">
+      <ul class="menu" role="list">
         <li class="menu-item">
           <a href="{% url 'bookmarks:index' %}" class="menu-link">Bookmarks</a>
         </li>
