@@ -76,7 +76,7 @@ urllib3==2.2.3
     # via
     #   requests
     #   waybackpy
-uwsgi==2.0.26
+uwsgi==2.0.28
     # via -r requirements.in
 waybackpy==3.0.6
     # via -r requirements.in

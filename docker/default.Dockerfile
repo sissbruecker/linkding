@@ -1,4 +1,4 @@
-FROM node:20-alpine AS node-build
+FROM node:18-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY rollup.config.mjs postcss.config.js package.json package-lock.json ./
@@ -10,7 +10,7 @@ COPY bookmarks/styles ./bookmarks/styles
 RUN npm run build
 
 
-FROM python:3.12.6-slim-bookworm AS build-deps
+FROM python:3.12.8-slim-bookworm AS build-deps
 # Add required packages
 # build-essential pkg-config: build Python packages from source
 # libpq-dev: build Postgres client from source
@@ -51,7 +51,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.12.6-slim-bookworm AS linkding
+FROM python:3.12.8-slim-bookworm AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
 RUN apt-get update && apt-get -y install mime-support libpq-dev libicu-dev libssl3 curl
