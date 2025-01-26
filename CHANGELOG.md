@@ -1,5 +1,35 @@
 # Changelog
 
+## v1.37.0 (26/01/2025)
+
+### What's Changed
+* Add option to disable request logs by @dmarcoux in https://github.com/sissbruecker/linkding/pull/887
+* Add default robots.txt to block crawlers by @sissbruecker in https://github.com/sissbruecker/linkding/pull/959
+* Fix menu dropdown focus traps by @sissbruecker in https://github.com/sissbruecker/linkding/pull/944
+* Provide accessible name to radio groups by @sissbruecker in https://github.com/sissbruecker/linkding/pull/945
+* Add serchding to community projects, sort the list by alphabetical order by @ldwgchen in https://github.com/sissbruecker/linkding/pull/880
+* Add cosmicding To Community Resources by @vkhitrin in https://github.com/sissbruecker/linkding/pull/892
+* Add 3 new community projects by @sebw in https://github.com/sissbruecker/linkding/pull/949
+* Add a rust client library to community.md by @zbrox in https://github.com/sissbruecker/linkding/pull/914
+* Update community.md by @justusthane in https://github.com/sissbruecker/linkding/pull/897
+* Bump astro from 4.15.8 to 4.16.3 in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/884
+* Bump vite from 5.4.9 to 5.4.14 in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/953
+* Bump django from 5.1.1 to 5.1.5 by @dependabot in https://github.com/sissbruecker/linkding/pull/947
+* Bump nanoid from 3.3.7 to 3.3.8 by @dependabot in https://github.com/sissbruecker/linkding/pull/928
+* Bump astro from 4.16.3 to 4.16.18 in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/929
+* Bump nanoid from 3.3.7 to 3.3.8 in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/962
+
+### New Contributors
+* @ldwgchen made their first contribution in https://github.com/sissbruecker/linkding/pull/880
+* @dmarcoux made their first contribution in https://github.com/sissbruecker/linkding/pull/887
+* @vkhitrin made their first contribution in https://github.com/sissbruecker/linkding/pull/892
+* @sebw made their first contribution in https://github.com/sissbruecker/linkding/pull/949
+* @justusthane made their first contribution in https://github.com/sissbruecker/linkding/pull/897
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.36.0...v1.37.0
+
+---
+
 ## v1.36.0 (02/10/2024)
 
 ### What's Changed
