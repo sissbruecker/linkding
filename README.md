@@ -6,6 +6,10 @@
     <br>
 </div>
 
+##  Fork details
+
+This is a personal fork, not suitable for pushing to a pull request against upstream.
+
 ##  Introduction
 
 linkding is a bookmark manager that you can host yourself.
