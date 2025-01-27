@@ -1,5 +1,7 @@
 /* Dropdown */
 .dropdown {
+  --dropdown-focus-display: block;
+
   display: inline-block;
   position: relative;
 
@@ -20,9 +22,13 @@
     }
   }
 
-  &.active .menu,
-  .dropdown-toggle:focus + .menu,
-  .menu:hover {
+  &:focus-within .menu {
+    /* Use custom CSS property to allow disabling opening on focus when using JS */
+    display: var(--dropdown-focus-display);
+  }
+
+  &.active .menu {
+    /* Always show menu when class is added through JS */
     display: block;
   }
 

@@ -27,7 +27,7 @@ cryptography==43.0.1
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
-django==5.1.1
+django==5.1.5
     # via
     #   -r requirements.in
     #   django-registration
@@ -76,7 +76,7 @@ urllib3==2.2.3
     # via
     #   requests
     #   waybackpy
-uwsgi==2.0.26
+uwsgi==2.0.28
     # via -r requirements.in
 waybackpy==3.0.6
     # via -r requirements.in
