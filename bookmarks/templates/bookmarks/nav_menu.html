@@ -7,7 +7,7 @@
       <button class="btn btn-link dropdown-toggle" tabindex="0">
         Bookmarks
       </button>
-      <ul class="menu" role="list">
+      <ul class="menu" role="list" tabindex="-1">
         <li class="menu-item">
           <a href="{% url 'bookmarks:index' %}" class="menu-link">Active</a>
         </li>
@@ -35,21 +35,21 @@
   </div>
   {# Menu drop-down for smaller devices #}
   <div class="show-md">
-    <a href="{% url 'bookmarks:new' %}" class="btn btn-primary">
+    <a href="{% url 'bookmarks:new' %}" aria-label="Add bookmark" class="btn btn-primary">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
            style="width: 24px; height: 24px">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
       </svg>
     </a>
     <div ld-dropdown class="dropdown dropdown-right">
-      <button class="btn btn-link dropdown-toggle" tabindex="0">
+      <button class="btn btn-link dropdown-toggle" aria-label="Navigation menu" tabindex="0">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
              style="width: 24px; height: 24px">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
       </button>
       <!-- menu component -->
-      <ul class="menu" role="list">
+      <ul class="menu" role="list" tabindex="-1">
         <li class="menu-item">
           <a href="{% url 'bookmarks:index' %}" class="menu-link">Bookmarks</a>
         </li>
