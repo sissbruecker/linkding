@@ -11,6 +11,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [go-linkding](https://github.com/piero-vic/go-linkding) A Go client library to interact with the linkding REST API. By [piero-vic](https://github.com/piero-vic)
 - [Helm Chart](https://charts.pascaliske.dev/charts/linkding/) Helm Chart for deploying linkding inside a Kubernetes cluster. By [pascaliske](https://github.com/pascaliske)
 - [iOS Shortcut using API and Tagging](https://gist.github.com/andrewdolphin/a7dff49505e588d940bec55132fab8ad) An iOS shortcut using the Linkding API (no extra logins required) that pulls previously used tags and allows tagging at the time of link creation.
+- [iOS Shortcut and workflow](https://joshdick.net/2025/01/23/how_i_use_linkding_on_ios.html) iOS shortcut that accepts URLs in various ways, and shows a corresponding Linkding add/edit webview in a modal popup
 - [k8s + s3](https://github.com/jzck/linkding-k8s-s3) - Setup for hosting stateless linkding on k8s with sqlite replicated to s3. By [jzck](https://github.com/jzck)
 - [Linka!](https://github.com/cmsax/linka) Web app (also a PWA) for quickly searching & opening bookmarks in linkding, support multi keywords, exclude mode and other advance options. By [cmsax](https://github.com/cmsax)
 - [linkding-archiver](https://github.com/sebw/linkding-archiver) A Python application that integrates with SingleFile and Tube Archivist to archive your links and videos. By [sebw](https://github.com/sebw)  
