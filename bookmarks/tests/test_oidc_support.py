@@ -61,3 +61,74 @@ class OidcSupportTest(TestCase):
         )
 
         del os.environ["LD_ENABLE_OIDC"]
+
+    def test_username_claim_email(self):
+        os.environ["LD_ENABLE_OIDC"] = "True"
+        base_settings = importlib.import_module("siteroot.settings.base")
+        importlib.reload(base_settings)
+
+        self.assertEqual(
+            "email",
+            base_settings.OIDC_USERNAME_CLAIM,
+        )
+        del os.environ["LD_ENABLE_OIDC"]
+
+    @override_settings(LD_ENABLE_OIDC=True, OIDC_USERNAME_CLAIM="email")
+    def test_username_should_be_email(self):
+        email = "test@example.com"
+        claims = {
+            "email": "test@example.com",
+            "name": "test",
+            "given_name": "test",
+            "preferred_username": "test",
+            "nickname": "test",
+            "groups": [],
+        }
+        from bookmarks import utils
+
+        username = utils.generate_username(email, claims)
+
+        self.assertEqual(
+            email,
+            username,
+        )
+
+    @override_settings(LD_ENABLE_OIDC=True, OIDC_USERNAME_CLAIM="preferred_username")
+    def test_username_should_be_preferred_username(self):
+        email = "test@example.com"
+        claims = {
+            "email": "test@example.com",
+            "name": "test",
+            "given_name": "test",
+            "preferred_username": "test",
+            "nickname": "test",
+            "groups": [],
+        }
+        from bookmarks import utils
+
+        username = utils.generate_username(email, claims)
+
+        self.assertEqual(
+            "test",
+            username,
+        )
+
+    @override_settings(LD_ENABLE_OIDC=True, OIDC_USERNAME_CLAIM="nonexistant_claim")
+    def test_username_fallback_to_email(self):
+        email = "test@example.com"
+        claims = {
+            "email": "test@example.com",
+            "name": "test",
+            "given_name": "test",
+            "preferred_username": "test",
+            "nickname": "test",
+            "groups": [],
+        }
+        from bookmarks import utils
+
+        username = utils.generate_username(email, claims)
+
+        self.assertEqual(
+            email,
+            username,
+        )
