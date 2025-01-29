@@ -137,7 +137,7 @@ def generate_username(email, claims):
     default_username = unicodedata.normalize("NFKC", email)[:150]
     if settings.OIDC_USERNAME_CLAIM in claims:
         return (
-            claims[settings.OIDC_USERNAME_CLAIM]
+            unicodedata.normalize("NFKC", claims[settings.OIDC_USERNAME_CLAIM])[:150]
             if claims[settings.OIDC_USERNAME_CLAIM]
             else default_username
         )
