@@ -32,6 +32,7 @@ class LinkdingLoginView(auth_views.LoginView):
 
         context["allow_registration"] = settings.ALLOW_REGISTRATION
         context["enable_oidc"] = settings.LD_ENABLE_OIDC
+        context["disable_form_login"] = settings.LD_DISABLE_FORM_LOGIN
         return context
 
     def form_invalid(self, form):

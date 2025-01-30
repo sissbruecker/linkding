@@ -99,6 +99,14 @@ For example, for Authelia, which passes the `Remote-User` HTTP header, the `LD_A
 By default, the logout redirects to the login URL, which means the user will be automatically authenticated again.
 Instead, you might want to configure the logout URL of the auth proxy here.
 
+### `LD_DISABLE_FORM_LOGIN`
+
+Values: `True`, `False` | Default = `False`
+
+Disables form authentication hiding the username and password field on `/login` page.
+
+Use with `LD_ENABLE_OIDC` or `LD_ENABLE_AUTH_PROXY`.
+
 ### `LD_ENABLE_OIDC`
 
 Values: `True`, `False` | Default = `False`
