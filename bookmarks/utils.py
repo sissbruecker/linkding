@@ -9,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import pluralize
 from django.utils import timezone, formats
+from django.conf import settings
 
 try:
     with open("version.txt", "r") as f:
@@ -128,10 +129,13 @@ def redirect_with_query(request, redirect_url):
     return HttpResponseRedirect(redirect_url)
 
 
-def generate_username(email):
+def generate_username(email, claims):
     # taken from mozilla-django-oidc docs :)
-
     # Using Python 3 and Django 1.11+, usernames can contain alphanumeric
     # (ascii and unicode), _, @, +, . and - characters. So we normalize
     # it and slice at 150 characters.
-    return unicodedata.normalize("NFKC", email)[:150]
+    if settings.OIDC_USERNAME_CLAIM in claims and claims[settings.OIDC_USERNAME_CLAIM]:
+        username = claims[settings.OIDC_USERNAME_CLAIM]
+    else:
+        username = email
+    return unicodedata.normalize("NFKC", username)[:150]

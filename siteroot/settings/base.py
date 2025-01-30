@@ -194,8 +194,10 @@ if LD_ENABLE_OIDC:
     OIDC_RP_CLIENT_ID = os.getenv("OIDC_RP_CLIENT_ID")
     OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_RP_CLIENT_SECRET")
     OIDC_RP_SIGN_ALGO = os.getenv("OIDC_RP_SIGN_ALGO", "RS256")
+    OIDC_RP_SCOPES = os.getenv("OIDC_RP_SCOPES", "openid email profile")
     OIDC_USE_PKCE = os.getenv("OIDC_USE_PKCE", True) in (True, "True", "1")
     OIDC_VERIFY_SSL = os.getenv("OIDC_VERIFY_SSL", True) in (True, "True", "1")
+    OIDC_USERNAME_CLAIM = os.getenv("OIDC_USERNAME_CLAIM", "email")
 
 # Enable authentication proxy support if configured
 LD_ENABLE_AUTH_PROXY = os.getenv("LD_ENABLE_AUTH_PROXY", False) in (True, "True", "1")

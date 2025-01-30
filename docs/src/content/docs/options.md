@@ -105,7 +105,7 @@ Values: `True`, `False` | Default = `False`
 
 Enables support for OpenID Connect (OIDC) authentication, allowing to use single sign-on (SSO) with OIDC providers.
 When enabled, this shows a button on the login page that allows users to authenticate using an OIDC provider.
-Users are associated by the email address provided from the OIDC provider, which is used as the username in linkding.
+Users are associated by the email address provided from the OIDC provider, which is by default also used as username in linkding. You can configure a custom claim to be used as username with `OIDC_USERNAME_CLAIM`.
 If there is no user with that email address as username, a new user is created automatically. 
 
 This requires configuring a number of options, which of those you need depends on which OIDC provider you use and how it is configured.
@@ -124,6 +124,8 @@ The following options can be configured:
 - `OIDC_RP_SIGN_ALGO` - The algorithm the OIDC provider uses to sign ID tokens. Default is `RS256`.
 - `OIDC_USE_PKCE` - Whether to use PKCE for the OIDC flow. Default is `True`.
 - `OIDC_VERIFY_SSL` - Whether to verify the SSL certificate of the OIDC provider. Set to `False` if using self-signed certificates or custom certificate authority. Default is `True`.
+- `OIDC_RP_SCOPES` - Scopes asked for on the authorization flow. Default is `oidc email profile`.
+- `OIDC_USERNAME_CLAIM` - A custom claim to used as username for new accounts, for example `preferred_username`. If the configured claim does not exist or is empty, the email claim is used as fallback. Default is `email`.
 
 <details>
 
