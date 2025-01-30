@@ -94,12 +94,27 @@ class OidcSupportTest(TestCase):
         self.assertEqual(claims["preferred_username"], username)
 
     @override_settings(LD_ENABLE_OIDC=True, OIDC_USERNAME_CLAIM="nonexistant_claim")
-    def test_username_should_fallback_to_email(self):
+    def test_username_should_fallback_to_email_for_non_existing_claim(self):
         claims = {
             "email": "test@example.com",
             "name": "test name",
             "given_name": "test given name",
             "preferred_username": "test preferred username",
+            "nickname": "test nickname",
+            "groups": [],
+        }
+
+        username = utils.generate_username(claims["email"], claims)
+
+        self.assertEqual(claims["email"], username)
+
+    @override_settings(LD_ENABLE_OIDC=True, OIDC_USERNAME_CLAIM="preferred_username")
+    def test_username_should_fallback_to_email_for_empty_claim(self):
+        claims = {
+            "email": "test@example.com",
+            "name": "test name",
+            "given_name": "test given name",
+            "preferred_username": "",
             "nickname": "test nickname",
             "groups": [],
         }

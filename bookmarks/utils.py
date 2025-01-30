@@ -134,11 +134,8 @@ def generate_username(email, claims):
     # Using Python 3 and Django 1.11+, usernames can contain alphanumeric
     # (ascii and unicode), _, @, +, . and - characters. So we normalize
     # it and slice at 150 characters.
-    default_username = unicodedata.normalize("NFKC", email)[:150]
-    if settings.OIDC_USERNAME_CLAIM in claims:
-        return (
-            unicodedata.normalize("NFKC", claims[settings.OIDC_USERNAME_CLAIM])[:150]
-            if claims[settings.OIDC_USERNAME_CLAIM]
-            else default_username
-        )
-    return default_username
+    if settings.OIDC_USERNAME_CLAIM in claims and claims[settings.OIDC_USERNAME_CLAIM]:
+        username = claims[settings.OIDC_USERNAME_CLAIM]
+    else:
+        username = email
+    return unicodedata.normalize("NFKC", username)[:150]
