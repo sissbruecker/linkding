@@ -40,7 +40,7 @@
   </div>
   {% if details.preview_image_enabled and details.bookmark.preview_image_file %}
     <div class="preview-image">
-      <img src="{% static details.bookmark.preview_image_file %}"/>
+      <img src="{% static details.bookmark.preview_image_file %}" alt=""/>
     </div>
   {% endif %}
   <div class="sections grid columns-2 columns-sm-1 gap-0">
