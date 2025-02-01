@@ -1,29 +1,33 @@
 import { Behavior, registerBehavior } from "./index";
+import { ModalBehavior } from "./modal";
+import { isKeyboardActive } from "./focus-utils";
 
-class TagModalBehavior extends Behavior {
+class TagModalTriggerBehavior extends Behavior {
   constructor(element) {
     super(element);
 
     this.onClick = this.onClick.bind(this);
-    this.onClose = this.onClose.bind(this);
 
     element.addEventListener("click", this.onClick);
   }
 
   destroy() {
-    this.onClose();
     this.element.removeEventListener("click", this.onClick);
   }
 
   onClick() {
+    // Creates a new modal and teleports the tag cloud into it
     const modal = document.createElement("div");
     modal.classList.add("modal", "active");
+    modal.setAttribute("ld-tag-modal", "");
     modal.innerHTML = `
-      <div class="modal-overlay" aria-label="Close"></div>
-      <div class="modal-container">
+      <a tabindex="-1">
+        <div class="modal-overlay" aria-label="Close"></div>
+      </a>
+      <div class="modal-container" role="dialog" aria-modal="true">
         <div class="modal-header">
           <h2>Tags</h2>
-          <button class="close" aria-label="Close">
+          <button class="close" aria-label="Close dialog">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -37,32 +41,38 @@ class TagModalBehavior extends Behavior {
         </div>
       </div>    
     `;
+    modal.addEventListener("modal:close", this.onClose);
 
-    const tagCloud = document.querySelector(".tag-cloud");
-    const tagCloudContainer = tagCloud.parentElement;
+    modal.tagCloud = document.querySelector(".tag-cloud");
+    modal.tagCloudContainer = modal.tagCloud.parentElement;
 
     const content = modal.querySelector(".content");
-    content.appendChild(tagCloud);
+    content.appendChild(modal.tagCloud);
 
-    const overlay = modal.querySelector(".modal-overlay");
-    const closeButton = modal.querySelector(".close");
-    overlay.addEventListener("click", this.onClose);
-    closeButton.addEventListener("click", this.onClose);
-
-    this.modal = modal;
-    this.tagCloud = tagCloud;
-    this.tagCloudContainer = tagCloudContainer;
-    document.body.appendChild(modal);
-  }
-
-  onClose() {
-    if (!this.modal) {
-      return;
-    }
-
-    this.modal.remove();
-    this.tagCloudContainer.appendChild(this.tagCloud);
+    document.body.querySelector(".modals").appendChild(modal);
   }
 }
 
+class TagModalBehavior extends ModalBehavior {
+  destroy() {
+    super.destroy();
+    // Always close on destroy to restore tag cloud to original parent before
+    // turbo caches DOM
+    this.doClose();
+  }
+
+  doClose() {
+    super.doClose();
+
+    // Restore tag cloud to original parent
+    this.element.tagCloudContainer.appendChild(this.element.tagCloud);
+
+    // Try restore focus to tag cloud trigger
+    const restoreFocusElement =
+      document.querySelector("[ld-tag-modal-trigger]") || document.body;
+    restoreFocusElement.focus({ focusVisible: isKeyboardActive() });
+  }
+}
+
+registerBehavior("ld-tag-modal-trigger", TagModalTriggerBehavior);
 registerBehavior("ld-tag-modal", TagModalBehavior);

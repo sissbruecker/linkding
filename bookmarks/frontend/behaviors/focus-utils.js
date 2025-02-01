@@ -21,9 +21,8 @@ export function isKeyboardActive() {
 }
 
 export class FocusTrapController {
-  constructor(element, restoreFocusElements = []) {
+  constructor(element) {
     this.element = element;
-    this.restoreFocusElements = restoreFocusElements;
     this.focusableElements = this.element.querySelectorAll(
       'a[href]:not([disabled]), button:not([disabled]), textarea:not([disabled]), input[type="text"]:not([disabled]), input[type="radio"]:not([disabled]), input[type="checkbox"]:not([disabled]), select:not([disabled])',
     );
@@ -39,12 +38,6 @@ export class FocusTrapController {
 
   destroy() {
     this.element.removeEventListener("keydown", this.onKeyDown);
-
-    const restoreFocusElement =
-      this.restoreFocusElements
-        .map((selector) => document.querySelector(selector))
-        .find((el) => el) || document.body;
-    restoreFocusElement.focus({ focusVisible: isKeyboardActive() });
   }
 
   onKeyDown(event) {
