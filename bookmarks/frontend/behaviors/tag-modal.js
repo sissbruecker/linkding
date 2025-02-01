@@ -21,9 +21,7 @@ class TagModalTriggerBehavior extends Behavior {
     modal.classList.add("modal", "active");
     modal.setAttribute("ld-tag-modal", "");
     modal.innerHTML = `
-      <a tabindex="-1">
-        <div class="modal-overlay" aria-label="Close"></div>
-      </a>
+      <div class="modal-overlay"></div>
       <div class="modal-container" role="dialog" aria-modal="true">
         <div class="modal-header">
           <h2>Tags</h2>

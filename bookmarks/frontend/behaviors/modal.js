@@ -8,11 +8,11 @@ export class ModalBehavior extends Behavior {
     this.onClose = this.onClose.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
 
-    this.overlayLink = element.querySelector("a:has(.modal-overlay)");
-    this.closeLink = element.querySelector(".modal-header .close");
+    this.overlay = element.querySelector(".modal-overlay");
+    this.closeButton = element.querySelector(".modal-header .close");
 
-    this.overlayLink.addEventListener("click", this.onClose);
-    this.closeLink.addEventListener("click", this.onClose);
+    this.overlay.addEventListener("click", this.onClose);
+    this.closeButton.addEventListener("click", this.onClose);
     document.addEventListener("keydown", this.onKeyDown);
 
     this.setupInert();
@@ -22,8 +22,8 @@ export class ModalBehavior extends Behavior {
   }
 
   destroy() {
-    this.overlayLink.removeEventListener("click", this.onClose);
-    this.closeLink.removeEventListener("click", this.onClose);
+    this.overlay.removeEventListener("click", this.onClose);
+    this.closeButton.removeEventListener("click", this.onClose);
     document.removeEventListener("keydown", this.onKeyDown);
 
     this.clearInert();

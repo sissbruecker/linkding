@@ -7,7 +7,7 @@ class DetailsModalBehavior extends ModalBehavior {
     super.doClose();
 
     // Navigate to close URL
-    const closeUrl = this.overlayLink.href;
+    const closeUrl = this.element.dataset.closeUrl;
     Turbo.visit(closeUrl, {
       action: "replace",
       frame: "details-modal",
