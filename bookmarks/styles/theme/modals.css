@@ -78,7 +78,7 @@
       margin: 0;
     }
 
-    & button.close {
+    & .close {
       background: none;
       border: none;
       padding: 0;

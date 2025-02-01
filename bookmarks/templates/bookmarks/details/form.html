@@ -40,14 +40,14 @@
   </div>
   {% if details.preview_image_enabled and details.bookmark.preview_image_file %}
     <div class="preview-image">
-      <img src="{% static details.bookmark.preview_image_file %}"/>
+      <img src="{% static details.bookmark.preview_image_file %}" alt=""/>
     </div>
   {% endif %}
-  <dl class="grid columns-2 columns-sm-1 gap-0">
+  <div class="sections grid columns-2 columns-sm-1 gap-0">
     {% if details.is_editable %}
-      <div class="status col-2">
-        <dt>Status</dt>
-        <dd class="d-flex" style="gap: .8rem">
+      <section class="status col-2">
+        <h3>Status</h3>
+        <div class="d-flex" style="gap: .8rem">
           <div class="form-group">
             <label class="form-switch">
               <input ld-auto-submit type="checkbox" name="is_archived"
@@ -71,44 +71,44 @@
               </label>
             </div>
           {% endif %}
-        </dd>
-      </div>
+        </div>
+      </section>
     {% endif %}
     {% if details.show_files %}
-      <div class="files col-2">
-        <dt>Files</dt>
-        <dd>
+      <section class="files col-2">
+        <h3>Files</h3>
+        <div>
           {% include 'bookmarks/details/assets.html' %}
-        </dd>
-      </div>
+        </div>
+      </section>
     {% endif %}
     {% if details.bookmark.tag_names %}
-      <div class="tags col-1">
-        <dt>Tags</dt>
-        <dd>
+      <section class="tags col-1">
+        <h3 id="details-modal-tags-title">Tags</h3>
+        <div>
           {% for tag_name in details.bookmark.tag_names %}
             <a href="{% url 'bookmarks:index' %}?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
           {% endfor %}
-        </dd>
-      </div>
+        </div>
+      </section>
     {% endif %}
-    <div class="date-added col-1">
-      <dt>Date added</dt>
-      <dd>
+    <section class="date-added col-1">
+      <h3>Date added</h3>
+      <div>
         <span>{{ details.bookmark.date_added }}</span>
-      </dd>
-    </div>
-    {% if details.bookmark.resolved_description %}
-      <div class="description col-2">
-        <dt>Description</dt>
-        <dd>{{ details.bookmark.resolved_description }}</dd>
       </div>
+    </section>
+    {% if details.bookmark.resolved_description %}
+      <section class="description col-2">
+        <h3>Description</h3>
+        <div>{{ details.bookmark.resolved_description }}</div>
+      </section>
     {% endif %}
     {% if details.bookmark.notes %}
-      <div class="notes col-2">
-        <dt>Notes</dt>
-        <dd class="markdown">{% markdown details.bookmark.notes %}</dd>
-      </div>
+      <section class="notes col-2">
+        <h3>Notes</h3>
+        <div class="markdown">{% markdown details.bookmark.notes %}</div>
+      </section>
     {% endif %}
-  </dl>
+  </div>
 </form>

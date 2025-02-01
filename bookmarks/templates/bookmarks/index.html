@@ -13,7 +13,7 @@
         <div class="header-controls">
           {% bookmark_search bookmark_list.search %}
           {% include 'bookmarks/bulk_edit/toggle.html' %}
-          <button ld-tag-modal class="btn ml-2 show-md">Tags</button>
+          <button ld-tag-modal-trigger class="btn ml-2 show-md">Tags</button>
         </div>
       </div>
 
@@ -38,12 +38,14 @@
         {% include 'bookmarks/tag_cloud.html' %}
       </div>
     </section>
-
-    {# Bookmark details #}
-    <turbo-frame id="details-modal" target="_top">
-      {% if details %}
-        {% include 'bookmarks/details/modal.html' %}
-      {% endif %}
-    </turbo-frame>
   </div>
+{% endblock %}
+
+{% block overlays %}
+  {# Bookmark details #}
+  <turbo-frame id="details-modal" target="_top">
+    {% if details %}
+      {% include 'bookmarks/details/modal.html' %}
+    {% endif %}
+  </turbo-frame>
 {% endblock %}

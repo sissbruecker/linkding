@@ -36,8 +36,15 @@
     }
   }
 
-  & dl {
-    margin-bottom: 0;
+
+  & .sections section {
+    margin-top: var(--unit-4);
+  }
+
+  & .sections h3 {
+    margin-bottom: var(--unit-2);
+    font-size: var(--font-size);
+    font-weight: bold;
   }
 
   & .assets {

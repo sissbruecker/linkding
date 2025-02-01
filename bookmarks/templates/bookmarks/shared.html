@@ -12,7 +12,7 @@
         <h2>Shared bookmarks</h2>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search mode='shared' %}
-          <button ld-tag-modal class="btn ml-2 show-md">Tags
+          <button ld-tag-modal-trigger class="btn ml-2 show-md">Tags
           </button>
         </div>
       </div>
@@ -43,12 +43,14 @@
         {% include 'bookmarks/tag_cloud.html' %}
       </div>
     </section>
-
-    {# Bookmark details #}
-    <turbo-frame id="details-modal" target="_top">
-      {% if details %}
-        {% include 'bookmarks/details/modal.html' %}
-      {% endif %}
-    </turbo-frame>
   </div>
+{% endblock %}
+
+{% block overlays %}
+  {# Bookmark details #}
+  <turbo-frame id="details-modal" target="_top">
+    {% if details %}
+      {% include 'bookmarks/details/modal.html' %}
+    {% endif %}
+  </turbo-frame>
 {% endblock %}
