@@ -69,7 +69,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         details_url = base_url + f"?details={bookmark.id}"
         self.assertInHTML(
             f"""
-                <a href="{details_url}" data-turbo-action="replace" data-turbo-frame="details-modal">View</a>
+                <a href="{details_url}" class="view-action" data-turbo-action="replace" data-turbo-frame="details-modal">View</a>
             """,
             html,
             count=count,
@@ -562,8 +562,11 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def test_should_reflect_unread_state_as_css_class(self):
         self.setup_bookmark(unread=True)
         html = self.render_template()
+        soup = self.make_soup(html)
 
-        self.assertIn('<li ld-bookmark-item class="unread">', html)
+        list_item = soup.select_one("li[ld-bookmark-item]")
+        self.assertIsNotNone(list_item)
+        self.assertListEqual(["unread"], list_item["class"])
 
     def test_should_reflect_shared_state_as_css_class(self):
         profile = self.get_or_create_test_user().profile
@@ -572,8 +575,11 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.setup_bookmark(shared=True)
         html = self.render_template()
+        soup = self.make_soup(html)
 
-        self.assertIn('<li ld-bookmark-item class="shared">', html)
+        list_item = soup.select_one("li[ld-bookmark-item]")
+        self.assertIsNotNone(list_item)
+        self.assertListEqual(["shared"], list_item["class"])
 
     def test_should_reflect_both_unread_and_shared_state_as_css_class(self):
         profile = self.get_or_create_test_user().profile
@@ -582,8 +588,11 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.setup_bookmark(unread=True, shared=True)
         html = self.render_template()
+        soup = self.make_soup(html)
 
-        self.assertIn('<li ld-bookmark-item class="unread shared">', html)
+        list_item = soup.select_one("li[ld-bookmark-item]")
+        self.assertIsNotNone(list_item)
+        self.assertListEqual(["unread", "shared"], list_item["class"])
 
     def test_show_bookmark_actions_for_owned_bookmarks(self):
         bookmark = self.setup_bookmark()

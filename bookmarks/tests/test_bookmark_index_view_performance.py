@@ -5,10 +5,12 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from bookmarks.models import GlobalSettings
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
-class BookmarkIndexViewPerformanceTestCase(TransactionTestCase, BookmarkFactoryMixin):
+class BookmarkIndexViewPerformanceTestCase(
+    TransactionTestCase, BookmarkFactoryMixin, HtmlTestMixin
+):
 
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
@@ -30,9 +32,10 @@ class BookmarkIndexViewPerformanceTestCase(TransactionTestCase, BookmarkFactoryM
         context = CaptureQueriesContext(self.get_connection())
         with context:
             response = self.client.get(reverse("bookmarks:index"))
-            self.assertContains(
-                response, "<li ld-bookmark-item>", num_initial_bookmarks
-            )
+            html = response.content.decode("utf-8")
+            soup = self.make_soup(html)
+            list_items = soup.select("li[ld-bookmark-item]")
+            self.assertEqual(len(list_items), num_initial_bookmarks)
 
         number_of_queries = context.final_queries
 
@@ -44,8 +47,9 @@ class BookmarkIndexViewPerformanceTestCase(TransactionTestCase, BookmarkFactoryM
         # assert num queries doesn't increase
         with self.assertNumQueries(number_of_queries):
             response = self.client.get(reverse("bookmarks:index"))
-            self.assertContains(
-                response,
-                "<li ld-bookmark-item>",
-                num_initial_bookmarks + num_additional_bookmarks,
+            html = response.content.decode("utf-8")
+            soup = self.make_soup(html)
+            list_items = soup.select("li[ld-bookmark-item]")
+            self.assertEqual(
+                len(list_items), num_initial_bookmarks + num_additional_bookmarks
             )
