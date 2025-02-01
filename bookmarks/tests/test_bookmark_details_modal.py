@@ -32,15 +32,15 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         modal = soup.find("turbo-frame", {"id": "details-modal"})
         return modal
 
-    def find_section(self, soup, section_name):
-        dt = soup.find("dt", string=section_name)
-        dd = dt.find_next_sibling("dd") if dt else None
-        return dd
+    def find_section_content(self, soup, section_name):
+        h3 = soup.find("h3", string=section_name)
+        content = h3.find_next_sibling("div") if h3 else None
+        return content
 
-    def get_section(self, soup, section_name):
-        dd = self.find_section(soup, section_name)
-        self.assertIsNotNone(dd)
-        return dd
+    def get_section_content(self, soup, section_name):
+        content = self.find_section_content(soup, section_name)
+        self.assertIsNotNone(content)
+        return content
 
     def find_weblink(self, soup, url):
         return soup.find("a", {"class": "weblink", "href": url})
@@ -367,7 +367,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # sharing disabled
         bookmark = self.setup_bookmark()
         soup = self.get_index_details_modal(bookmark)
-        section = self.get_section(soup, "Status")
+        section = self.get_section_content(soup, "Status")
 
         archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
         self.assertIsNotNone(archived)
@@ -383,7 +383,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         bookmark = self.setup_bookmark()
         soup = self.get_index_details_modal(bookmark)
-        section = self.get_section(soup, "Status")
+        section = self.get_section_content(soup, "Status")
 
         archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
         self.assertIsNotNone(archived)
@@ -395,7 +395,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # unchecked
         bookmark = self.setup_bookmark()
         soup = self.get_index_details_modal(bookmark)
-        section = self.get_section(soup, "Status")
+        section = self.get_section_content(soup, "Status")
 
         archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
         self.assertFalse(archived.has_attr("checked"))
@@ -407,7 +407,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # checked
         bookmark = self.setup_bookmark(is_archived=True, unread=True, shared=True)
         soup = self.get_index_details_modal(bookmark)
-        section = self.get_section(soup, "Status")
+        section = self.get_section_content(soup, "Status")
 
         archived = section.find("input", {"type": "checkbox", "name": "is_archived"})
         self.assertTrue(archived.has_attr("checked"))
@@ -420,14 +420,14 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # own bookmark
         bookmark = self.setup_bookmark()
         soup = self.get_index_details_modal(bookmark)
-        section = self.find_section(soup, "Status")
+        section = self.find_section_content(soup, "Status")
         self.assertIsNotNone(section)
 
         # other user's bookmark
         other_user = self.setup_user(enable_sharing=True)
         bookmark = self.setup_bookmark(user=other_user, shared=True)
         soup = self.get_shared_details_modal(bookmark)
-        section = self.find_section(soup, "Status")
+        section = self.find_section_content(soup, "Status")
         self.assertIsNone(section)
 
         # guest user
@@ -436,13 +436,13 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         other_user.profile.save()
         bookmark = self.setup_bookmark(user=other_user, shared=True)
         soup = self.get_shared_details_modal(bookmark)
-        section = self.find_section(soup, "Status")
+        section = self.find_section_content(soup, "Status")
         self.assertIsNone(section)
 
     def test_date_added(self):
         bookmark = self.setup_bookmark()
         soup = self.get_index_details_modal(bookmark)
-        section = self.get_section(soup, "Date added")
+        section = self.get_section_content(soup, "Date added")
 
         expected_date = formats.date_format(bookmark.date_added, "DATETIME_FORMAT")
         date = section.find("span", string=expected_date)
@@ -453,14 +453,14 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark()
         soup = self.get_index_details_modal(bookmark)
 
-        section = self.find_section(soup, "Tags")
+        section = self.find_section_content(soup, "Tags")
         self.assertIsNone(section)
 
         # with tags
         bookmark = self.setup_bookmark(tags=[self.setup_tag(), self.setup_tag()])
 
         soup = self.get_index_details_modal(bookmark)
-        section = self.get_section(soup, "Tags")
+        section = self.get_section_content(soup, "Tags")
 
         for tag in bookmark.tags.all():
             tag_link = section.find("a", string=f"#{tag.name}")
@@ -473,14 +473,14 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark(description="")
         soup = self.get_index_details_modal(bookmark)
 
-        section = self.find_section(soup, "Description")
+        section = self.find_section_content(soup, "Description")
         self.assertIsNone(section)
 
         # with description
         bookmark = self.setup_bookmark(description="Test description")
         soup = self.get_index_details_modal(bookmark)
 
-        section = self.get_section(soup, "Description")
+        section = self.get_section_content(soup, "Description")
         self.assertEqual(section.text.strip(), bookmark.description)
 
     def test_notes(self):
@@ -488,14 +488,14 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark()
         soup = self.get_index_details_modal(bookmark)
 
-        section = self.find_section(soup, "Notes")
+        section = self.find_section_content(soup, "Notes")
         self.assertIsNone(section)
 
         # with notes
         bookmark = self.setup_bookmark(notes="Test notes")
         soup = self.get_index_details_modal(bookmark)
 
-        section = self.get_section(soup, "Notes")
+        section = self.get_section_content(soup, "Notes")
         self.assertEqual(section.decode_contents(), "<p>Test notes</p>")
 
     def test_edit_link(self):
@@ -568,7 +568,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark()
 
         soup = self.get_index_details_modal(bookmark)
-        section = self.find_section(soup, "Files")
+        section = self.find_section_content(soup, "Files")
         self.assertIsNone(section)
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
@@ -576,7 +576,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark()
 
         soup = self.get_index_details_modal(bookmark)
-        section = self.find_section(soup, "Files")
+        section = self.find_section_content(soup, "Files")
         self.assertIsNotNone(section)
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
@@ -585,7 +585,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark()
 
         soup = self.get_index_details_modal(bookmark)
-        section = self.get_section(soup, "Files")
+        section = self.get_section_content(soup, "Files")
         asset_list = section.find("div", {"class": "assets"})
         self.assertIsNone(asset_list)
 
@@ -594,7 +594,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.setup_asset(bookmark)
 
         soup = self.get_index_details_modal(bookmark)
-        section = self.get_section(soup, "Files")
+        section = self.get_section_content(soup, "Files")
         asset_list = section.find("div", {"class": "assets"})
         self.assertIsNotNone(asset_list)
 
@@ -608,7 +608,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         ]
 
         soup = self.get_index_details_modal(bookmark)
-        section = self.get_section(soup, "Files")
+        section = self.get_section_content(soup, "Files")
         asset_list = section.find("div", {"class": "assets"})
 
         for asset in assets:
@@ -738,7 +738,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # no pending asset
         soup = self.get_index_details_modal(bookmark)
-        files_section = self.find_section(soup, "Files")
+        files_section = self.find_section_content(soup, "Files")
         create_button = files_section.find(
             "button", string=re.compile("Create HTML snapshot")
         )
@@ -749,7 +749,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset.save()
 
         soup = self.get_index_details_modal(bookmark)
-        files_section = self.find_section(soup, "Files")
+        files_section = self.find_section_content(soup, "Files")
         create_button = files_section.find(
             "button", string=re.compile("Create HTML snapshot")
         )
