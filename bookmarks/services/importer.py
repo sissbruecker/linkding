@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from typing import List
+from concurrent.futures import ThreadPoolExecutor
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -134,8 +135,8 @@ def _import_batch(
     existing_bookmarks = Bookmark.objects.filter(owner=user, url__in=batch_urls)
 
     # Create or update bookmarks from parsed Netscape bookmarks
-    bookmarks_to_create = []
-    bookmarks_to_update = []
+    bookmarks_to_create: List[Bookmark] = []
+    bookmarks_to_update: List[Bookmark]  = []
 
     for netscape_bookmark in netscape_bookmarks:
         result.total = result.total + 1
@@ -170,6 +171,18 @@ def _import_batch(
             shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + "..."
             logging.exception("Error importing bookmark: " + shortened_bookmark_tag_str)
             result.failed = result.failed + 1
+
+    if options.get_metadata_flag:
+        bookmarks_missing_metadata = filter(
+            lambda b: not b.title or not b.description,
+            bookmarks_to_create + bookmarks_to_update,
+        )
+
+        with ThreadPoolExecutor(5) as executor:
+            executor.map(
+                lambda b: enhance_with_website_metadata(b, save=False),
+                bookmarks_missing_metadata,
+            )
 
     # Bulk update bookmarks in DB
     Bookmark.objects.bulk_update(
@@ -242,9 +255,6 @@ def _copy_bookmark_data(
         bookmark.title = netscape_bookmark.title
     if netscape_bookmark.description:
         bookmark.description = netscape_bookmark.description
-    missing_metadata = not bookmark.title or not bookmark.description
-    if missing_metadata and options.get_metadata_flag:
-        enhance_with_website_metadata(bookmark, save=False)
     if netscape_bookmark.notes:
         bookmark.notes = netscape_bookmark.notes
     if options.map_private_flag and not netscape_bookmark.private:
