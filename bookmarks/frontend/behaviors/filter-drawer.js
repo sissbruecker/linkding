@@ -2,7 +2,7 @@ import { Behavior, registerBehavior } from "./index";
 import { ModalBehavior } from "./modal";
 import { isKeyboardActive } from "./focus-utils";
 
-class TagModalTriggerBehavior extends Behavior {
+class FilterDrawerTriggerBehavior extends Behavior {
   constructor(element) {
     super(element);
 
@@ -16,10 +16,9 @@ class TagModalTriggerBehavior extends Behavior {
   }
 
   onClick() {
-    // Creates a new modal and teleports the tag cloud into it
     const modal = document.createElement("div");
-    modal.classList.add("modal", "drawer", "side-panel");
-    modal.setAttribute("ld-tag-modal", "");
+    modal.classList.add("modal", "drawer", "filter-drawer");
+    modal.setAttribute("ld-filter-drawer", "");
     modal.innerHTML = `
       <div class="modal-overlay"></div>
       <div class="modal-container" role="dialog" aria-modal="true">
@@ -43,7 +42,7 @@ class TagModalTriggerBehavior extends Behavior {
   }
 }
 
-class TagModalBehavior extends ModalBehavior {
+class FilterDrawerBehavior extends ModalBehavior {
   constructor(element) {
     super(element);
     this.teleport();
@@ -53,8 +52,8 @@ class TagModalBehavior extends ModalBehavior {
 
   destroy() {
     super.destroy();
-    // Always close on destroy to restore tag cloud to original parent before
-    // turbo caches DOM
+    // Always close on destroy to restore drawer content to original location
+    // before turbo caches DOM
     this.doClose();
   }
 
@@ -85,12 +84,12 @@ class TagModalBehavior extends ModalBehavior {
     super.doClose();
     this.teleportBack();
 
-    // Try restore focus to tag cloud trigger
+    // Try restore focus to drawer trigger
     const restoreFocusElement =
-      document.querySelector("[ld-tag-modal-trigger]") || document.body;
+      document.querySelector("[ld-filter-drawer-trigger]") || document.body;
     restoreFocusElement.focus({ focusVisible: isKeyboardActive() });
   }
 }
 
-registerBehavior("ld-tag-modal-trigger", TagModalTriggerBehavior);
-registerBehavior("ld-tag-modal", TagModalBehavior);
+registerBehavior("ld-filter-drawer-trigger", FilterDrawerTriggerBehavior);
+registerBehavior("ld-filter-drawer", FilterDrawerBehavior);
