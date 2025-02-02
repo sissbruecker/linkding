@@ -4,15 +4,16 @@
 {% load bookmarks %}
 
 {% block content %}
-  <div class="bookmarks-page grid columns-md-1">
+  <div
+      class="bookmarks-page grid columns-md-1 {% if bookmark_list.collapse_side_panel %}collapse-side-panel{% endif %}">
 
     {# Bookmark list #}
-    <section class="content-area col-2">
+    <section class="main content-area col-2">
       <div class="content-area-header">
         <h2>Shared bookmarks</h2>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search mode='shared' %}
-          <button ld-tag-modal-trigger class="btn ml-2 show-md">Tags
+          <button ld-tag-modal-trigger class="btn ml-2">Tags
           </button>
         </div>
       </div>
@@ -28,7 +29,7 @@
     </section>
 
     {# Filters #}
-    <section class="content-area col-1 hide-md">
+    <section class="side-panel content-area col-1">
       <div class="content-area-header">
         <h2>User</h2>
       </div>
