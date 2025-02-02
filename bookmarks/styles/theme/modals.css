@@ -62,13 +62,14 @@
   gap: var(--unit-4);
   max-height: 75vh;
   max-width: var(--control-width-md);
-  padding: var(--unit-6);
   width: 100%;
 
   & .modal-header {
     display: flex;
     align-items: flex-start;
     gap: var(--unit-2);
+    padding: var(--unit-6);
+    padding-bottom: 0;
     color: var(--text-color);
 
     & h2 {
@@ -95,10 +96,16 @@
 
   & .modal-body {
     overflow-y: auto;
-    position: relative;
+    padding: 0 var(--unit-6);
+  }
+
+  & .modal-body:not(:has(+ .modal-footer)) {
+    margin-bottom: var(--unit-6);
   }
 
   & .modal-footer {
+    padding: var(--unit-6);
+    padding-top: 0;
     text-align: right;
   }
 }
@@ -134,4 +141,8 @@
       transform: translateX(100%);
     }
   }
+}
+
+.scroll-lock {
+  overflow: hidden !important;
 }
