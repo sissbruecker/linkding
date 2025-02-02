@@ -24,7 +24,7 @@ class TagModalTriggerBehavior extends Behavior {
       <div class="modal-overlay"></div>
       <div class="modal-container" role="dialog" aria-modal="true">
         <div class="modal-header">
-          <h2>Tags</h2>
+          <h2>Filters</h2>
           <button class="close" aria-label="Close dialog">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -35,18 +35,10 @@ class TagModalTriggerBehavior extends Behavior {
           </button>
         </div>
         <div class="modal-body">
-          <div class="content"></div>
+          <section class="content content-area"></div>
         </div>
       </div>    
     `;
-    modal.addEventListener("modal:close", this.onClose);
-
-    modal.tagCloud = document.querySelector(".tag-cloud");
-    modal.tagCloudContainer = modal.tagCloud.parentElement;
-
-    const content = modal.querySelector(".content");
-    content.appendChild(modal.tagCloud);
-
     document.body.querySelector(".modals").appendChild(modal);
   }
 }
@@ -54,6 +46,7 @@ class TagModalTriggerBehavior extends Behavior {
 class TagModalBehavior extends ModalBehavior {
   constructor(element) {
     super(element);
+    this.teleport();
     // Add active class to start slide-in animation
     this.element.classList.add("active");
   }
@@ -65,11 +58,32 @@ class TagModalBehavior extends ModalBehavior {
     this.doClose();
   }
 
+  mapHeading(container, from, to) {
+    const headings = container.querySelectorAll(from);
+    headings.forEach((heading) => {
+      const newHeading = document.createElement(to);
+      newHeading.textContent = heading.textContent;
+      heading.replaceWith(newHeading);
+    });
+  }
+
+  teleport() {
+    const content = this.element.querySelector(".content");
+    const sidePanel = document.querySelector("section.side-panel");
+    content.append(...sidePanel.children);
+    this.mapHeading(content, "h2", "h3");
+  }
+
+  teleportBack() {
+    const sidePanel = document.querySelector("section.side-panel");
+    const content = this.element.querySelector(".content");
+    sidePanel.append(...content.children);
+    this.mapHeading(sidePanel, "h3", "h2");
+  }
+
   doClose() {
     super.doClose();
-
-    // Restore tag cloud to original parent
-    this.element.tagCloudContainer.appendChild(this.element.tagCloud);
+    this.teleportBack();
 
     // Try restore focus to tag cloud trigger
     const restoreFocusElement =
