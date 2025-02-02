@@ -10,7 +10,6 @@ html {
   font-size: var(--html-font-size);
   line-height: var(--html-line-height);
   -webkit-tap-highlight-color: transparent;
-  scrollbar-gutter: stable;
 }
 
 /* Reserve space for vert. scrollbar to avoid layout shifting when scrollbars are added */

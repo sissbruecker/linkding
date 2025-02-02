@@ -15,7 +15,7 @@
     grid-gap: var(--unit-9);
   }
 
-  [ld-tag-modal-trigger] {
+  [ld-filter-drawer-trigger] {
     display: none;
   }
 
@@ -24,7 +24,7 @@
       display: none;
     }
 
-    [ld-tag-modal-trigger] {
+    [ld-filter-drawer-trigger] {
       display: inline-block;
     }
   }
@@ -38,7 +38,7 @@
       display: none;
     }
 
-    [ld-tag-modal-trigger] {
+    [ld-filter-drawer-trigger] {
       display: inline-block;
     }
   }

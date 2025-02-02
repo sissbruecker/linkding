@@ -15,10 +15,7 @@ export class ModalBehavior extends Behavior {
     this.closeButton.addEventListener("click", this.onClose);
     document.addEventListener("keydown", this.onKeyDown);
 
-    this.setupInert();
-    this.focusTrap = new FocusTrapController(
-      element.querySelector(".modal-container"),
-    );
+    this.init();
   }
 
   destroy() {
@@ -30,11 +27,20 @@ export class ModalBehavior extends Behavior {
     this.focusTrap.destroy();
   }
 
+  init() {
+    this.setupInert();
+    this.focusTrap = new FocusTrapController(
+      this.element.querySelector(".modal-container"),
+    );
+  }
+
   setupInert() {
     // Inert all other elements on the page
     document
       .querySelectorAll("body > *:not(.modals)")
       .forEach((el) => el.setAttribute("inert", ""));
+    // Lock scroll on the body
+    document.body.classList.add("scroll-lock");
   }
 
   clearInert() {
@@ -42,6 +48,8 @@ export class ModalBehavior extends Behavior {
     document
       .querySelectorAll("body > *")
       .forEach((el) => el.removeAttribute("inert"));
+    // Remove scroll lock from the body
+    document.body.classList.remove("scroll-lock");
   }
 
   onKeyDown(event) {

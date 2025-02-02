@@ -62,13 +62,14 @@
   gap: var(--unit-4);
   max-height: 75vh;
   max-width: var(--control-width-md);
-  padding: var(--unit-6);
   width: 100%;
 
   & .modal-header {
     display: flex;
     align-items: flex-start;
     gap: var(--unit-2);
+    padding: var(--unit-6);
+    padding-bottom: 0;
     color: var(--text-color);
 
     & h2 {
@@ -95,10 +96,53 @@
 
   & .modal-body {
     overflow-y: auto;
-    position: relative;
+    padding: 0 var(--unit-6);
+  }
+
+  & .modal-body:not(:has(+ .modal-footer)) {
+    margin-bottom: var(--unit-6);
   }
 
   & .modal-footer {
+    padding: var(--unit-6);
+    padding-top: 0;
     text-align: right;
   }
+}
+
+.modal.drawer {
+  display: block;
+
+  & .modal-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border: none;
+    border-left: solid 1px var(--modal-container-border-color);
+    border-radius: 0;
+    transform: translateX(100%);
+    animation: fade-in 0.25s ease 1;
+    transition: transform 0.25s ease;
+  }
+
+  &.active {
+    & .modal-container {
+      transform: translateX(0);
+    }
+  }
+
+  &.active.closing {
+    & .modal-container {
+      animation: fade-out 0.25s ease 1;
+      transform: translateX(100%);
+    }
+  }
+}
+
+.scroll-lock {
+  overflow: hidden !important;
 }
