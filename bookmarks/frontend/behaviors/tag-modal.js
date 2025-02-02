@@ -18,7 +18,7 @@ class TagModalTriggerBehavior extends Behavior {
   onClick() {
     // Creates a new modal and teleports the tag cloud into it
     const modal = document.createElement("div");
-    modal.classList.add("modal", "active");
+    modal.classList.add("modal", "drawer", "side-panel");
     modal.setAttribute("ld-tag-modal", "");
     modal.innerHTML = `
       <div class="modal-overlay"></div>
@@ -52,6 +52,12 @@ class TagModalTriggerBehavior extends Behavior {
 }
 
 class TagModalBehavior extends ModalBehavior {
+  constructor(element) {
+    super(element);
+    // Add active class to start slide-in animation
+    this.element.classList.add("active");
+  }
+
   destroy() {
     super.destroy();
     // Always close on destroy to restore tag cloud to original parent before
