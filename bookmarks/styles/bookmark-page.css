@@ -10,8 +10,38 @@
 }
 
 /* Bookmark page grid */
-.bookmarks-page.grid {
-  grid-gap: var(--unit-9);
+.bookmarks-page {
+  &.grid {
+    grid-gap: var(--unit-9);
+  }
+
+  [ld-tag-modal-trigger] {
+    display: none;
+  }
+
+  @media (max-width: 840px) {
+    section.side-panel {
+      display: none;
+    }
+
+    [ld-tag-modal-trigger] {
+      display: inline-block;
+    }
+  }
+
+  &.collapse-side-panel {
+    section.main {
+      grid-column: span var(--grid-columns);
+    }
+
+    section.side-panel {
+      display: none;
+    }
+
+    [ld-tag-modal-trigger] {
+      display: inline-block;
+    }
+  }
 }
 
 /* Bookmark area header controls */

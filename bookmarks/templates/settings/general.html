@@ -125,6 +125,16 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.collapse_side_panel.id_for_label }}" class="form-checkbox">
+            {{ form.collapse_side_panel }}
+            <i class="form-icon"></i> Collapse tags
+          </label>
+          <div class="form-input-hint">
+            When enabled, the tags side panel will be collapsed by default to give more space to the bookmark list.
+            Instead, the tags can be shown in a modal dialog by clicking the tags button in the bookmark list header.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.tag_search.id_for_label }}" class="form-label">Tag search</label>
           {{ form.tag_search|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">

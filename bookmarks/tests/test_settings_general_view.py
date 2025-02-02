@@ -47,6 +47,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "auto_tagging_rules": "",
             "items_per_page": "30",
             "sticky_pagination": False,
+            "collapse_side_panel": False,
         }
 
         return {**form_data, **overrides}
@@ -117,6 +118,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "auto_tagging_rules": "example.com tag",
             "items_per_page": "10",
             "sticky_pagination": True,
+            "collapse_side_panel": True,
         }
         response = self.client.post(
             reverse("bookmarks:settings.update"), form_data, follow=True
@@ -193,6 +195,9 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
         self.assertEqual(
             self.user.profile.sticky_pagination, form_data["sticky_pagination"]
+        )
+        self.assertEqual(
+            self.user.profile.collapse_side_panel, form_data["collapse_side_panel"]
         )
 
         self.assertSuccessMessage(html, "Profile updated")

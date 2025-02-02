@@ -440,6 +440,7 @@ class UserProfile(models.Model):
         null=False, default=30, validators=[MinValueValidator(10)]
     )
     sticky_pagination = models.BooleanField(default=False, null=False)
+    collapse_side_panel = models.BooleanField(default=False, null=False)
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -479,6 +480,7 @@ class UserProfileForm(forms.ModelForm):
             "auto_tagging_rules",
             "items_per_page",
             "sticky_pagination",
+            "collapse_side_panel",
         ]
 
 
