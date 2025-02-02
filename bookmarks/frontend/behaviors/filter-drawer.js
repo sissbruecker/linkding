@@ -43,9 +43,11 @@ class FilterDrawerTriggerBehavior extends Behavior {
 }
 
 class FilterDrawerBehavior extends ModalBehavior {
-  constructor(element) {
-    super(element);
+  init() {
+    // Teleport content before creating focus trap, otherwise it will not detect
+    // focusable content elements
     this.teleport();
+    super.init();
     // Add active class to start slide-in animation
     this.element.classList.add("active");
   }

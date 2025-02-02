@@ -15,10 +15,7 @@ export class ModalBehavior extends Behavior {
     this.closeButton.addEventListener("click", this.onClose);
     document.addEventListener("keydown", this.onKeyDown);
 
-    this.setupInert();
-    this.focusTrap = new FocusTrapController(
-      element.querySelector(".modal-container"),
-    );
+    this.init();
   }
 
   destroy() {
@@ -28,6 +25,13 @@ export class ModalBehavior extends Behavior {
 
     this.clearInert();
     this.focusTrap.destroy();
+  }
+
+  init() {
+    this.setupInert();
+    this.focusTrap = new FocusTrapController(
+      this.element.querySelector(".modal-container"),
+    );
   }
 
   setupInert() {
