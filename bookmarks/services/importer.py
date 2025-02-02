@@ -9,6 +9,7 @@ from bookmarks.models import Bookmark, Tag
 from bookmarks.services import tasks
 from bookmarks.services.parser import parse, NetscapeBookmark
 from bookmarks.utils import parse_timestamp
+from bookmarks.services.bookmarks import enhance_with_website_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,7 @@ class ImportResult:
 @dataclass
 class ImportOptions:
     map_private_flag: bool = False
+    get_metadata_flag: bool = False
 
 
 class TagCache:
@@ -240,6 +242,9 @@ def _copy_bookmark_data(
         bookmark.title = netscape_bookmark.title
     if netscape_bookmark.description:
         bookmark.description = netscape_bookmark.description
+    missing_metadata = not bookmark.title or not bookmark.description
+    if missing_metadata and options.get_metadata_flag:
+        enhance_with_website_metadata(bookmark, save=False)
     if netscape_bookmark.notes:
         bookmark.notes = netscape_bookmark.notes
     if options.map_private_flag and not netscape_bookmark.private:

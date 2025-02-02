@@ -69,7 +69,7 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     return bookmark
 
 
-def enhance_with_website_metadata(bookmark: Bookmark):
+def enhance_with_website_metadata(bookmark: Bookmark, save: bool = True):
     metadata = website_loader.load_website_metadata(bookmark.url)
     if not bookmark.title:
         bookmark.title = metadata.title or ""
@@ -77,7 +77,8 @@ def enhance_with_website_metadata(bookmark: Bookmark):
     if not bookmark.description:
         bookmark.description = metadata.description or ""
 
-    bookmark.save()
+    if save:
+        bookmark.save()
 
 
 def archive_bookmark(bookmark: Bookmark):
