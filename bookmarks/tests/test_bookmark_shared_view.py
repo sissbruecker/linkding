@@ -593,3 +593,11 @@ class BookmarkSharedViewTestCase(
         self.assertIsNotNone(soup.select_one("turbo-frame#details-modal"))
         self.assertIsNone(soup.select_one("#bookmark-list-container"))
         self.assertIsNone(soup.select_one("#tag-cloud-container"))
+
+    def test_includes_public_shared_rss_feed(self):
+        response = self.client.get(reverse("bookmarks:shared"))
+        soup = self.make_soup(response.content.decode())
+
+        feed = soup.select_one('head link[type="application/rss+xml"]')
+        self.assertIsNotNone(feed)
+        self.assertEqual(feed.attrs["href"], reverse("bookmarks:feeds.public_shared"))

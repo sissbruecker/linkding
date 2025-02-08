@@ -104,6 +104,7 @@ def shared(request):
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
             "users": users,
+            "rss_feed_url": reverse("bookmarks:feeds.public_shared"),
         },
     )
 
