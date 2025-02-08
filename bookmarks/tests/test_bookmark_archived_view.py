@@ -503,3 +503,10 @@ class BookmarkArchivedViewTestCase(
         self.assertIsNotNone(soup.select_one("turbo-frame#details-modal"))
         self.assertIsNone(soup.select_one("#bookmark-list-container"))
         self.assertIsNone(soup.select_one("#tag-cloud-container"))
+
+    def test_does_not_include_rss_feed(self):
+        response = self.client.get(reverse("bookmarks:archived"))
+        soup = self.make_soup(response.content.decode())
+
+        feed = soup.select_one('head link[type="application/rss+xml"]')
+        self.assertIsNone(feed)

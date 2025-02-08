@@ -36,5 +36,8 @@
   {% if not request.global_settings.enable_link_prefetch %}
     <meta name="turbo-prefetch" content="false">
   {% endif %}
+  {% if rss_feed_url %}
+    <link rel="alternate" type="application/rss+xml" href="{{ rss_feed_url }}" />
+  {% endif %}
   <script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
 </head>
