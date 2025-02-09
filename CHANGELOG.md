@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.38.0 (09/02/2025)
+
+### What's Changed
+* Fix nav menu closing on mousedown in Safari by @sissbruecker in https://github.com/sissbruecker/linkding/pull/965
+* Allow customizing username when creating user through OIDC by @kyuuk in https://github.com/sissbruecker/linkding/pull/971
+* Improve accessibility of modal dialogs by @sissbruecker in https://github.com/sissbruecker/linkding/pull/974
+* Add option to collapse side panel by @sissbruecker in https://github.com/sissbruecker/linkding/pull/975
+* Convert tag modal into drawer by @sissbruecker in https://github.com/sissbruecker/linkding/pull/977
+* Add RSS link to shared bookmarks page by @sissbruecker in https://github.com/sissbruecker/linkding/pull/984
+* Add Additional iOS Shortcut to community section by @joshdick in https://github.com/sissbruecker/linkding/pull/968
+
+### New Contributors
+* @kyuuk made their first contribution in https://github.com/sissbruecker/linkding/pull/971
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.37.0...v1.38.0
+
+---
+
 ## v1.37.0 (26/01/2025)
 
 ### What's Changed
