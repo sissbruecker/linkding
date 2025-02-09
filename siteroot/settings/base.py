@@ -177,6 +177,7 @@ HUEY = {
     },
 }
 
+LD_DISABLE_FORM_LOGIN = os.getenv("LD_DISABLE_FORM_LOGIN", False) in (True, "True", "1")
 
 # Enable OICD support if configured
 LD_ENABLE_OIDC = os.getenv("LD_ENABLE_OIDC", False) in (True, "True", "1")

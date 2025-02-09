@@ -15,6 +15,7 @@
           <p class="form-input-hint">Your username and password didn't match. Please try again.</p>
         </div>
       {% endif %}
+      {% if not disable_form_login %}
       <div class="form-group">
         <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
         {{ form.username|add_class:'form-input'|attr:'placeholder: ' }}
@@ -23,13 +24,18 @@
         <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
         {{ form.password|add_class:'form-input'|attr:'placeholder: ' }}
       </div>
+      {% endif %}
 
       <br/>
       <div class="d-flex justify-between">
+        {% if not disable_form_login %}
         <input type="submit" value="Login" class="btn btn-primary btn-wide"/>
         <input type="hidden" name="next" value="{{ next }}"/>
         {% if enable_oidc %}
           <a class="btn btn-link" href="{% url 'oidc_authentication_init' %}">Login with OIDC</a>
+        {% endif %}
+        {% else %}
+          <a class="btn btn-primary btn-wide" href="{% url 'oidc_authentication_init' %}">Login with OIDC</a>
         {% endif %}
         {% if allow_registration %}
           <a href="{% url 'django_registration_register' %}" class="btn btn-link">Register</a>
