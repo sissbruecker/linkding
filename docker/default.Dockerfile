@@ -71,6 +71,8 @@ ENV PATH=/opt/venv/bin:$PATH
 RUN mkdir data && \
     python manage.py collectstatic
 
+# Limit file descriptors used by uwsgi, see https://github.com/sissbruecker/linkding/issues/453
+ENV UWSGI_MAX_FD=4096
 # Expose uwsgi server at port 9090
 EXPOSE 9090
 # Allow running containers as an an arbitrary user in the root group, to support deployment scenarios like OpenShift, Podman
