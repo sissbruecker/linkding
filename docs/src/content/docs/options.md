@@ -129,11 +129,10 @@ The following options can be configured:
 
 #### `OIDC` and `LD_SUPERUSER_NAME`
 
-As noted above, OIDC uses the email address for *both* the Username and Email Address, but `LD_SUPERUSER_NAME`
-will only set the Username. It is recommended that you use the method described in [user
-setup](/installation/#user-setup] to configure an admin user with both username and email address before
-logging in with an OIDC provider instead of setting `LD_SUPERUSER_NAME`. This way when OIDC searches for a
-matching user it will find the superuser account you created and link the two.
+As noted above, OIDC matches users by email address, but `LD_SUPERUSER_NAME` will only set the username.
+Instead of setting `LD_SUPERUSER_NAME` it is recommended that you use the method described in [User setup](/installation#user-setup) to configure a superuser with both username and email address.
+This way when OIDC searches for a matching user it will find the superuser account you created.
+Note that you should create the superuser **before** logging in with OIDC for the first time.
 
 <details>
 
