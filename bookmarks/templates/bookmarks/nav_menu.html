@@ -28,7 +28,7 @@
       </ul>
     </div>
     <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
-    <form class="d-inline" action="{% url 'logout' %}" method="post">
+    <form class="d-inline" action="{% url 'logout' %}" method="post" data-turbo="false">
       {% csrf_token %}
       <button type="submit" class="btn btn-link">Logout</button>
     </form>
@@ -72,7 +72,7 @@
           <a href="{% url 'bookmarks:settings.index' %}" class="menu-link">Settings</a>
         </li>
         <li class="menu-item">
-          <form class="d-inline" action="{% url 'logout' %}" method="post">
+          <form class="d-inline" action="{% url 'logout' %}" method="post" data-turbo="false">
             {% csrf_token %}
             <button type="submit" class="btn btn-link menu-link">Logout</button>
           </form>
