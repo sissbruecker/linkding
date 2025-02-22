@@ -91,11 +91,14 @@
   {% endif %}
   <div class="divider"></div>
   <div class="form-group d-flex justify-between">
-    {% if auto_close %}
-      <input type="submit" value="Save and close" class="btn btn-primary btn-wide">
-    {% else %}
-      <input type="submit" value="Save" class="btn btn-primary btn btn-primary btn-wide">
-    {% endif %}
+    <div>
+      {% if auto_close %}
+        <input type="submit" value="Save and close" class="btn btn-primary btn-wide">
+      {% else %}
+        <input type="submit" value="Save" class="btn btn-primary btn btn-primary btn-wide">
+      {% endif %}
+      <button type="button" id="refreshButton" class="btn">Refresh</button>
+    </div>
     <a href="{{ cancel_url }}" class="btn">Nevermind</a>
   </div>
   <script type="application/javascript">
@@ -111,6 +114,7 @@
       const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
       const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
+      const refreshButton = document.getElementById('refreshButton');
       const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
       const editedBookmarkId = {{ bookmark_id }};
       let isTitleModified = !!titleInput.value;
@@ -136,7 +140,7 @@
         input.checked = value;
       }
 
-      function checkUrl() {
+      function checkUrl(disableCache = false) {
         if (!urlInput.value) {
           return;
         }
@@ -144,7 +148,11 @@
         toggleLoadingIcon(urlInput, true);
 
         const websiteUrl = encodeURIComponent(urlInput.value);
-        const requestUrl = `{% url 'bookmarks:api-root' %}bookmarks/check?url=${websiteUrl}`;
+        let requestUrl = `{% url 'bookmarks:api-root' %}bookmarks/check?url=${websiteUrl}`;
+        if (disableCache) {
+            requestUrl += '&disable_cache=true';
+        }
+
         fetch(requestUrl)
           .then(response => response.json())
           .then(data => {
@@ -190,13 +198,17 @@
             } else {
               autoTagsHint.style['display'] = 'none';
             }
+
+            //if (disableCache) {
+            //  titleInput.value = titleInput.placeholder;
+            //}
           });
       }
 
       // Fetch website metadata when page loads and when URL changes, unless we are editing an existing bookmark
       if (!editedBookmarkId) {
         checkUrl();
-        urlInput.addEventListener('input', checkUrl);
+        urlInput.addEventListener('input', () => checkUrl(false));
         titleInput.addEventListener('input', () => {
           isTitleModified = true;
         });
@@ -204,6 +216,7 @@
           isDescriptionModified = true;
         });
       }
+      refreshButton.addEventListener('click', () => checkUrl(true));
     })();
   </script>
 </div>
