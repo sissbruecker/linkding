@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
+import bookmarks.services.bookmarks
 from bookmarks.models import Bookmark, BookmarkSearch, UserProfile
 from bookmarks.services import website_loader
 from bookmarks.services.wayback import generate_fallback_webarchive_url
@@ -450,6 +451,40 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         bookmark = Bookmark.objects.get(url=data["url"])
         self.assertEqual(bookmark.title, "")
         self.assertEqual(bookmark.description, "")
+
+    def test_create_bookmark_creates_html_snapshot_by_default(self):
+        self.authenticate()
+
+        with patch.object(
+            bookmarks.services.bookmarks,
+            "create_bookmark",
+            wraps=bookmarks.services.bookmarks.create_bookmark,
+        ) as mock_create_bookmark:
+            data = {"url": "https://example.com/"}
+            self.post(reverse("bookmarks:bookmark-list"), data, status.HTTP_201_CREATED)
+
+            mock_create_bookmark.assert_called_with(
+                ANY, "", self.get_or_create_test_user(), disable_html_snapshot=False
+            )
+
+    def test_create_bookmark_does_not_create_html_snapshot_if_disabled(self):
+        self.authenticate()
+
+        with patch.object(
+            bookmarks.services.bookmarks,
+            "create_bookmark",
+            wraps=bookmarks.services.bookmarks.create_bookmark,
+        ) as mock_create_bookmark:
+            data = {"url": "https://example.com/"}
+            self.post(
+                reverse("bookmarks:bookmark-list") + "?disable_html_snapshot",
+                data,
+                status.HTTP_201_CREATED,
+            )
+
+            mock_create_bookmark.assert_called_with(
+                ANY, "", self.get_or_create_test_user(), disable_html_snapshot=True
+            )
 
     def test_create_bookmark_with_same_url_updates_existing_bookmark(self):
         self.authenticate()

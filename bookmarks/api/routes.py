@@ -51,10 +51,12 @@ class BookmarkViewSet(
 
     def get_serializer_context(self):
         disable_scraping = "disable_scraping" in self.request.GET
+        disable_html_snapshot = "disable_html_snapshot" in self.request.GET
         return {
             "request": self.request,
             "user": self.request.user,
             "disable_scraping": disable_scraping,
+            "disable_html_snapshot": disable_html_snapshot,
         }
 
     @action(methods=["get"], detail=False)
