@@ -564,22 +564,6 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertIsNone(edit_link)
         self.assertIsNone(delete_button)
 
-    def test_assets_visibility_no_snapshot_support(self):
-        bookmark = self.setup_bookmark()
-
-        soup = self.get_index_details_modal(bookmark)
-        section = self.find_section_content(soup, "Files")
-        self.assertIsNone(section)
-
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
-    def test_assets_visibility_with_snapshot_support(self):
-        bookmark = self.setup_bookmark()
-
-        soup = self.get_index_details_modal(bookmark)
-        section = self.find_section_content(soup, "Files")
-        self.assertIsNotNone(section)
-
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_list_visibility(self):
         # no assets
         bookmark = self.setup_bookmark()
@@ -598,7 +582,6 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset_list = section.find("div", {"class": "assets"})
         self.assertIsNotNone(asset_list)
 
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_list(self):
         bookmark = self.setup_bookmark()
         assets = [
@@ -627,6 +610,64 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             self.assertIsNotNone(view_link)
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_asset_list_actions_visibility(self):
+        # own bookmark
+        bookmark = self.setup_bookmark()
+
+        soup = self.get_index_details_modal(bookmark)
+        create_snapshot = soup.find(
+            "button", {"type": "submit", "name": "create_html_snapshot"}
+        )
+        upload_asset = soup.find("button", {"type": "submit", "name": "upload_asset"})
+        self.assertIsNotNone(create_snapshot)
+        self.assertIsNotNone(upload_asset)
+
+        # with sharing
+        other_user = self.setup_user(enable_sharing=True)
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+
+        soup = self.get_shared_details_modal(bookmark)
+        create_snapshot = soup.find(
+            "button", {"type": "submit", "name": "create_html_snapshot"}
+        )
+        upload_asset = soup.find("button", {"type": "submit", "name": "upload_asset"})
+        self.assertIsNone(create_snapshot)
+        self.assertIsNone(upload_asset)
+
+        # with public sharing
+        profile = other_user.profile
+        profile.enable_public_sharing = True
+        profile.save()
+
+        soup = self.get_shared_details_modal(bookmark)
+        create_snapshot = soup.find(
+            "button", {"type": "submit", "name": "create_html_snapshot"}
+        )
+        upload_asset = soup.find("button", {"type": "submit", "name": "upload_asset"})
+        self.assertIsNone(create_snapshot)
+        self.assertIsNone(upload_asset)
+
+        # guest user
+        self.client.logout()
+        bookmark = self.setup_bookmark(user=other_user, shared=True)
+
+        soup = self.get_shared_details_modal(bookmark)
+        edit_link = soup.find("a", string="Edit")
+        delete_button = soup.find("button", {"type": "submit", "name": "remove"})
+        self.assertIsNone(edit_link)
+        self.assertIsNone(delete_button)
+
+    def test_asset_list_actions_visibility_without_snapshots_enabled(self):
+        bookmark = self.setup_bookmark()
+
+        soup = self.get_index_details_modal(bookmark)
+        create_snapshot = soup.find(
+            "button", {"type": "submit", "name": "create_html_snapshot"}
+        )
+        upload_asset = soup.find("button", {"type": "submit", "name": "upload_asset"})
+        self.assertIsNone(create_snapshot)
+        self.assertIsNotNone(upload_asset)
+
     def test_asset_without_file(self):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(bookmark)
@@ -639,7 +680,6 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         view_link = asset_item.find("a", {"href": view_url})
         self.assertIsNone(view_link)
 
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_status(self):
         bookmark = self.setup_bookmark()
         pending_asset = self.setup_asset(bookmark, status=BookmarkAsset.STATUS_PENDING)
@@ -655,7 +695,6 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset_text = asset_item.select_one(".asset-text span")
         self.assertIn("(failed)", asset_text.text)
 
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_file_size(self):
         bookmark = self.setup_bookmark()
         asset1 = self.setup_asset(bookmark, file_size=None)
@@ -676,7 +715,6 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         asset_text = asset_item.select_one(".asset-text")
         self.assertIn("11.0\xa0MB", asset_text.text)
 
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_asset_actions_visibility(self):
         bookmark = self.setup_bookmark()
 

@@ -74,14 +74,12 @@
         </div>
       </section>
     {% endif %}
-    {% if details.show_files %}
-      <section class="files col-2">
-        <h3>Files</h3>
-        <div>
-          {% include 'bookmarks/details/assets.html' %}
-        </div>
-      </section>
-    {% endif %}
+    <section class="files col-2">
+      <h3>Files</h3>
+      <div>
+        {% include 'bookmarks/details/assets.html' %}
+      </div>
+    </section>
     {% if details.bookmark.tag_names %}
       <section class="tags col-1">
         <h3 id="details-modal-tags-title">Tags</h3>
