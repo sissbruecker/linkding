@@ -17,6 +17,7 @@ from bookmarks.services import website_loader
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.services.website_loader import WebsiteMetadata
 from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
+from bookmarks.utils import app_version
 
 
 class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
@@ -1144,6 +1145,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(
             response.data["search_preferences"], profile.search_preferences
         )
+        self.assertEqual(response.data["version"], app_version)
 
     def test_user_profile(self):
         self.authenticate()

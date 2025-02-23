@@ -7,6 +7,7 @@ from bookmarks.models import Bookmark, Tag, build_tag_string, UserProfile
 from bookmarks.services import bookmarks
 from bookmarks.services.tags import get_or_create_tag
 from bookmarks.services.wayback import generate_fallback_webarchive_url
+from bookmarks.utils import app_version
 
 
 class TagListField(serializers.ListField):
@@ -167,4 +168,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "display_url",
             "permanent_notes",
             "search_preferences",
+            "version",
         ]
+        read_only_fields = ["version"]
+
+    version = serializers.SerializerMethodField()
+
+    def get_version(self, obj: UserProfile):
+        return app_version
