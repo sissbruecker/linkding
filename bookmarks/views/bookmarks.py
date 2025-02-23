@@ -19,7 +19,7 @@ from bookmarks.models import (
     BookmarkSearch,
     build_tag_string,
 )
-from bookmarks.services import bookmarks as bookmark_actions, tasks
+from bookmarks.services import assets as asset_actions, tasks
 from bookmarks.services.bookmarks import (
     create_bookmark,
     update_bookmark,
@@ -287,7 +287,7 @@ def upload_asset(request, bookmark_id: int):
     if not file:
         raise ValueError("No file uploaded")
 
-    bookmark_actions.upload_asset(bookmark, file)
+    asset_actions.upload_asset(bookmark, file)
 
 
 def remove_asset(request, asset_id: int):
