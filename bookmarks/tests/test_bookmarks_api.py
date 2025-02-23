@@ -1,7 +1,8 @@
 import datetime
+import io
 import urllib.parse
 from collections import OrderedDict
-from unittest.mock import patch
+from unittest.mock import patch, ANY
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -18,6 +19,17 @@ from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
 
 
 class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
+
+    def setUp(self):
+        self.mock_assets_upload_snapshot_patcher = patch(
+            "bookmarks.services.assets.upload_snapshot",
+        )
+        self.mock_assets_upload_snapshot = (
+            self.mock_assets_upload_snapshot_patcher.start()
+        )
+
+    def tearDown(self):
+        self.mock_assets_upload_snapshot_patcher.stop()
 
     def authenticate(self):
         self.api_token = Token.objects.get_or_create(
@@ -1130,3 +1142,109 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         response = self.get(url, expected_status_code=status.HTTP_200_OK)
 
         self.assertUserProfile(response, profile)
+
+    def create_singlefile_upload_body(self):
+        url = "https://example.com"
+        file_content = b"dummy content"
+        file = io.BytesIO(file_content)
+        file.name = "snapshot.html"
+
+        return {"url": url, "file": file}
+
+    def test_singlefile_upload(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+
+        self.authenticate()
+        response = self.client.post(
+            reverse("bookmarks:bookmark-singlefile"),
+            self.create_singlefile_upload_body(),
+            format="multipart",
+            expected_status_code=status.HTTP_201_CREATED,
+        )
+
+        self.assertEqual(response.data["message"], "Snapshot uploaded successfully.")
+
+        self.mock_assets_upload_snapshot.assert_called_once()
+        self.mock_assets_upload_snapshot.assert_called_with(bookmark, b"dummy content")
+
+    def test_singlefile_creates_bookmark_if_not_exists(self):
+        other_user = self.setup_user()
+        self.setup_bookmark(url="https://example.com", user=other_user)
+
+        self.authenticate()
+        self.client.post(
+            reverse("bookmarks:bookmark-singlefile"),
+            self.create_singlefile_upload_body(),
+            format="multipart",
+            expected_status_code=status.HTTP_201_CREATED,
+        )
+
+        self.assertEqual(Bookmark.objects.count(), 2)
+
+        bookmark = Bookmark.objects.get(
+            url="https://example.com", owner=self.get_or_create_test_user()
+        )
+        self.mock_assets_upload_snapshot.assert_called_once()
+        self.mock_assets_upload_snapshot.assert_called_with(bookmark, b"dummy content")
+
+    def test_singlefile_updates_own_bookmark_if_exists(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+        other_user = self.setup_user()
+        self.setup_bookmark(url="https://example.com", user=other_user)
+
+        self.authenticate()
+        self.client.post(
+            reverse("bookmarks:bookmark-singlefile"),
+            self.create_singlefile_upload_body(),
+            format="multipart",
+            expected_status_code=status.HTTP_201_CREATED,
+        )
+
+        self.assertEqual(Bookmark.objects.count(), 2)
+        self.mock_assets_upload_snapshot.assert_called_once()
+        self.mock_assets_upload_snapshot.assert_called_with(bookmark, b"dummy content")
+
+    def test_singlefile_creates_bookmark_without_creating_snapshot(self):
+        with patch(
+            "bookmarks.services.bookmarks.create_bookmark"
+        ) as mock_create_bookmark:
+            self.authenticate()
+            self.client.post(
+                reverse("bookmarks:bookmark-singlefile"),
+                self.create_singlefile_upload_body(),
+                format="multipart",
+                expected_status_code=status.HTTP_201_CREATED,
+            )
+
+            mock_create_bookmark.assert_called_once()
+            mock_create_bookmark.assert_called_with(
+                ANY, "", self.get_or_create_test_user(), disable_html_snapshot=True
+            )
+
+    def test_singlefile_upload_missing_parameters(self):
+        self.authenticate()
+
+        # Missing 'url'
+        file_content = b"dummy content"
+        file = io.BytesIO(file_content)
+        file.name = "snapshot.html"
+        response = self.client.post(
+            reverse("bookmarks:bookmark-singlefile"),
+            {"file": file},
+            format="multipart",
+            expected_status_code=status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertEqual(
+            response.data["error"], "Both 'url' and 'file' parameters are required."
+        )
+
+        # Missing 'file'
+        response = self.client.post(
+            reverse("bookmarks:bookmark-singlefile"),
+            {"url": "https://example.com"},
+            format="multipart",
+            expected_status_code=status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertEqual(
+            response.data["error"], "Both 'url' and 'file' parameters are required."
+        )
