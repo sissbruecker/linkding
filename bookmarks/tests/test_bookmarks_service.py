@@ -1,13 +1,10 @@
-import os
-import tempfile
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, BookmarkAsset, Tag
+from bookmarks.models import Bookmark, Tag
 from bookmarks.services import tasks
 from bookmarks.services import website_loader
 from bookmarks.services.bookmarks import (
@@ -24,7 +21,6 @@ from bookmarks.services.bookmarks import (
     mark_bookmarks_as_unread,
     share_bookmarks,
     unshare_bookmarks,
-    upload_asset,
     enhance_with_website_metadata,
 )
 from bookmarks.tests.helpers import BookmarkFactoryMixin
@@ -109,6 +105,15 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
 
             mock_create_html_snapshot.assert_called_once_with(bookmark)
+
+    def test_create_should_not_load_html_snapshot_when_disabled(self):
+        with patch.object(tasks, "create_html_snapshot") as mock_create_html_snapshot:
+            bookmark_data = Bookmark(url="https://example.com")
+            create_bookmark(
+                bookmark_data, "tag1,tag2", self.user, disable_html_snapshot=True
+            )
+
+            mock_create_html_snapshot.assert_not_called()
 
     def test_create_should_not_load_html_snapshot_when_setting_is_disabled(self):
         profile = self.get_or_create_test_user().profile
@@ -849,53 +854,6 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertFalse(Bookmark.objects.get(id=bookmark1.id).shared)
         self.assertFalse(Bookmark.objects.get(id=bookmark2.id).shared)
         self.assertFalse(Bookmark.objects.get(id=bookmark3.id).shared)
-
-    def test_upload_asset_should_save_file(self):
-        bookmark = self.setup_bookmark()
-        with tempfile.TemporaryDirectory() as temp_assets:
-            with override_settings(LD_ASSET_FOLDER=temp_assets):
-                file_content = b"file content"
-                upload_file = SimpleUploadedFile(
-                    "test_file.txt", file_content, content_type="text/plain"
-                )
-                upload_asset(bookmark, upload_file)
-
-                assets = bookmark.bookmarkasset_set.all()
-                self.assertEqual(1, len(assets))
-
-                asset = assets[0]
-                self.assertEqual("test_file.txt", asset.display_name)
-                self.assertEqual("text/plain", asset.content_type)
-                self.assertEqual(upload_file.size, asset.file_size)
-                self.assertEqual(BookmarkAsset.STATUS_COMPLETE, asset.status)
-                self.assertTrue(asset.file.startswith("upload_"))
-                self.assertTrue(asset.file.endswith(upload_file.name))
-
-                # check file exists
-                filepath = os.path.join(temp_assets, asset.file)
-                self.assertTrue(os.path.exists(filepath))
-                with open(filepath, "rb") as f:
-                    self.assertEqual(file_content, f.read())
-
-    def test_upload_asset_should_be_failed_if_saving_file_fails(self):
-        bookmark = self.setup_bookmark()
-        # Use an invalid path to force an error
-        with override_settings(LD_ASSET_FOLDER="/non/existing/folder"):
-            file_content = b"file content"
-            upload_file = SimpleUploadedFile(
-                "test_file.txt", file_content, content_type="text/plain"
-            )
-            upload_asset(bookmark, upload_file)
-
-            assets = bookmark.bookmarkasset_set.all()
-            self.assertEqual(1, len(assets))
-
-            asset = assets[0]
-            self.assertEqual("test_file.txt", asset.display_name)
-            self.assertEqual("text/plain", asset.content_type)
-            self.assertIsNone(asset.file_size)
-            self.assertEqual(BookmarkAsset.STATUS_FAILURE, asset.status)
-            self.assertEqual("", asset.file)
 
     def test_enhance_with_website_metadata(self):
         bookmark = self.setup_bookmark(url="https://example.com")

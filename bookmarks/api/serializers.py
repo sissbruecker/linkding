@@ -4,13 +4,10 @@ from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
 from bookmarks.models import Bookmark, Tag, build_tag_string, UserProfile
-from bookmarks.services.bookmarks import (
-    create_bookmark,
-    update_bookmark,
-    enhance_with_website_metadata,
-)
+from bookmarks.services import bookmarks
 from bookmarks.services.tags import get_or_create_tag
 from bookmarks.services.wayback import generate_fallback_webarchive_url
+from bookmarks.utils import app_version
 
 
 class TagListField(serializers.ListField):
@@ -101,12 +98,20 @@ class BookmarkSerializer(serializers.ModelSerializer):
         tag_string = build_tag_string(tag_names)
         bookmark = Bookmark(**validated_data)
 
-        saved_bookmark = create_bookmark(bookmark, tag_string, self.context["user"])
+        disable_scraping = self.context.get("disable_scraping", False)
+        disable_html_snapshot = self.context.get("disable_html_snapshot", False)
+
+        saved_bookmark = bookmarks.create_bookmark(
+            bookmark,
+            tag_string,
+            self.context["user"],
+            disable_html_snapshot=disable_html_snapshot,
+        )
         # Unless scraping is explicitly disabled, enhance bookmark with website
         # metadata to preserve backwards compatibility with clients that expect
         # title and description to be populated automatically when left empty
-        if not self.context.get("disable_scraping", False):
-            enhance_with_website_metadata(saved_bookmark)
+        if not disable_scraping:
+            bookmarks.enhance_with_website_metadata(saved_bookmark)
         return saved_bookmark
 
     def update(self, instance: Bookmark, validated_data):
@@ -117,7 +122,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             if not field.read_only and field_name in validated_data:
                 setattr(instance, field_name, validated_data[field_name])
 
-        return update_bookmark(instance, tag_string, self.context["user"])
+        return bookmarks.update_bookmark(instance, tag_string, self.context["user"])
 
     def validate(self, attrs):
         # When creating a bookmark, the service logic prevents duplicate URLs by
@@ -163,4 +168,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "display_url",
             "permanent_notes",
             "search_preferences",
+            "version",
         ]
+        read_only_fields = ["version"]
+
+    version = serializers.SerializerMethodField()
+
+    def get_version(self, obj: UserProfile):
+        return app_version

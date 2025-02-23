@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from bookmarks.models import Bookmark, BookmarkAsset
-from bookmarks.services import tasks, bookmarks
+from bookmarks.services import assets, tasks
 from bookmarks.tests.helpers import (
     BookmarkFactoryMixin,
     BookmarkListTestMixin,
@@ -200,7 +200,7 @@ class BookmarkActionViewTestCase(
         file_content = b"file content"
         upload_file = SimpleUploadedFile("test.txt", file_content)
 
-        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
+        with patch.object(assets, "upload_asset") as mock_upload_asset:
             response = self.client.post(
                 reverse("bookmarks:index.action"),
                 {"upload_asset": bookmark.id, "upload_asset_file": upload_file},
@@ -221,7 +221,7 @@ class BookmarkActionViewTestCase(
         file_content = b"file content"
         upload_file = SimpleUploadedFile("test.txt", file_content)
 
-        with patch.object(bookmarks, "upload_asset") as mock_upload_asset:
+        with patch.object(assets, "upload_asset") as mock_upload_asset:
             response = self.client.post(
                 reverse("bookmarks:index.action"),
                 {"upload_asset": bookmark.id, "upload_asset_file": upload_file},

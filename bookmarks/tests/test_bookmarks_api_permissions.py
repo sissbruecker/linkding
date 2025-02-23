@@ -162,3 +162,8 @@ class BookmarksApiPermissionsTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
 
         self.authenticate()
         self.get(url, expected_status_code=status.HTTP_200_OK)
+
+    def test_singlefile_upload_requires_authentication(self):
+        url = reverse("bookmarks:bookmark-singlefile")
+
+        self.post(url, expected_status_code=status.HTTP_401_UNAUTHORIZED)

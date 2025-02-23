@@ -359,7 +359,6 @@ class BookmarkAssetItem:
         self.id = asset.id
         self.display_name = asset.display_name
         self.asset_type = asset.asset_type
-        self.content_type = asset.content_type
         self.file = asset.file
         self.file_size = asset.file_size
         self.status = asset.status
@@ -399,8 +398,7 @@ class BookmarkDetailsContext:
         self.sharing_enabled = user_profile.enable_sharing
         self.preview_image_enabled = user_profile.enable_preview_images
         self.show_link_icons = user_profile.enable_favicons and bookmark.favicon_file
-        # For now hide files section if snapshots are not supported
-        self.show_files = settings.LD_ENABLE_SNAPSHOTS
+        self.snapshots_enabled = settings.LD_ENABLE_SNAPSHOTS
 
         self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url
         if not self.web_archive_snapshot_url:

@@ -1,15 +1,13 @@
-import os.path
 from unittest import mock
 
 import waybackpy
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from huey.contrib.djhuey import HUEY as huey
 from waybackpy.exceptions import WaybackError
 
 from bookmarks.models import BookmarkAsset, UserProfile
-from bookmarks.services import tasks, singlefile
+from bookmarks.services import tasks
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -46,11 +44,11 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_load_favicon = self.mock_load_favicon_patcher.start()
         self.mock_load_favicon.return_value = "https_example_com.png"
 
-        self.mock_singlefile_create_snapshot_patcher = mock.patch(
-            "bookmarks.services.singlefile.create_snapshot",
+        self.mock_assets_create_snapshot_patcher = mock.patch(
+            "bookmarks.services.assets.create_snapshot",
         )
-        self.mock_singlefile_create_snapshot = (
-            self.mock_singlefile_create_snapshot_patcher.start()
+        self.mock_assets_create_snapshot = (
+            self.mock_assets_create_snapshot_patcher.start()
         )
 
         self.mock_load_preview_image_patcher = mock.patch(
@@ -70,7 +68,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def tearDown(self):
         self.mock_save_api_patcher.stop()
         self.mock_load_favicon_patcher.stop()
-        self.mock_singlefile_create_snapshot_patcher.stop()
+        self.mock_assets_create_snapshot_patcher.stop()
         self.mock_load_preview_image_patcher.stop()
         huey.storage.flush_results()
         huey.immediate = False
@@ -488,72 +486,31 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
                 self.assertIn("HTML snapshot", asset.display_name)
                 self.assertEqual(asset.status, BookmarkAsset.STATUS_PENDING)
 
+            self.mock_assets_create_snapshot.assert_not_called()
+
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
-    def test_create_html_snapshot_should_update_file_info(self):
+    def test_schedule_html_snapshots_should_create_snapshots(self):
         bookmark = self.setup_bookmark(url="https://example.com")
 
-        with mock.patch(
-            "bookmarks.services.tasks._generate_snapshot_filename"
-        ) as mock_generate:
-            expected_filename = "snapshot_2021-01-02_034455_https___example.com.html.gz"
-            mock_generate.return_value = expected_filename
-
-            tasks.create_html_snapshot(bookmark)
-            BookmarkAsset.objects.get(bookmark=bookmark)
-
-            # Run periodic task to process the snapshot
-            tasks._schedule_html_snapshots_task()
-
-            self.mock_singlefile_create_snapshot.assert_called_once_with(
-                "https://example.com",
-                os.path.join(
-                    settings.LD_ASSET_FOLDER,
-                    expected_filename,
-                ),
-            )
-
-            asset = BookmarkAsset.objects.get(bookmark=bookmark)
-            self.assertEqual(asset.status, BookmarkAsset.STATUS_COMPLETE)
-            self.assertEqual(asset.file, expected_filename)
-            self.assertTrue(asset.gzip)
-
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
-    def test_create_html_snapshot_truncate_filename(self):
-        # Create a bookmark with a very long URL
-        long_url = "http://" + "a" * 300 + ".com"
-        bookmark = self.setup_bookmark(url=long_url)
-
         tasks.create_html_snapshot(bookmark)
-        BookmarkAsset.objects.get(bookmark=bookmark)
-
-        # Run periodic task to process the snapshot
-        tasks._schedule_html_snapshots_task()
-
-        asset = BookmarkAsset.objects.get(bookmark=bookmark)
-        self.assertEqual(len(asset.file), 192)
-
-    @override_settings(LD_ENABLE_SNAPSHOTS=True)
-    def test_create_html_snapshot_should_handle_error(self):
-        bookmark = self.setup_bookmark(url="https://example.com")
-
-        self.mock_singlefile_create_snapshot.side_effect = singlefile.SingleFileError(
-            "Error"
-        )
+        tasks.create_html_snapshot(bookmark)
         tasks.create_html_snapshot(bookmark)
 
-        # Run periodic task to process the snapshot
+        assets = BookmarkAsset.objects.filter(bookmark=bookmark)
+
         tasks._schedule_html_snapshots_task()
 
-        asset = BookmarkAsset.objects.get(bookmark=bookmark)
-        self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
-        self.assertEqual(asset.file, "")
-        self.assertFalse(asset.gzip)
+        # should call create_snapshot for each pending asset
+        self.assertEqual(self.mock_assets_create_snapshot.call_count, 3)
+
+        for asset in assets:
+            self.mock_assets_create_snapshot.assert_any_call(asset)
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
-    def test_create_html_snapshot_should_handle_missing_bookmark(self):
+    def test_create_html_snapshot_should_handle_missing_asset(self):
         tasks._create_html_snapshot_task(123)
 
-        self.mock_singlefile_create_snapshot.assert_not_called()
+        self.mock_assets_create_snapshot.assert_not_called()
 
     @override_settings(LD_ENABLE_SNAPSHOTS=False)
     def test_create_html_snapshot_should_not_create_asset_when_single_file_is_disabled(

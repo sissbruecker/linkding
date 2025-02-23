@@ -13,13 +13,7 @@ from bookmarks.api.serializers import (
     UserProfileSerializer,
 )
 from bookmarks.models import Bookmark, BookmarkSearch, Tag, User
-from bookmarks.services import auto_tagging
-from bookmarks.services.bookmarks import (
-    archive_bookmark,
-    unarchive_bookmark,
-    website_loader,
-)
-from bookmarks.services.website_loader import WebsiteMetadata
+from bookmarks.services import assets, bookmarks, auto_tagging, website_loader
 
 logger = logging.getLogger(__name__)
 
@@ -57,10 +51,12 @@ class BookmarkViewSet(
 
     def get_serializer_context(self):
         disable_scraping = "disable_scraping" in self.request.GET
+        disable_html_snapshot = "disable_html_snapshot" in self.request.GET
         return {
             "request": self.request,
             "user": self.request.user,
             "disable_scraping": disable_scraping,
+            "disable_html_snapshot": disable_html_snapshot,
         }
 
     @action(methods=["get"], detail=False)
@@ -89,13 +85,13 @@ class BookmarkViewSet(
     @action(methods=["post"], detail=True)
     def archive(self, request, pk):
         bookmark = self.get_object()
-        archive_bookmark(bookmark)
+        bookmarks.archive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["post"], detail=True)
     def unarchive(self, request, pk):
         bookmark = self.get_object()
-        unarchive_bookmark(bookmark)
+        bookmarks.unarchive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["get"], detail=False)
@@ -127,6 +123,33 @@ class BookmarkViewSet(
                 "auto_tags": auto_tags,
             },
             status=status.HTTP_200_OK,
+        )
+
+    @action(methods=["post"], detail=False)
+    def singlefile(self, request):
+        url = request.data.get("url")
+        file = request.FILES.get("file")
+
+        if not url or not file:
+            return Response(
+                {"error": "Both 'url' and 'file' parameters are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
+
+        if not bookmark:
+            bookmark = Bookmark(url=url)
+            bookmark = bookmarks.create_bookmark(
+                bookmark, "", request.user, disable_html_snapshot=True
+            )
+            bookmarks.enhance_with_website_metadata(bookmark)
+
+        assets.upload_snapshot(bookmark, file.read())
+
+        return Response(
+            {"message": "Snapshot uploaded successfully."},
+            status=status.HTTP_201_CREATED,
         )
 
 
