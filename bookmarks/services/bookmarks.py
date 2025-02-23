@@ -13,7 +13,12 @@ from bookmarks.services.tags import get_or_create_tags
 logger = logging.getLogger(__name__)
 
 
-def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
+def create_bookmark(
+    bookmark: Bookmark,
+    tag_string: str,
+    current_user: User,
+    disable_html_snapshot: bool = False,
+):
     # If URL is already bookmarked, then update it
     existing_bookmark: Bookmark = Bookmark.objects.filter(
         owner=current_user, url=bookmark.url
@@ -39,7 +44,10 @@ def create_bookmark(bookmark: Bookmark, tag_string: str, current_user: User):
     # Load preview image
     tasks.load_preview_image(current_user, bookmark)
     # Create HTML snapshot
-    if current_user.profile.enable_automatic_html_snapshots:
+    if (
+        current_user.profile.enable_automatic_html_snapshots
+        and not disable_html_snapshot
+    ):
         tasks.create_html_snapshot(bookmark)
 
     return bookmark

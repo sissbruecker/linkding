@@ -106,6 +106,15 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
 
             mock_create_html_snapshot.assert_called_once_with(bookmark)
 
+    def test_create_should_not_load_html_snapshot_when_disabled(self):
+        with patch.object(tasks, "create_html_snapshot") as mock_create_html_snapshot:
+            bookmark_data = Bookmark(url="https://example.com")
+            create_bookmark(
+                bookmark_data, "tag1,tag2", self.user, disable_html_snapshot=True
+            )
+
+            mock_create_html_snapshot.assert_not_called()
+
     def test_create_should_not_load_html_snapshot_when_setting_is_disabled(self):
         profile = self.get_or_create_test_user().profile
         profile.enable_automatic_html_snapshots = False
