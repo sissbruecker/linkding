@@ -34,6 +34,7 @@ from bookmarks.services.bookmarks import (
     mark_bookmarks_as_unread,
     share_bookmarks,
     unshare_bookmarks,
+    refresh_bookmarks_metadata,
 )
 from bookmarks.utils import get_safe_return_url
 from bookmarks.views import contexts, partials, turbo
@@ -49,7 +50,7 @@ def index(request):
     bookmark_details = contexts.get_details_context(
         request, contexts.ActiveBookmarkDetailsContext
     )
-
+    bookmark_list.action_url
     return render_bookmarks_view(
         request,
         "bookmarks/index.html",
@@ -406,6 +407,8 @@ def handle_action(request, query: QuerySet[Bookmark] = None):
             share_bookmarks(bookmark_ids, request.user)
         if "bulk_unshare" == bulk_action:
             unshare_bookmarks(bookmark_ids, request.user)
+        if "bulk_refresh" == bulk_action:
+            refresh_bookmarks_metadata(bookmark_ids, request.user)
 
 
 @login_required

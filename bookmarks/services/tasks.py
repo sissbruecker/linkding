@@ -14,7 +14,7 @@ from waybackpy.exceptions import WaybackError, TooManyRequestsError
 
 from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
 from bookmarks.services import assets, favicon_loader, preview_image_loader
-from bookmarks.services.website_loader import DEFAULT_USER_AGENT
+from bookmarks.services.website_loader import DEFAULT_USER_AGENT, load_website_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -224,6 +224,31 @@ def _schedule_bookmarks_without_previews_task(user_id: int):
             _load_preview_image_task(bookmark.id)
         except Exception as exc:
             logging.exception(exc)
+
+
+def schedule_refresh_metadata(bookmark: Bookmark):
+    _schedule_refresh_metadata(bookmark.id)
+    _load_preview_image_task(bookmark.id)
+
+
+@task()
+def _schedule_refresh_metadata(bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(id=bookmark_id)
+    except Bookmark.DoesNotExist:
+        return
+    logger.info(f"Refresh metadata for bookmark. url={bookmark.url}")
+
+    metadata = load_website_metadata(bookmark.url)
+    if metadata.title:
+        bookmark.title = metadata.title
+    if metadata.description:
+        bookmark.title = metadata.title
+    if metadata.description:
+        bookmark.description = metadata.description
+
+    bookmark.save()
+    logger.info(f"Successfully refreshed metadata for bookmark. url={bookmark.url}")
 
 
 def is_html_snapshot_feature_active() -> bool:
