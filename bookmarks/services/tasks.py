@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.utils import timezone
 from huey import crontab
 from huey.contrib.djhuey import HUEY as huey
 from huey.exceptions import TaskLockedException
@@ -250,9 +251,8 @@ def refresh_metadata(bookmark: Bookmark):
     if metadata.title:
         bookmark.title = metadata.title
     if metadata.description:
-        bookmark.title = metadata.title
-    if metadata.description:
         bookmark.description = metadata.description
+    bookmark.date_modified = timezone.now()
 
     bookmark.save()
     logger.info(f"Successfully refreshed metadata for bookmark. url={bookmark.url}")
