@@ -161,7 +161,7 @@
 
             // Display hint if URL is already bookmarked
             const existingBookmark = data.bookmark;
-            bookmarkExistsHint.style['display'] = existingBookmark ? 'block' : 'none';
+            bookmarkExistsHint.style['display'] = existingBookmark && !disableCache ? 'block' : 'none';
 
             // Prefill form with existing bookmark data
             if (existingBookmark) {
@@ -169,10 +169,10 @@
               // defer getting the input until we need it
               const tagsInput = document.getElementById('{{ form.tag_string.id_for_label }}');
 
-              bookmarkExistsHint.style['display'] = 'block';
+              {#bookmarkExistsHint.style['display'] = 'block';#}
               notesDetails.open = !!existingBookmark.notes;
-              updateInput(titleInput, existingBookmark.title);
-              updateInput(descriptionInput, existingBookmark.description);
+              updateInput(titleInput, disableCache ? metadata.title : existingBookmark.title);
+              updateInput(descriptionInput, disableCache ? metadata.description : existingBookmark.description);
               updateInput(notesInput, existingBookmark.notes);
               updateInput(tagsInput, existingBookmark.tag_names.join(" "));
               updateCheckbox(unreadCheckbox, existingBookmark.unread);
