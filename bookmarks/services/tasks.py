@@ -231,11 +231,11 @@ def schedule_refresh_metadata(bookmark: Bookmark):
     if settings.LD_DISABLE_BACKGROUND_TASKS:
         refresh_metadata(bookmark)
     else:
-        _schedule_refresh_metadata(bookmark.id)
+        _schedule_refresh_metadata_task(bookmark.id)
 
 
 @task()
-def _schedule_refresh_metadata(bookmark_id: int):
+def _schedule_refresh_metadata_task(bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
     except Bookmark.DoesNotExist:
