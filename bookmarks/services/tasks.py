@@ -226,13 +226,11 @@ def _schedule_bookmarks_without_previews_task(user_id: int):
             logging.exception(exc)
 
 
-def schedule_refresh_metadata(bookmark: Bookmark, user: User):
+def schedule_refresh_metadata(bookmark: Bookmark):
     if settings.LD_DISABLE_BACKGROUND_TASKS:
         refresh_metadata(bookmark)
     else:
         _schedule_refresh_metadata(bookmark.id)
-
-    load_preview_image(user, bookmark)
 
 
 @task()
