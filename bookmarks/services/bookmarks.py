@@ -204,7 +204,7 @@ def refresh_bookmarks_metadata(bookmark_ids: [Union[int, str]], current_user: Us
     )
 
     for bookmark in owned_bookmarks:
-        tasks.schedule_refresh_metadata(bookmark)
+        tasks.schedule_refresh_metadata(bookmark, current_user)
 
 
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):

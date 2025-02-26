@@ -226,9 +226,13 @@ def _schedule_bookmarks_without_previews_task(user_id: int):
             logging.exception(exc)
 
 
-def schedule_refresh_metadata(bookmark: Bookmark):
-    _schedule_refresh_metadata(bookmark.id)
-    _load_preview_image_task(bookmark.id)
+def schedule_refresh_metadata(bookmark: Bookmark, user: User):
+    if settings.LD_DISABLE_BACKGROUND_TASKS:
+        refresh_metadata(bookmark)
+    else:
+        _schedule_refresh_metadata(bookmark.id)
+
+    load_preview_image(user, bookmark)
 
 
 @task()
@@ -237,6 +241,11 @@ def _schedule_refresh_metadata(bookmark_id: int):
         bookmark = Bookmark.objects.get(id=bookmark_id)
     except Bookmark.DoesNotExist:
         return
+
+    refresh_metadata(bookmark)
+
+
+def refresh_metadata(bookmark: Bookmark):
     logger.info(f"Refresh metadata for bookmark. url={bookmark.url}")
 
     metadata = load_website_metadata(bookmark.url)
