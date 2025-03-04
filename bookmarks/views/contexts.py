@@ -141,6 +141,11 @@ class BookmarkItem:
         self.owner = bookmark.owner
         self.details_url = context.details(bookmark.id)
 
+        assets = list(bookmark.bookmarkasset_set.filter(status=BookmarkAsset.STATUS_COMPLETE))
+        if assets:
+            latest_snapshot = assets[0]
+            self.local_snapshot_url = reverse('bookmarks:assets.view', args=[latest_snapshot.id])
+
         css_classes = []
         if bookmark.unread:
             css_classes.append("unread")
@@ -159,6 +164,7 @@ class BookmarkItem:
         self.show_notes_button = bookmark.notes and not profile.permanent_notes
         self.show_mark_as_read = is_editable and bookmark.unread
         self.show_unshare = is_editable and bookmark.shared and profile.enable_sharing
+        self.show_locally_archived_link = profile.locally_archived_snapshot_link
 
         self.has_extra_actions = (
             self.show_notes_button or self.show_mark_as_read or self.show_unshare
