@@ -257,6 +257,7 @@ class BookmarkIndexViewTestCase(
             <option value="bulk_untag">Remove tags</option>
             <option value="bulk_read">Mark as read</option>
             <option value="bulk_unread">Mark as unread</option>
+            <option value="bulk_refresh">Refresh Metadata</option>
           </select>
         """,
             html,
@@ -280,6 +281,7 @@ class BookmarkIndexViewTestCase(
             <option value="bulk_untag">Remove tags</option>
             <option value="bulk_read">Mark as read</option>
             <option value="bulk_unread">Mark as unread</option>
+            <option value="bulk_refresh">Refresh Metadata</option>
             <option value="bulk_share">Share</option>
             <option value="bulk_unshare">Unshare</option>
           </select>
