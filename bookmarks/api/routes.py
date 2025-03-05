@@ -167,6 +167,7 @@ class BookmarkAssetViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
 ):
     serializer_class = BookmarkAssetSerializer
 

@@ -7,7 +7,8 @@ The application provides a REST API that can be used by 3rd party applications t
 
 ## Authentication
 
-All requests against the API must be authorized using an authorization token. The application automatically generates an API token for each user, which can be accessed through the *Settings* page.
+All requests against the API must be authorized using an authorization token. The application automatically generates an
+API token for each user, which can be accessed through the *Settings* page.
 
 The token needs to be passed as `Authorization` header in the HTTP request:
 
@@ -91,9 +92,11 @@ Retrieves a single bookmark by ID.
 GET /api/bookmarks/check/?url=https%3A%2F%2Fexample.com
 ```
 
-Allows to check if a URL is already bookmarked. If the URL is already bookmarked, the `bookmark` property in the response holds the bookmark data, otherwise it is `null`.
+Allows to check if a URL is already bookmarked. If the URL is already bookmarked, the `bookmark` property in the
+response holds the bookmark data, otherwise it is `null`.
 
-Also returns a `metadata` property that contains metadata scraped from the website. Finally, the `auto_tags` property contains the tag names that would be automatically added when creating a bookmark for that URL.
+Also returns a `metadata` property that contains metadata scraped from the website. Finally, the `auto_tags` property
+contains the tag names that would be automatically added when creating a bookmark for that URL.
 
 Example response:
 
@@ -127,9 +130,13 @@ POST /api/bookmarks/
 Creates a new bookmark. Tags are simply assigned using their names. Including
 `is_archived: true` saves a bookmark directly to the archive.
 
-If the provided URL is already bookmarked, this silently updates the existing bookmark instead of creating a new one. If you are implementing a user interface, consider notifying users about this behavior. You can use the `/check` endpoint to check if a URL is already bookmarked and at the same time get the existing bookmark data. This behavior may change in the future to return an error instead.
+If the provided URL is already bookmarked, this silently updates the existing bookmark instead of creating a new one. If
+you are implementing a user interface, consider notifying users about this behavior. You can use the `/check` endpoint
+to check if a URL is already bookmarked and at the same time get the existing bookmark data. This behavior may change in
+the future to return an error instead.
 
-If the title and description are not provided or empty, the application automatically tries to scrape them from the bookmarked website. This behavior can be disabled by adding the `disable_scraping` query parameter to the API request.
+If the title and description are not provided or empty, the application automatically tries to scrape them from the
+bookmarked website. This behavior can be disabled by adding the `disable_scraping` query parameter to the API request.
 
 Example payload:
 
@@ -266,7 +273,8 @@ Downloads the asset file.
 POST /api/bookmarks/<bookmark_id>/assets/upload/
 ```
 
-Uploads a new asset for a specific bookmark. The request must be a `multipart/form-data` request with a single part named `file` containing the file to upload.
+Uploads a new asset for a specific bookmark. The request must be a `multipart/form-data` request with a single part
+named `file` containing the file to upload.
 
 Example response:
 
@@ -282,6 +290,14 @@ Example response:
   "gzip": false
 }
 ```
+
+**Delete**
+
+```
+DELETE /api/bookmarks/<bookmark_id>/assets/<id>/
+```
+
+Deletes an asset by ID for a specific bookmark.
 
 ### Tags
 

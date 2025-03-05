@@ -208,10 +208,14 @@ class BookmarkFactoryMixin:
             with open(filepath, "w") as f:
                 f.write(file_content)
 
-    def read_asset_file(self, file_name: str):
-        filepath = os.path.join(settings.LD_ASSET_FOLDER, file_name)
+    def read_asset_file(self, asset: BookmarkAsset):
+        filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
         with open(filepath, "rb") as f:
             return f.read()
+
+    def has_asset_file(self, asset: BookmarkAsset):
+        filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
+        return os.path.exists(filepath)
 
     def setup_tag(self, user: User = None, name: str = ""):
         if user is None:

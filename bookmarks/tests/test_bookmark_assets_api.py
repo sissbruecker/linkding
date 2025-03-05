@@ -256,7 +256,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.file_size, len(file_content))
         self.assertFalse(asset.gzip)
 
-        content = self.read_asset_file(asset.file)
+        content = self.read_asset_file(asset)
         self.assertEqual(content, file_content)
 
     def test_upload_asset_with_missing_file(self):
@@ -300,3 +300,41 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         )
         response = self.client.post(url, {}, format="multipart")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_asset(self):
+        self.authenticate()
+
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark)
+        self.setup_asset_file(asset=asset)
+
+        url = reverse(
+            "bookmarks:bookmark_asset-detail",
+            kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
+        )
+        self.delete(url, expected_status_code=status.HTTP_204_NO_CONTENT)
+
+        self.assertFalse(BookmarkAsset.objects.filter(id=asset.id).exists())
+        self.assertFalse(self.has_asset_file(asset))
+
+    def test_delete_asset_only_works_for_own_bookmarks(self):
+        self.authenticate()
+
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        asset = self.setup_asset(bookmark=bookmark)
+
+        url = reverse(
+            "bookmarks:bookmark_asset-detail",
+            kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
+        )
+        self.delete(url, expected_status_code=status.HTTP_404_NOT_FOUND)
+
+    def test_delete_asset_requires_authentication(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark)
+        url = reverse(
+            "bookmarks:bookmark_asset-detail",
+            kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
+        )
+        self.delete(url, expected_status_code=status.HTTP_401_UNAUTHORIZED)
