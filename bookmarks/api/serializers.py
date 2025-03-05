@@ -155,7 +155,6 @@ class BookmarkAssetSerializer(serializers.ModelSerializer):
             "content_type",
             "display_name",
             "status",
-            "gzip",
         ]
 
 

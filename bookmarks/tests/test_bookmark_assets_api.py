@@ -24,7 +24,6 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.content_type, data["content_type"])
         self.assertEqual(asset.display_name, data["display_name"])
         self.assertEqual(asset.status, data["status"])
-        self.assertEqual(asset.gzip, data["gzip"])
 
     def test_asset_list(self):
         self.authenticate()
