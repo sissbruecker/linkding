@@ -290,6 +290,11 @@ LD_ENABLE_SNAPSHOTS = os.getenv("LD_ENABLE_SNAPSHOTS", False) in (
     "True",
     "1",
 )
+LD_DISABLE_ASSET_UPLOAD = os.getenv("LD_DISABLE_ASSET_UPLOAD", False) in (
+    True,
+    "True",
+    "1",
+)
 LD_SINGLEFILE_PATH = os.getenv("LD_SINGLEFILE_PATH", "single-file")
 LD_SINGLEFILE_UBLOCK_OPTIONS = os.getenv(
     "LD_SINGLEFILE_UBLOCK_OPTIONS",

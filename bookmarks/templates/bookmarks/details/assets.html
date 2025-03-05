@@ -38,9 +38,11 @@
                 {% if details.has_pending_assets %}disabled{% endif %}>Create HTML snapshot
         </button>
       {% endif %}
-      <button ld-upload-button id="upload-asset" name="upload_asset" value="{{ details.bookmark.id }}" type="submit"
-              class="btn btn-sm">Upload file
-      </button>
+      {% if details.uploads_enabled %}
+        <button ld-upload-button id="upload-asset" name="upload_asset" value="{{ details.bookmark.id }}" type="submit"
+                class="btn btn-sm">Upload file
+        </button>
+      {% endif %}
       <input id="upload-asset-file" name="upload_asset_file" type="file" class="d-hide">
     </div>
   {% endif %}

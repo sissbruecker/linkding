@@ -5,6 +5,7 @@ from collections import OrderedDict
 from unittest.mock import patch, ANY
 
 from django.contrib.auth.models import User
+from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
@@ -1284,4 +1285,14 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         )
         self.assertEqual(
             response.data["error"], "Both 'url' and 'file' parameters are required."
+        )
+
+    @override_settings(LD_DISABLE_ASSET_UPLOAD=True)
+    def test_singlefile_upload_disabled(self):
+        self.authenticate()
+        self.client.post(
+            reverse("bookmarks:bookmark-singlefile"),
+            self.create_singlefile_upload_body(),
+            format="multipart",
+            expected_status_code=status.HTTP_403_FORBIDDEN,
         )

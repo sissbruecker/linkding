@@ -1,5 +1,6 @@
 import urllib.parse
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
 from django.http import (
@@ -278,6 +279,9 @@ def create_html_snapshot(request, bookmark_id: int):
 
 
 def upload_asset(request, bookmark_id: int):
+    if settings.LD_DISABLE_ASSET_UPLOAD:
+        return HttpResponseForbidden("Asset upload is disabled")
+
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -285,7 +289,7 @@ def upload_asset(request, bookmark_id: int):
 
     file = request.FILES.get("upload_asset_file")
     if not file:
-        raise ValueError("No file uploaded")
+        return HttpResponseBadRequest("No file provided")
 
     asset_actions.upload_asset(bookmark, file)
 
@@ -315,7 +319,10 @@ def update_state(request, bookmark_id: int):
 def index_action(request):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_bookmarks(request.user, request.user_profile, search)
-    handle_action(request, query)
+
+    response = handle_action(request, query)
+    if response:
+        return response
 
     if turbo.accept(request):
         return partials.active_bookmark_update(request)
@@ -327,7 +334,10 @@ def index_action(request):
 def archived_action(request):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
-    handle_action(request, query)
+
+    response = handle_action(request, query)
+    if response:
+        return response
 
     if turbo.accept(request):
         return partials.archived_bookmark_update(request)
@@ -340,7 +350,9 @@ def shared_action(request):
     if "bulk_execute" in request.POST:
         return HttpResponseBadRequest("View does not support bulk actions")
 
-    handle_action(request)
+    response = handle_action(request)
+    if response:
+        return response
 
     if turbo.accept(request):
         return partials.shared_bookmark_update(request)
@@ -351,25 +363,25 @@ def shared_action(request):
 def handle_action(request, query: QuerySet[Bookmark] = None):
     # Single bookmark actions
     if "archive" in request.POST:
-        archive(request, request.POST["archive"])
+        return archive(request, request.POST["archive"])
     if "unarchive" in request.POST:
-        unarchive(request, request.POST["unarchive"])
+        return unarchive(request, request.POST["unarchive"])
     if "remove" in request.POST:
-        remove(request, request.POST["remove"])
+        return remove(request, request.POST["remove"])
     if "mark_as_read" in request.POST:
-        mark_as_read(request, request.POST["mark_as_read"])
+        return mark_as_read(request, request.POST["mark_as_read"])
     if "unshare" in request.POST:
-        unshare(request, request.POST["unshare"])
+        return unshare(request, request.POST["unshare"])
     if "create_html_snapshot" in request.POST:
-        create_html_snapshot(request, request.POST["create_html_snapshot"])
+        return create_html_snapshot(request, request.POST["create_html_snapshot"])
     if "upload_asset" in request.POST:
-        upload_asset(request, request.POST["upload_asset"])
+        return upload_asset(request, request.POST["upload_asset"])
     if "remove_asset" in request.POST:
-        remove_asset(request, request.POST["remove_asset"])
+        return remove_asset(request, request.POST["remove_asset"])
 
     # State updates
     if "update_state" in request.POST:
-        update_state(request, request.POST["update_state"])
+        return update_state(request, request.POST["update_state"])
 
     # Bulk actions
     if "bulk_execute" in request.POST:
@@ -387,25 +399,25 @@ def handle_action(request, query: QuerySet[Bookmark] = None):
             bookmark_ids = request.POST.getlist("bookmark_id")
 
         if "bulk_archive" == bulk_action:
-            archive_bookmarks(bookmark_ids, request.user)
+            return archive_bookmarks(bookmark_ids, request.user)
         if "bulk_unarchive" == bulk_action:
-            unarchive_bookmarks(bookmark_ids, request.user)
+            return unarchive_bookmarks(bookmark_ids, request.user)
         if "bulk_delete" == bulk_action:
-            delete_bookmarks(bookmark_ids, request.user)
+            return delete_bookmarks(bookmark_ids, request.user)
         if "bulk_tag" == bulk_action:
             tag_string = convert_tag_string(request.POST["bulk_tag_string"])
-            tag_bookmarks(bookmark_ids, tag_string, request.user)
+            return tag_bookmarks(bookmark_ids, tag_string, request.user)
         if "bulk_untag" == bulk_action:
             tag_string = convert_tag_string(request.POST["bulk_tag_string"])
-            untag_bookmarks(bookmark_ids, tag_string, request.user)
+            return untag_bookmarks(bookmark_ids, tag_string, request.user)
         if "bulk_read" == bulk_action:
-            mark_bookmarks_as_read(bookmark_ids, request.user)
+            return mark_bookmarks_as_read(bookmark_ids, request.user)
         if "bulk_unread" == bulk_action:
-            mark_bookmarks_as_unread(bookmark_ids, request.user)
+            return mark_bookmarks_as_unread(bookmark_ids, request.user)
         if "bulk_share" == bulk_action:
-            share_bookmarks(bookmark_ids, request.user)
+            return share_bookmarks(bookmark_ids, request.user)
         if "bulk_unshare" == bulk_action:
-            unshare_bookmarks(bookmark_ids, request.user)
+            return unshare_bookmarks(bookmark_ids, request.user)
 
 
 @login_required

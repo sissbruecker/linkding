@@ -230,6 +230,27 @@ class BookmarkActionViewTestCase(
 
             mock_upload_asset.assert_not_called()
 
+    @override_settings(LD_DISABLE_ASSET_UPLOAD=True)
+    def test_upload_asset_disabled(self):
+        bookmark = self.setup_bookmark()
+        file_content = b"file content"
+        upload_file = SimpleUploadedFile("test.txt", file_content)
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"),
+            {"upload_asset": bookmark.id, "upload_asset_file": upload_file},
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_upload_asset_without_file(self):
+        bookmark = self.setup_bookmark()
+
+        response = self.client.post(
+            reverse("bookmarks:index.action"),
+            {"upload_asset": bookmark.id},
+        )
+        self.assertEqual(response.status_code, 400)
+
     def test_remove_asset(self):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(bookmark)

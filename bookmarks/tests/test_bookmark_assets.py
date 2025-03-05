@@ -1,9 +1,7 @@
 import os
-import shutil
-import tempfile
 
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from bookmarks.services import bookmarks
 from bookmarks.tests.helpers import BookmarkFactoryMixin
@@ -11,13 +9,7 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
     def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
-        self.override = override_settings(LD_ASSET_FOLDER=self.temp_dir)
-        self.override.enable()
-
-    def tearDown(self):
-        self.override.disable()
-        shutil.rmtree(self.temp_dir)
+        self.setup_temp_assets_dir()
 
     def setup_asset_file(self, filename):
         filepath = os.path.join(settings.LD_ASSET_FOLDER, filename)

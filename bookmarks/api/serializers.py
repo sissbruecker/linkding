@@ -3,7 +3,7 @@ from django.templatetags.static import static
 from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
-from bookmarks.models import Bookmark, Tag, build_tag_string, UserProfile
+from bookmarks.models import Bookmark, BookmarkAsset, Tag, build_tag_string, UserProfile
 from bookmarks.services import bookmarks
 from bookmarks.services.tags import get_or_create_tag
 from bookmarks.services.wayback import generate_fallback_webarchive_url
@@ -141,6 +141,21 @@ class BookmarkSerializer(serializers.ModelSerializer):
                 )
 
         return attrs
+
+
+class BookmarkAssetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookmarkAsset
+        fields = [
+            "id",
+            "bookmark",
+            "date_created",
+            "file_size",
+            "asset_type",
+            "content_type",
+            "display_name",
+            "status",
+        ]
 
 
 class TagSerializer(serializers.ModelSerializer):

@@ -399,6 +399,7 @@ class BookmarkDetailsContext:
         self.preview_image_enabled = user_profile.enable_preview_images
         self.show_link_icons = user_profile.enable_favicons and bookmark.favicon_file
         self.snapshots_enabled = settings.LD_ENABLE_SNAPSHOTS
+        self.uploads_enabled = not settings.LD_DISABLE_ASSET_UPLOAD
 
         self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url
         if not self.web_archive_snapshot_url:
