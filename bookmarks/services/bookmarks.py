@@ -204,7 +204,7 @@ def refresh_bookmarks_metadata(bookmark_ids: [Union[int, str]], current_user: Us
     )
 
     for bookmark in owned_bookmarks:
-        tasks.schedule_refresh_metadata(bookmark)
+        tasks.refresh_metadata(bookmark)
         tasks.load_preview_image(current_user, bookmark)
 
 

@@ -618,31 +618,24 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(BookmarkAsset.objects.count(), count)
 
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
-    def test_schedule_refresh_metadata_task_not_called_when_background_tasks_disabled(self):
+    def test_refresh_metadata_task_not_called_when_background_tasks_disabled(self):
         bookmark = self.setup_bookmark()
-        with mock.patch("bookmarks.services.tasks._schedule_refresh_metadata_task") as schedule_refresh_metadata_task:
-            tasks.schedule_refresh_metadata(bookmark)
-            schedule_refresh_metadata_task.assert_not_called()
+        with mock.patch("bookmarks.services.tasks._refresh_metadata_task") as mock_refresh_metadata_task:
+            tasks.refresh_metadata(bookmark)
+            mock_refresh_metadata_task.assert_not_called()
 
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=False)
-    def test_schedule_refresh_metadata_task_called_when_background_tasks_enabled(self):
+    def test_refresh_metadata_task_called_when_background_tasks_enabled(self):
         bookmark = self.setup_bookmark()
-        with mock.patch("bookmarks.services.tasks._schedule_refresh_metadata_task") as schedule_refresh_metadata_task:
-            tasks.schedule_refresh_metadata(bookmark)
-            schedule_refresh_metadata_task.assert_called_once()
+        with mock.patch("bookmarks.services.tasks._refresh_metadata_task") as mock_refresh_metadata_task:
+            tasks.refresh_metadata(bookmark)
+            mock_refresh_metadata_task.assert_called_once()
 
-    def test_schedule_refresh_metadata_task_should_handle_missing_bookmark(self):
-        with mock.patch("bookmarks.services.tasks.refresh_metadata") as refresh_metadata_task:
-            tasks._schedule_refresh_metadata_task(123)
+    def test_refresh_metadata_task_should_handle_missing_bookmark(self):
+        with mock.patch("bookmarks.services.website_loader.load_website_metadata") as mock_load_website_metadata:
+            tasks._refresh_metadata_task(123)
 
-            refresh_metadata_task.assert_not_called()
-
-    def test_schedule_refresh_metadata_task_calls_refresh_metadata(self):
-        bookmark = self.setup_bookmark()
-        with mock.patch("bookmarks.services.tasks.refresh_metadata") as refresh_metadata_task:
-            tasks._schedule_refresh_metadata_task(bookmark.id)
-
-            refresh_metadata_task.assert_called_once()
+            mock_load_website_metadata.assert_not_called()
 
     def test_refresh_metadata_updates_title_description(self):
         bookmark = self.setup_bookmark(
@@ -661,5 +654,6 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
             tasks.refresh_metadata(bookmark)
 
+            bookmark.refresh_from_db()
             self.assertEqual(bookmark.title, "New title")
             self.assertEqual(bookmark.description, "New description")
