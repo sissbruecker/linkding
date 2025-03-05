@@ -8,7 +8,7 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter, DefaultRouter
 
 from bookmarks import queries
 from bookmarks.api.serializers import (
@@ -228,10 +228,19 @@ class UserViewSet(viewsets.GenericViewSet):
         return Response(UserProfileSerializer(request.user.profile).data)
 
 
-router = DefaultRouter()
-router.register(r"bookmarks", BookmarkViewSet, basename="bookmark")
-router.register(r"tags", TagViewSet, basename="tag")
-router.register(r"user", UserViewSet, basename="user")
+# DRF routers do not support nested view sets such as /bookmarks/<id>/assets/<id>/
+# Instead create separate routers for each view set and manually register them in urls.py
+# The default router is only used to allow reversing a URL for the API root
+default_router = DefaultRouter()
 
-bookmark_asset_router = DefaultRouter()
+bookmark_router = SimpleRouter()
+bookmark_router.register("", BookmarkViewSet, basename="bookmark")
+
+tag_router = SimpleRouter()
+tag_router.register("", TagViewSet, basename="tag")
+
+user_router = SimpleRouter()
+user_router.register("", UserViewSet, basename="user")
+
+bookmark_asset_router = SimpleRouter()
 bookmark_asset_router.register("", BookmarkAssetViewSet, basename="bookmark_asset")
