@@ -1,3 +1,6 @@
+import io
+
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from rest_framework import status
 
@@ -6,6 +9,8 @@ from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
 
 
 class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
+    def setUp(self):
+        self.setup_temp_assets_dir()
 
     def assertAsset(self, asset: BookmarkAsset, data: dict):
         self.assertEqual(asset.id, data["id"])
@@ -220,3 +225,68 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         self.get(url, expected_status_code=status.HTTP_401_UNAUTHORIZED)
+
+    def create_upload_body(self):
+        url = "https://example.com"
+        file_content = b"dummy content"
+        file = io.BytesIO(file_content)
+        file.name = "snapshot.html"
+
+        return {"url": url, "file": file}
+
+    def test_upload_asset(self):
+        self.authenticate()
+
+        bookmark = self.setup_bookmark()
+        url = reverse(
+            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+        )
+        file_content = b"test file content"
+        file_name = "test.txt"
+        file = SimpleUploadedFile(file_name, file_content, content_type="text/plain")
+
+        response = self.client.post(url, {"file": file}, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        asset = BookmarkAsset.objects.get(id=response.data["id"])
+        self.assertEqual(asset.bookmark, bookmark)
+        self.assertEqual(asset.display_name, file_name)
+        self.assertEqual(asset.asset_type, BookmarkAsset.TYPE_UPLOAD)
+        self.assertEqual(asset.content_type, "text/plain")
+        self.assertEqual(asset.file_size, len(file_content))
+        self.assertFalse(asset.gzip)
+
+        content = self.read_asset_file(asset.file)
+        self.assertEqual(content, file_content)
+
+    def test_upload_asset_with_missing_file(self):
+        self.authenticate()
+
+        bookmark = self.setup_bookmark()
+        url = reverse(
+            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+        )
+
+        response = self.client.post(url, {}, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_upload_asset_only_works_for_own_bookmarks(self):
+        self.authenticate()
+
+        other_user = self.setup_user()
+        bookmark = self.setup_bookmark(user=other_user)
+        url = reverse(
+            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+        )
+
+        response = self.client.post(url, {}, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_upload_asset_requires_authentication(self):
+        bookmark = self.setup_bookmark()
+        url = reverse(
+            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+        )
+
+        response = self.client.post(url, {}, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

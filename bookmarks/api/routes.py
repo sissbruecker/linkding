@@ -178,7 +178,7 @@ class BookmarkAssetViewSet(
         return {"user": self.request.user}
 
     @action(detail=True, methods=["get"], url_path="download")
-    def download(self, request, bookmark_id, pk=None):
+    def download(self, request, bookmark_id, pk):
         asset = self.get_object()
         try:
             file_path = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
@@ -204,6 +204,32 @@ class BookmarkAssetViewSet(
                 exc_info=e,
             )
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(methods=["post"], detail=False)
+    def upload(self, request, bookmark_id):
+        bookmark = Bookmark.objects.filter(id=bookmark_id, owner=request.user).first()
+        if not bookmark:
+            raise Http404("Bookmark does not exist")
+
+        upload_file = request.FILES.get("file")
+        if not upload_file:
+            return Response(
+                {"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            asset = assets.upload_asset(bookmark, upload_file)
+            serializer = self.get_serializer(asset)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(
+                f"Failed to upload asset file. bookmark_id={bookmark_id}, file={upload_file.name}",
+                exc_info=e,
+            )
+            return Response(
+                {"error": "Failed to upload asset."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class TagViewSet(
