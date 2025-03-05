@@ -2,7 +2,7 @@ from django.urls import path, include
 from django.urls import re_path
 
 from bookmarks import views
-from bookmarks.api.routes import router
+from bookmarks.api.routes import router, bookmark_asset_router
 from bookmarks.feeds import (
     AllBookmarksFeed,
     UnreadBookmarksFeed,
@@ -56,6 +56,9 @@ urlpatterns = [
     path("toasts/acknowledge", views.toasts.acknowledge, name="toasts.acknowledge"),
     # API
     path("api/", include(router.urls), name="api"),
+    path(
+        "api/bookmarks/<int:bookmark_id>/assets/", include(bookmark_asset_router.urls)
+    ),
     # Feeds
     path("feeds/<str:feed_key>/all", AllBookmarksFeed(), name="feeds.all"),
     path("feeds/<str:feed_key>/unread", UnreadBookmarksFeed(), name="feeds.unread"),

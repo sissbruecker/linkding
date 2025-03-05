@@ -1,14 +1,21 @@
-import random
+import gzip
 import logging
+import os
+import random
+import shutil
+import tempfile
 from datetime import datetime
 from typing import List
 from unittest import TestCase
 
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.test import override_settings
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
 from bookmarks.models import Bookmark, BookmarkAsset, Tag
@@ -16,6 +23,16 @@ from bookmarks.models import Bookmark, BookmarkAsset, Tag
 
 class BookmarkFactoryMixin:
     user = None
+
+    def setup_temp_assets_dir(self):
+        self.assets_dir = tempfile.mkdtemp()
+        self.settings_override = override_settings(LD_ASSET_FOLDER=self.assets_dir)
+        self.settings_override.enable()
+        self.addCleanup(self.cleanup_temp_assets_dir)
+
+    def cleanup_temp_assets_dir(self):
+        shutil.rmtree(self.assets_dir)
+        self.settings_override.disable()
 
     def get_or_create_test_user(self):
         if self.user is None:
@@ -182,6 +199,15 @@ class BookmarkFactoryMixin:
         asset.save()
         return asset
 
+    def setup_asset_file(self, asset: BookmarkAsset, file_content: str = "test"):
+        filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
+        if asset.gzip:
+            with gzip.open(filepath, "wb") as f:
+                f.write(file_content.encode())
+        else:
+            with open(filepath, "w") as f:
+                f.write(file_content)
+
     def setup_tag(self, user: User = None, name: str = ""):
         if user is None:
             user = self.get_or_create_test_user()
@@ -290,6 +316,12 @@ class TagCloudTestMixin(TestCase, HtmlTestMixin):
 
 
 class LinkdingApiTestCase(APITestCase):
+    def authenticate(self):
+        self.api_token = Token.objects.get_or_create(
+            user=self.get_or_create_test_user()
+        )[0]
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.api_token.key)
+
     def get(self, url, expected_status_code=status.HTTP_200_OK):
         response = self.client.get(url)
         self.assertEqual(response.status_code, expected_status_code)

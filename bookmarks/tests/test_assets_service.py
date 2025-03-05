@@ -1,12 +1,10 @@
 import datetime
 import gzip
 import os
-import shutil
-import tempfile
 from unittest import mock
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks.models import BookmarkAsset
@@ -17,11 +15,8 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
 
     def setUp(self) -> None:
+        self.setup_temp_assets_dir()
         self.get_or_create_test_user()
-
-        self.temp_dir = tempfile.mkdtemp()
-        self.settings_override = override_settings(LD_ASSET_FOLDER=self.temp_dir)
-        self.settings_override.enable()
 
         self.html_content = "<html><body><h1>Hello, World!</h1></body></html>"
         self.mock_singlefile_create_snapshot_patcher = mock.patch(
@@ -35,12 +30,11 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         )
 
     def tearDown(self) -> None:
-        shutil.rmtree(self.temp_dir)
         self.mock_singlefile_create_snapshot_patcher.stop()
 
     def get_saved_snapshot_file(self):
         # look up first file in the asset folder
-        files = os.listdir(self.temp_dir)
+        files = os.listdir(self.assets_dir)
         if files:
             return files[0]
 
@@ -70,9 +64,9 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         assets.create_snapshot(asset)
 
         expected_temp_filename = "snapshot_2023-08-11_214511_https___example.com.tmp"
-        expected_temp_filepath = os.path.join(self.temp_dir, expected_temp_filename)
+        expected_temp_filepath = os.path.join(self.assets_dir, expected_temp_filename)
         expected_filename = "snapshot_2023-08-11_214511_https___example.com.html.gz"
-        expected_filepath = os.path.join(self.temp_dir, expected_filename)
+        expected_filepath = os.path.join(self.assets_dir, expected_filename)
 
         # should call singlefile.create_snapshot with the correct arguments
         self.mock_singlefile_create_snapshot.assert_called_once_with(
@@ -137,7 +131,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(saved_file_name.endswith("_https___example.com.html.gz"))
 
         # gzip file should contain the correct content
-        with gzip.open(os.path.join(self.temp_dir, saved_file_name), "rb") as gz_file:
+        with gzip.open(os.path.join(self.assets_dir, saved_file_name), "rb") as gz_file:
             self.assertEqual(gz_file.read().decode(), self.html_content)
 
         # should create asset
@@ -195,7 +189,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(saved_file_name.endswith("_test_file.txt"))
 
         # file should contain the correct content
-        with open(os.path.join(self.temp_dir, saved_file_name), "rb") as file:
+        with open(os.path.join(self.assets_dir, saved_file_name), "rb") as file:
             self.assertEqual(file.read(), file_content)
 
         # should create asset

@@ -1,5 +1,9 @@
+import gzip
 import logging
+import os
 
+from django.conf import settings
+from django.http import FileResponse, Http404
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -9,10 +13,11 @@ from rest_framework.routers import DefaultRouter
 from bookmarks import queries
 from bookmarks.api.serializers import (
     BookmarkSerializer,
+    BookmarkAssetSerializer,
     TagSerializer,
     UserProfileSerializer,
 )
-from bookmarks.models import Bookmark, BookmarkSearch, Tag, User
+from bookmarks.models import Bookmark, BookmarkAsset, BookmarkSearch, Tag, User
 from bookmarks.services import assets, bookmarks, auto_tagging, website_loader
 
 logger = logging.getLogger(__name__)
@@ -153,6 +158,54 @@ class BookmarkViewSet(
         )
 
 
+class BookmarkAssetViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+):
+    serializer_class = BookmarkAssetSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        bookmark_id = self.kwargs["bookmark_id"]
+        if not Bookmark.objects.filter(id=bookmark_id, owner=user).exists():
+            raise Http404("Bookmark does not exist")
+        return BookmarkAsset.objects.filter(
+            bookmark_id=bookmark_id, bookmark__owner=user
+        )
+
+    def get_serializer_context(self):
+        return {"user": self.request.user}
+
+    @action(detail=True, methods=["get"], url_path="download")
+    def download(self, request, bookmark_id, pk=None):
+        asset = self.get_object()
+        try:
+            file_path = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
+            content_type = asset.content_type
+            file_stream = (
+                gzip.GzipFile(file_path, mode="rb")
+                if asset.gzip
+                else open(file_path, "rb")
+            )
+            file_name = (
+                f"{asset.display_name}.html"
+                if asset.asset_type == BookmarkAsset.TYPE_SNAPSHOT
+                else asset.display_name
+            )
+            response = FileResponse(file_stream, content_type=content_type)
+            response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+            return response
+        except FileNotFoundError:
+            raise Http404("Asset file does not exist")
+        except Exception as e:
+            logger.error(
+                f"Failed to download asset. bookmark_id={bookmark_id}, asset_id={pk}",
+                exc_info=e,
+            )
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class TagViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
@@ -179,3 +232,6 @@ router = DefaultRouter()
 router.register(r"bookmarks", BookmarkViewSet, basename="bookmark")
 router.register(r"tags", TagViewSet, basename="tag")
 router.register(r"user", UserViewSet, basename="user")
+
+bookmark_asset_router = DefaultRouter()
+bookmark_asset_router.register("", BookmarkAssetViewSet, basename="bookmark_asset")
