@@ -132,6 +132,11 @@ class BookmarkViewSet(
 
     @action(methods=["post"], detail=False)
     def singlefile(self, request):
+        if settings.LD_DISABLE_ASSET_UPLOAD:
+            return Response(
+                {"error": "Asset upload is disabled."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         url = request.data.get("url")
         file = request.FILES.get("file")
 
@@ -207,6 +212,11 @@ class BookmarkAssetViewSet(
 
     @action(methods=["post"], detail=False)
     def upload(self, request, bookmark_id):
+        if settings.LD_DISABLE_ASSET_UPLOAD:
+            return Response(
+                {"error": "Asset upload is disabled."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         bookmark = Bookmark.objects.filter(id=bookmark_id, owner=request.user).first()
         if not bookmark:
             raise Http404("Bookmark does not exist")

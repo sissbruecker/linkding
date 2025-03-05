@@ -1,6 +1,7 @@
 import io
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
@@ -290,3 +291,13 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
         response = self.client.post(url, {}, format="multipart")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    @override_settings(LD_DISABLE_ASSET_UPLOAD=True)
+    def test_upload_asset_disabled(self):
+        self.authenticate()
+        bookmark = self.setup_bookmark()
+        url = reverse(
+            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+        )
+        response = self.client.post(url, {}, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
