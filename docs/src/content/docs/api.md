@@ -202,6 +202,87 @@ DELETE /api/bookmarks/<id>/
 
 Deletes a bookmark by ID.
 
+### Bookmark Assets
+
+**List**
+
+```
+GET /api/bookmarks/<bookmark_id>/assets/
+```
+
+List assets for a specific bookmark.
+
+Example response:
+
+```json
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "bookmark": 1,
+      "asset_type": "snapshot",
+      "date_created": "2023-10-01T12:00:00Z",
+      "content_type": "text/html",
+      "display_name": "HTML snapshot from 10/01/2023",
+      "status": "complete",
+      "gzip": true
+    },
+    {
+      "id": 2,
+      "bookmark": 1,
+      "asset_type": "upload",
+      "date_created": "2023-10-01T12:05:00Z",
+      "content_type": "image/png",
+      "display_name": "example.png",
+      "status": "complete",
+      "gzip": false
+    }
+  ]
+}
+```
+
+**Retrieve**
+
+```
+GET /api/bookmarks/<bookmark_id>/assets/<id>/
+```
+
+Retrieves a single asset by ID for a specific bookmark.
+
+**Download**
+
+```
+GET /api/bookmarks/<bookmark_id>/assets/<id>/download/
+```
+
+Downloads the asset file.
+
+**Upload**
+
+```
+POST /api/bookmarks/<bookmark_id>/assets/upload/
+```
+
+Uploads a new asset for a specific bookmark. The request must be a `multipart/form-data` request with a single part named `file` containing the file to upload.
+
+Example response:
+
+```json
+{
+  "id": 3,
+  "bookmark": 1,
+  "asset_type": "upload",
+  "date_created": "2023-10-01T12:10:00Z",
+  "content_type": "application/pdf",
+  "display_name": "example.pdf",
+  "status": "complete",
+  "gzip": false
+}
+```
+
 ### Tags
 
 **List**
