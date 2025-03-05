@@ -228,9 +228,7 @@ def _schedule_bookmarks_without_previews_task(user_id: int):
 
 
 def schedule_refresh_metadata(bookmark: Bookmark):
-    if settings.LD_DISABLE_BACKGROUND_TASKS:
-        refresh_metadata(bookmark)
-    else:
+    if not settings.LD_DISABLE_BACKGROUND_TASKS:
         _schedule_refresh_metadata_task(bookmark.id)
 
 
