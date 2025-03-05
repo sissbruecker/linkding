@@ -55,6 +55,12 @@ Values: `True`, `False` | Default = `False`
 Completely disables URL validation for bookmarks.
 This can be useful if you intend to store non fully qualified domain name URLs, such as network paths, or you want to store URLs that use another protocol than `http` or `https`.
 
+### `LD_REQUEST_MAX_CONTENT_LENGTH`
+
+Values: `Integer` as bytes | Default = `None`
+
+Configures the maximum content length for POST requests in the uwsgi application server. This can be used to prevent uploading large files that might cause the server to run out of memory. By default, the server does not limit the content length.
+
 ### `LD_REQUEST_TIMEOUT`
 
 Values: `Integer` as seconds | Default = `60`
