@@ -234,8 +234,7 @@ Example response:
       "date_created": "2023-10-01T12:00:00Z",
       "content_type": "text/html",
       "display_name": "HTML snapshot from 10/01/2023",
-      "status": "complete",
-      "gzip": true
+      "status": "complete"
     },
     {
       "id": 2,
@@ -244,8 +243,7 @@ Example response:
       "date_created": "2023-10-01T12:05:00Z",
       "content_type": "image/png",
       "display_name": "example.png",
-      "status": "complete",
-      "gzip": false
+      "status": "complete"
     }
   ]
 }
@@ -286,8 +284,7 @@ Example response:
   "date_created": "2023-10-01T12:10:00Z",
   "content_type": "application/pdf",
   "display_name": "example.pdf",
-  "status": "complete",
-  "gzip": false
+  "status": "complete"
 }
 ```
 
