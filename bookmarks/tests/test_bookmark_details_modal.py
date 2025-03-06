@@ -668,6 +668,18 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertIsNone(create_snapshot)
         self.assertIsNotNone(upload_asset)
 
+    @override_settings(LD_DISABLE_ASSET_UPLOAD=True)
+    def test_asset_list_actions_visibility_with_uploads_disabled(self):
+        bookmark = self.setup_bookmark()
+
+        soup = self.get_index_details_modal(bookmark)
+        create_snapshot = soup.find(
+            "button", {"type": "submit", "name": "create_html_snapshot"}
+        )
+        upload_asset = soup.find("button", {"type": "submit", "name": "upload_asset"})
+        self.assertIsNone(create_snapshot)
+        self.assertIsNone(upload_asset)
+
     def test_asset_without_file(self):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(bookmark)
