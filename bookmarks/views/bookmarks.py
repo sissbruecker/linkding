@@ -50,7 +50,7 @@ def index(request):
     bookmark_details = contexts.get_details_context(
         request, contexts.ActiveBookmarkDetailsContext
     )
-    bookmark_list.action_url
+
     return render_bookmarks_view(
         request,
         "bookmarks/index.html",
