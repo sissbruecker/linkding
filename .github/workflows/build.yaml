@@ -28,6 +28,7 @@ jobs:
       - name: Build latest
         uses: docker/build-push-action@v6
         with:
+          context: .
           file: ./docker/default.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
@@ -39,6 +40,7 @@ jobs:
       - name: Build latest-alpine
         uses: docker/build-push-action@v6
         with:
+          context: .
           file: ./docker/alpine.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
@@ -50,6 +52,7 @@ jobs:
       - name: Build latest-plus
         uses: docker/build-push-action@v6
         with:
+          context: .
           file: ./docker/default.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
@@ -61,6 +64,7 @@ jobs:
       - name: Build latest-plus-alpine
         uses: docker/build-push-action@v6
         with:
+          context: .
           file: ./docker/alpine.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
