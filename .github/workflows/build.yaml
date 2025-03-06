@@ -24,6 +24,7 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: sissbruecker/linkding:test
           target: linkding
+          push: true
       - name: Build latest-alpine
         uses: docker/build-push-action@v6
         with:
@@ -31,6 +32,7 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: sissbruecker/linkding:test-alpine
           target: linkding
+          push: true
       - name: Build latest-plus
         uses: docker/build-push-action@v6
         with:
@@ -38,6 +40,7 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: sissbruecker/linkding:test
           target: linkding-plus
+          push: true
       - name: Build latest-plus-alpine
         uses: docker/build-push-action@v6
         with:
@@ -45,3 +48,4 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: sissbruecker/linkding:test-plus-alpine
           target: linkding-plus
+          push: true
