@@ -34,7 +34,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.get_or_create_test_user()
 
         self.mock_schedule_refresh_metadata = patch(
-            "bookmarks.services.bookmarks.tasks.schedule_refresh_metadata").start()
+            "bookmarks.services.bookmarks.tasks.refresh_metadata").start()
         self.mock_load_preview_image = patch(
             "bookmarks.services.bookmarks.tasks.load_preview_image").start()
 
