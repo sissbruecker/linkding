@@ -104,7 +104,7 @@ class BookmarkViewSet(
         )
 
         if disable_cache:
-            website_loader.load_website_metadata.cache_clear()
+            website_loader.clear_metadata_cache()
         metadata = website_loader.load_website_metadata(url)
 
         # Return tags that would be automatically applied to the bookmark
