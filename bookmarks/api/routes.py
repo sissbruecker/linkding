@@ -97,7 +97,7 @@ class BookmarkViewSet(
     @action(methods=["get"], detail=False)
     def check(self, request):
         url = request.GET.get("url")
-        disable_cache = request.GET.get("disable_cache") == "true"
+        disable_cache = request.GET.get("disable_cache")
         bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
         existing_bookmark_data = (
             self.get_serializer(bookmark).data if bookmark else None
