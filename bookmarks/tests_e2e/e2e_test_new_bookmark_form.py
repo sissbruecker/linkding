@@ -4,7 +4,7 @@ from urllib.parse import quote
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 from bookmarks.services import website_loader
 
 mock_website_metadata = website_loader.WebsiteMetadata(

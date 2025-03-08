@@ -3,7 +3,7 @@ from typing import List
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 
 class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
