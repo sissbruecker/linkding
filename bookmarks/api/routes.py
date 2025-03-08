@@ -45,13 +45,21 @@ class BookmarkViewSet(
         return super().get_permissions()
 
     def get_queryset(self):
+        # Provide filtered queryset for list actions
         user = self.request.user
-        # For list action, use query set that applies search and tag projections
+        search = BookmarkSearch.from_request(self.request.GET)
         if self.action == "list":
-            search = BookmarkSearch.from_request(self.request.GET)
             return queries.query_bookmarks(user, user.profile, search)
+        elif self.action == "archived":
+            return queries.query_archived_bookmarks(user, user.profile, search)
+        elif self.action == "shared":
+            user = User.objects.filter(username=search.user).first()
+            public_only = not self.request.user.is_authenticated
+            return queries.query_shared_bookmarks(
+                user, self.request.user_profile, search, public_only
+            )
 
-        # For single entity actions use default query set without projections
+        # For single entity actions return user owned bookmarks
         return Bookmark.objects.all().filter(owner=user)
 
     def get_serializer_context(self):
@@ -66,26 +74,11 @@ class BookmarkViewSet(
 
     @action(methods=["get"], detail=False)
     def archived(self, request):
-        user = request.user
-        search = BookmarkSearch.from_request(request.GET)
-        query_set = queries.query_archived_bookmarks(user, user.profile, search)
-        page = self.paginate_queryset(query_set)
-        serializer = self.get_serializer(page, many=True)
-        data = serializer.data
-        return self.get_paginated_response(data)
+        return self.list(request)
 
     @action(methods=["get"], detail=False)
     def shared(self, request):
-        search = BookmarkSearch.from_request(request.GET)
-        user = User.objects.filter(username=search.user).first()
-        public_only = not request.user.is_authenticated
-        query_set = queries.query_shared_bookmarks(
-            user, request.user_profile, search, public_only
-        )
-        page = self.paginate_queryset(query_set)
-        serializer = self.get_serializer(page, many=True)
-        data = serializer.data
-        return self.get_paginated_response(data)
+        return self.list(request)
 
     @action(methods=["post"], detail=True)
     def archive(self, request, pk):
