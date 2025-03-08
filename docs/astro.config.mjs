@@ -27,10 +27,12 @@ export default defineConfig({
 					label: 'Guides',
 					items: [
 						{ label: 'Backups', slug: 'backups' },
-						{ label: 'Admin', slug: 'admin' },
+						{ label: 'Archiving', slug: 'archiving' },
+						{ label: 'Auto Tagging', slug: 'auto-tagging' },
 						{ label: 'Keyboard Shortcuts', slug: 'shortcuts' },
 						{ label: 'How To', slug: 'how-to' },
 						{ label: 'Troubleshooting', slug: 'troubleshooting' },
+						{ label: 'Admin', slug: 'admin' },
 						{ label: 'REST API', slug: 'api' },
 					],
 				},

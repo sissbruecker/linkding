@@ -1,18 +1,23 @@
+import gzip
 import logging
+import os
 
+from django.conf import settings
+from django.http import FileResponse, Http404
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter, DefaultRouter
 
 from bookmarks import queries
 from bookmarks.api.serializers import (
     BookmarkSerializer,
+    BookmarkAssetSerializer,
     TagSerializer,
     UserProfileSerializer,
 )
-from bookmarks.models import Bookmark, BookmarkSearch, Tag, User
+from bookmarks.models import Bookmark, BookmarkAsset, BookmarkSearch, Tag, User
 from bookmarks.services import assets, bookmarks, auto_tagging, website_loader
 
 logger = logging.getLogger(__name__)
@@ -130,6 +135,11 @@ class BookmarkViewSet(
 
     @action(methods=["post"], detail=False)
     def singlefile(self, request):
+        if settings.LD_DISABLE_ASSET_UPLOAD:
+            return Response(
+                {"error": "Asset upload is disabled."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         url = request.data.get("url")
         file = request.FILES.get("file")
 
@@ -156,6 +166,86 @@ class BookmarkViewSet(
         )
 
 
+class BookmarkAssetViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+):
+    serializer_class = BookmarkAssetSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        bookmark_id = self.kwargs["bookmark_id"]
+        if not Bookmark.objects.filter(id=bookmark_id, owner=user).exists():
+            raise Http404("Bookmark does not exist")
+        return BookmarkAsset.objects.filter(
+            bookmark_id=bookmark_id, bookmark__owner=user
+        )
+
+    def get_serializer_context(self):
+        return {"user": self.request.user}
+
+    @action(detail=True, methods=["get"], url_path="download")
+    def download(self, request, bookmark_id, pk):
+        asset = self.get_object()
+        try:
+            file_path = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
+            content_type = asset.content_type
+            file_stream = (
+                gzip.GzipFile(file_path, mode="rb")
+                if asset.gzip
+                else open(file_path, "rb")
+            )
+            file_name = (
+                f"{asset.display_name}.html"
+                if asset.asset_type == BookmarkAsset.TYPE_SNAPSHOT
+                else asset.display_name
+            )
+            response = FileResponse(file_stream, content_type=content_type)
+            response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+            return response
+        except FileNotFoundError:
+            raise Http404("Asset file does not exist")
+        except Exception as e:
+            logger.error(
+                f"Failed to download asset. bookmark_id={bookmark_id}, asset_id={pk}",
+                exc_info=e,
+            )
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(methods=["post"], detail=False)
+    def upload(self, request, bookmark_id):
+        if settings.LD_DISABLE_ASSET_UPLOAD:
+            return Response(
+                {"error": "Asset upload is disabled."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        bookmark = Bookmark.objects.filter(id=bookmark_id, owner=request.user).first()
+        if not bookmark:
+            raise Http404("Bookmark does not exist")
+
+        upload_file = request.FILES.get("file")
+        if not upload_file:
+            return Response(
+                {"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            asset = assets.upload_asset(bookmark, upload_file)
+            serializer = self.get_serializer(asset)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(
+                f"Failed to upload asset file. bookmark_id={bookmark_id}, file={upload_file.name}",
+                exc_info=e,
+            )
+            return Response(
+                {"error": "Failed to upload asset."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
 class TagViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
@@ -178,7 +268,19 @@ class UserViewSet(viewsets.GenericViewSet):
         return Response(UserProfileSerializer(request.user.profile).data)
 
 
-router = DefaultRouter()
-router.register(r"bookmarks", BookmarkViewSet, basename="bookmark")
-router.register(r"tags", TagViewSet, basename="tag")
-router.register(r"user", UserViewSet, basename="user")
+# DRF routers do not support nested view sets such as /bookmarks/<id>/assets/<id>/
+# Instead create separate routers for each view set and manually register them in urls.py
+# The default router is only used to allow reversing a URL for the API root
+default_router = DefaultRouter()
+
+bookmark_router = SimpleRouter()
+bookmark_router.register("", BookmarkViewSet, basename="bookmark")
+
+tag_router = SimpleRouter()
+tag_router.register("", TagViewSet, basename="tag")
+
+user_router = SimpleRouter()
+user_router.register("", UserViewSet, basename="user")
+
+bookmark_asset_router = SimpleRouter()
+bookmark_asset_router.register("", BookmarkAssetViewSet, basename="bookmark_asset")

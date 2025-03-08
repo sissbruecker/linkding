@@ -7,6 +7,7 @@ This section lists community projects around using linkding, in alphabetical ord
 
 - [aiolinkding](https://github.com/bachya/aiolinkding) A Python3, async library to interact with the linkding REST API. By [bachya](https://github.com/bachya)
 - [cosmicding](https://github.com/vkhitrin/cosmicding) Desktop client built using [libcosmic](https://github.com/pop-os/libcosmic). By [vkhitrin](https://github.com/vkhitrin)
+- [DingDrop](https://github.com/marb08/DingDrop) A Telegram bot that allows you to quickly save bookmarks to your Linkding instance via Telegram using Linkding APIs. By [marb08](https://github.com/marb08)
 - [feed2linkding](https://codeberg.org/strubbl/feed2linkding) A commandline utility to add all web feed item links to linkding via API call. By [Strubbl](https://github.com/Strubbl)
 - [go-linkding](https://github.com/piero-vic/go-linkding) A Go client library to interact with the linkding REST API. By [piero-vic](https://github.com/piero-vic)
 - [Helm Chart](https://charts.pascaliske.dev/charts/linkding/) Helm Chart for deploying linkding inside a Kubernetes cluster. By [pascaliske](https://github.com/pascaliske)
@@ -22,6 +23,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [linkding-reminder](https://github.com/sebw/linkding-reminder) A Python application that will send an email reminder for links with a specific tag. By [sebw](https://github.com/sebw) 
 - [linkding-rs](https://github.com/zbrox/linkding-rs) A Rust client library to interact with the linkding REST API with cross platform support to be easily used in Android or iOS apps. By [zbrox](https://github.com/zbrox)
 - [Linkdy](https://github.com/JGeek00/linkdy): An open-source Android and iOS client created with Flutter. Available on the [Google Play Store](https://play.google.com/store/apps/details?id=com.jgeek00.linkdy) and [App Store](https://apps.apple.com/us/app/linkdy/id6479930976). By [JGeek00](https://github.com/JGeek00).
+- [Linklater](https://github.com/danielyrovas/linklater) An open-source Android client written in Kotlin.
 - [LinkThing](https://apps.apple.com/us/app/linkthing/id1666031776) An iOS client for linkding. By [amoscardino](https://github.com/amoscardino)
 - [Open all links bookmarklet](https://gist.github.com/ukcuddlyguy/336dd7339e6d35fc64a75ccfc9323c66) A browser bookmarklet to open all links on the current Linkding page in new tabs. By [ukcuddlyguy](https://github.com/ukcuddlyguy)
 - [Pinkt](https://github.com/fibelatti/pinboard-kotlin) An Android client for linkding. By [fibelatti](https://github.com/fibelatti)
