@@ -28,6 +28,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Backups', slug: 'backups' },
 						{ label: 'Archiving', slug: 'archiving' },
+						{ label: 'Auto Tagging', slug: 'auto-tagging' },
 						{ label: 'Keyboard Shortcuts', slug: 'shortcuts' },
 						{ label: 'How To', slug: 'how-to' },
 						{ label: 'Troubleshooting', slug: 'troubleshooting' },
