@@ -142,7 +142,7 @@
         input.checked = value;
       }
 
-      function checkUrl(disableCache = false) {
+      function checkUrl() {
         if (!urlInput.value) {
           return;
         }
@@ -150,10 +150,7 @@
         toggleLoadingIcon(urlInput, true);
 
         const websiteUrl = encodeURIComponent(urlInput.value);
-        let requestUrl = `{% url 'bookmarks:api-root' %}bookmarks/check?url=${websiteUrl}`;
-        if (disableCache) {
-            requestUrl += '&disable_cache=true';
-        }
+        const requestUrl = `{% url 'bookmarks:api-root' %}bookmarks/check?url=${websiteUrl}`;
 
         fetch(requestUrl)
           .then(response => response.json())
@@ -163,7 +160,7 @@
 
             // Display hint if URL is already bookmarked
             const existingBookmark = data.bookmark;
-            bookmarkExistsHint.style['display'] = existingBookmark && !disableCache ? 'block' : 'none';
+            bookmarkExistsHint.style['display'] = existingBookmark ? 'block' : 'none';
 
             // Prefill form with existing bookmark data
             if (existingBookmark) {
@@ -171,10 +168,10 @@
               // defer getting the input until we need it
               const tagsInput = document.getElementById('{{ form.tag_string.id_for_label }}');
 
-              {#bookmarkExistsHint.style['display'] = 'block';#}
+              bookmarkExistsHint.style['display'] = 'block';
               notesDetails.open = !!existingBookmark.notes;
-              updateInput(titleInput, disableCache ? metadata.title : existingBookmark.title);
-              updateInput(descriptionInput, disableCache ? metadata.description : existingBookmark.description);
+              updateInput(titleInput, existingBookmark.title);
+              updateInput(descriptionInput, existingBookmark.description);
               updateInput(notesInput, existingBookmark.notes);
               updateInput(tagsInput, existingBookmark.tag_names.join(" "));
               updateCheckbox(unreadCheckbox, existingBookmark.unread);
@@ -200,17 +197,36 @@
             } else {
               autoTagsHint.style['display'] = 'none';
             }
+          });
+      }
 
-            //if (disableCache) {
-            //  titleInput.value = titleInput.placeholder;
-            //}
+      function refreshMetadata() {
+        if (!urlInput.value) {
+          return;
+        }
+
+        toggleLoadingIcon(urlInput, true);
+
+        const websiteUrl = encodeURIComponent(urlInput.value);
+        let requestUrl = `{% url 'bookmarks:api-root' %}bookmarks/check?url=${websiteUrl}&disable_cache=true`;
+
+        fetch(requestUrl)
+          .then(response => response.json())
+          .then(data => {
+            const metadata = data.metadata;
+            toggleLoadingIcon(urlInput, false);
+
+            const existingBookmark = data.bookmark;
+
+            updateInput(titleInput, metadata.title || existingBookmark.title);
+            updateInput(descriptionInput, metadata.description || existingBookmark.description);
           });
       }
 
       // Fetch website metadata when page loads and when URL changes, unless we are editing an existing bookmark
       if (!editedBookmarkId) {
         checkUrl();
-        urlInput.addEventListener('input', () => checkUrl(false));
+        urlInput.addEventListener('input', checkUrl);
         titleInput.addEventListener('input', () => {
           isTitleModified = true;
         });
@@ -218,7 +234,7 @@
           isDescriptionModified = true;
         });
       }
-      refreshButton.addEventListener('click', () => checkUrl(true));
+      refreshButton.addEventListener('click', refreshMetadata);
     })();
   </script>
 </div>
