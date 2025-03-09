@@ -77,6 +77,10 @@ def load_website_metadata(url: str):
         )
 
 
+def clear_metadata_cache():
+    load_website_metadata.cache_clear()
+
+
 CHUNK_SIZE = 50 * 1024
 MAX_CONTENT_LIMIT = 5000 * 1024
 
