@@ -1,5 +1,4 @@
 {% extends 'bookmarks/layout.html' %}
-{% load bookmarks %}
 
 {% block content %}
   <div class="bookmarks-form-page">
@@ -9,7 +8,7 @@
       </div>
       <form action="{% url 'linkding:bookmarks.edit' bookmark_id %}?return_url={{ return_url|urlencode }}" method="post"
             novalidate>
-        {% bookmark_form form return_url bookmark_id %}
+        {% include 'bookmarks/form.html' %}
       </form>
     </section>
   </div>

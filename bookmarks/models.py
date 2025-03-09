@@ -150,56 +150,6 @@ def bookmark_asset_deleted(sender, instance, **kwargs):
                 logger.error(f"Failed to delete asset file: {filepath}", exc_info=error)
 
 
-class BookmarkForm(forms.ModelForm):
-    # Use URLField for URL
-    url = forms.CharField(validators=[BookmarkURLValidator()])
-    tag_string = forms.CharField(required=False)
-    # Do not require title and description as they may be empty
-    title = forms.CharField(max_length=512, required=False)
-    description = forms.CharField(required=False, widget=forms.Textarea())
-    unread = forms.BooleanField(required=False)
-    shared = forms.BooleanField(required=False)
-    # Hidden field that determines whether to close window/tab after saving the bookmark
-    auto_close = forms.CharField(required=False)
-
-    class Meta:
-        model = Bookmark
-        fields = [
-            "url",
-            "tag_string",
-            "title",
-            "description",
-            "notes",
-            "unread",
-            "shared",
-            "auto_close",
-        ]
-
-    @property
-    def has_notes(self):
-        return self.initial.get("notes", None) or (
-            self.instance and self.instance.notes
-        )
-
-    def clean_url(self):
-        # When creating a bookmark, the service logic prevents duplicate URLs by
-        # updating the existing bookmark instead, which is also communicated in
-        # the form's UI. When editing a bookmark, there is no assumption that
-        # it would update a different bookmark if the URL is a duplicate, so
-        # raise a validation error in that case.
-        url = self.cleaned_data["url"]
-        if self.instance.pk:
-            is_duplicate = (
-                Bookmark.objects.filter(owner=self.instance.owner, url=url)
-                .exclude(pk=self.instance.pk)
-                .exists()
-            )
-            if is_duplicate:
-                raise forms.ValidationError("A bookmark with this URL already exists.")
-
-        return url
-
-
 class BookmarkSearch:
     SORT_ADDED_ASC = "added_asc"
     SORT_ADDED_DESC = "added_desc"

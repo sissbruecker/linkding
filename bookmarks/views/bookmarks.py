@@ -12,16 +12,13 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks import queries, utils
+from bookmarks.forms import BookmarkForm
 from bookmarks.models import (
     Bookmark,
-    BookmarkForm,
     BookmarkSearch,
-    build_tag_string,
 )
 from bookmarks.services import assets as asset_actions, tasks
 from bookmarks.services.bookmarks import (
-    create_bookmark,
-    update_bookmark,
     archive_bookmark,
     archive_bookmarks,
     unarchive_bookmark,
@@ -151,37 +148,17 @@ def convert_tag_string(tag_string: str):
 
 @login_required
 def new(request: HttpRequest):
-    initial_auto_close = True if "auto_close" in request.GET else None
-
+    form = BookmarkForm(request)
     if request.method == "POST":
-        form = BookmarkForm(request.POST)
-        auto_close = form.data["auto_close"]
         if form.is_valid():
-            current_user = request.user
-            tag_string = convert_tag_string(form.data["tag_string"])
-            create_bookmark(form.save(commit=False), tag_string, current_user)
-            if auto_close:
+            form.save()
+            if form.is_auto_close:
                 return HttpResponseRedirect(reverse("linkding:bookmarks.close"))
             else:
                 return HttpResponseRedirect(reverse("linkding:bookmarks.index"))
-    else:
-        form = BookmarkForm(
-            initial={
-                "url": request.GET.get("url"),
-                "title": request.GET.get("title"),
-                "description": request.GET.get("description"),
-                "notes": request.GET.get("notes"),
-                "auto_close": initial_auto_close,
-                "unread": request.user_profile.default_mark_unread,
-            }
-        )
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
-    context = {
-        "form": form,
-        "auto_close": initial_auto_close,
-        "return_url": reverse("linkding:bookmarks.index"),
-    }
+    context = {"form": form, "return_url": reverse("linkding:bookmarks.index")}
 
     return render(request, "bookmarks/new.html", context, status=status)
 
@@ -189,20 +166,15 @@ def new(request: HttpRequest):
 @login_required
 def edit(request: HttpRequest, bookmark_id: int):
     bookmark = access.bookmark_write(request, bookmark_id)
+    form = BookmarkForm(request, instance=bookmark)
     return_url = get_safe_return_url(
         request.GET.get("return_url"), reverse("linkding:bookmarks.index")
     )
 
     if request.method == "POST":
-        form = BookmarkForm(request.POST, instance=bookmark)
         if form.is_valid():
-            tag_string = convert_tag_string(form.data["tag_string"])
-            update_bookmark(form.save(commit=False), tag_string, request.user)
+            form.save()
             return HttpResponseRedirect(return_url)
-    else:
-        form = BookmarkForm(instance=bookmark)
-
-    form.fields["tag_string"].initial = build_tag_string(bookmark.tag_names, " ")
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
     context = {"form": form, "bookmark_id": bookmark_id, "return_url": return_url}

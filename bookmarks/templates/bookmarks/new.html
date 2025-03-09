@@ -1,5 +1,4 @@
 {% extends 'bookmarks/layout.html' %}
-{% load bookmarks %}
 
 {% block content %}
   <div class="bookmarks-form-page">
@@ -8,7 +7,7 @@
         <h2>New bookmark</h2>
       </div>
       <form action="{% url 'linkding:bookmarks.new' %}" method="post" novalidate>
-        {% bookmark_form form return_url auto_close=auto_close %}
+        {% include 'bookmarks/form.html' %}
       </form>
     </section>
   </div>

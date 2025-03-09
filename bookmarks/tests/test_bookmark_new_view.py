@@ -147,7 +147,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         html = response.content.decode()
 
         self.assertInHTML(
-            '<input type="hidden" name="auto_close" id="id_auto_close">',
+            '<input type="hidden" name="auto_close" value="False" id="id_auto_close">',
             html,
         )
 
@@ -169,7 +169,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertRedirects(response, reverse("linkding:bookmarks.index"))
 
     def test_auto_close_should_redirect_to_close_view(self):
-        form_data = self.create_form_data({"auto_close": "true"})
+        form_data = self.create_form_data({"auto_close": "True"})
 
         response = self.client.post(reverse("linkding:bookmarks.new"), form_data)
 
