@@ -4,10 +4,10 @@
 
 <ul class="tab tab-block">
     <li class="tab-item {% if request.get_full_path == index_url or request.get_full_path == general_url%}active{% endif %}">
-        <a href="{% url 'linkding:settings.general' %}">General</a>
+        <a href="{{ general_url }}">General</a>
     </li>
     <li class="tab-item {% if request.get_full_path == integrations_url %}active{% endif %}">
-        <a href="{% url 'linkding:settings.integrations' %}">Integrations</a>
+        <a href="{{ integrations_url }}">Integrations</a>
     </li>
     {% if request.user.is_superuser %}
     <li class="tab-item">
