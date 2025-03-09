@@ -4,7 +4,6 @@ from typing import List
 
 import waybackpy
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db.models import Q
 from huey import crontab
@@ -157,7 +156,7 @@ def schedule_bookmarks_without_favicons(user: User):
 
 @task()
 def _schedule_bookmarks_without_favicons_task(user_id: int):
-    user = get_user_model().objects.get(id=user_id)
+    user = User.objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(favicon_file__exact="", owner=user)
 
     # TODO: Implement bulk task creation
@@ -173,7 +172,7 @@ def schedule_refresh_favicons(user: User):
 
 @task()
 def _schedule_refresh_favicons_task(user_id: int):
-    user = get_user_model().objects.get(id=user_id)
+    user = User.objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(owner=user)
 
     # TODO: Implement bulk task creation
@@ -212,7 +211,7 @@ def schedule_bookmarks_without_previews(user: User):
 
 @task()
 def _schedule_bookmarks_without_previews_task(user_id: int):
-    user = get_user_model().objects.get(id=user_id)
+    user = User.objects.get(id=user_id)
     bookmarks = Bookmark.objects.filter(
         Q(preview_image_file__exact=""),
         owner=user,

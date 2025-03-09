@@ -22,13 +22,14 @@ from bookmarks.models import (
 )
 from bookmarks.services import exporter, tasks
 from bookmarks.services import importer
+from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import app_version
 
 logger = logging.getLogger(__name__)
 
 
 @login_required
-def general(request, status=200, context_overrides=None):
+def general(request: HttpRequest, status=200, context_overrides=None):
     enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
     has_snapshot_support = django_settings.LD_ENABLE_SNAPSHOTS
     success_message = _find_message_with_tag(
@@ -65,7 +66,7 @@ def general(request, status=200, context_overrides=None):
 
 
 @login_required
-def update(request):
+def update(request: HttpRequest):
     if request.method == "POST":
         if "update_profile" in request.POST:
             return update_profile(request)
@@ -97,7 +98,7 @@ def update(request):
     return HttpResponseRedirect(reverse("linkding:settings.general"))
 
 
-def update_profile(request):
+def update_profile(request: HttpRequest):
     user = request.user
     profile = user.profile
     favicons_were_enabled = profile.enable_favicons
@@ -195,7 +196,7 @@ def integrations(request):
 
 
 @login_required
-def bookmark_import(request):
+def bookmark_import(request: HttpRequest):
     import_file = request.FILES.get("import_file")
     import_options = importer.ImportOptions(
         map_private_flag=request.POST.get("map_private_flag") == "on"
@@ -230,13 +231,13 @@ def bookmark_import(request):
 
 
 @login_required
-def bookmark_export(request):
+def bookmark_export(request: HttpRequest):
     # noinspection PyBroadException
     try:
         bookmarks = Bookmark.objects.filter(owner=request.user)
         # Prefetch tags to prevent n+1 queries
         prefetch_related_objects(bookmarks, "tags")
-        file_content = exporter.export_netscape_html(bookmarks)
+        file_content = exporter.export_netscape_html(list(bookmarks))
 
         response = HttpResponse(content_type="text/plain; charset=UTF-8")
         response["Content-Disposition"] = 'attachment; filename="bookmarks.html"'

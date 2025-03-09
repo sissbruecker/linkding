@@ -36,12 +36,13 @@ from bookmarks.services.bookmarks import (
     share_bookmarks,
     unshare_bookmarks,
 )
+from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import get_safe_return_url
 from bookmarks.views import contexts, partials, turbo
 
 
 @login_required
-def index(request):
+def index(request: HttpRequest):
     if request.method == "POST":
         return search_action(request)
 
@@ -63,7 +64,7 @@ def index(request):
 
 
 @login_required
-def archived(request):
+def archived(request: HttpRequest):
     if request.method == "POST":
         return search_action(request)
 
@@ -84,7 +85,7 @@ def archived(request):
     )
 
 
-def shared(request):
+def shared(request: HttpRequest):
     if request.method == "POST":
         return search_action(request)
 
@@ -110,7 +111,7 @@ def shared(request):
     )
 
 
-def render_bookmarks_view(request, template_name, context):
+def render_bookmarks_view(request: HttpRequest, template_name, context):
     if turbo.is_frame(request, "details-modal"):
         return render(
             request,
@@ -125,7 +126,7 @@ def render_bookmarks_view(request, template_name, context):
     )
 
 
-def search_action(request):
+def search_action(request: HttpRequest):
     if "save" in request.POST:
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
@@ -151,13 +152,8 @@ def convert_tag_string(tag_string: str):
 
 
 @login_required
-def new(request):
-    initial_url = request.GET.get("url")
-    initial_title = request.GET.get("title")
-    initial_description = request.GET.get("description")
-    initial_notes = request.GET.get("notes")
-    initial_auto_close = "auto_close" in request.GET
-    initial_mark_unread = request.user.profile.default_mark_unread
+def new(request: HttpRequest):
+    initial_auto_close = True if "auto_close" in request.GET else None
 
     if request.method == "POST":
         form = BookmarkForm(request.POST)
@@ -171,19 +167,16 @@ def new(request):
             else:
                 return HttpResponseRedirect(reverse("linkding:bookmarks.index"))
     else:
-        form = BookmarkForm()
-        if initial_url:
-            form.initial["url"] = initial_url
-        if initial_title:
-            form.initial["title"] = initial_title
-        if initial_description:
-            form.initial["description"] = initial_description
-        if initial_notes:
-            form.initial["notes"] = initial_notes
-        if initial_auto_close:
-            form.initial["auto_close"] = "true"
-        if initial_mark_unread:
-            form.initial["unread"] = "true"
+        form = BookmarkForm(
+            initial={
+                "url": request.GET.get("url"),
+                "title": request.GET.get("title"),
+                "description": request.GET.get("description"),
+                "notes": request.GET.get("notes"),
+                "auto_close": initial_auto_close,
+                "unread": request.user_profile.default_mark_unread,
+            }
+        )
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
     context = {
@@ -196,7 +189,7 @@ def new(request):
 
 
 @login_required
-def edit(request, bookmark_id: int):
+def edit(request: HttpRequest, bookmark_id: int):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -214,7 +207,7 @@ def edit(request, bookmark_id: int):
     else:
         form = BookmarkForm(instance=bookmark)
 
-    form.initial["tag_string"] = build_tag_string(bookmark.tag_names, " ")
+    form.fields["tag_string"].initial = build_tag_string(bookmark.tag_names, " ")
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
     context = {"form": form, "bookmark_id": bookmark_id, "return_url": return_url}
@@ -222,7 +215,7 @@ def edit(request, bookmark_id: int):
     return render(request, "bookmarks/edit.html", context, status=status)
 
 
-def remove(request, bookmark_id: int):
+def remove(request: HttpRequest, bookmark_id: int | str):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -231,7 +224,7 @@ def remove(request, bookmark_id: int):
     bookmark.delete()
 
 
-def archive(request, bookmark_id: int):
+def archive(request: HttpRequest, bookmark_id: int | str):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -240,7 +233,7 @@ def archive(request, bookmark_id: int):
     archive_bookmark(bookmark)
 
 
-def unarchive(request, bookmark_id: int):
+def unarchive(request: HttpRequest, bookmark_id: int | str):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -249,7 +242,7 @@ def unarchive(request, bookmark_id: int):
     unarchive_bookmark(bookmark)
 
 
-def unshare(request, bookmark_id: int):
+def unshare(request: HttpRequest, bookmark_id: int | str):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -259,7 +252,7 @@ def unshare(request, bookmark_id: int):
     bookmark.save()
 
 
-def mark_as_read(request, bookmark_id: int):
+def mark_as_read(request: HttpRequest, bookmark_id: int | str):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -269,7 +262,7 @@ def mark_as_read(request, bookmark_id: int):
     bookmark.save()
 
 
-def create_html_snapshot(request, bookmark_id: int):
+def create_html_snapshot(request: HttpRequest, bookmark_id: int | str):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -278,7 +271,7 @@ def create_html_snapshot(request, bookmark_id: int):
     tasks.create_html_snapshot(bookmark)
 
 
-def upload_asset(request, bookmark_id: int):
+def upload_asset(request: HttpRequest, bookmark_id: int | str):
     if settings.LD_DISABLE_ASSET_UPLOAD:
         return HttpResponseForbidden("Asset upload is disabled")
 
@@ -294,7 +287,7 @@ def upload_asset(request, bookmark_id: int):
     asset_actions.upload_asset(bookmark, file)
 
 
-def remove_asset(request, asset_id: int):
+def remove_asset(request: HttpRequest, asset_id: int | str):
     try:
         asset = BookmarkAsset.objects.get(pk=asset_id, bookmark__owner=request.user)
     except BookmarkAsset.DoesNotExist:
@@ -303,7 +296,7 @@ def remove_asset(request, asset_id: int):
     asset.delete()
 
 
-def update_state(request, bookmark_id: int):
+def update_state(request: HttpRequest, bookmark_id: int | str):
     try:
         bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
@@ -316,7 +309,7 @@ def update_state(request, bookmark_id: int):
 
 
 @login_required
-def index_action(request):
+def index_action(request: HttpRequest):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_bookmarks(request.user, request.user_profile, search)
 
@@ -331,7 +324,7 @@ def index_action(request):
 
 
 @login_required
-def archived_action(request):
+def archived_action(request: HttpRequest):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
 
@@ -346,7 +339,7 @@ def archived_action(request):
 
 
 @login_required
-def shared_action(request):
+def shared_action(request: HttpRequest):
     if "bulk_execute" in request.POST:
         return HttpResponseBadRequest("View does not support bulk actions")
 
@@ -360,7 +353,7 @@ def shared_action(request):
     return utils.redirect_with_query(request, reverse("linkding:bookmarks.shared"))
 
 
-def handle_action(request, query: QuerySet[Bookmark] = None):
+def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
     # Single bookmark actions
     if "archive" in request.POST:
         return archive(request, request.POST["archive"])
@@ -421,5 +414,5 @@ def handle_action(request, query: QuerySet[Bookmark] = None):
 
 
 @login_required
-def close(request):
+def close(request: HttpRequest):
     return render(request, "bookmarks/close.html")

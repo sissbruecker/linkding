@@ -22,6 +22,11 @@ class BookmarkListSerializer(ListSerializer):
         return super().to_representation(data)
 
 
+class EmtpyField(serializers.ReadOnlyField):
+    def to_representation(self, value):
+        return None
+
+
 class BookmarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
@@ -62,8 +67,8 @@ class BookmarkSerializer(serializers.ModelSerializer):
     preview_image_url = serializers.SerializerMethodField()
     web_archive_snapshot_url = serializers.SerializerMethodField()
     # Add dummy website title and description fields for backwards compatibility but keep them empty
-    website_title = serializers.SerializerMethodField()
-    website_description = serializers.SerializerMethodField()
+    website_title = EmtpyField()
+    website_description = EmtpyField()
 
     def get_favicon_url(self, obj: Bookmark):
         if not obj.favicon_file:
@@ -86,12 +91,6 @@ class BookmarkSerializer(serializers.ModelSerializer):
             return obj.web_archive_snapshot_url
 
         return generate_fallback_webarchive_url(obj.url, obj.date_added)
-
-    def get_website_title(self, obj: Bookmark):
-        return None
-
-    def get_website_description(self, obj: Bookmark):
-        return None
 
     def create(self, validated_data):
         tag_names = validated_data.pop("tag_names", [])
@@ -185,9 +184,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "search_preferences",
             "version",
         ]
-        read_only_fields = ["version"]
 
-    version = serializers.SerializerMethodField()
-
-    def get_version(self, obj: UserProfile):
-        return app_version
+    version = serializers.ReadOnlyField(default=app_version)

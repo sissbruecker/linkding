@@ -3,7 +3,6 @@ import urllib.parse
 from typing import Set, List
 
 from django.conf import settings
-from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator
 from django.db import models
 from django.http import Http404
@@ -20,6 +19,7 @@ from bookmarks.models import (
     Tag,
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
+from bookmarks.type_defs import HttpRequest
 
 CJK_RE = re.compile(r"[\u4e00-\u9fff]+")
 
@@ -28,7 +28,7 @@ class RequestContext:
     index_view = "linkding:bookmarks.index"
     action_view = "linkding:bookmarks.index.action"
 
-    def __init__(self, request: WSGIRequest):
+    def __init__(self, request: HttpRequest):
         self.request = request
         self.index_url = reverse(self.index_view)
         self.action_url = reverse(self.action_view)
@@ -168,7 +168,7 @@ class BookmarkItem:
 class BookmarkListContext:
     request_context = RequestContext
 
-    def __init__(self, request: WSGIRequest) -> None:
+    def __init__(self, request: HttpRequest) -> None:
         request_context = self.request_context(request)
         user = request.user
         user_profile = request.user_profile
@@ -305,7 +305,7 @@ class TagGroup:
 class TagCloudContext:
     request_context = RequestContext
 
-    def __init__(self, request: WSGIRequest) -> None:
+    def __init__(self, request: HttpRequest) -> None:
         request_context = self.request_context(request)
         user_profile = request.user_profile
 
@@ -381,7 +381,7 @@ class BookmarkAssetItem:
 class BookmarkDetailsContext:
     request_context = RequestContext
 
-    def __init__(self, request: WSGIRequest, bookmark: Bookmark):
+    def __init__(self, request: HttpRequest, bookmark: Bookmark):
         request_context = self.request_context(request)
 
         user = request.user
@@ -437,7 +437,7 @@ class SharedBookmarkDetailsContext(BookmarkDetailsContext):
 
 
 def get_details_context(
-    request: WSGIRequest, context_type
+    request: HttpRequest, context_type
 ) -> BookmarkDetailsContext | None:
     bookmark_id = request.GET.get("details")
     if not bookmark_id:

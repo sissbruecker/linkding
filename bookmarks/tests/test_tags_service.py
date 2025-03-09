@@ -1,21 +1,17 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks.models import Tag
 from bookmarks.services.tags import get_or_create_tag, get_or_create_tags
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
-User = get_user_model()
 
-
-class TagServiceTestCase(TestCase):
+class TagServiceTestCase(TestCase, BookmarkFactoryMixin):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(
-            "testuser", "test@example.com", "password123"
-        )
+        self.get_or_create_test_user()
 
     def test_get_or_create_tag_should_create_new_tag(self):
         get_or_create_tag("Book", self.user)

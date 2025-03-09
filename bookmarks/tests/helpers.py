@@ -10,7 +10,6 @@ from unittest import TestCase
 
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.test import override_settings
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -18,7 +17,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from bookmarks.models import Bookmark, BookmarkAsset, Tag
+from bookmarks.models import Bookmark, BookmarkAsset, Tag, User
 
 
 class BookmarkFactoryMixin:

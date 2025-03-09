@@ -19,6 +19,7 @@ from bookmarks.api.serializers import (
 )
 from bookmarks.models import Bookmark, BookmarkAsset, BookmarkSearch, Tag, User
 from bookmarks.services import assets, bookmarks, auto_tagging, website_loader
+from bookmarks.type_defs import HttpRequest
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ class BookmarkViewSet(
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
 ):
+    request: HttpRequest
     serializer_class = BookmarkSerializer
 
     def get_permissions(self):
@@ -73,27 +75,27 @@ class BookmarkViewSet(
         }
 
     @action(methods=["get"], detail=False)
-    def archived(self, request):
+    def archived(self, request: HttpRequest):
         return self.list(request)
 
     @action(methods=["get"], detail=False)
-    def shared(self, request):
+    def shared(self, request: HttpRequest):
         return self.list(request)
 
     @action(methods=["post"], detail=True)
-    def archive(self, request, pk):
+    def archive(self, request: HttpRequest, pk):
         bookmark = self.get_object()
         bookmarks.archive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["post"], detail=True)
-    def unarchive(self, request, pk):
+    def unarchive(self, request: HttpRequest, pk):
         bookmark = self.get_object()
         bookmarks.unarchive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["get"], detail=False)
-    def check(self, request):
+    def check(self, request: HttpRequest):
         url = request.GET.get("url")
         bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
         existing_bookmark_data = (
@@ -124,13 +126,13 @@ class BookmarkViewSet(
         )
 
     @action(methods=["post"], detail=False)
-    def singlefile(self, request):
+    def singlefile(self, request: HttpRequest):
         if settings.LD_DISABLE_ASSET_UPLOAD:
             return Response(
                 {"error": "Asset upload is disabled."},
                 status=status.HTTP_403_FORBIDDEN,
             )
-        url = request.data.get("url")
+        url = request.POST.get("url")
         file = request.FILES.get("file")
 
         if not url or not file:
@@ -162,6 +164,7 @@ class BookmarkAssetViewSet(
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
 ):
+    request: HttpRequest
     serializer_class = BookmarkAssetSerializer
 
     def get_queryset(self):
@@ -177,7 +180,7 @@ class BookmarkAssetViewSet(
         return {"user": self.request.user}
 
     @action(detail=True, methods=["get"], url_path="download")
-    def download(self, request, bookmark_id, pk):
+    def download(self, request: HttpRequest, bookmark_id, pk):
         asset = self.get_object()
         try:
             file_path = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
@@ -205,7 +208,7 @@ class BookmarkAssetViewSet(
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(methods=["post"], detail=False)
-    def upload(self, request, bookmark_id):
+    def upload(self, request: HttpRequest, bookmark_id):
         if settings.LD_DISABLE_ASSET_UPLOAD:
             return Response(
                 {"error": "Asset upload is disabled."},
@@ -242,6 +245,7 @@ class TagViewSet(
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
 ):
+    request: HttpRequest
     serializer_class = TagSerializer
 
     def get_queryset(self):
@@ -254,7 +258,7 @@ class TagViewSet(
 
 class UserViewSet(viewsets.GenericViewSet):
     @action(methods=["get"], detail=False)
-    def profile(self, request):
+    def profile(self, request: HttpRequest):
         return Response(UserProfileSerializer(request.user.profile).data)
 
 

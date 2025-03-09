@@ -1,6 +1,5 @@
-from bookmarks import queries
-from bookmarks.models import BookmarkSearch, Toast
 from bookmarks import utils
+from bookmarks.models import Toast
 
 
 def toasts(request):

@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
@@ -24,8 +23,6 @@ from bookmarks.services.bookmarks import (
     enhance_with_website_metadata,
 )
 from bookmarks.tests.helpers import BookmarkFactoryMixin
-
-User = get_user_model()
 
 
 class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
@@ -270,9 +267,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(Bookmark.objects.get(id=bookmark3.id).is_archived)
 
     def test_archive_bookmarks_should_only_archive_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()
         inaccessible_bookmark = self.setup_bookmark(user=other_user)
@@ -327,9 +322,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertFalse(Bookmark.objects.get(id=bookmark3.id).is_archived)
 
     def test_unarchive_bookmarks_should_only_unarchive_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         bookmark1 = self.setup_bookmark(is_archived=True)
         bookmark2 = self.setup_bookmark(is_archived=True)
         inaccessible_bookmark = self.setup_bookmark(is_archived=True, user=other_user)
@@ -382,9 +375,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertIsNone(Bookmark.objects.filter(id=bookmark3.id).first())
 
     def test_delete_bookmarks_should_only_delete_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()
         inaccessible_bookmark = self.setup_bookmark(user=other_user)
@@ -508,9 +499,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertCountEqual(bookmark3.tags.all(), [tag1, tag2])
 
     def test_tag_bookmarks_should_only_tag_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()
         inaccessible_bookmark = self.setup_bookmark(user=other_user)
@@ -591,9 +580,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertCountEqual(bookmark3.tags.all(), [])
 
     def test_untag_bookmarks_should_only_tag_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         tag1 = self.setup_tag()
         tag2 = self.setup_tag()
         bookmark1 = self.setup_bookmark(tags=[tag1, tag2])
@@ -658,9 +645,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertFalse(Bookmark.objects.get(id=bookmark3.id).unread)
 
     def test_mark_bookmarks_as_read_should_only_update_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         bookmark1 = self.setup_bookmark(unread=True)
         bookmark2 = self.setup_bookmark(unread=True)
         inaccessible_bookmark = self.setup_bookmark(unread=True, user=other_user)
@@ -715,9 +700,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(Bookmark.objects.get(id=bookmark3.id).unread)
 
     def test_mark_bookmarks_as_unread_should_only_update_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         bookmark1 = self.setup_bookmark(unread=False)
         bookmark2 = self.setup_bookmark(unread=False)
         inaccessible_bookmark = self.setup_bookmark(unread=False, user=other_user)
@@ -770,9 +753,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(Bookmark.objects.get(id=bookmark3.id).shared)
 
     def test_share_bookmarks_should_only_update_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         bookmark1 = self.setup_bookmark(shared=False)
         bookmark2 = self.setup_bookmark(shared=False)
         inaccessible_bookmark = self.setup_bookmark(shared=False, user=other_user)
@@ -825,9 +806,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertFalse(Bookmark.objects.get(id=bookmark3.id).shared)
 
     def test_unshare_bookmarks_should_only_update_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         bookmark1 = self.setup_bookmark(shared=True)
         bookmark2 = self.setup_bookmark(shared=True)
         inaccessible_bookmark = self.setup_bookmark(shared=True, user=other_user)

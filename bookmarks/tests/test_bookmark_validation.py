@@ -1,12 +1,10 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
 from bookmarks.models import BookmarkForm, Bookmark
-
-User = get_user_model()
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 ENABLED_URL_VALIDATION_TEST_CASES = [
     ("thisisnotavalidurl", False),
@@ -29,12 +27,10 @@ DISABLED_URL_VALIDATION_TEST_CASES = [
 ]
 
 
-class BookmarkValidationTestCase(TestCase):
+class BookmarkValidationTestCase(TestCase, BookmarkFactoryMixin):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(
-            "testuser", "test@example.com", "password123"
-        )
+        self.get_or_create_test_user()
 
     def test_bookmark_model_should_not_allow_missing_url(self):
         bookmark = Bookmark(

@@ -138,8 +138,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         html = response.content.decode()
 
         self.assertInHTML(
-            '<input type="hidden" name="auto_close" value="true" '
-            'id="id_auto_close">',
+            '<input type="hidden" name="auto_close" value="True" id="id_auto_close">',
             html,
         )
 
@@ -148,7 +147,8 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         html = response.content.decode()
 
         self.assertInHTML(
-            '<input type="hidden" name="auto_close" id="id_auto_close">', html
+            '<input type="hidden" name="auto_close" id="id_auto_close">',
+            html,
         )
 
     def test_should_redirect_to_index_view(self):
@@ -264,7 +264,6 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
         html = response.content.decode()
 
         self.assertInHTML(
-            '<input type="checkbox" name="unread" value="true" '
-            'id="id_unread" checked="">',
+            '<input type="checkbox" name="unread" id="id_unread" checked="">',
             html,
         )

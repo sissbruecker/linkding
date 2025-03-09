@@ -1,10 +1,9 @@
 import logging
 from typing import Union
 
-from django.contrib.auth.models import User
 from django.utils import timezone
 
-from bookmarks.models import Bookmark, parse_tag_string
+from bookmarks.models import Bookmark, User, parse_tag_string
 from bookmarks.services import auto_tagging
 from bookmarks.services import tasks
 from bookmarks.services import website_loader
