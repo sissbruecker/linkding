@@ -20,6 +20,7 @@ from bookmarks.api.serializers import (
 from bookmarks.models import Bookmark, BookmarkAsset, BookmarkSearch, Tag, User
 from bookmarks.services import assets, bookmarks, auto_tagging, website_loader
 from bookmarks.type_defs import HttpRequest
+from bookmarks.views import access
 
 logger = logging.getLogger(__name__)
 
@@ -169,11 +170,10 @@ class BookmarkAssetViewSet(
 
     def get_queryset(self):
         user = self.request.user
-        bookmark_id = self.kwargs["bookmark_id"]
-        if not Bookmark.objects.filter(id=bookmark_id, owner=user).exists():
-            raise Http404("Bookmark does not exist")
+        # limit access to assets to the owner of the bookmark for now
+        bookmark = access.bookmark_write(self.request, self.kwargs["bookmark_id"])
         return BookmarkAsset.objects.filter(
-            bookmark_id=bookmark_id, bookmark__owner=user
+            bookmark_id=bookmark.id, bookmark__owner=user
         )
 
     def get_serializer_context(self):
@@ -214,9 +214,7 @@ class BookmarkAssetViewSet(
                 {"error": "Asset upload is disabled."},
                 status=status.HTTP_403_FORBIDDEN,
             )
-        bookmark = Bookmark.objects.filter(id=bookmark_id, owner=request.user).first()
-        if not bookmark:
-            raise Http404("Bookmark does not exist")
+        bookmark = access.bookmark_write(request, bookmark_id)
 
         upload_file = request.FILES.get("file")
         if not upload_file:

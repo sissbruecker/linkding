@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
 from django.http import (
     HttpResponseRedirect,
-    Http404,
     HttpResponseBadRequest,
     HttpResponseForbidden,
 )
@@ -15,7 +14,6 @@ from django.urls import reverse
 from bookmarks import queries, utils
 from bookmarks.models import (
     Bookmark,
-    BookmarkAsset,
     BookmarkForm,
     BookmarkSearch,
     build_tag_string,
@@ -38,7 +36,7 @@ from bookmarks.services.bookmarks import (
 )
 from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import get_safe_return_url
-from bookmarks.views import contexts, partials, turbo
+from bookmarks.views import access, contexts, partials, turbo
 
 
 @login_required
@@ -190,10 +188,7 @@ def new(request: HttpRequest):
 
 @login_required
 def edit(request: HttpRequest, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
+    bookmark = access.bookmark_write(request, bookmark_id)
     return_url = get_safe_return_url(
         request.GET.get("return_url"), reverse("linkding:bookmarks.index")
     )
@@ -216,58 +211,34 @@ def edit(request: HttpRequest, bookmark_id: int):
 
 
 def remove(request: HttpRequest, bookmark_id: int | str):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+    bookmark = access.bookmark_write(request, bookmark_id)
     bookmark.delete()
 
 
 def archive(request: HttpRequest, bookmark_id: int | str):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+    bookmark = access.bookmark_write(request, bookmark_id)
     archive_bookmark(bookmark)
 
 
 def unarchive(request: HttpRequest, bookmark_id: int | str):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+    bookmark = access.bookmark_write(request, bookmark_id)
     unarchive_bookmark(bookmark)
 
 
 def unshare(request: HttpRequest, bookmark_id: int | str):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+    bookmark = access.bookmark_write(request, bookmark_id)
     bookmark.shared = False
     bookmark.save()
 
 
 def mark_as_read(request: HttpRequest, bookmark_id: int | str):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+    bookmark = access.bookmark_write(request, bookmark_id)
     bookmark.unread = False
     bookmark.save()
 
 
 def create_html_snapshot(request: HttpRequest, bookmark_id: int | str):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+    bookmark = access.bookmark_write(request, bookmark_id)
     tasks.create_html_snapshot(bookmark)
 
 
@@ -275,11 +246,7 @@ def upload_asset(request: HttpRequest, bookmark_id: int | str):
     if settings.LD_DISABLE_ASSET_UPLOAD:
         return HttpResponseForbidden("Asset upload is disabled")
 
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+    bookmark = access.bookmark_write(request, bookmark_id)
     file = request.FILES.get("upload_asset_file")
     if not file:
         return HttpResponseBadRequest("No file provided")
@@ -288,20 +255,12 @@ def upload_asset(request: HttpRequest, bookmark_id: int | str):
 
 
 def remove_asset(request: HttpRequest, asset_id: int | str):
-    try:
-        asset = BookmarkAsset.objects.get(pk=asset_id, bookmark__owner=request.user)
-    except BookmarkAsset.DoesNotExist:
-        raise Http404("Asset does not exist")
-
+    asset = access.asset_write(request, asset_id)
     asset.delete()
 
 
 def update_state(request: HttpRequest, bookmark_id: int | str):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+    bookmark = access.bookmark_write(request, bookmark_id)
     bookmark.is_archived = request.POST.get("is_archived") == "on"
     bookmark.unread = request.POST.get("unread") == "on"
     bookmark.shared = request.POST.get("shared") == "on"

@@ -20,6 +20,7 @@ from bookmarks.models import (
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.type_defs import HttpRequest
+from bookmarks.views import access
 
 CJK_RE = re.compile(r"[\u4e00-\u9fff]+")
 
@@ -444,22 +445,10 @@ def get_details_context(
         return None
 
     try:
-        bookmark = Bookmark.objects.get(pk=int(bookmark_id))
-    except Bookmark.DoesNotExist:
+        bookmark = access.bookmark_read(request, bookmark_id)
+    except Http404:
         # just ignore, might end up in a situation where the bookmark was deleted
         # in between navigating back and forth
         return None
-
-    is_owner = bookmark.owner == request.user
-    is_shared = (
-        request.user.is_authenticated
-        and bookmark.shared
-        and bookmark.owner.profile.enable_sharing
-    )
-    is_public_shared = bookmark.shared and bookmark.owner.profile.enable_public_sharing
-    if not is_owner and not is_shared and not is_public_shared:
-        raise Http404("Bookmark does not exist")
-    if request.method == "POST" and not is_owner:
-        raise Http404("Bookmark does not exist")
 
     return context_type(request, bookmark)
