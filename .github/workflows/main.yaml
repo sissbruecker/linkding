@@ -55,4 +55,4 @@ jobs:
           npm run build
           python manage.py collectstatic
       - name: Run tests
-        run: python manage.py test bookmarks.e2e --pattern="e2e_test_*.py"
+        run: python manage.py test bookmarks.tests_e2e --pattern="e2e_test_*.py"
