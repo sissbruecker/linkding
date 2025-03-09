@@ -31,7 +31,7 @@ class BookmarkIndexViewPerformanceTestCase(
         # capture number of queries
         context = CaptureQueriesContext(self.get_connection())
         with context:
-            response = self.client.get(reverse("bookmarks:index"))
+            response = self.client.get(reverse("linkding:bookmarks.index"))
             html = response.content.decode("utf-8")
             soup = self.make_soup(html)
             list_items = soup.select("li[ld-bookmark-item]")
@@ -46,7 +46,7 @@ class BookmarkIndexViewPerformanceTestCase(
 
         # assert num queries doesn't increase
         with self.assertNumQueries(number_of_queries):
-            response = self.client.get(reverse("bookmarks:index"))
+            response = self.client.get(reverse("linkding:bookmarks.index"))
             html = response.content.decode("utf-8")
             soup = self.make_soup(html)
             list_items = soup.select("li[ld-bookmark-item]")

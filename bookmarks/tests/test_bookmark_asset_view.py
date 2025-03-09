@@ -117,13 +117,13 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
 
     def test_view_access(self):
-        self.view_access_test("bookmarks:assets.view")
+        self.view_access_test("linkding:assets.view")
 
     def test_view_access_guest_user(self):
-        self.view_access_guest_user_test("bookmarks:assets.view")
+        self.view_access_guest_user_test("linkding:assets.view")
 
     def test_reader_view_access(self):
-        self.view_access_test("bookmarks:assets.read")
+        self.view_access_test("linkding:assets.read")
 
     def test_reader_view_access_guest_user(self):
-        self.view_access_guest_user_test("bookmarks:assets.read")
+        self.view_access_guest_user_test("linkding:assets.read")

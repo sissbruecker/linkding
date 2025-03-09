@@ -46,7 +46,7 @@ class BookmarkArchivedViewTestCase(
             self.setup_bookmark(is_archived=True, user=other_user),
         ]
 
-        response = self.client.get(reverse("bookmarks:archived"))
+        response = self.client.get(reverse("linkding:bookmarks.archived"))
 
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
@@ -59,7 +59,7 @@ class BookmarkArchivedViewTestCase(
             3, prefix="bar", archived=True
         )
 
-        response = self.client.get(reverse("bookmarks:archived") + "?q=foo")
+        response = self.client.get(reverse("linkding:bookmarks.archived") + "?q=foo")
         html = collapse_whitespace(response.content.decode())
 
         self.assertVisibleBookmarks(response, visible_bookmarks)
@@ -84,7 +84,7 @@ class BookmarkArchivedViewTestCase(
             unarchived_bookmarks + other_user_bookmarks
         )
 
-        response = self.client.get(reverse("bookmarks:archived"))
+        response = self.client.get(reverse("linkding:bookmarks.archived"))
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)
@@ -100,7 +100,7 @@ class BookmarkArchivedViewTestCase(
         visible_tags = self.get_tags_from_bookmarks(visible_bookmarks)
         invisible_tags = self.get_tags_from_bookmarks(invisible_bookmarks)
 
-        response = self.client.get(reverse("bookmarks:archived") + "?q=foo")
+        response = self.client.get(reverse("linkding:bookmarks.archived") + "?q=foo")
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)
@@ -132,7 +132,7 @@ class BookmarkArchivedViewTestCase(
         unread_tags = self.get_tags_from_bookmarks(unread_bookmarks)
         read_tags = self.get_tags_from_bookmarks(read_bookmarks)
 
-        response = self.client.get(reverse("bookmarks:archived"))
+        response = self.client.get(reverse("linkding:bookmarks.archived"))
         self.assertVisibleBookmarks(response, unread_bookmarks)
         self.assertInvisibleBookmarks(response, read_bookmarks)
         self.assertVisibleTags(response, unread_tags)
@@ -149,7 +149,8 @@ class BookmarkArchivedViewTestCase(
         self.setup_bookmark(is_archived=True, tags=tags)
 
         response = self.client.get(
-            reverse("bookmarks:archived") + f"?q=%23{tags[0].name}+%23{tags[1].name}"
+            reverse("linkding:bookmarks.archived")
+            + f"?q=%23{tags[0].name}+%23{tags[1].name}"
         )
 
         self.assertSelectedTags(response, [tags[0], tags[1]])
@@ -167,7 +168,7 @@ class BookmarkArchivedViewTestCase(
         self.setup_bookmark(title=tags[0].name, tags=tags, is_archived=True)
 
         response = self.client.get(
-            reverse("bookmarks:archived")
+            reverse("linkding:bookmarks.archived")
             + f"?q={tags[0].name}+%23{tags[1].name.upper()}"
         )
 
@@ -187,7 +188,7 @@ class BookmarkArchivedViewTestCase(
         self.setup_bookmark(tags=tags, is_archived=True)
 
         response = self.client.get(
-            reverse("bookmarks:archived")
+            reverse("linkding:bookmarks.archived")
             + f"?q={tags[0].name}+%23{tags[1].name.upper()}"
         )
 
@@ -196,7 +197,7 @@ class BookmarkArchivedViewTestCase(
     def test_should_open_bookmarks_in_new_page_by_default(self):
         visible_bookmarks = self.setup_numbered_bookmarks(3, archived=True)
 
-        response = self.client.get(reverse("bookmarks:archived"))
+        response = self.client.get(reverse("linkding:bookmarks.archived"))
 
         self.assertVisibleBookmarks(response, visible_bookmarks, "_blank")
 
@@ -207,14 +208,14 @@ class BookmarkArchivedViewTestCase(
 
         visible_bookmarks = self.setup_numbered_bookmarks(3, archived=True)
 
-        response = self.client.get(reverse("bookmarks:archived"))
+        response = self.client.get(reverse("linkding:bookmarks.archived"))
 
         self.assertVisibleBookmarks(response, visible_bookmarks, "_self")
 
     def test_edit_link_return_url_respects_search_options(self):
         bookmark = self.setup_bookmark(title="foo", is_archived=True)
-        edit_url = reverse("bookmarks:edit", args=[bookmark.id])
-        base_url = reverse("bookmarks:archived")
+        edit_url = reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        base_url = reverse("linkding:bookmarks.archived")
 
         # without query params
         return_url = urllib.parse.quote(base_url)
@@ -240,8 +241,8 @@ class BookmarkArchivedViewTestCase(
         self.assertEditLink(response, url)
 
     def test_bulk_edit_respects_search_options(self):
-        action_url = reverse("bookmarks:archived.action")
-        base_url = reverse("bookmarks:archived")
+        action_url = reverse("linkding:bookmarks.archived.action")
+        base_url = reverse("linkding:bookmarks.archived")
 
         # without params
         url = f"{action_url}"
@@ -264,7 +265,7 @@ class BookmarkArchivedViewTestCase(
         self.assertBulkActionForm(response, url)
 
     def test_allowed_bulk_actions(self):
-        url = reverse("bookmarks:archived")
+        url = reverse("linkding:bookmarks.archived")
         response = self.client.get(url)
         html = response.content.decode()
 
@@ -287,7 +288,7 @@ class BookmarkArchivedViewTestCase(
         user_profile.enable_sharing = True
         user_profile.save()
 
-        url = reverse("bookmarks:archived")
+        url = reverse("linkding:bookmarks.archived")
         response = self.client.get(url)
         html = response.content.decode()
 
@@ -309,13 +310,13 @@ class BookmarkArchivedViewTestCase(
 
     def test_apply_search_preferences(self):
         # no params
-        response = self.client.post(reverse("bookmarks:archived"))
+        response = self.client.post(reverse("linkding:bookmarks.archived"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("bookmarks:archived"))
+        self.assertEqual(response.url, reverse("linkding:bookmarks.archived"))
 
         # some params
         response = self.client.post(
-            reverse("bookmarks:archived"),
+            reverse("linkding:bookmarks.archived"),
             {
                 "q": "foo",
                 "sort": BookmarkSearch.SORT_TITLE_ASC,
@@ -323,12 +324,13 @@ class BookmarkArchivedViewTestCase(
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.url, reverse("bookmarks:archived") + "?q=foo&sort=title_asc"
+            response.url,
+            reverse("linkding:bookmarks.archived") + "?q=foo&sort=title_asc",
         )
 
         # params with default value are removed
         response = self.client.post(
-            reverse("bookmarks:archived"),
+            reverse("linkding:bookmarks.archived"),
             {
                 "q": "foo",
                 "user": "",
@@ -339,12 +341,12 @@ class BookmarkArchivedViewTestCase(
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.url, reverse("bookmarks:archived") + "?q=foo&unread=yes"
+            response.url, reverse("linkding:bookmarks.archived") + "?q=foo&unread=yes"
         )
 
         # page is removed
         response = self.client.post(
-            reverse("bookmarks:archived"),
+            reverse("linkding:bookmarks.archived"),
             {
                 "q": "foo",
                 "page": "2",
@@ -353,7 +355,8 @@ class BookmarkArchivedViewTestCase(
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.url, reverse("bookmarks:archived") + "?q=foo&sort=title_asc"
+            response.url,
+            reverse("linkding:bookmarks.archived") + "?q=foo&sort=title_asc",
         )
 
     def test_save_search_preferences(self):
@@ -361,7 +364,7 @@ class BookmarkArchivedViewTestCase(
 
         # no params
         self.client.post(
-            reverse("bookmarks:archived"),
+            reverse("linkding:bookmarks.archived"),
             {
                 "save": "",
             },
@@ -378,7 +381,7 @@ class BookmarkArchivedViewTestCase(
 
         # with param
         self.client.post(
-            reverse("bookmarks:archived"),
+            reverse("linkding:bookmarks.archived"),
             {
                 "save": "",
                 "sort": BookmarkSearch.SORT_TITLE_ASC,
@@ -396,7 +399,7 @@ class BookmarkArchivedViewTestCase(
 
         # add a param
         self.client.post(
-            reverse("bookmarks:archived"),
+            reverse("linkding:bookmarks.archived"),
             {
                 "save": "",
                 "sort": BookmarkSearch.SORT_TITLE_ASC,
@@ -415,7 +418,7 @@ class BookmarkArchivedViewTestCase(
 
         # remove a param
         self.client.post(
-            reverse("bookmarks:archived"),
+            reverse("linkding:bookmarks.archived"),
             {
                 "save": "",
                 "unread": BookmarkSearch.FILTER_UNREAD_YES,
@@ -433,7 +436,7 @@ class BookmarkArchivedViewTestCase(
 
         # ignores non-preferences
         self.client.post(
-            reverse("bookmarks:archived"),
+            reverse("linkding:bookmarks.archived"),
             {
                 "save": "",
                 "q": "foo",
@@ -453,7 +456,7 @@ class BookmarkArchivedViewTestCase(
         )
 
     def test_url_encode_bookmark_actions_url(self):
-        url = reverse("bookmarks:archived") + "?q=%23foo"
+        url = reverse("linkding:bookmarks.archived") + "?q=%23foo"
         response = self.client.get(url)
         html = response.content.decode()
         soup = self.make_soup(html)
@@ -467,34 +470,34 @@ class BookmarkArchivedViewTestCase(
     def test_encode_search_params(self):
         bookmark = self.setup_bookmark(description="alert('xss')", is_archived=True)
 
-        url = reverse("bookmarks:archived") + "?q=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.archived") + "?q=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
         self.assertContains(response, bookmark.url)
 
-        url = reverse("bookmarks:archived") + "?sort=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.archived") + "?sort=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
-        url = reverse("bookmarks:archived") + "?unread=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.archived") + "?unread=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
-        url = reverse("bookmarks:archived") + "?shared=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.archived") + "?shared=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
-        url = reverse("bookmarks:archived") + "?user=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.archived") + "?user=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
-        url = reverse("bookmarks:archived") + "?page=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.archived") + "?page=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
     def test_turbo_frame_details_modal_renders_details_modal_update(self):
         bookmark = self.setup_bookmark()
-        url = reverse("bookmarks:archived") + f"?bookmark_id={bookmark.id}"
+        url = reverse("linkding:bookmarks.archived") + f"?bookmark_id={bookmark.id}"
         response = self.client.get(url, headers={"Turbo-Frame": "details-modal"})
 
         self.assertEqual(200, response.status_code)
@@ -505,7 +508,7 @@ class BookmarkArchivedViewTestCase(
         self.assertIsNone(soup.select_one("#tag-cloud-container"))
 
     def test_does_not_include_rss_feed(self):
-        response = self.client.get(reverse("bookmarks:archived"))
+        response = self.client.get(reverse("linkding:bookmarks.archived"))
         soup = self.make_soup(response.content.decode())
 
         feed = soup.select_one('head link[type="application/rss+xml"]')

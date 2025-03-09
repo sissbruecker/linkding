@@ -2,7 +2,7 @@
 
 <!DOCTYPE html>
 {# Use data attributes as storage for access in static scripts #}
-<html lang="en" data-api-base-url="{% url 'bookmarks:api-root' %}">
+<html lang="en" data-api-base-url="{% url 'linkding:api-root' %}">
 {% include 'bookmarks/head.html' %}
 <body ld-global-shortcuts>
 
@@ -68,7 +68,7 @@
 <header class="container">
   {% if has_toasts %}
     <div class="toasts">
-      <form action="{% url 'bookmarks:toasts.acknowledge' %}?return_url={{ request.path | urlencode }}" method="post">
+      <form action="{% url 'linkding:toasts.acknowledge' %}?return_url={{ request.path | urlencode }}" method="post">
         {% csrf_token %}
         {% for toast in toast_messages %}
           <div class="toast d-flex">
@@ -80,7 +80,7 @@
     </div>
   {% endif %}
   <div class="d-flex justify-between">
-    <a href="{% url 'bookmarks:root' %}" class="d-flex align-center">
+    <a href="{% url 'linkding:root' %}" class="d-flex align-center">
       <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
       <h1>LINKDING</h1>
     </a>

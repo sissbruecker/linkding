@@ -71,24 +71,24 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
 
     def test_should_render_successfully(self):
-        response = self.client.get(reverse("bookmarks:settings.general"))
+        response = self.client.get(reverse("linkding:settings.general"))
 
         self.assertEqual(response.status_code, 200)
 
     def test_should_check_authentication(self):
         self.client.logout()
-        response = self.client.get(reverse("bookmarks:settings.general"), follow=True)
+        response = self.client.get(reverse("linkding:settings.general"), follow=True)
 
         self.assertRedirects(
             response,
-            reverse("login") + "?next=" + reverse("bookmarks:settings.general"),
+            reverse("login") + "?next=" + reverse("linkding:settings.general"),
         )
 
-        response = self.client.get(reverse("bookmarks:settings.update"), follow=True)
+        response = self.client.get(reverse("linkding:settings.update"), follow=True)
 
         self.assertRedirects(
             response,
-            reverse("login") + "?next=" + reverse("bookmarks:settings.update"),
+            reverse("login") + "?next=" + reverse("linkding:settings.update"),
         )
 
     def test_update_profile(self):
@@ -121,7 +121,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "collapse_side_panel": True,
         }
         response = self.client.post(
-            reverse("bookmarks:settings.update"), form_data, follow=True
+            reverse("linkding:settings.update"), form_data, follow=True
         )
         html = response.content.decode()
 
@@ -204,7 +204,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_update_profile_with_invalid_form_returns_422(self):
         form_data = self.create_profile_form_data({"items_per_page": "-1"})
-        response = self.client.post(reverse("bookmarks:settings.update"), form_data)
+        response = self.client.post(reverse("linkding:settings.update"), form_data)
 
         self.assertEqual(response.status_code, 422)
 
@@ -213,7 +213,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "theme": UserProfile.THEME_DARK,
         }
         response = self.client.post(
-            reverse("bookmarks:settings.update"), form_data, follow=True
+            reverse("linkding:settings.update"), form_data, follow=True
         )
         html = response.content.decode()
 
@@ -229,21 +229,21 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
                 "custom_css": "body { background-color: #000; }",
             }
         )
-        self.client.post(reverse("bookmarks:settings.update"), form_data, follow=True)
+        self.client.post(reverse("linkding:settings.update"), form_data, follow=True)
         self.user.profile.refresh_from_db()
 
         expected_hash = hashlib.md5(form_data["custom_css"].encode("utf-8")).hexdigest()
         self.assertEqual(expected_hash, self.user.profile.custom_css_hash)
 
         form_data["custom_css"] = "body { background-color: #fff; }"
-        self.client.post(reverse("bookmarks:settings.update"), form_data, follow=True)
+        self.client.post(reverse("linkding:settings.update"), form_data, follow=True)
         self.user.profile.refresh_from_db()
 
         expected_hash = hashlib.md5(form_data["custom_css"].encode("utf-8")).hexdigest()
         self.assertEqual(expected_hash, self.user.profile.custom_css_hash)
 
         form_data["custom_css"] = ""
-        self.client.post(reverse("bookmarks:settings.update"), form_data, follow=True)
+        self.client.post(reverse("linkding:settings.update"), form_data, follow=True)
         self.user.profile.refresh_from_db()
 
         self.assertEqual("", self.user.profile.custom_css_hash)
@@ -258,14 +258,14 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
                     "enable_favicons": True,
                 }
             )
-            self.client.post(reverse("bookmarks:settings.update"), form_data)
+            self.client.post(reverse("linkding:settings.update"), form_data)
 
             mock_schedule_bookmarks_without_favicons.assert_called_once_with(self.user)
 
             # No update scheduled if favicons are already enabled
             mock_schedule_bookmarks_without_favicons.reset_mock()
 
-            self.client.post(reverse("bookmarks:settings.update"), form_data)
+            self.client.post(reverse("linkding:settings.update"), form_data)
 
             mock_schedule_bookmarks_without_favicons.assert_not_called()
 
@@ -276,7 +276,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
                 }
             )
 
-            self.client.post(reverse("bookmarks:settings.update"), form_data)
+            self.client.post(reverse("linkding:settings.update"), form_data)
 
             mock_schedule_bookmarks_without_favicons.assert_not_called()
 
@@ -288,7 +288,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
                 "refresh_favicons": "",
             }
             response = self.client.post(
-                reverse("bookmarks:settings.update"), form_data, follow=True
+                reverse("linkding:settings.update"), form_data, follow=True
             )
             html = response.content.decode()
 
@@ -302,7 +302,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             tasks, "schedule_refresh_favicons"
         ) as mock_schedule_refresh_favicons:
             form_data = {}
-            response = self.client.post(reverse("bookmarks:settings.update"), form_data)
+            response = self.client.post(reverse("linkding:settings.update"), form_data)
             html = response.content.decode()
 
             mock_schedule_refresh_favicons.assert_not_called()
@@ -315,7 +315,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         profile.enable_favicons = True
         profile.save()
 
-        response = self.client.get(reverse("bookmarks:settings.general"))
+        response = self.client.get(reverse("linkding:settings.general"))
         html = response.content.decode()
 
         self.assertInHTML(
@@ -333,7 +333,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         profile.enable_favicons = False
         profile.save()
 
-        response = self.client.get(reverse("bookmarks:settings.general"))
+        response = self.client.get(reverse("linkding:settings.general"))
         html = response.content.decode()
 
         self.assertInHTML(
@@ -350,7 +350,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         profile.enable_favicons = True
         profile.save()
 
-        response = self.client.get(reverse("bookmarks:settings.general"))
+        response = self.client.get(reverse("linkding:settings.general"))
         html = response.content.decode()
 
         self.assertInHTML(
@@ -371,14 +371,14 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
                     "enable_preview_images": True,
                 }
             )
-            self.client.post(reverse("bookmarks:settings.update"), form_data)
+            self.client.post(reverse("linkding:settings.update"), form_data)
 
             mock_schedule_bookmarks_without_previews.assert_called_once_with(self.user)
 
             # No update scheduled if favicons are already enabled
             mock_schedule_bookmarks_without_previews.reset_mock()
 
-            self.client.post(reverse("bookmarks:settings.update"), form_data)
+            self.client.post(reverse("linkding:settings.update"), form_data)
 
             mock_schedule_bookmarks_without_previews.assert_not_called()
 
@@ -389,14 +389,14 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
                 }
             )
 
-            self.client.post(reverse("bookmarks:settings.update"), form_data)
+            self.client.post(reverse("linkding:settings.update"), form_data)
 
             mock_schedule_bookmarks_without_previews.assert_not_called()
 
     def test_automatic_html_snapshots_should_be_hidden_when_snapshots_not_supported(
         self,
     ):
-        response = self.client.get(reverse("bookmarks:settings.general"))
+        response = self.client.get(reverse("linkding:settings.general"))
         html = response.content.decode()
 
         self.assertInHTML(
@@ -411,7 +411,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_automatic_html_snapshots_should_be_visible_when_snapshots_supported(
         self,
     ):
-        response = self.client.get(reverse("bookmarks:settings.general"))
+        response = self.client.get(reverse("linkding:settings.general"))
         html = response.content.decode()
 
         self.assertInHTML(
@@ -423,7 +423,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
 
     def test_about_shows_version_info(self):
-        response = self.client.get(reverse("bookmarks:settings.general"))
+        response = self.client.get(reverse("linkding:settings.general"))
         html = response.content.decode()
 
         self.assertInHTML(
@@ -478,7 +478,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
                 "create_missing_html_snapshots": "",
             }
             response = self.client.post(
-                reverse("bookmarks:settings.update"), form_data, follow=True
+                reverse("linkding:settings.update"), form_data, follow=True
             )
             html = response.content.decode()
 
@@ -498,7 +498,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
                 "create_missing_html_snapshots": "",
             }
             response = self.client.post(
-                reverse("bookmarks:settings.update"), form_data, follow=True
+                reverse("linkding:settings.update"), form_data, follow=True
             )
             html = response.content.decode()
 
@@ -515,7 +515,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             mock_create_missing_html_snapshots.return_value = 5
             form_data = {}
             response = self.client.post(
-                reverse("bookmarks:settings.update"), form_data, follow=True
+                reverse("linkding:settings.update"), form_data, follow=True
             )
             html = response.content.decode()
 
@@ -537,7 +537,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "guest_profile_user": selectable_user.id,
         }
         response = self.client.post(
-            reverse("bookmarks:settings.update"), form_data, follow=True
+            reverse("linkding:settings.update"), form_data, follow=True
         )
         self.assertEqual(response.status_code, 200)
         self.assertSuccessMessage(response.content.decode(), "Global settings updated")
@@ -553,7 +553,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "guest_profile_user": "",
         }
         response = self.client.post(
-            reverse("bookmarks:settings.update"), form_data, follow=True
+            reverse("linkding:settings.update"), form_data, follow=True
         )
         self.assertEqual(response.status_code, 200)
         self.assertSuccessMessage(response.content.decode(), "Global settings updated")
@@ -573,7 +573,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "landing_page": GlobalSettings.LANDING_PAGE_SHARED_BOOKMARKS,
         }
         response = self.client.post(
-            reverse("bookmarks:settings.update"), form_data, follow=True
+            reverse("linkding:settings.update"), form_data, follow=True
         )
         self.assertEqual(response.status_code, 200)
         self.assertSuccessMessage(
@@ -585,11 +585,11 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "update_global_settings": "",
             "landing_page": GlobalSettings.LANDING_PAGE_SHARED_BOOKMARKS,
         }
-        response = self.client.post(reverse("bookmarks:settings.update"), form_data)
+        response = self.client.post(reverse("linkding:settings.update"), form_data)
         self.assertEqual(response.status_code, 403)
 
     def test_global_settings_only_visible_for_superuser(self):
-        response = self.client.get(reverse("bookmarks:settings.general"))
+        response = self.client.get(reverse("linkding:settings.general"))
         html = response.content.decode()
 
         self.assertInHTML(
@@ -601,7 +601,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         superuser = self.setup_superuser()
         self.client.force_login(superuser)
 
-        response = self.client.get(reverse("bookmarks:settings.general"))
+        response = self.client.get(reverse("linkding:settings.general"))
         html = response.content.decode()
 
         self.assertInHTML(

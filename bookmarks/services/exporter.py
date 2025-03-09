@@ -35,7 +35,7 @@ def append_bookmark(doc: BookmarkDocument, bookmark: Bookmark):
         desc += f"[linkding-notes]{html.escape(bookmark.notes)}[/linkding-notes]"
     tag_names = bookmark.tag_names
     if bookmark.is_archived:
-        tag_names.append("linkding:archived")
+        tag_names.append("linkding:bookmarks.archived")
     tags = ",".join(tag_names)
     toread = "1" if bookmark.unread else "0"
     private = "0" if bookmark.shared else "1"

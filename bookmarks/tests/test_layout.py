@@ -14,12 +14,12 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def test_nav_menu_should_respect_share_profile_setting(self):
         self.user.profile.enable_sharing = False
         self.user.profile.save()
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
         html = response.content.decode()
 
         self.assertInHTML(
             f"""
-            <a href="{reverse('bookmarks:shared')}" class="menu-link">Shared</a>
+            <a href="{reverse('linkding:bookmarks.shared')}" class="menu-link">Shared</a>
         """,
             html,
             count=0,
@@ -27,12 +27,12 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.user.profile.enable_sharing = True
         self.user.profile.save()
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
         html = response.content.decode()
 
         self.assertInHTML(
             f"""
-            <a href="{reverse('bookmarks:shared')}" class="menu-link">Shared</a>
+            <a href="{reverse('linkding:bookmarks.shared')}" class="menu-link">Shared</a>
         """,
             html,
             count=2,
@@ -43,7 +43,7 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         settings.enable_link_prefetch = False
         settings.save()
 
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
         html = response.content.decode()
 
         self.assertInHTML(
@@ -55,7 +55,7 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         settings.enable_link_prefetch = True
         settings.save()
 
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
         html = response.content.decode()
 
         self.assertInHTML(
@@ -65,7 +65,7 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         )
 
     def test_does_not_link_custom_css_when_empty(self):
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
         html = response.content.decode()
         soup = self.make_soup(html)
 
@@ -77,7 +77,7 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         profile.custom_css = "body { background-color: red; }"
         profile.save()
 
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
         html = response.content.decode()
         soup = self.make_soup(html)
 
@@ -89,12 +89,12 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         profile.custom_css = "body { background-color: red; }"
         profile.save()
 
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
         html = response.content.decode()
         soup = self.make_soup(html)
 
         link = soup.select_one("link[rel='stylesheet'][href*='custom_css']")
         expected_url = (
-            reverse("bookmarks:custom_css") + f"?hash={profile.custom_css_hash}"
+            reverse("linkding:custom_css") + f"?hash={profile.custom_css_hash}"
         )
         self.assertEqual(link["href"], expected_url)

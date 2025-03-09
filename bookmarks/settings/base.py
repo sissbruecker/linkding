@@ -58,7 +58,7 @@ MIDDLEWARE = [
     "django.middleware.locale.LocaleMiddleware",
 ]
 
-ROOT_URLCONF = "siteroot.urls"
+ROOT_URLCONF = "bookmarks.urls"
 
 TEMPLATES = [
     {
@@ -80,7 +80,7 @@ TEMPLATES = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-WSGI_APPLICATION = "siteroot.wsgi.application"
+WSGI_APPLICATION = "bookmarks.wsgi.application"
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

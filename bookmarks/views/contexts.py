@@ -25,8 +25,8 @@ CJK_RE = re.compile(r"[\u4e00-\u9fff]+")
 
 
 class RequestContext:
-    index_view = "bookmarks:index"
-    action_view = "bookmarks:index.action"
+    index_view = "linkding:bookmarks.index"
+    action_view = "linkding:bookmarks.index.action"
 
     def __init__(self, request: WSGIRequest):
         self.request = request
@@ -62,8 +62,8 @@ class RequestContext:
 
 
 class ActiveBookmarksContext(RequestContext):
-    index_view = "bookmarks:index"
-    action_view = "bookmarks:index.action"
+    index_view = "linkding:bookmarks.index"
+    action_view = "linkding:bookmarks.index.action"
 
     def get_bookmark_query_set(self, search: BookmarkSearch):
         return queries.query_bookmarks(
@@ -77,8 +77,8 @@ class ActiveBookmarksContext(RequestContext):
 
 
 class ArchivedBookmarksContext(RequestContext):
-    index_view = "bookmarks:archived"
-    action_view = "bookmarks:archived.action"
+    index_view = "linkding:bookmarks.archived"
+    action_view = "linkding:bookmarks.archived.action"
 
     def get_bookmark_query_set(self, search: BookmarkSearch):
         return queries.query_archived_bookmarks(
@@ -92,8 +92,8 @@ class ArchivedBookmarksContext(RequestContext):
 
 
 class SharedBookmarksContext(RequestContext):
-    index_view = "bookmarks:shared"
-    action_view = "bookmarks:shared.action"
+    index_view = "linkding:bookmarks.shared"
+    action_view = "linkding:bookmarks.shared.action"
 
     def get_bookmark_query_set(self, search: BookmarkSearch):
         user = User.objects.filter(username=search.user).first()

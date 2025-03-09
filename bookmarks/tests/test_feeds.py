@@ -51,12 +51,12 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             self.assertContains(response, expected_item, count=1)
 
     def test_all_returns_404_for_unknown_feed_token(self):
-        response = self.client.get(reverse("bookmarks:feeds.all", args=["foo"]))
+        response = self.client.get(reverse("linkding:feeds.all", args=["foo"]))
 
         self.assertEqual(response.status_code, 404)
 
     def test_all_metadata(self):
-        feed_url = reverse("bookmarks:feeds.all", args=[self.token.key])
+        feed_url = reverse("linkding:feeds.all", args=[self.token.key])
         response = self.client.get(feed_url)
         self.assertEqual(response.status_code, 200)
 
@@ -77,9 +77,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(is_archived=True)
         self.setup_bookmark(is_archived=True)
 
-        response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key])
-        )
+        response = self.client.get(reverse("linkding:feeds.all", args=[self.token.key]))
         self.assertEqual(response.status_code, 200)
         self.assertFeedItems(response, bookmarks)
 
@@ -91,20 +89,18 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(unread=True, user=other_user)
         self.setup_bookmark(unread=True, user=other_user)
 
-        response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key])
-        )
+        response = self.client.get(reverse("linkding:feeds.all", args=[self.token.key]))
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "<item>", count=0)
 
     def test_unread_returns_404_for_unknown_feed_token(self):
-        response = self.client.get(reverse("bookmarks:feeds.unread", args=["foo"]))
+        response = self.client.get(reverse("linkding:feeds.unread", args=["foo"]))
 
         self.assertEqual(response.status_code, 404)
 
     def test_unread_metadata(self):
-        feed_url = reverse("bookmarks:feeds.unread", args=[self.token.key])
+        feed_url = reverse("linkding:feeds.unread", args=[self.token.key])
         response = self.client.get(feed_url)
         self.assertEqual(response.status_code, 200)
 
@@ -130,7 +126,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         ]
 
         response = self.client.get(
-            reverse("bookmarks:feeds.unread", args=[self.token.key])
+            reverse("linkding:feeds.unread", args=[self.token.key])
         )
         self.assertEqual(response.status_code, 200)
         self.assertFeedItems(response, unread_bookmarks)
@@ -144,19 +140,19 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(unread=True, user=other_user)
 
         response = self.client.get(
-            reverse("bookmarks:feeds.unread", args=[self.token.key])
+            reverse("linkding:feeds.unread", args=[self.token.key])
         )
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "<item>", count=0)
 
     def test_shared_returns_404_for_unknown_feed_token(self):
-        response = self.client.get(reverse("bookmarks:feeds.shared", args=["foo"]))
+        response = self.client.get(reverse("linkding:feeds.shared", args=["foo"]))
 
         self.assertEqual(response.status_code, 404)
 
     def test_shared_metadata(self):
-        feed_url = reverse("bookmarks:feeds.shared", args=[self.token.key])
+        feed_url = reverse("linkding:feeds.shared", args=[self.token.key])
         response = self.client.get(feed_url)
         self.assertEqual(response.status_code, 200)
 
@@ -182,18 +178,18 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         ]
 
         response = self.client.get(
-            reverse("bookmarks:feeds.shared", args=[self.token.key])
+            reverse("linkding:feeds.shared", args=[self.token.key])
         )
         self.assertEqual(response.status_code, 200)
         self.assertFeedItems(response, shared_bookmarks)
 
     def test_public_shared_does_not_require_auth(self):
-        response = self.client.get(reverse("bookmarks:feeds.public_shared"))
+        response = self.client.get(reverse("linkding:feeds.public_shared"))
 
         self.assertEqual(response.status_code, 200)
 
     def test_public_shared_metadata(self):
-        feed_url = reverse("bookmarks:feeds.public_shared")
+        feed_url = reverse("linkding:feeds.public_shared")
         response = self.client.get(feed_url)
         self.assertEqual(response.status_code, 200)
 
@@ -223,7 +219,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(shared=True, user=user1, description="test"),
         ]
 
-        response = self.client.get(reverse("bookmarks:feeds.public_shared"))
+        response = self.client.get(reverse("linkding:feeds.public_shared"))
         self.assertEqual(response.status_code, 200)
         self.assertFeedItems(response, public_shared_bookmarks)
 
@@ -237,7 +233,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
         self.setup_bookmark()
 
-        feed_url = reverse("bookmarks:feeds.all", args=[self.token.key])
+        feed_url = reverse("linkding:feeds.all", args=[self.token.key])
 
         url = feed_url + f"?q={bookmark1.title}"
         response = self.client.get(url)
@@ -267,22 +263,20 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(unread=False),
 
         # without unread parameter
-        response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key])
-        )
+        response = self.client.get(reverse("linkding:feeds.all", args=[self.token.key]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=6)
 
         # with unread=yes
         response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?unread=yes"
+            reverse("linkding:feeds.all", args=[self.token.key]) + "?unread=yes"
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=2)
 
         # with unread=no
         response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?unread=no"
+            reverse("linkding:feeds.all", args=[self.token.key]) + "?unread=no"
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=4)
@@ -296,22 +290,20 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(shared=False)
 
         # without shared parameter
-        response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key])
-        )
+        response = self.client.get(reverse("linkding:feeds.all", args=[self.token.key]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=6)
 
         # with shared=yes
         response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?shared=yes"
+            reverse("linkding:feeds.all", args=[self.token.key]) + "?shared=yes"
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=2)
 
         # with shared=no
         response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?shared=no"
+            reverse("linkding:feeds.all", args=[self.token.key]) + "?shared=no"
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=4)
@@ -325,9 +317,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             ),
         ]
 
-        response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key])
-        )
+        response = self.client.get(reverse("linkding:feeds.all", args=[self.token.key]))
         self.assertEqual(response.status_code, 200)
         self.assertFeedItems(response, bookmarks)
 
@@ -335,22 +325,20 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_numbered_bookmarks(200)
 
         # without limit - defaults to 100
-        response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key])
-        )
+        response = self.client.get(reverse("linkding:feeds.all", args=[self.token.key]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=100)
 
         # with increased limit
         response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?limit=200"
+            reverse("linkding:feeds.all", args=[self.token.key]) + "?limit=200"
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=200)
 
         # with decreased limit
         response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key]) + "?limit=5"
+            reverse("linkding:feeds.all", args=[self.token.key]) + "?limit=5"
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=5)
@@ -359,9 +347,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(
             title="test\n\r\t\0\x08title", description="test\n\r\t\0\x08description"
         )
-        response = self.client.get(
-            reverse("bookmarks:feeds.all", args=[self.token.key])
-        )
+        response = self.client.get(reverse("linkding:feeds.all", args=[self.token.key]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=1)
         self.assertContains(response, f"<title>test\n\r\ttitle</title>", count=1)

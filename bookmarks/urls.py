@@ -1,35 +1,37 @@
+from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.urls import re_path
+from django.conf import settings
 
-from bookmarks import views
+from bookmarks import feeds, views
+from bookmarks.admin import linkding_admin_site
 from bookmarks.api import routes as api_routes
-from bookmarks.feeds import (
-    AllBookmarksFeed,
-    UnreadBookmarksFeed,
-    SharedBookmarksFeed,
-    PublicSharedBookmarksFeed,
-)
 
-app_name = "bookmarks"
 urlpatterns = [
     # Root view handling redirection based on user authentication
     re_path(r"^$", views.root, name="root"),
     # Bookmarks
-    path("bookmarks", views.bookmarks.index, name="index"),
-    path("bookmarks/action", views.bookmarks.index_action, name="index.action"),
-    path("bookmarks/archived", views.bookmarks.archived, name="archived"),
+    path("bookmarks", views.bookmarks.index, name="bookmarks.index"),
+    path(
+        "bookmarks/action", views.bookmarks.index_action, name="bookmarks.index.action"
+    ),
+    path("bookmarks/archived", views.bookmarks.archived, name="bookmarks.archived"),
     path(
         "bookmarks/archived/action",
         views.bookmarks.archived_action,
-        name="archived.action",
+        name="bookmarks.archived.action",
     ),
-    path("bookmarks/shared", views.bookmarks.shared, name="shared"),
+    path("bookmarks/shared", views.bookmarks.shared, name="bookmarks.shared"),
     path(
-        "bookmarks/shared/action", views.bookmarks.shared_action, name="shared.action"
+        "bookmarks/shared/action",
+        views.bookmarks.shared_action,
+        name="bookmarks.shared.action",
     ),
-    path("bookmarks/new", views.bookmarks.new, name="new"),
-    path("bookmarks/close", views.bookmarks.close, name="close"),
-    path("bookmarks/<int:bookmark_id>/edit", views.bookmarks.edit, name="edit"),
+    path("bookmarks/new", views.bookmarks.new, name="bookmarks.new"),
+    path("bookmarks/close", views.bookmarks.close, name="bookmarks.close"),
+    path(
+        "bookmarks/<int:bookmark_id>/edit", views.bookmarks.edit, name="bookmarks.edit"
+    ),
     # Assets
     path(
         "assets/<int:asset_id>",
@@ -64,10 +66,14 @@ urlpatterns = [
     path("api/tags/", include(api_routes.tag_router.urls)),
     path("api/user/", include(api_routes.user_router.urls)),
     # Feeds
-    path("feeds/<str:feed_key>/all", AllBookmarksFeed(), name="feeds.all"),
-    path("feeds/<str:feed_key>/unread", UnreadBookmarksFeed(), name="feeds.unread"),
-    path("feeds/<str:feed_key>/shared", SharedBookmarksFeed(), name="feeds.shared"),
-    path("feeds/shared", PublicSharedBookmarksFeed(), name="feeds.public_shared"),
+    path("feeds/<str:feed_key>/all", feeds.AllBookmarksFeed(), name="feeds.all"),
+    path(
+        "feeds/<str:feed_key>/unread", feeds.UnreadBookmarksFeed(), name="feeds.unread"
+    ),
+    path(
+        "feeds/<str:feed_key>/shared", feeds.SharedBookmarksFeed(), name="feeds.shared"
+    ),
+    path("feeds/shared", feeds.PublicSharedBookmarksFeed(), name="feeds.public_shared"),
     # Health check
     path("health", views.health, name="health"),
     # Manifest
@@ -75,3 +81,47 @@ urlpatterns = [
     # Custom CSS
     path("custom_css", views.custom_css, name="custom_css"),
 ]
+
+# Put all linkding URLs into a linkding namespace
+urlpatterns = [path("", include((urlpatterns, "linkding")))]
+
+# Auth
+urlpatterns += [
+    path(
+        "login/",
+        views.auth.LinkdingLoginView.as_view(redirect_authenticated_user=True),
+        name="login",
+    ),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path(
+        "change-password/",
+        views.auth.LinkdingPasswordChangeView.as_view(),
+        name="change_password",
+    ),
+    path(
+        "password-change-done/",
+        auth_views.PasswordChangeDoneView.as_view(),
+        name="password_change_done",
+    ),
+]
+
+# Admin
+urlpatterns.append(path("admin/", linkding_admin_site.urls))
+
+# OIDC
+if settings.LD_ENABLE_OIDC:
+    urlpatterns.append(path("oidc/", include("mozilla_django_oidc.urls")))
+
+# Debug toolbar
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns.append(path("__debug__/", include(debug_toolbar.urls)))
+
+# Registration
+if settings.ALLOW_REGISTRATION:
+    urlpatterns.append(path("", include("django_registration.backends.one_step.urls")))
+
+# Context path
+if settings.LD_CONTEXT_PATH:
+    urlpatterns = [path(settings.LD_CONTEXT_PATH, include(urlpatterns))]

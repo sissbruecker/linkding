@@ -7,7 +7,7 @@ from django.test import TestCase
 
 class AppOptionsTestCase(TestCase):
     def setUp(self) -> None:
-        self.settings_module = importlib.import_module("siteroot.settings.base")
+        self.settings_module = importlib.import_module("bookmarks.settings.base")
 
     def test_empty_csrf_trusted_origins(self):
         module = importlib.reload(self.settings_module)

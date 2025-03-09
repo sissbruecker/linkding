@@ -65,7 +65,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         count=1,
     ):
         if base_url is None:
-            base_url = reverse("bookmarks:index")
+            base_url = reverse("linkding:bookmarks.index")
         details_url = base_url + f"?details={bookmark.id}"
         self.assertInHTML(
             f"""
@@ -76,7 +76,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         )
 
     def assertEditLinkCount(self, html: str, bookmark: Bookmark, count=1):
-        edit_url = reverse("bookmarks:edit", args=[bookmark.id])
+        edit_url = reverse("linkding:bookmarks.edit", args=[bookmark.id])
         self.assertInHTML(
             f"""
             <a href="{edit_url}?return_url=/bookmarks">Edit</a>
@@ -660,7 +660,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         bookmark = self.setup_bookmark(user=other_user, shared=True)
         html = self.render_template(context_type=contexts.SharedBookmarkListContext)
 
-        self.assertViewLink(html, bookmark, base_url=reverse("bookmarks:shared"))
+        self.assertViewLink(
+            html, bookmark, base_url=reverse("linkding:bookmarks.shared")
+        )
         self.assertNoBookmarkActions(html, bookmark)
         self.assertShareInfo(html, bookmark)
 
@@ -952,7 +954,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertWebArchiveLink(
             html, "1 week ago", bookmark.web_archive_snapshot_url, link_target="_blank"
         )
-        self.assertViewLink(html, bookmark, base_url=reverse("bookmarks:shared"))
+        self.assertViewLink(
+            html, bookmark, base_url=reverse("linkding:bookmarks.shared")
+        )
         self.assertNoBookmarkActions(html, bookmark)
         self.assertShareInfo(html, bookmark)
         self.assertMarkAsReadButton(html, bookmark, count=0)

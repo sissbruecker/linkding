@@ -1,4 +1,5 @@
 from .assets import *
+from .auth import *
 from .bookmarks import *
 from .settings import *
 from .toasts import *

@@ -15,18 +15,20 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.client.force_login(user)
 
     def get_details_form(self, soup, bookmark):
-        form_url = reverse("bookmarks:index.action") + f"?details={bookmark.id}"
+        form_url = (
+            reverse("linkding:bookmarks.index.action") + f"?details={bookmark.id}"
+        )
         return soup.find("form", {"action": form_url, "enctype": "multipart/form-data"})
 
     def get_index_details_modal(self, bookmark):
-        url = reverse("bookmarks:index") + f"?details={bookmark.id}"
+        url = reverse("linkding:bookmarks.index") + f"?details={bookmark.id}"
         response = self.client.get(url)
         soup = self.make_soup(response.content)
         modal = soup.find("turbo-frame", {"id": "details-modal"})
         return modal
 
     def get_shared_details_modal(self, bookmark):
-        url = reverse("bookmarks:shared") + f"?details={bookmark.id}"
+        url = reverse("linkding:bookmarks.shared") + f"?details={bookmark.id}"
         response = self.client.get(url)
         soup = self.make_soup(response.content)
         modal = soup.find("turbo-frame", {"id": "details-modal"})
@@ -55,7 +57,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # own bookmark
         bookmark = self.setup_bookmark()
         response = self.client.get(
-            reverse("bookmarks:index") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.index") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 200)
 
@@ -63,18 +65,20 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         other_user = self.setup_user()
         bookmark = self.setup_bookmark(user=other_user)
         response = self.client.get(
-            reverse("bookmarks:index") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.index") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 404)
 
         # non-existent bookmark - just returns without modal in response
-        response = self.client.get(reverse("bookmarks:index") + "?details=9999")
+        response = self.client.get(
+            reverse("linkding:bookmarks.index") + "?details=9999"
+        )
         self.assertEqual(response.status_code, 200)
 
         # guest user
         self.client.logout()
         response = self.client.get(
-            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.shared") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 404)
 
@@ -82,7 +86,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # own bookmark
         bookmark = self.setup_bookmark()
         response = self.client.get(
-            reverse("bookmarks:index") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.index") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 200)
 
@@ -90,18 +94,20 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         other_user = self.setup_user()
         bookmark = self.setup_bookmark(user=other_user)
         response = self.client.get(
-            reverse("bookmarks:index") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.index") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 404)
 
         # non-existent bookmark - just returns without modal in response
-        response = self.client.get(reverse("bookmarks:index") + "?details=9999")
+        response = self.client.get(
+            reverse("linkding:bookmarks.index") + "?details=9999"
+        )
         self.assertEqual(response.status_code, 200)
 
         # guest user
         self.client.logout()
         response = self.client.get(
-            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.shared") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 404)
 
@@ -111,7 +117,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         bookmark = self.setup_bookmark(shared=True, user=other_user)
 
         response = self.client.get(
-            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.shared") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 404)
 
@@ -121,14 +127,14 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.save()
 
         response = self.client.get(
-            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.shared") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 200)
 
         # shared bookmark, guest user, no public sharing
         self.client.logout()
         response = self.client.get(
-            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.shared") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 404)
 
@@ -137,7 +143,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         profile.save()
 
         response = self.client.get(
-            reverse("bookmarks:shared") + f"?details={bookmark.id}"
+            reverse("linkding:bookmarks.shared") + f"?details={bookmark.id}"
         )
         self.assertEqual(response.status_code, 200)
 
@@ -231,7 +237,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         soup = self.get_index_details_modal(bookmark)
         self.assertEqual(self.count_weblinks(soup), 3)
 
-        reader_mode_url = reverse("bookmarks:assets.read", args=[asset.id])
+        reader_mode_url = reverse("linkding:assets.read", args=[asset.id])
         link = self.find_weblink(soup, reader_mode_url)
         self.assertIsNotNone(link)
 
@@ -465,7 +471,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         for tag in bookmark.tags.all():
             tag_link = section.find("a", string=f"#{tag.name}")
             self.assertIsNotNone(tag_link)
-            expected_url = reverse("bookmarks:index") + f"?q=%23{tag.name}"
+            expected_url = reverse("linkding:bookmarks.index") + f"?q=%23{tag.name}"
             self.assertEqual(tag_link["href"], expected_url)
 
     def test_description(self):
@@ -519,7 +525,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         form = delete_button.find_parent("form")
         self.assertIsNotNone(form)
-        expected_url = reverse("bookmarks:index.action")
+        expected_url = reverse("linkding:bookmarks.index.action")
         self.assertEqual(expected_url, form["action"])
 
     def test_actions_visibility(self):
@@ -605,7 +611,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             self.assertIsNotNone(asset_text)
             self.assertIn(asset.display_name, asset_text.text)
 
-            view_url = reverse("bookmarks:assets.view", args=[asset.id])
+            view_url = reverse("linkding:assets.view", args=[asset.id])
             view_link = asset_item.find("a", {"href": view_url})
             self.assertIsNotNone(view_link)
 
@@ -688,7 +694,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         soup = self.get_index_details_modal(bookmark)
         asset_item = self.find_asset(soup, asset)
-        view_url = reverse("bookmarks:assets.view", args=[asset.id])
+        view_url = reverse("linkding:assets.view", args=[asset.id])
         view_link = asset_item.find("a", {"href": view_url})
         self.assertIsNone(view_link)
 

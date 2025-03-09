@@ -6,7 +6,7 @@
   <link rel="icon" href="{% static 'favicon.svg' %}" sizes="any" type="image/svg+xml">
   <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
   <link rel="mask-icon" href="{% static 'safari-pinned-tab.svg' %}" color="#5856e0">
-  <link rel="manifest" href="{% url 'bookmarks:manifest' %}">
+  <link rel="manifest" href="{% url 'linkding:manifest' %}">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
   <meta name="description" content="Self-hosted bookmark service">
@@ -30,7 +30,7 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#5856e0">
   {% endif %}
   {% if request.user_profile.custom_css %}
-    <link href="{% url 'bookmarks:custom_css' %}?hash={{ request.user_profile.custom_css_hash }}" rel="stylesheet" type="text/css"/>
+    <link href="{% url 'linkding:custom_css' %}?hash={{ request.user_profile.custom_css_hash }}" rel="stylesheet" type="text/css"/>
   {% endif %}
   <meta name="turbo-cache-control" content="no-preview">
   {% if not request.global_settings.enable_link_prefetch %}

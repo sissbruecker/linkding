@@ -2,7 +2,7 @@ from django.test import TestCase, override_settings
 from django.urls import path, include
 
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
-from siteroot.urls import urlpatterns as base_patterns
+from bookmarks.urls import urlpatterns as base_patterns
 
 # Register OIDC urls for this test, otherwise login template can not render when OIDC is enabled
 urlpatterns = base_patterns + [path("oidc/", include("mozilla_django_oidc.urls"))]

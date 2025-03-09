@@ -86,7 +86,7 @@
             {% if bookmark_item.is_editable %}
               {# Bookmark owner actions #}
               {% if bookmark_list.show_edit_action %}
-                <a href="{% url 'bookmarks:edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">Edit</a>
+                <a href="{% url 'linkding:bookmarks.edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">Edit</a>
               {% endif %}
               {% if bookmark_list.show_archive_action %}
                 {% if bookmark_item.is_archived %}

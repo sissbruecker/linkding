@@ -13,25 +13,25 @@ class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
         self.client.force_login(user)
 
     def test_should_render_successfully(self):
-        response = self.client.get(reverse("bookmarks:settings.integrations"))
+        response = self.client.get(reverse("linkding:settings.integrations"))
 
         self.assertEqual(response.status_code, 200)
 
     def test_should_check_authentication(self):
         self.client.logout()
         response = self.client.get(
-            reverse("bookmarks:settings.integrations"), follow=True
+            reverse("linkding:settings.integrations"), follow=True
         )
 
         self.assertRedirects(
             response,
-            reverse("login") + "?next=" + reverse("bookmarks:settings.integrations"),
+            reverse("login") + "?next=" + reverse("linkding:settings.integrations"),
         )
 
     def test_should_generate_api_token_if_not_exists(self):
         self.assertEqual(Token.objects.count(), 0)
 
-        self.client.get(reverse("bookmarks:settings.integrations"))
+        self.client.get(reverse("linkding:settings.integrations"))
 
         self.assertEqual(Token.objects.count(), 1)
         token = Token.objects.first()
@@ -41,14 +41,14 @@ class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
         Token.objects.get_or_create(user=self.user)
         self.assertEqual(Token.objects.count(), 1)
 
-        self.client.get(reverse("bookmarks:settings.integrations"))
+        self.client.get(reverse("linkding:settings.integrations"))
 
         self.assertEqual(Token.objects.count(), 1)
 
     def test_should_generate_feed_token_if_not_exists(self):
         self.assertEqual(FeedToken.objects.count(), 0)
 
-        self.client.get(reverse("bookmarks:settings.integrations"))
+        self.client.get(reverse("linkding:settings.integrations"))
 
         self.assertEqual(FeedToken.objects.count(), 1)
         token = FeedToken.objects.first()
@@ -58,12 +58,12 @@ class SettingsIntegrationsViewTestCase(TestCase, BookmarkFactoryMixin):
         FeedToken.objects.get_or_create(user=self.user)
         self.assertEqual(FeedToken.objects.count(), 1)
 
-        self.client.get(reverse("bookmarks:settings.integrations"))
+        self.client.get(reverse("linkding:settings.integrations"))
 
         self.assertEqual(FeedToken.objects.count(), 1)
 
     def test_should_display_feed_urls(self):
-        response = self.client.get(reverse("bookmarks:settings.integrations"))
+        response = self.client.get(reverse("linkding:settings.integrations"))
         html = response.content.decode()
 
         token = FeedToken.objects.first()

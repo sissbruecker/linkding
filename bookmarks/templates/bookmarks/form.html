@@ -144,7 +144,7 @@
         toggleLoadingIcon(urlInput, true);
 
         const websiteUrl = encodeURIComponent(urlInput.value);
-        const requestUrl = `{% url 'bookmarks:api-root' %}bookmarks/check?url=${websiteUrl}`;
+        const requestUrl = `{% url 'linkding:api-root' %}bookmarks/check?url=${websiteUrl}`;
         fetch(requestUrl)
           .then(response => response.json())
           .then(data => {

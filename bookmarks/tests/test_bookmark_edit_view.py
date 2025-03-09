@@ -28,14 +28,18 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_should_render_successfully(self):
         bookmark = self.setup_bookmark()
-        response = self.client.get(reverse("bookmarks:edit", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_should_edit_bookmark(self):
         bookmark = self.setup_bookmark()
         form_data = self.create_form_data({"id": bookmark.id})
 
-        self.client.post(reverse("bookmarks:edit", args=[bookmark.id]), form_data)
+        self.client.post(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id]), form_data
+        )
 
         bookmark.refresh_from_db()
 
@@ -55,7 +59,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         form_data = self.create_form_data({"id": bookmark.id, "url": ""})
         response = self.client.post(
-            reverse("bookmarks:edit", args=[bookmark.id]), form_data
+            reverse("linkding:bookmarks.edit", args=[bookmark.id]), form_data
         )
         self.assertEqual(response.status_code, 422)
 
@@ -63,12 +67,16 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
 
         form_data = self.create_form_data({"id": bookmark.id, "unread": True})
-        self.client.post(reverse("bookmarks:edit", args=[bookmark.id]), form_data)
+        self.client.post(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id]), form_data
+        )
         bookmark.refresh_from_db()
         self.assertTrue(bookmark.unread)
 
         form_data = self.create_form_data({"id": bookmark.id, "unread": False})
-        self.client.post(reverse("bookmarks:edit", args=[bookmark.id]), form_data)
+        self.client.post(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id]), form_data
+        )
         bookmark.refresh_from_db()
         self.assertFalse(bookmark.unread)
 
@@ -76,12 +84,16 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
 
         form_data = self.create_form_data({"id": bookmark.id, "shared": True})
-        self.client.post(reverse("bookmarks:edit", args=[bookmark.id]), form_data)
+        self.client.post(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id]), form_data
+        )
         bookmark.refresh_from_db()
         self.assertTrue(bookmark.shared)
 
         form_data = self.create_form_data({"id": bookmark.id, "shared": False})
-        self.client.post(reverse("bookmarks:edit", args=[bookmark.id]), form_data)
+        self.client.post(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id]), form_data
+        )
         bookmark.refresh_from_db()
         self.assertFalse(bookmark.shared)
 
@@ -95,7 +107,9 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
             notes="edited notes",
         )
 
-        response = self.client.get(reverse("bookmarks:edit", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        )
         html = response.content.decode()
 
         self.assertInHTML(
@@ -151,21 +165,21 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         # if the URL isn't modified it's not a duplicate
         form_data = self.create_form_data({"url": edited_bookmark.url})
         response = self.client.post(
-            reverse("bookmarks:edit", args=[edited_bookmark.id]), form_data
+            reverse("linkding:bookmarks.edit", args=[edited_bookmark.id]), form_data
         )
         self.assertEqual(response.status_code, 302)
 
         # if the URL is already bookmarked by another user, it's not a duplicate
         form_data = self.create_form_data({"url": other_user_bookmark.url})
         response = self.client.post(
-            reverse("bookmarks:edit", args=[edited_bookmark.id]), form_data
+            reverse("linkding:bookmarks.edit", args=[edited_bookmark.id]), form_data
         )
         self.assertEqual(response.status_code, 302)
 
         # if the URL is already bookmarked by the same user, it's a duplicate
         form_data = self.create_form_data({"url": existing_bookmark.url})
         response = self.client.post(
-            reverse("bookmarks:edit", args=[edited_bookmark.id]), form_data
+            reverse("linkding:bookmarks.edit", args=[edited_bookmark.id]), form_data
         )
         self.assertEqual(response.status_code, 422)
         self.assertInHTML(
@@ -180,23 +194,23 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         form_data = self.create_form_data()
 
         url = (
-            reverse("bookmarks:edit", args=[bookmark.id])
+            reverse("linkding:bookmarks.edit", args=[bookmark.id])
             + "?return_url="
-            + reverse("bookmarks:close")
+            + reverse("linkding:bookmarks.close")
         )
         response = self.client.post(url, form_data)
 
-        self.assertRedirects(response, reverse("bookmarks:close"))
+        self.assertRedirects(response, reverse("linkding:bookmarks.close"))
 
     def test_should_redirect_to_bookmark_index_by_default(self):
         bookmark = self.setup_bookmark()
         form_data = self.create_form_data()
 
         response = self.client.post(
-            reverse("bookmarks:edit", args=[bookmark.id]), form_data
+            reverse("linkding:bookmarks.edit", args=[bookmark.id]), form_data
         )
 
-        self.assertRedirects(response, reverse("bookmarks:index"))
+        self.assertRedirects(response, reverse("linkding:bookmarks.index"))
 
     def test_should_not_redirect_to_external_url(self):
         bookmark = self.setup_bookmark()
@@ -204,17 +218,17 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         def post_with(return_url, follow=None):
             form_data = self.create_form_data()
             url = (
-                reverse("bookmarks:edit", args=[bookmark.id])
+                reverse("linkding:bookmarks.edit", args=[bookmark.id])
                 + f"?return_url={return_url}"
             )
             return self.client.post(url, form_data, follow=follow)
 
         response = post_with("https://example.com")
-        self.assertRedirects(response, reverse("bookmarks:index"))
+        self.assertRedirects(response, reverse("linkding:bookmarks.index"))
         response = post_with("//example.com")
-        self.assertRedirects(response, reverse("bookmarks:index"))
+        self.assertRedirects(response, reverse("linkding:bookmarks.index"))
         response = post_with("://example.com")
-        self.assertRedirects(response, reverse("bookmarks:index"))
+        self.assertRedirects(response, reverse("linkding:bookmarks.index"))
 
         response = post_with("/foo//example.com", follow=True)
         self.assertEqual(response.status_code, 404)
@@ -227,7 +241,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         form_data = self.create_form_data({"id": bookmark.id})
 
         response = self.client.post(
-            reverse("bookmarks:edit", args=[bookmark.id]), form_data
+            reverse("linkding:bookmarks.edit", args=[bookmark.id]), form_data
         )
         bookmark.refresh_from_db()
         self.assertNotEqual(bookmark.url, form_data["url"])
@@ -238,7 +252,9 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.user.profile.enable_sharing = False
         self.user.profile.save()
-        response = self.client.get(reverse("bookmarks:edit", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        )
         html = response.content.decode()
 
         self.assertInHTML(
@@ -255,7 +271,9 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.user.profile.enable_sharing = True
         self.user.profile.save()
-        response = self.client.get(reverse("bookmarks:edit", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        )
         html = response.content.decode()
 
         self.assertInHTML(
@@ -272,12 +290,16 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_should_hide_notes_if_there_are_no_notes(self):
         bookmark = self.setup_bookmark()
-        response = self.client.get(reverse("bookmarks:edit", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        )
 
         self.assertContains(response, '<details class="notes">', count=1)
 
     def test_should_show_notes_if_there_are_notes(self):
         bookmark = self.setup_bookmark(notes="test notes")
-        response = self.client.get(reverse("bookmarks:edit", args=[bookmark.id]))
+        response = self.client.get(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        )
 
         self.assertContains(response, '<details class="notes" open>', count=1)

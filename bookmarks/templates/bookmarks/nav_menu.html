@@ -2,32 +2,32 @@
 {% htmlmin %}
   {# Basic menu list #}
   <div class="hide-md">
-    <a href="{% url 'bookmarks:new' %}" class="btn btn-primary mr-2">Add bookmark</a>
+    <a href="{% url 'linkding:bookmarks.new' %}" class="btn btn-primary mr-2">Add bookmark</a>
     <div ld-dropdown class="dropdown">
       <button class="btn btn-link dropdown-toggle" tabindex="0">
         Bookmarks
       </button>
       <ul class="menu" role="list" tabindex="-1">
         <li class="menu-item">
-          <a href="{% url 'bookmarks:index' %}" class="menu-link">Active</a>
+          <a href="{% url 'linkding:bookmarks.index' %}" class="menu-link">Active</a>
         </li>
         <li class="menu-item">
-          <a href="{% url 'bookmarks:archived' %}" class="menu-link">Archived</a>
+          <a href="{% url 'linkding:bookmarks.archived' %}" class="menu-link">Archived</a>
         </li>
         {% if request.user_profile.enable_sharing %}
           <li class="menu-item">
-            <a href="{% url 'bookmarks:shared' %}" class="menu-link">Shared</a>
+            <a href="{% url 'linkding:bookmarks.shared' %}" class="menu-link">Shared</a>
           </li>
         {% endif %}
         <li class="menu-item">
-          <a href="{% url 'bookmarks:index' %}?unread=yes" class="menu-link">Unread</a>
+          <a href="{% url 'linkding:bookmarks.index' %}?unread=yes" class="menu-link">Unread</a>
         </li>
         <li class="menu-item">
-          <a href="{% url 'bookmarks:index' %}?q=!untagged" class="menu-link">Untagged</a>
+          <a href="{% url 'linkding:bookmarks.index' %}?q=!untagged" class="menu-link">Untagged</a>
         </li>
       </ul>
     </div>
-    <a href="{% url 'bookmarks:settings.index' %}" class="btn btn-link">Settings</a>
+    <a href="{% url 'linkding:settings.index' %}" class="btn btn-link">Settings</a>
     <form class="d-inline" action="{% url 'logout' %}" method="post" data-turbo="false">
       {% csrf_token %}
       <button type="submit" class="btn btn-link">Logout</button>
@@ -35,7 +35,7 @@
   </div>
   {# Menu drop-down for smaller devices #}
   <div class="show-md">
-    <a href="{% url 'bookmarks:new' %}" aria-label="Add bookmark" class="btn btn-primary">
+    <a href="{% url 'linkding:bookmarks.new' %}" aria-label="Add bookmark" class="btn btn-primary">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
            style="width: 24px; height: 24px">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -51,25 +51,25 @@
       <!-- menu component -->
       <ul class="menu" role="list" tabindex="-1">
         <li class="menu-item">
-          <a href="{% url 'bookmarks:index' %}" class="menu-link">Bookmarks</a>
+          <a href="{% url 'linkding:bookmarks.index' %}" class="menu-link">Bookmarks</a>
         </li>
         <li class="menu-item">
-          <a href="{% url 'bookmarks:archived' %}" class="menu-link">Archived</a>
+          <a href="{% url 'linkding:bookmarks.archived' %}" class="menu-link">Archived</a>
         </li>
         {% if request.user_profile.enable_sharing %}
           <li class="menu-item">
-            <a href="{% url 'bookmarks:shared' %}" class="menu-link">Shared</a>
+            <a href="{% url 'linkding:bookmarks.shared' %}" class="menu-link">Shared</a>
           </li>
         {% endif %}
         <li class="menu-item">
-          <a href="{% url 'bookmarks:index' %}?unread=yes" class="menu-link">Unread</a>
+          <a href="{% url 'linkding:bookmarks.index' %}?unread=yes" class="menu-link">Unread</a>
         </li>
         <li class="menu-item">
-          <a href="{% url 'bookmarks:index' %}?q=!untagged" class="menu-link">Untagged</a>
+          <a href="{% url 'linkding:bookmarks.index' %}?q=!untagged" class="menu-link">Untagged</a>
         </li>
         <div class="divider"></div>
         <li class="menu-item">
-          <a href="{% url 'bookmarks:settings.index' %}" class="menu-link">Settings</a>
+          <a href="{% url 'linkding:settings.index' %}" class="menu-link">Settings</a>
         </li>
         <li class="menu-item">
           <form class="d-inline" action="{% url 'logout' %}" method="post" data-turbo="false">

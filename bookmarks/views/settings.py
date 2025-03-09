@@ -94,7 +94,7 @@ def update(request):
                     request, "No missing snapshots found.", "settings_success_message"
                 )
 
-    return HttpResponseRedirect(reverse("bookmarks:settings.general"))
+    return HttpResponseRedirect(reverse("linkding:settings.general"))
 
 
 def update_profile(request):
@@ -113,7 +113,7 @@ def update_profile(request):
         if profile.enable_preview_images and not previews_were_enabled:
             tasks.schedule_bookmarks_without_previews(request.user)
 
-        return HttpResponseRedirect(reverse("bookmarks:settings.general"))
+        return HttpResponseRedirect(reverse("linkding:settings.general"))
 
     messages.error(
         request,
@@ -165,20 +165,20 @@ def get_ttl_hash(seconds=3600):
 
 @login_required
 def integrations(request):
-    application_url = request.build_absolute_uri(reverse("bookmarks:new"))
+    application_url = request.build_absolute_uri(reverse("linkding:bookmarks.new"))
     api_token = Token.objects.get_or_create(user=request.user)[0]
     feed_token = FeedToken.objects.get_or_create(user=request.user)[0]
     all_feed_url = request.build_absolute_uri(
-        reverse("bookmarks:feeds.all", args=[feed_token.key])
+        reverse("linkding:feeds.all", args=[feed_token.key])
     )
     unread_feed_url = request.build_absolute_uri(
-        reverse("bookmarks:feeds.unread", args=[feed_token.key])
+        reverse("linkding:feeds.unread", args=[feed_token.key])
     )
     shared_feed_url = request.build_absolute_uri(
-        reverse("bookmarks:feeds.shared", args=[feed_token.key])
+        reverse("linkding:feeds.shared", args=[feed_token.key])
     )
     public_shared_feed_url = request.build_absolute_uri(
-        reverse("bookmarks:feeds.public_shared")
+        reverse("linkding:feeds.public_shared")
     )
     return render(
         request,
@@ -205,7 +205,7 @@ def bookmark_import(request):
         messages.error(
             request, "Please select a file to import.", "settings_error_message"
         )
-        return HttpResponseRedirect(reverse("bookmarks:settings.general"))
+        return HttpResponseRedirect(reverse("linkding:settings.general"))
 
     try:
         content = import_file.read().decode()
@@ -226,7 +226,7 @@ def bookmark_import(request):
             "settings_error_message",
         )
 
-    return HttpResponseRedirect(reverse("bookmarks:settings.general"))
+    return HttpResponseRedirect(reverse("linkding:settings.general"))
 
 
 @login_required

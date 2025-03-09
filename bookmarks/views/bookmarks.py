@@ -105,7 +105,7 @@ def shared(request):
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
             "users": users,
-            "rss_feed_url": reverse("bookmarks:feeds.public_shared"),
+            "rss_feed_url": reverse("linkding:feeds.public_shared"),
         },
     )
 
@@ -167,9 +167,9 @@ def new(request):
             tag_string = convert_tag_string(form.data["tag_string"])
             create_bookmark(form.save(commit=False), tag_string, current_user)
             if auto_close:
-                return HttpResponseRedirect(reverse("bookmarks:close"))
+                return HttpResponseRedirect(reverse("linkding:bookmarks.close"))
             else:
-                return HttpResponseRedirect(reverse("bookmarks:index"))
+                return HttpResponseRedirect(reverse("linkding:bookmarks.index"))
     else:
         form = BookmarkForm()
         if initial_url:
@@ -189,7 +189,7 @@ def new(request):
     context = {
         "form": form,
         "auto_close": initial_auto_close,
-        "return_url": reverse("bookmarks:index"),
+        "return_url": reverse("linkding:bookmarks.index"),
     }
 
     return render(request, "bookmarks/new.html", context, status=status)
@@ -202,7 +202,7 @@ def edit(request, bookmark_id: int):
     except Bookmark.DoesNotExist:
         raise Http404("Bookmark does not exist")
     return_url = get_safe_return_url(
-        request.GET.get("return_url"), reverse("bookmarks:index")
+        request.GET.get("return_url"), reverse("linkding:bookmarks.index")
     )
 
     if request.method == "POST":
@@ -327,7 +327,7 @@ def index_action(request):
     if turbo.accept(request):
         return partials.active_bookmark_update(request)
 
-    return utils.redirect_with_query(request, reverse("bookmarks:index"))
+    return utils.redirect_with_query(request, reverse("linkding:bookmarks.index"))
 
 
 @login_required
@@ -342,7 +342,7 @@ def archived_action(request):
     if turbo.accept(request):
         return partials.archived_bookmark_update(request)
 
-    return utils.redirect_with_query(request, reverse("bookmarks:archived"))
+    return utils.redirect_with_query(request, reverse("linkding:bookmarks.archived"))
 
 
 @login_required
@@ -357,7 +357,7 @@ def shared_action(request):
     if turbo.accept(request):
         return partials.shared_bookmark_update(request)
 
-    return utils.redirect_with_query(request, reverse("bookmarks:shared"))
+    return utils.redirect_with_query(request, reverse("linkding:bookmarks.shared"))
 
 
 def handle_action(request, query: QuerySet[Bookmark] = None):

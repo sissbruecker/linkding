@@ -19,7 +19,7 @@
       <p>
         <a href="{% url 'change_password' %}">Change password</a>
       </p>
-      <form action="{% url 'bookmarks:settings.update' %}" method="post" novalidate data-turbo="false">
+      <form action="{% url 'linkding:settings.update' %}" method="post" novalidate data-turbo="false">
         {% csrf_token %}
         <div class="form-group">
           <label for="{{ form.theme.id_for_label }}" class="form-label">Theme</label>
@@ -229,7 +229,7 @@ reddit.com/r/Music music reddit</pre>
           <div class="form-input-hint">
             Makes shared bookmarks publicly accessible, without requiring a login.
             That means that anyone with a link to this instance can view shared bookmarks via the <a
-              href="{% url 'bookmarks:shared' %}">shared bookmarks page</a>.
+              href="{% url 'linkding:bookmarks.shared' %}">shared bookmarks page</a>.
           </div>
         </div>
         {% if has_snapshot_support %}
@@ -280,7 +280,7 @@ reddit.com/r/Music music reddit</pre>
     {% if global_settings_form %}
       <section class="content-area">
         <h2>Global settings</h2>
-        <form action="{% url 'bookmarks:settings.update' %}" method="post" novalidate data-turbo="false">
+        <form action="{% url 'linkding:settings.update' %}" method="post" novalidate data-turbo="false">
           {% csrf_token %}
           <div class="form-group">
             <label for="{{ global_settings_form.landing_page.id_for_label }}" class="form-label">Landing page</label>
@@ -322,7 +322,7 @@ reddit.com/r/Music music reddit</pre>
       <h2>Import</h2>
       <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
         added and existing ones are updated.</p>
-      <form method="post" enctype="multipart/form-data" action="{% url 'bookmarks:settings.import' %}">
+      <form method="post" enctype="multipart/form-data" action="{% url 'linkding:settings.import' %}">
         {% csrf_token %}
         <div class="form-group">
           <label for="import_map_private_flag" class="form-checkbox">
@@ -349,7 +349,7 @@ reddit.com/r/Music music reddit</pre>
     <section class="content-area">
       <h2>Export</h2>
       <p>Export all bookmarks in Netscape HTML format.</p>
-      <a class="btn btn-primary" target="_blank" href="{% url 'bookmarks:settings.export' %}">Download (.html)</a>
+      <a class="btn btn-primary" target="_blank" href="{% url 'linkding:settings.export' %}">Download (.html)</a>
       {% if export_error %}
         <div class="has-error">
           <p class="form-input-hint">

@@ -38,12 +38,12 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             "bookmarks/tests/resources/simple_valid_import_file.html"
         ) as import_file:
             response = self.client.post(
-                reverse("bookmarks:settings.import"),
+                reverse("linkding:settings.import"),
                 {"import_file": import_file},
                 follow=True,
             )
 
-            self.assertRedirects(response, reverse("bookmarks:settings.general"))
+            self.assertRedirects(response, reverse("linkding:settings.general"))
             self.assertSuccessMessage(
                 response, "3 bookmarks were successfully imported."
             )
@@ -51,16 +51,16 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_should_check_authentication(self):
         self.client.logout()
-        response = self.client.get(reverse("bookmarks:settings.import"), follow=True)
+        response = self.client.get(reverse("linkding:settings.import"), follow=True)
 
         self.assertRedirects(
-            response, reverse("login") + "?next=" + reverse("bookmarks:settings.import")
+            response, reverse("login") + "?next=" + reverse("linkding:settings.import")
         )
 
     def test_should_show_hint_if_there_is_no_file(self):
-        response = self.client.post(reverse("bookmarks:settings.import"), follow=True)
+        response = self.client.post(reverse("linkding:settings.import"), follow=True)
 
-        self.assertRedirects(response, reverse("bookmarks:settings.general"))
+        self.assertRedirects(response, reverse("linkding:settings.general"))
         self.assertNoSuccessMessage(response)
         self.assertErrorMessage(response, "Please select a file to import.")
 
@@ -70,12 +70,12 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             "bookmarks/tests/resources/invalid_import_file.png", "rb"
         ) as import_file:
             response = self.client.post(
-                reverse("bookmarks:settings.import"),
+                reverse("linkding:settings.import"),
                 {"import_file": import_file},
                 follow=True,
             )
 
-            self.assertRedirects(response, reverse("bookmarks:settings.general"))
+            self.assertRedirects(response, reverse("linkding:settings.general"))
             self.assertNoSuccessMessage(response)
             self.assertErrorMessage(
                 response, "An error occurred during bookmark import."
@@ -89,12 +89,12 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             "bookmarks/tests/resources/simple_valid_import_file_with_one_invalid_bookmark.html"
         ) as import_file:
             response = self.client.post(
-                reverse("bookmarks:settings.import"),
+                reverse("linkding:settings.import"),
                 {"import_file": import_file},
                 follow=True,
             )
 
-            self.assertRedirects(response, reverse("bookmarks:settings.general"))
+            self.assertRedirects(response, reverse("linkding:settings.general"))
             self.assertSuccessMessage(
                 response, "2 bookmarks were successfully imported."
             )
@@ -108,7 +108,7 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             "bookmarks/tests/resources/simple_valid_import_file.html"
         ) as import_file:
             self.client.post(
-                reverse("bookmarks:settings.import"),
+                reverse("linkding:settings.import"),
                 {"import_file": import_file},
                 follow=True,
             )
@@ -124,7 +124,7 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             "bookmarks/tests/resources/simple_valid_import_file.html"
         ) as import_file:
             self.client.post(
-                reverse("bookmarks:settings.import"),
+                reverse("linkding:settings.import"),
                 {"import_file": import_file, "map_private_flag": "on"},
                 follow=True,
             )

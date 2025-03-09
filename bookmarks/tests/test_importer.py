@@ -419,7 +419,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
     def test_archived_state(self):
         test_html = self.render_html(
             tags_html="""
-        <DT><A HREF="https://example.com/1" ADD_DATE="1" TAGS="tag1,tag2,linkding:archived">Example title 1</A>
+        <DT><A HREF="https://example.com/1" ADD_DATE="1" TAGS="tag1,tag2,linkding:bookmarks.archived">Example title 1</A>
         <DD>Example description 1</DD>
         <DT><A HREF="https://example.com/2" ADD_DATE="1" PRIVATE="1" TAGS="tag1,tag2">Example title 2</A>
         <DD>Example description 2</DD>

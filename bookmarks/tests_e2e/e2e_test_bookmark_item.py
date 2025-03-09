@@ -12,7 +12,7 @@ class BookmarkItemE2ETestCase(LinkdingE2ETestCase):
         bookmark = self.setup_bookmark(notes="Test notes")
 
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:index"), p)
+            page = self.open(reverse("linkding:bookmarks.index"), p)
 
             notes = self.locate_bookmark(bookmark.title).locator(".notes")
             expect(notes).to_be_hidden()

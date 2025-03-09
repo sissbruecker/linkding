@@ -62,9 +62,9 @@ class BookmarkParser(HTMLParser):
     def handle_start_a(self, attrs: Dict[str, str]):
         vars(self).update(attrs)
         tag_names = parse_tag_string(self.tags)
-        archived = "linkding:archived" in self.tags
+        archived = "linkding:bookmarks.archived" in self.tags
         try:
-            tag_names.remove("linkding:archived")
+            tag_names.remove("linkding:bookmarks.archived")
         except ValueError:
             pass
 

@@ -3,7 +3,6 @@
 
 # Include files required for build or at runtime
 !/bookmarks
-!/siteroot
 
 !/bootstrap.sh
 !/LICENSE.txt
@@ -19,4 +18,4 @@
 !/version.txt
 
  # Remove dev settings
-/siteroot/settings/dev.py
+/bookmarks/settings/dev.py

@@ -44,7 +44,7 @@ class BookmarkIndexViewTestCase(
             self.setup_bookmark(user=other_user),
         ]
 
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
 
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
@@ -53,7 +53,7 @@ class BookmarkIndexViewTestCase(
         visible_bookmarks = self.setup_numbered_bookmarks(3, prefix="foo")
         invisible_bookmarks = self.setup_numbered_bookmarks(3, prefix="bar")
 
-        response = self.client.get(reverse("bookmarks:index") + "?q=foo")
+        response = self.client.get(reverse("linkding:bookmarks.index") + "?q=foo")
 
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
@@ -75,7 +75,7 @@ class BookmarkIndexViewTestCase(
             archived_bookmarks + other_user_bookmarks
         )
 
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)
@@ -91,7 +91,7 @@ class BookmarkIndexViewTestCase(
         visible_tags = self.get_tags_from_bookmarks(visible_bookmarks)
         invisible_tags = self.get_tags_from_bookmarks(invisible_bookmarks)
 
-        response = self.client.get(reverse("bookmarks:index") + "?q=foo")
+        response = self.client.get(reverse("linkding:bookmarks.index") + "?q=foo")
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)
@@ -113,7 +113,7 @@ class BookmarkIndexViewTestCase(
         unread_tags = self.get_tags_from_bookmarks(unread_bookmarks)
         read_tags = self.get_tags_from_bookmarks(read_bookmarks)
 
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
         self.assertVisibleBookmarks(response, unread_bookmarks)
         self.assertInvisibleBookmarks(response, read_bookmarks)
         self.assertVisibleTags(response, unread_tags)
@@ -130,7 +130,7 @@ class BookmarkIndexViewTestCase(
         self.setup_bookmark(tags=tags)
 
         response = self.client.get(
-            reverse("bookmarks:index")
+            reverse("linkding:bookmarks.index")
             + f"?q=%23{tags[0].name}+%23{tags[1].name.upper()}"
         )
 
@@ -149,7 +149,8 @@ class BookmarkIndexViewTestCase(
         self.setup_bookmark(title=tags[0].name, tags=tags)
 
         response = self.client.get(
-            reverse("bookmarks:index") + f"?q={tags[0].name}+%23{tags[1].name.upper()}"
+            reverse("linkding:bookmarks.index")
+            + f"?q={tags[0].name}+%23{tags[1].name.upper()}"
         )
 
         self.assertSelectedTags(response, [tags[1]])
@@ -168,7 +169,8 @@ class BookmarkIndexViewTestCase(
         self.setup_bookmark(tags=tags)
 
         response = self.client.get(
-            reverse("bookmarks:index") + f"?q={tags[0].name}+%23{tags[1].name.upper()}"
+            reverse("linkding:bookmarks.index")
+            + f"?q={tags[0].name}+%23{tags[1].name.upper()}"
         )
 
         self.assertSelectedTags(response, [tags[0], tags[1]])
@@ -176,7 +178,7 @@ class BookmarkIndexViewTestCase(
     def test_should_open_bookmarks_in_new_page_by_default(self):
         visible_bookmarks = self.setup_numbered_bookmarks(3)
 
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
 
         self.assertVisibleBookmarks(response, visible_bookmarks, "_blank")
 
@@ -187,14 +189,14 @@ class BookmarkIndexViewTestCase(
 
         visible_bookmarks = self.setup_numbered_bookmarks(3)
 
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
 
         self.assertVisibleBookmarks(response, visible_bookmarks, "_self")
 
     def test_edit_link_return_url_respects_search_options(self):
         bookmark = self.setup_bookmark(title="foo")
-        edit_url = reverse("bookmarks:edit", args=[bookmark.id])
-        base_url = reverse("bookmarks:index")
+        edit_url = reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        base_url = reverse("linkding:bookmarks.index")
 
         # without query params
         return_url = urllib.parse.quote(base_url)
@@ -220,8 +222,8 @@ class BookmarkIndexViewTestCase(
         self.assertEditLink(response, url)
 
     def test_bulk_edit_respects_search_options(self):
-        action_url = reverse("bookmarks:index.action")
-        base_url = reverse("bookmarks:index")
+        action_url = reverse("linkding:bookmarks.index.action")
+        base_url = reverse("linkding:bookmarks.index")
 
         # without params
         url = f"{action_url}"
@@ -244,7 +246,7 @@ class BookmarkIndexViewTestCase(
         self.assertBulkActionForm(response, url)
 
     def test_allowed_bulk_actions(self):
-        url = reverse("bookmarks:index")
+        url = reverse("linkding:bookmarks.index")
         response = self.client.get(url)
         html = response.content.decode()
 
@@ -267,7 +269,7 @@ class BookmarkIndexViewTestCase(
         user_profile.enable_sharing = True
         user_profile.save()
 
-        url = reverse("bookmarks:index")
+        url = reverse("linkding:bookmarks.index")
         response = self.client.get(url)
         html = response.content.decode()
 
@@ -289,13 +291,13 @@ class BookmarkIndexViewTestCase(
 
     def test_apply_search_preferences(self):
         # no params
-        response = self.client.post(reverse("bookmarks:index"))
+        response = self.client.post(reverse("linkding:bookmarks.index"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("bookmarks:index"))
+        self.assertEqual(response.url, reverse("linkding:bookmarks.index"))
 
         # some params
         response = self.client.post(
-            reverse("bookmarks:index"),
+            reverse("linkding:bookmarks.index"),
             {
                 "q": "foo",
                 "sort": BookmarkSearch.SORT_TITLE_ASC,
@@ -303,12 +305,12 @@ class BookmarkIndexViewTestCase(
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.url, reverse("bookmarks:index") + "?q=foo&sort=title_asc"
+            response.url, reverse("linkding:bookmarks.index") + "?q=foo&sort=title_asc"
         )
 
         # params with default value are removed
         response = self.client.post(
-            reverse("bookmarks:index"),
+            reverse("linkding:bookmarks.index"),
             {
                 "q": "foo",
                 "user": "",
@@ -318,11 +320,13 @@ class BookmarkIndexViewTestCase(
             },
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("bookmarks:index") + "?q=foo&unread=yes")
+        self.assertEqual(
+            response.url, reverse("linkding:bookmarks.index") + "?q=foo&unread=yes"
+        )
 
         # page is removed
         response = self.client.post(
-            reverse("bookmarks:index"),
+            reverse("linkding:bookmarks.index"),
             {
                 "q": "foo",
                 "page": "2",
@@ -331,7 +335,7 @@ class BookmarkIndexViewTestCase(
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.url, reverse("bookmarks:index") + "?q=foo&sort=title_asc"
+            response.url, reverse("linkding:bookmarks.index") + "?q=foo&sort=title_asc"
         )
 
     def test_save_search_preferences(self):
@@ -339,7 +343,7 @@ class BookmarkIndexViewTestCase(
 
         # no params
         self.client.post(
-            reverse("bookmarks:index"),
+            reverse("linkding:bookmarks.index"),
             {
                 "save": "",
             },
@@ -356,7 +360,7 @@ class BookmarkIndexViewTestCase(
 
         # with param
         self.client.post(
-            reverse("bookmarks:index"),
+            reverse("linkding:bookmarks.index"),
             {
                 "save": "",
                 "sort": BookmarkSearch.SORT_TITLE_ASC,
@@ -374,7 +378,7 @@ class BookmarkIndexViewTestCase(
 
         # add a param
         self.client.post(
-            reverse("bookmarks:index"),
+            reverse("linkding:bookmarks.index"),
             {
                 "save": "",
                 "sort": BookmarkSearch.SORT_TITLE_ASC,
@@ -393,7 +397,7 @@ class BookmarkIndexViewTestCase(
 
         # remove a param
         self.client.post(
-            reverse("bookmarks:index"),
+            reverse("linkding:bookmarks.index"),
             {
                 "save": "",
                 "unread": BookmarkSearch.FILTER_UNREAD_YES,
@@ -411,7 +415,7 @@ class BookmarkIndexViewTestCase(
 
         # ignores non-preferences
         self.client.post(
-            reverse("bookmarks:index"),
+            reverse("linkding:bookmarks.index"),
             {
                 "save": "",
                 "q": "foo",
@@ -431,7 +435,7 @@ class BookmarkIndexViewTestCase(
         )
 
     def test_url_encode_bookmark_actions_url(self):
-        url = reverse("bookmarks:index") + "?q=%23foo"
+        url = reverse("linkding:bookmarks.index") + "?q=%23foo"
         response = self.client.get(url)
         html = response.content.decode()
         soup = self.make_soup(html)
@@ -445,34 +449,34 @@ class BookmarkIndexViewTestCase(
     def test_encode_search_params(self):
         bookmark = self.setup_bookmark(description="alert('xss')")
 
-        url = reverse("bookmarks:index") + "?q=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.index") + "?q=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
         self.assertContains(response, bookmark.url)
 
-        url = reverse("bookmarks:index") + "?sort=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.index") + "?sort=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
-        url = reverse("bookmarks:index") + "?unread=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.index") + "?unread=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
-        url = reverse("bookmarks:index") + "?shared=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.index") + "?shared=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
-        url = reverse("bookmarks:index") + "?user=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.index") + "?user=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
-        url = reverse("bookmarks:index") + "?page=alert(%27xss%27)"
+        url = reverse("linkding:bookmarks.index") + "?page=alert(%27xss%27)"
         response = self.client.get(url)
         self.assertNotContains(response, "alert('xss')")
 
     def test_turbo_frame_details_modal_renders_details_modal_update(self):
         bookmark = self.setup_bookmark()
-        url = reverse("bookmarks:index") + f"?bookmark_id={bookmark.id}"
+        url = reverse("linkding:bookmarks.index") + f"?bookmark_id={bookmark.id}"
         response = self.client.get(url, headers={"Turbo-Frame": "details-modal"})
 
         self.assertEqual(200, response.status_code)
@@ -483,7 +487,7 @@ class BookmarkIndexViewTestCase(
         self.assertIsNone(soup.select_one("#tag-cloud-container"))
 
     def test_does_not_include_rss_feed(self):
-        response = self.client.get(reverse("bookmarks:index"))
+        response = self.client.get(reverse("linkding:bookmarks.index"))
         soup = self.make_soup(response.content.decode())
 
         feed = soup.select_one('head link[type="application/rss+xml"]')

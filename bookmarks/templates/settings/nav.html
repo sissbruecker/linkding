@@ -1,13 +1,13 @@
-{% url 'bookmarks:settings.index' as index_url %}
-{% url 'bookmarks:settings.general' as general_url %}
-{% url 'bookmarks:settings.integrations' as integrations_url %}
+{% url 'linkding:settings.index' as index_url %}
+{% url 'linkding:settings.general' as general_url %}
+{% url 'linkding:settings.integrations' as integrations_url %}
 
 <ul class="tab tab-block">
     <li class="tab-item {% if request.get_full_path == index_url or request.get_full_path == general_url%}active{% endif %}">
-        <a href="{% url 'bookmarks:settings.general' %}">General</a>
+        <a href="{% url 'linkding:settings.general' %}">General</a>
     </li>
     <li class="tab-item {% if request.get_full_path == integrations_url %}active{% endif %}">
-        <a href="{% url 'bookmarks:settings.integrations' %}">Integrations</a>
+        <a href="{% url 'linkding:settings.integrations' %}">Integrations</a>
     </li>
     {% if request.user.is_superuser %}
     <li class="tab-item">

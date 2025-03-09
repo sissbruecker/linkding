@@ -33,7 +33,7 @@ class BookmarksApiPerformanceTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
         context = CaptureQueriesContext(self.get_connection())
         with context:
             self.get(
-                reverse("bookmarks:bookmark-list"),
+                reverse("linkding:bookmark-list"),
                 expected_status_code=status.HTTP_200_OK,
             )
 
@@ -51,7 +51,7 @@ class BookmarksApiPerformanceTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
         context = CaptureQueriesContext(self.get_connection())
         with context:
             self.get(
-                reverse("bookmarks:bookmark-archived"),
+                reverse("linkding:bookmark-archived"),
                 expected_status_code=status.HTTP_200_OK,
             )
 
@@ -70,7 +70,7 @@ class BookmarksApiPerformanceTestCase(LinkdingApiTestCase, BookmarkFactoryMixin)
         context = CaptureQueriesContext(self.get_connection())
         with context:
             self.get(
-                reverse("bookmarks:bookmark-shared"),
+                reverse("linkding:bookmark-shared"),
                 expected_status_code=status.HTTP_200_OK,
             )
 
