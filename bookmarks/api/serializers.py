@@ -181,6 +181,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "enable_favicons",
             "display_url",
             "permanent_notes",
+            "locally_archived_snapshot_link",
             "search_preferences",
             "version",
         ]
