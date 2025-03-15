@@ -2,9 +2,8 @@
 {% load widget_tweaks %}
 
 {% block content %}
-  <div class="settings-page">
-
-    {% include 'settings/nav.html' %}
+  <main class="settings-page">
+    <h1>Settings</h1>
 
     {# Profile section #}
     {% if success_message %}
@@ -384,7 +383,7 @@ reddit.com/r/Music music reddit</pre>
         </tbody>
       </table>
     </section>
-  </div>
+  </main>
 
   <script>
     (function init() {
