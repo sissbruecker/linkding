@@ -8,9 +8,9 @@
 
 {% block content %}
   <div class="bookmarks-form-page">
-    <main>
+    <main aria-labelledby="main-heading">
       <div class="section-header">
-        <h1>New bookmark</h1>
+        <h1 id="main-heading">New bookmark</h1>
       </div>
       <form action="{% url 'linkding:bookmarks.new' %}" method="post" novalidate>
         {% include 'bookmarks/form.html' %}

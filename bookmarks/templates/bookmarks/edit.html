@@ -8,9 +8,9 @@
 
 {% block content %}
   <div class="bookmarks-form-page">
-    <main>
+    <main aria-labelledby="main-heading">
       <div class="section-header">
-        <h1>Edit bookmark</h1>
+        <h1 id="main-heading">Edit bookmark</h1>
       </div>
       <form action="{% url 'linkding:bookmarks.edit' bookmark_id %}?return_url={{ return_url|urlencode }}" method="post"
             novalidate>

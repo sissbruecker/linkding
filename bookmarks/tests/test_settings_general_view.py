@@ -593,7 +593,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         html = response.content.decode()
 
         self.assertInHTML(
-            "<h2>Global settings</h2>",
+            '<h2 id="global-settings-heading">Global settings</h2>',
             html,
             count=0,
         )
@@ -605,7 +605,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         html = response.content.decode()
 
         self.assertInHTML(
-            "<h2>Global settings</h2>",
+            '<h2 id="global-settings-heading">Global settings</h2>',
             html,
             count=1,
         )

@@ -8,9 +8,9 @@
 {% endblock %}
 
 {% block content %}
-  <main class="mx-auto width-50 width-md-100">
+  <main class="mx-auto width-50 width-md-100" aria-labelledby="main-heading">
     <div class="section-header">
-      <h1>Login</h1>
+      <h1 id="main-heading">Login</h1>
     </div>
     <form method="post" action="{% url 'login' %}">
       {% csrf_token %}
