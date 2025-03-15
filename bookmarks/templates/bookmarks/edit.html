@@ -8,8 +8,8 @@
 
 {% block content %}
   <div class="bookmarks-form-page">
-    <main class="content-area">
-      <div class="content-area-header">
+    <main>
+      <div class="section-header">
         <h1>Edit bookmark</h1>
       </div>
       <form action="{% url 'linkding:bookmarks.edit' bookmark_id %}?return_url={{ return_url|urlencode }}" method="post"

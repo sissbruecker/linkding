@@ -84,13 +84,15 @@
       <img class="app-logo" src="{% static 'logo.png' %}" alt="Application logo">
       <span class="app-name">LINKDING</span>
     </a>
-    {% if request.user.is_authenticated %}
-      {# Only show nav items menu when logged in #}
-      {% include 'bookmarks/nav_menu.html' %}
-    {% else %}
-      {# Otherwise show login link #}
-      <a href="{% url 'login' %}" class="btn btn-link">Login</a>
-    {% endif %}
+    <nav>
+      {% if request.user.is_authenticated %}
+        {# Only show nav items menu when logged in #}
+        {% include 'bookmarks/nav_menu.html' %}
+      {% else %}
+        {# Otherwise show login link #}
+        <a href="{% url 'login' %}" class="btn btn-link">Login</a>
+      {% endif %}
+    </nav>
   </div>
 </header>
 <div class="content container">

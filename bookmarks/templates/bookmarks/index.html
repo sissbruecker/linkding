@@ -10,8 +10,8 @@
        class="bookmarks-page grid columns-md-1 {% if bookmark_list.collapse_side_panel %}collapse-side-panel{% endif %}">
 
     {# Bookmark list #}
-    <main class="main content-area col-2">
-      <div class="content-area-header mb-0">
+    <main class="main col-2">
+      <div class="section-header mb-0">
         <h1>Bookmarks</h1>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search %}
@@ -33,14 +33,16 @@
     </main>
 
     {# Tag cloud #}
-    <section class="side-panel content-area col-1" aria-label="Filters">
-      <div class="content-area-header">
-        <h2>Tags</h2>
-      </div>
-      <div id="tag-cloud-container">
-        {% include 'bookmarks/tag_cloud.html' %}
-      </div>
-    </section>
+    <div class="side-panel col-1">
+      <section aria-label="Tags">
+        <div class="section-header">
+          <h2>Tags</h2>
+        </div>
+        <div id="tag-cloud-container">
+          {% include 'bookmarks/tag_cloud.html' %}
+        </div>
+      </section>
+    </div>
   </div>
 {% endblock %}
 

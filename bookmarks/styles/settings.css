@@ -4,10 +4,11 @@
     margin-bottom: var(--unit-6);
   }
 
-  section.content-area {
+  section {
     margin-bottom: var(--unit-10);
 
     h2 {
+      font-size: var(--font-size-lg);
       margin-bottom: var(--unit-3);
     }
   }

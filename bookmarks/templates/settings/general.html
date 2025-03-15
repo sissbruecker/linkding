@@ -19,7 +19,7 @@
       <div class="toast toast-error mb-4">{{ error_message }}</div>
     {% endif %}
 
-    <section class="content-area">
+    <section aria-label="Profile">
       <h2>Profile</h2>
       <p>
         <a href="{% url 'change_password' %}">Change password</a>
@@ -283,7 +283,7 @@ reddit.com/r/Music music reddit</pre>
 
     {# Global settings section #}
     {% if global_settings_form %}
-      <section class="content-area">
+      <section aria-label="Global settings">
         <h2>Global settings</h2>
         <form action="{% url 'linkding:settings.update' %}" method="post" novalidate data-turbo="false">
           {% csrf_token %}
@@ -323,7 +323,7 @@ reddit.com/r/Music music reddit</pre>
     {% endif %}
 
     {# Import section #}
-    <section class="content-area">
+    <section aria-label="Import">
       <h2>Import</h2>
       <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
         added and existing ones are updated.</p>
@@ -351,7 +351,7 @@ reddit.com/r/Music music reddit</pre>
     </section>
 
     {# Export section #}
-    <section class="content-area">
+    <section aria-label="Export">
       <h2>Export</h2>
       <p>Export all bookmarks in Netscape HTML format.</p>
       <a class="btn btn-primary" target="_blank" href="{% url 'linkding:settings.export' %}">Download (.html)</a>
@@ -365,7 +365,7 @@ reddit.com/r/Music music reddit</pre>
     </section>
 
     {# About section #}
-    <section class="content-area about">
+    <section class="about" aria-label="About">
       <h2>About</h2>
       <table class="table">
         <tbody>

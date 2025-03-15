@@ -34,7 +34,7 @@
       grid-column: span var(--grid-columns);
     }
 
-    section.side-panel {
+    .side-panel {
       display: none;
     }
 
@@ -459,7 +459,7 @@ ul.bookmark-list {
 
   /* Hide section border when bulk edit bar is opened, otherwise borders overlap in dark mode due to using contrast colors */
 
-  &.active section:first-of-type .content-area-header {
+  &.active .main .section-header {
     border-bottom-color: transparent;
   }
 

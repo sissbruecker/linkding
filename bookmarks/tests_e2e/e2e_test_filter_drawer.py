@@ -16,9 +16,7 @@ class FilterDrawerE2ETestCase(LinkdingE2ETestCase):
             page.set_viewport_size({"width": 375, "height": 812})
 
             # open drawer
-            drawer_trigger = page.locator(".content-area-header").get_by_role(
-                "button", name="Filters"
-            )
+            drawer_trigger = page.locator(".main").get_by_role("button", name="Filters")
             drawer_trigger.click()
 
             # verify drawer is visible
@@ -49,9 +47,7 @@ class FilterDrawerE2ETestCase(LinkdingE2ETestCase):
             page.set_viewport_size({"width": 375, "height": 812})
 
             # open tag cloud modal
-            drawer_trigger = page.locator(".content-area-header").get_by_role(
-                "button", name="Filters"
-            )
+            drawer_trigger = page.locator(".main").get_by_role("button", name="Filters")
             drawer_trigger.click()
 
             # verify tags are displayed
