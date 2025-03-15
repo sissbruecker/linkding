@@ -110,6 +110,9 @@ def shared(request: HttpRequest):
 
 
 def render_bookmarks_view(request: HttpRequest, template_name, context):
+    if context["details"]:
+        context["page_title"] = "Bookmark details - Linkding"
+
     if turbo.is_frame(request, "details-modal"):
         return render(
             request,
