@@ -2,13 +2,13 @@
 
 {% block content %}
   <div class="bookmarks-form-page">
-    <section class="content-area">
+    <main class="content-area">
       <div class="content-area-header">
-        <h2>New bookmark</h2>
+        <h1>New bookmark</h1>
       </div>
       <form action="{% url 'linkding:bookmarks.new' %}" method="post" novalidate>
         {% include 'bookmarks/form.html' %}
       </form>
-    </section>
+    </main>
   </div>
 {% endblock %}
