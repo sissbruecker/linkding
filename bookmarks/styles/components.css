@@ -32,7 +32,7 @@
 }
 
 @media (max-width: 600px) {
-  section.content-area .content-area-header {
+  .content-area .content-area-header {
     flex-direction: column;
   }
 }
