@@ -1,7 +1,11 @@
 {% extends 'bookmarks/layout.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Registration complete{% endblock %}
+{% block head %}
+  {% with page_title="Registration complete - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
 
 {% block content %}
   <main class="content-area mx-auto width-50 width-md-100">

@@ -1,5 +1,11 @@
 {% extends "bookmarks/layout.html" %}
 
+{% block head %}
+  {% with page_title="Integrations - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
 {% block content %}
   <main class="settings-page">
     <h1>Integrations</h1>

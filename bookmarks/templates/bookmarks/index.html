@@ -3,6 +3,8 @@
 {% load shared %}
 {% load bookmarks %}
 
+{% block title %}Bookmarks - Linkding{% endblock %}
+
 {% block content %}
   <div ld-bulk-edit
        class="bookmarks-page grid columns-md-1 {% if bookmark_list.collapse_side_panel %}collapse-side-panel{% endif %}">

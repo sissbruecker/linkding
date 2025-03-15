@@ -1,6 +1,12 @@
 {% extends "bookmarks/layout.html" %}
 {% load widget_tweaks %}
 
+{% block head %}
+  {% with page_title="Settings - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
 {% block content %}
   <main class="settings-page">
     <h1>Settings</h1>

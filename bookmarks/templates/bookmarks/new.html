@@ -1,5 +1,11 @@
 {% extends 'bookmarks/layout.html' %}
 
+{% block head %}
+  {% with page_title="New bookmark - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
 {% block content %}
   <div class="bookmarks-form-page">
     <main class="content-area">
