@@ -1,7 +1,8 @@
 /* Shared components */
 
 /* Content area component */
-section.content-area {
+.content-area {
+  h1,
   h2,
   h3 {
     font-size: var(--font-size-lg);
@@ -15,6 +16,7 @@ section.content-area {
     padding-bottom: var(--unit-2);
     margin-bottom: var(--unit-4);
 
+    h1,
     h2,
     h3 {
       flex: 0 0 auto;

@@ -8,9 +8,9 @@
       class="bookmarks-page grid columns-md-1 {% if bookmark_list.collapse_side_panel %}collapse-side-panel{% endif %}">
 
     {# Bookmark list #}
-    <section class="main content-area col-2">
+    <main class="main content-area col-2">
       <div class="content-area-header">
-        <h2>Shared bookmarks</h2>
+        <h1>Shared bookmarks</h1>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search mode='shared' %}
           <button ld-filter-drawer-trigger class="btn ml-2">Filters</button>
@@ -25,7 +25,7 @@
           {% include 'bookmarks/bookmark_list.html' %}
         </div>
       </form>
-    </section>
+    </main>
 
     {# Filters #}
     <section class="side-panel content-area col-1">

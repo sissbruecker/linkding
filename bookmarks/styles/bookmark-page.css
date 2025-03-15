@@ -30,7 +30,7 @@
   }
 
   &.collapse-side-panel {
-    section.main {
+    main {
       grid-column: span var(--grid-columns);
     }
 
