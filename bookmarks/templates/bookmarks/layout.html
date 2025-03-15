@@ -80,9 +80,9 @@
     </div>
   {% endif %}
   <div class="d-flex justify-between">
-    <a href="{% url 'linkding:root' %}" class="d-flex align-center">
-      <img class="logo" src="{% static 'logo.png' %}" alt="Application logo">
-      <h1>LINKDING</h1>
+    <a href="{% url 'linkding:root' %}" class="app-link d-flex align-center">
+      <img class="app-logo" src="{% static 'logo.png' %}" alt="Application logo">
+      <span class="app-name">LINKDING</span>
     </a>
     {% if request.user.is_authenticated %}
       {# Only show nav items menu when logged in #}
