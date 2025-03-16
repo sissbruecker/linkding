@@ -1,15 +1,21 @@
 {% extends 'bookmarks/layout.html' %}
 
+{% block head %}
+  {% with page_title="Edit bookmark - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
 {% block content %}
   <div class="bookmarks-form-page">
-    <section class="content-area">
-      <div class="content-area-header">
-        <h2>Edit bookmark</h2>
+    <main aria-labelledby="main-heading">
+      <div class="section-header">
+        <h1 id="main-heading">Edit bookmark</h1>
       </div>
       <form action="{% url 'linkding:bookmarks.edit' bookmark_id %}?return_url={{ return_url|urlencode }}" method="post"
             novalidate>
         {% include 'bookmarks/form.html' %}
       </form>
-    </section>
+    </main>
   </div>
 {% endblock %}

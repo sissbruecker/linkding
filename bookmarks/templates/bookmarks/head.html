@@ -12,7 +12,7 @@
   <meta name="description" content="Self-hosted bookmark service">
   <meta name="robots" content="index,follow">
   <meta name="author" content="Sascha Ißbrücker">
-  <title>linkding</title>
+  <title>{{ page_title|default:'Linkding' }}</title>
   {# Include specific theme variant based on user profile setting #}
   {% if request.user_profile.theme == 'light' %}
     <link href="{% static 'theme-light.css' %}?v={{ app_version }}" rel="stylesheet" type="text/css"/>

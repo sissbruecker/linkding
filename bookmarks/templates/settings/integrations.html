@@ -1,12 +1,17 @@
 {% extends "bookmarks/layout.html" %}
 
+{% block head %}
+  {% with page_title="Integrations - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
 {% block content %}
-  <div class="settings-page">
+  <main class="settings-page" aria-labelledby="main-heading">
+    <h1 id="main-heading">Integrations</h1>
 
-    {% include 'settings/nav.html' %}
-
-    <section class="content-area">
-      <h2>Browser Extension</h2>
+    <section aria-labelledby="browser-extension-heading">
+      <h2 id="browser-extension-heading">Browser Extension</h2>
       <p>The browser extension allows you to quickly add new bookmarks without leaving the page that you are on. The
         extension is available in the official extension stores for:</p>
       <ul>
@@ -31,8 +36,8 @@
          class="btn btn-primary">📎 Add bookmark</a>
     </section>
 
-    <section class="content-area">
-      <h2>REST API</h2>
+    <section aria-labelledby="rest-api-heading">
+      <h2 id="rest-api-heading">REST API</h2>
       <p>The following token can be used to authenticate 3rd-party applications against the REST API:</p>
       <div class="form-group">
         <div class="width-50 width-md-100">
@@ -48,8 +53,8 @@
       </p>
     </section>
 
-    <section class="content-area">
-      <h2>RSS Feeds</h2>
+    <section aria-labelledby="rss-feeds-heading">
+      <h2 id="rss-feeds-heading">RSS Feeds</h2>
       <p>The following URLs provide RSS feeds for your bookmarks:</p>
       <ul style="list-style-position: outside;">
         <li><a target="_blank" href="{{ all_feed_url }}">All bookmarks</a></li>
@@ -84,5 +89,5 @@
         After deleting the feed token, new URLs will be generated when you reload this settings page.
       </p>
     </section>
-  </div>
+  </main>
 {% endblock %}

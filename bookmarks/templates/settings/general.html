@@ -1,10 +1,15 @@
 {% extends "bookmarks/layout.html" %}
 {% load widget_tweaks %}
 
-{% block content %}
-  <div class="settings-page">
+{% block head %}
+  {% with page_title="Settings - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
 
-    {% include 'settings/nav.html' %}
+{% block content %}
+  <main class="settings-page" aria-labelledby="main-heading">
+    <h1 id="main-heading">Settings</h1>
 
     {# Profile section #}
     {% if success_message %}
@@ -14,8 +19,8 @@
       <div class="toast toast-error mb-4">{{ error_message }}</div>
     {% endif %}
 
-    <section class="content-area">
-      <h2>Profile</h2>
+    <section aria-labelledby="profile-heading">
+      <h2 id="profile-heading">Profile</h2>
       <p>
         <a href="{% url 'change_password' %}">Change password</a>
       </p>
@@ -278,8 +283,8 @@ reddit.com/r/Music music reddit</pre>
 
     {# Global settings section #}
     {% if global_settings_form %}
-      <section class="content-area">
-        <h2>Global settings</h2>
+      <section aria-labelledby="global-settings-heading">
+        <h2 id="global-settings-heading">Global settings</h2>
         <form action="{% url 'linkding:settings.update' %}" method="post" novalidate data-turbo="false">
           {% csrf_token %}
           <div class="form-group">
@@ -318,8 +323,8 @@ reddit.com/r/Music music reddit</pre>
     {% endif %}
 
     {# Import section #}
-    <section class="content-area">
-      <h2>Import</h2>
+    <section aria-labelledby="import-heading">
+      <h2 id="import-heading">Import</h2>
       <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
         added and existing ones are updated.</p>
       <form method="post" enctype="multipart/form-data" action="{% url 'linkding:settings.import' %}">
@@ -346,8 +351,8 @@ reddit.com/r/Music music reddit</pre>
     </section>
 
     {# Export section #}
-    <section class="content-area">
-      <h2>Export</h2>
+    <section aria-labelledby="export-heading">
+      <h2 id="export-heading">Export</h2>
       <p>Export all bookmarks in Netscape HTML format.</p>
       <a class="btn btn-primary" target="_blank" href="{% url 'linkding:settings.export' %}">Download (.html)</a>
       {% if export_error %}
@@ -360,8 +365,8 @@ reddit.com/r/Music music reddit</pre>
     </section>
 
     {# About section #}
-    <section class="content-area about">
-      <h2>About</h2>
+    <section class="about" aria-labelledby="about-heading">
+      <h2 id="about-heading">About</h2>
       <table class="table">
         <tbody>
         <tr>
@@ -384,7 +389,7 @@ reddit.com/r/Music music reddit</pre>
         </tbody>
       </table>
     </section>
-  </div>
+  </main>
 
   <script>
     (function init() {

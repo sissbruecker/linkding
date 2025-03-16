@@ -27,7 +27,24 @@
         </li>
       </ul>
     </div>
-    <a href="{% url 'linkding:settings.index' %}" class="btn btn-link">Settings</a>
+    <div ld-dropdown class="dropdown">
+      <button class="btn btn-link dropdown-toggle" tabindex="0">
+        Settings
+      </button>
+      <ul class="menu" role="list" tabindex="-1">
+        <li class="menu-item">
+          <a href="{% url 'linkding:settings.general' %}" class="menu-link">General</a>
+        </li>
+        <li class="menu-item">
+          <a href="{% url 'linkding:settings.integrations' %}" class="menu-link">Integrations</a>
+        </li>
+        {% if request.user.is_superuser %}
+          <li class="menu-item">
+            <a href="{% url 'admin:index' %}" class="menu-link" data-turbo="false">Admin</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
     <form class="d-inline" action="{% url 'logout' %}" method="post" data-turbo="false">
       {% csrf_token %}
       <button type="submit" class="btn btn-link">Logout</button>
@@ -54,11 +71,11 @@
           <a href="{% url 'linkding:bookmarks.index' %}" class="menu-link">Bookmarks</a>
         </li>
         <li class="menu-item">
-          <a href="{% url 'linkding:bookmarks.archived' %}" class="menu-link">Archived</a>
+          <a href="{% url 'linkding:bookmarks.archived' %}" class="menu-link">Archived bookmarks</a>
         </li>
         {% if request.user_profile.enable_sharing %}
           <li class="menu-item">
-            <a href="{% url 'linkding:bookmarks.shared' %}" class="menu-link">Shared</a>
+            <a href="{% url 'linkding:bookmarks.shared' %}" class="menu-link">Shared bookmarks</a>
           </li>
         {% endif %}
         <li class="menu-item">
@@ -69,8 +86,17 @@
         </li>
         <div class="divider"></div>
         <li class="menu-item">
-          <a href="{% url 'linkding:settings.index' %}" class="menu-link">Settings</a>
+          <a href="{% url 'linkding:settings.general' %}" class="menu-link">Settings</a>
         </li>
+        <li class="menu-item">
+          <a href="{% url 'linkding:settings.integrations' %}" class="menu-link">Integrations</a>
+        </li>
+        {% if request.user.is_superuser %}
+          <li class="menu-item">
+            <a href="{% url 'admin:index' %}" class="menu-link" data-turbo="false">Admin</a>
+          </li>
+        {% endif %}
+        <div class="divider"></div>
         <li class="menu-item">
           <form class="d-inline" action="{% url 'logout' %}" method="post" data-turbo="false">
             {% csrf_token %}

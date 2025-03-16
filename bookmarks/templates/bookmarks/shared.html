@@ -8,9 +8,9 @@
       class="bookmarks-page grid columns-md-1 {% if bookmark_list.collapse_side_panel %}collapse-side-panel{% endif %}">
 
     {# Bookmark list #}
-    <section class="main content-area col-2">
-      <div class="content-area-header">
-        <h2>Shared bookmarks</h2>
+    <main class="main col-2" aria-labelledby="main-heading">
+      <div class="section-header">
+        <h1 id="main-heading">Shared bookmarks</h1>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search mode='shared' %}
           <button ld-filter-drawer-trigger class="btn ml-2">Filters</button>
@@ -25,24 +25,28 @@
           {% include 'bookmarks/bookmark_list.html' %}
         </div>
       </form>
-    </section>
+    </main>
 
     {# Filters #}
-    <section class="side-panel content-area col-1">
-      <div class="content-area-header">
-        <h2>User</h2>
-      </div>
-      <div>
-        {% user_select bookmark_list.search users %}
-        <br>
-      </div>
-      <div class="content-area-header">
-        <h2>Tags</h2>
-      </div>
-      <div id="tag-cloud-container">
-        {% include 'bookmarks/tag_cloud.html' %}
-      </div>
-    </section>
+    <div class="side-panel col-1">
+      <section aria-labelledby="user-heading">
+        <div class="section-header">
+          <h2 id="user-heading">User</h2>
+        </div>
+        <div>
+          {% user_select bookmark_list.search users %}
+          <br>
+        </div>
+      </section>
+      <section aria-labelledby="tags-heading">
+        <div class="section-header">
+          <h2 id="tags-heading">Tags</h2>
+        </div>
+        <div id="tag-cloud-container">
+          {% include 'bookmarks/tag_cloud.html' %}
+        </div>
+      </section>
+    </div>
   </div>
 {% endblock %}
 
