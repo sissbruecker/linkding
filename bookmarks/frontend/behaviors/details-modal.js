@@ -1,5 +1,5 @@
 import { registerBehavior } from "./index";
-import { isKeyboardActive } from "./focus-utils";
+import { isKeyboardActive, setAfterPageLoadFocusTarget } from "./focus-utils";
 import { ModalBehavior } from "./modal";
 
 class DetailsModalBehavior extends ModalBehavior {
@@ -15,14 +15,9 @@ class DetailsModalBehavior extends ModalBehavior {
 
     // Try restore focus to view details to view details link of respective bookmark
     const bookmarkId = this.element.dataset.bookmarkId;
-    const restoreFocusElement =
-      document.querySelector(
-        `ul.bookmark-list li[data-bookmark-id='${bookmarkId}'] a.view-action`,
-      ) ||
-      document.querySelector("ul.bookmark-list") ||
-      document.body;
-
-    restoreFocusElement.focus({ focusVisible: isKeyboardActive() });
+    setAfterPageLoadFocusTarget(
+      `ul.bookmark-list li[data-bookmark-id='${bookmarkId}'] a.view-action`,
+    );
   }
 }
 
