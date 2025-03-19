@@ -39,3 +39,6 @@ class LoginViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         oidc_login_link = soup.find("a", string="Login with OIDC")
 
         self.assertIsNotNone(oidc_login_link)
+
+        # should have turbo disabled
+        self.assertEqual("false", oidc_login_link.get("data-turbo"))
