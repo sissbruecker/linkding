@@ -33,7 +33,7 @@
         <input type="submit" value="Login" class="btn btn-primary btn-wide"/>
         <input type="hidden" name="next" value="{{ next }}"/>
         {% if enable_oidc %}
-          <a class="btn btn-link" href="{% url 'oidc_authentication_init' %}">Login with OIDC</a>
+          <a class="btn btn-link" href="{% url 'oidc_authentication_init' %}" data-turbo="false">Login with OIDC</a>
         {% endif %}
         {% if allow_registration %}
           <a href="{% url 'django_registration_register' %}" class="btn btn-link">Register</a>
