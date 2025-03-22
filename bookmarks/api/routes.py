@@ -237,6 +237,9 @@ class BookmarkAssetViewSet(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+    def perform_destroy(self, instance):
+        assets.remove_asset(instance)
+
 
 class TagViewSet(
     viewsets.GenericViewSet,

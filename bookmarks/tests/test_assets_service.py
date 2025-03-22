@@ -1,6 +1,7 @@
 import datetime
 import gzip
 import os
+from datetime import timedelta
 from unittest import mock
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -236,3 +237,175 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
 
         # asset is not saved to the database
         self.assertIsNone(BookmarkAsset.objects.first())
+
+    def test_create_snapshot_updates_bookmark_latest_snapshot(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+        first_asset = assets.create_snapshot_asset(bookmark)
+        first_asset.save()
+
+        assets.create_snapshot(first_asset)
+        bookmark.refresh_from_db()
+
+        self.assertEqual(bookmark.latest_snapshot, first_asset)
+
+        second_asset = assets.create_snapshot_asset(bookmark)
+        second_asset.save()
+
+        assets.create_snapshot(second_asset)
+        bookmark.refresh_from_db()
+
+        self.assertEqual(bookmark.latest_snapshot, second_asset)
+
+    def test_upload_snapshot_updates_bookmark_latest_snapshot(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+
+        first_asset = assets.upload_snapshot(bookmark, self.html_content.encode())
+
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, first_asset)
+
+        second_asset = assets.upload_snapshot(bookmark, self.html_content.encode())
+
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, second_asset)
+        self.assertNotEqual(bookmark.latest_snapshot, first_asset)
+
+    def test_create_snapshot_failure_does_not_update_latest_snapshot(self):
+        # Create a bookmark with an existing latest_snapshot
+        bookmark = self.setup_bookmark(url="https://example.com")
+        initial_snapshot = assets.upload_snapshot(bookmark, self.html_content.encode())
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, initial_snapshot)
+
+        # Create a new snapshot asset that will fail
+        failing_asset = assets.create_snapshot_asset(bookmark)
+        failing_asset.save()
+
+        # Make the snapshot creation fail
+        self.mock_singlefile_create_snapshot.side_effect = Exception(
+            "Snapshot creation failed"
+        )
+
+        # Attempt to create a snapshot (which will fail)
+        with self.assertRaises(Exception):
+            assets.create_snapshot(failing_asset)
+
+        # Verify that the bookmark's latest_snapshot is still the initial snapshot
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, initial_snapshot)
+
+    def test_upload_snapshot_failure_does_not_update_latest_snapshot(self):
+        # Create a bookmark with an existing latest_snapshot
+        bookmark = self.setup_bookmark(url="https://example.com")
+        initial_snapshot = assets.upload_snapshot(bookmark, self.html_content.encode())
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, initial_snapshot)
+
+        # Make the gzip.open function fail
+        with mock.patch("gzip.open") as mock_gzip_open:
+            mock_gzip_open.side_effect = Exception("Upload failed")
+
+            # Attempt to upload a snapshot (which will fail)
+            with self.assertRaises(Exception):
+                assets.upload_snapshot(bookmark, b"New content")
+
+        # Verify that the bookmark's latest_snapshot is still the initial snapshot
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, initial_snapshot)
+
+    def test_remove_latest_snapshot_updates_bookmark(self):
+        # Create a bookmark with multiple snapshots
+        bookmark = self.setup_bookmark()
+
+        # Create base time (1 hour ago)
+        base_time = timezone.now() - timedelta(hours=1)
+
+        # Create three snapshots with explicitly different dates
+        old_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="old_snapshot.html.gz",
+            date_created=base_time,
+        )
+        self.setup_asset_file(old_asset)
+
+        middle_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="middle_snapshot.html.gz",
+            date_created=base_time + timedelta(minutes=30),
+        )
+        self.setup_asset_file(middle_asset)
+
+        latest_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="latest_snapshot.html.gz",
+            date_created=base_time + timedelta(minutes=60),
+        )
+        self.setup_asset_file(latest_asset)
+
+        # Set the latest asset as the bookmark's latest_snapshot
+        bookmark.latest_snapshot = latest_asset
+        bookmark.save()
+
+        # Delete the latest snapshot
+        assets.remove_asset(latest_asset)
+        bookmark.refresh_from_db()
+
+        # Verify that middle_asset is now the latest_snapshot
+        self.assertEqual(bookmark.latest_snapshot, middle_asset)
+
+        # Delete the middle snapshot
+        assets.remove_asset(middle_asset)
+        bookmark.refresh_from_db()
+
+        # Verify that old_asset is now the latest_snapshot
+        self.assertEqual(bookmark.latest_snapshot, old_asset)
+
+        # Delete the last snapshot
+        assets.remove_asset(old_asset)
+        bookmark.refresh_from_db()
+
+        # Verify that latest_snapshot is now None
+        self.assertIsNone(bookmark.latest_snapshot)
+
+    def test_remove_non_latest_snapshot_does_not_affect_bookmark(self):
+        # Create a bookmark with multiple snapshots
+        bookmark = self.setup_bookmark()
+
+        # Create base time (1 hour ago)
+        base_time = timezone.now() - timedelta(hours=1)
+
+        # Create two snapshots with explicitly different dates
+        old_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="old_snapshot.html.gz",
+            date_created=base_time,
+        )
+        self.setup_asset_file(old_asset)
+
+        latest_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="latest_snapshot.html.gz",
+            date_created=base_time + timedelta(minutes=30),
+        )
+        self.setup_asset_file(latest_asset)
+
+        # Set the latest asset as the bookmark's latest_snapshot
+        bookmark.latest_snapshot = latest_asset
+        bookmark.save()
+
+        # Delete the old snapshot (not the latest)
+        assets.remove_asset(old_asset)
+        bookmark.refresh_from_db()
+
+        # Verify that latest_snapshot hasn't changed
+        self.assertEqual(bookmark.latest_snapshot, latest_asset)
