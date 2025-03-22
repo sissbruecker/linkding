@@ -22,7 +22,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
         self.website_loader_patch = patch.object(
             website_loader, "load_website_metadata", return_value=mock_website_metadata
         )
-        self.website_loader_patch.start()
+        self.website_loader_mock = self.website_loader_patch.start()
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -167,3 +167,147 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
             page.get_by_label("URL").fill("https://example.com")
 
             expect(auto_tags_hint).to_be_hidden()
+
+    def test_clear_buttons_only_shown_when_fields_have_content(self):
+        with sync_playwright() as p:
+            page = self.open(reverse("linkding:bookmarks.new"), p)
+
+            title_field = page.get_by_label("Title")
+            title_clear_button = page.locator("[ld-clear-button][data-for='id_title']")
+            description_field = page.get_by_label("Description")
+            description_clear_button = page.locator(
+                "[ld-clear-button][data-for='id_description']"
+            )
+
+            # Initially, clear buttons should be hidden because fields are empty
+            expect(title_clear_button).to_be_hidden()
+            expect(description_clear_button).to_be_hidden()
+
+            # Add content to title field, its clear button should become visible
+            title_field.fill("Test title")
+            expect(title_clear_button).to_be_visible()
+
+            # Add content to description field, its clear button should become visible
+            description_field.fill("Test description")
+            expect(description_clear_button).to_be_visible()
+
+            # Clear title field, its clear button should be hidden again
+            title_field.fill("")
+            expect(title_clear_button).to_be_hidden()
+
+            # Clear description field, its clear button should be hidden again
+            description_field.fill("")
+            expect(description_clear_button).to_be_hidden()
+
+    def test_refresh_button_only_shown_for_existing_bookmarks(self):
+        existing_bookmark = self.setup_bookmark(
+            title="Existing title", description="Existing description"
+        )
+
+        with sync_playwright() as p:
+            page = self.open(reverse("linkding:bookmarks.new"), p)
+            refresh_button = page.locator("#refresh-button")
+
+            # Initially, refresh button should be hidden
+            expect(refresh_button).to_be_hidden()
+
+            # Enter a URL that is not bookmarked yet
+            page.get_by_label("URL").fill("https://example.com/not-bookmarked")
+            page.wait_for_timeout(timeout=1000)
+
+            expect(refresh_button).to_be_hidden()
+
+            # Enter a URL that is already bookmarked
+            page.get_by_label("URL").fill(existing_bookmark.url)
+
+            expect(refresh_button).to_be_visible()
+
+            # Change back to non-bookmarked URL
+            page.get_by_label("URL").fill("https://example.com/another-not-bookmarked")
+
+            expect(refresh_button).to_be_hidden()
+
+    def test_refresh_from_website_button_updates_title_and_description(self):
+        existing_bookmark = self.setup_bookmark(
+            title="Existing title", description="Existing description"
+        )
+
+        with sync_playwright() as p:
+            page = self.open(reverse("linkding:bookmarks.new"), p)
+            url_field = page.get_by_label("URL")
+            title_field = page.get_by_label("Title")
+            description_field = page.get_by_label("Description")
+            refresh_button = page.locator("#refresh-button")
+
+            # Enter the URL of the existing bookmark to make refresh button visible
+            url_field.fill(existing_bookmark.url)
+
+            # Wait for metadata to be loaded and for refresh button to be visible
+            expect(refresh_button).to_be_visible()
+            expect(title_field).to_have_value("Existing title")
+            expect(description_field).to_have_value("Existing description")
+
+            # Update the mock to return different metadata when refresh is requested
+            self.website_loader_mock.reset_mock()
+            self.website_loader_mock.return_value = website_loader.WebsiteMetadata(
+                url="https://example.com",
+                title="Updated Example Domain",
+                description="This is a refreshed description for the example domain.",
+                preview_image=None,
+            )
+
+            # Click the refresh button
+            refresh_button.click()
+
+            # Verify that title and description have been updated with new values
+            expect(title_field).to_have_value("Updated Example Domain")
+            expect(description_field).to_have_value(
+                "This is a refreshed description for the example domain."
+            )
+
+            # Verify that the fields are visually marked as modified
+            expect(title_field).to_have_class("form-input modified")
+            expect(description_field).to_have_class("form-input modified")
+
+    def test_refresh_from_website_button_does_not_modify_fields_if_metadata_is_same(
+        self,
+    ):
+        existing_bookmark = self.setup_bookmark(
+            title="Existing title", description="Existing description"
+        )
+
+        with sync_playwright() as p:
+            page = self.open(reverse("linkding:bookmarks.new"), p)
+            url_field = page.get_by_label("URL")
+            title_field = page.get_by_label("Title")
+            description_field = page.get_by_label("Description")
+            refresh_button = page.locator("#refresh-button")
+
+            # Enter the URL of the existing bookmark to make refresh button visible
+            url_field.fill(existing_bookmark.url)
+
+            # Wait for metadata to be loaded and for refresh button to be visible
+            expect(refresh_button).to_be_visible()
+            expect(title_field).to_have_value("Existing title")
+            expect(description_field).to_have_value("Existing description")
+
+            # Update the mock to return same metadata when refresh is requested
+            self.website_loader_mock.reset_mock()
+            self.website_loader_mock.return_value = website_loader.WebsiteMetadata(
+                url="https://example.com",
+                title="Existing title",
+                description="Existing description",
+                preview_image=None,
+            )
+
+            # Click the refresh button
+            refresh_button.click()
+            page.wait_for_timeout(timeout=1000)
+
+            # Verify that title and description values are still the same
+            expect(title_field).to_have_value("Existing title")
+            expect(description_field).to_have_value("Existing description")
+
+            # Verify that the fields are NOT visually marked as modified
+            expect(title_field).to_have_class("form-input")
+            expect(description_field).to_have_class("form-input")

@@ -63,3 +63,12 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
             description = page.get_by_label("Description")
             expect(title).to_have_value(bookmark.title)
             expect(description).to_have_value(bookmark.description)
+
+    def test_refresh_button_should_be_visible_when_editing(self):
+        bookmark = self.setup_bookmark()
+
+        with sync_playwright() as p:
+            page = self.open(reverse("linkding:bookmarks.edit", args=[bookmark.id]), p)
+
+            refresh_button = page.get_by_text("Refresh from website")
+            expect(refresh_button).to_be_visible()
