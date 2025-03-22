@@ -102,15 +102,13 @@ class BookmarkViewSet(
     @action(methods=["get"], detail=False)
     def check(self, request):
         url = request.GET.get("url")
-        disable_cache = request.GET.get("disable_cache")
+        ignore_cache = request.GET.get("ignore_cache", False) in ["true"]
         bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
         existing_bookmark_data = (
             self.get_serializer(bookmark).data if bookmark else None
         )
 
-        if disable_cache:
-            website_loader.clear_metadata_cache()
-        metadata = website_loader.load_website_metadata(url)
+        metadata = website_loader.load_website_metadata(url, ignore_cache=ignore_cache)
 
         # Return tags that would be automatically applied to the bookmark
         profile = request.user.profile
