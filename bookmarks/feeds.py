@@ -74,7 +74,7 @@ class AllBookmarksFeed(BaseBookmarksFeed):
         return queries.query_bookmarks(feed_token.user, feed_token.user.profile, search)
 
     def link(self, context: FeedContext):
-        return reverse("bookmarks:feeds.all", args=[context.feed_token.key])
+        return reverse("linkding:feeds.all", args=[context.feed_token.key])
 
 
 class UnreadBookmarksFeed(BaseBookmarksFeed):
@@ -87,7 +87,7 @@ class UnreadBookmarksFeed(BaseBookmarksFeed):
         ).filter(unread=True)
 
     def link(self, context: FeedContext):
-        return reverse("bookmarks:feeds.unread", args=[context.feed_token.key])
+        return reverse("linkding:feeds.unread", args=[context.feed_token.key])
 
 
 class SharedBookmarksFeed(BaseBookmarksFeed):
@@ -100,7 +100,7 @@ class SharedBookmarksFeed(BaseBookmarksFeed):
         )
 
     def link(self, context: FeedContext):
-        return reverse("bookmarks:feeds.shared", args=[context.feed_token.key])
+        return reverse("linkding:feeds.shared", args=[context.feed_token.key])
 
 
 class PublicSharedBookmarksFeed(BaseBookmarksFeed):
@@ -114,4 +114,4 @@ class PublicSharedBookmarksFeed(BaseBookmarksFeed):
         return queries.query_shared_bookmarks(None, UserProfile(), search, True)
 
     def link(self, context: FeedContext):
-        return reverse("bookmarks:feeds.public_shared")
+        return reverse("linkding:feeds.public_shared")

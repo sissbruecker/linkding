@@ -21,7 +21,7 @@ class AuthProxySupportTest(TestCase):
         )
 
         headers = {"REMOTE_USER": user.username}
-        response = self.client.get(reverse("bookmarks:index"), **headers)
+        response = self.client.get(reverse("linkding:bookmarks.index"), **headers)
 
         self.assertEqual(response.status_code, 200)
 
@@ -43,7 +43,7 @@ class AuthProxySupportTest(TestCase):
             )
 
             headers = {"Custom-User": user.username}
-            response = self.client.get(reverse("bookmarks:index"), **headers)
+            response = self.client.get(reverse("linkding:bookmarks.index"), **headers)
 
             self.assertEqual(response.status_code, 200)
 
@@ -53,6 +53,8 @@ class AuthProxySupportTest(TestCase):
         )
 
         headers = {"REMOTE_USER": user.username}
-        response = self.client.get(reverse("bookmarks:index"), **headers, follow=True)
+        response = self.client.get(
+            reverse("linkding:bookmarks.index"), **headers, follow=True
+        )
 
         self.assertRedirects(response, "/login/?next=%2Fbookmarks")

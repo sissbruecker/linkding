@@ -3,30 +3,12 @@ from typing import List
 from django import template
 
 from bookmarks.models import (
-    BookmarkForm,
     BookmarkSearch,
     BookmarkSearchForm,
     User,
 )
 
 register = template.Library()
-
-
-@register.inclusion_tag("bookmarks/form.html", name="bookmark_form", takes_context=True)
-def bookmark_form(
-    context,
-    form: BookmarkForm,
-    cancel_url: str,
-    bookmark_id: int = 0,
-    auto_close: bool = False,
-):
-    return {
-        "request": context["request"],
-        "form": form,
-        "auto_close": auto_close,
-        "bookmark_id": bookmark_id,
-        "cancel_url": cancel_url,
-    }
 
 
 @register.inclusion_tag(

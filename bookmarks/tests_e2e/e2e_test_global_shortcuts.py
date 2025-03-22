@@ -1,7 +1,7 @@
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 
 class GlobalShortcutsE2ETestCase(LinkdingE2ETestCase):
@@ -9,7 +9,7 @@ class GlobalShortcutsE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             browser = self.setup_browser(p)
             page = browser.new_page()
-            page.goto(self.live_server_url + reverse("bookmarks:index"))
+            page.goto(self.live_server_url + reverse("linkding:bookmarks.index"))
 
             page.press("body", "s")
 
@@ -21,10 +21,12 @@ class GlobalShortcutsE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             browser = self.setup_browser(p)
             page = browser.new_page()
-            page.goto(self.live_server_url + reverse("bookmarks:index"))
+            page.goto(self.live_server_url + reverse("linkding:bookmarks.index"))
 
             page.press("body", "n")
 
-            expect(page).to_have_url(self.live_server_url + reverse("bookmarks:new"))
+            expect(page).to_have_url(
+                self.live_server_url + reverse("linkding:bookmarks.new")
+            )
 
             browser.close()

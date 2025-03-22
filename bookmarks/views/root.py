@@ -10,9 +10,9 @@ def root(request):
         settings = request.global_settings
 
         if settings.landing_page == GlobalSettings.LANDING_PAGE_SHARED_BOOKMARKS:
-            return HttpResponseRedirect(reverse("bookmarks:shared"))
+            return HttpResponseRedirect(reverse("linkding:bookmarks.shared"))
         else:
             return HttpResponseRedirect(reverse("login"))
 
     # Redirect authenticated users to the bookmarks page
-    return HttpResponseRedirect(reverse("bookmarks:index"))
+    return HttpResponseRedirect(reverse("linkding:bookmarks.index"))

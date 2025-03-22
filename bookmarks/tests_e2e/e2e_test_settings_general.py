@@ -1,7 +1,7 @@
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 from bookmarks.models import UserProfile
 
 
@@ -10,7 +10,7 @@ class SettingsGeneralE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             browser = self.setup_browser(p)
             page = browser.new_page()
-            page.goto(self.live_server_url + reverse("bookmarks:settings.general"))
+            page.goto(self.live_server_url + reverse("linkding:settings.general"))
 
             enable_sharing = page.get_by_label("Enable bookmark sharing")
             enable_sharing_label = page.get_by_text("Enable bookmark sharing")
@@ -51,7 +51,7 @@ class SettingsGeneralE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             browser = self.setup_browser(p)
             page = browser.new_page()
-            page.goto(self.live_server_url + reverse("bookmarks:settings.general"))
+            page.goto(self.live_server_url + reverse("linkding:settings.general"))
 
             max_lines = page.get_by_label("Bookmark description max lines")
             expect(max_lines).to_be_hidden()
@@ -66,7 +66,7 @@ class SettingsGeneralE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             browser = self.setup_browser(p)
             page = browser.new_page()
-            page.goto(self.live_server_url + reverse("bookmarks:settings.general"))
+            page.goto(self.live_server_url + reverse("linkding:settings.general"))
 
             max_lines = page.get_by_label("Bookmark description max lines")
             expect(max_lines).to_be_visible()
@@ -75,7 +75,7 @@ class SettingsGeneralE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             browser = self.setup_browser(p)
             page = browser.new_page()
-            page.goto(self.live_server_url + reverse("bookmarks:settings.general"))
+            page.goto(self.live_server_url + reverse("linkding:settings.general"))
 
             max_lines = page.get_by_label("Bookmark description max lines")
             expect(max_lines).to_be_hidden()

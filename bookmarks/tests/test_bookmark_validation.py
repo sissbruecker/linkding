@@ -1,12 +1,12 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
+from django.test.client import RequestFactory
 
-from bookmarks.models import BookmarkForm, Bookmark
-
-User = get_user_model()
+from bookmarks.forms import BookmarkForm
+from bookmarks.models import Bookmark
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 ENABLED_URL_VALIDATION_TEST_CASES = [
     ("thisisnotavalidurl", False),
@@ -29,12 +29,10 @@ DISABLED_URL_VALIDATION_TEST_CASES = [
 ]
 
 
-class BookmarkValidationTestCase(TestCase):
+class BookmarkValidationTestCase(TestCase, BookmarkFactoryMixin):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(
-            "testuser", "test@example.com", "password123"
-        )
+        self.get_or_create_test_user()
 
     def test_bookmark_model_should_not_allow_missing_url(self):
         bookmark = Bookmark(
@@ -66,12 +64,15 @@ class BookmarkValidationTestCase(TestCase):
         self._run_bookmark_model_url_validity_checks(DISABLED_URL_VALIDATION_TEST_CASES)
 
     def test_bookmark_form_should_validate_required_fields(self):
-        form = BookmarkForm(data={"url": ""})
+        rf = RequestFactory()
+        request = rf.post("/", data={"url": ""})
+        form = BookmarkForm(request)
 
         self.assertEqual(len(form.errors), 1)
         self.assertIn("required", str(form.errors))
 
-        form = BookmarkForm(data={"url": None})
+        request = rf.post("/", data={})
+        form = BookmarkForm(request)
 
         self.assertEqual(len(form.errors), 1)
         self.assertIn("required", str(form.errors))
@@ -106,7 +107,9 @@ class BookmarkValidationTestCase(TestCase):
     def _run_bookmark_form_url_validity_checks(self, cases):
         for case in cases:
             url, expectation = case
-            form = BookmarkForm(data={"url": url})
+            rf = RequestFactory()
+            request = rf.post("/", data={"url": url})
+            form = BookmarkForm(request)
 
             if expectation:
                 self.assertEqual(len(form.errors), 0)

@@ -34,7 +34,7 @@ class FilterDrawerTriggerBehavior extends Behavior {
           </button>
         </div>
         <div class="modal-body">
-          <section class="content content-area"></div>
+          <div class="content"></div>
         </div>
       </div>    
     `;
@@ -70,13 +70,13 @@ class FilterDrawerBehavior extends ModalBehavior {
 
   teleport() {
     const content = this.element.querySelector(".content");
-    const sidePanel = document.querySelector("section.side-panel");
+    const sidePanel = document.querySelector(".side-panel");
     content.append(...sidePanel.children);
     this.mapHeading(content, "h2", "h3");
   }
 
   teleportBack() {
-    const sidePanel = document.querySelector("section.side-panel");
+    const sidePanel = document.querySelector(".side-panel");
     const content = this.element.querySelector(".content");
     sidePanel.append(...content.children);
     this.mapHeading(sidePanel, "h3", "h2");

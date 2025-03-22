@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 from bookmarks.services import website_loader
 
 mock_website_metadata = website_loader.WebsiteMetadata(
@@ -31,7 +31,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
         bookmark = self.setup_bookmark()
 
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:edit", args=[bookmark.id]), p)
+            page = self.open(reverse("linkding:bookmarks.edit", args=[bookmark.id]), p)
 
             page.wait_for_timeout(timeout=1000)
             page.get_by_text("This URL is already bookmarked.").wait_for(state="hidden")
@@ -42,7 +42,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
         )
 
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:edit", args=[bookmark.id]), p)
+            page = self.open(reverse("linkding:bookmarks.edit", args=[bookmark.id]), p)
             page.wait_for_timeout(timeout=1000)
 
             title = page.get_by_label("Title")
@@ -54,7 +54,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
         bookmark = self.setup_bookmark()
 
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:edit", args=[bookmark.id]), p)
+            page = self.open(reverse("linkding:bookmarks.edit", args=[bookmark.id]), p)
 
             page.get_by_label("URL").fill("https://example.com")
             page.wait_for_timeout(timeout=1000)

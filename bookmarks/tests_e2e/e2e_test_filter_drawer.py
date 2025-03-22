@@ -1,7 +1,7 @@
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 
 class FilterDrawerE2ETestCase(LinkdingE2ETestCase):
@@ -10,15 +10,13 @@ class FilterDrawerE2ETestCase(LinkdingE2ETestCase):
         self.setup_bookmark(tags=[self.setup_tag(name="hiking")])
 
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:index"), p)
+            page = self.open(reverse("linkding:bookmarks.index"), p)
 
             # use smaller viewport to make filter button visible
             page.set_viewport_size({"width": 375, "height": 812})
 
             # open drawer
-            drawer_trigger = page.locator(".content-area-header").get_by_role(
-                "button", name="Filters"
-            )
+            drawer_trigger = page.locator(".main").get_by_role("button", name="Filters")
             drawer_trigger.click()
 
             # verify drawer is visible
@@ -43,15 +41,13 @@ class FilterDrawerE2ETestCase(LinkdingE2ETestCase):
         self.setup_bookmark(tags=[self.setup_tag(name="hiking")])
 
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:index"), p)
+            page = self.open(reverse("linkding:bookmarks.index"), p)
 
             # use smaller viewport to make filter button visible
             page.set_viewport_size({"width": 375, "height": 812})
 
             # open tag cloud modal
-            drawer_trigger = page.locator(".content-area-header").get_by_role(
-                "button", name="Filters"
-            )
+            drawer_trigger = page.locator(".main").get_by_role("button", name="Filters")
             drawer_trigger.click()
 
             # verify tags are displayed

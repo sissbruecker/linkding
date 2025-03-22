@@ -24,7 +24,7 @@
         <div class="actions">
           <div class="left-actions">
             <a class="btn btn-wide"
-               href="{% url 'bookmarks:edit' details.bookmark.id %}?return_url={{ details.edit_return_url|urlencode }}">Edit</a>
+               href="{% url 'linkding:bookmarks.edit' details.bookmark.id %}?return_url={{ details.edit_return_url|urlencode }}">Edit</a>
           </div>
           <div class="right-actions">
             <form action="{{ details.delete_url }}" method="post" data-turbo-action="replace">

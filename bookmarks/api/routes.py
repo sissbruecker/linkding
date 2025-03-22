@@ -19,6 +19,8 @@ from bookmarks.api.serializers import (
 )
 from bookmarks.models import Bookmark, BookmarkAsset, BookmarkSearch, Tag, User
 from bookmarks.services import assets, bookmarks, auto_tagging, website_loader
+from bookmarks.type_defs import HttpRequest
+from bookmarks.views import access
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +33,7 @@ class BookmarkViewSet(
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
 ):
+    request: HttpRequest
     serializer_class = BookmarkSerializer
 
     def get_permissions(self):
@@ -45,13 +48,21 @@ class BookmarkViewSet(
         return super().get_permissions()
 
     def get_queryset(self):
+        # Provide filtered queryset for list actions
         user = self.request.user
-        # For list action, use query set that applies search and tag projections
+        search = BookmarkSearch.from_request(self.request.GET)
         if self.action == "list":
-            search = BookmarkSearch.from_request(self.request.GET)
             return queries.query_bookmarks(user, user.profile, search)
+        elif self.action == "archived":
+            return queries.query_archived_bookmarks(user, user.profile, search)
+        elif self.action == "shared":
+            user = User.objects.filter(username=search.user).first()
+            public_only = not self.request.user.is_authenticated
+            return queries.query_shared_bookmarks(
+                user, self.request.user_profile, search, public_only
+            )
 
-        # For single entity actions use default query set without projections
+        # For single entity actions return user owned bookmarks
         return Bookmark.objects.all().filter(owner=user)
 
     def get_serializer_context(self):
@@ -65,42 +76,27 @@ class BookmarkViewSet(
         }
 
     @action(methods=["get"], detail=False)
-    def archived(self, request):
-        user = request.user
-        search = BookmarkSearch.from_request(request.GET)
-        query_set = queries.query_archived_bookmarks(user, user.profile, search)
-        page = self.paginate_queryset(query_set)
-        serializer = self.get_serializer(page, many=True)
-        data = serializer.data
-        return self.get_paginated_response(data)
+    def archived(self, request: HttpRequest):
+        return self.list(request)
 
     @action(methods=["get"], detail=False)
-    def shared(self, request):
-        search = BookmarkSearch.from_request(request.GET)
-        user = User.objects.filter(username=search.user).first()
-        public_only = not request.user.is_authenticated
-        query_set = queries.query_shared_bookmarks(
-            user, request.user_profile, search, public_only
-        )
-        page = self.paginate_queryset(query_set)
-        serializer = self.get_serializer(page, many=True)
-        data = serializer.data
-        return self.get_paginated_response(data)
+    def shared(self, request: HttpRequest):
+        return self.list(request)
 
     @action(methods=["post"], detail=True)
-    def archive(self, request, pk):
+    def archive(self, request: HttpRequest, pk):
         bookmark = self.get_object()
         bookmarks.archive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["post"], detail=True)
-    def unarchive(self, request, pk):
+    def unarchive(self, request: HttpRequest, pk):
         bookmark = self.get_object()
         bookmarks.unarchive_bookmark(bookmark)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["get"], detail=False)
-    def check(self, request):
+    def check(self, request: HttpRequest):
         url = request.GET.get("url")
         ignore_cache = request.GET.get("ignore_cache", False) in ["true"]
         bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
@@ -132,13 +128,13 @@ class BookmarkViewSet(
         )
 
     @action(methods=["post"], detail=False)
-    def singlefile(self, request):
+    def singlefile(self, request: HttpRequest):
         if settings.LD_DISABLE_ASSET_UPLOAD:
             return Response(
                 {"error": "Asset upload is disabled."},
                 status=status.HTTP_403_FORBIDDEN,
             )
-        url = request.data.get("url")
+        url = request.POST.get("url")
         file = request.FILES.get("file")
 
         if not url or not file:
@@ -170,22 +166,22 @@ class BookmarkAssetViewSet(
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
 ):
+    request: HttpRequest
     serializer_class = BookmarkAssetSerializer
 
     def get_queryset(self):
         user = self.request.user
-        bookmark_id = self.kwargs["bookmark_id"]
-        if not Bookmark.objects.filter(id=bookmark_id, owner=user).exists():
-            raise Http404("Bookmark does not exist")
+        # limit access to assets to the owner of the bookmark for now
+        bookmark = access.bookmark_write(self.request, self.kwargs["bookmark_id"])
         return BookmarkAsset.objects.filter(
-            bookmark_id=bookmark_id, bookmark__owner=user
+            bookmark_id=bookmark.id, bookmark__owner=user
         )
 
     def get_serializer_context(self):
         return {"user": self.request.user}
 
     @action(detail=True, methods=["get"], url_path="download")
-    def download(self, request, bookmark_id, pk):
+    def download(self, request: HttpRequest, bookmark_id, pk):
         asset = self.get_object()
         try:
             file_path = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
@@ -213,15 +209,13 @@ class BookmarkAssetViewSet(
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(methods=["post"], detail=False)
-    def upload(self, request, bookmark_id):
+    def upload(self, request: HttpRequest, bookmark_id):
         if settings.LD_DISABLE_ASSET_UPLOAD:
             return Response(
                 {"error": "Asset upload is disabled."},
                 status=status.HTTP_403_FORBIDDEN,
             )
-        bookmark = Bookmark.objects.filter(id=bookmark_id, owner=request.user).first()
-        if not bookmark:
-            raise Http404("Bookmark does not exist")
+        bookmark = access.bookmark_write(request, bookmark_id)
 
         upload_file = request.FILES.get("file")
         if not upload_file:
@@ -250,6 +244,7 @@ class TagViewSet(
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
 ):
+    request: HttpRequest
     serializer_class = TagSerializer
 
     def get_queryset(self):
@@ -262,7 +257,7 @@ class TagViewSet(
 
 class UserViewSet(viewsets.GenericViewSet):
     @action(methods=["get"], detail=False)
-    def profile(self, request):
+    def profile(self, request: HttpRequest):
         return Response(UserProfileSerializer(request.user.profile).data)
 
 

@@ -86,8 +86,8 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
             "<DD>Example description[linkding-notes]Example notes[/linkding-notes]",
             '<DT><A HREF="https://example.com/6" ADD_DATE="6" LAST_MODIFIED="66" PRIVATE="0" TOREAD="0" TAGS="">Title 6</A>',
             "<DD>[linkding-notes]Example notes[/linkding-notes]",
-            '<DT><A HREF="https://example.com/7" ADD_DATE="7" LAST_MODIFIED="77" PRIVATE="1" TOREAD="0" TAGS="linkding:archived">Title 7</A>',
-            '<DT><A HREF="https://example.com/8" ADD_DATE="8" LAST_MODIFIED="88" PRIVATE="1" TOREAD="0" TAGS="tag4,tag5,linkding:archived">Title 8</A>',
+            '<DT><A HREF="https://example.com/7" ADD_DATE="7" LAST_MODIFIED="77" PRIVATE="1" TOREAD="0" TAGS="linkding:bookmarks.archived">Title 7</A>',
+            '<DT><A HREF="https://example.com/8" ADD_DATE="8" LAST_MODIFIED="88" PRIVATE="1" TOREAD="0" TAGS="tag4,tag5,linkding:bookmarks.archived">Title 8</A>',
         ]
         self.assertIn("\n\r".join(lines), html)
 

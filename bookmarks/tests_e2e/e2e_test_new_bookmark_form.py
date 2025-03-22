@@ -4,7 +4,7 @@ from urllib.parse import quote
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 from bookmarks.services import website_loader
 
 mock_website_metadata = website_loader.WebsiteMetadata(
@@ -30,7 +30,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
 
     def test_enter_url_prefills_title_and_description(self):
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:new"), p)
+            page = self.open(reverse("linkding:bookmarks.new"), p)
             url = page.get_by_label("URL")
             title = page.get_by_label("Title")
             description = page.get_by_label("Description")
@@ -43,7 +43,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
 
     def test_enter_url_does_not_overwrite_modified_title_and_description(self):
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:new"), p)
+            page = self.open(reverse("linkding:bookmarks.new"), p)
             url = page.get_by_label("URL")
             title = page.get_by_label("Title")
             description = page.get_by_label("Description")
@@ -58,7 +58,10 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
 
     def test_with_initial_url_prefills_title_and_description(self):
         with sync_playwright() as p:
-            page_url = reverse("bookmarks:new") + f"?url={quote('https://example.com')}"
+            page_url = (
+                reverse("linkding:bookmarks.new")
+                + f"?url={quote('https://example.com')}"
+            )
             page = self.open(page_url, p)
             url = page.get_by_label("URL")
             title = page.get_by_label("Title")
@@ -77,7 +80,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
     ):
         with sync_playwright() as p:
             page_url = (
-                reverse("bookmarks:new")
+                reverse("linkding:bookmarks.new")
                 + f"?url={quote('https://example.com')}&title=Initial+title&description=Initial+description"
             )
             page = self.open(page_url, p)
@@ -102,7 +105,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
         tag_names = " ".join(existing_bookmark.tag_names)
 
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:new"), p)
+            page = self.open(reverse("linkding:bookmarks.new"), p)
 
             # Enter bookmarked URL
             page.get_by_label("URL").fill(existing_bookmark.url)
@@ -135,7 +138,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
         )
 
         with sync_playwright() as p:
-            page = self.open(reverse("bookmarks:new"), p)
+            page = self.open(reverse("linkding:bookmarks.new"), p)
 
             details = page.locator("details.notes")
             expect(details).not_to_have_attribute("open", value="")
@@ -151,7 +154,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             # Open page with URL that should have auto tags
             url = (
-                reverse("bookmarks:new")
+                reverse("linkding:bookmarks.new")
                 + "?url=https%3A%2F%2Fgithub.com%2Fsissbruecker%2Flinkding"
             )
             page = self.open(url, p)

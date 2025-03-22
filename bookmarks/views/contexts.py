@@ -3,7 +3,6 @@ import urllib.parse
 from typing import Set, List
 
 from django.conf import settings
-from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator
 from django.db import models
 from django.http import Http404
@@ -20,15 +19,17 @@ from bookmarks.models import (
     Tag,
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
+from bookmarks.type_defs import HttpRequest
+from bookmarks.views import access
 
 CJK_RE = re.compile(r"[\u4e00-\u9fff]+")
 
 
 class RequestContext:
-    index_view = "bookmarks:index"
-    action_view = "bookmarks:index.action"
+    index_view = "linkding:bookmarks.index"
+    action_view = "linkding:bookmarks.index.action"
 
-    def __init__(self, request: WSGIRequest):
+    def __init__(self, request: HttpRequest):
         self.request = request
         self.index_url = reverse(self.index_view)
         self.action_url = reverse(self.action_view)
@@ -62,8 +63,8 @@ class RequestContext:
 
 
 class ActiveBookmarksContext(RequestContext):
-    index_view = "bookmarks:index"
-    action_view = "bookmarks:index.action"
+    index_view = "linkding:bookmarks.index"
+    action_view = "linkding:bookmarks.index.action"
 
     def get_bookmark_query_set(self, search: BookmarkSearch):
         return queries.query_bookmarks(
@@ -77,8 +78,8 @@ class ActiveBookmarksContext(RequestContext):
 
 
 class ArchivedBookmarksContext(RequestContext):
-    index_view = "bookmarks:archived"
-    action_view = "bookmarks:archived.action"
+    index_view = "linkding:bookmarks.archived"
+    action_view = "linkding:bookmarks.archived.action"
 
     def get_bookmark_query_set(self, search: BookmarkSearch):
         return queries.query_archived_bookmarks(
@@ -92,8 +93,8 @@ class ArchivedBookmarksContext(RequestContext):
 
 
 class SharedBookmarksContext(RequestContext):
-    index_view = "bookmarks:shared"
-    action_view = "bookmarks:shared.action"
+    index_view = "linkding:bookmarks.shared"
+    action_view = "linkding:bookmarks.shared.action"
 
     def get_bookmark_query_set(self, search: BookmarkSearch):
         user = User.objects.filter(username=search.user).first()
@@ -168,7 +169,7 @@ class BookmarkItem:
 class BookmarkListContext:
     request_context = RequestContext
 
-    def __init__(self, request: WSGIRequest) -> None:
+    def __init__(self, request: HttpRequest) -> None:
         request_context = self.request_context(request)
         user = request.user
         user_profile = request.user_profile
@@ -305,7 +306,7 @@ class TagGroup:
 class TagCloudContext:
     request_context = RequestContext
 
-    def __init__(self, request: WSGIRequest) -> None:
+    def __init__(self, request: HttpRequest) -> None:
         request_context = self.request_context(request)
         user_profile = request.user_profile
 
@@ -381,7 +382,7 @@ class BookmarkAssetItem:
 class BookmarkDetailsContext:
     request_context = RequestContext
 
-    def __init__(self, request: WSGIRequest, bookmark: Bookmark):
+    def __init__(self, request: HttpRequest, bookmark: Bookmark):
         request_context = self.request_context(request)
 
         user = request.user
@@ -437,29 +438,17 @@ class SharedBookmarkDetailsContext(BookmarkDetailsContext):
 
 
 def get_details_context(
-    request: WSGIRequest, context_type
+    request: HttpRequest, context_type
 ) -> BookmarkDetailsContext | None:
     bookmark_id = request.GET.get("details")
     if not bookmark_id:
         return None
 
     try:
-        bookmark = Bookmark.objects.get(pk=int(bookmark_id))
-    except Bookmark.DoesNotExist:
+        bookmark = access.bookmark_read(request, bookmark_id)
+    except Http404:
         # just ignore, might end up in a situation where the bookmark was deleted
         # in between navigating back and forth
         return None
-
-    is_owner = bookmark.owner == request.user
-    is_shared = (
-        request.user.is_authenticated
-        and bookmark.shared
-        and bookmark.owner.profile.enable_sharing
-    )
-    is_public_shared = bookmark.shared and bookmark.owner.profile.enable_public_sharing
-    if not is_owner and not is_shared and not is_public_shared:
-        raise Http404("Bookmark does not exist")
-    if request.method == "POST" and not is_owner:
-        raise Http404("Bookmark does not exist")
 
     return context_type(request, bookmark)

@@ -9,4 +9,4 @@ npm run build
 python manage.py collectstatic
 
 # Run E2E tests
-python manage.py test bookmarks.e2e --pattern="e2e_test_*.py"
+python manage.py test bookmarks.tests_e2e --pattern="e2e_test_*.py"

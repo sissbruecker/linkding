@@ -2,7 +2,7 @@ from django.test import override_settings
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 from bookmarks.models import Bookmark
 
 
@@ -11,7 +11,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
         bookmark = self.setup_bookmark()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
 
             details_modal = self.open_details_modal(bookmark)
             title = details_modal.locator("h2")
@@ -21,7 +21,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
         bookmark = self.setup_bookmark()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
 
             # close with close button
             details_modal = self.open_details_modal(bookmark)
@@ -44,7 +44,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
 
         with sync_playwright() as p:
             # archive
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             self.open(url, p)
 
             details_modal = self.open_details_modal(bookmark)
@@ -53,7 +53,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
             self.assertReloads(0)
 
             # unarchive
-            url = reverse("bookmarks:archived")
+            url = reverse("linkding:bookmarks.archived")
             self.page.goto(self.live_server_url + url)
             self.resetReloads()
 
@@ -67,7 +67,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
 
         with sync_playwright() as p:
             # mark as unread
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             self.open(url, p)
 
             details_modal = self.open_details_modal(bookmark)
@@ -92,7 +92,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
 
         with sync_playwright() as p:
             # share bookmark
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             self.open(url, p)
 
             details_modal = self.open_details_modal(bookmark)
@@ -112,7 +112,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
         bookmark = self.setup_bookmark()
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index") + f"?q={bookmark.title}"
+            url = reverse("linkding:bookmarks.index") + f"?q={bookmark.title}"
             self.open(url, p)
 
             details_modal = self.open_details_modal(bookmark)
@@ -130,7 +130,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
         bookmark = self.setup_bookmark()
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index") + f"?q={bookmark.title}"
+            url = reverse("linkding:bookmarks.index") + f"?q={bookmark.title}"
             self.open(url, p)
 
             details_modal = self.open_details_modal(bookmark)
@@ -154,7 +154,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
         bookmark = self.setup_bookmark()
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index") + f"?q={bookmark.title}"
+            url = reverse("linkding:bookmarks.index") + f"?q={bookmark.title}"
             self.open(url, p)
 
             details_modal = self.open_details_modal(bookmark)

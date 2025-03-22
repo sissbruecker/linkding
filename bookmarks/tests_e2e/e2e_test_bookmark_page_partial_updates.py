@@ -3,7 +3,7 @@ from typing import List
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 
 class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
@@ -44,7 +44,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(5, prefix="bar")
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index") + "?q=foo"
+            url = reverse("linkding:bookmarks.index") + "?q=foo"
             self.open(url, p)
 
             self.assertVisibleBookmarks(["foo 1", "foo 2", "foo 3", "foo 4", "foo 5"])
@@ -56,7 +56,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(5, prefix="foo")
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index") + "?sort=title_asc"
+            url = reverse("linkding:bookmarks.index") + "?sort=title_asc"
             page = self.open(url, p)
 
             first_item = page.locator("li[ld-bookmark-item]").first
@@ -72,7 +72,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(50, prefix="foo", suffix="-")
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index") + "?q=foo&page=2"
+            url = reverse("linkding:bookmarks.index") + "?q=foo&page=2"
             self.open(url, p)
 
             # with descending sort, page two has 'foo 1' to 'foo 20'
@@ -88,7 +88,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(5)
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             self.open(url, p)
 
             self.locate_bookmark("Bookmark 1").get_by_text("Archive").click()
@@ -108,7 +108,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_fixture()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
 
             self.locate_bookmark("Bookmark 2").get_by_text("Archive").click()
 
@@ -120,7 +120,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_fixture()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
 
             self.locate_bookmark("Bookmark 2").get_by_text("Remove").click()
             self.locate_bookmark("Bookmark 2").get_by_text("Confirm").click()
@@ -136,7 +136,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         bookmark2.save()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
 
             expect(self.locate_bookmark("Bookmark 2")).to_have_class("unread")
             self.locate_bookmark("Bookmark 2").get_by_text("Unread").click()
@@ -152,7 +152,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         bookmark2.save()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
 
             expect(self.locate_bookmark("Bookmark 2")).to_have_class("shared")
             self.locate_bookmark("Bookmark 2").get_by_text("Shared").click()
@@ -165,7 +165,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_fixture()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark("Bookmark 2").locator(
@@ -183,7 +183,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_fixture()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark("Bookmark 2").locator(
@@ -201,7 +201,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_fixture()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:archived"), p)
+            self.open(reverse("linkding:bookmarks.archived"), p)
 
             self.locate_bookmark("Archived Bookmark 2").get_by_text("Unarchive").click()
 
@@ -213,7 +213,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_fixture()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:archived"), p)
+            self.open(reverse("linkding:bookmarks.archived"), p)
 
             self.locate_bookmark("Archived Bookmark 2").get_by_text("Remove").click()
             self.locate_bookmark("Archived Bookmark 2").get_by_text("Confirm").click()
@@ -226,7 +226,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_fixture()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:archived"), p)
+            self.open(reverse("linkding:bookmarks.archived"), p)
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark("Archived Bookmark 2").locator(
@@ -244,7 +244,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_fixture()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:archived"), p)
+            self.open(reverse("linkding:bookmarks.archived"), p)
 
             self.locate_bulk_edit_toggle().click()
             self.locate_bookmark("Archived Bookmark 2").locator(
@@ -265,7 +265,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         )
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:shared"), p)
+            self.open(reverse("linkding:bookmarks.shared"), p)
 
             self.locate_bookmark("My Bookmark 2").get_by_text("Archive").click()
 
@@ -290,7 +290,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         )
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:shared"), p)
+            self.open(reverse("linkding:bookmarks.shared"), p)
 
             self.locate_bookmark("My Bookmark 2").get_by_text("Remove").click()
             self.locate_bookmark("My Bookmark 2").get_by_text("Confirm").click()

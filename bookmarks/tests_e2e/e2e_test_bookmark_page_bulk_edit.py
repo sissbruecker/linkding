@@ -1,7 +1,7 @@
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 from bookmarks.models import Bookmark
 
 
@@ -37,7 +37,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_test_data()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
 
             bookmark_list = self.locate_bookmark_list()
             self.locate_bulk_edit_toggle().click()
@@ -75,7 +75,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_test_data()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:archived"), p)
+            self.open(reverse("linkding:bookmarks.archived"), p)
 
             bookmark_list = self.locate_bookmark_list()
             self.locate_bulk_edit_toggle().click()
@@ -113,7 +113,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_test_data()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index") + "?q=foo", p)
+            self.open(reverse("linkding:bookmarks.index") + "?q=foo", p)
 
             bookmark_list = self.locate_bookmark_list()
             self.locate_bulk_edit_toggle().click()
@@ -151,7 +151,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_test_data()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:archived") + "?q=foo", p)
+            self.open(reverse("linkding:bookmarks.archived") + "?q=foo", p)
 
             bookmark_list = self.locate_bookmark_list()
             self.locate_bulk_edit_toggle().click()
@@ -189,7 +189,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(5)
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             page = self.open(url, p)
 
             self.locate_bulk_edit_toggle().click()
@@ -213,7 +213,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(5)
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             self.open(url, p)
 
             self.locate_bulk_edit_toggle().click()
@@ -230,7 +230,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(5)
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             self.open(url, p)
 
             self.locate_bulk_edit_toggle().click()
@@ -252,7 +252,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(5)
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             self.open(url, p)
 
             self.locate_bulk_edit_toggle().click()
@@ -278,7 +278,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(100)
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             page = self.open(url, p)
 
             bookmark_list = self.locate_bookmark_list()
@@ -310,7 +310,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.setup_numbered_bookmarks(100)
 
         with sync_playwright() as p:
-            url = reverse("bookmarks:index")
+            url = reverse("linkding:bookmarks.index")
             self.open(url, p)
 
             bookmark_list = self.locate_bookmark_list()

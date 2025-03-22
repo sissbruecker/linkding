@@ -22,13 +22,14 @@ from bookmarks.models import (
 )
 from bookmarks.services import exporter, tasks
 from bookmarks.services import importer
+from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import app_version
 
 logger = logging.getLogger(__name__)
 
 
 @login_required
-def general(request, status=200, context_overrides=None):
+def general(request: HttpRequest, status=200, context_overrides=None):
     enable_refresh_favicons = django_settings.LD_ENABLE_REFRESH_FAVICONS
     has_snapshot_support = django_settings.LD_ENABLE_SNAPSHOTS
     success_message = _find_message_with_tag(
@@ -65,7 +66,7 @@ def general(request, status=200, context_overrides=None):
 
 
 @login_required
-def update(request):
+def update(request: HttpRequest):
     if request.method == "POST":
         if "update_profile" in request.POST:
             return update_profile(request)
@@ -94,10 +95,10 @@ def update(request):
                     request, "No missing snapshots found.", "settings_success_message"
                 )
 
-    return HttpResponseRedirect(reverse("bookmarks:settings.general"))
+    return HttpResponseRedirect(reverse("linkding:settings.general"))
 
 
-def update_profile(request):
+def update_profile(request: HttpRequest):
     user = request.user
     profile = user.profile
     favicons_were_enabled = profile.enable_favicons
@@ -113,7 +114,7 @@ def update_profile(request):
         if profile.enable_preview_images and not previews_were_enabled:
             tasks.schedule_bookmarks_without_previews(request.user)
 
-        return HttpResponseRedirect(reverse("bookmarks:settings.general"))
+        return HttpResponseRedirect(reverse("linkding:settings.general"))
 
     messages.error(
         request,
@@ -165,20 +166,20 @@ def get_ttl_hash(seconds=3600):
 
 @login_required
 def integrations(request):
-    application_url = request.build_absolute_uri(reverse("bookmarks:new"))
+    application_url = request.build_absolute_uri(reverse("linkding:bookmarks.new"))
     api_token = Token.objects.get_or_create(user=request.user)[0]
     feed_token = FeedToken.objects.get_or_create(user=request.user)[0]
     all_feed_url = request.build_absolute_uri(
-        reverse("bookmarks:feeds.all", args=[feed_token.key])
+        reverse("linkding:feeds.all", args=[feed_token.key])
     )
     unread_feed_url = request.build_absolute_uri(
-        reverse("bookmarks:feeds.unread", args=[feed_token.key])
+        reverse("linkding:feeds.unread", args=[feed_token.key])
     )
     shared_feed_url = request.build_absolute_uri(
-        reverse("bookmarks:feeds.shared", args=[feed_token.key])
+        reverse("linkding:feeds.shared", args=[feed_token.key])
     )
     public_shared_feed_url = request.build_absolute_uri(
-        reverse("bookmarks:feeds.public_shared")
+        reverse("linkding:feeds.public_shared")
     )
     return render(
         request,
@@ -195,7 +196,7 @@ def integrations(request):
 
 
 @login_required
-def bookmark_import(request):
+def bookmark_import(request: HttpRequest):
     import_file = request.FILES.get("import_file")
     import_options = importer.ImportOptions(
         map_private_flag=request.POST.get("map_private_flag") == "on"
@@ -205,7 +206,7 @@ def bookmark_import(request):
         messages.error(
             request, "Please select a file to import.", "settings_error_message"
         )
-        return HttpResponseRedirect(reverse("bookmarks:settings.general"))
+        return HttpResponseRedirect(reverse("linkding:settings.general"))
 
     try:
         content = import_file.read().decode()
@@ -226,17 +227,17 @@ def bookmark_import(request):
             "settings_error_message",
         )
 
-    return HttpResponseRedirect(reverse("bookmarks:settings.general"))
+    return HttpResponseRedirect(reverse("linkding:settings.general"))
 
 
 @login_required
-def bookmark_export(request):
+def bookmark_export(request: HttpRequest):
     # noinspection PyBroadException
     try:
         bookmarks = Bookmark.objects.filter(owner=request.user)
         # Prefetch tags to prevent n+1 queries
         prefetch_related_objects(bookmarks, "tags")
-        file_content = exporter.export_netscape_html(bookmarks)
+        file_content = exporter.export_netscape_html(list(bookmarks))
 
         response = HttpResponse(content_type="text/plain; charset=UTF-8")
         response["Content-Disposition"] = 'attachment; filename="bookmarks.html"'

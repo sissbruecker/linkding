@@ -11,18 +11,20 @@ body {
 header {
   margin-bottom: var(--unit-9);
 
-  .logo {
+  a.app-link:hover {
+    text-decoration: none;
+  }
+
+  .app-logo {
     width: 28px;
     height: 28px;
   }
 
-  a:hover {
-    text-decoration: none;
-  }
-
-  h1 {
-    margin: 0 0 0 var(--unit-3);
+  .app-name {
+    margin-left: var(--unit-3);
     font-size: var(--font-size-lg);
+    font-weight: 500;
+    line-height: 1.2;
   }
 }
 

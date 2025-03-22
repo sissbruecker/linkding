@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
 from django.http import (
     HttpResponseRedirect,
-    Http404,
     HttpResponseBadRequest,
     HttpResponseForbidden,
 )
@@ -13,17 +12,13 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks import queries, utils
+from bookmarks.forms import BookmarkForm
 from bookmarks.models import (
     Bookmark,
-    BookmarkAsset,
-    BookmarkForm,
     BookmarkSearch,
-    build_tag_string,
 )
 from bookmarks.services import assets as asset_actions, tasks
 from bookmarks.services.bookmarks import (
-    create_bookmark,
-    update_bookmark,
     archive_bookmark,
     archive_bookmarks,
     unarchive_bookmark,
@@ -37,12 +32,13 @@ from bookmarks.services.bookmarks import (
     unshare_bookmarks,
     refresh_bookmarks_metadata,
 )
+from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import get_safe_return_url
-from bookmarks.views import contexts, partials, turbo
+from bookmarks.views import access, contexts, partials, turbo
 
 
 @login_required
-def index(request):
+def index(request: HttpRequest):
     if request.method == "POST":
         return search_action(request)
 
@@ -56,6 +52,7 @@ def index(request):
         request,
         "bookmarks/index.html",
         {
+            "page_title": "Bookmarks - Linkding",
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
@@ -64,7 +61,7 @@ def index(request):
 
 
 @login_required
-def archived(request):
+def archived(request: HttpRequest):
     if request.method == "POST":
         return search_action(request)
 
@@ -78,6 +75,7 @@ def archived(request):
         request,
         "bookmarks/archive.html",
         {
+            "page_title": "Archived bookmarks - Linkding",
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
@@ -85,7 +83,7 @@ def archived(request):
     )
 
 
-def shared(request):
+def shared(request: HttpRequest):
     if request.method == "POST":
         return search_action(request)
 
@@ -102,16 +100,20 @@ def shared(request):
         request,
         "bookmarks/shared.html",
         {
+            "page_title": "Shared bookmarks - Linkding",
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
             "users": users,
-            "rss_feed_url": reverse("bookmarks:feeds.public_shared"),
+            "rss_feed_url": reverse("linkding:feeds.public_shared"),
         },
     )
 
 
-def render_bookmarks_view(request, template_name, context):
+def render_bookmarks_view(request: HttpRequest, template_name, context):
+    if context["details"]:
+        context["page_title"] = "Bookmark details - Linkding"
+
     if turbo.is_frame(request, "details-modal"):
         return render(
             request,
@@ -126,7 +128,7 @@ def render_bookmarks_view(request, template_name, context):
     )
 
 
-def search_action(request):
+def search_action(request: HttpRequest):
     if "save" in request.POST:
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
@@ -152,70 +154,34 @@ def convert_tag_string(tag_string: str):
 
 
 @login_required
-def new(request):
-    initial_url = request.GET.get("url")
-    initial_title = request.GET.get("title")
-    initial_description = request.GET.get("description")
-    initial_notes = request.GET.get("notes")
-    initial_auto_close = "auto_close" in request.GET
-    initial_mark_unread = request.user.profile.default_mark_unread
-
+def new(request: HttpRequest):
+    form = BookmarkForm(request)
     if request.method == "POST":
-        form = BookmarkForm(request.POST)
-        auto_close = form.data["auto_close"]
         if form.is_valid():
-            current_user = request.user
-            tag_string = convert_tag_string(form.data["tag_string"])
-            create_bookmark(form.save(commit=False), tag_string, current_user)
-            if auto_close:
-                return HttpResponseRedirect(reverse("bookmarks:close"))
+            form.save()
+            if form.is_auto_close:
+                return HttpResponseRedirect(reverse("linkding:bookmarks.close"))
             else:
-                return HttpResponseRedirect(reverse("bookmarks:index"))
-    else:
-        form = BookmarkForm()
-        if initial_url:
-            form.initial["url"] = initial_url
-        if initial_title:
-            form.initial["title"] = initial_title
-        if initial_description:
-            form.initial["description"] = initial_description
-        if initial_notes:
-            form.initial["notes"] = initial_notes
-        if initial_auto_close:
-            form.initial["auto_close"] = "true"
-        if initial_mark_unread:
-            form.initial["unread"] = "true"
+                return HttpResponseRedirect(reverse("linkding:bookmarks.index"))
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
-    context = {
-        "form": form,
-        "auto_close": initial_auto_close,
-        "return_url": reverse("bookmarks:index"),
-    }
+    context = {"form": form, "return_url": reverse("linkding:bookmarks.index")}
 
     return render(request, "bookmarks/new.html", context, status=status)
 
 
 @login_required
-def edit(request, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
+def edit(request: HttpRequest, bookmark_id: int):
+    bookmark = access.bookmark_write(request, bookmark_id)
+    form = BookmarkForm(request, instance=bookmark)
     return_url = get_safe_return_url(
-        request.GET.get("return_url"), reverse("bookmarks:index")
+        request.GET.get("return_url"), reverse("linkding:bookmarks.index")
     )
 
     if request.method == "POST":
-        form = BookmarkForm(request.POST, instance=bookmark)
         if form.is_valid():
-            tag_string = convert_tag_string(form.data["tag_string"])
-            update_bookmark(form.save(commit=False), tag_string, request.user)
+            form.save()
             return HttpResponseRedirect(return_url)
-    else:
-        form = BookmarkForm(instance=bookmark)
-
-    form.initial["tag_string"] = build_tag_string(bookmark.tag_names, " ")
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
     context = {"form": form, "bookmark_id": bookmark_id, "return_url": return_url}
@@ -223,71 +189,43 @@ def edit(request, bookmark_id: int):
     return render(request, "bookmarks/edit.html", context, status=status)
 
 
-def remove(request, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+def remove(request: HttpRequest, bookmark_id: int | str):
+    bookmark = access.bookmark_write(request, bookmark_id)
     bookmark.delete()
 
 
-def archive(request, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+def archive(request: HttpRequest, bookmark_id: int | str):
+    bookmark = access.bookmark_write(request, bookmark_id)
     archive_bookmark(bookmark)
 
 
-def unarchive(request, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+def unarchive(request: HttpRequest, bookmark_id: int | str):
+    bookmark = access.bookmark_write(request, bookmark_id)
     unarchive_bookmark(bookmark)
 
 
-def unshare(request, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+def unshare(request: HttpRequest, bookmark_id: int | str):
+    bookmark = access.bookmark_write(request, bookmark_id)
     bookmark.shared = False
     bookmark.save()
 
 
-def mark_as_read(request, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+def mark_as_read(request: HttpRequest, bookmark_id: int | str):
+    bookmark = access.bookmark_write(request, bookmark_id)
     bookmark.unread = False
     bookmark.save()
 
 
-def create_html_snapshot(request, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+def create_html_snapshot(request: HttpRequest, bookmark_id: int | str):
+    bookmark = access.bookmark_write(request, bookmark_id)
     tasks.create_html_snapshot(bookmark)
 
 
-def upload_asset(request, bookmark_id: int):
+def upload_asset(request: HttpRequest, bookmark_id: int | str):
     if settings.LD_DISABLE_ASSET_UPLOAD:
         return HttpResponseForbidden("Asset upload is disabled")
 
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+    bookmark = access.bookmark_write(request, bookmark_id)
     file = request.FILES.get("upload_asset_file")
     if not file:
         return HttpResponseBadRequest("No file provided")
@@ -295,21 +233,13 @@ def upload_asset(request, bookmark_id: int):
     asset_actions.upload_asset(bookmark, file)
 
 
-def remove_asset(request, asset_id: int):
-    try:
-        asset = BookmarkAsset.objects.get(pk=asset_id, bookmark__owner=request.user)
-    except BookmarkAsset.DoesNotExist:
-        raise Http404("Asset does not exist")
-
+def remove_asset(request: HttpRequest, asset_id: int | str):
+    asset = access.asset_write(request, asset_id)
     asset.delete()
 
 
-def update_state(request, bookmark_id: int):
-    try:
-        bookmark = Bookmark.objects.get(pk=bookmark_id, owner=request.user)
-    except Bookmark.DoesNotExist:
-        raise Http404("Bookmark does not exist")
-
+def update_state(request: HttpRequest, bookmark_id: int | str):
+    bookmark = access.bookmark_write(request, bookmark_id)
     bookmark.is_archived = request.POST.get("is_archived") == "on"
     bookmark.unread = request.POST.get("unread") == "on"
     bookmark.shared = request.POST.get("shared") == "on"
@@ -317,7 +247,7 @@ def update_state(request, bookmark_id: int):
 
 
 @login_required
-def index_action(request):
+def index_action(request: HttpRequest):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_bookmarks(request.user, request.user_profile, search)
 
@@ -328,11 +258,11 @@ def index_action(request):
     if turbo.accept(request):
         return partials.active_bookmark_update(request)
 
-    return utils.redirect_with_query(request, reverse("bookmarks:index"))
+    return utils.redirect_with_query(request, reverse("linkding:bookmarks.index"))
 
 
 @login_required
-def archived_action(request):
+def archived_action(request: HttpRequest):
     search = BookmarkSearch.from_request(request.GET)
     query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
 
@@ -343,11 +273,11 @@ def archived_action(request):
     if turbo.accept(request):
         return partials.archived_bookmark_update(request)
 
-    return utils.redirect_with_query(request, reverse("bookmarks:archived"))
+    return utils.redirect_with_query(request, reverse("linkding:bookmarks.archived"))
 
 
 @login_required
-def shared_action(request):
+def shared_action(request: HttpRequest):
     if "bulk_execute" in request.POST:
         return HttpResponseBadRequest("View does not support bulk actions")
 
@@ -358,10 +288,10 @@ def shared_action(request):
     if turbo.accept(request):
         return partials.shared_bookmark_update(request)
 
-    return utils.redirect_with_query(request, reverse("bookmarks:shared"))
+    return utils.redirect_with_query(request, reverse("linkding:bookmarks.shared"))
 
 
-def handle_action(request, query: QuerySet[Bookmark] = None):
+def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
     # Single bookmark actions
     if "archive" in request.POST:
         return archive(request, request.POST["archive"])
@@ -424,5 +354,5 @@ def handle_action(request, query: QuerySet[Bookmark] = None):
 
 
 @login_required
-def close(request):
+def close(request: HttpRequest):
     return render(request, "bookmarks/close.html")

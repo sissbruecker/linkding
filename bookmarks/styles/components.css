@@ -1,36 +1,31 @@
 /* Shared components */
 
-/* Content area component */
-section.content-area {
+/* Section header component */
+.section-header {
+  border-bottom: solid 1px var(--secondary-border-color);
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--unit-5);
+  padding-bottom: var(--unit-2);
+  margin-bottom: var(--unit-4);
+
+  h1,
   h2,
   h3 {
     font-size: var(--font-size-lg);
+    flex: 0 0 auto;
+    line-height: var(--unit-9);
+    margin: 0;
   }
 
-  .content-area-header {
-    border-bottom: solid 1px var(--secondary-border-color);
+  .header-controls {
+    flex: 1 1 0;
     display: flex;
-    flex-wrap: wrap;
-    column-gap: var(--unit-5);
-    padding-bottom: var(--unit-2);
-    margin-bottom: var(--unit-4);
-
-    h2,
-    h3 {
-      flex: 0 0 auto;
-      line-height: var(--unit-9);
-      margin: 0;
-    }
-
-    .header-controls {
-      flex: 1 1 0;
-      display: flex;
-    }
   }
 }
 
 @media (max-width: 600px) {
-  section.content-area .content-area-header {
+  .section-header {
     flex-direction: column;
   }
 }

@@ -14,7 +14,7 @@
       <span>{{ details.bookmark.url }}</span>
     </a>
     {% if details.latest_snapshot %}
-      <a class="weblink" href="{% url 'bookmarks:assets.read' details.latest_snapshot.id %}"
+      <a class="weblink" href="{% url 'linkding:assets.read' details.latest_snapshot.id %}"
          target="{{ details.profile.bookmark_link_target }}">
         {% if details.show_link_icons %}
           <svg class="favicon" xmlns="http://www.w3.org/2000/svg">
@@ -85,7 +85,7 @@
         <h3 id="details-modal-tags-title">Tags</h3>
         <div>
           {% for tag_name in details.bookmark.tag_names %}
-            <a href="{% url 'bookmarks:index' %}?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
+            <a href="{% url 'linkding:bookmarks.index' %}?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
           {% endfor %}
         </div>
       </section>

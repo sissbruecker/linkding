@@ -6,7 +6,6 @@ from typing import List
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 class Tag(models.Model):
     name = models.CharField(max_length=64)
     date_added = models.DateTimeField()
-    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -70,7 +69,7 @@ class Bookmark(models.Model):
     date_added = models.DateTimeField()
     date_modified = models.DateTimeField()
     date_accessed = models.DateTimeField(blank=True, null=True)
-    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag)
 
     @property
@@ -149,56 +148,6 @@ def bookmark_asset_deleted(sender, instance, **kwargs):
                 os.remove(filepath)
             except Exception as error:
                 logger.error(f"Failed to delete asset file: {filepath}", exc_info=error)
-
-
-class BookmarkForm(forms.ModelForm):
-    # Use URLField for URL
-    url = forms.CharField(validators=[BookmarkURLValidator()])
-    tag_string = forms.CharField(required=False)
-    # Do not require title and description as they may be empty
-    title = forms.CharField(max_length=512, required=False)
-    description = forms.CharField(required=False, widget=forms.Textarea())
-    unread = forms.BooleanField(required=False)
-    shared = forms.BooleanField(required=False)
-    # Hidden field that determines whether to close window/tab after saving the bookmark
-    auto_close = forms.CharField(required=False)
-
-    class Meta:
-        model = Bookmark
-        fields = [
-            "url",
-            "tag_string",
-            "title",
-            "description",
-            "notes",
-            "unread",
-            "shared",
-            "auto_close",
-        ]
-
-    @property
-    def has_notes(self):
-        return self.initial.get("notes", None) or (
-            self.instance and self.instance.notes
-        )
-
-    def clean_url(self):
-        # When creating a bookmark, the service logic prevents duplicate URLs by
-        # updating the existing bookmark instead, which is also communicated in
-        # the form's UI. When editing a bookmark, there is no assumption that
-        # it would update a different bookmark if the URL is a duplicate, so
-        # raise a validation error in that case.
-        url = self.cleaned_data["url"]
-        if self.instance.pk:
-            is_duplicate = (
-                Bookmark.objects.filter(owner=self.instance.owner, url=url)
-                .exclude(pk=self.instance.pk)
-                .exists()
-            )
-            if is_duplicate:
-                raise forms.ValidationError("A bookmark with this URL already exists.")
-
-        return url
 
 
 class BookmarkSearch:
@@ -387,9 +336,7 @@ class UserProfile(models.Model):
         (TAG_GROUPING_ALPHABETICAL, "Alphabetical"),
         (TAG_GROUPING_DISABLED, "Disabled"),
     ]
-    user = models.OneToOneField(
-        get_user_model(), related_name="profile", on_delete=models.CASCADE
-    )
+    user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE)
     theme = models.CharField(
         max_length=10, choices=THEME_CHOICES, blank=False, default=THEME_AUTO
     )
@@ -497,13 +444,13 @@ class UserProfileForm(forms.ModelForm):
         ]
 
 
-@receiver(post_save, sender=get_user_model())
+@receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
 
-@receiver(post_save, sender=get_user_model())
+@receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
@@ -512,7 +459,7 @@ class Toast(models.Model):
     key = models.CharField(max_length=50)
     message = models.TextField()
     acknowledged = models.BooleanField(default=False)
-    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class FeedToken(models.Model):
@@ -522,7 +469,7 @@ class FeedToken(models.Model):
 
     key = models.CharField(max_length=40, primary_key=True)
     user = models.OneToOneField(
-        get_user_model(),
+        User,
         related_name="feed_token",
         on_delete=models.CASCADE,
     )
@@ -556,7 +503,7 @@ class GlobalSettings(models.Model):
         default=LANDING_PAGE_LOGIN,
     )
     guest_profile_user = models.ForeignKey(
-        get_user_model(), on_delete=models.SET_NULL, null=True, blank=True
+        User, on_delete=models.SET_NULL, null=True, blank=True
     )
     enable_link_prefetch = models.BooleanField(default=False, null=False)
 

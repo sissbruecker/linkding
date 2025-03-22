@@ -1,7 +1,6 @@
-import operator
 import datetime
+import operator
 
-from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.test import TestCase
 from django.utils import timezone
@@ -10,8 +9,6 @@ from bookmarks import queries
 from bookmarks.models import BookmarkSearch, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, random_sentence
 from bookmarks.utils import unique
-
-User = get_user_model()
 
 
 class QueriesTestCase(TestCase, BookmarkFactoryMixin):
@@ -372,9 +369,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.assertQueryResult(query, [[bookmark1, bookmark2]])
 
     def test_query_bookmarks_should_only_return_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         owned_bookmarks = [
             self.setup_bookmark(),
             self.setup_bookmark(),
@@ -389,9 +384,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.assertQueryResult(query, [owned_bookmarks])
 
     def test_query_archived_bookmarks_should_only_return_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         owned_bookmarks = [
             self.setup_bookmark(is_archived=True),
             self.setup_bookmark(is_archived=True),
@@ -828,9 +821,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.assertQueryResult(query, [[tag]])
 
     def test_query_bookmark_tags_should_only_return_user_owned_tags(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         owned_bookmarks = [
             self.setup_bookmark(tags=[self.setup_tag()]),
             self.setup_bookmark(tags=[self.setup_tag()]),
@@ -847,9 +838,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.assertQueryResult(query, [self.get_tags_from_bookmarks(owned_bookmarks)])
 
     def test_query_archived_bookmark_tags_should_only_return_user_owned_tags(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         owned_bookmarks = [
             self.setup_bookmark(is_archived=True, tags=[self.setup_tag()]),
             self.setup_bookmark(is_archived=True, tags=[self.setup_tag()]),

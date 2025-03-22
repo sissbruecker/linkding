@@ -79,3 +79,12 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
             .locator('select[name="bulk_action"]')
             .select_option(value)
         )
+
+    def navigate_menu(self, main_menu_item: str, sub_menu_item: str | None = None):
+        if sub_menu_item:
+            self.page.locator("nav").get_by_role("button", name=main_menu_item).click()
+            self.page.locator("nav ul.menu").get_by_text(
+                sub_menu_item, exact=True
+            ).click()
+        else:
+            self.page.locator("nav").get_by_text(main_menu_item, exact=True).click()

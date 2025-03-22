@@ -8,28 +8,7 @@ from django.http import (
 )
 from django.shortcuts import render
 
-from bookmarks.models import BookmarkAsset
-
-
-def _access_asset(request, asset_id: int):
-    try:
-        asset = BookmarkAsset.objects.get(pk=asset_id)
-    except BookmarkAsset.DoesNotExist:
-        raise Http404("Asset does not exist")
-
-    bookmark = asset.bookmark
-    is_owner = bookmark.owner == request.user
-    is_shared = (
-        request.user.is_authenticated
-        and bookmark.shared
-        and bookmark.owner.profile.enable_sharing
-    )
-    is_public_shared = bookmark.shared and bookmark.owner.profile.enable_public_sharing
-
-    if not is_owner and not is_shared and not is_public_shared:
-        raise Http404("Bookmark does not exist")
-
-    return asset
+from bookmarks.views import access
 
 
 def _get_asset_content(asset):
@@ -49,14 +28,14 @@ def _get_asset_content(asset):
 
 
 def view(request, asset_id: int):
-    asset = _access_asset(request, asset_id)
+    asset = access.asset_read(request, asset_id)
     content = _get_asset_content(asset)
 
     return HttpResponse(content, content_type=asset.content_type)
 
 
 def read(request, asset_id: int):
-    asset = _access_asset(request, asset_id)
+    asset = access.asset_read(request, asset_id)
     content = _get_asset_content(asset)
     content = content.decode("utf-8")
 

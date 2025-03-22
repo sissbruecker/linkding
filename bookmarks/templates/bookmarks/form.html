@@ -95,14 +95,12 @@
   {% endif %}
   <div class="divider"></div>
   <div class="form-group d-flex justify-between">
-    <div>
-      {% if auto_close %}
-        <input type="submit" value="Save and close" class="btn btn-primary btn-wide">
-      {% else %}
-        <input type="submit" value="Save" class="btn btn-primary btn btn-primary btn-wide">
-      {% endif %}
-    </div>
-    <a href="{{ cancel_url }}" class="btn">Nevermind</a>
+    {% if form.is_auto_close %}
+      <input type="submit" value="Save and close" class="btn btn-primary btn-wide">
+    {% else %}
+      <input type="submit" value="Save" class="btn btn-primary btn btn-primary btn-wide">
+    {% endif %}
+    <a href="{{ return_url }}" class="btn">Nevermind</a>
   </div>
   <script type="application/javascript">
     /**
@@ -119,7 +117,7 @@
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
       const refreshButton = document.getElementById('refresh-button');
       const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
-      const editedBookmarkId = {{ bookmark_id }};
+      const editedBookmarkId = {{ form.instance.id|default:0 }};
       let isTitleModified = !!titleInput.value;
       let isDescriptionModified = !!descriptionInput.value;
 
@@ -151,8 +149,7 @@
         toggleLoadingIcon(urlInput, true);
 
         const websiteUrl = encodeURIComponent(urlInput.value);
-        const requestUrl = `{% url 'bookmarks:api-root' %}bookmarks/check?url=${websiteUrl}`;
-
+        const requestUrl = `{% url 'linkding:api-root' %}bookmarks/check?url=${websiteUrl}`;
         fetch(requestUrl)
           .then(response => response.json())
           .then(data => {

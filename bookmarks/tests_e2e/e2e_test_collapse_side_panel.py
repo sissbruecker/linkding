@@ -1,7 +1,7 @@
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.e2e.helpers import LinkdingE2ETestCase
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 
 class CollapseSidePanelE2ETestCase(LinkdingE2ETestCase):
@@ -23,13 +23,15 @@ class CollapseSidePanelE2ETestCase(LinkdingE2ETestCase):
 
     def test_side_panel_should_be_visible_by_default(self):
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
             self.assertSidePanelIsVisible()
 
-            self.page.goto(self.live_server_url + reverse("bookmarks:archived"))
+            self.page.goto(
+                self.live_server_url + reverse("linkding:bookmarks.archived")
+            )
             self.assertSidePanelIsVisible()
 
-            self.page.goto(self.live_server_url + reverse("bookmarks:shared"))
+            self.page.goto(self.live_server_url + reverse("linkding:bookmarks.shared"))
             self.assertSidePanelIsVisible()
 
     def test_side_panel_should_be_hidden_when_collapsed(self):
@@ -38,11 +40,13 @@ class CollapseSidePanelE2ETestCase(LinkdingE2ETestCase):
         user.profile.save()
 
         with sync_playwright() as p:
-            self.open(reverse("bookmarks:index"), p)
+            self.open(reverse("linkding:bookmarks.index"), p)
             self.assertSidePanelIsHidden()
 
-            self.page.goto(self.live_server_url + reverse("bookmarks:archived"))
+            self.page.goto(
+                self.live_server_url + reverse("linkding:bookmarks.archived")
+            )
             self.assertSidePanelIsHidden()
 
-            self.page.goto(self.live_server_url + reverse("bookmarks:shared"))
+            self.page.goto(self.live_server_url + reverse("linkding:bookmarks.shared"))
             self.assertSidePanelIsHidden()

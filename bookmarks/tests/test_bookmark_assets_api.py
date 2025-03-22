@@ -43,7 +43,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         ]
 
         url = reverse(
-            "bookmarks:bookmark_asset-list", kwargs={"bookmark_id": bookmark1.id}
+            "linkding:bookmark_asset-list", kwargs={"bookmark_id": bookmark1.id}
         )
         response = self.get(url, expected_status_code=status.HTTP_200_OK)
         self.assertEqual(len(response.data["results"]), 3)
@@ -52,7 +52,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertAsset(bookmark1_assets[2], response.data["results"][2])
 
         url = reverse(
-            "bookmarks:bookmark_asset-list", kwargs={"bookmark_id": bookmark2.id}
+            "linkding:bookmark_asset-list", kwargs={"bookmark_id": bookmark2.id}
         )
         response = self.get(url, expected_status_code=status.HTTP_200_OK)
         self.assertEqual(len(response.data["results"]), 3)
@@ -68,14 +68,14 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.setup_asset(bookmark=bookmark)
 
         url = reverse(
-            "bookmarks:bookmark_asset-list", kwargs={"bookmark_id": bookmark.id}
+            "linkding:bookmark_asset-list", kwargs={"bookmark_id": bookmark.id}
         )
         self.get(url, expected_status_code=status.HTTP_404_NOT_FOUND)
 
     def test_asset_list_requires_authentication(self):
         bookmark = self.setup_bookmark()
         url = reverse(
-            "bookmarks:bookmark_asset-list", kwargs={"bookmark_id": bookmark.id}
+            "linkding:bookmark_asset-list", kwargs={"bookmark_id": bookmark.id}
         )
         self.get(url, expected_status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -94,7 +94,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             gzip=False,
         )
         url = reverse(
-            "bookmarks:bookmark_asset-detail",
+            "linkding:bookmark_asset-detail",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         response = self.get(url, expected_status_code=status.HTTP_200_OK)
@@ -108,7 +108,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         asset = self.setup_asset(bookmark=bookmark)
 
         url = reverse(
-            "bookmarks:bookmark_asset-detail",
+            "linkding:bookmark_asset-detail",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         self.get(url, expected_status_code=status.HTTP_404_NOT_FOUND)
@@ -117,7 +117,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(bookmark=bookmark)
         url = reverse(
-            "bookmarks:bookmark_asset-detail",
+            "linkding:bookmark_asset-detail",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         self.get(url, expected_status_code=status.HTTP_401_UNAUTHORIZED)
@@ -145,7 +145,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.setup_asset_file(asset=asset, file_content=file_content)
 
         url = reverse(
-            "bookmarks:bookmark_asset-download",
+            "linkding:bookmark_asset-download",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         response = self.get(url, expected_status_code=status.HTTP_200_OK)
@@ -173,7 +173,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.setup_asset_file(asset=asset, file_content=file_content)
 
         url = reverse(
-            "bookmarks:bookmark_asset-download",
+            "linkding:bookmark_asset-download",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         response = self.get(url, expected_status_code=status.HTTP_200_OK)
@@ -199,7 +199,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         )
 
         url = reverse(
-            "bookmarks:bookmark_asset-download",
+            "linkding:bookmark_asset-download",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         self.get(url, expected_status_code=status.HTTP_404_NOT_FOUND)
@@ -212,7 +212,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         asset = self.setup_asset(bookmark=bookmark)
 
         url = reverse(
-            "bookmarks:bookmark_asset-download",
+            "linkding:bookmark_asset-download",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         self.get(url, expected_status_code=status.HTTP_404_NOT_FOUND)
@@ -221,7 +221,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(bookmark=bookmark)
         url = reverse(
-            "bookmarks:bookmark_asset-download",
+            "linkding:bookmark_asset-download",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         self.get(url, expected_status_code=status.HTTP_401_UNAUTHORIZED)
@@ -239,7 +239,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
         bookmark = self.setup_bookmark()
         url = reverse(
-            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+            "linkding:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
         )
         file_content = b"test file content"
         file_name = "test.txt"
@@ -264,7 +264,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
         bookmark = self.setup_bookmark()
         url = reverse(
-            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+            "linkding:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
         )
 
         response = self.client.post(url, {}, format="multipart")
@@ -276,7 +276,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         other_user = self.setup_user()
         bookmark = self.setup_bookmark(user=other_user)
         url = reverse(
-            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+            "linkding:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
         )
 
         response = self.client.post(url, {}, format="multipart")
@@ -285,7 +285,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_upload_asset_requires_authentication(self):
         bookmark = self.setup_bookmark()
         url = reverse(
-            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+            "linkding:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
         )
 
         response = self.client.post(url, {}, format="multipart")
@@ -296,7 +296,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.authenticate()
         bookmark = self.setup_bookmark()
         url = reverse(
-            "bookmarks:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
+            "linkding:bookmark_asset-upload", kwargs={"bookmark_id": bookmark.id}
         )
         response = self.client.post(url, {}, format="multipart")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -309,7 +309,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.setup_asset_file(asset=asset)
 
         url = reverse(
-            "bookmarks:bookmark_asset-detail",
+            "linkding:bookmark_asset-detail",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         self.delete(url, expected_status_code=status.HTTP_204_NO_CONTENT)
@@ -325,7 +325,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         asset = self.setup_asset(bookmark=bookmark)
 
         url = reverse(
-            "bookmarks:bookmark_asset-detail",
+            "linkding:bookmark_asset-detail",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         self.delete(url, expected_status_code=status.HTTP_404_NOT_FOUND)
@@ -334,7 +334,7 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(bookmark=bookmark)
         url = reverse(
-            "bookmarks:bookmark_asset-detail",
+            "linkding:bookmark_asset-detail",
             kwargs={"bookmark_id": asset.bookmark.id, "pk": asset.id},
         )
         self.delete(url, expected_status_code=status.HTTP_401_UNAUTHORIZED)
