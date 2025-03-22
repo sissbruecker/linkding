@@ -2,17 +2,22 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django.db.models import OuterRef, Subquery
 
 
 def forwards(apps, schema_editor):
+    # Update the latest snapshot for each bookmark
     Bookmark = apps.get_model("bookmarks", "bookmark")
-    for bookmark in Bookmark.objects.all():
-        snapshots = bookmark.bookmarkasset_set.filter(
-            asset_type="snapshot", status="complete"
-        ).order_by("-date_created")
-        if snapshots:
-            bookmark.latest_snapshot = snapshots[0]
-        bookmark.save()
+    BookmarkAsset = apps.get_model("bookmarks", "bookmarkasset")
+
+    latest_snapshots = (
+        BookmarkAsset.objects.filter(
+            bookmark=OuterRef("pk"), asset_type="snapshot", status="complete"
+        )
+        .order_by("-date_created")
+        .values("id")[:1]
+    )
+    Bookmark.objects.update(latest_snapshot_id=Subquery(latest_snapshots))
 
 
 def reverse(apps, schema_editor):
