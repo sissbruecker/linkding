@@ -7,9 +7,9 @@ from django.db import migrations, models
 def forwards(apps, schema_editor):
     Bookmark = apps.get_model("bookmarks", "bookmark")
     for bookmark in Bookmark.objects.all():
-        snapshots = bookmark.bookmarkasset_set.filter(status="complete").order_by(
-            "-date_created"
-        )
+        snapshots = bookmark.bookmarkasset_set.filter(
+            asset_type="snapshot", status="complete"
+        ).order_by("-date_created")
         if snapshots:
             bookmark.latest_snapshot = snapshots[0]
         bookmark.save()
