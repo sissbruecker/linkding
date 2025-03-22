@@ -71,6 +71,13 @@ class Bookmark(models.Model):
     date_accessed = models.DateTimeField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag)
+    latest_snapshot = models.ForeignKey(
+        "BookmarkAsset",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="latest_snapshot",
+    )
 
     @property
     def resolved_title(self):

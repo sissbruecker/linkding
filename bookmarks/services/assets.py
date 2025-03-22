@@ -51,6 +51,9 @@ def create_snapshot(asset: BookmarkAsset):
         asset.file = filename
         asset.gzip = True
         asset.save()
+
+        asset.bookmark.latest_snapshot = asset
+        asset.bookmark.save()
     except Exception as error:
         asset.status = BookmarkAsset.STATUS_FAILURE
         asset.save()
@@ -70,6 +73,9 @@ def upload_snapshot(bookmark: Bookmark, html: bytes):
     asset.file = filename
     asset.gzip = True
     asset.save()
+
+    asset.bookmark.latest_snapshot = asset
+    asset.bookmark.save()
 
     return asset
 

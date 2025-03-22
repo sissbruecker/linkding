@@ -43,7 +43,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertInHTML(
             f"""
         <a href="{url}"
-           title="Show snapshot on the Internet Archive Wayback Machine" target="{link_target}" rel="noopener">
+           title="View snapshot on the Internet Archive Wayback Machine" target="{link_target}" rel="noopener">
             {label_content}
         </a>
         <span>|</span>
@@ -557,6 +557,31 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertWebArchiveLink(
             html, "1 week ago", bookmark.web_archive_snapshot_url, link_target="_self"
+        )
+
+    def test_should_render_latest_snapshot_link_if_one_exists(self):
+        bookmark = self.setup_date_format_test(
+            UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE
+        )
+        bookmark.latest_snapshot = self.setup_asset(bookmark)
+        bookmark.save()
+
+        html = self.render_template()
+        formatted_date = formats.date_format(bookmark.date_added, "SHORT_DATE_FORMAT")
+        snapshot_url = reverse(
+            "linkding:assets.view", args=[bookmark.latest_snapshot.id]
+        )
+
+        # Check that the snapshot link is rendered with the correct URL and title
+        self.assertInHTML(
+            f"""
+            <a href="{snapshot_url}"
+               title="View latest snapshot" target="_blank" rel="noopener">
+                {formatted_date}
+            </a>
+            <span>|</span>
+            """,
+            html,
         )
 
     def test_should_reflect_unread_state_as_css_class(self):

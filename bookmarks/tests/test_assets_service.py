@@ -236,3 +236,78 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
 
         # asset is not saved to the database
         self.assertIsNone(BookmarkAsset.objects.first())
+
+    def test_create_snapshot_updates_bookmark_latest_snapshot(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+        first_asset = assets.create_snapshot_asset(bookmark)
+        first_asset.save()
+
+        assets.create_snapshot(first_asset)
+        bookmark.refresh_from_db()
+
+        self.assertEqual(bookmark.latest_snapshot, first_asset)
+
+        second_asset = assets.create_snapshot_asset(bookmark)
+        second_asset.save()
+
+        assets.create_snapshot(second_asset)
+        bookmark.refresh_from_db()
+
+        self.assertEqual(bookmark.latest_snapshot, second_asset)
+
+    def test_upload_snapshot_updates_bookmark_latest_snapshot(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+
+        first_asset = assets.upload_snapshot(bookmark, self.html_content.encode())
+
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, first_asset)
+
+        second_asset = assets.upload_snapshot(bookmark, self.html_content.encode())
+
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, second_asset)
+        self.assertNotEqual(bookmark.latest_snapshot, first_asset)
+
+    def test_create_snapshot_failure_does_not_update_latest_snapshot(self):
+        # Create a bookmark with an existing latest_snapshot
+        bookmark = self.setup_bookmark(url="https://example.com")
+        initial_snapshot = assets.upload_snapshot(bookmark, self.html_content.encode())
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, initial_snapshot)
+
+        # Create a new snapshot asset that will fail
+        failing_asset = assets.create_snapshot_asset(bookmark)
+        failing_asset.save()
+
+        # Make the snapshot creation fail
+        self.mock_singlefile_create_snapshot.side_effect = Exception(
+            "Snapshot creation failed"
+        )
+
+        # Attempt to create a snapshot (which will fail)
+        with self.assertRaises(Exception):
+            assets.create_snapshot(failing_asset)
+
+        # Verify that the bookmark's latest_snapshot is still the initial snapshot
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, initial_snapshot)
+
+    def test_upload_snapshot_failure_does_not_update_latest_snapshot(self):
+        # Create a bookmark with an existing latest_snapshot
+        bookmark = self.setup_bookmark(url="https://example.com")
+        initial_snapshot = assets.upload_snapshot(bookmark, self.html_content.encode())
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, initial_snapshot)
+
+        # Make the gzip.open function fail
+        with mock.patch("gzip.open") as mock_gzip_open:
+            mock_gzip_open.side_effect = Exception("Upload failed")
+
+            # Attempt to upload a snapshot (which will fail)
+            with self.assertRaises(Exception):
+                assets.upload_snapshot(bookmark, b"New content")
+
+        # Verify that the bookmark's latest_snapshot is still the initial snapshot
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, initial_snapshot)

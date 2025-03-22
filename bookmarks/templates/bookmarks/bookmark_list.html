@@ -67,9 +67,9 @@
             {% endif %}
             <div class="actions">
               {% if bookmark_item.display_date %}
-                {% if bookmark_item.web_archive_snapshot_url %}
-                  <a href="{{ bookmark_item.web_archive_snapshot_url }}"
-                     title="Show snapshot on the Internet Archive Wayback Machine"
+                {% if bookmark_item.snapshot_url %}
+                  <a href="{{ bookmark_item.snapshot_url }}"
+                     title="{{ bookmark_item.snapshot_title }}"
                      target="{{ bookmark_list.link_target }}"
                      rel="noopener">
                     {{ bookmark_item.display_date }}
