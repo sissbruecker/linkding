@@ -112,6 +112,27 @@ def upload_asset(bookmark: Bookmark, upload_file: UploadedFile):
         raise e
 
 
+def remove_asset(asset: BookmarkAsset):
+    # If this asset is the latest_snapshot for a bookmark, try to find the next most recent snapshot
+    bookmark = asset.bookmark
+    if bookmark and bookmark.latest_snapshot == asset:
+        latest = (
+            BookmarkAsset.objects.filter(
+                bookmark=bookmark,
+                asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+                status=BookmarkAsset.STATUS_COMPLETE,
+            )
+            .exclude(pk=asset.pk)
+            .order_by("-date_created")
+            .first()
+        )
+
+        bookmark.latest_snapshot = latest
+        bookmark.save()
+
+    asset.delete()
+
+
 def _generate_asset_filename(
     asset: BookmarkAsset, filename: str, extension: str
 ) -> str:

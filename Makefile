@@ -4,7 +4,7 @@ serve:
 	python manage.py runserver
 
 tasks:
-	python manage.py process_tasks
+	python manage.py run_huey
 
 test:
 	pytest -n auto

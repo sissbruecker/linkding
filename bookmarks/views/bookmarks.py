@@ -235,7 +235,7 @@ def upload_asset(request: HttpRequest, bookmark_id: int | str):
 
 def remove_asset(request: HttpRequest, asset_id: int | str):
     asset = access.asset_write(request, asset_id)
-    asset.delete()
+    asset_actions.remove_asset(asset)
 
 
 def update_state(request: HttpRequest, bookmark_id: int | str):

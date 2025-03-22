@@ -1,6 +1,7 @@
 import datetime
 import gzip
 import os
+from datetime import timedelta
 from unittest import mock
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -311,3 +312,100 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         # Verify that the bookmark's latest_snapshot is still the initial snapshot
         bookmark.refresh_from_db()
         self.assertEqual(bookmark.latest_snapshot, initial_snapshot)
+
+    def test_remove_latest_snapshot_updates_bookmark(self):
+        # Create a bookmark with multiple snapshots
+        bookmark = self.setup_bookmark()
+
+        # Create base time (1 hour ago)
+        base_time = timezone.now() - timedelta(hours=1)
+
+        # Create three snapshots with explicitly different dates
+        old_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="old_snapshot.html.gz",
+            date_created=base_time,
+        )
+        self.setup_asset_file(old_asset)
+
+        middle_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="middle_snapshot.html.gz",
+            date_created=base_time + timedelta(minutes=30),
+        )
+        self.setup_asset_file(middle_asset)
+
+        latest_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="latest_snapshot.html.gz",
+            date_created=base_time + timedelta(minutes=60),
+        )
+        self.setup_asset_file(latest_asset)
+
+        # Set the latest asset as the bookmark's latest_snapshot
+        bookmark.latest_snapshot = latest_asset
+        bookmark.save()
+
+        # Delete the latest snapshot
+        assets.remove_asset(latest_asset)
+        bookmark.refresh_from_db()
+
+        # Verify that middle_asset is now the latest_snapshot
+        self.assertEqual(bookmark.latest_snapshot, middle_asset)
+
+        # Delete the middle snapshot
+        assets.remove_asset(middle_asset)
+        bookmark.refresh_from_db()
+
+        # Verify that old_asset is now the latest_snapshot
+        self.assertEqual(bookmark.latest_snapshot, old_asset)
+
+        # Delete the last snapshot
+        assets.remove_asset(old_asset)
+        bookmark.refresh_from_db()
+
+        # Verify that latest_snapshot is now None
+        self.assertIsNone(bookmark.latest_snapshot)
+
+    def test_remove_non_latest_snapshot_does_not_affect_bookmark(self):
+        # Create a bookmark with multiple snapshots
+        bookmark = self.setup_bookmark()
+
+        # Create base time (1 hour ago)
+        base_time = timezone.now() - timedelta(hours=1)
+
+        # Create two snapshots with explicitly different dates
+        old_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="old_snapshot.html.gz",
+            date_created=base_time,
+        )
+        self.setup_asset_file(old_asset)
+
+        latest_asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_COMPLETE,
+            file="latest_snapshot.html.gz",
+            date_created=base_time + timedelta(minutes=30),
+        )
+        self.setup_asset_file(latest_asset)
+
+        # Set the latest asset as the bookmark's latest_snapshot
+        bookmark.latest_snapshot = latest_asset
+        bookmark.save()
+
+        # Delete the old snapshot (not the latest)
+        assets.remove_asset(old_asset)
+        bookmark.refresh_from_db()
+
+        # Verify that latest_snapshot hasn't changed
+        self.assertEqual(bookmark.latest_snapshot, latest_asset)
