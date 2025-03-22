@@ -620,19 +620,25 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=True)
     def test_refresh_metadata_task_not_called_when_background_tasks_disabled(self):
         bookmark = self.setup_bookmark()
-        with mock.patch("bookmarks.services.tasks._refresh_metadata_task") as mock_refresh_metadata_task:
+        with mock.patch(
+            "bookmarks.services.tasks._refresh_metadata_task"
+        ) as mock_refresh_metadata_task:
             tasks.refresh_metadata(bookmark)
             mock_refresh_metadata_task.assert_not_called()
 
     @override_settings(LD_DISABLE_BACKGROUND_TASKS=False)
     def test_refresh_metadata_task_called_when_background_tasks_enabled(self):
         bookmark = self.setup_bookmark()
-        with mock.patch("bookmarks.services.tasks._refresh_metadata_task") as mock_refresh_metadata_task:
+        with mock.patch(
+            "bookmarks.services.tasks._refresh_metadata_task"
+        ) as mock_refresh_metadata_task:
             tasks.refresh_metadata(bookmark)
             mock_refresh_metadata_task.assert_called_once()
 
     def test_refresh_metadata_task_should_handle_missing_bookmark(self):
-        with mock.patch("bookmarks.services.website_loader.load_website_metadata") as mock_load_website_metadata:
+        with mock.patch(
+            "bookmarks.services.website_loader.load_website_metadata"
+        ) as mock_load_website_metadata:
             tasks._refresh_metadata_task(123)
 
             mock_load_website_metadata.assert_not_called()
@@ -646,10 +652,12 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
             url=bookmark.url,
             title="New title",
             description="New description",
-            preview_image=None
+            preview_image=None,
         )
 
-        with mock.patch("bookmarks.services.tasks.load_website_metadata") as mock_load_website_metadata:
+        with mock.patch(
+            "bookmarks.services.tasks.load_website_metadata"
+        ) as mock_load_website_metadata:
             mock_load_website_metadata.return_value = mock_website_metadata
 
             tasks.refresh_metadata(bookmark)

@@ -20,7 +20,8 @@ from bookmarks.services.bookmarks import (
     mark_bookmarks_as_unread,
     share_bookmarks,
     unshare_bookmarks,
-    enhance_with_website_metadata, refresh_bookmarks_metadata,
+    enhance_with_website_metadata,
+    refresh_bookmarks_metadata,
 )
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
@@ -30,14 +31,20 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
     def setUp(self) -> None:
         self.get_or_create_test_user()
 
-        self.mock_schedule_refresh_metadata = patch(
-            "bookmarks.services.bookmarks.tasks.refresh_metadata").start()
-        self.mock_load_preview_image = patch(
-            "bookmarks.services.bookmarks.tasks.load_preview_image").start()
+        self.mock_schedule_refresh_metadata_patcher = patch(
+            "bookmarks.services.bookmarks.tasks.refresh_metadata"
+        )
+        self.mock_schedule_refresh_metadata = (
+            self.mock_schedule_refresh_metadata_patcher.start()
+        )
+        self.mock_load_preview_image_patcher = patch(
+            "bookmarks.services.bookmarks.tasks.load_preview_image"
+        )
+        self.mock_load_preview_image = self.mock_load_preview_image_patcher.start()
 
     def tearDown(self):
-        self.mock_schedule_refresh_metadata.stop()
-        self.mock_load_preview_image.stop()
+        self.mock_schedule_refresh_metadata_patcher.stop()
+        self.mock_load_preview_image_patcher.stop()
 
     def test_create_should_not_update_website_metadata(self):
         with patch.object(
@@ -934,15 +941,14 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertNotIn(bookmark2.id, args)
 
     def test_refresh_bookmarks_metadata_should_only_refresh_user_owned_bookmarks(self):
-        other_user = User.objects.create_user(
-            "otheruser", "otheruser@example.com", "password123"
-        )
+        other_user = self.setup_user()
         bookmark1 = self.setup_bookmark()
         bookmark2 = self.setup_bookmark()
         inaccessible_bookmark = self.setup_bookmark(user=other_user)
 
         refresh_bookmarks_metadata(
-            [bookmark1.id, bookmark2.id, inaccessible_bookmark.id], self.get_or_create_test_user()
+            [bookmark1.id, bookmark2.id, inaccessible_bookmark.id],
+            self.get_or_create_test_user(),
         )
 
         self.assertEqual(self.mock_schedule_refresh_metadata.call_count, 2)
@@ -962,7 +968,8 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         bookmark3 = self.setup_bookmark()
 
         refresh_bookmarks_metadata(
-            [str(bookmark1.id), str(bookmark2.id), bookmark3.id], self.get_or_create_test_user()
+            [str(bookmark1.id), str(bookmark2.id), bookmark3.id],
+            self.get_or_create_test_user(),
         )
 
         self.assertEqual(self.mock_schedule_refresh_metadata.call_count, 3)

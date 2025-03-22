@@ -1047,32 +1047,42 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
         self.assertCountEqual(auto_tags, ["tag1", "tag2"])
 
-    def test_check_disable_cache_clears_metadata_cache(self):
+    def test_check_ignore_cache(self):
         self.authenticate()
 
-        self.patch_load_website_metadata = patch.object(
-            website_loader,
-            "load_website_metadata",
-            return_value=WebsiteMetadata(
+        with patch.object(
+            website_loader, "load_website_metadata"
+        ) as mock_load_website_metadata:
+            expected_metadata = WebsiteMetadata(
                 "https://example.com",
                 "Scraped metadata",
                 "Scraped description",
                 "https://example.com/preview.png",
             )
-        ).start()
-        self.patch_cache_clear = patch.object(website_loader.load_website_metadata, "cache_clear").start()
+            mock_load_website_metadata.return_value = expected_metadata
 
-        url = reverse("bookmarks:bookmark-check")
-        check_url = urllib.parse.quote_plus("https://example.com")
-        response = self.get(
-            f"{url}?url={check_url}&disable_cache=true", expected_status_code=status.HTTP_200_OK
-        )
+            # Does not ignore cache by default
+            url = reverse("linkding:bookmark-check")
+            check_url = urllib.parse.quote_plus("https://example.com")
+            self.get(
+                f"{url}?url={check_url}",
+                expected_status_code=status.HTTP_200_OK,
+            )
 
-        self.patch_cache_clear.assert_called_once()
-        self.patch_load_website_metadata.assert_called_once()
+            mock_load_website_metadata.assert_called_once_with(
+                "https://example.com", ignore_cache=False
+            )
+            mock_load_website_metadata.reset_mock()
 
-        self.patch_cache_clear.stop()
-        self.patch_load_website_metadata.stop()
+            # Ignores cache based on query param
+            self.get(
+                f"{url}?url={check_url}&ignore_cache=true",
+                expected_status_code=status.HTTP_200_OK,
+            )
+
+            mock_load_website_metadata.assert_called_once_with(
+                "https://example.com", ignore_cache=True
+            )
 
     def test_can_only_access_own_bookmarks(self):
         self.authenticate()

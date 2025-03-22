@@ -196,6 +196,7 @@ def unshare_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
         shared=False, date_modified=timezone.now()
     )
 
+
 def refresh_bookmarks_metadata(bookmark_ids: [Union[int, str]], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
     owned_bookmarks = Bookmark.objects.filter(

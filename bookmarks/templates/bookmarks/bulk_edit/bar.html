@@ -18,11 +18,11 @@
         <option value="bulk_untag">Remove tags</option>
         <option value="bulk_read">Mark as read</option>
         <option value="bulk_unread">Mark as unread</option>
-        <option value="bulk_refresh">Refresh Metadata</option>
         {% if request.user_profile.enable_sharing %}
           <option value="bulk_share">Share</option>
           <option value="bulk_unshare">Unshare</option>
         {% endif %}
+        <option value="bulk_refresh">Refresh from website</option>
       </select>
       <div class="tag-autocomplete d-none" ld-tag-autocomplete>
         <input name="bulk_tag_string" class="form-input input-sm" placeholder="Tag names..." variant="small">
