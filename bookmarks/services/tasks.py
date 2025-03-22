@@ -6,6 +6,7 @@ import waybackpy
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.utils import timezone
 from huey import crontab
 from huey.contrib.djhuey import HUEY as huey
 from huey.exceptions import TaskLockedException
@@ -13,7 +14,7 @@ from waybackpy.exceptions import WaybackError, TooManyRequestsError
 
 from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
 from bookmarks.services import assets, favicon_loader, preview_image_loader
-from bookmarks.services.website_loader import DEFAULT_USER_AGENT
+from bookmarks.services.website_loader import DEFAULT_USER_AGENT, load_website_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -223,6 +224,31 @@ def _schedule_bookmarks_without_previews_task(user_id: int):
             _load_preview_image_task(bookmark.id)
         except Exception as exc:
             logging.exception(exc)
+
+
+def refresh_metadata(bookmark: Bookmark):
+    if not settings.LD_DISABLE_BACKGROUND_TASKS:
+        _refresh_metadata_task(bookmark.id)
+
+
+@task()
+def _refresh_metadata_task(bookmark_id: int):
+    try:
+        bookmark = Bookmark.objects.get(id=bookmark_id)
+    except Bookmark.DoesNotExist:
+        return
+
+    logger.info(f"Refresh metadata for bookmark. url={bookmark.url}")
+
+    metadata = load_website_metadata(bookmark.url)
+    if metadata.title:
+        bookmark.title = metadata.title
+    if metadata.description:
+        bookmark.description = metadata.description
+    bookmark.date_modified = timezone.now()
+
+    bookmark.save()
+    logger.info(f"Successfully refreshed metadata for bookmark. url={bookmark.url}")
 
 
 def is_html_snapshot_feature_active() -> bool:

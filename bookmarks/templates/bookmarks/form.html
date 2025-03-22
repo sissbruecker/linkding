@@ -33,9 +33,12 @@
   <div class="form-group">
     <div class="d-flex justify-between align-baseline">
       <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
-      <button ld-clear-button data-for="{{ form.title.id_for_label }}" class="btn btn-link clear-button"
-              type="button">Clear
-      </button>
+      <div class="flex">
+        <button id="refresh-button" class="btn btn-link suffix-button" type="button">Refresh from website</button>
+        <button ld-clear-button data-for="{{ form.title.id_for_label }}" class="ml-2 btn btn-link suffix-button clear-button"
+                type="button">Clear
+        </button>
+      </div>
     </div>
     {{ form.title|add_class:"form-input"|attr:"autocomplete:off" }}
     {{ form.title.errors }}
@@ -43,7 +46,8 @@
   <div class="form-group">
     <div class="d-flex justify-between align-baseline">
       <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
-      <button ld-clear-button data-for="{{ form.description.id_for_label }}" class="btn btn-link clear-button"
+      <button ld-clear-button data-for="{{ form.description.id_for_label }}"
+              class="btn btn-link suffix-button clear-button"
               type="button">Clear
       </button>
     </div>
@@ -111,6 +115,7 @@
       const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
       const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
+      const refreshButton = document.getElementById('refresh-button');
       const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
       const editedBookmarkId = {{ form.instance.id|default:0 }};
       let isTitleModified = !!titleInput.value;
@@ -154,6 +159,7 @@
             // Display hint if URL is already bookmarked
             const existingBookmark = data.bookmark;
             bookmarkExistsHint.style['display'] = existingBookmark ? 'block' : 'none';
+            refreshButton.style['display'] = existingBookmark ? 'inline-block' : 'none';
 
             // Prefill form with existing bookmark data
             if (existingBookmark) {
@@ -193,6 +199,36 @@
           });
       }
 
+      function refreshMetadata() {
+        if (!urlInput.value) {
+          return;
+        }
+
+        toggleLoadingIcon(urlInput, true);
+
+        const websiteUrl = encodeURIComponent(urlInput.value);
+        const requestUrl = `{% url 'linkding:api-root' %}bookmarks/check?url=${websiteUrl}&ignore_cache=true`;
+
+        fetch(requestUrl)
+          .then(response => response.json())
+          .then(data => {
+            const metadata = data.metadata;
+            const existingBookmark = data.bookmark;
+            toggleLoadingIcon(urlInput, false);
+
+            if (metadata.title && metadata.title !== existingBookmark?.title) {
+              titleInput.value = metadata.title;
+              titleInput.classList.add("modified");
+            }
+
+            if (metadata.description && metadata.description !== existingBookmark?.description) {
+              descriptionInput.value = metadata.description;
+              descriptionInput.classList.add("modified");
+            }
+          });
+      }
+      refreshButton.addEventListener('click', refreshMetadata);
+
       // Fetch website metadata when page loads and when URL changes, unless we are editing an existing bookmark
       if (!editedBookmarkId) {
         checkUrl();
@@ -203,6 +239,8 @@
         descriptionInput.addEventListener('input', () => {
           isDescriptionModified = true;
         });
+      } else {
+        refreshButton.style['display'] = 'inline-block';
       }
     })();
   </script>

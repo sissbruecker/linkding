@@ -197,6 +197,17 @@ def unshare_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
     )
 
 
+def refresh_bookmarks_metadata(bookmark_ids: [Union[int, str]], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    owned_bookmarks = Bookmark.objects.filter(
+        owner=current_user, id__in=sanitized_bookmark_ids
+    )
+
+    for bookmark in owned_bookmarks:
+        tasks.refresh_metadata(bookmark)
+        tasks.load_preview_image(current_user, bookmark)
+
+
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.title = from_bookmark.title
     to_bookmark.description = from_bookmark.description

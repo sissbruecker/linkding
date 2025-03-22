@@ -27,7 +27,7 @@ class MockStreamingResponse:
 class WebsiteLoaderTestCase(TestCase):
     def setUp(self):
         # clear cached metadata before test run
-        website_loader.load_website_metadata.cache_clear()
+        website_loader._load_website_metadata_cached.cache_clear()
 
     def render_html_document(
         self, title, description="", og_description="", og_image=""
@@ -183,3 +183,20 @@ class WebsiteLoaderTestCase(TestCase):
             metadata = website_loader.load_website_metadata("https://example.com")
             self.assertEqual("test title", metadata.title)
             self.assertEqual("test description", metadata.description)
+
+    def test_website_metadata_ignore_cache(self):
+        expected_html = '<html><head><title>Test Title</title><meta name="description" content="Test Description"><meta property="og:image" content="/images/test.jpg"></head></html>'
+
+        with mock.patch.object(
+            website_loader, "load_page", return_value=expected_html
+        ) as mock_load_page:
+            website_loader.load_website_metadata("https://example.com")
+            mock_load_page.assert_called_once()
+
+            website_loader.load_website_metadata("https://example.com")
+            mock_load_page.assert_called_once()
+
+            website_loader.load_website_metadata(
+                "https://example.com", ignore_cache=True
+            )
+            self.assertEqual(mock_load_page.call_count, 2)

@@ -30,6 +30,7 @@ from bookmarks.services.bookmarks import (
     mark_bookmarks_as_unread,
     share_bookmarks,
     unshare_bookmarks,
+    refresh_bookmarks_metadata,
 )
 from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import get_safe_return_url
@@ -348,6 +349,8 @@ def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
             return share_bookmarks(bookmark_ids, request.user)
         if "bulk_unshare" == bulk_action:
             return unshare_bookmarks(bookmark_ids, request.user)
+        if "bulk_refresh" == bulk_action:
+            return refresh_bookmarks_metadata(bookmark_ids, request.user)
 
 
 @login_required

@@ -15,12 +15,21 @@
     visibility: hidden;
   }
 
-  & .form-group .clear-button {
-    display: none;
+  & .form-group .suffix-button {
     padding: 0;
     border: none;
     height: auto;
     font-size: var(--font-size-sm);
+  }
+
+  & .form-group .clear-button,
+  & .form-group #refresh-button {
+    display: none;
+  }
+
+  & .form-group input.modified,
+  & .form-group textarea.modified {
+    background: var(--primary-color-shade);
   }
 
   & .form-input-hint.bookmark-exists {
