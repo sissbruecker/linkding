@@ -19,6 +19,13 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -34,6 +41,8 @@ jobs:
           tags: |
             sissbruecker/linkding:latest
             sissbruecker/linkding:${{ env.VERSION }}
+            ghcr.io/sissbruecker/linkding:latest
+            ghcr.io/sissbruecker/linkding:${{ env.VERSION }}
           target: linkding
           push: true
 
@@ -46,6 +55,8 @@ jobs:
           tags: |
             sissbruecker/linkding:latest-alpine
             sissbruecker/linkding:${{ env.VERSION }}-alpine
+            ghcr.io/sissbruecker/linkding:latest-alpine
+            ghcr.io/sissbruecker/linkding:${{ env.VERSION }}-alpine
           target: linkding
           push: true
 
@@ -58,6 +69,8 @@ jobs:
           tags: |
             sissbruecker/linkding:latest-plus
             sissbruecker/linkding:${{ env.VERSION }}-plus
+            ghcr.io/sissbruecker/linkding:latest-plus
+            ghcr.io/sissbruecker/linkding:${{ env.VERSION }}-plus
           target: linkding-plus
           push: true
 
@@ -70,5 +83,7 @@ jobs:
           tags: |
             sissbruecker/linkding:latest-plus-alpine
             sissbruecker/linkding:${{ env.VERSION }}-plus-alpine
+            ghcr.io/sissbruecker/linkding:latest-plus-alpine
+            ghcr.io/sissbruecker/linkding:${{ env.VERSION }}-plus-alpine
           target: linkding-plus
           push: true
