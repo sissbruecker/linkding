@@ -32,7 +32,7 @@
     const word = getCurrentWord(input);
 
     suggestions = word
-      ? tags.filter(tag => tag.name.toLowerCase().indexOf(word.toLowerCase()) === 0)
+      ? tags.filter(tag => tag.name.toLowerCase().includes(word.toLowerCase()))
       : [];
 
     if (word && suggestions.length > 0) {
