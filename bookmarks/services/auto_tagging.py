@@ -11,10 +11,18 @@ def get_tags(script: str, url: str):
         return result
 
     for line in script.lower().split("\n"):
-        if "#" in line:
-            i = line.index("#")
-            line = line[:i]
+        line = line.strip()
 
+        # Skip empty lines or lines that start with a comment
+        if not line or line.startswith("#"):
+            continue
+
+        # Remove trailing comment - only if # is preceded by whitespace
+        comment_match = re.search(r"\s+#", line)
+        if comment_match:
+            line = line[: comment_match.start()]
+
+        # Ignore lines that don't contain a URL and a tag
         parts = line.split()
         if len(parts) < 2:
             continue
@@ -33,6 +41,11 @@ def get_tags(script: str, url: str):
 
         if parsed_pattern.query and not _qs_matches(
             parsed_pattern.query, parsed_url.query
+        ):
+            continue
+
+        if parsed_pattern.fragment and not _fragment_matches(
+            parsed_pattern.fragment, parsed_url.fragment
         ):
             continue
 
@@ -65,3 +78,7 @@ def _qs_matches(expected_qs: str, actual_qs: str) -> bool:
                 return False
 
     return True
+
+
+def _fragment_matches(expected_fragment: str, actual_fragment: str) -> bool:
+    return actual_fragment.startswith(expected_fragment)
