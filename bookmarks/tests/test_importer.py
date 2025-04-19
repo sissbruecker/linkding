@@ -416,6 +416,40 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         self.assertEqual(bookmark2.shared, False)
         self.assertEqual(bookmark3.shared, True)
 
+    def test_description_as_notes(self):
+        # does not import description as notes if not enabled in options
+        test_html = self.render_html(
+            tags_html="""
+        <DT><A HREF="https://example.com/1" ADD_DATE="1">Example title 1</A>
+        <DD>Example description 1</DD>
+        <DT><A HREF="https://example.com/2" ADD_DATE="1">Example title 2</A>
+        <DD>Example description 2[linkding-notes]Existing notes[/linkding-notes]</DD>
+        """
+        )
+        import_netscape_html(test_html, self.get_or_create_test_user(), ImportOptions())
+
+        bookmark1 = Bookmark.objects.get(url="https://example.com/1")
+        bookmark2 = Bookmark.objects.get(url="https://example.com/2")
+        self.assertEqual(bookmark1.description, "Example description 1")
+        self.assertEqual(bookmark1.notes, "")
+        self.assertEqual(bookmark2.description, "Example description 2")
+        self.assertEqual(bookmark2.notes, "Existing notes")
+
+        # does import description as notes if enabled in options
+        Bookmark.objects.all().delete()
+        import_netscape_html(
+            test_html,
+            self.get_or_create_test_user(),
+            ImportOptions(description_as_notes=True),
+        )
+
+        bookmark1 = Bookmark.objects.get(url="https://example.com/1")
+        bookmark2 = Bookmark.objects.get(url="https://example.com/2")
+        self.assertEqual(bookmark1.description, "")
+        self.assertEqual(bookmark1.notes, "Example description 1")
+        self.assertEqual(bookmark2.description, "")
+        self.assertEqual(bookmark2.notes, "Existing notes")
+
     def test_archived_state(self):
         test_html = self.render_html(
             tags_html="""
