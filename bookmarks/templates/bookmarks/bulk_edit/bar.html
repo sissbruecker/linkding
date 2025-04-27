@@ -8,33 +8,33 @@
       </label>
       <select name="bulk_action" class="form-select select-sm">
         {% if not 'bulk_archive' in disable_actions %}
-          <option value="bulk_archive">Archive</option>
+          <option value="bulk_archive">归档</option>
         {% endif %}
         {% if not 'bulk_unarchive' in disable_actions %}
-          <option value="bulk_unarchive">Unarchive</option>
+          <option value="bulk_unarchive">未归档</option>
         {% endif %}
-        <option value="bulk_delete">Delete</option>
-        <option value="bulk_tag">Add tags</option>
-        <option value="bulk_untag">Remove tags</option>
-        <option value="bulk_read">Mark as read</option>
-        <option value="bulk_unread">Mark as unread</option>
+        <option value="bulk_delete">删除</option>
+        <option value="bulk_tag">增加标记</option>
+        <option value="bulk_untag">移除标记</option>
+        <option value="bulk_read">标记已读</option>
+        <option value="bulk_unread">标为未读</option>
         {% if request.user_profile.enable_sharing %}
-          <option value="bulk_share">Share</option>
-          <option value="bulk_unshare">Unshare</option>
+          <option value="bulk_share">分享</option>
+          <option value="bulk_unshare">取消分析</option>
         {% endif %}
-        <option value="bulk_refresh">Refresh from website</option>
+        <option value="bulk_refresh">刷新网站</option>
       </select>
       <div class="tag-autocomplete d-none" ld-tag-autocomplete>
         <input name="bulk_tag_string" class="form-input input-sm" placeholder="Tag names..." variant="small">
       </div>
       <button ld-confirm-button type="submit" name="bulk_execute" class="btn btn-link btn-sm">
-        <span>Execute</span>
+        <span>执行</span>
       </button>
 
       <label class="form-checkbox select-across d-none">
         <input type="checkbox" name="bulk_select_across">
         <i class="form-icon"></i>
-        All pages (<span class="total">{{ bookmark_list.bookmarks_total }}</span> bookmarks)
+        所有页面 (<span class="total">{{ bookmark_list.bookmarks_total }}</span> 书签)
       </label>
     </div>
   </div>

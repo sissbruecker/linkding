@@ -134,3 +134,5 @@ Start the Django development server with:
 python3 manage.py runserver
 ```
 The frontend is now available under http://localhost:8000
+
+我在原作者的基础上增加了中文支持
