@@ -10,7 +10,7 @@
     {# Bookmark list #}
     <main class="main col-2" aria-labelledby="main-heading">
       <div class="section-header mb-0">
-        <h1 id="main-heading">Archived bookmarks</h1>
+        <h1 id="main-heading">已归档书签</h1>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search mode='archived' %}
           {% include 'bookmarks/bulk_edit/toggle.html' %}
@@ -34,7 +34,7 @@
     <div class="side-panel col-1">
       <section aria-labelledby="tags-heading">
         <div class="section-header">
-          <h2 id="tags-heading">Tags</h2>
+          <h2 id="tags-heading">标记</h2>
         </div>
         <div id="tag-cloud-container">
           {% include 'bookmarks/tag_cloud.html' %}

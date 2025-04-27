@@ -9,7 +9,7 @@
 
 {% block content %}
   <main class="settings-page" aria-labelledby="main-heading">
-    <h1 id="main-heading">Settings</h1>
+    <h1 id="main-heading">设置</h1>
 
     {# Profile section #}
     {% if success_message %}
@@ -20,94 +20,90 @@
     {% endif %}
 
     <section aria-labelledby="profile-heading">
-      <h2 id="profile-heading">Profile</h2>
+      <h2 id="profile-heading">配置文件</h2>
       <p>
-        <a href="{% url 'change_password' %}">Change password</a>
+        <a href="{% url 'change_password' %}">更改密码</a>
       </p>
       <form action="{% url 'linkding:settings.update' %}" method="post" novalidate data-turbo="false">
         {% csrf_token %}
         <div class="form-group">
-          <label for="{{ form.theme.id_for_label }}" class="form-label">Theme</label>
+          <label for="{{ form.theme.id_for_label }}" class="form-label">主题</label>
           {{ form.theme|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
-            Whether to use a light or dark theme, or automatically adjust the theme based on your system's settings.
+            选择使用浅色或深色主题，或根据系统设置自动调整主题
           </div>
         </div>
         <div class="form-group">
-          <label for="{{ form.bookmark_date_display.id_for_label }}" class="form-label">Bookmark date format</label>
+          <label for="{{ form.bookmark_date_display.id_for_label }}" class="form-label">书签日期格式</label>
           {{ form.bookmark_date_display|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
-            Whether to show bookmark dates as relative (how long ago), or as absolute dates. Alternatively the date can
-            be hidden.
+            选择将书签日期显示为相对时间（多久以前），还是显示为绝对日期。也可以选择隐藏日期
           </div>
         </div>
         <div class="form-group">
-          <label for="{{ form.bookmark_description_display.id_for_label }}" class="form-label">Bookmark
-            description</label>
+          <label for="{{ form.bookmark_description_display.id_for_label }}" class="form-label">书签描述</label>
           {{ form.bookmark_description_display|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
-            Whether to show bookmark descriptions and tags in the same line, or as separate blocks.
+            选择将书签描述和标签显示在同一行，还是分别显示为独立的块
           </div>
         </div>
         <div
             class="form-group {% if request.user_profile.bookmark_description_display == 'inline' %}d-hide{% endif %}">
-          <label for="{{ form.bookmark_description_max_lines.id_for_label }}" class="form-label">Bookmark description
-            max lines</label>
+          <label for="{{ form.bookmark_description_max_lines.id_for_label }}" class="form-label">书签描述最大行数</label>
           {{ form.bookmark_description_max_lines|add_class:"form-input width-25 width-sm-100" }}
           <div class="form-input-hint">
-            Limits the number of lines that are displayed for the bookmark description.
+            限制书签描述显示的最大行数
           </div>
         </div>
         <div class="form-group">
           <label for="{{ form.display_url.id_for_label }}" class="form-checkbox">
             {{ form.display_url }}
-            <i class="form-icon"></i> Show bookmark URL
+            <i class="form-icon"></i> 显示书签地址
           </label>
           <div class="form-input-hint">
-            When enabled, this setting displays the bookmark URL below the title.
+            启用后,此设置会在标题下方显示书签的链接地址。
           </div>
         </div>
         <div class="form-group">
           <label for="{{ form.permanent_notes.id_for_label }}" class="form-checkbox">
             {{ form.permanent_notes }}
-            <i class="form-icon"></i> Show notes permanently
+            <i class="form-icon"></i> 总是显示备注
           </label>
           <div class="form-input-hint">
-            Whether to show bookmark notes permanently, without having to toggle them individually.
-            Alternatively the keyboard shortcut <code>e</code> can be used to temporarily show all notes.
+            是否始终显示书签备注，而无需单独切换显示。也可以使用键盘快捷键<code>e</code>来操作可用于临时显示所有备注
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Bookmark actions</label>
+          <label class="form-label">书签显示的选项</label>
           <label for="{{ form.display_view_bookmark_action.id_for_label }}" class="form-checkbox">
             {{ form.display_view_bookmark_action }}
-            <i class="form-icon"></i> View
+            <i class="form-icon"></i> 查看
           </label>
           <label for="{{ form.display_edit_bookmark_action.id_for_label }}" class="form-checkbox">
             {{ form.display_edit_bookmark_action }}
-            <i class="form-icon"></i> Edit
+            <i class="form-icon"></i> 编辑
           </label>
           <label for="{{ form.display_archive_bookmark_action.id_for_label }}" class="form-checkbox">
             {{ form.display_archive_bookmark_action }}
-            <i class="form-icon"></i> Archive
+            <i class="form-icon"></i> 归档
           </label>
           <label for="{{ form.display_remove_bookmark_action.id_for_label }}" class="form-checkbox">
             {{ form.display_remove_bookmark_action }}
-            <i class="form-icon"></i> Remove
+            <i class="form-icon"></i> 删除
           </label>
           <div class="form-input-hint">
-            Which actions to display for each bookmark.
+            为每个书签显示哪些操作
           </div>
         </div>
         <div class="form-group">
-          <label for="{{ form.bookmark_link_target.id_for_label }}" class="form-label">Open bookmarks in</label>
+          <label for="{{ form.bookmark_link_target.id_for_label }}" class="form-label">打开书签方式</label>
           {{ form.bookmark_link_target|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
-            Whether to open bookmarks a new page or in the same page.
+            选择在新页面中打开书签，还是在当前页面中打开
           </div>
         </div>
         <div class="form-group{% if form.items_per_page.errors %} has-error{% endif %}">
-          <label for="{{ form.items_per_page.id_for_label }}" class="form-label">Items per page</label>
+          <label for="{{ form.items_per_page.id_for_label }}" class="form-label">每页显示书签数量</label>
           {{ form.items_per_page|add_class:"form-input width-25 width-sm-100"|attr:"min:10" }}
           {% if form.items_per_page.errors %}
             <div class="form-input-hint is-error">
@@ -116,60 +112,53 @@
           {% else %}
           {% endif %}
           <div class="form-input-hint">
-            The number of bookmarks to display per page.
+            每页显示的书签数量
           </div>
         </div>
         <div class="form-group">
           <label for="{{ form.sticky_pagination.id_for_label }}" class="form-checkbox">
             {{ form.sticky_pagination }}
-            <i class="form-icon"></i> Sticky pagination
+            <i class="form-icon"></i> 固定分页
           </label>
           <div class="form-input-hint">
-            When enabled, the pagination controls will stick to the bottom of the screen, so that they are always
-            visible without having to scroll to the end of the page first.
+            启用后，分页控件将固定在屏幕底部，始终可见，无需先滚动到页面底部
           </div>
         </div>
         <div class="form-group">
           <label for="{{ form.collapse_side_panel.id_for_label }}" class="form-checkbox">
             {{ form.collapse_side_panel }}
-            <i class="form-icon"></i> Collapse side panel
+            <i class="form-icon"></i> 收起侧边面板
           </label>
           <div class="form-input-hint">
-            When enabled, the tags side panel will be collapsed by default to give more space to the bookmark list.
-            Instead, the tags are shown in an expandable drawer.
+            启用后，标签侧边面板默认会收起，以腾出更多空间给书签列表。标签将显示在一个可展开的抽屉中
           </div>
         </div>
         <div class="form-group">
-          <label for="{{ form.tag_search.id_for_label }}" class="form-label">Tag search</label>
+          <label for="{{ form.tag_search.id_for_label }}" class="form-label">标记搜索</label>
           {{ form.tag_search|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
-            In strict mode, tags must be prefixed with a hash character (#).
-            In lax mode, tags can also be searched without the hash character.
-            Note that tags without the hash character are indistinguishable from search terms, which means the search
-            result will also include bookmarks where a search term matches otherwise.
+            在严格模式下，标签必须以井号（#）作为前缀。在宽松模式下，标签也可以不带井号进行搜索。请注意，未带井号的标签与搜索词无法区分，这意味着搜索结果将包括其他与搜索词匹配的书签
           </div>
         </div>
         <div class="form-group">
-          <label for="{{ form.tag_grouping.id_for_label }}" class="form-label">Tag grouping</label>
+          <label for="{{ form.tag_grouping.id_for_label }}" class="form-label">标记分组</label>
           {{ form.tag_grouping|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
-            In alphabetical mode, tags will be grouped by the first letter.
-            If disabled, tags will not be grouped.
+            在字母排序模式下，标签将按首字母分组。若禁用，则标签将不进行分组
           </div>
         </div>
         <div class="form-group">
           <details {% if form.auto_tagging_rules.value %}open{% endif %}>
             <summary>
-              <span class="form-label d-inline-block">Auto Tagging</span>
+              <span class="form-label d-inline-block">自动标记</span>
             </summary>
-            <label for="{{ form.auto_tagging_rules.id_for_label }}" class="text-assistive">Auto Tagging</label>
+            <label for="{{ form.auto_tagging_rules.id_for_label }}" class="text-assistive">自动标记</label>
             <div>
               {{ form.auto_tagging_rules|add_class:"form-input monospace"|attr:"rows:6" }}
             </div>
           </details>
           <div class="form-input-hint">
-            Automatically adds tags to bookmarks based on predefined rules.
-            Each line is a single rule that maps a URL to one or more tags. For example:
+           根据预定义的规则自动为书签添加标签.每一行是一个规则,将 URL 映射到一个或多个标签.例如:
             <pre>youtube.com video
 reddit.com/r/Music music reddit</pre>
           </div>
@@ -177,75 +166,60 @@ reddit.com/r/Music music reddit</pre>
         <div class="form-group">
           <label for="{{ form.enable_favicons.id_for_label }}" class="form-checkbox">
             {{ form.enable_favicons }}
-            <i class="form-icon"></i> Enable Favicons
+            <i class="form-icon"></i> 启用网站图标
           </label>
           <div class="form-input-hint">
-            Automatically loads favicons for bookmarked websites and displays them next to each bookmark.
-            Enabling this feature automatically downloads all missing favicons.
-            By default, this feature uses a <b>Google service</b> to download favicons.
-            If you don't want to use this service, check the <a
+            自动加载书签网站的图标，并将其显示在每个书签旁边。启用此功能后，将自动下载所有缺失的图标,默认情况下,此功能使用<b>Google 服务</b>来下载图标。如果您不想使用此服务，请勾选<a
               href="https://linkding.link/options/#ld_favicon_provider"
-              target="_blank">options documentation</a> on how to configure a custom favicon provider.
-            Icons are downloaded in the background, and it may take a while for them to show up.
+              target="_blank">选项文档</a> 关于如何配置自定义图标提供程序。图标将在后台下载，可能需要一些时间才能显示出来
           </div>
           {% if request.user_profile.enable_favicons and enable_refresh_favicons %}
-            <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
+            <button class="btn mt-2" name="refresh_favicons">刷新图标</button>
           {% endif %}
         </div>
         <div class="form-group">
           <label for="{{ form.enable_preview_images.id_for_label }}" class="form-checkbox">
             {{ form.enable_preview_images }}
-            <i class="form-icon"></i> Enable Preview Images
+            <i class="form-icon"></i> 启用图片预览
           </label>
           <div class="form-input-hint">
-            Automatically loads preview images for bookmarked websites and displays them next to each bookmark.
-            Enabling this feature automatically downloads all missing preview images.
+            自动加载书签网站的预览图片，并将其显示在每个书签旁边。启用此功能后，将自动下载所有缺失的预览图片
           </div>
         </div>
         <div class="form-group">
-          <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">Internet Archive
-            integration</label>
+          <label for="{{ form.web_archive_integration.id_for_label }}" class="form-label">互联网档案馆集成</label>
           {{ form.web_archive_integration|add_class:"form-select width-25 width-sm-100" }}
-          <div class="form-input-hint">
-            Enabling this feature will automatically create snapshots of bookmarked websites on the <a
-              href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive Wayback
-            Machine</a>.
-            This allows to preserve, and later access the website as it was at the point in time it was bookmarked, in
-            case it goes offline or its content is modified.
-            Please consider donating to the <a href="https://archive.org/donate" target="_blank"
-                                               rel="noopener">Internet Archive</a> if you make use of this feature.
+          <div class="form-input-hint">、
+            启用此功能后，将自动在 <a href="https://web.archive.org/" target="_blank" rel="noopener">互联网档案馆时光机</a> 上创建书签网站的快照
+            这允许保存网站，并在其离线或内容被修改的情况下，稍后以书签时的状态访问该网站。如果您使用此功能，请考虑向 <a href="https://archive.org/donate" target="_blank" rel="noopener">互联网档案馆</a> 捐款
           </div>
         </div>
         <div class="form-group">
           <label for="{{ form.enable_sharing.id_for_label }}" class="form-checkbox">
             {{ form.enable_sharing }}
-            <i class="form-icon"></i> Enable bookmark sharing
+            <i class="form-icon"></i> 启用书签分享
           </label>
           <div class="form-input-hint">
-            Allows to share bookmarks with other users, and to view shared bookmarks.
-            Disabling this feature will hide all previously shared bookmarks from other users.
+            允许与其他用户分享书签，并查看共享的书签。禁用此功能将隐藏所有之前与其他用户共享的书签
           </div>
         </div>
         <div class="form-group">
           <label for="{{ form.enable_public_sharing.id_for_label }}" class="form-checkbox">
             {{ form.enable_public_sharing }}
-            <i class="form-icon"></i> Enable public bookmark sharing
+            <i class="form-icon"></i> 启用公共书签分享
           </label>
           <div class="form-input-hint">
-            Makes shared bookmarks publicly accessible, without requiring a login.
-            That means that anyone with a link to this instance can view shared bookmarks via the <a
-              href="{% url 'linkding:bookmarks.shared' %}">shared bookmarks page</a>.
+            使共享的书签公开可访问，无需登录。也就是说，任何拥有此实例链接的人都可以通过 <a href="{% url 'linkding:bookmarks.shared' %}">共享书签页面</a> 查看共享的书签
           </div>
         </div>
         {% if has_snapshot_support %}
           <div class="form-group">
             <label for="{{ form.enable_automatic_html_snapshots.id_for_label }}" class="form-checkbox">
               {{ form.enable_automatic_html_snapshots }}
-              <i class="form-icon"></i> Automatically create HTML snapshots
+              <i class="form-icon"></i> 自动创建 HTML 快照
             </label>
             <div class="form-input-hint">
-              Automatically creates HTML snapshots when adding bookmarks. Alternatively, when disabled, snapshots can be
-              created manually in the details view of a bookmark.
+              添加书签时自动创建 HTML 快照。或者，当此功能禁用时，可以在书签的详细视图中手动创建快照
             </div>
             <button class="btn mt-2" name="create_missing_html_snapshots">Create missing HTML snapshots</button>
           </div>
@@ -253,30 +227,28 @@ reddit.com/r/Music music reddit</pre>
         <div class="form-group">
           <label for="{{ form.default_mark_unread.id_for_label }}" class="form-checkbox">
             {{ form.default_mark_unread }}
-            <i class="form-icon"></i> Create bookmarks as unread by default
+            <i class="form-icon"></i> 默认创建为未读书签
           </label>
           <div class="form-input-hint">
-            Sets the default state for the "Mark as unread" option when creating a new bookmark.
-            Setting this option will make all new bookmarks default to unread.
-            This can be overridden when creating each new bookmark.
+            设置创建新书签时“标记为未读”选项的默认状态。启用此选项后，所有新书签将默认设置为未读。创建每个新书签时，可以覆盖此设置
           </div>
         </div>
         <div class="form-group">
           <details {% if form.custom_css.value %}open{% endif %}>
             <summary>
-              <span class="form-label d-inline-block">Custom CSS</span>
+              <span class="form-label d-inline-block">自定义CSS样式</span>
             </summary>
-            <label for="{{ form.custom_css.id_for_label }}" class="text-assistive">Custom CSS</label>
+            <label for="{{ form.custom_css.id_for_label }}" class="text-assistive">自定义CSS样式</label>
             <div>
               {{ form.custom_css|add_class:"form-input monospace"|attr:"rows:6" }}
             </div>
           </details>
           <div class="form-input-hint">
-            Allows to add custom CSS to the page.
+           允许向页面添加自定义 CSS
           </div>
         </div>
         <div class="form-group">
-          <input type="submit" name="update_profile" value="Save" class="btn btn-primary btn-wide mt-2">
+          <input type="submit" name="update_profile" value="保存" class="btn btn-primary btn-wide mt-2">
         </div>
       </form>
     </section>
@@ -284,39 +256,35 @@ reddit.com/r/Music music reddit</pre>
     {# Global settings section #}
     {% if global_settings_form %}
       <section aria-labelledby="global-settings-heading">
-        <h2 id="global-settings-heading">Global settings</h2>
+        <h2 id="global-settings-heading">全局设置</h2>
         <form action="{% url 'linkding:settings.update' %}" method="post" novalidate data-turbo="false">
           {% csrf_token %}
           <div class="form-group">
-            <label for="{{ global_settings_form.landing_page.id_for_label }}" class="form-label">Landing page</label>
+            <label for="{{ global_settings_form.landing_page.id_for_label }}" class="form-label">初始页面</label>
             {{ global_settings_form.landing_page|add_class:"form-select width-25 width-sm-100" }}
             <div class="form-input-hint">
-              The page that unauthenticated users are redirected to when accessing the root URL.
+              未认证用户访问根网址时会被重定向到的页面
             </div>
           </div>
           <div class="form-group">
-            <label for="{{ global_settings_form.guest_profile_user.id_for_label }}" class="form-label">Guest user
-              profile</label>
+            <label for="{{ global_settings_form.guest_profile_user.id_for_label }}" class="form-label">游客设置</label>
             {{ global_settings_form.guest_profile_user|add_class:"form-select width-25 width-sm-100" }}
             <div class="form-input-hint">
-              The user profile to use for users that are not logged in. This will affect how publicly shared bookmarks
-              are displayed regarding theme, bookmark list settings, etc. You can either use your own profile or create
-              a dedicated user for this purpose. By default, a standard profile with fixed settings is used.
+              用于未登录用户的用户配置。这将影响公开共享书签的显示方式，包括主题、书签列表设置等。您可以使用自己的资料，也可以为此目的创建一个专门的用户。默认情况下，使用的是一个具有固定设置的标准配置
             </div>
           </div>
           <div class="form-group">
             <label for="{{ global_settings_form.enable_link_prefetch.id_for_label }}" class="form-checkbox">
               {{ global_settings_form.enable_link_prefetch }}
-              <i class="form-icon"></i> Enable prefetching links on hover
+              <i class="form-icon"></i> 启用链接预览
             </label>
             <div class="form-input-hint">
-              Prefetches internal links when hovering over them. This can improve the perceived performance when
-              navigating application, but also increases the load on the server as well as bandwidth usage.
+             在鼠标悬停在内部链接时预取它们。这可以提升在应用程序中导航时的感知性能，但也会增加服务器负载和带宽使用
             </div>
           </div>
 
           <div class="form-group">
-            <input type="submit" name="update_global_settings" value="Save" class="btn btn-primary btn-wide mt-2">
+            <input type="submit" name="update_global_settings" value="保存" class="btn btn-primary btn-wide mt-2">
           </div>
         </form>
       </section>
@@ -324,27 +292,23 @@ reddit.com/r/Music music reddit</pre>
 
     {# Import section #}
     <section aria-labelledby="import-heading">
-      <h2 id="import-heading">Import</h2>
-      <p>Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
-        added and existing ones are updated.</p>
+      <h2 id="import-heading">导入</h2>
+      <p>以 Netscape HTML 格式导入书签和标签。这将执行同步操作，添加新书签并更新现有书签</p>
       <form method="post" enctype="multipart/form-data" action="{% url 'linkding:settings.import' %}">
         {% csrf_token %}
         <div class="form-group">
           <label for="import_map_private_flag" class="form-checkbox">
             <input type="checkbox" id="import_map_private_flag" name="map_private_flag">
-            <i class="form-icon"></i> Import public bookmarks as shared
+            <i class="form-icon"></i> 将公开书签导入为共享书签
           </label>
           <div class="form-input-hint">
-            When importing bookmarks from a service that supports marking bookmarks as public or private (using the
-            <code>PRIVATE</code> attribute), enabling this option will import all bookmarks that are marked as not
-            private as shared bookmarks.
-            Otherwise, all bookmarks will be imported as private bookmarks.
+           从支持将书签标记为公开或私密的服务导入书签时（使用 <code>PRIVATE</code> 属性），启用此选项将把所有标记为非私密的书签导入为共享书签。否则，所有书签将作为私密书签导入。
           </div>
         </div>
         <div class="form-group">
           <div class="input-group width-75 width-md-100">
             <input class="form-input" type="file" name="import_file">
-            <input type="submit" class="input-group-btn btn btn-primary" value="Upload">
+            <input type="submit" class="input-group-btn btn btn-primary" value="上传">
           </div>
         </div>
       </form>
@@ -352,9 +316,9 @@ reddit.com/r/Music music reddit</pre>
 
     {# Export section #}
     <section aria-labelledby="export-heading">
-      <h2 id="export-heading">Export</h2>
-      <p>Export all bookmarks in Netscape HTML format.</p>
-      <a class="btn btn-primary" target="_blank" href="{% url 'linkding:settings.export' %}">Download (.html)</a>
+      <h2 id="export-heading">导出书签</h2>
+      <p>以 Netscape HTML 格式导出所有书签</p>
+      <a class="btn btn-primary" target="_blank" href="{% url 'linkding:settings.export' %}">下载(.html)</a>
       {% if export_error %}
         <div class="has-error">
           <p class="form-input-hint">
@@ -366,25 +330,25 @@ reddit.com/r/Music music reddit</pre>
 
     {# About section #}
     <section class="about" aria-labelledby="about-heading">
-      <h2 id="about-heading">About</h2>
+      <h2 id="about-heading">关于</h2>
       <table class="table">
         <tbody>
         <tr>
-          <td>Version</td>
+          <td>版本</td>
           <td>{{ version_info }}</td>
         </tr>
         <tr>
-          <td rowspan="3" style="vertical-align: top">Links</td>
+          <td rowspan="3" style="vertical-align: top">链接</td>
           <td><a href="https://github.com/sissbruecker/linkding/"
                  target="_blank">GitHub</a></td>
         </tr>
         <tr>
           <td><a href="https://linkding.link/"
-                 target="_blank">Documentation</a></td>
+                 target="_blank">文档</a></td>
         </tr>
         <tr>
           <td><a href="https://github.com/sissbruecker/linkding/blob/master/CHANGELOG.md"
-                 target="_blank">Changelog</a></td>
+                 target="_blank">版本日志</a></td>
         </tr>
         </tbody>
       </table>

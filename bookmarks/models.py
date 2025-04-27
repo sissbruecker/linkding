@@ -247,20 +247,20 @@ class BookmarkSearch:
 
 class BookmarkSearchForm(forms.Form):
     SORT_CHOICES = [
-        (BookmarkSearch.SORT_ADDED_ASC, "Added ↑"),
-        (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
-        (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
-        (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
+        (BookmarkSearch.SORT_ADDED_ASC, "添加时间升序↑"),
+        (BookmarkSearch.SORT_ADDED_DESC, "添加时间降序 ↓"),
+        (BookmarkSearch.SORT_TITLE_ASC, "标题升序 ↑"),
+        (BookmarkSearch.SORT_TITLE_DESC, "标题降序 ↓"),
     ]
     FILTER_SHARED_CHOICES = [
-        (BookmarkSearch.FILTER_SHARED_OFF, "Off"),
-        (BookmarkSearch.FILTER_SHARED_SHARED, "Shared"),
-        (BookmarkSearch.FILTER_SHARED_UNSHARED, "Unshared"),
+        (BookmarkSearch.FILTER_SHARED_OFF, "关闭"),
+        (BookmarkSearch.FILTER_SHARED_SHARED, "共享"),
+        (BookmarkSearch.FILTER_SHARED_UNSHARED, "非共享"),
     ]
     FILTER_UNREAD_CHOICES = [
-        (BookmarkSearch.FILTER_UNREAD_OFF, "Off"),
-        (BookmarkSearch.FILTER_UNREAD_YES, "Unread"),
-        (BookmarkSearch.FILTER_UNREAD_NO, "Read"),
+        (BookmarkSearch.FILTER_UNREAD_OFF, "关闭"),
+        (BookmarkSearch.FILTER_UNREAD_YES, "未读"),
+        (BookmarkSearch.FILTER_UNREAD_NO, "已读"),
     ]
 
     q = forms.CharField()
@@ -301,47 +301,47 @@ class UserProfile(models.Model):
     THEME_LIGHT = "light"
     THEME_DARK = "dark"
     THEME_CHOICES = [
-        (THEME_AUTO, "Auto"),
-        (THEME_LIGHT, "Light"),
-        (THEME_DARK, "Dark"),
+        (THEME_AUTO, "自动模式"),
+        (THEME_LIGHT, "明亮模式"),
+        (THEME_DARK, "暗黑模式"),
     ]
     BOOKMARK_DATE_DISPLAY_RELATIVE = "relative"
     BOOKMARK_DATE_DISPLAY_ABSOLUTE = "absolute"
     BOOKMARK_DATE_DISPLAY_HIDDEN = "hidden"
     BOOKMARK_DATE_DISPLAY_CHOICES = [
-        (BOOKMARK_DATE_DISPLAY_RELATIVE, "Relative"),
-        (BOOKMARK_DATE_DISPLAY_ABSOLUTE, "Absolute"),
-        (BOOKMARK_DATE_DISPLAY_HIDDEN, "Hidden"),
+        (BOOKMARK_DATE_DISPLAY_RELATIVE, "相对时间"),
+        (BOOKMARK_DATE_DISPLAY_ABSOLUTE, "绝对时间"),
+        (BOOKMARK_DATE_DISPLAY_HIDDEN, "隐藏时间"),
     ]
     BOOKMARK_DESCRIPTION_DISPLAY_INLINE = "inline"
     BOOKMARK_DESCRIPTION_DISPLAY_SEPARATE = "separate"
     BOOKMARK_DESCRIPTION_DISPLAY_CHOICES = [
-        (BOOKMARK_DESCRIPTION_DISPLAY_INLINE, "Inline"),
-        (BOOKMARK_DESCRIPTION_DISPLAY_SEPARATE, "Separate"),
+        (BOOKMARK_DESCRIPTION_DISPLAY_INLINE, "在行内"),
+        (BOOKMARK_DESCRIPTION_DISPLAY_SEPARATE, "独立块"),
     ]
     BOOKMARK_LINK_TARGET_BLANK = "_blank"
     BOOKMARK_LINK_TARGET_SELF = "_self"
     BOOKMARK_LINK_TARGET_CHOICES = [
-        (BOOKMARK_LINK_TARGET_BLANK, "New page"),
-        (BOOKMARK_LINK_TARGET_SELF, "Same page"),
+        (BOOKMARK_LINK_TARGET_BLANK, "新标签页打开"),
+        (BOOKMARK_LINK_TARGET_SELF, "同一标签页打开"),
     ]
     WEB_ARCHIVE_INTEGRATION_DISABLED = "disabled"
     WEB_ARCHIVE_INTEGRATION_ENABLED = "enabled"
     WEB_ARCHIVE_INTEGRATION_CHOICES = [
-        (WEB_ARCHIVE_INTEGRATION_DISABLED, "Disabled"),
-        (WEB_ARCHIVE_INTEGRATION_ENABLED, "Enabled"),
+        (WEB_ARCHIVE_INTEGRATION_DISABLED, "禁用"),
+        (WEB_ARCHIVE_INTEGRATION_ENABLED, "启用"),
     ]
     TAG_SEARCH_STRICT = "strict"
     TAG_SEARCH_LAX = "lax"
     TAG_SEARCH_CHOICES = [
-        (TAG_SEARCH_STRICT, "Strict"),
-        (TAG_SEARCH_LAX, "Lax"),
+        (TAG_SEARCH_STRICT, "严格"),
+        (TAG_SEARCH_LAX, "宽松"),
     ]
     TAG_GROUPING_ALPHABETICAL = "alphabetical"
     TAG_GROUPING_DISABLED = "disabled"
     TAG_GROUPING_CHOICES = [
-        (TAG_GROUPING_ALPHABETICAL, "Alphabetical"),
-        (TAG_GROUPING_DISABLED, "Disabled"),
+        (TAG_GROUPING_ALPHABETICAL, "按字母顺序"),
+        (TAG_GROUPING_DISABLED, "禁用"),
     ]
     user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE)
     theme = models.CharField(
@@ -499,8 +499,8 @@ class GlobalSettings(models.Model):
     LANDING_PAGE_LOGIN = "login"
     LANDING_PAGE_SHARED_BOOKMARKS = "shared_bookmarks"
     LANDING_PAGE_CHOICES = [
-        (LANDING_PAGE_LOGIN, "Login"),
-        (LANDING_PAGE_SHARED_BOOKMARKS, "Shared Bookmarks"),
+        (LANDING_PAGE_LOGIN, "登陆页面"),
+        (LANDING_PAGE_SHARED_BOOKMARKS, "共享书签"),
     ]
 
     landing_page = models.CharField(
@@ -535,4 +535,4 @@ class GlobalSettingsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(GlobalSettingsForm, self).__init__(*args, **kwargs)
-        self.fields["guest_profile_user"].empty_label = "Standard profile"
+        self.fields["guest_profile_user"].empty_label = "标准配置"
