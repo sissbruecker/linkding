@@ -41,6 +41,7 @@ class BookmarkForm(forms.ModelForm):
                 "title": request.GET.get("title"),
                 "description": request.GET.get("description"),
                 "notes": request.GET.get("notes"),
+                "tag_string": request.GET.get("tag_string"),
                 "auto_close": "auto_close" in request.GET,
                 "unread": request.user_profile.default_mark_unread,
             }
