@@ -23,6 +23,13 @@ Now when you are browsing the web and you want to save the current page as a boo
 
 For more info see here: https://paul.kinlan.me/use-bookmarklets-on-chrome-on-android/
 
+## Using the PWA (Progressive Web App) to save links using the native share sheet on Android
+
+ - Visit your instance in Chrome (works best) or another Chromium-based web browser.
+ - A popup should appear (first time only) prompting you to install Linkding as an app. If it doesn't, tap the 3-dot menu then tap "Add to Home screen", then tap "Install".
+ - Linkding will now show up in Android's native share sheet. Share a link from any app or browser and tap Linkding to save a link.
+ - Optional: when the share sheet is displayed, tap and hold Linkding, then tap "Pin" to pin it to the top.
+
 ## Using HTTP Shortcuts app on Android
 
 **Note** This allows you to share URL from any app to tag and bookmark it to linkding
