@@ -885,12 +885,18 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertNotes(html, note_html, 1)
 
     def test_note_renders_markdown_with_linkify(self):
-        self.setup_bookmark(notes='Example: https://example.com')
+        # Should linkify plain URL
+        self.setup_bookmark(notes="Example: https://example.com")
         html = self.render_template()
 
-        note_html = (
-            '<p>Example: <a href="https://example.com" rel="nofollow">https://example.com</a></p>'
-        )
+        note_html = '<p>Example: <a href="https://example.com" rel="nofollow">https://example.com</a></p>'
+        self.assertNotes(html, note_html, 1)
+
+        # Should not linkify URL in markdown link
+        self.setup_bookmark(notes="[https://example.com](https://example.com)")
+        html = self.render_template()
+
+        note_html = '<p><a href="https://example.com" rel="nofollow">https://example.com</a></p>'
         self.assertNotes(html, note_html, 1)
 
     def test_note_cleans_html(self):
