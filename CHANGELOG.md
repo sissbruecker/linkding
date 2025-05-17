@@ -1,5 +1,72 @@
 # Changelog
 
+## v1.40.0 (17/05/2025)
+
+### What's Changed
+* Add bulk and single bookmark metadata refresh by @Teknicallity in https://github.com/sissbruecker/linkding/pull/999
+* Prefer local snapshot over web archive link in bookmark list links by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1021
+* Push Docker images to GHCR in addition to Docker Hub by @caycehouse in https://github.com/sissbruecker/linkding/pull/1024
+* Allow auto tagging rules to match URL fragments by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1045
+* Linkify plain URLs in notes by @sonicdoe in https://github.com/sissbruecker/linkding/pull/1051
+* Add opensearch declaration by @jzorn in https://github.com/sissbruecker/linkding/pull/1058
+* Allow pre-filling tags in new bookmark form by @dasrecht in https://github.com/sissbruecker/linkding/pull/1060
+* Handle lowercase "true" in environment variables by @jose-elias-alvarez in https://github.com/sissbruecker/linkding/pull/1020
+* Accessibility improvements in page structure by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1014
+* Improve announcements after navigation by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1015
+* Fix OIDC login link by @cite in https://github.com/sissbruecker/linkding/pull/1019
+* Fix bookmark asset download endpoint by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1033
+* Add docs for auto tagging by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1009
+* Fix typo in index.mdx tagline by @cenviity in https://github.com/sissbruecker/linkding/pull/1052
+* Add how-to for using linkding PWA in native Android share sheet by @kzshantonu in https://github.com/sissbruecker/linkding/pull/1055
+* Adding linktiles to community projects by @haondt in https://github.com/sissbruecker/linkding/pull/1025
+* Bump django from 5.1.5 to 5.1.7 by @dependabot in https://github.com/sissbruecker/linkding/pull/1007
+* Bump django from 5.1.7 to 5.1.8 by @dependabot in https://github.com/sissbruecker/linkding/pull/1030
+* Bump tar-fs in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/1028
+* Bump prismjs from 1.29.0 to 1.30.0 in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/1034
+* Bump @babel/helpers from 7.26.7 to 7.27.0 in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/1035
+* Bump vite from 5.4.14 to 5.4.17 in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/1036
+* Bump esbuild, @astrojs/starlight and astro in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/1037
+* Bump django from 5.1.8 to 5.1.9 by @dependabot in https://github.com/sissbruecker/linkding/pull/1059
+
+### New Contributors
+* @cite made their first contribution in https://github.com/sissbruecker/linkding/pull/1019
+* @jose-elias-alvarez made their first contribution in https://github.com/sissbruecker/linkding/pull/1020
+* @Teknicallity made their first contribution in https://github.com/sissbruecker/linkding/pull/999
+* @haondt made their first contribution in https://github.com/sissbruecker/linkding/pull/1025
+* @caycehouse made their first contribution in https://github.com/sissbruecker/linkding/pull/1024
+* @cenviity made their first contribution in https://github.com/sissbruecker/linkding/pull/1052
+* @sonicdoe made their first contribution in https://github.com/sissbruecker/linkding/pull/1051
+* @jzorn made their first contribution in https://github.com/sissbruecker/linkding/pull/1058
+* @dasrecht made their first contribution in https://github.com/sissbruecker/linkding/pull/1060
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.39.1...v1.40.0
+
+---
+
+## v1.39.1 (06/03/2025)
+
+> [!WARNING]
+> Due to changes in the release process the `1.39.0` Docker image accidentally runs the application in debug mode. Please upgrade to `1.39.1` instead.
+
+---
+
+## v1.39.0 (06/03/2025)
+
+### What's Changed
+* Add REST endpoint for uploading snapshots from the Singlefile extension by @sissbruecker in https://github.com/sissbruecker/linkding/pull/996
+* Add bookmark assets API by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1003
+* Allow providing REST API authentication token with Bearer keyword by @sissbruecker in https://github.com/sissbruecker/linkding/pull/995
+* Add Telegram bot to community section by @marb08 in https://github.com/sissbruecker/linkding/pull/1001
+* Adding linklater to community projects by @nsartor in https://github.com/sissbruecker/linkding/pull/1002
+
+### New Contributors
+* @marb08 made their first contribution in https://github.com/sissbruecker/linkding/pull/1001
+* @nsartor made their first contribution in https://github.com/sissbruecker/linkding/pull/1002
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.38.1...v1.39.0
+
+---
+
 ## v1.38.1 (22/02/2025)
 
 ### What's Changed
