@@ -110,6 +110,19 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
             html,
         )
 
+    def test_should_prefill_tags_from_url_parameter(self):
+        response = self.client.get(
+            reverse("linkding:bookmarks.new") + "?tags=tag1%20tag2%20tag3"
+        )
+        html = response.content.decode()
+
+        self.assertInHTML(
+            '<input type="text" name="tag_string" value="tag1 tag2 tag3" '
+            'class="form-input" autocomplete="off" autocapitalize="off" '
+            'id="id_tag_string">',
+            html,
+        )
+
     def test_should_prefill_notes_from_url_parameter(self):
         response = self.client.get(
             reverse("linkding:bookmarks.new")
