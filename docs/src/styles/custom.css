@@ -4,22 +4,14 @@
     --sl-text-xs: var(--sl-text-sm);
 }
 
+/* Colors (dark mode) */
 :root,
 ::backdrop {
-    /* Colors (dark mode) */
-    --sl-color-white: hsl(0, 0%, 97%); /* “white” */
-    --sl-color-gray-1: hsl(224, 20%, 94%);
-    --sl-color-gray-2: hsl(224, 6%, 85%);
-    --sl-color-gray-3: hsl(224, 6%, 70%);
-    --sl-color-gray-4: hsl(224, 7%, 36%);
-    --sl-color-gray-5: hsl(224, 10%, 23%);
-    --sl-color-gray-6: hsl(224, 14%, 16%);
-    --sl-color-black: hsl(224, 10%, 10%);
-
     --sl-color-accent: hsl(241, 75%, 64%);
     --sl-color-text-accent: hsl(241, 90%, 82%);
 }
 
+/* Colors (light mode) */
 :root[data-theme='light'],
 [data-theme='light'] ::backdrop {
     --sl-color-accent: hsl(241, 63%, 59%);
