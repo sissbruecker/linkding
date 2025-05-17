@@ -4,5 +4,4 @@
     <InputEncoding>UTF-8</InputEncoding>
     <Image width="16" height="16" type="image/x-icon">{{base_url}}static/favicon.ico</Image>
     <Url type="text/html" template="{{ bookmarks_url }}?client=opensearch&amp;q={searchTerms}"/>
-  </OpenSearchDescription>
-  
+</OpenSearchDescription>

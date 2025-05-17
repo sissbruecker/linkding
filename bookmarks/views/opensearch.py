@@ -1,11 +1,10 @@
-from django.db import connections
-from django.http import JsonResponse
 from django.urls import reverse
 from django.shortcuts import render
 
+
 def opensearch(request):
-    bookmarks_url = request.build_absolute_uri(reverse("linkding:bookmarks.index"))
     base_url = request.build_absolute_uri(reverse("linkding:root"))
+    bookmarks_url = request.build_absolute_uri(reverse("linkding:bookmarks.index"))
 
     return render(
         request,

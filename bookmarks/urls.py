@@ -81,7 +81,7 @@ urlpatterns = [
     # Custom CSS
     path("custom_css", views.custom_css, name="custom_css"),
     # OpenSearch
-    path('opensearch.xml', views.opensearch, name='opensearch'),
+    path("opensearch.xml", views.opensearch, name="opensearch"),
 ]
 
 # Put all linkding URLs into a linkding namespace
