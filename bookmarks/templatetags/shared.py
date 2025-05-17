@@ -142,5 +142,6 @@ def render_markdown(context, markdown_text):
 
     as_html = renderer.convert(markdown_text)
     sanitized_html = bleach.clean(as_html, markdown_tags, markdown_attrs)
+    linkified_html = bleach.linkify(sanitized_html)
 
-    return mark_safe(sanitized_html)
+    return mark_safe(linkified_html)
