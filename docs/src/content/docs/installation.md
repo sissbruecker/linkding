@@ -47,9 +47,13 @@ The Docker image comes in several variants. To use a different image than the de
   </tbody>
 </table>
 
-To install linkding using Docker you can just run the image from [Docker Hub](https://hub.docker.com/repository/docker/sissbruecker/linkding):
+To install linkding using Docker you can just run the image from either [Docker Hub](https://hub.docker.com/repository/docker/sissbruecker/linkding) or [GitHub Container Registry](https://github.com/sissbruecker/linkding/pkgs/container/linkding):
 ```shell
+# Using Docker Hub
 docker run --name linkding -p 9090:9090 -v {host-data-folder}:/etc/linkding/data -d sissbruecker/linkding:latest
+
+# Using GitHub Container Registry
+docker run --name linkding -p 9090:9090 -v {host-data-folder}:/etc/linkding/data -d ghcr.io/sissbruecker/linkding:latest
 ```
 
 In the command above, replace the `{host-data-folder}` placeholder with an absolute path to a folder on your host system where you want to store the linkding database.
