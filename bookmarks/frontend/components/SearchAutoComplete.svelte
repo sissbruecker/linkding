@@ -102,6 +102,17 @@
           tagName: tag.name
         }))
     }
+    else if (currentWord && currentWord.length > 2 && currentWord[0] === '-' && currentWord[1] === '#') {
+      const searchTag = currentWord.substring(2, currentWord.length)
+      tagSuggestions = (tags || []).filter(tag => tag.name.toLowerCase().indexOf(searchTag.toLowerCase()) === 0)
+        .slice(0, 5)
+        .map(tag => ({
+          type: 'tag',
+          index: nextIndex(),
+          label: `-#${tag.name}`,
+          tagName: tag.name
+        }))
+    } 
 
     // Recent search suggestions
     const recentSearches = searchHistory.getRecentSearches(value, 5).map(value => ({
@@ -172,7 +183,9 @@
     if (suggestion.type === 'tag') {
       const bounds = getCurrentWordBounds(input);
       const inputValue = input.value;
-      input.value = inputValue.substring(0, bounds.start) + `#${suggestion.tagName} ` + inputValue.substring(bounds.end);
+      console.log(inputValue)
+      console.log(bounds)
+      input.value = inputValue.substring(0, bounds.start) + `${suggestion.label} ` + inputValue.substring(bounds.end);
       close()
     }
   }
