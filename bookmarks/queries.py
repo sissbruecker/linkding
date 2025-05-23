@@ -63,8 +63,26 @@ def _base_bookmarks_query(
 
         query_set = query_set.filter(conditions)
 
+    for term in query["search_terms_negative"]:
+        conditions = (
+            Q(title__icontains=term)
+            | Q(description__icontains=term)
+            | Q(notes__icontains=term)
+            | Q(url__icontains=term)
+        )
+
+        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+            conditions = conditions | Exists(
+                Bookmark.objects.exclude(id=OuterRef("id"), tags__name__iexact=term)
+            )
+
+        query_set = query_set.exclude(conditions)
+
     for tag_name in query["tag_names"]:
         query_set = query_set.filter(tags__name__iexact=tag_name)
+
+    for tag_name in query["tag_names_negative"]:
+        query_set = query_set.exclude(tags__name__iexact=tag_name)
 
     # Untagged bookmarks
     if query["untagged"]:
@@ -167,7 +185,6 @@ def query_shared_bookmark_users(
 def get_user_tags(user: User):
     return Tag.objects.filter(owner=user).all()
 
-
 def parse_query_string(query_string):
     # Sanitize query params
     if not query_string:
@@ -177,17 +194,39 @@ def parse_query_string(query_string):
     keywords = query_string.strip().split(" ")
     keywords = [word for word in keywords if word]
 
-    search_terms = [word for word in keywords if word[0] != "#" and word[0] != "!"]
-    tag_names = [word[1:] for word in keywords if word[0] == "#"]
-    tag_names = unique(tag_names, str.lower)
+    search_terms = []
+    tag_names = []
+
+    tag_names_negative = []
+    search_terms_negative = []
 
     # Special search commands
-    untagged = "!untagged" in keywords
-    unread = "!unread" in keywords
+    untagged = False
+    unread = False
+
+    for word in keywords:
+        if word == "!untagged":
+            untagged = True
+        elif word == "!unread":
+            unread = True
+        elif word[0] == "-":
+            if word[1] == "#":
+                tag_names_negative.append(word[2:])
+            else:
+                search_terms_negative.append(word[1:])
+        elif word[0] == "#":
+            tag_names.append(word[1:])
+        else:
+            search_terms.append(word)
+
+    tag_names = unique(tag_names, str.lower)
+
 
     return {
         "search_terms": search_terms,
         "tag_names": tag_names,
+        "search_terms_negative": search_terms_negative,
+        "tag_names_negative": tag_names_negative,
         "untagged": untagged,
         "unread": unread,
     }
