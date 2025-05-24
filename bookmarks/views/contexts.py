@@ -19,6 +19,7 @@ from bookmarks.models import (
     Tag,
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
+from bookmarks.services.tasks import is_html_snapshot_feature_active
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
 
@@ -400,15 +401,14 @@ class BookmarkDetailsContext:
         self.edit_return_url = request_context.details(bookmark.id)
         self.action_url = request_context.action(add={"details": bookmark.id})
         self.delete_url = request_context.action()
-        self.close_url = request_context.index()
-
+        self.close_url = request_context.index()        
         self.bookmark = bookmark
         self.profile = request.user_profile
         self.is_editable = bookmark.owner == user
         self.sharing_enabled = user_profile.enable_sharing
         self.preview_image_enabled = user_profile.enable_preview_images
         self.show_link_icons = user_profile.enable_favicons and bookmark.favicon_file
-        self.snapshots_enabled = settings.LD_ENABLE_SNAPSHOTS
+        self.snapshots_enabled = is_html_snapshot_feature_active()
         self.uploads_enabled = not settings.LD_DISABLE_ASSET_UPLOAD
 
         self.web_archive_snapshot_url = bookmark.web_archive_snapshot_url

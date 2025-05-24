@@ -72,7 +72,7 @@ class TrafilaturaContentExtractor:
             if not downloaded:
                 raise TrafilaturaError("Failed to download page content")
             
-            # Extract main content
+            # Extract main content without embedded metadata to avoid lxml errors
             content = trafilatura.extract(
                 downloaded,
                 include_images=True,
@@ -81,7 +81,7 @@ class TrafilaturaContentExtractor:
                 include_formatting=True,
                 output_format='html',
                 favor_precision=True,
-                with_metadata=True
+                with_metadata=False  # We'll handle metadata separately
             )
             
             if not content:
@@ -115,7 +115,10 @@ class TrafilaturaContentExtractor:
         try:
             soup = BeautifulSoup(content, 'html.parser')
             
-            for img in soup.find_all('img'):
+            # Handle both <img> and <graphic> tags (Trafilatura uses <graphic>)
+            image_tags = soup.find_all(['img', 'graphic'])
+            
+            for img in image_tags:
                 src = img.get('src')
                 if not src:
                     continue
@@ -158,7 +161,16 @@ class TrafilaturaContentExtractor:
                             content_type = response.headers.get('content-type', 'image/jpeg')
                             if content_type.startswith('image/'):
                                 img_data_b64 = base64.b64encode(image_data).decode()
-                                img['src'] = f"data:{content_type};base64,{img_data_b64}"
+                                data_url = f"data:{content_type};base64,{img_data_b64}"
+                                
+                                # Convert <graphic> tags to proper <img> tags
+                                if img.name == 'graphic':
+                                    img.name = 'img'
+                                    # Copy any existing attributes
+                                    if 'title' in img.attrs:
+                                        img['alt'] = img.get('title', '')
+                                
+                                img['src'] = data_url
                                 logger.debug(f"Embedded image: {img_url} ({len(image_data)} bytes)")
                 
                 except Exception as e:
@@ -175,12 +187,19 @@ class TrafilaturaContentExtractor:
     def _create_complete_html(self, content: str, metadata, original_url: str) -> str:
         """Create a complete HTML document"""
         
-        # Extract metadata safely
-        title = getattr(metadata, 'title', None) or "Archived Page"
-        author = getattr(metadata, 'author', None) or ""
-        date = getattr(metadata, 'date', None) or ""
-        site_name = getattr(metadata, 'sitename', None) or ""
-        description = getattr(metadata, 'description', None) or ""
+        # Extract metadata safely, handle lists and non-string values
+        def safe_extract(value, default=""):
+            if value is None:
+                return default
+            if isinstance(value, list):
+                return ', '.join(str(item) for item in value if item) or default
+            return str(value) if value else default
+        
+        title = safe_extract(getattr(metadata, 'title', None), "Archived Page")
+        author = safe_extract(getattr(metadata, 'author', None))
+        date = safe_extract(getattr(metadata, 'date', None))
+        site_name = safe_extract(getattr(metadata, 'sitename', None))
+        description = safe_extract(getattr(metadata, 'description', None))
         
         # Current timestamp
         archived_at = timezone.now().strftime("%Y-%m-%d %H:%M:%S UTC")
