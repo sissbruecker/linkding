@@ -320,6 +320,18 @@ LD_SINGLEFILE_UBLOCK_OPTIONS = os.getenv(
 LD_SINGLEFILE_OPTIONS = os.getenv("LD_SINGLEFILE_OPTIONS", "")
 LD_SINGLEFILE_TIMEOUT_SEC = float(os.getenv("LD_SINGLEFILE_TIMEOUT_SEC", 120))
 
+# Trafilatura settings for lightweight content extraction
+LD_ARCHIVER_TYPE = os.getenv("LD_ARCHIVER_TYPE", "singlefile")  # 'singlefile' or 'trafilatura'
+LD_TRAFILATURA_TIMEOUT_SEC = int(os.getenv("LD_TRAFILATURA_TIMEOUT_SEC", 30))
+LD_TRAFILATURA_EMBED_IMAGES = os.getenv("LD_TRAFILATURA_EMBED_IMAGES", True) in (
+    True,
+    "True", 
+    "true",
+    "1",
+)
+LD_TRAFILATURA_MAX_IMAGE_SIZE = int(os.getenv("LD_TRAFILATURA_MAX_IMAGE_SIZE", 1048576))  # 1MB
+LD_TRAFILATURA_USER_AGENT = os.getenv("LD_TRAFILATURA_USER_AGENT", "Mozilla/5.0 (compatible; linkding archiver)")
+
 # Monolith isn't used at the moment, as the local snapshot implementation
 # switched to single-file after the prototype. Keeping this around in case
 # it turns out to be useful in the future.

@@ -284,6 +284,38 @@ See `single-file --help` for complete list of arguments, or browse source: https
 
 Example: `LD_SINGLEFILE_OPTIONS=--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) Gecko/20100101 Firefox/124.0"`
 
+### `LD_ARCHIVER_TYPE`
+
+Values: `singlefile` or `trafilatura` | Default = `singlefile`
+
+Choose the archiver to use for creating HTML snapshots. 
+- `singlefile`: Uses SingleFile CLI for complete page capture with full browser rendering (high memory usage)
+- `trafilatura`: Uses Trafilatura for lightweight content extraction (low memory usage, faster processing)
+
+### `LD_TRAFILATURA_TIMEOUT_SEC`
+
+Values: `Integer` | Default = 30
+
+When using Trafilatura archiver, control the timeout for downloading and processing content, in `seconds`.
+
+### `LD_TRAFILATURA_EMBED_IMAGES`
+
+Values: `true` or `false` | Default = `true`
+
+When using Trafilatura archiver, control whether images should be downloaded and embedded as base64 data URLs in the archived HTML.
+
+### `LD_TRAFILATURA_MAX_IMAGE_SIZE`
+
+Values: `Integer` | Default = 1048576
+
+When using Trafilatura archiver with image embedding enabled, set the maximum size in bytes for images to embed. Images larger than this will be skipped.
+
+### `LD_TRAFILATURA_USER_AGENT`
+
+Values: `String` | Default = "Mozilla/5.0 (compatible; linkding archiver)"
+
+When using Trafilatura archiver, set the User-Agent string used for HTTP requests.
+
 ### `LD_DISABLE_REQUEST_LOGS`
 
 Values: `true` or `false` | Default =  `false`

@@ -9,6 +9,7 @@ from django.utils import timezone, formats
 
 from bookmarks.models import Bookmark, BookmarkAsset
 from bookmarks.services import singlefile
+from bookmarks.services import trafilatura_extractor
 
 MAX_ASSET_FILENAME_LENGTH = 192
 
@@ -34,7 +35,16 @@ def create_snapshot(asset: BookmarkAsset):
         # Create snapshot into temporary file
         temp_filename = _generate_asset_filename(asset, asset.bookmark.url, "tmp")
         temp_filepath = os.path.join(settings.LD_ASSET_FOLDER, temp_filename)
-        singlefile.create_snapshot(asset.bookmark.url, temp_filepath)
+        
+        # Choose archiver based on configuration
+        archiver_type = getattr(settings, 'LD_ARCHIVER_TYPE', 'singlefile').lower()
+        
+        if archiver_type == 'trafilatura':
+            logger.info(f"Creating snapshot with Trafilatura for {asset.bookmark.url}")
+            trafilatura_extractor.create_snapshot(asset.bookmark.url, temp_filepath)
+        else:
+            logger.info(f"Creating snapshot with SingleFile for {asset.bookmark.url}")
+            singlefile.create_snapshot(asset.bookmark.url, temp_filepath)
 
         # Store as gzip in asset folder
         filename = _generate_asset_filename(asset, asset.bookmark.url, "html.gz")
