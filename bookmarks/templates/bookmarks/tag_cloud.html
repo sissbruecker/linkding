@@ -11,6 +11,16 @@
         {% endfor %}
       </p>
     {% endif %}
+    {% if tag_cloud.has_selected_negative_tags %}
+      <p class="selected-negative-tags">
+        {% for tag in tag_cloud.selected_negative_tags %}
+          <a href="?{% remove_tag_from_query tag %}"
+             class="text-bold mr-2">
+            <span>!{{ tag }}</span>
+          </a>
+        {% endfor %}
+      </p>
+    {% endif %}
     <div class="unselected-tags">
       {% for group in tag_cloud.groups %}
         <p class="group">
