@@ -220,7 +220,7 @@ def parse_query_string(query_string):
             search_terms.append(word)
 
     tag_names = unique(tag_names, str.lower)
-
+    tag_names_negative = unique(tag_names_negative, str.lower)
 
     return {
         "search_terms": search_terms,
