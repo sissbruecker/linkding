@@ -392,6 +392,15 @@ li[ld-bookmark-item] {
     }
   }
 
+  & .selected-negative-tags {
+    margin-bottom: var(--unit-4);
+
+    & a,
+    & a:visited:hover {
+      color: var(--error-color);
+    }
+  }
+
   & .unselected-tags {
     & a,
     & a:visited:hover {

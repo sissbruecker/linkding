@@ -40,14 +40,18 @@ def add_tag_to_query(context, tag_name: str):
 
 
 @register.simple_tag(takes_context=True)
-def remove_tag_from_query(context, tag_name: str):
+def remove_tag_from_query(context, tag_name: str, tag_negative: bool = False):
     params = context.request.GET.copy()
     if params.__contains__("q"):
         # Split query string into parts
         query_string = params.__getitem__("q")
         query_parts = query_string.split()
+        #Switch for negtive Tag
         # Remove tag with hash
-        tag_name_with_hash = "#" + tag_name
+        if tag_negative:
+            tag_name_with_hash = "-#" + tag_name
+        else:
+            tag_name_with_hash = "#" + tag_name
         query_parts = [
             part
             for part in query_parts
