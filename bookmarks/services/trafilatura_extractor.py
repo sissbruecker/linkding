@@ -94,6 +94,9 @@ class TrafilaturaContentExtractor:
             if self.embed_images:
                 content = self._embed_images_in_content(content, url)
             
+            # Convert video embeds to links
+            content = self._process_video_elements(content, url)
+            
             # Create final HTML
             html_output = self._create_complete_html(content, metadata, url)
             
@@ -184,6 +187,144 @@ class TrafilaturaContentExtractor:
             logger.warning(f"Failed to embed images: {e}")
             return content
     
+    def _process_video_elements(self, content: str, base_url: str) -> str:
+        """
+        Process video elements in HTML content to create clickable links.
+        Only handles standard iframe embeds and enhances existing video links.
+        """
+        try:
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(content, 'html.parser')
+            
+            # Only process standard iframe videos and enhance existing links
+            self._process_iframe_videos(soup, base_url)
+            self._enhance_video_links(soup)
+            
+            return str(soup)
+            
+        except Exception as e:
+            logger.warning(f"Error processing video elements: {e}")
+            return content
+    
+    def _process_iframe_videos(self, soup, base_url: str):
+        """Convert iframe video embeds to links"""
+        for iframe in soup.find_all('iframe'):
+            src = iframe.get('src')
+            if not src:
+                continue
+                
+            # Resolve relative URLs
+            video_url = urljoin(base_url, src)
+            
+            # Convert YouTube embeds to watch URLs
+            if 'youtube.com/embed/' in video_url:
+                video_id = video_url.split('/embed/')[-1].split('?')[0]
+                video_url = f"https://www.youtube.com/watch?v={video_id}"
+            elif 'youtube-nocookie.com/embed/' in video_url:
+                video_id = video_url.split('/embed/')[-1].split('?')[0]
+                video_url = f"https://www.youtube.com/watch?v={video_id}"
+            
+            # Convert Vimeo embeds to video URLs
+            elif 'vimeo.com/video/' in video_url:
+                video_id = video_url.split('/video/')[-1].split('?')[0]
+                video_url = f"https://vimeo.com/{video_id}"
+            elif 'player.vimeo.com/video/' in video_url:
+                video_id = video_url.split('/video/')[-1].split('?')[0]
+                video_url = f"https://vimeo.com/{video_id}"
+            
+            # Get video title
+            title = iframe.get('title', 'Video')
+            if not title or title.strip() == '':
+                title = 'Video'
+            
+            # Create a link element
+            link = soup.new_tag('p')
+            link.string = f"🎥 Video: "
+            video_link = soup.new_tag('a', href=video_url, target="_blank")
+            video_link.string = title
+            link.append(video_link)
+            
+            # Replace iframe with link
+            iframe.replace_with(link)
+            logger.debug(f"Converted iframe video to link: {video_url}")
+    
+    def _enhance_video_links(self, soup):
+        """Enhance existing video links with better formatting"""
+        video_domains = [
+            'youtube.com', 'youtu.be', 'vimeo.com', 'rutube.ru', 'dailymotion.com',
+            'twitch.tv', 'facebook.com/watch', 'instagram.com', 'tiktok.com'
+        ]
+        
+        # Collect links to enhance to avoid modification during iteration
+        links_to_enhance = []
+        
+        # Find all links that point to video platforms
+        for link in soup.find_all('a', href=True):
+            href = link.get('href', '')
+            
+            # Check if this link points to a video platform
+            if any(domain in href.lower() for domain in video_domains):
+                links_to_enhance.append((link, href))
+        
+        # Now safely enhance the links
+        for link, href in links_to_enhance:
+            try:
+                # Get or improve the link text
+                current_text = link.get_text(strip=True)
+                
+                # If the link text is just the URL or empty, improve it
+                if not current_text or current_text == href or len(current_text) < 3:
+                    platform = self._detect_video_platform(href)
+                    link.string = f"{platform} Video"
+                
+                # Add video emoji if not already present
+                if not link.get_text().startswith('🎥'):
+                    # Check if parent is already a paragraph with video emoji
+                    parent = link.parent
+                    if parent and parent.name == 'p' and '🎥' in parent.get_text():
+                        continue  # Already enhanced
+                    
+                    # Create new paragraph with video emoji
+                    new_p = soup.new_tag('p')
+                    new_p.string = "🎥 "
+                    
+                    # Extract the link and add it to the new paragraph
+                    link_copy = soup.new_tag('a', href=href, target="_blank")
+                    link_copy.string = link.get_text()
+                    new_p.append(link_copy)
+                    
+                    # Replace the original link with the enhanced paragraph
+                    link.replace_with(new_p)
+                
+                logger.debug(f"Enhanced video link: {href}")
+                
+            except Exception as e:
+                logger.warning(f"Failed to enhance video link {href}: {e}")
+                continue
+    
+    def _detect_video_platform(self, url: str):
+        """Detect video platform from URL"""
+        url_lower = url.lower()
+        
+        if 'youtube.com' in url_lower or 'youtu.be' in url_lower:
+            return "YouTube"
+        elif 'vimeo.com' in url_lower:
+            return "Vimeo"
+        elif 'rutube.ru' in url_lower:
+            return "RuTube"
+        elif 'dailymotion.com' in url_lower:
+            return "Dailymotion"
+        elif 'twitch.tv' in url_lower:
+            return "Twitch"
+        elif 'facebook.com' in url_lower:
+            return "Facebook"
+        elif 'instagram.com' in url_lower:
+            return "Instagram"
+        elif 'tiktok.com' in url_lower:
+            return "TikTok"
+        else:
+            return "Video"
+
     def _create_complete_html(self, content: str, metadata, original_url: str) -> str:
         """Create a complete HTML document"""
         
