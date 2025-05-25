@@ -26,8 +26,37 @@ def create_snapshot_asset(bookmark: Bookmark) -> BookmarkAsset:
         content_type=BookmarkAsset.CONTENT_TYPE_HTML,
         display_name=f"HTML snapshot from {timestamp}",
         status=BookmarkAsset.STATUS_PENDING,
-    )
+    )    
     return asset
+
+
+def _try_trafilatura_snapshot(url: str, filepath: str) -> bool:
+    """Try to create snapshot using Trafilatura. Returns True on success."""
+    try:
+        import trafilatura
+        logger.info(f"Creating snapshot with Trafilatura for {url}")
+        trafilatura_extractor.create_snapshot(url, filepath)
+        return True
+    except ImportError:
+        logger.warning("Trafilatura not available")
+        return False
+    except Exception as e:
+        logger.warning(f"Trafilatura failed for {url}: {e}")
+        return False
+
+
+def _try_singlefile_snapshot(url: str, filepath: str) -> bool:
+    """Try to create snapshot using SingleFile. Returns True on success."""
+    try:
+        logger.info(f"Creating snapshot with SingleFile for {url}")
+        singlefile.create_snapshot(url, filepath)
+        return True
+    except FileNotFoundError:
+        logger.warning("SingleFile CLI not available")
+        return False
+    except Exception as e:
+        logger.warning(f"SingleFile failed for {url}: {e}")
+        return False
 
 
 def create_snapshot(asset: BookmarkAsset):
@@ -36,15 +65,26 @@ def create_snapshot(asset: BookmarkAsset):
         temp_filename = _generate_asset_filename(asset, asset.bookmark.url, "tmp")
         temp_filepath = os.path.join(settings.LD_ASSET_FOLDER, temp_filename)
         
-        # Choose archiver based on configuration
+        # Choose archiver based on configuration with fallback logic
         archiver_type = getattr(settings, 'LD_ARCHIVER_TYPE', 'singlefile').lower()
         
+        # Try preferred archiver first, then fallback
+        success = False
+        
         if archiver_type == 'trafilatura':
-            logger.info(f"Creating snapshot with Trafilatura for {asset.bookmark.url}")
-            trafilatura_extractor.create_snapshot(asset.bookmark.url, temp_filepath)
+            success = _try_trafilatura_snapshot(asset.bookmark.url, temp_filepath)
+            if not success:
+                logger.warning(f"Trafilatura failed for {asset.bookmark.url}")
         else:
-            logger.info(f"Creating snapshot with SingleFile for {asset.bookmark.url}")
-            singlefile.create_snapshot(asset.bookmark.url, temp_filepath)
+            # Default to SingleFile (backward compatibility)
+            success = _try_singlefile_snapshot(asset.bookmark.url, temp_filepath)
+            if not success and archiver_type != 'singlefile':
+                # If explicitly configured SingleFile fails, try Trafilatura
+                logger.warning(f"SingleFile failed for {asset.bookmark.url}, trying Trafilatura fallback")
+                success = _try_trafilatura_snapshot(asset.bookmark.url, temp_filepath)
+        
+            if not success:
+                raise Exception("Both Trafilatura and SingleFile failed to create snapshot")
 
         # Store as gzip in asset folder
         filename = _generate_asset_filename(asset, asset.bookmark.url, "html.gz")

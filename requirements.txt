@@ -20,7 +20,7 @@ certifi==2024.8.30
     #   trafilatura
 cffi==1.17.1
     # via cryptography
-charset-normalizer==3.3.2
+charset-normalizer==3.4.2
     # via
     #   htmldate
     #   requests
@@ -50,7 +50,7 @@ django-widget-tweaks==1.5.0
     # via -r requirements.in
 djangorestframework==3.15.2
     # via -r requirements.in
-htmldate==1.9.1
+htmldate==1.9.3
     # via trafilatura
 huey==2.5.1
     # via -r requirements.in
@@ -104,7 +104,7 @@ supervisor==4.2.5
     # via -r requirements.in
 tld==0.13.1
     # via courlan
-trafilatura==1.12.2
+trafilatura==2.0.0
     # via -r requirements.in
 tzlocal==5.3.1
     # via dateparser
