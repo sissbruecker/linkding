@@ -11,6 +11,30 @@ from bookmarks.models import UserProfile
 
 register = template.Library()
 
+@register.simple_tag(takes_context=True)
+def get_tag_cloud_negative_search_toggle_url(context):
+    params = context.request.GET.copy()
+
+    # Append to or create query string
+    query_string = params.get("n", "0")
+
+    if query_string == "1":
+        query_string = "0"
+    else:  
+        query_string = "1"
+
+    params.setlist("n", [query_string])
+
+    params.pop("details", None)
+    params.pop("page", None)
+
+    return params.urlencode()
+
+@register.simple_tag(takes_context=True)
+def get_tag_cloud_negative_search_state(context):
+    params = context.request.GET.copy()
+
+    return params.get("n", "0") == "1"
 
 @register.simple_tag(takes_context=True)
 def update_query_string(context, **kwargs):
@@ -24,12 +48,15 @@ def update_query_string(context, **kwargs):
 
 
 @register.simple_tag(takes_context=True)
-def add_tag_to_query(context, tag_name: str):
+def add_tag_to_query(context, tag_name: str, tag_negative: bool = False):
     params = context.request.GET.copy()
 
     # Append to or create query string
     query_string = params.get("q", "")
-    query_string = (query_string + " #" + tag_name).strip()
+    if tag_negative:
+        query_string = (query_string + " -#" + tag_name).strip()
+    else:
+        query_string = (query_string + " #" + tag_name).strip()
     params.setlist("q", [query_string])
 
     # Remove details ID and page number
