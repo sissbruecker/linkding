@@ -37,12 +37,12 @@
       <section aria-labelledby="tags-heading">
         <div class="section-header">
           <h2 id="tags-heading">Tags</h2>
-          <a href="?{% get_tag_cloud_negative_search_toggle_url %}" data-is-tag-item>
+          <a href="?{% get_tag_cloud_negative_search_toggle_url %}" data-is-tag-item class="btn">
             {% get_tag_cloud_negative_search_state as negative_state %}
             {% if negative_state == 1 %}
-              <span>Negative</span>
+              Negative
             {% else %}
-              <span>Positive</span>
+              Positive
             {% endif %}
           </a>
         </div>
