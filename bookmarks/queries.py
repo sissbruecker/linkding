@@ -53,6 +53,14 @@ def _base_bookmarks_query(
             # If the date format is invalid, ignore the filter
             pass
 
+    # Filter by added_since if provided
+    if search.added_since:
+        try:
+            query_set = query_set.filter(date_added__gt=search.added_since)
+        except ValidationError:
+            # If the date format is invalid, ignore the filter
+            pass
+
     # Split query into search terms and tags
     query = parse_query_string(search.q)
 

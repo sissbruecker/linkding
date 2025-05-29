@@ -171,7 +171,7 @@ class BookmarkSearch:
     FILTER_UNREAD_YES = "yes"
     FILTER_UNREAD_NO = "no"
 
-    params = ["q", "user", "sort", "shared", "unread", "modified_since"]
+    params = ["q", "user", "sort", "shared", "unread", "modified_since", "added_since"]
     preferences = ["sort", "shared", "unread"]
     defaults = {
         "q": "",
@@ -180,6 +180,7 @@ class BookmarkSearch:
         "shared": FILTER_SHARED_OFF,
         "unread": FILTER_UNREAD_OFF,
         "modified_since": None,
+        "added_since": None,
     }
 
     def __init__(
@@ -190,6 +191,7 @@ class BookmarkSearch:
         shared: str = None,
         unread: str = None,
         modified_since: str = None,
+        added_since: str = None,
         preferences: dict = None,
     ):
         if not preferences:
@@ -202,6 +204,7 @@ class BookmarkSearch:
         self.shared = shared or self.defaults["shared"]
         self.unread = unread or self.defaults["unread"]
         self.modified_since = modified_since or self.defaults["modified_since"]
+        self.added_since = added_since or self.defaults["added_since"]
 
     def is_modified(self, param):
         value = self.__dict__[param]
@@ -272,6 +275,7 @@ class BookmarkSearchForm(forms.Form):
     shared = forms.ChoiceField(choices=FILTER_SHARED_CHOICES, widget=forms.RadioSelect)
     unread = forms.ChoiceField(choices=FILTER_UNREAD_CHOICES, widget=forms.RadioSelect)
     modified_since = forms.CharField(required=False)
+    added_since = forms.CharField(required=False)
 
     def __init__(
         self,
