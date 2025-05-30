@@ -53,6 +53,7 @@ def create_snapshot(asset: BookmarkAsset):
         asset.save()
 
         asset.bookmark.latest_snapshot = asset
+        asset.bookmark.date_modified = timezone.now()
         asset.bookmark.save()
     except Exception as error:
         asset.status = BookmarkAsset.STATUS_FAILURE
@@ -75,6 +76,7 @@ def upload_snapshot(bookmark: Bookmark, html: bytes):
     asset.save()
 
     asset.bookmark.latest_snapshot = asset
+    asset.bookmark.date_modified = timezone.now()
     asset.bookmark.save()
 
     return asset
@@ -100,6 +102,10 @@ def upload_asset(bookmark: Bookmark, upload_file: UploadedFile):
         asset.file = filename
         asset.file_size = upload_file.size
         asset.save()
+
+        asset.bookmark.date_modified = timezone.now()
+        asset.bookmark.save()
+
         logger.info(
             f"Successfully uploaded asset file. bookmark={bookmark} file={upload_file.name}"
         )
@@ -128,9 +134,10 @@ def remove_asset(asset: BookmarkAsset):
         )
 
         bookmark.latest_snapshot = latest
-        bookmark.save()
 
     asset.delete()
+    bookmark.date_modified = timezone.now()
+    bookmark.save()
 
 
 def _generate_asset_filename(

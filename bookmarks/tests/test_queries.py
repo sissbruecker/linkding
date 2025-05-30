@@ -1211,3 +1211,79 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
 
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertEqual(list(query), sorted_bookmarks)
+
+    def test_query_bookmarks_filter_modified_since(self):
+        # Create bookmarks with different modification dates
+        older_bookmark = self.setup_bookmark(title="old bookmark")
+        recent_bookmark = self.setup_bookmark(title="recent bookmark")
+
+        # Modify date field on bookmark directly to test modified_since
+        older_bookmark.date_modified = timezone.datetime(
+            2025, 1, 1, tzinfo=datetime.timezone.utc
+        )
+        older_bookmark.save()
+        recent_bookmark.date_modified = timezone.datetime(
+            2025, 5, 15, tzinfo=datetime.timezone.utc
+        )
+        recent_bookmark.save()
+
+        # Test with date between the two bookmarks
+        search = BookmarkSearch(modified_since="2025-03-01T00:00:00Z")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [recent_bookmark])
+
+        # Test with date before both bookmarks
+        search = BookmarkSearch(modified_since="2024-12-31T00:00:00Z")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [older_bookmark, recent_bookmark])
+
+        # Test with date after both bookmarks
+        search = BookmarkSearch(modified_since="2025-05-16T00:00:00Z")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [])
+
+        # Test with no modified_since - should return all bookmarks
+        search = BookmarkSearch()
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [older_bookmark, recent_bookmark])
+
+        # Test with invalid date format - should be ignored
+        search = BookmarkSearch(modified_since="invalid-date")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [older_bookmark, recent_bookmark])
+
+    def test_query_bookmarks_filter_added_since(self):
+        # Create bookmarks with different dates
+        older_bookmark = self.setup_bookmark(
+            title="old bookmark",
+            added=timezone.datetime(2025, 1, 1, tzinfo=datetime.timezone.utc),
+        )
+        recent_bookmark = self.setup_bookmark(
+            title="recent bookmark",
+            added=timezone.datetime(2025, 5, 15, tzinfo=datetime.timezone.utc),
+        )
+
+        # Test with date between the two bookmarks
+        search = BookmarkSearch(added_since="2025-03-01T00:00:00Z")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [recent_bookmark])
+
+        # Test with date before both bookmarks
+        search = BookmarkSearch(added_since="2024-12-31T00:00:00Z")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [older_bookmark, recent_bookmark])
+
+        # Test with date after both bookmarks
+        search = BookmarkSearch(added_since="2025-05-16T00:00:00Z")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [])
+
+        # Test with no added_since - should return all bookmarks
+        search = BookmarkSearch()
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [older_bookmark, recent_bookmark])
+
+        # Test with invalid date format - should be ignored
+        search = BookmarkSearch(added_since="invalid-date")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [older_bookmark, recent_bookmark])

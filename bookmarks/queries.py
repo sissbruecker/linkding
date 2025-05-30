@@ -2,6 +2,7 @@ from typing import Optional
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db.models import Q, QuerySet, Exists, OuterRef, Case, When, CharField
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import Lower
@@ -43,6 +44,22 @@ def _base_bookmarks_query(
     # Filter for user
     if user:
         query_set = query_set.filter(owner=user)
+
+    # Filter by modified_since if provided
+    if search.modified_since:
+        try:
+            query_set = query_set.filter(date_modified__gt=search.modified_since)
+        except ValidationError:
+            # If the date format is invalid, ignore the filter
+            pass
+
+    # Filter by added_since if provided
+    if search.added_since:
+        try:
+            query_set = query_set.filter(date_added__gt=search.added_since)
+        except ValidationError:
+            # If the date format is invalid, ignore the filter
+            pass
 
     # Split query into search terms and tags
     query = parse_query_string(search.q)
