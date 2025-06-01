@@ -326,23 +326,21 @@ class TagCloudContext:
 
         query_set = request_context.get_tag_query_set(self.search)
         tags = list(query_set)
-        selected_tags, selected_negative_tags = self.get_selected_tags(tags)
         unique_tags = utils.unique(tags, key=lambda x: str.lower(x.name))
-        unique_selected_tags = utils.unique(
-            selected_tags, key=lambda x: str.lower(x.name)
-        )
-        has_selected_tags = len(unique_selected_tags) > 0
-        unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
+
+        selected_tags, selected_negative_tags = self.get_selected_tags()
+
+        unselected_tags = [tag for tag in unique_tags if tag.name.lower() not in selected_tags]
         groups = TagGroup.create_tag_groups(user_profile.tag_grouping, unselected_tags)
 
         self.tags = unique_tags
         self.groups = groups
-        self.selected_tags = unique_selected_tags
-        self.has_selected_tags = has_selected_tags
+        self.selected_tags = selected_tags
+        self.has_selected_tags = len(selected_tags) > 0
         self.selected_negative_tags = selected_negative_tags
         self.has_selected_negative_tags = len(selected_negative_tags) > 0
 
-    def get_selected_tags(self, tags: List[Tag]):
+    def get_selected_tags(self):
         parsed_query = queries.parse_query_string(self.search.q)
 
         tag_names = parsed_query["tag_names"]
@@ -355,7 +353,7 @@ class TagCloudContext:
             tag_names_negative = tag_names_negative + parsed_query["search_terms_negative"]
         tag_names_negative = [tag_names_negative.lower() for tag_names_negative in tag_names_negative]
 
-        return ([tag for tag in tags if tag.name.lower() in tag_names], tag_names_negative)
+        return (tag_names, tag_names_negative)
 
 
 class ActiveTagCloudContext(TagCloudContext):
