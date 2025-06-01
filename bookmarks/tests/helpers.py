@@ -264,7 +264,7 @@ class BookmarkFactoryMixin:
         user.profile.save()
         return user
 
-    def get_tags_from_bookmarks(self, bookmarks: [Bookmark]):
+    def get_tags_from_bookmarks(self, bookmarks: list[Bookmark]):
         all_tags = []
         for bookmark in bookmarks:
             all_tags = all_tags + list(bookmark.tags.all())

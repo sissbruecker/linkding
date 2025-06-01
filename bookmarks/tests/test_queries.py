@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks import queries
-from bookmarks.models import BookmarkSearch, UserProfile, BookmarkBundle
+from bookmarks.models import BookmarkSearch, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, random_sentence
 from bookmarks.utils import unique
 
@@ -153,7 +153,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(tags=[tag1, tag2, self.setup_tag()]),
         ]
 
-    def assertQueryResult(self, query: QuerySet, item_lists: [[any]]):
+    def assertQueryResult(self, query: QuerySet, item_lists: list[list]):
         expected_items = []
         for item_list in item_lists:
             expected_items = expected_items + item_list
