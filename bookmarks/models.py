@@ -304,6 +304,20 @@ class BookmarkSearchForm(forms.Form):
                 self.fields[param].widget = forms.HiddenInput()
 
 
+class BookmarkBundle(models.Model):
+    name = models.CharField(max_length=256, blank=False)
+    search = models.TextField(max_length=256, blank=True)
+    any_tags = models.TextField(max_length=1024, blank=True)
+    all_tags = models.TextField(max_length=1024, blank=True)
+    excluded_tags = models.TextField(max_length=1024, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True, null=False)
+    date_modified = models.DateTimeField(auto_now=True, null=False)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
 class UserProfile(models.Model):
     THEME_AUTO = "auto"
     THEME_LIGHT = "light"

@@ -17,7 +17,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from bookmarks.models import Bookmark, BookmarkAsset, Tag, User
+from bookmarks.models import Bookmark, BookmarkAsset, BookmarkBundle, Tag, User
 
 
 class BookmarkFactoryMixin:
@@ -165,6 +165,31 @@ class BookmarkFactoryMixin:
 
     def get_numbered_bookmark(self, title: str):
         return Bookmark.objects.get(title=title)
+
+    def setup_bundle(
+        self,
+        user: User = None,
+        name: str = None,
+        search: str = "",
+        any_tags: str = "",
+        all_tags: str = "",
+        excluded_tags: str = "",
+    ):
+        if user is None:
+            user = self.get_or_create_test_user()
+        if not name:
+            name = get_random_string(length=32)
+        bundle = BookmarkBundle(
+            name=name,
+            owner=user,
+            date_created=timezone.now(),
+            search=search,
+            any_tags=any_tags,
+            all_tags=all_tags,
+            excluded_tags=excluded_tags,
+        )
+        bundle.save()
+        return bundle
 
     def setup_asset(
         self,
