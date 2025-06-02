@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.db import models
 from django.http import Http404
 from django.urls import reverse
+from django.db.models import Q
 
 from bookmarks import queries
 from bookmarks import utils
@@ -326,28 +327,44 @@ class TagCloudContext:
 
         query_set = request_context.get_tag_query_set(self.search)
         tags = list(query_set)
-        selected_tags = self.get_selected_tags(tags)
         unique_tags = utils.unique(tags, key=lambda x: str.lower(x.name))
-        unique_selected_tags = utils.unique(
-            selected_tags, key=lambda x: str.lower(x.name)
-        )
-        has_selected_tags = len(unique_selected_tags) > 0
-        unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
+
+        selected_tags, selected_negative_tags = self.get_selected_tags()
+
+        unselected_tags = set(unique_tags).difference(selected_tags)
         groups = TagGroup.create_tag_groups(user_profile.tag_grouping, unselected_tags)
 
         self.tags = unique_tags
         self.groups = groups
-        self.selected_tags = unique_selected_tags
-        self.has_selected_tags = has_selected_tags
+        self.selected_tags = selected_tags
+        self.has_selected_tags = len(selected_tags) > 0
+        self.selected_negative_tags = selected_negative_tags
+        self.has_selected_negative_tags = len(selected_negative_tags) > 0
 
-    def get_selected_tags(self, tags: List[Tag]):
+    def get_selected_tags(self):
         parsed_query = queries.parse_query_string(self.search.q)
+
         tag_names = parsed_query["tag_names"]
         if self.request.user_profile.tag_search == UserProfile.TAG_SEARCH_LAX:
             tag_names = tag_names + parsed_query["search_terms"]
-        tag_names = [tag_name.lower() for tag_name in tag_names]
 
-        return [tag for tag in tags if tag.name.lower() in tag_names]
+        q = Q(pk__in=[])
+        for name in tag_names:
+            q |= Q(name__iexact=name)
+        selected_tags = Tag.objects.filter(q)
+        unique_selected_tags = utils.unique(selected_tags, key=lambda x: str.lower(x.name))
+
+        tag_names_negative = parsed_query["tag_names_negative"]
+        if self.request.user_profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+            tag_names_negative = tag_names_negative + parsed_query["search_terms_negative"]
+
+        q = Q(pk__in=[])
+        for name in tag_names_negative:
+            q |= Q(name__iexact=name)
+        selected_tags_negative = Tag.objects.filter(q)
+        unique_selected_tags_negative = utils.unique(selected_tags_negative, key=lambda x: str.lower(x.name))
+
+        return (unique_selected_tags, unique_selected_tags_negative)
 
 
 class ActiveTagCloudContext(TagCloudContext):
