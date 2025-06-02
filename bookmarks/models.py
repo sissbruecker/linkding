@@ -306,16 +306,22 @@ class BookmarkSearchForm(forms.Form):
 
 class BookmarkBundle(models.Model):
     name = models.CharField(max_length=256, blank=False)
-    search = models.TextField(max_length=256, blank=True)
-    any_tags = models.TextField(max_length=1024, blank=True)
-    all_tags = models.TextField(max_length=1024, blank=True)
-    excluded_tags = models.TextField(max_length=1024, blank=True)
+    search = models.CharField(max_length=256, blank=True)
+    any_tags = models.CharField(max_length=1024, blank=True)
+    all_tags = models.CharField(max_length=1024, blank=True)
+    excluded_tags = models.CharField(max_length=1024, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     date_modified = models.DateTimeField(auto_now=True, null=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
+
+
+class BookmarkBundleForm(forms.ModelForm):
+    class Meta:
+        model = BookmarkBundle
+        fields = ["name", "search", "any_tags", "all_tags", "excluded_tags"]
 
 
 class UserProfile(models.Model):

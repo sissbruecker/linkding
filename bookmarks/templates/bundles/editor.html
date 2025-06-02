@@ -1,0 +1,83 @@
+{% load widget_tweaks %}
+
+<div class="bookmarks-form-page">
+  <main aria-labelledby="main-heading">
+    <div class="section-header">
+      <h1 id="main-heading">
+        {{ editor_heading }}
+      </h1>
+    </div>
+    <form action="{% url 'linkding:bundles.new' %}" method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+        <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+        {{ form.name|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
+        {% if form.name.errors %}
+          <div class="form-input-hint">
+            {{ form.name.errors }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="form-group {% if form.search.errors %}has-error{% endif %}">
+        <label for="{{ form.search.id_for_label }}" class="form-label">Search</label>
+        {{ form.search|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
+        {% if form.search.errors %}
+          <div class="form-input-hint">
+            {{ form.search.errors }}
+          </div>
+        {% endif %}
+        <div class="form-input-hint">
+          Search terms to match bookmarks in this bundle.
+        </div>
+      </div>
+
+      <div class="form-group {% if form.any_tags.errors %}has-error{% endif %}">
+        <label for="{{ form.any_tags.id_for_label }}" class="form-label">Tags</label>
+        {{ form.any_tags|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
+        {% if form.any_tags.errors %}
+          <div class="form-input-hint">
+            {{ form.any_tags.errors }}
+          </div>
+        {% endif %}
+        <div class="form-input-hint">
+          At least one of these tags must be present in a bookmark to match.
+        </div>
+      </div>
+
+      <div class="form-group {% if form.all_tags.errors %}has-error{% endif %}">
+        <label for="{{ form.all_tags.id_for_label }}" class="form-label">Required tags</label>
+        {{ form.all_tags|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
+        {% if form.all_tags.errors %}
+          <div class="form-input-hint">
+            {{ form.all_tags.errors }}
+          </div>
+        {% endif %}
+        <div class="form-input-hint">
+          All of these tags must be present in a bookmark to match.
+        </div>
+      </div>
+
+      <div class="form-group {% if form.excluded_tags.errors %}has-error{% endif %}">
+        <label for="{{ form.excluded_tags.id_for_label }}" class="form-label">Excluded tags</label>
+        {{ form.excluded_tags|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
+        {% if form.excluded_tags.errors %}
+          <div class="form-input-hint">
+            {{ form.excluded_tags.errors }}
+          </div>
+        {% endif %}
+        <div class="form-input-hint">
+          None of these tags must be present in a bookmark to match.
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group d-flex mt-4">
+        <input type="submit" name="save" value="Save" class="btn btn-primary btn-wide">
+        <input type="submit" name="preview" value="Preview" class="btn btn-wide ml-4">
+        <input type="submit" name="cancel" value="Cancel" class="btn btn-wide ml-auto">
+      </div>
+    </form>
+  </main>
+</div>

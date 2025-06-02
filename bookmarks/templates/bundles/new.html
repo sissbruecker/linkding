@@ -1,0 +1,14 @@
+{% extends 'bookmarks/layout.html' %}
+{% load widget_tweaks %}
+
+{% block head %}
+  {% with page_title="New bundle - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+  {% with editor_heading="New bundle" %}
+    {% include 'bundles/editor.html' %}
+  {% endwith %}
+{% endblock %}
