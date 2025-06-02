@@ -4,9 +4,9 @@
     {% if tag_cloud.has_selected_tags %}
       <p class="selected-tags">
         {% for tag in tag_cloud.selected_tags %}
-          <a href="?{% remove_tag_from_query tag %}"
+          <a href="?{% remove_tag_from_query tag.name %}"
              class="text-bold mr-2">
-            <span>-{{ tag }}</span>
+            <span>-{{ tag.name }}</span>
           </a>
         {% endfor %}
       </p>
@@ -14,9 +14,9 @@
     {% if tag_cloud.has_selected_negative_tags %}
       <p class="selected-negative-tags">
         {% for tag in tag_cloud.selected_negative_tags %}
-          <a href="?{% remove_tag_from_query tag True %}"
+          <a href="?{% remove_tag_from_query tag.name True %}"
              class="text-bold mr-2">
-            <span>!{{ tag }}</span>
+            <span>!{{ tag.name }}</span>
           </a>
         {% endfor %}
       </p>

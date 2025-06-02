@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.db import models
 from django.http import Http404
 from django.urls import reverse
+from django.db.models import Q
 
 from bookmarks import queries
 from bookmarks import utils
@@ -330,7 +331,7 @@ class TagCloudContext:
 
         selected_tags, selected_negative_tags = self.get_selected_tags()
 
-        unselected_tags = [tag for tag in unique_tags if tag.name.lower() not in selected_tags]
+        unselected_tags = set(unique_tags).difference(selected_tags)
         groups = TagGroup.create_tag_groups(user_profile.tag_grouping, unselected_tags)
 
         self.tags = unique_tags
@@ -346,14 +347,24 @@ class TagCloudContext:
         tag_names = parsed_query["tag_names"]
         if self.request.user_profile.tag_search == UserProfile.TAG_SEARCH_LAX:
             tag_names = tag_names + parsed_query["search_terms"]
-        tag_names = [tag_name.lower() for tag_name in tag_names]
+
+        q = Q(pk__in=[])
+        for name in tag_names:
+            q |= Q(name__iexact=name)
+        selected_tags = Tag.objects.filter(q)
+        unique_selected_tags = utils.unique(selected_tags, key=lambda x: str.lower(x.name))
 
         tag_names_negative = parsed_query["tag_names_negative"]
         if self.request.user_profile.tag_search == UserProfile.TAG_SEARCH_LAX:
             tag_names_negative = tag_names_negative + parsed_query["search_terms_negative"]
-        tag_names_negative = [tag_names_negative.lower() for tag_names_negative in tag_names_negative]
 
-        return (tag_names, tag_names_negative)
+        q = Q(pk__in=[])
+        for name in tag_names_negative:
+            q |= Q(name__iexact=name)
+        selected_tags_negative = Tag.objects.filter(q)
+        unique_selected_tags_negative = utils.unique(selected_tags_negative, key=lambda x: str.lower(x.name))
+
+        return (unique_selected_tags, unique_selected_tags_negative)
 
 
 class ActiveTagCloudContext(TagCloudContext):
