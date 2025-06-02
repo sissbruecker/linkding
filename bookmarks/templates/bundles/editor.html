@@ -7,6 +7,9 @@
         {{ editor_heading }}
       </h1>
     </div>
+
+    {% include 'shared/messages.html' %}
+
     <form action="{% url 'linkding:bundles.new' %}" method="post" novalidate>
       {% csrf_token %}
       <div class="form-group {% if form.name.errors %}has-error{% endif %}">

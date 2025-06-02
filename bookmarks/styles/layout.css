@@ -27,15 +27,3 @@ header {
     line-height: 1.2;
   }
 }
-
-header .toasts {
-  margin-bottom: 20px;
-
-  .toast {
-    margin-bottom: 0.4rem;
-  }
-
-  .toast a.btn-clear:visited {
-    color: currentColor;
-  }
-}

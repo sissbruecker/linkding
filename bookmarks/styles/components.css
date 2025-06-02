@@ -60,3 +60,16 @@ span.confirmation {
 .turbo-progress-bar {
   background-color: var(--primary-color);
 }
+
+/* Messages */
+.message-list {
+  margin: var(--unit-4) 0;
+
+  .toast {
+    margin-bottom: var(--unit-2);
+  }
+
+  .toast a.btn-clear:visited {
+    color: currentColor;
+  }
+}

@@ -1,10 +1,11 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from bookmarks.views import access
 
 from bookmarks.models import BookmarkBundle, BookmarkBundleForm
+from bookmarks.views import access
 
 
 def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = None):
@@ -16,6 +17,7 @@ def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = N
             instance = form.save(commit=False)
             instance.owner = request.user
             instance.save()
+            messages.success(request, "Bundle saved successfully.")
             return HttpResponseRedirect(
                 reverse("linkding:bundles.edit", args=[instance.id])
             )
