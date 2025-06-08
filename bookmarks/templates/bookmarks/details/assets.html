@@ -1,12 +1,12 @@
 <div>
   {% if details.assets %}
-    <div class="assets">
+    <div class="item-list assets">
       {% for asset in details.assets %}
-        <div class="asset" data-asset-id="{{ asset.id }}">
-          <div class="asset-icon {{ asset.icon_classes }}">
+        <div class="list-item" data-asset-id="{{ asset.id }}">
+          <div class="list-item-icon {{ asset.icon_classes }}">
             {% include 'bookmarks/details/asset_icon.html' %}
           </div>
-          <div class="asset-text {{ asset.text_classes }}">
+          <div class="list-item-text {{ asset.text_classes }}">
           <span class="truncate">
             {{ asset.display_name }}
             {% if asset.status == 'pending' %}(queued){% endif %}
@@ -16,7 +16,7 @@
               <span class="filesize">{{ asset.file_size|filesizeformat }}</span>
             {% endif %}
           </div>
-          <div class="asset-actions">
+          <div class="list-item-actions">
             {% if asset.file %}
               <a class="btn btn-link" href="{% url 'linkding:assets.view' asset.id %}" target="_blank">View</a>
             {% endif %}

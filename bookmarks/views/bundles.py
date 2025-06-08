@@ -8,6 +8,13 @@ from bookmarks.models import BookmarkBundle, BookmarkBundleForm
 from bookmarks.views import access
 
 
+@login_required
+def index(request: HttpRequest):
+    bundles = BookmarkBundle.objects.filter(owner=request.user).order_by("name")
+    context = {"bundles": bundles}
+    return render(request, "bundles/index.html", context)
+
+
 def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = None):
     form_data = request.POST if request.method == "POST" else None
     form = BookmarkBundleForm(form_data, instance=bundle)

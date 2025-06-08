@@ -1,0 +1,37 @@
+{% extends "bookmarks/layout.html" %}
+
+{% block head %}
+  {% with page_title="Bundles - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+  <main class="bundles-page" aria-labelledby="main-heading">
+    <h1 id="main-heading">Bundles</h1>
+
+    {% if bundles %}
+      <div class="item-list bundles">
+        {% for bundle in bundles %}
+          <div class="list-item" data-bundle-id="{{ bundle.id }}">
+            <div class="list-item-text">
+              <span class="truncate">{{ bundle.name }}</span>
+            </div>
+            <div class="list-item-actions">
+              <a class="btn btn-link" href="{% url 'linkding:bundles.edit' bundle.id %}">Edit</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">
+        <p class="empty-title h5">You have no bundles yet</p>
+        <p class="empty-subtitle">Create your first bundle to get started</p>
+      </div>
+    {% endif %}
+
+    <div class="mt-4">
+      <a href="{% url 'linkding:bundles.new' %}" class="btn btn-primary">Add new bundle</a>
+    </div>
+  </main>
+{% endblock %}

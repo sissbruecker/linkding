@@ -49,49 +49,8 @@
   & .assets {
     margin-top: var(--unit-2);
 
-    & .asset {
-      display: flex;
-      align-items: center;
-      gap: var(--unit-2);
-      padding: var(--unit-2) 0;
-      border-top: var(--unit-o) solid var(--secondary-border-color);
-    }
-
-    & .asset:last-child {
-      border-bottom: var(--unit-o) solid var(--secondary-border-color);
-    }
-
-    & .asset-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    & .asset-text {
-      flex: 1 1 0;
-      gap: var(--unit-2);
-      min-width: 0;
-      display: flex;
-    }
-
-    & .asset-text .truncate {
-      flex-shrink: 1;
-    }
-
-    & .asset-text .filesize {
+    & .filesize {
       color: var(--tertiary-text-color);
-    }
-
-    & .asset-actions {
-      display: flex;
-      gap: var(--unit-4);
-      align-items: center;
-
-      & .btn.btn-link {
-        height: unset;
-        padding: 0;
-        border: none;
-      }
     }
   }
 
