@@ -585,10 +585,10 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             asset_item = self.find_asset(asset_list, asset)
             self.assertIsNotNone(asset_item)
 
-            asset_icon = asset_item.select_one(".asset-icon svg")
+            asset_icon = asset_item.select_one(".list-item-icon svg")
             self.assertIsNotNone(asset_icon)
 
-            asset_text = asset_item.select_one(".asset-text span")
+            asset_text = asset_item.select_one(".list-item-text span")
             self.assertIsNotNone(asset_text)
             self.assertIn(asset.display_name, asset_text.text)
 
@@ -687,11 +687,11 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         soup = self.get_index_details_modal(bookmark)
 
         asset_item = self.find_asset(soup, pending_asset)
-        asset_text = asset_item.select_one(".asset-text span")
+        asset_text = asset_item.select_one(".list-item-text span")
         self.assertIn("(queued)", asset_text.text)
 
         asset_item = self.find_asset(soup, failed_asset)
-        asset_text = asset_item.select_one(".asset-text span")
+        asset_text = asset_item.select_one(".list-item-text span")
         self.assertIn("(failed)", asset_text.text)
 
     def test_asset_file_size(self):
@@ -703,15 +703,15 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         soup = self.get_index_details_modal(bookmark)
 
         asset_item = self.find_asset(soup, asset1)
-        asset_text = asset_item.select_one(".asset-text")
+        asset_text = asset_item.select_one(".list-item-text")
         self.assertEqual(asset_text.text.strip(), asset1.display_name)
 
         asset_item = self.find_asset(soup, asset2)
-        asset_text = asset_item.select_one(".asset-text")
+        asset_text = asset_item.select_one(".list-item-text")
         self.assertIn("53.4\xa0KB", asset_text.text)
 
         asset_item = self.find_asset(soup, asset3)
-        asset_text = asset_item.select_one(".asset-text")
+        asset_text = asset_item.select_one(".list-item-text")
         self.assertIn("11.0\xa0MB", asset_text.text)
 
     def test_asset_actions_visibility(self):

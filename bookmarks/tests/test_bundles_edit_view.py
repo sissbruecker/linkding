@@ -31,9 +31,7 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
             reverse("linkding:bundles.edit", args=[bundle.id]), updated_data
         )
 
-        self.assertRedirects(
-            response, reverse("linkding:bundles.edit", args=[bundle.id])
-        )
+        self.assertRedirects(response, reverse("linkding:bundles.index"))
 
         bundle.refresh_from_db()
         self.assertEqual(bundle.name, updated_data["name"])

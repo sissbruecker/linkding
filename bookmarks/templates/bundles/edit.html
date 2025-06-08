@@ -8,7 +8,18 @@
 {% endblock %}
 
 {% block content %}
-  {% with editor_heading="Edit bundle" %}
-    {% include 'bundles/editor.html' %}
-  {% endwith %}
+  <div class="bookmarks-form-page">
+    <main aria-labelledby="main-heading">
+      <div class="section-header">
+        <h1 id="main-heading">Edit bundle</h1>
+      </div>
+
+      {% include 'shared/messages.html' %}
+
+      <form action="{% url 'linkding:bundles.edit' bundle.id %}" method="post" novalidate>
+        {% csrf_token %}
+        {% include 'bundles/form.html' %}
+      </form>
+    </main>
+  </div>
 {% endblock %}

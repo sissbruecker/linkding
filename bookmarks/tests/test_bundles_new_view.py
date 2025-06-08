@@ -38,9 +38,7 @@ class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bundle.all_tags, form_data["all_tags"])
         self.assertEqual(bundle.excluded_tags, form_data["excluded_tags"])
 
-        self.assertRedirects(
-            response, reverse("linkding:bundles.edit", args=[bundle.id])
-        )
+        self.assertRedirects(response, reverse("linkding:bundles.index"))
 
     def test_should_return_422_with_invalid_form(self):
         form_data = self.create_form_data({"name": ""})

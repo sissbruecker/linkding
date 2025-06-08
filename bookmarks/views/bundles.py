@@ -25,12 +25,10 @@ def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = N
             instance.owner = request.user
             instance.save()
             messages.success(request, "Bundle saved successfully.")
-            return HttpResponseRedirect(
-                reverse("linkding:bundles.edit", args=[instance.id])
-            )
+            return HttpResponseRedirect(reverse("linkding:bundles.index"))
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
-    context = {"form": form}
+    context = {"form": form, "bundle": bundle}
 
     return render(request, template, context, status=status)
 

@@ -10,6 +10,8 @@
   <main class="bundles-page" aria-labelledby="main-heading">
     <h1 id="main-heading">Bundles</h1>
 
+    {% include 'shared/messages.html' %}
+
     {% if bundles %}
       <div class="item-list bundles">
         {% for bundle in bundles %}
