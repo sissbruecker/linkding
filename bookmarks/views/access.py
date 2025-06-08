@@ -35,7 +35,7 @@ def bookmark_write(request: HttpRequest, bookmark_id: int | str):
 def bundle_write(request: HttpRequest, bundle_id: int | str):
     try:
         return BookmarkBundle.objects.get(pk=bundle_id, owner=request.user)
-    except Bookmark.DoesNotExist:
+    except BookmarkBundle.DoesNotExist:
         raise Http404("Bundle does not exist")
 
 
