@@ -4,7 +4,7 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from bookmarks import queries
+from bookmarks.views.contexts import ActiveBookmarkListContext
 from bookmarks.models import BookmarkBundle, BookmarkBundleForm, BookmarkSearch
 from bookmarks.views import access
 
@@ -58,14 +58,12 @@ def edit(request: HttpRequest, bundle_id: int):
 
 @login_required
 def preview(request: HttpRequest):
-    form = BookmarkBundleForm(request.GET)
+    form_data = request.GET.copy()
+    form_data["name"] = "Preview Bundle"  # Set dummy name for form validation
+    form = BookmarkBundleForm(form_data)
     preview_bundle = form.save(commit=False)
     preview_bundle.owner = request.user
-    preview_bookmarks = queries.query_bookmarks(
-        request.user, request.user.profile, BookmarkSearch(), preview_bundle
-    )
-    context = {
-        "preview_bookmarks": preview_bookmarks,
-        "bundle": preview_bundle,
-    }
+    bookmark_list = ActiveBookmarkListContext(request, preview_bundle)
+    bookmark_list.is_preview = True
+    context = {"bookmark_list": bookmark_list}
     return render(request, "bundles/preview.html", context)
