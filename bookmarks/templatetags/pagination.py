@@ -13,18 +13,21 @@ register = template.Library()
     "bookmarks/pagination.html", name="pagination", takes_context=True
 )
 def pagination(context, page: Page):
+    request = context["request"]
+    base_url = request.build_absolute_uri(request.path)
+
     # remove page number and details from query parameters
-    query_params = context["request"].GET.copy()
+    query_params = request.GET.copy()
     query_params.pop("page", None)
     query_params.pop("details", None)
 
     prev_link = (
-        _generate_link(query_params, page.previous_page_number())
+        _generate_link(base_url, query_params, page.previous_page_number())
         if page.has_previous()
         else None
     )
     next_link = (
-        _generate_link(query_params, page.next_page_number())
+        _generate_link(base_url, query_params, page.next_page_number())
         if page.has_next()
         else None
     )
@@ -37,7 +40,7 @@ def pagination(context, page: Page):
         if page_number == -1:
             page_links.append(None)
         else:
-            link = _generate_link(query_params, page_number)
+            link = _generate_link(base_url, query_params, page_number)
             page_links.append(
                 {
                     "active": page_number == page.number,
@@ -92,6 +95,7 @@ def get_visible_page_numbers(current_page_number: int, num_pages: int) -> [int]:
     return reduce(append_page, visible_pages, [])
 
 
-def _generate_link(query_params: QueryDict, page_number: int) -> str:
+def _generate_link(base_url: str, query_params: QueryDict, page_number: int) -> str:
+    query_params = query_params.copy()
     query_params["page"] = page_number
-    return query_params.urlencode()
+    return f"{base_url}?{query_params.urlencode()}"
