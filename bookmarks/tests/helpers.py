@@ -174,6 +174,7 @@ class BookmarkFactoryMixin:
         any_tags: str = "",
         all_tags: str = "",
         excluded_tags: str = "",
+        order: int = 0,
     ):
         if user is None:
             user = self.get_or_create_test_user()
@@ -187,6 +188,7 @@ class BookmarkFactoryMixin:
             any_tags=any_tags,
             all_tags=all_tags,
             excluded_tags=excluded_tags,
+            order=order,
         )
         bundle.save()
         return bundle

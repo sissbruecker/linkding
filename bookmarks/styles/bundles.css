@@ -3,4 +3,18 @@
     font-size: var(--font-size-xl);
     margin-bottom: var(--unit-6);
   }
+
+  .item-list {
+    .list-item .list-item-icon {
+      cursor: grab;
+    }
+
+    .list-item.drag-start {
+      --secondary-border-color: transparent;
+    }
+
+    .list-item.dragging > * {
+      visibility: hidden;
+    }
+  }
 }

@@ -310,6 +310,7 @@ class BookmarkBundle(models.Model):
     any_tags = models.CharField(max_length=1024, blank=True)
     all_tags = models.CharField(max_length=1024, blank=True)
     excluded_tags = models.CharField(max_length=1024, blank=True)
+    order = models.IntegerField(null=False, default=0)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     date_modified = models.DateTimeField(auto_now=True, null=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
