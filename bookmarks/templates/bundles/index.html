@@ -13,18 +13,22 @@
     {% include 'shared/messages.html' %}
 
     {% if bundles %}
-      <div class="item-list bundles">
-        {% for bundle in bundles %}
-          <div class="list-item" data-bundle-id="{{ bundle.id }}">
-            <div class="list-item-text">
-              <span class="truncate">{{ bundle.name }}</span>
+      <form action="{% url 'linkding:bundles.index' %}" method="post">
+        {% csrf_token %}
+        <div class="item-list bundles">
+          {% for bundle in bundles %}
+            <div class="list-item" data-bundle-id="{{ bundle.id }}">
+              <div class="list-item-text">
+                <span class="truncate">{{ bundle.name }}</span>
+              </div>
+              <div class="list-item-actions">
+                <a class="btn btn-link" href="{% url 'linkding:bundles.edit' bundle.id %}">Edit</a>
+                <button ld-confirm-button type="submit" name="remove_bundle" value="{{ bundle.id }}" class="btn btn-link">Remove</button>
+              </div>
             </div>
-            <div class="list-item-actions">
-              <a class="btn btn-link" href="{% url 'linkding:bundles.edit' bundle.id %}">Edit</a>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
+          {% endfor %}
+        </div>
+      </form>
     {% else %}
       <div class="empty">
         <p class="empty-title h5">You have no bundles yet</p>

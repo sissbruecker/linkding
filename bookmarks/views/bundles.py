@@ -10,6 +10,16 @@ from bookmarks.views import access
 
 @login_required
 def index(request: HttpRequest):
+    if request.method == "POST":
+        # Handle bundle deletion
+        remove_bundle_id = request.POST.get("remove_bundle")
+        if remove_bundle_id:
+            bundle = access.bundle_write(request, remove_bundle_id)
+            bundle_name = bundle.name
+            bundle.delete()
+            messages.success(request, f"Bundle '{bundle_name}' removed successfully.")
+            return HttpResponseRedirect(reverse("linkding:bundles.index"))
+
     bundles = BookmarkBundle.objects.filter(owner=request.user).order_by("name")
     context = {"bundles": bundles}
     return render(request, "bundles/index.html", context)
