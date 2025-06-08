@@ -66,5 +66,33 @@
 
 <div class="form-group d-flex mt-4">
   <input type="submit" name="save" value="Save" class="btn btn-primary btn-wide">
+  <a href="{% url 'linkding:bundles.preview' %}" data-turbo-frame="preview" class="btn btn-wide ml-2" id="preview-link">Preview</a>
   <a href="{% url 'linkding:bundles.index' %}" class="btn btn-wide ml-auto">Cancel</a>
 </div>
+
+<script>
+  (function init() {
+    const bundleForm = document.getElementById('bundle-form');
+    const previewLink = document.getElementById('preview-link');
+    const inputs = bundleForm.querySelectorAll('input[type="text"]:not([name="csrfmiddlewaretoken"]), textarea, select');
+
+    function updatePreviewLink() {
+      const baseUrl = previewLink.href.split('?')[0];
+      const params = new URLSearchParams();
+      
+      inputs.forEach(input => {
+        if (input.name && input.value.trim()) {
+          params.set(input.name, input.value.trim());
+        }
+      });
+      
+      const newUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+      previewLink.href = newUrl;
+    }
+
+    updatePreviewLink();
+    inputs.forEach(input => {
+      input.addEventListener('input', updatePreviewLink);
+    });
+  })();
+</script>

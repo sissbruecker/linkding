@@ -47,6 +47,7 @@ urlpatterns = [
     path("bundles", views.bundles.index, name="bundles.index"),
     path("bundles/new", views.bundles.new, name="bundles.new"),
     path("bundles/<int:bundle_id>/edit", views.bundles.edit, name="bundles.edit"),
+    path("bundles/preview", views.bundles.preview, name="bundles.preview"),
     # Settings
     path("settings", views.settings.general, name="settings.index"),
     path("settings/general", views.settings.general, name="settings.general"),

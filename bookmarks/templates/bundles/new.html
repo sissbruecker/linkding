@@ -16,10 +16,12 @@
 
       {% include 'shared/messages.html' %}
 
-      <form action="{% url 'linkding:bundles.new' %}" method="post" novalidate>
+      <form id="bundle-form" action="{% url 'linkding:bundles.new' %}" method="post" novalidate>
         {% csrf_token %}
         {% include 'bundles/form.html' %}
       </form>
+    
+      {% include 'bundles/preview.html' %}
     </main>
   </div>
 {% endblock %}
