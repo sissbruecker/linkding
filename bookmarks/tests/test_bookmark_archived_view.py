@@ -60,7 +60,23 @@ class BookmarkArchivedViewTestCase(
         )
 
         response = self.client.get(reverse("linkding:bookmarks.archived") + "?q=foo")
-        html = collapse_whitespace(response.content.decode())
+
+        self.assertVisibleBookmarks(response, visible_bookmarks)
+        self.assertInvisibleBookmarks(response, invisible_bookmarks)
+
+    def test_should_list_bookmarks_matching_bundle(self):
+        visible_bookmarks = self.setup_numbered_bookmarks(
+            3, prefix="foo", archived=True
+        )
+        invisible_bookmarks = self.setup_numbered_bookmarks(
+            3, prefix="bar", archived=True
+        )
+
+        bundle = self.setup_bundle(search="foo")
+
+        response = self.client.get(
+            reverse("linkding:bookmarks.archived") + f"?bundle={bundle.id}"
+        )
 
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
@@ -101,6 +117,26 @@ class BookmarkArchivedViewTestCase(
         invisible_tags = self.get_tags_from_bookmarks(invisible_bookmarks)
 
         response = self.client.get(reverse("linkding:bookmarks.archived") + "?q=foo")
+
+        self.assertVisibleTags(response, visible_tags)
+        self.assertInvisibleTags(response, invisible_tags)
+
+    def test_should_list_tags_for_bookmarks_matching_bundle(self):
+        visible_bookmarks = self.setup_numbered_bookmarks(
+            3, with_tags=True, archived=True, prefix="foo", tag_prefix="foo"
+        )
+        invisible_bookmarks = self.setup_numbered_bookmarks(
+            3, with_tags=True, archived=True, prefix="bar", tag_prefix="bar"
+        )
+
+        visible_tags = self.get_tags_from_bookmarks(visible_bookmarks)
+        invisible_tags = self.get_tags_from_bookmarks(invisible_bookmarks)
+
+        bundle = self.setup_bundle(search="foo")
+
+        response = self.client.get(
+            reverse("linkding:bookmarks.archived") + f"?bundle={bundle.id}"
+        )
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)

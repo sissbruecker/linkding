@@ -6,7 +6,7 @@ from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
 from bookmarks.middlewares import LinkdingMiddleware
-from bookmarks.models import UserProfile
+from bookmarks.models import BookmarkSearch, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 from bookmarks.views import contexts
 
@@ -24,7 +24,10 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         middleware = LinkdingMiddleware(lambda r: HttpResponse())
         middleware(request)
 
-        tag_cloud_context = context_type(request)
+        search = BookmarkSearch.from_request(
+            request, request.GET, request.user_profile.search_preferences
+        )
+        tag_cloud_context = context_type(request, search)
         context = RequestContext(request, {"tag_cloud": tag_cloud_context})
         template_to_render = Template("{% include 'bookmarks/tag_cloud.html' %}")
         return template_to_render.render(context)

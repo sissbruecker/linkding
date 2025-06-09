@@ -22,11 +22,8 @@ def query_bookmarks(
     user: User,
     profile: UserProfile,
     search: BookmarkSearch,
-    bundle: Optional[BookmarkBundle] = None,
 ) -> QuerySet:
-    return _base_bookmarks_query(user, profile, search, bundle).filter(
-        is_archived=False
-    )
+    return _base_bookmarks_query(user, profile, search).filter(is_archived=False)
 
 
 def query_archived_bookmarks(
@@ -93,7 +90,6 @@ def _base_bookmarks_query(
     user: Optional[User],
     profile: UserProfile,
     search: BookmarkSearch,
-    bundle: Optional[BookmarkBundle] = None,
 ) -> QuerySet:
     query_set = Bookmark.objects
 
@@ -159,8 +155,8 @@ def _base_bookmarks_query(
         query_set = query_set.filter(shared=False)
 
     # Filter by bundle
-    if bundle:
-        query_set = _filter_bundle(query_set, bundle)
+    if search.bundle:
+        query_set = _filter_bundle(query_set, search.bundle)
 
     # Sort
     if (

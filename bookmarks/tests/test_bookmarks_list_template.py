@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone, formats
 
 from bookmarks.middlewares import LinkdingMiddleware
-from bookmarks.models import Bookmark, UserProfile, User
+from bookmarks.models import Bookmark, BookmarkSearch, UserProfile, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 from bookmarks.views import contexts
 
@@ -273,7 +273,8 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         middleware = LinkdingMiddleware(lambda r: HttpResponse())
         middleware(request)
 
-        bookmark_list_context = context_type(request)
+        search = BookmarkSearch.from_request(request, request.GET)
+        bookmark_list_context = context_type(request, search)
         if is_preview:
             bookmark_list_context.is_preview = True
         context = RequestContext(request, {"bookmark_list": bookmark_list_context})

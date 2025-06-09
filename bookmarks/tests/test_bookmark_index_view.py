@@ -58,6 +58,19 @@ class BookmarkIndexViewTestCase(
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
+    def test_should_list_bookmarks_matching_bundle(self):
+        visible_bookmarks = self.setup_numbered_bookmarks(3, prefix="foo")
+        invisible_bookmarks = self.setup_numbered_bookmarks(3, prefix="bar")
+
+        bundle = self.setup_bundle(search="foo")
+
+        response = self.client.get(
+            reverse("linkding:bookmarks.index") + f"?bundle={bundle.id}"
+        )
+
+        self.assertVisibleBookmarks(response, visible_bookmarks)
+        self.assertInvisibleBookmarks(response, invisible_bookmarks)
+
     def test_should_list_tags_for_unarchived_and_user_owned_bookmarks(self):
         other_user = User.objects.create_user(
             "otheruser", "otheruser@example.com", "password123"
@@ -92,6 +105,26 @@ class BookmarkIndexViewTestCase(
         invisible_tags = self.get_tags_from_bookmarks(invisible_bookmarks)
 
         response = self.client.get(reverse("linkding:bookmarks.index") + "?q=foo")
+
+        self.assertVisibleTags(response, visible_tags)
+        self.assertInvisibleTags(response, invisible_tags)
+
+    def test_should_list_tags_for_bookmarks_matching_bundle(self):
+        visible_bookmarks = self.setup_numbered_bookmarks(
+            3, with_tags=True, prefix="foo", tag_prefix="foo"
+        )
+        invisible_bookmarks = self.setup_numbered_bookmarks(
+            3, with_tags=True, prefix="bar", tag_prefix="bar"
+        )
+
+        visible_tags = self.get_tags_from_bookmarks(visible_bookmarks)
+        invisible_tags = self.get_tags_from_bookmarks(invisible_bookmarks)
+
+        bundle = self.setup_bundle(search="foo")
+
+        response = self.client.get(
+            reverse("linkding:bookmarks.index") + f"?bundle={bundle.id}"
+        )
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)

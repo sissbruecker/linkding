@@ -114,6 +114,24 @@ class BookmarkSharedViewTestCase(
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
+    def test_should_list_bookmarks_matching_bundle(self):
+        self.authenticate()
+        user = self.setup_user(enable_sharing=True)
+
+        visible_bookmarks = self.setup_numbered_bookmarks(
+            3, shared=True, user=user, prefix="foo"
+        )
+        invisible_bookmarks = self.setup_numbered_bookmarks(3, shared=True, user=user)
+
+        bundle = self.setup_bundle(search="foo")
+
+        response = self.client.get(
+            reverse("linkding:bookmarks.shared") + f"?bundle={bundle.id}"
+        )
+
+        self.assertVisibleBookmarks(response, visible_bookmarks)
+        self.assertInvisibleBookmarks(response, invisible_bookmarks)
+
     def test_should_list_only_publicly_shared_bookmarks_without_login(self):
         user1 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
         user2 = self.setup_user(enable_sharing=True)
@@ -219,6 +237,45 @@ class BookmarkSharedViewTestCase(
 
         response = self.client.get(
             reverse("linkding:bookmarks.shared") + "?q=searchvalue"
+        )
+
+        self.assertVisibleTags(response, visible_tags)
+        self.assertInvisibleTags(response, invisible_tags)
+
+    def test_should_list_tags_for_bookmarks_matching_bundle(self):
+        self.authenticate()
+        user1 = self.setup_user(enable_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+        user3 = self.setup_user(enable_sharing=True)
+        visible_tags = [
+            self.setup_tag(user=user1),
+            self.setup_tag(user=user2),
+            self.setup_tag(user=user3),
+        ]
+        invisible_tags = [
+            self.setup_tag(user=user1),
+            self.setup_tag(user=user2),
+            self.setup_tag(user=user3),
+        ]
+
+        self.setup_bookmark(
+            shared=True, user=user1, title="searchvalue", tags=[visible_tags[0]]
+        )
+        self.setup_bookmark(
+            shared=True, user=user2, title="searchvalue", tags=[visible_tags[1]]
+        )
+        self.setup_bookmark(
+            shared=True, user=user3, title="searchvalue", tags=[visible_tags[2]]
+        )
+
+        self.setup_bookmark(shared=True, user=user1, tags=[invisible_tags[0]])
+        self.setup_bookmark(shared=True, user=user2, tags=[invisible_tags[1]])
+        self.setup_bookmark(shared=True, user=user3, tags=[invisible_tags[2]])
+
+        bundle = self.setup_bundle(search="searchvalue")
+
+        response = self.client.get(
+            reverse("linkding:bookmarks.shared") + f"?bundle={bundle.id}"
         )
 
         self.assertVisibleTags(response, visible_tags)

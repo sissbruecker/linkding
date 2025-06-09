@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from bookmarks.models import BookmarkBundle, BookmarkBundleForm
+from bookmarks.models import BookmarkBundle, BookmarkBundleForm, BookmarkSearch
 from bookmarks.views import access
 from bookmarks.views.contexts import ActiveBookmarkListContext
 
@@ -89,7 +89,8 @@ def preview(request: HttpRequest):
     form = BookmarkBundleForm(form_data)
     preview_bundle = form.save(commit=False)
     preview_bundle.owner = request.user
-    bookmark_list = ActiveBookmarkListContext(request, preview_bundle)
+    search = BookmarkSearch(bundle=preview_bundle)
+    bookmark_list = ActiveBookmarkListContext(request, search)
     bookmark_list.is_preview = True
     context = {"bookmark_list": bookmark_list}
     return render(request, "bundles/preview.html", context)

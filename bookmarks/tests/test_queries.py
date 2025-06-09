@@ -1304,13 +1304,13 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(title="unrelated content")
 
         query = queries.query_bookmarks(
-            self.user, self.profile, BookmarkSearch(q=""), bundle=bundle
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [matching_bookmarks])
 
     def test_query_bookmarks_with_search_and_bundle_search_terms(self):
         bundle = self.setup_bundle(search="bundle_term_B")
-        search = BookmarkSearch(q="search_term_A")
+        search = BookmarkSearch(q="search_term_A", bundle=bundle)
 
         matching_bookmarks = [
             self.setup_bookmark(
@@ -1323,7 +1323,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(description="bundle_term_B only")
         self.setup_bookmark(title="unrelated content")
 
-        query = queries.query_bookmarks(self.user, self.profile, search, bundle=bundle)
+        query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertQueryResult(query, [matching_bookmarks])
 
     def test_query_bookmarks_with_bundle_any_tags(self):
@@ -1344,13 +1344,13 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
 
         query = queries.query_bookmarks(
-            self.user, self.profile, BookmarkSearch(q=""), bundle=bundle
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [matching_bookmarks])
 
     def test_query_bookmarks_with_search_tags_and_bundle_any_tags(self):
         bundle = self.setup_bundle(any_tags="bundleTagA bundleTagB")
-        search = BookmarkSearch(q="#searchTag1 #searchTag2")
+        search = BookmarkSearch(q="#searchTag1 #searchTag2", bundle=bundle)
 
         search_tag1 = self.setup_tag(name="searchTag1")
         search_tag2 = self.setup_tag(name="searchTag2")
@@ -1377,7 +1377,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(tags=[other_tag])
         self.setup_bookmark()
 
-        query = queries.query_bookmarks(self.user, self.profile, search, bundle=bundle)
+        query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertQueryResult(query, [matching_bookmarks])
 
     def test_query_bookmarks_with_bundle_all_tags(self):
@@ -1397,13 +1397,13 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
 
         query = queries.query_bookmarks(
-            self.user, self.profile, BookmarkSearch(q=""), bundle=bundle
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [matching_bookmarks])
 
     def test_query_bookmarks_with_search_tags_and_bundle_all_tags(self):
         bundle = self.setup_bundle(all_tags="bundleTagA bundleTagB")
-        search = BookmarkSearch(q="#searchTag1 #searchTag2")
+        search = BookmarkSearch(q="#searchTag1 #searchTag2", bundle=bundle)
 
         search_tag1 = self.setup_tag(name="searchTag1")
         search_tag2 = self.setup_tag(name="searchTag2")
@@ -1426,7 +1426,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(tags=[other_tag])
         self.setup_bookmark()
 
-        query = queries.query_bookmarks(self.user, self.profile, search, bundle=bundle)
+        query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertQueryResult(query, [matching_bookmarks])
 
     def test_query_bookmarks_with_bundle_excluded_tags(self):
@@ -1453,7 +1453,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(tags=[exclude_tag1, exclude_tag2, keep_tag])
 
         query = queries.query_bookmarks(
-            self.user, self.profile, BookmarkSearch(q=""), bundle=bundle
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [matching_bookmarks])
 
@@ -1495,6 +1495,6 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
 
         query = queries.query_bookmarks(
-            self.user, self.profile, BookmarkSearch(q=""), bundle=bundle
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [matching_bookmarks])

@@ -56,9 +56,7 @@ class RequestContext:
     def details(self, bookmark_id: int) -> str:
         return self.get_url(self.index_url, add={"details": bookmark_id})
 
-    def get_bookmark_query_set(
-        self, search: BookmarkSearch, bundle: BookmarkBundle | None = None
-    ):
+    def get_bookmark_query_set(self, search: BookmarkSearch):
         raise NotImplementedError("Must be implemented by subclass")
 
     def get_tag_query_set(self, search: BookmarkSearch):
@@ -69,11 +67,9 @@ class ActiveBookmarksContext(RequestContext):
     index_view = "linkding:bookmarks.index"
     action_view = "linkding:bookmarks.index.action"
 
-    def get_bookmark_query_set(
-        self, search: BookmarkSearch, bundle: BookmarkBundle | None = None
-    ):
+    def get_bookmark_query_set(self, search: BookmarkSearch):
         return queries.query_bookmarks(
-            self.request.user, self.request.user_profile, search, bundle
+            self.request.user, self.request.user_profile, search
         )
 
     def get_tag_query_set(self, search: BookmarkSearch):
@@ -86,9 +82,7 @@ class ArchivedBookmarksContext(RequestContext):
     index_view = "linkding:bookmarks.archived"
     action_view = "linkding:bookmarks.archived.action"
 
-    def get_bookmark_query_set(
-        self, search: BookmarkSearch, bundle: BookmarkBundle | None = None
-    ):
+    def get_bookmark_query_set(self, search: BookmarkSearch):
         return queries.query_archived_bookmarks(
             self.request.user, self.request.user_profile, search
         )
@@ -103,9 +97,7 @@ class SharedBookmarksContext(RequestContext):
     index_view = "linkding:bookmarks.shared"
     action_view = "linkding:bookmarks.shared.action"
 
-    def get_bookmark_query_set(
-        self, search: BookmarkSearch, bundle: BookmarkBundle | None = None
-    ):
+    def get_bookmark_query_set(self, search: BookmarkSearch):
         user = User.objects.filter(username=search.user).first()
         public_only = not self.request.user.is_authenticated
         return queries.query_shared_bookmarks(
@@ -187,19 +179,15 @@ class BookmarkItem:
 class BookmarkListContext:
     request_context = RequestContext
 
-    def __init__(
-        self, request: HttpRequest, bundle: BookmarkBundle | None = None
-    ) -> None:
+    def __init__(self, request: HttpRequest, search: BookmarkSearch) -> None:
         request_context = self.request_context(request)
         user = request.user
         user_profile = request.user_profile
 
         self.request = request
-        self.search = BookmarkSearch.from_request(
-            self.request.GET, user_profile.search_preferences
-        )
+        self.search = search
 
-        query_set = request_context.get_bookmark_query_set(self.search, bundle)
+        query_set = request_context.get_bookmark_query_set(self.search)
         page_number = request.GET.get("page")
         paginator = Paginator(query_set, user_profile.items_per_page)
         bookmarks_page = paginator.get_page(page_number)
@@ -327,14 +315,12 @@ class TagGroup:
 class TagCloudContext:
     request_context = RequestContext
 
-    def __init__(self, request: HttpRequest) -> None:
+    def __init__(self, request: HttpRequest, search: BookmarkSearch) -> None:
         request_context = self.request_context(request)
         user_profile = request.user_profile
 
         self.request = request
-        self.search = BookmarkSearch.from_request(
-            self.request.GET, user_profile.search_preferences
-        )
+        self.search = search
 
         query_set = request_context.get_tag_query_set(self.search)
         tags = list(query_set)
