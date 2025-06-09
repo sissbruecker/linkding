@@ -379,6 +379,26 @@ li[ld-bookmark-item] {
   }
 }
 
+.bundle-menu {
+  list-style-type: none;
+  margin: 0 0 var(--unit-6);
+
+  .bundle-menu-item {
+    margin: 0;
+    margin-bottom: var(--unit-2);
+  }
+
+  .bundle-menu-item a {
+    padding: var(--unit-1) var(--unit-2);
+    border-radius: var(--border-radius);
+  }
+
+  .bundle-menu-item.selected a {
+    background: var(--primary-color);
+    color: var(--contrast-text-color);
+  }
+}
+
 .tag-cloud {
   /* Increase line-height for better separation within / between items */
   line-height: 1.1rem;

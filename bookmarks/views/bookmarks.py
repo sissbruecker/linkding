@@ -43,6 +43,7 @@ def index(request: HttpRequest):
         return search_action(request)
 
     bookmark_list = contexts.ActiveBookmarkListContext(request)
+    bundles = contexts.BundlesContext(request)
     tag_cloud = contexts.ActiveTagCloudContext(request)
     bookmark_details = contexts.get_details_context(
         request, contexts.ActiveBookmarkDetailsContext
@@ -54,6 +55,7 @@ def index(request: HttpRequest):
         {
             "page_title": "Bookmarks - Linkding",
             "bookmark_list": bookmark_list,
+            "bundles": bundles,
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
         },
@@ -66,6 +68,7 @@ def archived(request: HttpRequest):
         return search_action(request)
 
     bookmark_list = contexts.ArchivedBookmarkListContext(request)
+    bundles = contexts.BundlesContext(request)
     tag_cloud = contexts.ArchivedTagCloudContext(request)
     bookmark_details = contexts.get_details_context(
         request, contexts.ArchivedBookmarkDetailsContext
@@ -77,6 +80,7 @@ def archived(request: HttpRequest):
         {
             "page_title": "Archived bookmarks - Linkding",
             "bookmark_list": bookmark_list,
+            "bundles": bundles,
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
         },
@@ -88,6 +92,7 @@ def shared(request: HttpRequest):
         return search_action(request)
 
     bookmark_list = contexts.SharedBookmarkListContext(request)
+    bundles = contexts.BundlesContext(request)
     tag_cloud = contexts.SharedTagCloudContext(request)
     bookmark_details = contexts.get_details_context(
         request, contexts.SharedBookmarkDetailsContext
@@ -102,6 +107,7 @@ def shared(request: HttpRequest):
         {
             "page_title": "Shared bookmarks - Linkding",
             "bookmark_list": bookmark_list,
+            "bundles": bundles,
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
             "users": users,

@@ -473,3 +473,23 @@ def get_details_context(
         return None
 
     return context_type(request, bookmark)
+
+
+class BundlesContext:
+    def __init__(self, request: HttpRequest) -> None:
+        self.request = request
+        self.user = request.user
+        self.user_profile = request.user_profile
+
+        self.bundles = (
+            BookmarkBundle.objects.filter(owner=self.user).order_by("order").all()
+        )
+        self.is_empty = len(self.bundles) == 0
+
+        selected_bundle_id = (
+            int(request.GET.get("bundle")) if request.GET.get("bundle") else None
+        )
+        self.selected_bundle = next(
+            (bundle for bundle in self.bundles if bundle.id == selected_bundle_id),
+            None,
+        )

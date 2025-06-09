@@ -34,6 +34,12 @@
 
     {# Tag cloud #}
     <div class="side-panel col-1 hide-md">
+      <section aria-labelledby="bundles-heading">
+        <div class="section-header">
+          <h2 id="bundles-heading">Bundles</h2>
+        </div>
+        {% include 'bookmarks/bundle-menu.html' %}
+      </section>
       <section aria-labelledby="tags-heading">
         <div class="section-header">
           <h2 id="tags-heading">Tags</h2>
