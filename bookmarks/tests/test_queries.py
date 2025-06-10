@@ -1498,3 +1498,56 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_archived_bookmarks_with_bundle(self):
+        bundle = self.setup_bundle(any_tags="bundleTag1 bundleTag2")
+
+        tag1 = self.setup_tag(name="bundleTag1")
+        tag2 = self.setup_tag(name="bundleTag2")
+        other_tag = self.setup_tag(name="otherTag")
+
+        matching_bookmarks = [
+            self.setup_bookmark(is_archived=True, tags=[tag1]),
+            self.setup_bookmark(is_archived=True, tags=[tag2]),
+            self.setup_bookmark(is_archived=True, tags=[tag1, tag2]),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(is_archived=True, tags=[other_tag])
+        self.setup_bookmark(is_archived=True)
+        self.setup_bookmark(tags=[tag1]),
+        self.setup_bookmark(tags=[tag2]),
+        self.setup_bookmark(tags=[tag1, tag2]),
+
+        query = queries.query_archived_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_shared_bookmarks_with_bundle(self):
+        user1 = self.setup_user(enable_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+
+        bundle = self.setup_bundle(any_tags="bundleTag1 bundleTag2")
+
+        tag1 = self.setup_tag(name="bundleTag1")
+        tag2 = self.setup_tag(name="bundleTag2")
+        other_tag = self.setup_tag(name="otherTag")
+
+        matching_bookmarks = [
+            self.setup_bookmark(user=user1, shared=True, tags=[tag1]),
+            self.setup_bookmark(user=user2, shared=True, tags=[tag2]),
+            self.setup_bookmark(user=user1, shared=True, tags=[tag1, tag2]),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(user=user1, shared=True, tags=[other_tag])
+        self.setup_bookmark(user=user2, shared=True)
+        self.setup_bookmark(user=user1, shared=False, tags=[tag1]),
+        self.setup_bookmark(user=user2, shared=False, tags=[tag2]),
+        self.setup_bookmark(user=user1, shared=False, tags=[tag1, tag2]),
+
+        query = queries.query_shared_bookmarks(
+            None, self.profile, BookmarkSearch(q="", bundle=bundle), False
+        )
+        self.assertQueryResult(query, [matching_bookmarks])

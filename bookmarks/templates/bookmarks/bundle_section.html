@@ -14,7 +14,7 @@
   <ul class="bundle-menu">
     {% for bundle in bundles.bundles %}
       <li class="bundle-menu-item {% if bundle.id == bundles.selected_bundle.id %}selected{% endif %}">
-        <a href="{% url 'linkding:bookmarks.index' %}?bundle={{ bundle.id }}">{{ bundle.name }}</a>
+        <a href="?bundle={{ bundle.id }}">{{ bundle.name }}</a>
       </li>
     {% endfor %}
   </ul>
