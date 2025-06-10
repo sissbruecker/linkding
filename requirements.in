@@ -12,5 +12,6 @@ psycopg2-binary
 python-dateutil
 requests
 supervisor
+trafilatura
 uWSGI
 waybackpy
