@@ -70,21 +70,21 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f'<input type="text" name="any_tags" value="{bundle.any_tags}" '
-            'autocomplete="off" placeholder=" " class="form-input" '
+            'autocomplete="off" autocapitalize="off" class="form-input" '
             'maxlength="1024" id="id_any_tags">',
             html,
         )
 
         self.assertInHTML(
             f'<input type="text" name="all_tags" value="{bundle.all_tags}" '
-            'autocomplete="off" placeholder=" " class="form-input" '
+            'autocomplete="off" autocapitalize="off" class="form-input" '
             'maxlength="1024" id="id_all_tags">',
             html,
         )
 
         self.assertInHTML(
             f'<input type="text" name="excluded_tags" value="{bundle.excluded_tags}" '
-            'autocomplete="off" placeholder=" " class="form-input" '
+            'autocomplete="off" autocapitalize="off" class="form-input" '
             'maxlength="1024" id="id_excluded_tags">',
             html,
         )
