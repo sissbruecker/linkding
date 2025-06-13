@@ -30,3 +30,5 @@ This section lists community projects around using linkding, in alphabetical ord
 - [Pinkt](https://github.com/fibelatti/pinboard-kotlin) An Android client for linkding. By [fibelatti](https://github.com/fibelatti)
 - [Postman collection](https://gist.github.com/gingerbeardman/f0b42502f3bc9344e92ce63afd4360d3) a group of saved request templates for API testing. By [gingerbeardman](https://github.com/gingerbeardman)
 - [serchding](https://github.com/ldwgchen/serchding) Full-text search for linkding. By [ldwgchen](https://github.com/ldwgchen)
+
+- [LinkBuddy](https://github.com/peterto/LinkBuddy) An open-source Android and iOS client for linkding, written in React Native. Android apk available on [github](https://github.com/peterto/LinkBuddy/releases) and iOS version on [Apple AppStore](https://apps.apple.com/us/app/linkbuddy-for-linkding/id6740408952). By [peterto](https://github.com/peterto).
