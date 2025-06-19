@@ -199,7 +199,8 @@ def integrations(request):
 def bookmark_import(request: HttpRequest):
     import_file = request.FILES.get("import_file")
     import_options = importer.ImportOptions(
-        map_private_flag=request.POST.get("map_private_flag") == "on"
+        map_private_flag=request.POST.get("map_private_flag") == "on",
+        description_as_notes=request.POST.get("description_as_notes") == "on"
     )
 
     if import_file is None:

@@ -23,6 +23,7 @@ class ImportResult:
 @dataclass
 class ImportOptions:
     map_private_flag: bool = False
+    description_as_notes: bool = False
 
 
 class TagCache:
@@ -239,7 +240,10 @@ def _copy_bookmark_data(
     if netscape_bookmark.title:
         bookmark.title = netscape_bookmark.title
     if netscape_bookmark.description:
-        bookmark.description = netscape_bookmark.description
+        if options.description_as_notes:
+            bookmark.notes = netscape_bookmark.description
+        else:
+            bookmark.description = netscape_bookmark.description
     if netscape_bookmark.notes:
         bookmark.notes = netscape_bookmark.notes
     if options.map_private_flag and not netscape_bookmark.private:
