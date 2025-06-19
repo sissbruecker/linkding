@@ -59,16 +59,14 @@
     const previewLink = document.getElementById('preview-link');
 
     let pendingUpdate;
-    let isSubmitting = false;
 
     function scheduleUpdate() {
       if (pendingUpdate) {
         clearTimeout(pendingUpdate);
       }
       pendingUpdate = setTimeout(() => {
-        if (isSubmitting) {
-          // Skip update if form is being submitted, otherwise Turbo will
-          // replace the whole page with the preview frame.
+        // Ignore if link has been removed (e.g. form submit or navigation)
+        if (!previewLink.isConnected) {
           return;
         }
 
@@ -89,8 +87,5 @@
 
     bundleForm.addEventListener('input', scheduleUpdate);
     bundleForm.addEventListener('change', scheduleUpdate);
-    bundleForm.addEventListener('turbo:submit-start', () => {
-      isSubmitting = true;
-    });
   })();
 </script>
