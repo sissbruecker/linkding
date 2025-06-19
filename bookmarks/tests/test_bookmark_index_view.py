@@ -34,6 +34,21 @@ class BookmarkIndexViewTestCase(
         self.assertIsNotNone(form)
         self.assertEqual(form.attrs["action"], url)
 
+    def assertVisibleBundles(self, soup, bundles):
+        bundle_list = soup.select_one("ul.bundle-menu")
+        self.assertIsNotNone(bundle_list)
+
+        list_items = bundle_list.select("li.bundle-menu-item")
+        self.assertEqual(len(list_items), len(bundles))
+
+        for index, list_item in enumerate(list_items):
+            bundle = bundles[index]
+            link = list_item.select_one("a")
+            href = link.attrs["href"]
+
+            self.assertEqual(bundle.name, list_item.text.strip())
+            self.assertEqual(f"?bundle={bundle.id}", href)
+
     def test_should_list_unarchived_and_user_owned_bookmarks(self):
         other_user = User.objects.create_user(
             "otheruser", "otheruser@example.com", "password123"
@@ -527,6 +542,29 @@ class BookmarkIndexViewTestCase(
 
         feed = soup.select_one('head link[type="application/rss+xml"]')
         self.assertIsNone(feed)
+
+    def test_list_bundles(self):
+        books = self.setup_bundle(name="Books bundle", order=3)
+        music = self.setup_bundle(name="Music bundle", order=1)
+        tools = self.setup_bundle(name="Tools bundle", order=2)
+        response = self.client.get(reverse("linkding:bookmarks.index"))
+        html = response.content.decode()
+        soup = self.make_soup(html)
+
+        self.assertVisibleBundles(soup, [music, tools, books])
+
+    def test_list_bundles_only_shows_user_owned_bundles(self):
+        user_bundles = [self.setup_bundle(), self.setup_bundle(), self.setup_bundle()]
+        other_user = self.setup_user()
+        self.setup_bundle(user=other_user)
+        self.setup_bundle(user=other_user)
+        self.setup_bundle(user=other_user)
+
+        response = self.client.get(reverse("linkding:bookmarks.index"))
+        html = response.content.decode()
+        soup = self.make_soup(html)
+
+        self.assertVisibleBundles(soup, user_bundles)
 
     def test_hide_bundles_when_enabled_in_profile(self):
         # visible by default
