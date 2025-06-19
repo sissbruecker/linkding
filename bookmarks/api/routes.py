@@ -16,8 +16,16 @@ from bookmarks.api.serializers import (
     BookmarkAssetSerializer,
     TagSerializer,
     UserProfileSerializer,
+    BookmarkBundleSerializer,
 )
-from bookmarks.models import Bookmark, BookmarkAsset, BookmarkSearch, Tag, User
+from bookmarks.models import (
+    Bookmark,
+    BookmarkAsset,
+    BookmarkSearch,
+    Tag,
+    User,
+    BookmarkBundle,
+)
 from bookmarks.services import assets, bookmarks, auto_tagging, website_loader
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
@@ -264,6 +272,25 @@ class UserViewSet(viewsets.GenericViewSet):
         return Response(UserProfileSerializer(request.user.profile).data)
 
 
+class BookmarkBundleViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+):
+    request: HttpRequest
+    serializer_class = BookmarkBundleSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return BookmarkBundle.objects.filter(owner=user).order_by("order")
+
+    def get_serializer_context(self):
+        return {"user": self.request.user}
+
+
 # DRF routers do not support nested view sets such as /bookmarks/<id>/assets/<id>/
 # Instead create separate routers for each view set and manually register them in urls.py
 # The default router is only used to allow reversing a URL for the API root
@@ -277,6 +304,9 @@ tag_router.register("", TagViewSet, basename="tag")
 
 user_router = SimpleRouter()
 user_router.register("", UserViewSet, basename="user")
+
+bundle_router = SimpleRouter()
+bundle_router.register("", BookmarkBundleViewSet, basename="bundle")
 
 bookmark_asset_router = SimpleRouter()
 bookmark_asset_router.register("", BookmarkAssetViewSet, basename="bookmark_asset")
