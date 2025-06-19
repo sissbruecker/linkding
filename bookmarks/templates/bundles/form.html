@@ -59,12 +59,19 @@
     const previewLink = document.getElementById('preview-link');
 
     let pendingUpdate;
+    let isSubmitting = false;
 
     function scheduleUpdate() {
       if (pendingUpdate) {
         clearTimeout(pendingUpdate);
       }
       pendingUpdate = setTimeout(() => {
+        if (isSubmitting) {
+          // Skip update if form is being submitted, otherwise Turbo will
+          // replace the whole page with the preview frame.
+          return;
+        }
+
         const baseUrl = previewLink.href.split('?')[0];
         const params = new URLSearchParams();
         const inputs = bundleForm.querySelectorAll('input[type="text"]:not([name="csrfmiddlewaretoken"]), textarea, select');
@@ -82,5 +89,8 @@
 
     bundleForm.addEventListener('input', scheduleUpdate);
     bundleForm.addEventListener('change', scheduleUpdate);
+    bundleForm.addEventListener('turbo:submit-start', () => {
+      isSubmitting = true;
+    });
   })();
 </script>
