@@ -471,6 +471,7 @@ class UserProfile(models.Model):
     )
     sticky_pagination = models.BooleanField(default=False, null=False)
     collapse_side_panel = models.BooleanField(default=False, null=False)
+    hide_bundles = models.BooleanField(default=False, null=False)
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -511,6 +512,7 @@ class UserProfileForm(forms.ModelForm):
             "items_per_page",
             "sticky_pagination",
             "collapse_side_panel",
+            "hide_bundles",
         ]
 
 

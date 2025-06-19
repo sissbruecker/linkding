@@ -9,7 +9,6 @@ from bookmarks.tests.helpers import (
     BookmarkFactoryMixin,
     BookmarkListTestMixin,
     TagCloudTestMixin,
-    collapse_whitespace,
 )
 
 
@@ -551,3 +550,20 @@ class BookmarkArchivedViewTestCase(
 
         feed = soup.select_one('head link[type="application/rss+xml"]')
         self.assertIsNone(feed)
+
+    def test_hide_bundles_when_enabled_in_profile(self):
+        # visible by default
+        response = self.client.get(reverse("linkding:bookmarks.archived"))
+        html = response.content.decode()
+
+        self.assertInHTML('<h2 id="bundles-heading">Bundles</h2>', html)
+
+        # hidden when disabled in profile
+        user_profile = self.get_or_create_test_user().profile
+        user_profile.hide_bundles = True
+        user_profile.save()
+
+        response = self.client.get(reverse("linkding:bookmarks.archived"))
+        html = response.content.decode()
+
+        self.assertInHTML('<h2 id="bundles-heading">Bundles</h2>', html, count=0)

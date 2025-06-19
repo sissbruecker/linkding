@@ -140,6 +140,15 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.hide_bundles.id_for_label }}" class="form-checkbox">
+            {{ form.hide_bundles }}
+            <i class="form-icon"></i> Hide bundles
+          </label>
+          <div class="form-input-hint">
+            Allows to hide the bundles in the side panel if you don't intend to use them.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.tag_search.id_for_label }}" class="form-label">Tag search</label>
           {{ form.tag_search|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
