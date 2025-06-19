@@ -18,3 +18,17 @@
     }
   }
 }
+
+.bundles-editor-page {
+  &.grid {
+    gap: var(--unit-9);
+  }
+
+  .form-footer {
+    position: sticky;
+    bottom: 0;
+    border-top: solid 1px var(--secondary-border-color);
+    background: var(--body-color);
+    padding: var(--unit-3) 0;
+  }
+}

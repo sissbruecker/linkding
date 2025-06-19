@@ -1,10 +1,10 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
-class BundlePreviewViewTestCase(TestCase, BookmarkFactoryMixin):
+class BundlePreviewViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
@@ -64,6 +64,22 @@ class BundlePreviewViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertContains(response, bookmark.description)
         self.assertContains(response, bookmark.url)
         self.assertContains(response, "#test-tag")
+
+    def test_preview_renders_bookmark_in_preview_mode(self):
+        tag = self.setup_tag(name="test-tag")
+        self.setup_bookmark(
+            title="Test Bookmark",
+            description="Test description",
+            url="https://example.com/test",
+            tags=[tag],
+        )
+
+        response = self.client.get(reverse("linkding:bundles.preview"))
+        soup = self.make_soup(response.content.decode())
+
+        list_item = soup.select_one("li[ld-bookmark-item]")
+        actions = list_item.select(".actions > *")
+        self.assertEqual(len(actions), 1)
 
     def test_preview_ignores_archived_bookmarks(self):
         active_bookmark = self.setup_bookmark(title="Active Bookmark")

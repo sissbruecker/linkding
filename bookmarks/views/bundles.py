@@ -45,6 +45,13 @@ def action(request: HttpRequest):
     return HttpResponseRedirect(reverse("linkding:bundles.index"))
 
 
+def _get_bookmark_list_preview(request: HttpRequest, bundle: BookmarkBundle):
+    search = BookmarkSearch(bundle=bundle)
+    bookmark_list = ActiveBookmarkListContext(request, search)
+    bookmark_list.is_preview = True
+    return bookmark_list
+
+
 def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = None):
     form_data = request.POST if request.method == "POST" else None
     form = BookmarkBundleForm(form_data, instance=bundle)
@@ -65,7 +72,8 @@ def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = N
             return HttpResponseRedirect(reverse("linkding:bundles.index"))
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
-    context = {"form": form, "bundle": bundle}
+    bookmark_list = _get_bookmark_list_preview(request, bundle or BookmarkBundle())
+    context = {"form": form, "bundle": bundle, "bookmark_list": bookmark_list}
 
     return render(request, template, context, status=status)
 
@@ -89,8 +97,6 @@ def preview(request: HttpRequest):
     form = BookmarkBundleForm(form_data)
     preview_bundle = form.save(commit=False)
     preview_bundle.owner = request.user
-    search = BookmarkSearch(bundle=preview_bundle)
-    bookmark_list = ActiveBookmarkListContext(request, search)
-    bookmark_list.is_preview = True
+    bookmark_list = _get_bookmark_list_preview(request, preview_bundle)
     context = {"bookmark_list": bookmark_list}
     return render(request, "bundles/preview.html", context)

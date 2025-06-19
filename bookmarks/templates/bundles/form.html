@@ -47,37 +47,40 @@
   </div>
 </div>
 
-<div class="divider"></div>
-
-<div class="form-group d-flex mt-4">
+<div class="form-footer d-flex mt-4">
   <input type="submit" name="save" value="Save" class="btn btn-primary btn-wide">
-  <a href="{% url 'linkding:bundles.preview' %}" data-turbo-frame="preview" class="btn btn-wide ml-2" id="preview-link">Preview</a>
   <a href="{% url 'linkding:bundles.index' %}" class="btn btn-wide ml-auto">Cancel</a>
+  <a href="{% url 'linkding:bundles.preview' %}" data-turbo-frame="preview" class="d-none" id="preview-link"></a>
 </div>
 
 <script>
   (function init() {
     const bundleForm = document.getElementById('bundle-form');
     const previewLink = document.getElementById('preview-link');
-    const inputs = bundleForm.querySelectorAll('input[type="text"]:not([name="csrfmiddlewaretoken"]), textarea, select');
 
-    function updatePreviewLink() {
-      const baseUrl = previewLink.href.split('?')[0];
-      const params = new URLSearchParams();
+    let pendingUpdate;
 
-      inputs.forEach(input => {
-        if (input.name && input.value.trim()) {
-          params.set(input.name, input.value.trim());
-        }
-      });
+    function scheduleUpdate() {
+      if (pendingUpdate) {
+        clearTimeout(pendingUpdate);
+      }
+      pendingUpdate = setTimeout(() => {
+        const baseUrl = previewLink.href.split('?')[0];
+        const params = new URLSearchParams();
+        const inputs = bundleForm.querySelectorAll('input[type="text"]:not([name="csrfmiddlewaretoken"]), textarea, select');
 
-      const newUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
-      previewLink.href = newUrl;
+        inputs.forEach(input => {
+          if (input.name && input.value.trim()) {
+            params.set(input.name, input.value.trim());
+          }
+        });
+
+        previewLink.href = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+        previewLink.click();
+      }, 500)
     }
 
-    updatePreviewLink();
-    inputs.forEach(input => {
-      input.addEventListener('input', updatePreviewLink);
-    });
+    bundleForm.addEventListener('input', scheduleUpdate);
+    bundleForm.addEventListener('change', scheduleUpdate);
   })();
 </script>
