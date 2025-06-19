@@ -1,6 +1,6 @@
 from django.http import Http404
 
-from bookmarks.models import Bookmark, BookmarkAsset, Toast
+from bookmarks.models import Bookmark, BookmarkAsset, BookmarkBundle, Toast
 from bookmarks.type_defs import HttpRequest
 
 
@@ -30,6 +30,13 @@ def bookmark_write(request: HttpRequest, bookmark_id: int | str):
         return Bookmark.objects.get(pk=bookmark_id, owner=request.user)
     except Bookmark.DoesNotExist:
         raise Http404("Bookmark does not exist")
+
+
+def bundle_write(request: HttpRequest, bundle_id: int | str):
+    try:
+        return BookmarkBundle.objects.get(pk=bundle_id, owner=request.user)
+    except BookmarkBundle.DoesNotExist:
+        raise Http404("Bundle does not exist")
 
 
 def asset_read(request: HttpRequest, asset_id: int | str):

@@ -77,6 +77,7 @@
     const bounds = getCurrentWordBounds(input);
     const value = input.value;
     input.value = value.substring(0, bounds.start) + suggestion.name + ' ' + value.substring(bounds.end);
+    input.dispatchEvent(new CustomEvent('change', {bubbles: true}));
 
     close();
   }
@@ -128,41 +129,41 @@
 </div>
 
 <style>
-    .menu {
-        display: none;
-        max-height: 200px;
-        overflow: auto;
-    }
+  .menu {
+    display: none;
+    max-height: 200px;
+    overflow: auto;
+  }
 
-    .menu.open {
-        display: block;
-    }
+  .menu.open {
+    display: block;
+  }
 
-    .form-autocomplete-input {
-        box-sizing: border-box;
-        height: var(--control-size);
-        min-height: var(--control-size);
-        padding: 0;
-    }
+  .form-autocomplete-input {
+    box-sizing: border-box;
+    height: var(--control-size);
+    min-height: var(--control-size);
+    padding: 0;
+  }
 
-    .form-autocomplete-input input {
-        width: 100%;
-        height: 100%;
-        border: none;
-        margin: 0;
-    }
+  .form-autocomplete-input input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    margin: 0;
+  }
 
-    .form-autocomplete.small .form-autocomplete-input {
-        height: var(--control-size-sm);
-        min-height: var(--control-size-sm);
-    }
+  .form-autocomplete.small .form-autocomplete-input {
+    height: var(--control-size-sm);
+    min-height: var(--control-size-sm);
+  }
 
-    .form-autocomplete.small .form-autocomplete-input input {
-        padding: 0.05rem 0.3rem;
-        font-size: var(--font-size-sm);
-    }
+  .form-autocomplete.small .form-autocomplete-input input {
+    padding: 0.05rem 0.3rem;
+    font-size: var(--font-size-sm);
+  }
 
-    .form-autocomplete.small .menu .menu-item {
-        font-size: var(--font-size-sm);
-    }
+  .form-autocomplete.small .menu .menu-item {
+    font-size: var(--font-size-sm);
+  }
 </style>

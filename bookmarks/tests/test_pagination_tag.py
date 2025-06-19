@@ -32,7 +32,7 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
         )
 
     def assertPrevLink(self, html: str, page_number: int, href: str = None):
-        href = href if href else "?page={0}".format(page_number)
+        href = href if href else "http://testserver/test?page={0}".format(page_number)
         self.assertInHTML(
             """
             <li class="page-item">
@@ -55,7 +55,7 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
         )
 
     def assertNextLink(self, html: str, page_number: int, href: str = None):
-        href = href if href else "?page={0}".format(page_number)
+        href = href if href else "http://testserver/test?page={0}".format(page_number)
         self.assertInHTML(
             """
             <li class="page-item">
@@ -76,7 +76,7 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
         href: str = None,
     ):
         active_class = "active" if active else ""
-        href = href if href else "?page={0}".format(page_number)
+        href = href if href else "http://testserver/test?page={0}".format(page_number)
         self.assertInHTML(
             """
             <li class="page-item {1}">
@@ -164,20 +164,38 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
         rendered_template = self.render_template(
             100, 10, 2, url="/test?q=cake&sort=title_asc&page=2"
         )
-        self.assertPrevLink(rendered_template, 1, href="?q=cake&sort=title_asc&page=1")
-        self.assertPageLink(
-            rendered_template, 1, False, href="?q=cake&sort=title_asc&page=1"
+        self.assertPrevLink(
+            rendered_template,
+            1,
+            href="http://testserver/test?q=cake&sort=title_asc&page=1",
         )
         self.assertPageLink(
-            rendered_template, 2, True, href="?q=cake&sort=title_asc&page=2"
+            rendered_template,
+            1,
+            False,
+            href="http://testserver/test?q=cake&sort=title_asc&page=1",
         )
-        self.assertNextLink(rendered_template, 3, href="?q=cake&sort=title_asc&page=3")
+        self.assertPageLink(
+            rendered_template,
+            2,
+            True,
+            href="http://testserver/test?q=cake&sort=title_asc&page=2",
+        )
+        self.assertNextLink(
+            rendered_template,
+            3,
+            href="http://testserver/test?q=cake&sort=title_asc&page=3",
+        )
 
     def test_removes_details_parameter(self):
         rendered_template = self.render_template(
             100, 10, 2, url="/test?details=1&page=2"
         )
-        self.assertPrevLink(rendered_template, 1, href="?page=1")
-        self.assertPageLink(rendered_template, 1, False, href="?page=1")
-        self.assertPageLink(rendered_template, 2, True, href="?page=2")
-        self.assertNextLink(rendered_template, 3, href="?page=3")
+        self.assertPrevLink(rendered_template, 1, href="http://testserver/test?page=1")
+        self.assertPageLink(
+            rendered_template, 1, False, href="http://testserver/test?page=1"
+        )
+        self.assertPageLink(
+            rendered_template, 2, True, href="http://testserver/test?page=2"
+        )
+        self.assertNextLink(rendered_template, 3, href="http://testserver/test?page=3")

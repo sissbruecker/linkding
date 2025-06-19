@@ -1,0 +1,124 @@
+{% extends "bookmarks/layout.html" %}
+
+{% block head %}
+  {% with page_title="Bundles - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+  <main class="bundles-page" aria-labelledby="main-heading">
+    <h1 id="main-heading">Bundles</h1>
+
+    {% include 'shared/messages.html' %}
+
+    {% if bundles %}
+      <form action="{% url 'linkding:bundles.action' %}" method="post">
+        {% csrf_token %}
+        <div class="item-list bundles">
+          {% for bundle in bundles %}
+            <div class="list-item" data-bundle-id="{{ bundle.id }}" draggable="true">
+              <div class="list-item-icon text-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M9 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                  <path d="M9 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                  <path d="M9 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                  <path d="M15 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                  <path d="M15 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                  <path d="M15 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                </svg>
+              </div>
+              <div class="list-item-text">
+                <span class="truncate">{{ bundle.name }}</span>
+              </div>
+              <div class="list-item-actions">
+                <a class="btn btn-link" href="{% url 'linkding:bundles.edit' bundle.id %}">Edit</a>
+                <button ld-confirm-button type="submit" name="remove_bundle" value="{{ bundle.id }}"
+                        class="btn btn-link">Remove
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <input type="submit" name="move_bundle" value="" class="d-none">
+        <input type="hidden" name="move_position" value="">
+      </form>
+    {% else %}
+      <div class="empty">
+        <p class="empty-title h5">You have no bundles yet</p>
+        <p class="empty-subtitle">Create your first bundle to get started</p>
+      </div>
+    {% endif %}
+
+    <div class="mt-4">
+      <a href="{% url 'linkding:bundles.new' %}" class="btn btn-primary">Add new bundle</a>
+    </div>
+  </main>
+
+  <script>
+    (function init() {
+      const bundlesList = document.querySelector(".item-list.bundles");
+      if (!bundlesList) return;
+
+      let draggedElement = null;
+
+      const listItems = bundlesList.querySelectorAll('.list-item');
+      listItems.forEach((item) => {
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragend', handleDragEnd);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('dragenter', handleDragEnter);
+      });
+
+      function handleDragStart(e) {
+        draggedElement = this;
+
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.dropEffect = 'move';
+
+        this.classList.add('drag-start');
+        setTimeout(() => {
+          this.classList.remove('drag-start');
+          this.classList.add('dragging');
+        }, 0);
+      }
+
+      function handleDragEnd() {
+        this.classList.remove('dragging');
+
+        const moveBundleInput = document.querySelector('input[name="move_bundle"]');
+        const movePositionInput = document.querySelector('input[name="move_position"]');
+        moveBundleInput.value = draggedElement.getAttribute('data-bundle-id');
+        movePositionInput.value = Array.from(bundlesList.children).indexOf(draggedElement);
+
+        const form = this.closest('form');
+        form.requestSubmit(moveBundleInput);
+
+        draggedElement = null;
+      }
+
+      function handleDragOver(e) {
+        if (e.preventDefault) {
+          e.preventDefault();
+        }
+        return false;
+      }
+
+      function handleDragEnter() {
+        if (this !== draggedElement) {
+          const listItems = Array.from(bundlesList.children);
+          const draggedIndex = listItems.indexOf(draggedElement);
+          const currentIndex = listItems.indexOf(this);
+
+          if (draggedIndex < currentIndex) {
+            this.insertAdjacentElement('afterend', draggedElement);
+          } else {
+            this.insertAdjacentElement('beforebegin', draggedElement);
+          }
+        }
+      }
+    })();
+  </script>
+{% endblock %}

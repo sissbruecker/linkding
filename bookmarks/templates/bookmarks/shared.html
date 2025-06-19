@@ -38,14 +38,7 @@
           <br>
         </div>
       </section>
-      <section aria-labelledby="tags-heading">
-        <div class="section-header">
-          <h2 id="tags-heading">Tags</h2>
-        </div>
-        <div id="tag-cloud-container">
-          {% include 'bookmarks/tag_cloud.html' %}
-        </div>
-      </section>
+      {% include 'bookmarks/tag_section.html' %}
     </div>
   </div>
 {% endblock %}

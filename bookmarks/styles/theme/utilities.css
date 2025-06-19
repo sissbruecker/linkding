@@ -242,6 +242,14 @@
   margin-top: var(--unit-4) !important;
 }
 
+.ml-auto {
+  margin-left: auto;
+}
+
+.mr-auto {
+  margin-right: auto;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;

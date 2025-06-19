@@ -49,6 +49,10 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         bookmark_tags = self.page.locator("li[ld-bookmark-item]")
         return bookmark_tags.filter(has_text=title)
 
+    def count_bookmarks(self):
+        bookmark_tags = self.page.locator("li[ld-bookmark-item]")
+        return bookmark_tags.count()
+
     def locate_details_modal(self):
         return self.page.locator(".modal.bookmark-details")
 

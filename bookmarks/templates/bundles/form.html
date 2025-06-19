@@ -1,0 +1,91 @@
+{% load widget_tweaks %}
+
+<div class="form-group {% if form.name.errors %}has-error{% endif %}">
+  <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+  {{ form.name|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
+  {% if form.name.errors %}
+    <div class="form-input-hint">
+      {{ form.name.errors }}
+    </div>
+  {% endif %}
+</div>
+
+<div class="form-group {% if form.search.errors %}has-error{% endif %}">
+  <label for="{{ form.search.id_for_label }}" class="form-label">Search</label>
+  {{ form.search|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
+  {% if form.search.errors %}
+    <div class="form-input-hint">
+      {{ form.search.errors }}
+    </div>
+  {% endif %}
+  <div class="form-input-hint">
+    Search terms to match bookmarks in this bundle.
+  </div>
+</div>
+
+<div class="form-group" ld-tag-autocomplete>
+  <label for="{{ form.any_tags.id_for_label }}" class="form-label">Tags</label>
+  {{ form.any_tags|add_class:"form-input"|attr:"autocomplete:off"|attr:"autocapitalize:off" }}
+  <div class="form-input-hint">
+    At least one of these tags must be present in a bookmark to match.
+  </div>
+</div>
+
+<div class="form-group" ld-tag-autocomplete>
+  <label for="{{ form.all_tags.id_for_label }}" class="form-label">Required tags</label>
+  {{ form.all_tags|add_class:"form-input"|attr:"autocomplete:off"|attr:"autocapitalize:off" }}
+  <div class="form-input-hint">
+    All of these tags must be present in a bookmark to match.
+  </div>
+</div>
+
+<div class="form-group" ld-tag-autocomplete>
+  <label for="{{ form.excluded_tags.id_for_label }}" class="form-label">Excluded tags</label>
+  {{ form.excluded_tags|add_class:"form-input"|attr:"autocomplete:off"|attr:"autocapitalize:off" }}
+  <div class="form-input-hint">
+    None of these tags must be present in a bookmark to match.
+  </div>
+</div>
+
+<div class="form-footer d-flex mt-4">
+  <input type="submit" name="save" value="Save" class="btn btn-primary btn-wide">
+  <a href="{% url 'linkding:bundles.index' %}" class="btn btn-wide ml-auto">Cancel</a>
+  <a href="{% url 'linkding:bundles.preview' %}" data-turbo-frame="preview" class="d-none" id="preview-link"></a>
+</div>
+
+<script>
+  (function init() {
+    const bundleForm = document.getElementById('bundle-form');
+    const previewLink = document.getElementById('preview-link');
+
+    let pendingUpdate;
+
+    function scheduleUpdate() {
+      if (pendingUpdate) {
+        clearTimeout(pendingUpdate);
+      }
+      pendingUpdate = setTimeout(() => {
+        // Ignore if link has been removed (e.g. form submit or navigation)
+        if (!previewLink.isConnected) {
+          return;
+        }
+
+        const baseUrl = previewLink.href.split('?')[0];
+        const params = new URLSearchParams();
+        const inputs = bundleForm.querySelectorAll('input[type="text"]:not([name="csrfmiddlewaretoken"]), textarea, select');
+
+        inputs.forEach(input => {
+          if (input.name && input.value.trim()) {
+            params.set(input.name, input.value.trim());
+          }
+        });
+
+        previewLink.href = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+        previewLink.click();
+      }, 500)
+    }
+
+    bundleForm.addEventListener('input', scheduleUpdate);
+    bundleForm.addEventListener('change', scheduleUpdate);
+  })();
+</script>

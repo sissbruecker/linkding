@@ -1,3 +1,4 @@
+from bookmarks.models import BookmarkSearch
 from bookmarks.views import contexts, turbo
 
 
@@ -14,8 +15,11 @@ def render_bookmark_update(request, bookmark_list, tag_cloud, details):
 
 
 def active_bookmark_update(request):
-    bookmark_list = contexts.ActiveBookmarkListContext(request)
-    tag_cloud = contexts.ActiveTagCloudContext(request)
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
+    bookmark_list = contexts.ActiveBookmarkListContext(request, search)
+    tag_cloud = contexts.ActiveTagCloudContext(request, search)
     details = contexts.get_details_context(
         request, contexts.ActiveBookmarkDetailsContext
     )
@@ -23,8 +27,11 @@ def active_bookmark_update(request):
 
 
 def archived_bookmark_update(request):
-    bookmark_list = contexts.ArchivedBookmarkListContext(request)
-    tag_cloud = contexts.ArchivedTagCloudContext(request)
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
+    bookmark_list = contexts.ArchivedBookmarkListContext(request, search)
+    tag_cloud = contexts.ArchivedTagCloudContext(request, search)
     details = contexts.get_details_context(
         request, contexts.ArchivedBookmarkDetailsContext
     )
@@ -32,8 +39,11 @@ def archived_bookmark_update(request):
 
 
 def shared_bookmark_update(request):
-    bookmark_list = contexts.SharedBookmarkListContext(request)
-    tag_cloud = contexts.SharedTagCloudContext(request)
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
+    bookmark_list = contexts.SharedBookmarkListContext(request, search)
+    tag_cloud = contexts.SharedTagCloudContext(request, search)
     details = contexts.get_details_context(
         request, contexts.SharedBookmarkDetailsContext
     )

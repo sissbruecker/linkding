@@ -11,21 +11,25 @@ class BookmarkSearchFormTest(TestCase, BookmarkFactoryMixin):
         form = BookmarkSearchForm(search)
         self.assertEqual(form["q"].initial, "")
         self.assertEqual(form["user"].initial, "")
+        self.assertEqual(form["bundle"].initial, None)
         self.assertEqual(form["sort"].initial, BookmarkSearch.SORT_ADDED_DESC)
         self.assertEqual(form["shared"].initial, BookmarkSearch.FILTER_SHARED_OFF)
         self.assertEqual(form["unread"].initial, BookmarkSearch.FILTER_UNREAD_OFF)
 
         # with params
+        bundle = self.setup_bundle()
         search = BookmarkSearch(
             q="search query",
             sort=BookmarkSearch.SORT_ADDED_ASC,
             user="user123",
+            bundle=bundle,
             shared=BookmarkSearch.FILTER_SHARED_SHARED,
             unread=BookmarkSearch.FILTER_UNREAD_YES,
         )
         form = BookmarkSearchForm(search)
         self.assertEqual(form["q"].initial, "search query")
         self.assertEqual(form["user"].initial, "user123")
+        self.assertEqual(form["bundle"].initial, bundle.id)
         self.assertEqual(form["sort"].initial, BookmarkSearch.SORT_ADDED_ASC)
         self.assertEqual(form["shared"].initial, BookmarkSearch.FILTER_SHARED_SHARED)
         self.assertEqual(form["unread"].initial, BookmarkSearch.FILTER_UNREAD_YES)
@@ -61,17 +65,26 @@ class BookmarkSearchFormTest(TestCase, BookmarkFactoryMixin):
         self.assertCountEqual(form.hidden_fields(), [form["q"], form["sort"]])
 
         # all modified params
+        bundle = self.setup_bundle()
         search = BookmarkSearch(
             q="search query",
             sort=BookmarkSearch.SORT_ADDED_ASC,
             user="user123",
+            bundle=bundle,
             shared=BookmarkSearch.FILTER_SHARED_SHARED,
             unread=BookmarkSearch.FILTER_UNREAD_YES,
         )
         form = BookmarkSearchForm(search)
         self.assertCountEqual(
             form.hidden_fields(),
-            [form["q"], form["sort"], form["user"], form["shared"], form["unread"]],
+            [
+                form["q"],
+                form["sort"],
+                form["user"],
+                form["bundle"],
+                form["shared"],
+                form["unread"],
+            ],
         )
 
         # some modified params are editable fields

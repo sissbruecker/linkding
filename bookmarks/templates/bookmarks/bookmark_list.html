@@ -77,72 +77,76 @@
                 {% else %}
                   <span>{{ bookmark_item.display_date }}</span>
                 {% endif %}
-                <span>|</span>
-              {% endif %}
-              {# View link is visible for both owned and shared bookmarks #}
-              {% if bookmark_list.show_view_action %}
-                <a href="{{ bookmark_item.details_url }}" class="view-action"
-                   data-turbo-action="replace" data-turbo-frame="details-modal">View</a>
-              {% endif %}
-              {% if bookmark_item.is_editable %}
-                {# Bookmark owner actions #}
-                {% if bookmark_list.show_edit_action %}
-                  <a href="{% url 'linkding:bookmarks.edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">Edit</a>
+                {% if not bookmark_list.is_preview %}
+                  <span>|</span>
                 {% endif %}
-                {% if bookmark_list.show_archive_action %}
-                  {% if bookmark_item.is_archived %}
-                    <button type="submit" name="unarchive" value="{{ bookmark_item.id }}"
-                            class="btn btn-link btn-sm">Unarchive
-                    </button>
-                  {% else %}
-                    <button type="submit" name="archive" value="{{ bookmark_item.id }}"
-                            class="btn btn-link btn-sm">Archive
-                    </button>
-                  {% endif %}
-                {% endif %}
-                {% if bookmark_list.show_remove_action %}
-                  <button ld-confirm-button type="submit" name="remove" value="{{ bookmark_item.id }}"
-                          class="btn btn-link btn-sm">Remove
-                  </button>
-                {% endif %}
-              {% else %}
-                {# Shared bookmark actions #}
-                <span>Shared by
-                <a href="?{% replace_query_param user=bookmark_item.owner.username %}">{{ bookmark_item.owner.username }}</a>
-              </span>
               {% endif %}
-              {% if bookmark_item.has_extra_actions %}
-                <div class="extra-actions">
-                  <span class="hide-sm">|</span>
-                  {% if bookmark_item.show_mark_as_read %}
-                    <button type="submit" name="mark_as_read" value="{{ bookmark_item.id }}"
-                            class="btn btn-link btn-sm btn-icon"
-                            ld-confirm-button ld-confirm-icon="ld-icon-read" ld-confirm-question="Mark as read?">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                        <use xlink:href="#ld-icon-unread"></use>
-                      </svg>
-                      Unread
+              {% if not bookmark_list.is_preview %}
+                {# View link is visible for both owned and shared bookmarks #}
+                {% if bookmark_list.show_view_action %}
+                  <a href="{{ bookmark_item.details_url }}" class="view-action"
+                    data-turbo-action="replace" data-turbo-frame="details-modal">View</a>
+                {% endif %}
+                {% if bookmark_item.is_editable %}
+                  {# Bookmark owner actions #}
+                  {% if bookmark_list.show_edit_action %}
+                    <a href="{% url 'linkding:bookmarks.edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">Edit</a>
+                  {% endif %}
+                  {% if bookmark_list.show_archive_action %}
+                    {% if bookmark_item.is_archived %}
+                      <button type="submit" name="unarchive" value="{{ bookmark_item.id }}"
+                              class="btn btn-link btn-sm">Unarchive
+                      </button>
+                    {% else %}
+                      <button type="submit" name="archive" value="{{ bookmark_item.id }}"
+                              class="btn btn-link btn-sm">Archive
+                      </button>
+                    {% endif %}
+                  {% endif %}
+                  {% if bookmark_list.show_remove_action %}
+                    <button ld-confirm-button type="submit" name="remove" value="{{ bookmark_item.id }}"
+                            class="btn btn-link btn-sm">Remove
                     </button>
                   {% endif %}
-                  {% if bookmark_item.show_unshare %}
-                    <button type="submit" name="unshare" value="{{ bookmark_item.id }}"
-                            class="btn btn-link btn-sm btn-icon"
-                            ld-confirm-button ld-confirm-icon="ld-icon-unshare" ld-confirm-question="Unshare?">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                        <use xlink:href="#ld-icon-share"></use>
-                      </svg>
-                      Shared
-                    </button>
-                  {% endif %}
-                  {% if bookmark_item.show_notes_button %}
-                    <button type="button" class="btn btn-link btn-sm btn-icon toggle-notes">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                        <use xlink:href="#ld-icon-note"></use>
-                      </svg>
-                      Notes
-                    </button>
-                  {% endif %}
-                </div>
+                {% else %}
+                  {# Shared bookmark actions #}
+                  <span>Shared by
+                  <a href="?{% replace_query_param user=bookmark_item.owner.username %}">{{ bookmark_item.owner.username }}</a>
+                </span>
+                {% endif %}
+                {% if bookmark_item.has_extra_actions %}
+                  <div class="extra-actions">
+                    <span class="hide-sm">|</span>
+                    {% if bookmark_item.show_mark_as_read %}
+                      <button type="submit" name="mark_as_read" value="{{ bookmark_item.id }}"
+                              class="btn btn-link btn-sm btn-icon"
+                              ld-confirm-button ld-confirm-icon="ld-icon-read" ld-confirm-question="Mark as read?">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                          <use xlink:href="#ld-icon-unread"></use>
+                        </svg>
+                        Unread
+                      </button>
+                    {% endif %}
+                    {% if bookmark_item.show_unshare %}
+                      <button type="submit" name="unshare" value="{{ bookmark_item.id }}"
+                              class="btn btn-link btn-sm btn-icon"
+                              ld-confirm-button ld-confirm-icon="ld-icon-unshare" ld-confirm-question="Unshare?">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                          <use xlink:href="#ld-icon-share"></use>
+                        </svg>
+                        Shared
+                      </button>
+                    {% endif %}
+                    {% if bookmark_item.show_notes_button %}
+                      <button type="button" class="btn btn-link btn-sm btn-icon toggle-notes">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                          <use xlink:href="#ld-icon-note"></use>
+                        </svg>
+                        Notes
+                      </button>
+                    {% endif %}
+                  </div>
+                {% endif %}
               {% endif %}
             </div>
           </div>

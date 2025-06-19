@@ -67,7 +67,7 @@
 
 <header class="container">
   {% if has_toasts %}
-    <div class="toasts">
+    <div class="message-list">
       <form action="{% url 'linkding:toasts.acknowledge' %}?return_url={{ request.path | urlencode }}" method="post">
         {% csrf_token %}
         {% for toast in toast_messages %}

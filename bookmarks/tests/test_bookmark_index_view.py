@@ -34,6 +34,21 @@ class BookmarkIndexViewTestCase(
         self.assertIsNotNone(form)
         self.assertEqual(form.attrs["action"], url)
 
+    def assertVisibleBundles(self, soup, bundles):
+        bundle_list = soup.select_one("ul.bundle-menu")
+        self.assertIsNotNone(bundle_list)
+
+        list_items = bundle_list.select("li.bundle-menu-item")
+        self.assertEqual(len(list_items), len(bundles))
+
+        for index, list_item in enumerate(list_items):
+            bundle = bundles[index]
+            link = list_item.select_one("a")
+            href = link.attrs["href"]
+
+            self.assertEqual(bundle.name, list_item.text.strip())
+            self.assertEqual(f"?bundle={bundle.id}", href)
+
     def test_should_list_unarchived_and_user_owned_bookmarks(self):
         other_user = User.objects.create_user(
             "otheruser", "otheruser@example.com", "password123"
@@ -54,6 +69,19 @@ class BookmarkIndexViewTestCase(
         invisible_bookmarks = self.setup_numbered_bookmarks(3, prefix="bar")
 
         response = self.client.get(reverse("linkding:bookmarks.index") + "?q=foo")
+
+        self.assertVisibleBookmarks(response, visible_bookmarks)
+        self.assertInvisibleBookmarks(response, invisible_bookmarks)
+
+    def test_should_list_bookmarks_matching_bundle(self):
+        visible_bookmarks = self.setup_numbered_bookmarks(3, prefix="foo")
+        invisible_bookmarks = self.setup_numbered_bookmarks(3, prefix="bar")
+
+        bundle = self.setup_bundle(search="foo")
+
+        response = self.client.get(
+            reverse("linkding:bookmarks.index") + f"?bundle={bundle.id}"
+        )
 
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
@@ -92,6 +120,26 @@ class BookmarkIndexViewTestCase(
         invisible_tags = self.get_tags_from_bookmarks(invisible_bookmarks)
 
         response = self.client.get(reverse("linkding:bookmarks.index") + "?q=foo")
+
+        self.assertVisibleTags(response, visible_tags)
+        self.assertInvisibleTags(response, invisible_tags)
+
+    def test_should_list_tags_for_bookmarks_matching_bundle(self):
+        visible_bookmarks = self.setup_numbered_bookmarks(
+            3, with_tags=True, prefix="foo", tag_prefix="foo"
+        )
+        invisible_bookmarks = self.setup_numbered_bookmarks(
+            3, with_tags=True, prefix="bar", tag_prefix="bar"
+        )
+
+        visible_tags = self.get_tags_from_bookmarks(visible_bookmarks)
+        invisible_tags = self.get_tags_from_bookmarks(invisible_bookmarks)
+
+        bundle = self.setup_bundle(search="foo")
+
+        response = self.client.get(
+            reverse("linkding:bookmarks.index") + f"?bundle={bundle.id}"
+        )
 
         self.assertVisibleTags(response, visible_tags)
         self.assertInvisibleTags(response, invisible_tags)
@@ -494,3 +542,43 @@ class BookmarkIndexViewTestCase(
 
         feed = soup.select_one('head link[type="application/rss+xml"]')
         self.assertIsNone(feed)
+
+    def test_list_bundles(self):
+        books = self.setup_bundle(name="Books bundle", order=3)
+        music = self.setup_bundle(name="Music bundle", order=1)
+        tools = self.setup_bundle(name="Tools bundle", order=2)
+        response = self.client.get(reverse("linkding:bookmarks.index"))
+        html = response.content.decode()
+        soup = self.make_soup(html)
+
+        self.assertVisibleBundles(soup, [music, tools, books])
+
+    def test_list_bundles_only_shows_user_owned_bundles(self):
+        user_bundles = [self.setup_bundle(), self.setup_bundle(), self.setup_bundle()]
+        other_user = self.setup_user()
+        self.setup_bundle(user=other_user)
+        self.setup_bundle(user=other_user)
+        self.setup_bundle(user=other_user)
+
+        response = self.client.get(reverse("linkding:bookmarks.index"))
+        html = response.content.decode()
+        soup = self.make_soup(html)
+
+        self.assertVisibleBundles(soup, user_bundles)
+
+    def test_hide_bundles_when_enabled_in_profile(self):
+        # visible by default
+        response = self.client.get(reverse("linkding:bookmarks.index"))
+        html = response.content.decode()
+
+        self.assertInHTML('<h2 id="bundles-heading">Bundles</h2>', html)
+
+        # hidden when disabled in profile
+        user_profile = self.get_or_create_test_user().profile
+        user_profile.hide_bundles = True
+        user_profile.save()
+
+        response = self.client.get(reverse("linkding:bookmarks.index"))
+        html = response.content.decode()
+
+        self.assertInHTML('<h2 id="bundles-heading">Bundles</h2>', html, count=0)

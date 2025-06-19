@@ -2,6 +2,7 @@ import binascii
 import hashlib
 import logging
 import os
+from functools import cached_property
 from typing import List
 
 from django import forms
@@ -157,6 +158,27 @@ def bookmark_asset_deleted(sender, instance, **kwargs):
                 logger.error(f"Failed to delete asset file: {filepath}", exc_info=error)
 
 
+class BookmarkBundle(models.Model):
+    name = models.CharField(max_length=256, blank=False)
+    search = models.CharField(max_length=256, blank=True)
+    any_tags = models.CharField(max_length=1024, blank=True)
+    all_tags = models.CharField(max_length=1024, blank=True)
+    excluded_tags = models.CharField(max_length=1024, blank=True)
+    order = models.IntegerField(null=False, default=0)
+    date_created = models.DateTimeField(auto_now_add=True, null=False)
+    date_modified = models.DateTimeField(auto_now=True, null=False)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
+class BookmarkBundleForm(forms.ModelForm):
+    class Meta:
+        model = BookmarkBundle
+        fields = ["name", "search", "any_tags", "all_tags", "excluded_tags"]
+
+
 class BookmarkSearch:
     SORT_ADDED_ASC = "added_asc"
     SORT_ADDED_DESC = "added_desc"
@@ -171,11 +193,21 @@ class BookmarkSearch:
     FILTER_UNREAD_YES = "yes"
     FILTER_UNREAD_NO = "no"
 
-    params = ["q", "user", "sort", "shared", "unread", "modified_since", "added_since"]
+    params = [
+        "q",
+        "user",
+        "bundle",
+        "sort",
+        "shared",
+        "unread",
+        "modified_since",
+        "added_since",
+    ]
     preferences = ["sort", "shared", "unread"]
     defaults = {
         "q": "",
         "user": "",
+        "bundle": None,
         "sort": SORT_ADDED_DESC,
         "shared": FILTER_SHARED_OFF,
         "unread": FILTER_UNREAD_OFF,
@@ -187,19 +219,23 @@ class BookmarkSearch:
         self,
         q: str = None,
         user: str = None,
+        bundle: BookmarkBundle = None,
         sort: str = None,
         shared: str = None,
         unread: str = None,
         modified_since: str = None,
         added_since: str = None,
         preferences: dict = None,
+        request: any = None,
     ):
         if not preferences:
             preferences = {}
         self.defaults = {**BookmarkSearch.defaults, **preferences}
+        self.request = request
 
         self.q = q or self.defaults["q"]
         self.user = user or self.defaults["user"]
+        self.bundle = bundle or self.defaults["bundle"]
         self.sort = sort or self.defaults["sort"]
         self.shared = shared or self.defaults["shared"]
         self.unread = unread or self.defaults["unread"]
@@ -232,7 +268,14 @@ class BookmarkSearch:
 
     @property
     def query_params(self):
-        return {param: self.__dict__[param] for param in self.modified_params}
+        query_params = {}
+        for param in self.modified_params:
+            value = self.__dict__[param]
+            if isinstance(value, models.Model):
+                query_params[param] = value.id
+            else:
+                query_params[param] = value
+        return query_params
 
     @property
     def preferences_dict(self):
@@ -241,14 +284,21 @@ class BookmarkSearch:
         }
 
     @staticmethod
-    def from_request(query_dict: QueryDict, preferences: dict = None):
+    def from_request(request: any, query_dict: QueryDict, preferences: dict = None):
         initial_values = {}
         for param in BookmarkSearch.params:
             value = query_dict.get(param)
             if value:
-                initial_values[param] = value
+                if param == "bundle":
+                    initial_values[param] = BookmarkBundle.objects.filter(
+                        owner=request.user, pk=value
+                    ).first()
+                else:
+                    initial_values[param] = value
 
-        return BookmarkSearch(**initial_values, preferences=preferences)
+        return BookmarkSearch(
+            **initial_values, preferences=preferences, request=request
+        )
 
 
 class BookmarkSearchForm(forms.Form):
@@ -271,6 +321,7 @@ class BookmarkSearchForm(forms.Form):
 
     q = forms.CharField()
     user = forms.ChoiceField(required=False)
+    bundle = forms.CharField(required=False)
     sort = forms.ChoiceField(choices=SORT_CHOICES)
     shared = forms.ChoiceField(choices=FILTER_SHARED_CHOICES, widget=forms.RadioSelect)
     unread = forms.ChoiceField(choices=FILTER_UNREAD_CHOICES, widget=forms.RadioSelect)
@@ -295,7 +346,11 @@ class BookmarkSearchForm(forms.Form):
 
         for param in search.params:
             # set initial values for modified params
-            self.fields[param].initial = search.__dict__[param]
+            value = search.__dict__.get(param)
+            if isinstance(value, models.Model):
+                self.fields[param].initial = value.id
+            else:
+                self.fields[param].initial = value
 
             # Mark non-editable modified fields as hidden. That way, templates
             # rendering a form can just loop over hidden_fields to ensure that
@@ -416,6 +471,7 @@ class UserProfile(models.Model):
     )
     sticky_pagination = models.BooleanField(default=False, null=False)
     collapse_side_panel = models.BooleanField(default=False, null=False)
+    hide_bundles = models.BooleanField(default=False, null=False)
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -456,6 +512,7 @@ class UserProfileForm(forms.ModelForm):
             "items_per_page",
             "sticky_pagination",
             "collapse_side_panel",
+            "hide_bundles",
         ]
 
 

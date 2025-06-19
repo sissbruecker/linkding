@@ -153,7 +153,7 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(tags=[tag1, tag2, self.setup_tag()]),
         ]
 
-    def assertQueryResult(self, query: QuerySet, item_lists: [[any]]):
+    def assertQueryResult(self, query: QuerySet, item_lists: list[list]):
         expected_items = []
         for item_list in item_lists:
             expected_items = expected_items + item_list
@@ -1287,3 +1287,267 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
         search = BookmarkSearch(added_since="invalid-date")
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertCountEqual(list(query), [older_bookmark, recent_bookmark])
+
+    def test_query_bookmarks_with_bundle_search_terms(self):
+        bundle = self.setup_bundle(search="search_term_A search_term_B")
+
+        matching_bookmarks = [
+            self.setup_bookmark(
+                title="search_term_A content", description="search_term_B also here"
+            ),
+            self.setup_bookmark(url="http://example.com/search_term_A/search_term_B"),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(title="search_term_A only")
+        self.setup_bookmark(description="search_term_B only")
+        self.setup_bookmark(title="unrelated content")
+
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_bookmarks_with_search_and_bundle_search_terms(self):
+        bundle = self.setup_bundle(search="bundle_term_B")
+        search = BookmarkSearch(q="search_term_A", bundle=bundle)
+
+        matching_bookmarks = [
+            self.setup_bookmark(
+                title="search_term_A content", description="bundle_term_B also here"
+            )
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(title="search_term_A only")
+        self.setup_bookmark(description="bundle_term_B only")
+        self.setup_bookmark(title="unrelated content")
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_bookmarks_with_bundle_any_tags(self):
+        bundle = self.setup_bundle(any_tags="bundleTag1 bundleTag2")
+
+        tag1 = self.setup_tag(name="bundleTag1")
+        tag2 = self.setup_tag(name="bundleTag2")
+        other_tag = self.setup_tag(name="otherTag")
+
+        matching_bookmarks = [
+            self.setup_bookmark(tags=[tag1]),
+            self.setup_bookmark(tags=[tag2]),
+            self.setup_bookmark(tags=[tag1, tag2]),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(tags=[other_tag])
+        self.setup_bookmark()
+
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_bookmarks_with_search_tags_and_bundle_any_tags(self):
+        bundle = self.setup_bundle(any_tags="bundleTagA bundleTagB")
+        search = BookmarkSearch(q="#searchTag1 #searchTag2", bundle=bundle)
+
+        search_tag1 = self.setup_tag(name="searchTag1")
+        search_tag2 = self.setup_tag(name="searchTag2")
+        bundle_tag_a = self.setup_tag(name="bundleTagA")
+        bundle_tag_b = self.setup_tag(name="bundleTagB")
+        other_tag = self.setup_tag(name="otherTag")
+
+        matching_bookmarks = [
+            self.setup_bookmark(tags=[search_tag1, search_tag2, bundle_tag_a]),
+            self.setup_bookmark(tags=[search_tag1, search_tag2, bundle_tag_b]),
+            self.setup_bookmark(
+                tags=[search_tag1, search_tag2, bundle_tag_a, bundle_tag_b]
+            ),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(tags=[search_tag1, search_tag2, other_tag])
+        self.setup_bookmark(tags=[search_tag1, search_tag2])
+        self.setup_bookmark(tags=[search_tag1, bundle_tag_a])
+        self.setup_bookmark(tags=[search_tag2, bundle_tag_b])
+        self.setup_bookmark(tags=[bundle_tag_a])
+        self.setup_bookmark(tags=[bundle_tag_b])
+        self.setup_bookmark(tags=[bundle_tag_a, bundle_tag_b])
+        self.setup_bookmark(tags=[other_tag])
+        self.setup_bookmark()
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_bookmarks_with_bundle_all_tags(self):
+        bundle = self.setup_bundle(all_tags="bundleTag1 bundleTag2")
+
+        tag1 = self.setup_tag(name="bundleTag1")
+        tag2 = self.setup_tag(name="bundleTag2")
+        other_tag = self.setup_tag(name="otherTag")
+
+        matching_bookmarks = [self.setup_bookmark(tags=[tag1, tag2])]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(tags=[tag1])
+        self.setup_bookmark(tags=[tag2])
+        self.setup_bookmark(tags=[tag1, other_tag])
+        self.setup_bookmark(tags=[other_tag])
+        self.setup_bookmark()
+
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_bookmarks_with_search_tags_and_bundle_all_tags(self):
+        bundle = self.setup_bundle(all_tags="bundleTagA bundleTagB")
+        search = BookmarkSearch(q="#searchTag1 #searchTag2", bundle=bundle)
+
+        search_tag1 = self.setup_tag(name="searchTag1")
+        search_tag2 = self.setup_tag(name="searchTag2")
+        bundle_tag_a = self.setup_tag(name="bundleTagA")
+        bundle_tag_b = self.setup_tag(name="bundleTagB")
+        other_tag = self.setup_tag(name="otherTag")
+
+        matching_bookmarks = [
+            self.setup_bookmark(
+                tags=[search_tag1, search_tag2, bundle_tag_a, bundle_tag_b]
+            )
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(tags=[search_tag1, search_tag2, bundle_tag_a])
+        self.setup_bookmark(tags=[search_tag1, bundle_tag_a, bundle_tag_b])
+        self.setup_bookmark(tags=[search_tag1, search_tag2])
+        self.setup_bookmark(tags=[bundle_tag_a, bundle_tag_b])
+        self.setup_bookmark(tags=[search_tag1, bundle_tag_a])
+        self.setup_bookmark(tags=[other_tag])
+        self.setup_bookmark()
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_bookmarks_with_bundle_excluded_tags(self):
+        bundle = self.setup_bundle(excluded_tags="excludeTag1 excludeTag2")
+
+        exclude_tag1 = self.setup_tag(name="excludeTag1")
+        exclude_tag2 = self.setup_tag(name="excludeTag2")
+        keep_tag = self.setup_tag(name="keepTag")
+        keep_other_tag = self.setup_tag(name="keepOtherTag")
+
+        matching_bookmarks = [
+            self.setup_bookmark(tags=[keep_tag]),
+            self.setup_bookmark(tags=[keep_other_tag]),
+            self.setup_bookmark(tags=[keep_tag, keep_other_tag]),
+            self.setup_bookmark(),
+        ]
+
+        # Bookmarks that should not be returned
+        self.setup_bookmark(tags=[exclude_tag1])
+        self.setup_bookmark(tags=[exclude_tag2])
+        self.setup_bookmark(tags=[exclude_tag1, keep_tag])
+        self.setup_bookmark(tags=[exclude_tag2, keep_tag])
+        self.setup_bookmark(tags=[exclude_tag1, exclude_tag2])
+        self.setup_bookmark(tags=[exclude_tag1, exclude_tag2, keep_tag])
+
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_bookmarks_with_bundle_combined_tags(self):
+        bundle = self.setup_bundle(
+            any_tags="anyTagA anyTagB",
+            all_tags="allTag1 allTag2",
+            excluded_tags="excludedTag",
+        )
+
+        any_tag_a = self.setup_tag(name="anyTagA")
+        any_tag_b = self.setup_tag(name="anyTagB")
+        all_tag_1 = self.setup_tag(name="allTag1")
+        all_tag_2 = self.setup_tag(name="allTag2")
+        other_tag = self.setup_tag(name="otherTag")
+        excluded_tag = self.setup_tag(name="excludedTag")
+
+        matching_bookmarks = [
+            self.setup_bookmark(tags=[any_tag_a, all_tag_1, all_tag_2]),
+            self.setup_bookmark(tags=[any_tag_b, all_tag_1, all_tag_2]),
+            self.setup_bookmark(tags=[any_tag_a, any_tag_b, all_tag_1, all_tag_2]),
+            self.setup_bookmark(tags=[any_tag_a, all_tag_1, all_tag_2, other_tag]),
+            self.setup_bookmark(tags=[any_tag_b, all_tag_1, all_tag_2, other_tag]),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(tags=[any_tag_a, all_tag_1])
+        self.setup_bookmark(tags=[any_tag_b, all_tag_2])
+        self.setup_bookmark(tags=[any_tag_a, any_tag_b, all_tag_1])
+        self.setup_bookmark(tags=[all_tag_1, all_tag_2])
+        self.setup_bookmark(tags=[all_tag_1, all_tag_2, other_tag])
+        self.setup_bookmark(tags=[any_tag_a])
+        self.setup_bookmark(tags=[any_tag_b])
+        self.setup_bookmark(tags=[all_tag_1])
+        self.setup_bookmark(tags=[all_tag_2])
+        self.setup_bookmark(tags=[any_tag_a, all_tag_1, all_tag_2, excluded_tag])
+        self.setup_bookmark(tags=[any_tag_b, all_tag_1, all_tag_2, excluded_tag])
+        self.setup_bookmark(tags=[other_tag])
+        self.setup_bookmark()
+
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_archived_bookmarks_with_bundle(self):
+        bundle = self.setup_bundle(any_tags="bundleTag1 bundleTag2")
+
+        tag1 = self.setup_tag(name="bundleTag1")
+        tag2 = self.setup_tag(name="bundleTag2")
+        other_tag = self.setup_tag(name="otherTag")
+
+        matching_bookmarks = [
+            self.setup_bookmark(is_archived=True, tags=[tag1]),
+            self.setup_bookmark(is_archived=True, tags=[tag2]),
+            self.setup_bookmark(is_archived=True, tags=[tag1, tag2]),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(is_archived=True, tags=[other_tag])
+        self.setup_bookmark(is_archived=True)
+        self.setup_bookmark(tags=[tag1]),
+        self.setup_bookmark(tags=[tag2]),
+        self.setup_bookmark(tags=[tag1, tag2]),
+
+        query = queries.query_archived_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_shared_bookmarks_with_bundle(self):
+        user1 = self.setup_user(enable_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+
+        bundle = self.setup_bundle(any_tags="bundleTag1 bundleTag2")
+
+        tag1 = self.setup_tag(name="bundleTag1")
+        tag2 = self.setup_tag(name="bundleTag2")
+        other_tag = self.setup_tag(name="otherTag")
+
+        matching_bookmarks = [
+            self.setup_bookmark(user=user1, shared=True, tags=[tag1]),
+            self.setup_bookmark(user=user2, shared=True, tags=[tag2]),
+            self.setup_bookmark(user=user1, shared=True, tags=[tag1, tag2]),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(user=user1, shared=True, tags=[other_tag])
+        self.setup_bookmark(user=user2, shared=True)
+        self.setup_bookmark(user=user1, shared=False, tags=[tag1]),
+        self.setup_bookmark(user=user2, shared=False, tags=[tag2]),
+        self.setup_bookmark(user=user1, shared=False, tags=[tag1, tag2]),
+
+        query = queries.query_shared_bookmarks(
+            None, self.profile, BookmarkSearch(q="", bundle=bundle), False
+        )
+        self.assertQueryResult(query, [matching_bookmarks])

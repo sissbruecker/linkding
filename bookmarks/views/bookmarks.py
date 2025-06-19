@@ -42,8 +42,12 @@ def index(request: HttpRequest):
     if request.method == "POST":
         return search_action(request)
 
-    bookmark_list = contexts.ActiveBookmarkListContext(request)
-    tag_cloud = contexts.ActiveTagCloudContext(request)
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
+    bookmark_list = contexts.ActiveBookmarkListContext(request, search)
+    bundles = contexts.BundlesContext(request)
+    tag_cloud = contexts.ActiveTagCloudContext(request, search)
     bookmark_details = contexts.get_details_context(
         request, contexts.ActiveBookmarkDetailsContext
     )
@@ -54,6 +58,7 @@ def index(request: HttpRequest):
         {
             "page_title": "Bookmarks - Linkding",
             "bookmark_list": bookmark_list,
+            "bundles": bundles,
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
         },
@@ -65,8 +70,12 @@ def archived(request: HttpRequest):
     if request.method == "POST":
         return search_action(request)
 
-    bookmark_list = contexts.ArchivedBookmarkListContext(request)
-    tag_cloud = contexts.ArchivedTagCloudContext(request)
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
+    bookmark_list = contexts.ArchivedBookmarkListContext(request, search)
+    bundles = contexts.BundlesContext(request)
+    tag_cloud = contexts.ArchivedTagCloudContext(request, search)
     bookmark_details = contexts.get_details_context(
         request, contexts.ArchivedBookmarkDetailsContext
     )
@@ -77,6 +86,7 @@ def archived(request: HttpRequest):
         {
             "page_title": "Archived bookmarks - Linkding",
             "bookmark_list": bookmark_list,
+            "bundles": bundles,
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
         },
@@ -87,8 +97,11 @@ def shared(request: HttpRequest):
     if request.method == "POST":
         return search_action(request)
 
-    bookmark_list = contexts.SharedBookmarkListContext(request)
-    tag_cloud = contexts.SharedTagCloudContext(request)
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
+    bookmark_list = contexts.SharedBookmarkListContext(request, search)
+    tag_cloud = contexts.SharedTagCloudContext(request, search)
     bookmark_details = contexts.get_details_context(
         request, contexts.SharedBookmarkDetailsContext
     )
@@ -132,13 +145,13 @@ def search_action(request: HttpRequest):
     if "save" in request.POST:
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
-        search = BookmarkSearch.from_request(request.POST)
+        search = BookmarkSearch.from_request(request, request.POST)
         request.user_profile.search_preferences = search.preferences_dict
         request.user_profile.save()
 
     # redirect to base url including new query params
     search = BookmarkSearch.from_request(
-        request.POST, request.user_profile.search_preferences
+        request, request.POST, request.user_profile.search_preferences
     )
     base_url = request.path
     query_params = search.query_params
@@ -248,7 +261,9 @@ def update_state(request: HttpRequest, bookmark_id: int | str):
 
 @login_required
 def index_action(request: HttpRequest):
-    search = BookmarkSearch.from_request(request.GET)
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
     query = queries.query_bookmarks(request.user, request.user_profile, search)
 
     response = handle_action(request, query)
@@ -263,7 +278,9 @@ def index_action(request: HttpRequest):
 
 @login_required
 def archived_action(request: HttpRequest):
-    search = BookmarkSearch.from_request(request.GET)
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
     query = queries.query_archived_bookmarks(request.user, request.user_profile, search)
 
     response = handle_action(request, query)

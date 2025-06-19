@@ -60,3 +60,60 @@ span.confirmation {
 .turbo-progress-bar {
   background-color: var(--primary-color);
 }
+
+/* Messages */
+.message-list {
+  margin: var(--unit-4) 0;
+
+  .toast {
+    margin-bottom: var(--unit-2);
+  }
+
+  .toast a.btn-clear:visited {
+    color: currentColor;
+  }
+}
+
+/* Item list */
+.item-list {
+  & .list-item {
+    display: flex;
+    align-items: center;
+    gap: var(--unit-2);
+    padding: var(--unit-2) 0;
+    border-top: var(--unit-o) solid var(--secondary-border-color);
+  }
+
+  & .list-item:last-child {
+    border-bottom: var(--unit-o) solid var(--secondary-border-color);
+  }
+
+  & .list-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  & .list-item-text {
+    flex: 1 1 0;
+    gap: var(--unit-2);
+    min-width: 0;
+    display: flex;
+  }
+
+  & .list-item-text .truncate {
+    flex-shrink: 1;
+  }
+
+  & .list-item-actions {
+    display: flex;
+    gap: var(--unit-4);
+    align-items: center;
+
+    & .btn.btn-link {
+      height: unset;
+      padding: 0;
+      border: none;
+    }
+  }
+}

@@ -38,7 +38,7 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse("linkding:bookmarks.index"))
 
         # Should render toasts container
-        self.assertContains(response, '<div class="toasts">')
+        self.assertContains(response, '<div class="message-list">')
         # Should render two toasts
         self.assertContains(response, '<div class="toast d-flex">', count=2)
 
@@ -50,7 +50,7 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse("linkding:bookmarks.index"))
 
         # Should not render toasts container
-        self.assertContains(response, '<div class="toasts container grid-lg">', count=0)
+        self.assertContains(response, '<div class="message-list">', count=0)
         # Should not render toasts
         self.assertContains(response, '<div class="toast">', count=0)
 
@@ -66,7 +66,7 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse("linkding:bookmarks.index"))
 
         # Should not render toasts container
-        self.assertContains(response, '<div class="toasts container grid-lg">', count=0)
+        self.assertContains(response, '<div class="message-list">', count=0)
         # Should not render toasts
         self.assertContains(response, '<div class="toast">', count=0)
 
