@@ -1,9 +1,16 @@
-from django.db.models import prefetch_related_objects
+from django.db.models import Max, prefetch_related_objects
 from django.templatetags.static import static
 from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
-from bookmarks.models import Bookmark, BookmarkAsset, Tag, build_tag_string, UserProfile
+from bookmarks.models import (
+    Bookmark,
+    BookmarkAsset,
+    Tag,
+    build_tag_string,
+    UserProfile,
+    BookmarkBundle,
+)
 from bookmarks.services import bookmarks
 from bookmarks.services.tags import get_or_create_tag
 from bookmarks.services.wayback import generate_fallback_webarchive_url
@@ -25,6 +32,40 @@ class BookmarkListSerializer(ListSerializer):
 class EmtpyField(serializers.ReadOnlyField):
     def to_representation(self, value):
         return None
+
+
+class BookmarkBundleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookmarkBundle
+        fields = [
+            "id",
+            "name",
+            "search",
+            "any_tags",
+            "all_tags",
+            "excluded_tags",
+            "order",
+            "date_created",
+            "date_modified",
+        ]
+        read_only_fields = [
+            "id",
+            "date_created",
+            "date_modified",
+        ]
+
+    def create(self, validated_data):
+        # Set owner to the authenticated user
+        validated_data["owner"] = self.context["user"]
+
+        # Set order to the next available position if not provided
+        if "order" not in validated_data:
+            max_order = BookmarkBundle.objects.filter(
+                owner=self.context["user"]
+            ).aggregate(Max("order", default=-1))["order__max"]
+            validated_data["order"] = max_order + 1
+
+        return super().create(validated_data)
 
 
 class BookmarkSerializer(serializers.ModelSerializer):
