@@ -45,13 +45,6 @@ def action(request: HttpRequest):
     return HttpResponseRedirect(reverse("linkding:bundles.index"))
 
 
-def _get_bookmark_list_preview(request: HttpRequest, bundle: BookmarkBundle):
-    search = BookmarkSearch(bundle=bundle)
-    bookmark_list = ActiveBookmarkListContext(request, search)
-    bookmark_list.is_preview = True
-    return bookmark_list
-
-
 def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = None):
     form_data = request.POST if request.method == "POST" else None
     form = BookmarkBundleForm(form_data, instance=bundle)
@@ -72,7 +65,7 @@ def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = N
             return HttpResponseRedirect(reverse("linkding:bundles.index"))
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
-    bookmark_list = _get_bookmark_list_preview(request, bundle or BookmarkBundle())
+    bookmark_list = _get_bookmark_list_preview(request, bundle)
     context = {"form": form, "bundle": bundle, "bookmark_list": bookmark_list}
 
     return render(request, template, context, status=status)
@@ -92,11 +85,25 @@ def edit(request: HttpRequest, bundle_id: int):
 
 @login_required
 def preview(request: HttpRequest):
-    form_data = request.GET.copy()
-    form_data["name"] = "Preview Bundle"  # Set dummy name for form validation
-    form = BookmarkBundleForm(form_data)
-    preview_bundle = form.save(commit=False)
-    preview_bundle.owner = request.user
-    bookmark_list = _get_bookmark_list_preview(request, preview_bundle)
+    bookmark_list = _get_bookmark_list_preview(request)
     context = {"bookmark_list": bookmark_list}
     return render(request, "bundles/preview.html", context)
+
+
+def _get_bookmark_list_preview(
+    request: HttpRequest, bundle: BookmarkBundle | None = None
+):
+    if request.method == "GET" and bundle:
+        preview_bundle = bundle
+    else:
+        form_data = (
+            request.POST.copy() if request.method == "POST" else request.GET.copy()
+        )
+        form_data["name"] = "Preview Bundle"  # Set dummy name for form validation
+        form = BookmarkBundleForm(form_data)
+        preview_bundle = form.save(commit=False)
+
+    search = BookmarkSearch(bundle=preview_bundle)
+    bookmark_list = ActiveBookmarkListContext(request, search)
+    bookmark_list.is_preview = True
+    return bookmark_list
