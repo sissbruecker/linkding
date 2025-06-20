@@ -104,7 +104,6 @@ def upload_asset(bookmark: Bookmark, upload_file: UploadedFile):
             asset.gzip = True
             asset.file = f"{filename}.gz"
             asset.file_size = os.path.getsize(filepath)
-            asset.content_type = "text/html"  # to match how snapshots are handled
         else:
             with open(filepath, "wb") as f:
                 for chunk in upload_file.chunks():
@@ -113,7 +112,6 @@ def upload_asset(bookmark: Bookmark, upload_file: UploadedFile):
             asset.file_size = upload_file.size
             if upload_file.content_type == "application/gzip":
                 asset.gzip = True
-                asset.content_type = "text/html"  # to match how snapshots are handled
         asset.save()
 
         asset.bookmark.date_modified = timezone.now()
