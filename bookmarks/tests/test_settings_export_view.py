@@ -1,3 +1,4 @@
+import datetime
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -29,9 +30,6 @@ class SettingsExportViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["content-type"], "text/plain; charset=UTF-8")
-        self.assertEqual(
-            response["Content-Disposition"], 'attachment; filename="bookmarks.html"'
-        )
 
         for bookmark in Bookmark.objects.all():
             self.assertContains(response, bookmark.url)
@@ -78,3 +76,16 @@ class SettingsExportViewTestCase(TestCase, BookmarkFactoryMixin):
             self.assertFormErrorHint(
                 response, "An error occurred during bookmark export."
             )
+
+    def test_filename_includes_date_and_time(self):
+        self.setup_bookmark()
+        
+        # Mock timezone.now to return a fixed datetime for predictable filename
+        fixed_time = datetime.datetime(2023, 5, 15, 14, 30, 45, tzinfo=datetime.timezone.utc)
+        
+        with patch("bookmarks.views.settings.timezone.now", return_value=fixed_time):
+            response = self.client.get(reverse("linkding:settings.export"), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        expected_filename = 'attachment; filename="bookmarks_2023-05-15_14-30-45.html"'
+        self.assertEqual(response["Content-Disposition"], expected_filename)
