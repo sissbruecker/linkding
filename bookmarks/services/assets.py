@@ -103,7 +103,6 @@ def upload_asset(bookmark: Bookmark, upload_file: UploadedFile):
                     f.write(chunk)
             asset.gzip = True
             asset.file = f"{filename}.gz"
-            asset.display_name = asset.file
             asset.file_size = os.path.getsize(filepath)
             asset.content_type = "text/html"  # to match how snapshots are handled
         else:
