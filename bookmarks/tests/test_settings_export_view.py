@@ -79,10 +79,12 @@ class SettingsExportViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_filename_includes_date_and_time(self):
         self.setup_bookmark()
-        
+
         # Mock timezone.now to return a fixed datetime for predictable filename
-        fixed_time = datetime.datetime(2023, 5, 15, 14, 30, 45, tzinfo=datetime.timezone.utc)
-        
+        fixed_time = datetime.datetime(
+            2023, 5, 15, 14, 30, 45, tzinfo=datetime.timezone.utc
+        )
+
         with patch("bookmarks.views.settings.timezone.now", return_value=fixed_time):
             response = self.client.get(reverse("linkding:settings.export"), follow=True)
 
