@@ -96,7 +96,7 @@ def upload_asset(bookmark: Bookmark, upload_file: UploadedFile):
         name, extension = os.path.splitext(upload_file.name)
         filename = _generate_asset_filename(asset, name, extension.lstrip("."))
         filepath = os.path.join(settings.LD_ASSET_FOLDER, filename)
-        if upload_file.content_type == "text/html":
+        if upload_file.content_type != "application/gzip":
             filepath += ".gz"
             with gzip.open(filepath, "wb", compresslevel=9) as f:
                 for chunk in upload_file.chunks():
