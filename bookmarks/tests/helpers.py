@@ -236,8 +236,17 @@ class BookmarkFactoryMixin:
 
     def read_asset_file(self, asset: BookmarkAsset):
         filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
-        with open(filepath, "rb") as f:
-            return f.read()
+
+        if asset.gzip:
+            with gzip.open(filepath, "rb") as f:
+                return f.read()
+        else:
+            with open(filepath, "rb") as f:
+                return f.read()
+
+    def get_asset_filesize(self, asset: BookmarkAsset):
+        filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
+        return os.path.getsize(filepath) if os.path.exists(filepath) else 0
 
     def has_asset_file(self, asset: BookmarkAsset):
         filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)

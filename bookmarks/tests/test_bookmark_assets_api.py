@@ -253,8 +253,8 @@ class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.display_name, file_name)
         self.assertEqual(asset.asset_type, BookmarkAsset.TYPE_UPLOAD)
         self.assertEqual(asset.content_type, "text/plain")
-        self.assertEqual(asset.file_size, len(file_content))
-        self.assertFalse(asset.gzip)
+        self.assertEqual(asset.file_size, self.get_asset_filesize(asset))
+        self.assertTrue(asset.gzip)
 
         content = self.read_asset_file(asset)
         self.assertEqual(content, file_content)
