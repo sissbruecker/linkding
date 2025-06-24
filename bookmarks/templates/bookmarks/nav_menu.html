@@ -2,6 +2,9 @@
 {% htmlmin %}
   {# Basic menu list #}
   <div class="hide-md">
+      {% if user.is_authenticated %}
+          <span class="btn btn-link mr-2">Hello, {{ user.username }}!</span>
+      {% endif %}
     <a href="{% url 'linkding:bookmarks.new' %}" class="btn btn-primary mr-2">Add bookmark</a>
     <div ld-dropdown class="dropdown">
       <button class="btn btn-link dropdown-toggle" tabindex="0">
