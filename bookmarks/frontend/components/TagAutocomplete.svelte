@@ -6,6 +6,7 @@
   export let name;
   export let value;
   export let placeholder;
+  export let ariaDescribedBy;
   export let variant = 'default';
 
   let isFocus = false;
@@ -110,6 +111,7 @@
     <!-- autocomplete real input box -->
     <input id="{id}" name="{name}" value="{value ||''}" placeholder="{placeholder || ' '}"
            class="form-input" type="text" autocomplete="off" autocapitalize="off"
+           aria-describedby="{ariaDescribedBy}"
            on:input={handleInput} on:keydown={handleKeyDown}
            on:focus={handleFocus} on:blur={handleBlur}>
   </div>
