@@ -1,0 +1,6 @@
+{% load i18n %}
+
+{# Force rendering validation errors in English language to align with the rest of the app #}
+{% language 'en-us' %}
+{% if errors %}<ul class="{{ error_class }}"{% if errors.field_id %} id="{{ errors.field_id }}_error"{% endif %}>{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+{% endlanguage %}
