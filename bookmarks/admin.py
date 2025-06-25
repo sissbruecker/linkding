@@ -11,7 +11,15 @@ from huey.contrib.djhuey import HUEY as huey
 from rest_framework.authtoken.admin import TokenAdmin
 from rest_framework.authtoken.models import TokenProxy
 
-from bookmarks.models import Bookmark, BookmarkAsset, Tag, UserProfile, Toast, FeedToken
+from bookmarks.models import (
+    Bookmark,
+    BookmarkAsset,
+    BookmarkBundle,
+    Tag,
+    UserProfile,
+    Toast,
+    FeedToken,
+)
 from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
 
 
@@ -256,6 +264,21 @@ class AdminTag(admin.ModelAdmin):
             )
 
 
+class AdminBookmarkBundle(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "owner",
+        "order",
+        "search",
+        "any_tags",
+        "all_tags",
+        "excluded_tags",
+        "date_created",
+    )
+    search_fields = ["name", "search", "any_tags", "all_tags", "excluded_tags"]
+    list_filter = ("owner__username",)
+
+
 class AdminUserProfileInline(admin.StackedInline):
     model = UserProfile
     can_delete = False
@@ -289,6 +312,7 @@ linkding_admin_site = LinkdingAdminSite()
 linkding_admin_site.register(Bookmark, AdminBookmark)
 linkding_admin_site.register(BookmarkAsset, AdminBookmarkAsset)
 linkding_admin_site.register(Tag, AdminTag)
+linkding_admin_site.register(BookmarkBundle, AdminBookmarkBundle)
 linkding_admin_site.register(User, AdminCustomUser)
 linkding_admin_site.register(TokenProxy, TokenAdmin)
 linkding_admin_site.register(Toast, AdminToast)
