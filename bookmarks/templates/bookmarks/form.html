@@ -70,22 +70,22 @@
     {{ form.notes.errors }}
   </div>
   <div class="form-group">
-    <label for="{{ form.unread.id_for_label }}" class="form-checkbox">
+    <div class="form-checkbox">
       {{ form.unread|form_field:"help" }}
       <i class="form-icon"></i>
-      <span>Mark as unread</span>
-    </label>
+      <label for="{{ form.unread.id_for_label }}">Mark as unread</label>
+    </div>
     <div id="{{ form.unread.auto_id }}_help" class="form-input-hint">
       Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them.
     </div>
   </div>
   {% if request.user_profile.enable_sharing %}
     <div class="form-group">
-      <label for="{{ form.shared.id_for_label }}" class="form-checkbox">
+      <div class="form-checkbox">
         {{ form.shared|form_field:"help" }}
         <i class="form-icon"></i>
-        <span>Share</span>
-      </label>
+        <label for="{{ form.shared.id_for_label }}">Share</label>
+      </div>
       <div id="{{ form.shared.auto_id }}_help" class="form-input-hint">
         {% if request.user_profile.enable_public_sharing %}
           Share this bookmark with other registered users and anonymous users.
