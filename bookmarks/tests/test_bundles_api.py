@@ -269,6 +269,24 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
         self.assertFalse(BookmarkBundle.objects.filter(id=bundle.id).exists())
 
+    def test_delete_bundle_updates_order(self):
+        self.authenticate()
+
+        bundle1 = self.setup_bundle(name="Bundle 1", order=0)
+        bundle2 = self.setup_bundle(name="Bundle 2", order=1)
+        bundle3 = self.setup_bundle(name="Bundle 3", order=2)
+
+        url = reverse("linkding:bundle-detail", kwargs={"pk": bundle2.id})
+        self.delete(url, expected_status_code=status.HTTP_204_NO_CONTENT)
+
+        self.assertFalse(BookmarkBundle.objects.filter(id=bundle2.id).exists())
+
+        # Check that the remaining bundles have updated orders
+        bundle1.refresh_from_db()
+        bundle3.refresh_from_db()
+        self.assertEqual(bundle1.order, 0)
+        self.assertEqual(bundle3.order, 1)
+
     def test_delete_bundle_only_allows_own_bundles(self):
         self.authenticate()
 
