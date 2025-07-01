@@ -1,11 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Max
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks.models import BookmarkBundle, BookmarkBundleForm, BookmarkSearch
+from bookmarks.services import bundles
 from bookmarks.views import access
 from bookmarks.views.contexts import ActiveBookmarkListContext
 
@@ -23,24 +23,14 @@ def action(request: HttpRequest):
         remove_bundle_id = request.POST.get("remove_bundle")
         bundle = access.bundle_write(request, remove_bundle_id)
         bundle_name = bundle.name
-        bundle.delete()
+        bundles.delete_bundle(bundle)
         messages.success(request, f"Bundle '{bundle_name}' removed successfully.")
 
     elif "move_bundle" in request.POST:
         bundle_id = request.POST.get("move_bundle")
-        move_position = int(request.POST.get("move_position"))
         bundle_to_move = access.bundle_write(request, bundle_id)
-        user_bundles = list(
-            BookmarkBundle.objects.filter(owner=request.user).order_by("order")
-        )
-
-        if move_position != user_bundles.index(bundle_to_move):
-            user_bundles.remove(bundle_to_move)
-            user_bundles.insert(move_position, bundle_to_move)
-            for bundle_index, bundle in enumerate(user_bundles):
-                bundle.order = bundle_index
-
-            BookmarkBundle.objects.bulk_update(user_bundles, ["order"])
+        move_position = int(request.POST.get("move_position"))
+        bundles.move_bundle(bundle_to_move, move_position)
 
     return HttpResponseRedirect(reverse("linkding:bundles.index"))
 
@@ -52,15 +42,13 @@ def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = N
     if request.method == "POST":
         if form.is_valid():
             instance = form.save(commit=False)
-            instance.owner = request.user
 
-            if bundle is None:  # New bundle
-                max_order_result = BookmarkBundle.objects.filter(
-                    owner=request.user
-                ).aggregate(Max("order", default=-1))
-                instance.order = max_order_result["order__max"] + 1
+            if bundle is None:
+                instance.order = None
+                bundles.create_bundle(instance, request.user)
+            else:
+                instance.save()
 
-            instance.save()
             messages.success(request, "Bundle saved successfully.")
             return HttpResponseRedirect(reverse("linkding:bundles.index"))
 

@@ -11,7 +11,7 @@ from bookmarks.models import (
     UserProfile,
     BookmarkBundle,
 )
-from bookmarks.services import bookmarks
+from bookmarks.services import bookmarks, bundles
 from bookmarks.services.tags import get_or_create_tag
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.utils import app_version
@@ -55,17 +55,9 @@ class BookmarkBundleSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        # Set owner to the authenticated user
-        validated_data["owner"] = self.context["user"]
-
-        # Set order to the next available position if not provided
-        if "order" not in validated_data:
-            max_order = BookmarkBundle.objects.filter(
-                owner=self.context["user"]
-            ).aggregate(Max("order", default=-1))["order__max"]
-            validated_data["order"] = max_order + 1
-
-        return super().create(validated_data)
+        bundle = BookmarkBundle(**validated_data)
+        bundle.order = validated_data["order"] if "order" in validated_data else None
+        return bundles.create_bundle(bundle, self.context["user"])
 
 
 class BookmarkSerializer(serializers.ModelSerializer):

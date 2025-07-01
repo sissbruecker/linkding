@@ -100,6 +100,18 @@ class BundleIndexViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertFalse(BookmarkBundle.objects.filter(id=bundle.id).exists())
 
+    def test_remove_bundle_updates_order(self):
+        bundle1 = self.setup_bundle(name="Bundle 1", order=0)
+        bundle2 = self.setup_bundle(name="Bundle 2", order=1)
+        bundle3 = self.setup_bundle(name="Bundle 3", order=2)
+
+        self.client.post(
+            reverse("linkding:bundles.action"),
+            {"remove_bundle": str(bundle2.id)},
+        )
+
+        self.assertBundleOrder([bundle1, bundle3])
+
     def test_remove_other_user_bundle(self):
         other_user = self.setup_user(name="otheruser")
         other_user_bundle = self.setup_bundle(name="Other User Bundle", user=other_user)

@@ -26,7 +26,7 @@ from bookmarks.models import (
     User,
     BookmarkBundle,
 )
-from bookmarks.services import assets, bookmarks, auto_tagging, website_loader
+from bookmarks.services import assets, bookmarks, bundles, auto_tagging, website_loader
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
 
@@ -289,6 +289,9 @@ class BookmarkBundleViewSet(
 
     def get_serializer_context(self):
         return {"user": self.request.user}
+
+    def perform_destroy(self, instance):
+        bundles.delete_bundle(instance)
 
 
 # DRF routers do not support nested view sets such as /bookmarks/<id>/assets/<id>/
