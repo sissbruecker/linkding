@@ -19,6 +19,7 @@ class TagAutocomplete extends Behavior {
         name: input.name,
         value: input.value,
         placeholder: input.getAttribute("placeholder") || "",
+        ariaDescribedBy: input.getAttribute("aria-describedby") || "",
         variant: input.getAttribute("variant"),
       },
     });

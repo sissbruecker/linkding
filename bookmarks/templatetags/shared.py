@@ -145,3 +145,30 @@ def render_markdown(context, markdown_text):
     linkified_html = bleach.linkify(sanitized_html)
 
     return mark_safe(linkified_html)
+
+
+def append_attr(widget, attr, value):
+    attrs = widget.attrs
+    if attrs.get(attr):
+        attrs[attr] += " " + value
+    else:
+        attrs[attr] = value
+
+
+@register.filter("form_field")
+def form_field(field, modifier_string):
+    modifiers = modifier_string.split(",")
+    has_errors = hasattr(field, "errors") and field.errors
+
+    if "validation" in modifiers and has_errors:
+        append_attr(field.field.widget, "aria-describedby", field.auto_id + "_error")
+    if "help" in modifiers:
+        append_attr(field.field.widget, "aria-describedby", field.auto_id + "_help")
+
+    # Some assistive technologies announce a field as invalid when it has the
+    # required attribute, even if the user has not interacted with the field
+    # yet. Set aria-invalid false to prevent this behavior.
+    if field.field.required and not has_errors:
+        append_attr(field.field.widget, "aria-invalid", "false")
+
+    return field

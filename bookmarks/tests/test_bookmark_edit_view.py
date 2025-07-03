@@ -114,9 +114,8 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f"""
-            <input type="text" name="url" value="{bookmark.url}" placeholder=" "
-                    autofocus class="form-input" required id="id_url">   
-        """,
+            <input type="text" name="url" aria-invalid="false" autofocus class="form-input" required id="id_url" value="{bookmark.url}">
+            """,
             html,
         )
 
@@ -124,7 +123,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(
             f"""
             <input type="text" name="tag_string" value="{tag_string}" 
-                    autocomplete="off" autocapitalize="off" class="form-input" id="id_tag_string">
+                    autocomplete="off" autocapitalize="off" class="form-input" id="id_tag_string" aria-describedby="id_tag_string_help">
         """,
             html,
         )
@@ -148,7 +147,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f"""
-            <textarea name="notes" cols="40" rows="8" class="form-input" id="id_notes">
+            <textarea name="notes" cols="40" rows="8" class="form-input" id="id_notes" aria-describedby="id_notes_help">
                 {bookmark.notes}
             </textarea>
         """,
@@ -259,12 +258,12 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             """
-            <label for="id_shared" class="form-checkbox">
-              <input type="checkbox" name="shared" id="id_shared">
-              <i class="form-icon"></i>
-              <span>Share</span>
-            </label>            
-        """,
+            <div class="form-checkbox">
+                <input type="checkbox" name="shared" aria-describedby="id_shared_help" id="id_shared">
+                <i class="form-icon"></i>
+                <label for="id_shared">Share</label>
+            </div>
+            """,
             html,
             count=0,
         )
@@ -278,12 +277,12 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             """
-            <label for="id_shared" class="form-checkbox">
-              <input type="checkbox" name="shared" id="id_shared">
-              <i class="form-icon"></i>
-              <span>Share</span>
-            </label>            
-        """,
+            <div class="form-checkbox">
+                <input type="checkbox" name="shared" aria-describedby="id_shared_help" id="id_shared">
+                <i class="form-icon"></i>
+                <label for="id_shared">Share</label>
+            </div>
+            """,
             html,
             count=1,
         )
