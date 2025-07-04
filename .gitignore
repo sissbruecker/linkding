@@ -196,3 +196,6 @@ typings/
 /chromium-profile
 # direnv
 /.direnv
+
+.DS_Store
+PROJECT.md
