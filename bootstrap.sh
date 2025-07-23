@@ -29,6 +29,8 @@ chown -R www-data: /etc/linkding/data
 
 # Start background task processor using supervisord, unless explicitly disabled
 if [ "$LD_DISABLE_BACKGROUND_TASKS" != "True" ]; then
+  # when running under Docker send the logs to stdout so that Docker can collect them
+  sed -i -e 's/logfile=.*/logfile=\/dev\/stdout/; s/logfile_maxbytes=.*/logfile_maxbytes=0/' supervisord.conf
   supervisord -c supervisord.conf
 fi
 
