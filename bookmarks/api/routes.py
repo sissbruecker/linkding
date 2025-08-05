@@ -199,13 +199,10 @@ class BookmarkAssetViewSet(
                 if asset.gzip
                 else open(file_path, "rb")
             )
-            file_name = (
-                f"{asset.display_name}.html"
-                if asset.asset_type == BookmarkAsset.TYPE_SNAPSHOT
-                else asset.display_name
-            )
             response = StreamingHttpResponse(file_stream, content_type=content_type)
-            response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+            response["Content-Disposition"] = (
+                f'attachment; filename="{asset.download_name}"'
+            )
             return response
         except FileNotFoundError:
             raise Http404("Asset file does not exist")

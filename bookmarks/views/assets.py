@@ -31,7 +31,9 @@ def view(request, asset_id: int):
     asset = access.asset_read(request, asset_id)
     content = _get_asset_content(asset)
 
-    return HttpResponse(content, content_type=asset.content_type)
+    response = HttpResponse(content, content_type=asset.content_type)
+    response["Content-Disposition"] = f'inline; filename="{asset.download_name}"'
+    return response
 
 
 def read(request, asset_id: int):
