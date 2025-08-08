@@ -78,12 +78,28 @@ class BookmarkForm(forms.ModelForm):
             return create_bookmark(bookmark, tag_string, self.request.user)
 
     def clean_url(self):
+        from urllib.parse import urlparse
+        raw = (self.cleaned_data.get("url") or "").strip()
+
+        # If user types a bare domain like "example.com"
+        parsed = urlparse(raw)
+        if not parsed.scheme:
+            # Avoid prepending to things that were never meant to be URLs
+            if "." in raw and " " not in raw:
+                raw = "http://" + raw
+                parsed = urlparse(raw)
+
+        # Only http and https URLs are allowed
+        if parsed.scheme not in ["http", "https"]:
+            raise forms.ValidationError(
+                "Only http and https URLs are allowed. Please check the URL."
+            )
         # When creating a bookmark, the service logic prevents duplicate URLs by
         # updating the existing bookmark instead, which is also communicated in
         # the form's UI. When editing a bookmark, there is no assumption that
         # it would update a different bookmark if the URL is a duplicate, so
         # raise a validation error in that case.
-        url = self.cleaned_data["url"]
+        url = raw
         if self.instance.pk:
             is_duplicate = (
                 Bookmark.objects.filter(owner=self.instance.owner, url=url)
