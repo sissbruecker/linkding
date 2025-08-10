@@ -40,7 +40,7 @@ def parse_tag_string(tag_string: str, delimiter: str = ","):
         return []
     names = tag_string.strip().split(delimiter)
     # remove empty names, sanitize remaining names
-    names = [sanitize_tag_name(name) for name in names if name]
+    names = [sanitize_tag_name(name) for name in names if name.strip()]
     # remove duplicates
     names = unique(names, str.lower)
     names.sort(key=str.lower)
