@@ -32,10 +32,14 @@ def bookmark_write(request: HttpRequest, bookmark_id: int | str):
         raise Http404("Bookmark does not exist")
 
 
+def bundle_read(request: HttpRequest, bundle_id: int | str):
+    return bundle_write(request, bundle_id)
+
+
 def bundle_write(request: HttpRequest, bundle_id: int | str):
     try:
         return BookmarkBundle.objects.get(pk=bundle_id, owner=request.user)
-    except BookmarkBundle.DoesNotExist:
+    except (BookmarkBundle.DoesNotExist, ValueError):
         raise Http404("Bundle does not exist")
 
 
