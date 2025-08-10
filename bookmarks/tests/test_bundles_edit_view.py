@@ -120,3 +120,41 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
             reverse("linkding:bundles.edit", args=[other_users_bundle.id]), updated_data
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_should_show_correct_preview(self):
+        bundle_tag = self.setup_tag()
+        bookmark1 = self.setup_bookmark(tags=[bundle_tag])
+        bookmark2 = self.setup_bookmark()
+        bookmark3 = self.setup_bookmark()
+        bundle = self.setup_bundle(name="Test Bundle", all_tags=bundle_tag.name)
+
+        response = self.client.get(reverse("linkding:bundles.edit", args=[bundle.id]))
+        self.assertContains(response, "Found 1 bookmarks matching this bundle")
+        self.assertContains(response, bookmark1.title)
+        self.assertNotContains(response, bookmark2.title)
+        self.assertNotContains(response, bookmark3.title)
+
+    def test_should_show_correct_preview_after_posting_invalid_data(self):
+        initial_tag = self.setup_tag(name="initial-tag")
+        updated_tag = self.setup_tag(name="updated-tag")
+        bookmark1 = self.setup_bookmark(tags=[initial_tag])
+        bookmark2 = self.setup_bookmark(tags=[updated_tag])
+        bookmark3 = self.setup_bookmark()
+        bundle = self.setup_bundle(name="Test Bundle", all_tags=initial_tag.name)
+
+        form_data = {
+            "name": "",
+            "search": "",
+            "any_tags": "",
+            "all_tags": updated_tag.name,
+            "excluded_tags": "",
+        }
+        response = self.client.post(
+            reverse("linkding:bundles.edit", args=[bundle.id]), form_data
+        )
+        self.assertIn(
+            "Found 1 bookmarks matching this bundle", response.content.decode()
+        )
+        self.assertNotIn(bookmark1.title, response.content.decode())
+        self.assertIn(bookmark2.title, response.content.decode())
+        self.assertNotIn(bookmark3.title, response.content.decode())
