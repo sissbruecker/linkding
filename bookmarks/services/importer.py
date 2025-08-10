@@ -96,6 +96,13 @@ def _create_missing_tags(netscape_bookmarks: List[NetscapeBookmark], user: User)
 
     for netscape_bookmark in netscape_bookmarks:
         for tag_name in netscape_bookmark.tag_names:
+            # Skip tag names that exceed the maximum allowed length
+            if len(tag_name) > 64:
+                logger.warning(
+                    f"Ignoring tag '{tag_name}' (length {len(tag_name)}) as it exceeds maximum length of 64 characters"
+                )
+                continue
+
             tag = tag_cache.get(tag_name)
             if not tag:
                 tag = Tag(name=tag_name, owner=user)
