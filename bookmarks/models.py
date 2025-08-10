@@ -133,6 +133,14 @@ class BookmarkAsset(models.Model):
     status = models.CharField(max_length=64, blank=False, null=False)
     gzip = models.BooleanField(default=False, null=False)
 
+    @property
+    def download_name(self):
+        return (
+            f"{self.display_name}.html"
+            if self.asset_type == BookmarkAsset.TYPE_SNAPSHOT
+            else self.display_name
+        )
+
     def save(self, *args, **kwargs):
         if self.file:
             try:

@@ -4,9 +4,8 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.tests.helpers import (
-    BookmarkFactoryMixin,
-)
+from bookmarks.models import BookmarkAsset
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
@@ -23,7 +22,21 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
     def setup_asset_with_file(self, bookmark):
         filename = f"temp_{bookmark.id}.html.gzip"
         self.setup_asset_file(filename)
-        asset = self.setup_asset(bookmark=bookmark, file=filename)
+        asset = self.setup_asset(
+            bookmark=bookmark, file=filename, display_name=f"Snapshot {bookmark.id}"
+        )
+        return asset
+
+    def setup_asset_with_uploaded_file(self, bookmark):
+        filename = f"temp_{bookmark.id}.png.gzip"
+        self.setup_asset_file(filename)
+        asset = self.setup_asset(
+            bookmark=bookmark,
+            file=filename,
+            asset_type=BookmarkAsset.TYPE_UPLOAD,
+            content_type="image/png",
+            display_name=f"Uploaded file {bookmark.id}.png",
+        )
         return asset
 
     def view_access_test(self, view_name: str):
@@ -127,3 +140,25 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_reader_view_access_guest_user(self):
         self.view_access_guest_user_test("linkding:assets.read")
+
+    def test_snapshot_download_name(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset_with_file(bookmark)
+        response = self.client.get(reverse("linkding:assets.view", args=[asset.id]))
+
+        self.assertEqual(response["Content-Type"], asset.content_type)
+        self.assertEqual(
+            response["Content-Disposition"],
+            f'inline; filename="{asset.display_name}.html"',
+        )
+
+    def test_uploaded_file_download_name(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset_with_uploaded_file(bookmark)
+        response = self.client.get(reverse("linkding:assets.view", args=[asset.id]))
+
+        self.assertEqual(response["Content-Type"], asset.content_type)
+        self.assertEqual(
+            response["Content-Disposition"],
+            f'inline; filename="{asset.display_name}"',
+        )
