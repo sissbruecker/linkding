@@ -1,11 +1,12 @@
 from django.test import TestCase
 from django.urls import reverse
+from urllib.parse import urlencode
 
 from bookmarks.models import BookmarkBundle
-from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
-class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin):
+class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
@@ -75,3 +76,72 @@ class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin):
         form_data = self.create_form_data({"name": ""})
         response = self.client.post(reverse("linkding:bundles.new"), form_data)
         self.assertEqual(response.status_code, 422)
+
+    def test_should_prefill_form_from_search_query_parameters(self):
+        query = "machine learning #python #ai"
+        url = reverse("linkding:bundles.new") + "?" + urlencode({"q": query})
+        response = self.client.get(url)
+
+        soup = self.make_soup(response.content.decode())
+        search_field = soup.select_one('input[name="search"]')
+        all_tags_field = soup.select_one('input[name="all_tags"]')
+
+        self.assertEqual(search_field.get("value"), "machine learning")
+        self.assertEqual(all_tags_field.get("value"), "python ai")
+
+    def test_should_ignore_special_search_commands(self):
+        query = "python tutorial !untagged !unread"
+        url = reverse("linkding:bundles.new") + "?" + urlencode({"q": query})
+        response = self.client.get(url)
+
+        soup = self.make_soup(response.content.decode())
+        search_field = soup.select_one('input[name="search"]')
+        all_tags_field = soup.select_one('input[name="all_tags"]')
+
+        self.assertEqual(search_field.get("value"), "python tutorial")
+        self.assertIsNone(all_tags_field.get("value"))
+
+    def test_should_not_prefill_when_no_query_parameter(self):
+        response = self.client.get(reverse("linkding:bundles.new"))
+
+        soup = self.make_soup(response.content.decode())
+        search_field = soup.select_one('input[name="search"]')
+        all_tags_field = soup.select_one('input[name="all_tags"]')
+
+        self.assertIsNone(search_field.get("value"))
+        self.assertIsNone(all_tags_field.get("value"))
+
+    def test_should_not_prefill_when_editing_existing_bundle(self):
+        bundle = self.setup_bundle(
+            name="Existing Bundle", search="Tutorial", all_tags="java spring"
+        )
+
+        query = "machine learning #python #ai"
+        url = (
+            reverse("linkding:bundles.edit", args=[bundle.id])
+            + "?"
+            + urlencode({"q": query})
+        )
+        response = self.client.get(url)
+
+        soup = self.make_soup(response.content.decode())
+        search_field = soup.select_one('input[name="search"]')
+        all_tags_field = soup.select_one('input[name="all_tags"]')
+
+        self.assertEqual(search_field.get("value"), "Tutorial")
+        self.assertEqual(all_tags_field.get("value"), "java spring")
+
+    def test_should_show_correct_preview_with_prefilled_values(self):
+        bundle_tag = self.setup_tag()
+        bookmark1 = self.setup_bookmark(tags=[bundle_tag])
+        bookmark2 = self.setup_bookmark()
+        bookmark3 = self.setup_bookmark()
+
+        query = "#" + bundle_tag.name
+        url = reverse("linkding:bundles.new") + "?" + urlencode({"q": query})
+        response = self.client.get(url)
+
+        self.assertContains(response, "Found 1 bookmarks matching this bundle")
+        self.assertContains(response, bookmark1.title)
+        self.assertNotContains(response, bookmark2.title)
+        self.assertNotContains(response, bookmark3.title)

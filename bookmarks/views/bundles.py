@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from bookmarks.models import BookmarkBundle, BookmarkBundleForm, BookmarkSearch
+from bookmarks.queries import parse_query_string
 from bookmarks.services import bundles
 from bookmarks.views import access
 from bookmarks.views.contexts import ActiveBookmarkListContext
@@ -37,7 +38,18 @@ def action(request: HttpRequest):
 
 def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = None):
     form_data = request.POST if request.method == "POST" else None
-    form = BookmarkBundleForm(form_data, instance=bundle)
+    initial_data = {}
+    if bundle is None and request.method == "GET":
+        query_param = request.GET.get("q")
+        if query_param:
+            parsed = parse_query_string(query_param)
+
+            if parsed["search_terms"]:
+                initial_data["search"] = " ".join(parsed["search_terms"])
+            if parsed["tag_names"]:
+                initial_data["all_tags"] = " ".join(parsed["tag_names"])
+
+    form = BookmarkBundleForm(form_data, instance=bundle, initial=initial_data)
 
     if request.method == "POST":
         if form.is_valid():
@@ -53,8 +65,12 @@ def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = N
             return HttpResponseRedirect(reverse("linkding:bundles.index"))
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
-    bookmark_list = _get_bookmark_list_preview(request, bundle)
-    context = {"form": form, "bundle": bundle, "bookmark_list": bookmark_list}
+    bookmark_list = _get_bookmark_list_preview(request, bundle, initial_data)
+    context = {
+        "form": form,
+        "bundle": bundle,
+        "bookmark_list": bookmark_list,
+    }
 
     return render(request, template, context, status=status)
 
@@ -79,7 +95,9 @@ def preview(request: HttpRequest):
 
 
 def _get_bookmark_list_preview(
-    request: HttpRequest, bundle: BookmarkBundle | None = None
+    request: HttpRequest,
+    bundle: BookmarkBundle | None = None,
+    initial_data: dict = None,
 ):
     if request.method == "GET" and bundle:
         preview_bundle = bundle
@@ -87,6 +105,10 @@ def _get_bookmark_list_preview(
         form_data = (
             request.POST.copy() if request.method == "POST" else request.GET.copy()
         )
+        if initial_data:
+            for key, value in initial_data.items():
+                form_data[key] = value
+
         form_data["name"] = "Preview Bundle"  # Set dummy name for form validation
         form = BookmarkBundleForm(form_data)
         preview_bundle = form.save(commit=False)

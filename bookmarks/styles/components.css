@@ -25,7 +25,7 @@
 }
 
 @media (max-width: 600px) {
-  .section-header {
+  .section-header:not(.no-wrap) {
     flex-direction: column;
   }
 }
