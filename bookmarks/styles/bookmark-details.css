@@ -1,5 +1,13 @@
 /* Common styles */
 .bookmark-details {
+  .title {
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    overflow: hidden;
+  }
+
   & .weblinks {
     display: flex;
     flex-direction: column;
