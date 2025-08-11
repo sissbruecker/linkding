@@ -214,8 +214,7 @@ def create_html_snapshots(bookmark_ids: list[Union[int, str]], current_user: Use
         owner=current_user, id__in=sanitized_bookmark_ids
     )
 
-    for bookmark in owned_bookmarks:
-        tasks.create_html_snapshot(bookmark)
+    tasks.create_html_snapshots(owned_bookmarks)
 
 
 def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
