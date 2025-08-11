@@ -23,7 +23,7 @@
           <option value="bulk_unshare">Unshare</option>
         {% endif %}
         <option value="bulk_refresh">Refresh from website</option>
-        {% if request.show_snapshot_action %}
+        {% if bookmark_list.snapshot_feature_enabled %}
           <option value="bulk_snapshot">Create HTML snapshot</option>
         {% endif %}
       </select>

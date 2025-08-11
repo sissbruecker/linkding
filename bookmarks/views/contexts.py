@@ -215,12 +215,13 @@ class BookmarkListContext:
         self.show_edit_action = user_profile.display_edit_bookmark_action
         self.show_archive_action = user_profile.display_archive_bookmark_action
         self.show_remove_action = user_profile.display_remove_bookmark_action
-        self.show_snapshot_action = is_html_snapshot_feature_active()
         self.show_favicons = user_profile.enable_favicons
         self.show_preview_images = user_profile.enable_preview_images
         self.show_notes = user_profile.permanent_notes
         self.collapse_side_panel = user_profile.collapse_side_panel
         self.is_preview = False
+        
+        self.snapshot_feature_enabled = is_html_snapshot_feature_active()
 
     @staticmethod
     def generate_return_url(search: BookmarkSearch, base_url: str, page: int = None):
