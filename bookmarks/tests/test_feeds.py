@@ -364,7 +364,7 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(tags=[tag1]),
             self.setup_bookmark(tags=[tag1]),
         ]
-        
+
         self.setup_bookmark(),
         self.setup_bookmark(),
 

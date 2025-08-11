@@ -40,7 +40,7 @@ class TagTestCase(TestCase):
         self.assertCountEqual(
             parse_tag_string("book,,movie,,,album"), ["album", "book", "movie"]
         )
-    
+
     def test_parse_tag_string_handles_duplicate_separators_with_spaces(self):
         self.assertCountEqual(
             parse_tag_string("book, ,movie, , ,album"), ["album", "book", "movie"]
