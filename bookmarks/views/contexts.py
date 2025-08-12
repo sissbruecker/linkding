@@ -20,7 +20,6 @@ from bookmarks.models import (
     Tag,
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
-from bookmarks.services.tasks import is_html_snapshot_feature_active
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
 
@@ -220,8 +219,7 @@ class BookmarkListContext:
         self.show_notes = user_profile.permanent_notes
         self.collapse_side_panel = user_profile.collapse_side_panel
         self.is_preview = False
-        
-        self.snapshot_feature_enabled = is_html_snapshot_feature_active()
+        self.snapshot_feature_enabled = settings.LD_ENABLE_SNAPSHOTS
 
     @staticmethod
     def generate_return_url(search: BookmarkSearch, base_url: str, page: int = None):
