@@ -1,7 +1,7 @@
 import urllib.parse
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from bookmarks.models import BookmarkSearch, UserProfile
@@ -319,6 +319,28 @@ class BookmarkArchivedViewTestCase(
             html,
         )
 
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_allowed_bulk_actions_with_html_snapshot_enabled(self):
+        url = reverse("linkding:bookmarks.archived")
+        response = self.client.get(url)
+        html = response.content.decode()
+
+        self.assertInHTML(
+            f"""
+          <select name="bulk_action" class="form-select select-sm">
+            <option value="bulk_unarchive">Unarchive</option>
+            <option value="bulk_delete">Delete</option>
+            <option value="bulk_tag">Add tags</option>
+            <option value="bulk_untag">Remove tags</option>
+            <option value="bulk_read">Mark as read</option>
+            <option value="bulk_unread">Mark as unread</option>
+            <option value="bulk_refresh">Refresh from website</option>
+            <option value="bulk_snapshot">Create HTML snapshot</option>
+          </select>
+        """,
+            html,
+        )
+
     def test_allowed_bulk_actions_with_sharing_enabled(self):
         user_profile = self.user.profile
         user_profile.enable_sharing = True
@@ -340,6 +362,34 @@ class BookmarkArchivedViewTestCase(
             <option value="bulk_share">Share</option>
             <option value="bulk_unshare">Unshare</option>
             <option value="bulk_refresh">Refresh from website</option>
+          </select>
+        """,
+            html,
+        )
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_allowed_bulk_actions_with_sharing_and_html_snapshot_enabled(self):
+        user_profile = self.user.profile
+        user_profile.enable_sharing = True
+        user_profile.save()
+
+        url = reverse("linkding:bookmarks.archived")
+        response = self.client.get(url)
+        html = response.content.decode()
+
+        self.assertInHTML(
+            f"""
+          <select name="bulk_action" class="form-select select-sm">
+            <option value="bulk_unarchive">Unarchive</option>
+            <option value="bulk_delete">Delete</option>
+            <option value="bulk_tag">Add tags</option>
+            <option value="bulk_untag">Remove tags</option>
+            <option value="bulk_read">Mark as read</option>
+            <option value="bulk_unread">Mark as unread</option>
+            <option value="bulk_share">Share</option>
+            <option value="bulk_unshare">Unshare</option>
+            <option value="bulk_refresh">Refresh from website</option>
+            <option value="bulk_snapshot">Create HTML snapshot</option>
           </select>
         """,
             html,
