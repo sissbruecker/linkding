@@ -133,3 +133,30 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual(Bookmark.objects.all()[0].shared, True)
             self.assertEqual(Bookmark.objects.all()[1].shared, True)
             self.assertEqual(Bookmark.objects.all()[2].shared, True)
+
+    def test_should_respect_description_as_notes_option(self):
+        with open(
+            "bookmarks/tests/resources/simple_valid_import_file.html"
+        ) as import_file:
+            self.client.post(
+                reverse("linkding:settings.import"),
+                {"import_file": import_file},
+                follow=True,
+            )
+
+            self.assertEqual(Bookmark.objects.all()[0].description, "test description 1")
+            self.assertEqual(Bookmark.objects.all()[0].notes, "")
+
+        Bookmark.objects.all().delete()
+
+        with open(
+            "bookmarks/tests/resources/simple_valid_import_file.html"
+        ) as import_file:
+            self.client.post(
+                reverse("linkding:settings.import"),
+                {"import_file": import_file, "description_as_notes": "on"},
+                follow=True,
+            )
+
+            self.assertEqual(Bookmark.objects.all()[0].description, "")
+            self.assertEqual(Bookmark.objects.all()[0].notes, "test description 1")
