@@ -25,15 +25,33 @@
       <p>The bookmarklet is an alternative, cross-browser way to quickly add new bookmarks without opening the linkding
         application first. Here's how it works:</p>
       <ul>
-        <li>Drag the bookmarklet below into your browsers bookmark bar / toolbar</li>
+        <li>Choose your preferred method for detecting website titles and descriptions below (<a href="https://linkding.link/troubleshooting/#automatically-detected-title-and-description-are-incorrect" target="_blank">Help</a>)</li>
+        <li>Drag the bookmarklet below into your browser's bookmark bar / toolbar</li>
         <li>Open the website that you want to bookmark</li>
-        <li>Click the bookmarklet in your browsers toolbar</li>
+        <li>Click the bookmarklet in your browser's toolbar</li>
         <li>linkding opens in a new window or tab and allows you to add a bookmark for the site</li>
-        <li>After saving the bookmark the linkding window closes and you are back on your website</li>
+        <li>After saving the bookmark, the linkding window closes, and you are back on your website</li>
       </ul>
-      <p>Drag the following bookmarklet to your browser's toolbar:</p>
-      <a href="javascript: {% include 'bookmarks/bookmarklet.js' %}" data-turbo="false"
-         class="btn btn-primary">📎 Add bookmark</a>
+
+      <div class="form-group radio-group" role="radiogroup" aria-labelledby="detection-method-label">
+        <p id="detection-method-label">Choose your preferred bookmarklet:</p>
+        <label for="detection-method-server" class="form-radio">
+          <input id="detection-method-server" type="radio" name="bookmarklet-type" value="server" checked>
+          <i class="form-icon"></i>
+          Detect title and description on the server
+        </label>
+        <label for="detection-method-client" class="form-radio">
+          <input id="detection-method-client" type="radio" name="bookmarklet-type" value="client">
+          <i class="form-icon"></i>
+          Detect title and description in the browser
+        </label>
+      </div>
+      <div class="bookmarklet-container">
+        <a id="bookmarklet-server" href="javascript: {% include 'bookmarks/bookmarklet.js' %}" data-turbo="false"
+           class="btn btn-primary">📎 Add bookmark</a>
+        <a id="bookmarklet-client" href="javascript: {% include 'bookmarks/bookmarklet_clientside.js' %}" data-turbo="false"
+           class="btn btn-primary" style="display: none;">📎 Add bookmark</a>
+      </div>
     </section>
 
     <section aria-labelledby="rest-api-heading">
@@ -90,4 +108,28 @@
       </p>
     </section>
   </main>
+
+  <script>
+    (function init() {
+      const radioButtons = document.querySelectorAll('input[name="bookmarklet-type"]');
+      const serverBookmarklet = document.getElementById('bookmarklet-server');
+      const clientBookmarklet = document.getElementById('bookmarklet-client');
+
+      function toggleBookmarklet() {
+        const selectedValue = document.querySelector('input[name="bookmarklet-type"]:checked').value;
+        if (selectedValue === 'server') {
+          serverBookmarklet.style.display = 'inline-block';
+          clientBookmarklet.style.display = 'none';
+        } else {
+          serverBookmarklet.style.display = 'none';
+          clientBookmarklet.style.display = 'inline-block';
+        }
+      }
+
+      toggleBookmarklet();
+      radioButtons.forEach(function(radio) {
+        radio.addEventListener('change', toggleBookmarklet);
+      });
+    })();
+  </script>
 {% endblock %}
