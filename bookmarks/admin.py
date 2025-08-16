@@ -214,7 +214,7 @@ class AdminBookmarkAsset(admin.ModelAdmin):
 
     list_display = ("custom_display_name", "date_created", "status")
     search_fields = (
-        "custom_display_name",
+        "display_name",
         "file",
     )
     list_filter = ("status",)
