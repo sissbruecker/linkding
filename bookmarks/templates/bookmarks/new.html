@@ -12,7 +12,7 @@
       <div class="section-header">
         <h1 id="main-heading">New bookmark</h1>
       </div>
-      <form action="{% url 'linkding:bookmarks.new' %}" method="post" novalidate>
+      <form action="{% url 'linkding:bookmarks.new' %}" method="post" novalidate ld-form-submit>
         {% include 'bookmarks/form.html' %}
       </form>
     </main>

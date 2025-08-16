@@ -4,8 +4,9 @@ from urllib.parse import quote
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
 
-from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
+from bookmarks.models import Bookmark
 from bookmarks.services import website_loader
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 mock_website_metadata = website_loader.WebsiteMetadata(
     url="https://example.com",
@@ -311,3 +312,26 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
             # Verify that the fields are NOT visually marked as modified
             expect(title_field).to_have_class("form-input")
             expect(description_field).to_have_class("form-input")
+
+    def test_ctrl_enter_submits_form_from_description(self):
+        with sync_playwright() as p:
+            page = self.open(reverse("linkding:bookmarks.new"), p)
+            url_field = page.get_by_label("URL")
+            description_field = page.get_by_label("Description")
+
+            url_field.fill("https://example.com")
+            description_field.fill("Test description")
+            description_field.focus()
+
+            # Press Ctrl+Enter to submit form
+            description_field.press("Control+Enter")
+
+            # Should navigate away from new bookmark page after successful submission
+            expect(page).not_to_have_url(
+                self.live_server_url + reverse("linkding:bookmarks.new")
+            )
+
+        self.assertEqual(1, Bookmark.objects.count())
+        bookmark = Bookmark.objects.first()
+        self.assertEqual("https://example.com", bookmark.url)
+        self.assertEqual("Example Domain", bookmark.title)
