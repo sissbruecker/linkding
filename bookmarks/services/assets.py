@@ -164,8 +164,15 @@ def _generate_asset_filename(
         else:
             return "_"
 
+    year = asset.date_created.strftime("%Y")
+    month = asset.date_created.strftime("%m")
     formatted_datetime = asset.date_created.strftime("%Y-%m-%d_%H%M%S")
     sanitized_filename = "".join(sanitize_char(char) for char in filename)
+
+    # Make sure directories exist
+    dir = os.path.join(settings.LD_ASSET_FOLDER, f"{year}/{month}")
+    if not os.path.exists(dir):
+        os.makedirs(dir)
 
     # Calculate the length of fixed parts of the final filename
     non_filename_length = len(f"{asset.asset_type}_{formatted_datetime}_.{extension}")
@@ -174,4 +181,4 @@ def _generate_asset_filename(
     # Truncate the filename if necessary
     sanitized_filename = sanitized_filename[:max_filename_length]
 
-    return f"{asset.asset_type}_{formatted_datetime}_{sanitized_filename}.{extension}"
+    return f"{year}/{month}/{asset.asset_type}_{formatted_datetime}_{sanitized_filename}.{extension}"
