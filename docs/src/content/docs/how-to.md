@@ -71,6 +71,44 @@ At the bottom of the share sheet there is a button for configuring share actions
 You can also check the [Community section](/community) for other pre-made shortcuts that you can use.
 :::
 
+## Enable usage tracking for most-used bookmarks
+
+Linkding includes an optional usage tracking feature that helps you find your most frequently accessed bookmarks. This feature is disabled by default and designed with privacy in mind.
+
+### How it works
+
+When enabled, linkding tracks how often you click on bookmark links and provides a "Most Used" sorting option that shows your most frequently accessed bookmarks first. The tracking is:
+
+- **Local only** - Data never leaves your linkding instance
+- **Personal** - Only tracks your own clicks, not other users
+- **Optional** - Disabled by default, must be explicitly enabled
+- **Transparent** - You control when it's active
+
+### Enabling usage tracking
+
+1. Go to **Settings** → **General**
+2. Check the **"Enable usage tracking"** option
+3. Click **Save**
+
+Once enabled:
+- The bookmark sort dropdown will include a new **"Most Used"** option
+- Clicking on bookmark links will increment their usage counter
+- Most frequently clicked bookmarks will appear first when using "Most Used" sort
+
+### Disabling usage tracking
+
+You can disable usage tracking at any time:
+
+1. Go to **Settings** → **General** 
+2. Uncheck the **"Enable usage tracking"** option
+3. Click **Save**
+
+When disabled:
+- No more click tracking occurs
+- The "Most Used" sort option is hidden
+- Bookmarks return to date-based sorting only
+- Previously collected usage data is preserved but not used
+
 ## Increase the font size
 
 The font size can be adjusted globally by adding the following CSS to the custom CSS field in the settings:

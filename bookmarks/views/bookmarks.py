@@ -1,15 +1,17 @@
 import urllib.parse
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.db.models import QuerySet
+from django.db.models import QuerySet, F
 from django.http import (
     HttpResponseRedirect,
     HttpResponseBadRequest,
     HttpResponseForbidden,
 )
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 
 from bookmarks import queries, utils
 from bookmarks.forms import BookmarkForm
@@ -371,6 +373,19 @@ def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
             return refresh_bookmarks_metadata(bookmark_ids, request.user)
         if "bulk_snapshot" == bulk_action:
             return create_html_snapshots(bookmark_ids, request.user)
+
+
+@login_required
+def visit(request: HttpRequest, bookmark_id: int):
+    bookmark = get_object_or_404(Bookmark, id=bookmark_id, owner=request.user)
+    
+    # Increment access count and update last accessed time
+    Bookmark.objects.filter(id=bookmark_id).update(
+        access_count=F('access_count') + 1,
+        date_accessed=timezone.now()
+    )
+    
+    return HttpResponseRedirect(bookmark.url)
 
 
 @login_required
