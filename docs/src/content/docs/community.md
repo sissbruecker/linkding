@@ -6,6 +6,7 @@ description: "Community projects around linkding"
 This section lists community projects around using linkding, in alphabetical order. If you have a project that you want to share with the linkding community, feel free to [submit a PR](https://github.com/sissbruecker/linkding/edit/master/docs/src/content/docs/community.md) to add your project to this section.
 
 - [aiolinkding](https://github.com/bachya/aiolinkding) A Python3, async library to interact with the linkding REST API. By [bachya](https://github.com/bachya)
+- [alfred-linkding-bookmarks](https://github.com/firefingers21/alfred-linkding-bookmarks) An Alfred workflow for searching and opening linkding bookmarks. By [FireFingers21](https://github.com/FireFingers21)
 - [cosmicding](https://github.com/vkhitrin/cosmicding) Desktop client built using [libcosmic](https://github.com/pop-os/libcosmic). By [vkhitrin](https://github.com/vkhitrin)
 - [DingDrop](https://github.com/marb08/DingDrop) A Telegram bot that allows you to quickly save bookmarks to your Linkding instance via Telegram using Linkding APIs. By [marb08](https://github.com/marb08)
 - [feed2linkding](https://codeberg.org/strubbl/feed2linkding) A commandline utility to add all web feed item links to linkding via API call. By [Strubbl](https://github.com/Strubbl)
