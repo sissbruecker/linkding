@@ -13,7 +13,7 @@
         <h1 id="main-heading">Edit bookmark</h1>
       </div>
       <form action="{% url 'linkding:bookmarks.edit' bookmark_id %}?return_url={{ return_url|urlencode }}" method="post"
-            novalidate>
+            novalidate ld-form-submit>
         {% include 'bookmarks/form.html' %}
       </form>
     </main>
