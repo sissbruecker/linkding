@@ -10,7 +10,7 @@
     {# Bookmark list #}
     <main class="main col-2" aria-labelledby="main-heading">
       <div class="section-header mb-0">
-        <h1 id="main-heading">Archived bookmarks</h1>
+        <h1 id="main-heading">{{ bookmark_list.bookmarks_total }} Archived bookmarks</h1>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search mode='archived' %}
           {% include 'bookmarks/bulk_edit/toggle.html' %}
