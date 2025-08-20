@@ -1,7 +1,7 @@
 (function () {
-  var bookmarkUrl = window.location;
-  var applicationUrl = '{{ application_url }}';
+  const bookmarkUrl = window.location;
 
+  let applicationUrl = '{{ application_url }}';
   applicationUrl += '?url=' + encodeURIComponent(bookmarkUrl);
   applicationUrl += '&auto_close';
 

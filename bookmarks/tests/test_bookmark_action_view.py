@@ -844,6 +844,26 @@ class BookmarkActionViewTestCase(
         self.assertEqual(0, Bookmark.objects.filter(title__startswith="foo").count())
         self.assertEqual(3, Bookmark.objects.filter(title__startswith="bar").count())
 
+    def test_index_action_bulk_select_across_respects_bundle(self):
+        self.setup_numbered_bookmarks(3, prefix="foo")
+        self.setup_numbered_bookmarks(3, prefix="bar")
+
+        self.assertEqual(3, Bookmark.objects.filter(title__startswith="foo").count())
+
+        bundle = self.setup_bundle(search="foo")
+
+        self.client.post(
+            reverse("linkding:bookmarks.index.action") + f"?bundle={bundle.id}",
+            {
+                "bulk_action": ["bulk_delete"],
+                "bulk_execute": [""],
+                "bulk_select_across": ["on"],
+            },
+        )
+
+        self.assertEqual(0, Bookmark.objects.filter(title__startswith="foo").count())
+        self.assertEqual(3, Bookmark.objects.filter(title__startswith="bar").count())
+
     def test_archived_action_bulk_select_across_only_affects_archived_bookmarks(self):
         self.setup_bulk_edit_scope_test_data()
 
@@ -879,6 +899,26 @@ class BookmarkActionViewTestCase(
 
         self.client.post(
             reverse("linkding:bookmarks.archived.action") + "?q=foo",
+            {
+                "bulk_action": ["bulk_delete"],
+                "bulk_execute": [""],
+                "bulk_select_across": ["on"],
+            },
+        )
+
+        self.assertEqual(0, Bookmark.objects.filter(title__startswith="foo").count())
+        self.assertEqual(3, Bookmark.objects.filter(title__startswith="bar").count())
+
+    def test_archived_action_bulk_select_across_respects_bundle(self):
+        self.setup_numbered_bookmarks(3, prefix="foo", archived=True)
+        self.setup_numbered_bookmarks(3, prefix="bar", archived=True)
+
+        self.assertEqual(3, Bookmark.objects.filter(title__startswith="foo").count())
+
+        bundle = self.setup_bundle(search="foo")
+
+        self.client.post(
+            reverse("linkding:bookmarks.archived.action") + f"?bundle={bundle.id}",
             {
                 "bulk_action": ["bulk_delete"],
                 "bulk_execute": [""],

@@ -12,9 +12,9 @@ click==8.1.7
     # via black
 coverage==7.6.1
     # via -r requirements.dev.in
-django==5.1.9
+django==5.2.3
     # via django-debug-toolbar
-django-debug-toolbar==4.4.6
+django-debug-toolbar==5.2.0
     # via -r requirements.dev.in
 execnet==2.1.1
     # via pytest-xdist

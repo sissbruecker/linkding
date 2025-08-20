@@ -13,11 +13,11 @@ To fix this, check the [reverse proxy setup documentation](/installation#reverse
 
 ## Automatically detected title and description are incorrect
 
-linkding automatically fetches the title and description of the web page from the metadata in the HTML `<head>`. This happens on the server, which can return different results than what you see in your browser, for example if a website uses JavaScript to dynamically change the title or description, or if a website requires login.
+linkding automatically fetches the title and description of the web page from the metadata in the HTML `<head>`. By default, this happens on the server, which can return different results than what you see in your browser, for example, if a website uses JavaScript to dynamically change the title or description, or if a website requires login. Alternatively, both the browser extension and the bookmarklet can use the metadata directly from the page you are currently viewing in your browser. Note that for some websites this can give worse results, as not all websites correctly update the metadata in `<head>` while browsing the website (which is why fetching a fresh page on the server is still the default).
 
-When using the linkding browser extension, you can enable the *Use browser metadata* option to use the title and description that your browser sees. This will override the server-fetched metadata. Note that for some websites this can give worse results, as not all websites correctly update the metadata in `<head>` while browsing the website (which is why fetching a fresh page on the server is still the default).
-
-The bookmarklet currently does not have such an option.
+To use the title and description that you see in your browser:
+- When using the linkding browser extension, enable the *Use browser metadata* option in the options of the extension.
+- When adding the bookmarklet, the respective settings page allows you to choose whether to detect title and description from the server or in the browser.
 
 ## Archiving fails for certain websites
 

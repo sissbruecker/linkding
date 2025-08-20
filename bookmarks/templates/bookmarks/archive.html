@@ -30,16 +30,10 @@
       </form>
     </main>
 
-    {# Tag cloud #}
-    <div class="side-panel col-1">
-      <section aria-labelledby="tags-heading">
-        <div class="section-header">
-          <h2 id="tags-heading">Tags</h2>
-        </div>
-        <div id="tag-cloud-container">
-          {% include 'bookmarks/tag_cloud.html' %}
-        </div>
-      </section>
+    {# Filters #}
+    <div class="side-panel col-1 hide-md">
+      {% include 'bookmarks/bundle_section.html' %}
+      {% include 'bookmarks/tag_section.html' %}
     </div>
   </div>
 {% endblock %}

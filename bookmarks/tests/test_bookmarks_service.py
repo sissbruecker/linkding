@@ -22,6 +22,7 @@ from bookmarks.services.bookmarks import (
     unshare_bookmarks,
     enhance_with_website_metadata,
     refresh_bookmarks_metadata,
+    create_html_snapshots,
 )
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
@@ -974,3 +975,73 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(self.mock_schedule_refresh_metadata.call_count, 3)
         self.assertEqual(self.mock_load_preview_image.call_count, 3)
+
+    def test_create_html_snapshots(self):
+        with patch.object(tasks, "create_html_snapshots") as mock_create_html_snapshots:
+            bookmark1 = self.setup_bookmark()
+            bookmark2 = self.setup_bookmark()
+            bookmark3 = self.setup_bookmark()
+
+            create_html_snapshots(
+                [bookmark1.id, bookmark2.id, bookmark3.id],
+                self.get_or_create_test_user(),
+            )
+
+            mock_create_html_snapshots.assert_called_once()
+            call_args = mock_create_html_snapshots.call_args[0][0]
+            bookmark_ids = list(call_args.values_list("id", flat=True))
+            self.assertCountEqual(
+                bookmark_ids, [bookmark1.id, bookmark2.id, bookmark3.id]
+            )
+
+    def test_create_html_snapshots_should_only_create_for_specified_bookmarks(self):
+        with patch.object(tasks, "create_html_snapshots") as mock_create_html_snapshots:
+            bookmark1 = self.setup_bookmark()
+            bookmark2 = self.setup_bookmark()
+            bookmark3 = self.setup_bookmark()
+
+            create_html_snapshots(
+                [bookmark1.id, bookmark3.id], self.get_or_create_test_user()
+            )
+
+            mock_create_html_snapshots.assert_called_once()
+            call_args = mock_create_html_snapshots.call_args[0][0]
+            bookmark_ids = list(call_args.values_list("id", flat=True))
+            self.assertCountEqual(bookmark_ids, [bookmark1.id, bookmark3.id])
+            self.assertNotIn(bookmark2.id, bookmark_ids)
+
+    def test_create_html_snapshots_should_only_create_for_user_owned_bookmarks(self):
+        with patch.object(tasks, "create_html_snapshots") as mock_create_html_snapshots:
+            other_user = self.setup_user()
+            bookmark1 = self.setup_bookmark()
+            bookmark2 = self.setup_bookmark()
+            inaccessible_bookmark = self.setup_bookmark(user=other_user)
+
+            create_html_snapshots(
+                [bookmark1.id, bookmark2.id, inaccessible_bookmark.id],
+                self.get_or_create_test_user(),
+            )
+
+            mock_create_html_snapshots.assert_called_once()
+            call_args = mock_create_html_snapshots.call_args[0][0]
+            bookmark_ids = list(call_args.values_list("id", flat=True))
+            self.assertCountEqual(bookmark_ids, [bookmark1.id, bookmark2.id])
+            self.assertNotIn(inaccessible_bookmark.id, bookmark_ids)
+
+    def test_create_html_snapshots_should_accept_mix_of_int_and_string_ids(self):
+        with patch.object(tasks, "create_html_snapshots") as mock_create_html_snapshots:
+            bookmark1 = self.setup_bookmark()
+            bookmark2 = self.setup_bookmark()
+            bookmark3 = self.setup_bookmark()
+
+            create_html_snapshots(
+                [str(bookmark1.id), bookmark2.id, str(bookmark3.id)],
+                self.get_or_create_test_user(),
+            )
+
+            mock_create_html_snapshots.assert_called_once()
+            call_args = mock_create_html_snapshots.call_args[0][0]
+            bookmark_ids = list(call_args.values_list("id", flat=True))
+            self.assertCountEqual(
+                bookmark_ids, [bookmark1.id, bookmark2.id, bookmark3.id]
+            )

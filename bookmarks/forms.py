@@ -1,9 +1,14 @@
 from django import forms
+from django.forms.utils import ErrorList
 
 from bookmarks.models import Bookmark, build_tag_string
 from bookmarks.validators import BookmarkURLValidator
 from bookmarks.type_defs import HttpRequest
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
+
+
+class CustomErrorList(ErrorList):
+    template_name = "shared/error_list.html"
 
 
 class BookmarkForm(forms.ModelForm):
@@ -48,7 +53,9 @@ class BookmarkForm(forms.ModelForm):
         if instance is not None and request.method == "GET":
             initial = {"tag_string": build_tag_string(instance.tag_names, " ")}
         data = request.POST if request.method == "POST" else None
-        super().__init__(data, instance=instance, initial=initial)
+        super().__init__(
+            data, instance=instance, initial=initial, error_class=CustomErrorList
+        )
 
     @property
     def is_auto_close(self):

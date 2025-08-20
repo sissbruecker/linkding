@@ -35,6 +35,9 @@ Parameters:
 - `q` - Filters results using a search phrase using the same logic as through the UI
 - `limit` - Limits the max. number of results. Default is `100`.
 - `offset` - Index from which to start returning results
+- `modified_since` - Filter results to only include bookmarks modified after the specified date (format: ISO 8601, e.g. "2025-01-01T00:00:00Z")
+- `added_since` - Filter results to only include bookmarks added after the specified date (format: ISO 8601, e.g. "2025-05-29T00:00:00Z")
+- `bundle` - Filter results by bundle id to only include bookmarks matched by a given bundle
 
 Example response:
 
@@ -352,6 +355,115 @@ Example payload:
   "name": "example"
 }
 ```
+
+### Bundles
+
+**List**
+
+```
+GET /api/bundles/
+```
+
+List bundles.
+
+Parameters:
+
+- `limit` - Limits the max. number of results. Default is `100`.
+- `offset` - Index from which to start returning results
+
+Example response:
+
+```json
+{
+  "count": 3,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "name": "Work Resources",
+      "search": "productivity tools",
+      "any_tags": "work productivity",
+      "all_tags": "",
+      "excluded_tags": "personal",
+      "order": 0,
+      "date_created": "2020-09-26T09:46:23.006313Z",
+      "date_modified": "2020-09-26T16:01:14.275335Z"
+    },
+    {
+      "id": 2,
+      "name": "Tech Articles",
+      "search": "",
+      "any_tags": "programming development",
+      "all_tags": "",
+      "excluded_tags": "outdated",
+      "order": 1,
+      "date_created": "2020-09-27T10:15:30.123456Z",
+      "date_modified": "2020-09-27T10:15:30.123456Z"
+    },
+    ...
+  ]
+}
+```
+
+**Retrieve**
+
+```
+GET /api/bundles/<id>/
+```
+
+Retrieves a single bundle by ID.
+
+**Create**
+
+```
+POST /api/bundles/
+```
+
+Creates a new bundle. If no `order` is specified, the bundle will be automatically assigned the next available order position.
+
+Example payload:
+
+```json
+{
+  "name": "My Bundle",
+  "search": "search terms",
+  "any_tags": "tag1 tag2",
+  "all_tags": "required-tag",
+  "excluded_tags": "excluded-tag",
+  "order": 5
+}
+```
+
+**Update**
+
+```
+PUT /api/bundles/<id>/
+PATCH /api/bundles/<id>/
+```
+
+Updates a bundle.
+When using `PUT`, all fields except read-only ones should be provided.
+When using `PATCH`, only the fields that should be updated need to be provided.
+
+Example payload:
+
+```json
+{
+  "name": "Updated Bundle Name",
+  "search": "updated search terms",
+  "any_tags": "new-tag1 new-tag2",
+  "order": 10
+}
+```
+
+**Delete**
+
+```
+DELETE /api/bundles/<id>/
+```
+
+Deletes a bundle by ID.
 
 ### User
 

@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkSearch, FeedToken, UserProfile
+from bookmarks.views import access
 
 
 @dataclass
@@ -30,10 +31,16 @@ def sanitize(text: str):
 class BaseBookmarksFeed(Feed):
     def get_object(self, request, feed_key: str | None):
         feed_token = FeedToken.objects.get(key__exact=feed_key) if feed_key else None
+        bundle = None
+        bundle_id = request.GET.get("bundle")
+        if bundle_id:
+            bundle = access.bundle_read(request, bundle_id)
+
         search = BookmarkSearch(
             q=request.GET.get("q", ""),
             unread=request.GET.get("unread", ""),
             shared=request.GET.get("shared", ""),
+            bundle=bundle,
         )
         query_set = self.get_query_set(feed_token, search)
         return FeedContext(request, feed_token, query_set)

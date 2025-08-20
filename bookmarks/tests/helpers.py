@@ -17,7 +17,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from bookmarks.models import Bookmark, BookmarkAsset, Tag, User
+from bookmarks.models import Bookmark, BookmarkAsset, BookmarkBundle, Tag, User
 
 
 class BookmarkFactoryMixin:
@@ -166,6 +166,33 @@ class BookmarkFactoryMixin:
     def get_numbered_bookmark(self, title: str):
         return Bookmark.objects.get(title=title)
 
+    def setup_bundle(
+        self,
+        user: User = None,
+        name: str = None,
+        search: str = "",
+        any_tags: str = "",
+        all_tags: str = "",
+        excluded_tags: str = "",
+        order: int = 0,
+    ):
+        if user is None:
+            user = self.get_or_create_test_user()
+        if not name:
+            name = get_random_string(length=32)
+        bundle = BookmarkBundle(
+            name=name,
+            owner=user,
+            date_created=timezone.now(),
+            search=search,
+            any_tags=any_tags,
+            all_tags=all_tags,
+            excluded_tags=excluded_tags,
+            order=order,
+        )
+        bundle.save()
+        return bundle
+
     def setup_asset(
         self,
         bookmark: Bookmark,
@@ -209,8 +236,17 @@ class BookmarkFactoryMixin:
 
     def read_asset_file(self, asset: BookmarkAsset):
         filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
-        with open(filepath, "rb") as f:
-            return f.read()
+
+        if asset.gzip:
+            with gzip.open(filepath, "rb") as f:
+                return f.read()
+        else:
+            with open(filepath, "rb") as f:
+                return f.read()
+
+    def get_asset_filesize(self, asset: BookmarkAsset):
+        filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
+        return os.path.getsize(filepath) if os.path.exists(filepath) else 0
 
     def has_asset_file(self, asset: BookmarkAsset):
         filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
@@ -239,7 +275,7 @@ class BookmarkFactoryMixin:
         user.profile.save()
         return user
 
-    def get_tags_from_bookmarks(self, bookmarks: [Bookmark]):
+    def get_tags_from_bookmarks(self, bookmarks: list[Bookmark]):
         all_tags = []
         for bookmark in bookmarks:
             all_tags = all_tags + list(bookmark.tags.all())

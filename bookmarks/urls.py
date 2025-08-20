@@ -43,6 +43,12 @@ urlpatterns = [
         views.assets.read,
         name="assets.read",
     ),
+    # Bundles
+    path("bundles", views.bundles.index, name="bundles.index"),
+    path("bundles/action", views.bundles.action, name="bundles.action"),
+    path("bundles/new", views.bundles.new, name="bundles.new"),
+    path("bundles/<int:bundle_id>/edit", views.bundles.edit, name="bundles.edit"),
+    path("bundles/preview", views.bundles.preview, name="bundles.preview"),
     # Settings
     path("settings", views.settings.general, name="settings.index"),
     path("settings/general", views.settings.general, name="settings.general"),
@@ -64,6 +70,7 @@ urlpatterns = [
         include(api_routes.bookmark_asset_router.urls),
     ),
     path("api/tags/", include(api_routes.tag_router.urls)),
+    path("api/bundles/", include(api_routes.bundle_router.urls)),
     path("api/user/", include(api_routes.user_router.urls)),
     # Feeds
     path("feeds/<str:feed_key>/all", feeds.AllBookmarksFeed(), name="feeds.all"),

@@ -357,3 +357,50 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_sanitize_with_none_text(self):
         self.assertEqual("", sanitize(None))
+
+    def test_with_bundle(self):
+        tag1 = self.setup_tag()
+        visible_bookmarks = [
+            self.setup_bookmark(tags=[tag1]),
+            self.setup_bookmark(tags=[tag1]),
+        ]
+
+        self.setup_bookmark(),
+        self.setup_bookmark(),
+
+        bundle = self.setup_bundle(all_tags=tag1.name)
+
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key])
+            + f"?bundle={bundle.id}"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, visible_bookmarks)
+
+    def test_with_bundle_not_owned_by_user(self):
+        other_user = User.objects.create_user(
+            "otheruser", "otheruser@example.com", "password123"
+        )
+        other_bundle = self.setup_bundle(user=other_user, search="test")
+
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key])
+            + f"?bundle={other_bundle.id}"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_with_invalid_bundle_id(self):
+        self.setup_bookmark(title="test bookmark")
+
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key]) + "?bundle=999999"
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_with_non_numeric_bundle_id(self):
+        self.setup_bookmark(title="test bookmark")
+
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key]) + "?bundle=invalid"
+        )
+        self.assertEqual(response.status_code, 404)

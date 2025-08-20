@@ -1,0 +1,33 @@
+{% extends 'bookmarks/layout.html' %}
+{% load widget_tweaks %}
+
+{% block head %}
+  {% with page_title="Edit bundle - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+  <div class="bundles-editor-page grid columns-md-1">
+    <main aria-labelledby="main-heading">
+      <div class="section-header">
+        <h1 id="main-heading">Edit bundle</h1>
+      </div>
+
+      {% include 'shared/messages.html' %}
+
+      <form id="bundle-form" action="{% url 'linkding:bundles.edit' bundle.id %}" method="post" novalidate>
+        {% csrf_token %}
+        {% include 'bundles/form.html' %}
+      </form>
+    </main>
+
+    <aside class="col-2" aria-labelledby="preview-heading">
+      <div class="section-header">
+        <h2 id="preview-heading">Preview</h2>
+      </div>
+
+      {% include 'bundles/preview.html' %}
+    </aside>
+  </div>
+{% endblock %}

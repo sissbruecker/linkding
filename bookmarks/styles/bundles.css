@@ -1,0 +1,34 @@
+.bundles-page {
+  h1 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--unit-6);
+  }
+
+  .item-list {
+    .list-item .list-item-icon {
+      cursor: grab;
+    }
+
+    .list-item.drag-start {
+      --secondary-border-color: transparent;
+    }
+
+    .list-item.dragging > * {
+      visibility: hidden;
+    }
+  }
+}
+
+.bundles-editor-page {
+  &.grid {
+    gap: var(--unit-9);
+  }
+
+  .form-footer {
+    position: sticky;
+    bottom: 0;
+    border-top: solid 1px var(--secondary-border-color);
+    background: var(--body-color);
+    padding: var(--unit-3) 0;
+  }
+}

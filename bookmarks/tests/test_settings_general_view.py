@@ -48,6 +48,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "items_per_page": "30",
             "sticky_pagination": False,
             "collapse_side_panel": False,
+            "hide_bundles": False,
         }
 
         return {**form_data, **overrides}
@@ -119,6 +120,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "items_per_page": "10",
             "sticky_pagination": True,
             "collapse_side_panel": True,
+            "hide_bundles": True,
         }
         response = self.client.post(
             reverse("linkding:settings.update"), form_data, follow=True
@@ -199,6 +201,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(
             self.user.profile.collapse_side_panel, form_data["collapse_side_panel"]
         )
+        self.assertEqual(self.user.profile.hide_bundles, form_data["hide_bundles"])
 
         self.assertSuccessMessage(html, "Profile updated")
 

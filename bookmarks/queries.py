@@ -2,16 +2,26 @@ from typing import Optional
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db.models import Q, QuerySet, Exists, OuterRef, Case, When, CharField
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import Lower
 
-from bookmarks.models import Bookmark, BookmarkSearch, Tag, UserProfile
+from bookmarks.models import (
+    Bookmark,
+    BookmarkBundle,
+    BookmarkSearch,
+    Tag,
+    UserProfile,
+    parse_tag_string,
+)
 from bookmarks.utils import unique
 
 
 def query_bookmarks(
-    user: User, profile: UserProfile, search: BookmarkSearch
+    user: User,
+    profile: UserProfile,
+    search: BookmarkSearch,
 ) -> QuerySet:
     return _base_bookmarks_query(user, profile, search).filter(is_archived=False)
 
@@ -35,14 +45,73 @@ def query_shared_bookmarks(
     return _base_bookmarks_query(user, profile, search).filter(conditions)
 
 
+def _filter_bundle(query_set: QuerySet, bundle: BookmarkBundle) -> QuerySet:
+    # Search terms
+    search_terms = parse_query_string(bundle.search)["search_terms"]
+    for term in search_terms:
+        conditions = (
+            Q(title__icontains=term)
+            | Q(description__icontains=term)
+            | Q(notes__icontains=term)
+            | Q(url__icontains=term)
+        )
+        query_set = query_set.filter(conditions)
+
+    # Any tags - at least one tag must match
+    any_tags = parse_tag_string(bundle.any_tags, " ")
+    if len(any_tags) > 0:
+        tag_conditions = Q()
+        for tag in any_tags:
+            tag_conditions |= Q(tags__name__iexact=tag)
+
+        query_set = query_set.filter(
+            Exists(Bookmark.objects.filter(tag_conditions, id=OuterRef("id")))
+        )
+
+    # All tags - all tags must match
+    all_tags = parse_tag_string(bundle.all_tags, " ")
+    for tag in all_tags:
+        query_set = query_set.filter(tags__name__iexact=tag)
+
+    # Excluded tags - no tags must match
+    exclude_tags = parse_tag_string(bundle.excluded_tags, " ")
+    if len(exclude_tags) > 0:
+        tag_conditions = Q()
+        for tag in exclude_tags:
+            tag_conditions |= Q(tags__name__iexact=tag)
+        query_set = query_set.exclude(
+            Exists(Bookmark.objects.filter(tag_conditions, id=OuterRef("id")))
+        )
+
+    return query_set
+
+
 def _base_bookmarks_query(
-    user: Optional[User], profile: UserProfile, search: BookmarkSearch
+    user: Optional[User],
+    profile: UserProfile,
+    search: BookmarkSearch,
 ) -> QuerySet:
     query_set = Bookmark.objects
 
     # Filter for user
     if user:
         query_set = query_set.filter(owner=user)
+
+    # Filter by modified_since if provided
+    if search.modified_since:
+        try:
+            query_set = query_set.filter(date_modified__gt=search.modified_since)
+        except ValidationError:
+            # If the date format is invalid, ignore the filter
+            pass
+
+    # Filter by added_since if provided
+    if search.added_since:
+        try:
+            query_set = query_set.filter(date_added__gt=search.added_since)
+        except ValidationError:
+            # If the date format is invalid, ignore the filter
+            pass
 
     # Split query into search terms and tags
     query = parse_query_string(search.q)
@@ -84,6 +153,10 @@ def _base_bookmarks_query(
         query_set = query_set.filter(shared=True)
     elif search.shared == BookmarkSearch.FILTER_SHARED_UNSHARED:
         query_set = query_set.filter(shared=False)
+
+    # Filter by bundle
+    if search.bundle:
+        query_set = _filter_bundle(query_set, search.bundle)
 
     # Sort
     if (

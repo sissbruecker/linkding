@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.41.0 (19/06/2025)
+
+### What's Changed
+* Add bundles for organizing bookmarks by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1097
+* Add REST API for bookmark bundles by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1100
+* Add date filters for REST API by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1080
+* Fix side panel not being hidden on smaller viewports by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1089
+* Fix assets not using correct icon by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1098
+* Add LinkBuddy to community section by @peterto in https://github.com/sissbruecker/linkding/pull/1088
+* Bump tar-fs in /docs by @dependabot in https://github.com/sissbruecker/linkding/pull/1084
+* Bump django from 5.1.9 to 5.1.10 by @dependabot in https://github.com/sissbruecker/linkding/pull/1086
+* Bump requests from 2.32.3 to 2.32.4 by @dependabot in https://github.com/sissbruecker/linkding/pull/1090
+* Bump urllib3 from 2.2.3 to 2.5.0 by @dependabot in https://github.com/sissbruecker/linkding/pull/1096
+
+### New Contributors
+* @peterto made their first contribution in https://github.com/sissbruecker/linkding/pull/1088
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.40.0...v1.41.0
+
+---
+
 ## v1.40.0 (17/05/2025)
 
 ### What's Changed

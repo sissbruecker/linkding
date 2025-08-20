@@ -11,6 +11,7 @@ from django.db.models import prefetch_related_objects
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.authtoken.models import Token
 
 from bookmarks.models import (
@@ -239,8 +240,12 @@ def bookmark_export(request: HttpRequest):
         prefetch_related_objects(bookmarks, "tags")
         file_content = exporter.export_netscape_html(list(bookmarks))
 
+        # Generate filename with current date and time
+        current_time = timezone.now()
+        filename = current_time.strftime("bookmarks_%Y-%m-%d_%H-%M-%S.html")
+
         response = HttpResponse(content_type="text/plain; charset=UTF-8")
-        response["Content-Disposition"] = 'attachment; filename="bookmarks.html"'
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
         response.write(file_content)
 
         return response

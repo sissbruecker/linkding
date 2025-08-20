@@ -16,9 +16,17 @@ from bookmarks.api.serializers import (
     BookmarkAssetSerializer,
     TagSerializer,
     UserProfileSerializer,
+    BookmarkBundleSerializer,
 )
-from bookmarks.models import Bookmark, BookmarkAsset, BookmarkSearch, Tag, User
-from bookmarks.services import assets, bookmarks, auto_tagging, website_loader
+from bookmarks.models import (
+    Bookmark,
+    BookmarkAsset,
+    BookmarkSearch,
+    Tag,
+    User,
+    BookmarkBundle,
+)
+from bookmarks.services import assets, bookmarks, bundles, auto_tagging, website_loader
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
 
@@ -50,7 +58,7 @@ class BookmarkViewSet(
     def get_queryset(self):
         # Provide filtered queryset for list actions
         user = self.request.user
-        search = BookmarkSearch.from_request(self.request.GET)
+        search = BookmarkSearch.from_request(self.request, self.request.GET)
         if self.action == "list":
             return queries.query_bookmarks(user, user.profile, search)
         elif self.action == "archived":
@@ -191,13 +199,10 @@ class BookmarkAssetViewSet(
                 if asset.gzip
                 else open(file_path, "rb")
             )
-            file_name = (
-                f"{asset.display_name}.html"
-                if asset.asset_type == BookmarkAsset.TYPE_SNAPSHOT
-                else asset.display_name
-            )
             response = StreamingHttpResponse(file_stream, content_type=content_type)
-            response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+            response["Content-Disposition"] = (
+                f'attachment; filename="{asset.download_name}"'
+            )
             return response
         except FileNotFoundError:
             raise Http404("Asset file does not exist")
@@ -264,6 +269,28 @@ class UserViewSet(viewsets.GenericViewSet):
         return Response(UserProfileSerializer(request.user.profile).data)
 
 
+class BookmarkBundleViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+):
+    request: HttpRequest
+    serializer_class = BookmarkBundleSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return BookmarkBundle.objects.filter(owner=user).order_by("order")
+
+    def get_serializer_context(self):
+        return {"user": self.request.user}
+
+    def perform_destroy(self, instance):
+        bundles.delete_bundle(instance)
+
+
 # DRF routers do not support nested view sets such as /bookmarks/<id>/assets/<id>/
 # Instead create separate routers for each view set and manually register them in urls.py
 # The default router is only used to allow reversing a URL for the API root
@@ -277,6 +304,9 @@ tag_router.register("", TagViewSet, basename="tag")
 
 user_router = SimpleRouter()
 user_router.register("", UserViewSet, basename="user")
+
+bundle_router = SimpleRouter()
+bundle_router.register("", BookmarkBundleViewSet, basename="bundle")
 
 bookmark_asset_router = SimpleRouter()
 bookmark_asset_router.register("", BookmarkAssetViewSet, basename="bookmark_asset")

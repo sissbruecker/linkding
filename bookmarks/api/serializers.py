@@ -1,10 +1,17 @@
-from django.db.models import prefetch_related_objects
+from django.db.models import Max, prefetch_related_objects
 from django.templatetags.static import static
 from rest_framework import serializers
 from rest_framework.serializers import ListSerializer
 
-from bookmarks.models import Bookmark, BookmarkAsset, Tag, build_tag_string, UserProfile
-from bookmarks.services import bookmarks
+from bookmarks.models import (
+    Bookmark,
+    BookmarkAsset,
+    Tag,
+    build_tag_string,
+    UserProfile,
+    BookmarkBundle,
+)
+from bookmarks.services import bookmarks, bundles
 from bookmarks.services.tags import get_or_create_tag
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.utils import app_version
@@ -25,6 +32,32 @@ class BookmarkListSerializer(ListSerializer):
 class EmtpyField(serializers.ReadOnlyField):
     def to_representation(self, value):
         return None
+
+
+class BookmarkBundleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookmarkBundle
+        fields = [
+            "id",
+            "name",
+            "search",
+            "any_tags",
+            "all_tags",
+            "excluded_tags",
+            "order",
+            "date_created",
+            "date_modified",
+        ]
+        read_only_fields = [
+            "id",
+            "date_created",
+            "date_modified",
+        ]
+
+    def create(self, validated_data):
+        bundle = BookmarkBundle(**validated_data)
+        bundle.order = validated_data["order"] if "order" in validated_data else None
+        return bundles.create_bundle(bundle, self.context["user"])
 
 
 class BookmarkSerializer(serializers.ModelSerializer):

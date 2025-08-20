@@ -13,6 +13,7 @@ from bookmarks import utils
 from bookmarks.models import (
     Bookmark,
     BookmarkAsset,
+    BookmarkBundle,
     BookmarkSearch,
     User,
     UserProfile,
@@ -179,15 +180,13 @@ class BookmarkItem:
 class BookmarkListContext:
     request_context = RequestContext
 
-    def __init__(self, request: HttpRequest) -> None:
+    def __init__(self, request: HttpRequest, search: BookmarkSearch) -> None:
         request_context = self.request_context(request)
         user = request.user
         user_profile = request.user_profile
 
         self.request = request
-        self.search = BookmarkSearch.from_request(
-            self.request.GET, user_profile.search_preferences
-        )
+        self.search = search
 
         query_set = request_context.get_bookmark_query_set(self.search)
         page_number = request.GET.get("page")
@@ -220,6 +219,8 @@ class BookmarkListContext:
         self.show_preview_images = user_profile.enable_preview_images
         self.show_notes = user_profile.permanent_notes
         self.collapse_side_panel = user_profile.collapse_side_panel
+        self.is_preview = False
+        self.snapshot_feature_enabled = settings.LD_ENABLE_SNAPSHOTS
 
     @staticmethod
     def generate_return_url(search: BookmarkSearch, base_url: str, page: int = None):
@@ -316,14 +317,12 @@ class TagGroup:
 class TagCloudContext:
     request_context = RequestContext
 
-    def __init__(self, request: HttpRequest) -> None:
+    def __init__(self, request: HttpRequest, search: BookmarkSearch) -> None:
         request_context = self.request_context(request)
         user_profile = request.user_profile
 
         self.request = request
-        self.search = BookmarkSearch.from_request(
-            self.request.GET, user_profile.search_preferences
-        )
+        self.search = search
 
         query_set = request_context.get_tag_query_set(self.search)
         tags = list(query_set)
@@ -372,6 +371,7 @@ class BookmarkAssetItem:
         self.asset_type = asset.asset_type
         self.file = asset.file
         self.file_size = asset.file_size
+        self.content_type = asset.content_type
         self.status = asset.status
 
         icon_classes = []
@@ -461,3 +461,23 @@ def get_details_context(
         return None
 
     return context_type(request, bookmark)
+
+
+class BundlesContext:
+    def __init__(self, request: HttpRequest) -> None:
+        self.request = request
+        self.user = request.user
+        self.user_profile = request.user_profile
+
+        self.bundles = (
+            BookmarkBundle.objects.filter(owner=self.user).order_by("order").all()
+        )
+        self.is_empty = len(self.bundles) == 0
+
+        selected_bundle_id = (
+            int(request.GET.get("bundle")) if request.GET.get("bundle") else None
+        )
+        self.selected_bundle = next(
+            (bundle for bundle in self.bundles if bundle.id == selected_bundle_id),
+            None,
+        )

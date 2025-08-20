@@ -124,7 +124,7 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
             # Cancel edit, verify return to details url
             details_url = url + f"&details={bookmark.id}"
             with self.page.expect_navigation(url=self.live_server_url + details_url):
-                self.page.get_by_text("Nevermind").click()
+                self.page.get_by_text("Cancel").click()
 
     def test_delete(self):
         bookmark = self.setup_bookmark()

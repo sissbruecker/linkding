@@ -366,6 +366,32 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
 
         self.assertListEqual(tag_names, ["tag-1", "tag-2", "tag-3"])
 
+    def test_ignore_long_tag_names(self):
+        long_tag = "a" * 65
+        valid_tag = "valid-tag"
+
+        test_html = self.render_html(
+            tags_html=f"""
+            <DT><A HREF="https://example.com" TAGS="{long_tag}, {valid_tag}">Example.com</A>
+            <DD>Example.com
+        """
+        )
+        result = import_netscape_html(test_html, self.get_or_create_test_user())
+
+        # Import should succeed
+        self.assertEqual(result.success, 1)
+        self.assertEqual(result.failed, 0)
+
+        # Only the valid tag should be created
+        tags = Tag.objects.all()
+        self.assertEqual(len(tags), 1)
+        self.assertEqual(tags[0].name, valid_tag)
+
+        # Bookmark should only have the valid tag assigned
+        bookmark = Bookmark.objects.get(url="https://example.com")
+        bookmark_tag_names = [tag.name for tag in bookmark.tags.all()]
+        self.assertEqual(bookmark_tag_names, [valid_tag])
+
     @disable_logging
     def test_validate_empty_or_missing_bookmark_url(self):
         test_html = self.render_html(

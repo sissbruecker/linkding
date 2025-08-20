@@ -1,5 +1,6 @@
 {% load widget_tweaks %}
 {% load static %}
+{% load shared %}
 
 <div class="bookmarks-form">
   {% csrf_token %}
@@ -7,7 +8,7 @@
   <div class="form-group {% if form.url.errors %}has-error{% endif %}">
     <label for="{{ form.url.id_for_label }}" class="form-label">URL</label>
     <div class="has-icon-right">
-      {{ form.url|add_class:"form-input"|attr:"autofocus"|attr:"placeholder: " }}
+      {{ form.url|form_field:"validation"|add_class:"form-input"|attr:"autofocus" }}
       <i class="form-icon loading"></i>
     </div>
     {% if form.url.errors %}
@@ -22,8 +23,8 @@
   </div>
   <div class="form-group" ld-tag-autocomplete>
     <label for="{{ form.tag_string.id_for_label }}" class="form-label">Tags</label>
-    {{ form.tag_string|add_class:"form-input"|attr:"autocomplete:off"|attr:"autocapitalize:off" }}
-    <div class="form-input-hint">
+    {{ form.tag_string|form_field:"help"|add_class:"form-input"|attr:"autocomplete:off"|attr:"autocapitalize:off" }}
+    <div id="{{ form.tag_string.auto_id }}_help" class="form-input-hint">
       Enter any number of tags separated by space and <strong>without</strong> the hash (#).
       If a tag does not exist it will be automatically created.
     </div>
@@ -35,7 +36,8 @@
       <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
       <div class="flex">
         <button id="refresh-button" class="btn btn-link suffix-button" type="button">Refresh from website</button>
-        <button ld-clear-button data-for="{{ form.title.id_for_label }}" class="ml-2 btn btn-link suffix-button clear-button"
+        <button ld-clear-button data-for="{{ form.title.id_for_label }}"
+                class="ml-2 btn btn-link suffix-button clear-button"
                 type="button">Clear
         </button>
       </div>
@@ -60,31 +62,31 @@
         <span class="form-label d-inline-block">Notes</span>
       </summary>
       <label for="{{ form.notes.id_for_label }}" class="text-assistive">Notes</label>
-      {{ form.notes|add_class:"form-input"|attr:"rows:8" }}
-      <div class="form-input-hint">
+      {{ form.notes|form_field:"help"|add_class:"form-input"|attr:"rows:8" }}
+      <div id="{{ form.notes.auto_id }}_help" class="form-input-hint">
         Additional notes, supports Markdown.
       </div>
     </details>
     {{ form.notes.errors }}
   </div>
   <div class="form-group">
-    <label for="{{ form.unread.id_for_label }}" class="form-checkbox">
-      {{ form.unread }}
+    <div class="form-checkbox">
+      {{ form.unread|form_field:"help" }}
       <i class="form-icon"></i>
-      <span>Mark as unread</span>
-    </label>
-    <div class="form-input-hint">
+      <label for="{{ form.unread.id_for_label }}">Mark as unread</label>
+    </div>
+    <div id="{{ form.unread.auto_id }}_help" class="form-input-hint">
       Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them.
     </div>
   </div>
   {% if request.user_profile.enable_sharing %}
     <div class="form-group">
-      <label for="{{ form.shared.id_for_label }}" class="form-checkbox">
-        {{ form.shared }}
+      <div class="form-checkbox">
+        {{ form.shared|form_field:"help" }}
         <i class="form-icon"></i>
-        <span>Share</span>
-      </label>
-      <div class="form-input-hint">
+        <label for="{{ form.shared.id_for_label }}">Share</label>
+      </div>
+      <div id="{{ form.shared.auto_id }}_help" class="form-input-hint">
         {% if request.user_profile.enable_public_sharing %}
           Share this bookmark with other registered users and anonymous users.
         {% else %}
@@ -100,7 +102,7 @@
     {% else %}
       <input type="submit" value="Save" class="btn btn-primary btn btn-primary btn-wide">
     {% endif %}
-    <a href="{{ return_url }}" class="btn">Nevermind</a>
+    <a href="{{ return_url }}" class="btn">Cancel</a>
   </div>
   <script type="application/javascript">
     /**
@@ -227,6 +229,7 @@
             }
           });
       }
+
       refreshButton.addEventListener('click', refreshMetadata);
 
       // Fetch website metadata when page loads and when URL changes, unless we are editing an existing bookmark
