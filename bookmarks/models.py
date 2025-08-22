@@ -70,6 +70,7 @@ class Bookmark(models.Model):
     date_added = models.DateTimeField()
     date_modified = models.DateTimeField()
     date_accessed = models.DateTimeField(blank=True, null=True)
+    access_count = models.IntegerField(default=0)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag)
     latest_snapshot = models.ForeignKey(
@@ -192,6 +193,7 @@ class BookmarkSearch:
     SORT_ADDED_DESC = "added_desc"
     SORT_TITLE_ASC = "title_asc"
     SORT_TITLE_DESC = "title_desc"
+    SORT_USAGE_DESC = "usage_desc"
 
     FILTER_SHARED_OFF = "off"
     FILTER_SHARED_SHARED = "yes"
@@ -315,6 +317,7 @@ class BookmarkSearchForm(forms.Form):
         (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
         (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
         (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
+        (BookmarkSearch.SORT_USAGE_DESC, "Most Used"),
     ]
     FILTER_SHARED_CHOICES = [
         (BookmarkSearch.FILTER_SHARED_OFF, "Off"),
@@ -345,6 +348,24 @@ class BookmarkSearchForm(forms.Form):
         super().__init__()
         editable_fields = editable_fields or []
         self.editable_fields = editable_fields
+
+        # Adjust sort choices based on user's usage tracking setting
+        if search.request and hasattr(search.request, 'user') and search.request.user.is_authenticated:
+            if search.request.user.profile.enable_usage_tracking:
+                self.fields["sort"].choices = [
+                    (BookmarkSearch.SORT_USAGE_DESC, "Most Used"),
+                    (BookmarkSearch.SORT_ADDED_ASC, "Added ↑"),
+                    (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
+                    (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
+                    (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
+                ]
+            else:
+                self.fields["sort"].choices = [
+                    (BookmarkSearch.SORT_ADDED_ASC, "Added ↑"),
+                    (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
+                    (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
+                    (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
+                ]
 
         # set choices for user field if users are provided
         if users:
@@ -480,6 +501,7 @@ class UserProfile(models.Model):
     sticky_pagination = models.BooleanField(default=False, null=False)
     collapse_side_panel = models.BooleanField(default=False, null=False)
     hide_bundles = models.BooleanField(default=False, null=False)
+    enable_usage_tracking = models.BooleanField(default=False, null=False)
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -521,6 +543,7 @@ class UserProfileForm(forms.ModelForm):
             "sticky_pagination",
             "collapse_side_panel",
             "hide_bundles",
+            "enable_usage_tracking",
         ]
 
 

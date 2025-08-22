@@ -187,6 +187,9 @@ def _base_bookmarks_query(
             query_set = query_set.order_by(order_field).reverse()
     elif search.sort == BookmarkSearch.SORT_ADDED_ASC:
         query_set = query_set.order_by("date_added")
+    elif search.sort == BookmarkSearch.SORT_USAGE_DESC:
+        # Sort by access count descending, then by date added descending
+        query_set = query_set.order_by("-access_count", "-date_added")
     else:
         # Sort by date added, descending by default
         query_set = query_set.order_by("-date_added")

@@ -271,6 +271,17 @@ reddit.com/r/Music music reddit</pre>
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.enable_usage_tracking.id_for_label }}" class="form-checkbox">
+            {{ form.enable_usage_tracking }}
+            <i class="form-icon"></i> Enable usage tracking
+          </label>
+          <div class="form-input-hint">
+            When enabled, tracks how often you click on bookmark links and allows sorting by "Most Used".
+            This feature only counts your own clicks and data never leaves your instance.
+            When disabled, bookmarks are sorted by date only.
+          </div>
+        </div>
+        <div class="form-group">
           <details {% if form.custom_css.value %}open{% endif %}>
             <summary>
               <span class="form-label d-inline-block">Custom CSS</span>

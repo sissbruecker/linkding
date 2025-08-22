@@ -21,6 +21,7 @@ The name comes from:
 - Organize bookmarks with tags
 - Bulk editing, Markdown notes, read it later functionality
 - Share bookmarks with other users or guests
+- Optional usage tracking to sort bookmarks by most-used (privacy-focused, disabled by default)
 - Automatically provides titles, descriptions and icons of bookmarked websites
 - Automatically archive websites, either as local HTML file or on Internet Archive
 - Import and export bookmarks in Netscape HTML format

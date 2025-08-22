@@ -22,16 +22,29 @@
               {% if bookmark_item.favicon_file and bookmark_list.show_favicons %}
                 <img class="favicon" src="{% static bookmark_item.favicon_file %}" alt="">
               {% endif %}
-              <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener">
-                <span>{{ bookmark_item.title }}</span>
-              </a>
+              {% if request.user.profile.enable_usage_tracking %}
+                <a href="{% url 'linkding:bookmarks.visit' bookmark_item.id %}" target="{{ bookmark_list.link_target }}" rel="noopener">
+                  <span>{{ bookmark_item.title }}</span>
+                </a>
+              {% else %}
+                <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener">
+                  <span>{{ bookmark_item.title }}</span>
+                </a>
+              {% endif %}
             </div>
             {% if bookmark_list.show_url %}
               <div class="url-path truncate">
-                <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener"
-                   class="url-display">
-                  {{ bookmark_item.url }}
-                </a>
+                {% if request.user.profile.enable_usage_tracking %}
+                  <a href="{% url 'linkding:bookmarks.visit' bookmark_item.id %}" target="{{ bookmark_list.link_target }}" rel="noopener"
+                     class="url-display">
+                    {{ bookmark_item.url }}
+                  </a>
+                {% else %}
+                  <a href="{{ bookmark_item.url }}" target="{{ bookmark_list.link_target }}" rel="noopener"
+                     class="url-display">
+                    {{ bookmark_item.url }}
+                  </a>
+                {% endif %}
               </div>
             {% endif %}
             {% if bookmark_list.description_display == 'inline' %}
