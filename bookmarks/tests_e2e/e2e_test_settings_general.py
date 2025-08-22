@@ -18,28 +18,43 @@ class SettingsGeneralE2ETestCase(LinkdingE2ETestCase):
             enable_public_sharing_label = page.get_by_text(
                 "Enable public bookmark sharing"
             )
+            default_mark_shared = page.get_by_label(
+                "Create bookmarks as shared by default"
+            )
+            default_mark_shared_label = page.get_by_text(
+                "Create bookmarks as shared by default"
+            )
 
-            # Public sharing is disabled by default
+            # Public sharing and default shared are disabled by default
             expect(enable_sharing).not_to_be_checked()
             expect(enable_public_sharing).not_to_be_checked()
             expect(enable_public_sharing).to_be_disabled()
+            expect(default_mark_shared).not_to_be_checked()
+            expect(default_mark_shared).to_be_disabled()
 
             # Enable sharing
             enable_sharing_label.click()
             expect(enable_sharing).to_be_checked()
             expect(enable_public_sharing).not_to_be_checked()
             expect(enable_public_sharing).to_be_enabled()
+            expect(default_mark_shared).not_to_be_checked()
+            expect(default_mark_shared).to_be_enabled()
 
-            # Enable public sharing
+            # Enable public sharing and default shared
             enable_public_sharing_label.click()
+            default_mark_shared_label.click()
             expect(enable_public_sharing).to_be_checked()
             expect(enable_public_sharing).to_be_enabled()
+            expect(default_mark_shared).to_be_checked()
+            expect(default_mark_shared).to_be_enabled()
 
             # Disable sharing
             enable_sharing_label.click()
             expect(enable_sharing).not_to_be_checked()
             expect(enable_public_sharing).not_to_be_checked()
             expect(enable_public_sharing).to_be_disabled()
+            expect(default_mark_shared).not_to_be_checked()
+            expect(default_mark_shared).to_be_disabled()
 
     def test_should_not_show_bookmark_description_max_lines_when_display_inline(self):
         profile = self.get_or_create_test_user().profile

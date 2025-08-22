@@ -479,6 +479,7 @@ class UserProfile(models.Model):
     search_preferences = models.JSONField(default=dict, null=False)
     enable_automatic_html_snapshots = models.BooleanField(default=True, null=False)
     default_mark_unread = models.BooleanField(default=False, null=False)
+    default_mark_shared = models.BooleanField(default=False, null=False)
     items_per_page = models.IntegerField(
         null=False, default=30, validators=[MinValueValidator(10)]
     )
@@ -520,6 +521,7 @@ class UserProfileForm(forms.ModelForm):
             "display_remove_bookmark_action",
             "permanent_notes",
             "default_mark_unread",
+            "default_mark_shared",
             "custom_css",
             "auto_tagging_rules",
             "items_per_page",
