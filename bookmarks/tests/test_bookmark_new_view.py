@@ -281,3 +281,28 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
             '<input type="checkbox" name="unread" id="id_unread" checked="" aria-describedby="id_unread_help">',
             html,
         )
+
+    def test_should_not_check_shared_by_default(self):
+        self.user.profile.enable_sharing = True
+        self.user.profile.save()
+
+        response = self.client.get(reverse("linkding:bookmarks.new"))
+        html = response.content.decode()
+
+        self.assertInHTML(
+            '<input type="checkbox" name="shared" id="id_shared" aria-describedby="id_shared_help">',
+            html,
+        )
+
+    def test_should_check_shared_when_configured_in_profile(self):
+        self.user.profile.enable_sharing = True
+        self.user.profile.default_mark_shared = True
+        self.user.profile.save()
+
+        response = self.client.get(reverse("linkding:bookmarks.new"))
+        html = response.content.decode()
+
+        self.assertInHTML(
+            '<input type="checkbox" name="shared" id="id_shared" checked="" aria-describedby="id_shared_help">',
+            html,
+        )

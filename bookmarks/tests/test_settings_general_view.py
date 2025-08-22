@@ -115,6 +115,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "display_remove_bookmark_action": False,
             "permanent_notes": True,
             "default_mark_unread": True,
+            "default_mark_shared": True,
             "custom_css": "body { background-color: #000; }",
             "auto_tagging_rules": "example.com tag",
             "items_per_page": "10",
@@ -187,6 +188,9 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
         self.assertEqual(
             self.user.profile.default_mark_unread, form_data["default_mark_unread"]
+        )
+        self.assertEqual(
+            self.user.profile.default_mark_shared, form_data["default_mark_shared"]
         )
         self.assertEqual(self.user.profile.custom_css, form_data["custom_css"])
         self.assertEqual(

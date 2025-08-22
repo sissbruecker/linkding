@@ -50,6 +50,7 @@ class BookmarkForm(forms.ModelForm):
                 "tag_string": request.GET.get("tags"),
                 "auto_close": "auto_close" in request.GET,
                 "unread": request.user_profile.default_mark_unread,
+                "shared": request.user_profile.default_mark_shared,
             }
         if instance is not None and request.method == "GET":
             initial = {"tag_string": build_tag_string(instance.tag_names, " ")}
