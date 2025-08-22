@@ -27,6 +27,7 @@ from bookmarks.models import (
     BookmarkBundle,
 )
 from bookmarks.services import assets, bookmarks, bundles, auto_tagging, website_loader
+from bookmarks.utils import normalize_url
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
 
@@ -107,7 +108,10 @@ class BookmarkViewSet(
     def check(self, request: HttpRequest):
         url = request.GET.get("url")
         ignore_cache = request.GET.get("ignore_cache", False) in ["true"]
-        bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
+        normalized_url = normalize_url(url)
+        bookmark = Bookmark.objects.filter(
+            owner=request.user, url_normalized=normalized_url
+        ).first()
         existing_bookmark_data = (
             self.get_serializer(bookmark).data if bookmark else None
         )
@@ -151,7 +155,10 @@ class BookmarkViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        bookmark = Bookmark.objects.filter(owner=request.user, url=url).first()
+        normalized_url = normalize_url(url)
+        bookmark = Bookmark.objects.filter(
+            owner=request.user, url_normalized=normalized_url
+        ).first()
 
         if not bookmark:
             bookmark = Bookmark(url=url)

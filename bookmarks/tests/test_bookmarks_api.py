@@ -1047,6 +1047,29 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             self.assertEqual(expected_metadata.description, metadata["description"])
             self.assertEqual(expected_metadata.preview_image, metadata["preview_image"])
 
+    def test_check_returns_bookmark_using_normalized_url(self):
+        self.authenticate()
+
+        # Create bookmark with one URL variant
+        bookmark = self.setup_bookmark(
+            url="https://EXAMPLE.COM/path/?z=1&a=2",
+            title="Example title",
+            description="Example description",
+        )
+
+        # Check with different URL variant that should normalize to the same URL
+        url = reverse("linkding:bookmark-check")
+        check_url = urllib.parse.quote_plus("https://example.com/path?a=2&z=1")
+        response = self.get(
+            f"{url}?url={check_url}", expected_status_code=status.HTTP_200_OK
+        )
+        bookmark_data = response.data["bookmark"]
+
+        # Should find the existing bookmark despite URL differences
+        self.assertIsNotNone(bookmark_data)
+        self.assertEqual(bookmark.id, bookmark_data["id"])
+        self.assertEqual(bookmark.title, bookmark_data["title"])
+
     def test_check_returns_no_auto_tags_if_none_configured(self):
         self.authenticate()
 
