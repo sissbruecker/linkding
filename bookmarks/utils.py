@@ -139,3 +139,49 @@ def generate_username(email, claims):
     else:
         username = email
     return unicodedata.normalize("NFKC", username)[:150]
+
+
+def normalize_url(url: str) -> str:
+    if not url or not isinstance(url, str):
+        return ""
+
+    url = url.strip()
+    if not url:
+        return ""
+
+    try:
+        parsed = urllib.parse.urlparse(url)
+
+        # Normalize the scheme to lowercase
+        scheme = parsed.scheme.lower()
+
+        # Normalize the netloc (domain) to lowercase
+        netloc = parsed.hostname.lower() if parsed.hostname else ""
+        if parsed.port:
+            netloc += f":{parsed.port}"
+        if parsed.username:
+            auth = parsed.username
+            if parsed.password:
+                auth += f":{parsed.password}"
+            netloc = f"{auth}@{netloc}"
+
+        # Remove trailing slashes from all paths
+        path = parsed.path.rstrip("/") if parsed.path else ""
+
+        # Sort query parameters alphabetically
+        query = ""
+        if parsed.query:
+            query_params = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+            query_params.sort(key=lambda x: (x[0], x[1]))
+            query = urllib.parse.urlencode(query_params, quote_via=urllib.parse.quote)
+
+        # Keep fragment as-is
+        fragment = parsed.fragment
+
+        # Reconstruct the normalized URL
+        return urllib.parse.urlunparse(
+            (scheme, netloc, path, parsed.params, query, fragment)
+        )
+
+    except (ValueError, AttributeError):
+        return url

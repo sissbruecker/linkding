@@ -188,6 +188,25 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         edited_bookmark.refresh_from_db()
         self.assertNotEqual(edited_bookmark.url, existing_bookmark.url)
 
+    def test_should_prevent_duplicate_normalized_urls(self):
+        self.setup_bookmark(url="https://EXAMPLE.COM/path/?z=1&a=2")
+
+        edited_bookmark = self.setup_bookmark(url="http://different.com")
+
+        form_data = self.create_form_data({"url": "https://example.com/path?a=2&z=1"})
+        response = self.client.post(
+            reverse("linkding:bookmarks.edit", args=[edited_bookmark.id]), form_data
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertInHTML(
+            "<li>A bookmark with this URL already exists.</li>",
+            response.content.decode(),
+        )
+
+        edited_bookmark.refresh_from_db()
+        self.assertEqual(edited_bookmark.url, "http://different.com")
+
     def test_should_redirect_to_return_url(self):
         bookmark = self.setup_bookmark()
         form_data = self.create_form_data()

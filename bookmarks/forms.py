@@ -5,6 +5,7 @@ from bookmarks.models import Bookmark, build_tag_string
 from bookmarks.validators import BookmarkURLValidator
 from bookmarks.type_defs import HttpRequest
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
+from bookmarks.utils import normalize_url
 
 
 class CustomErrorList(ErrorList):
@@ -85,8 +86,11 @@ class BookmarkForm(forms.ModelForm):
         # raise a validation error in that case.
         url = self.cleaned_data["url"]
         if self.instance.pk:
+            normalized_url = normalize_url(url)
             is_duplicate = (
-                Bookmark.objects.filter(owner=self.instance.owner, url=url)
+                Bookmark.objects.filter(
+                    owner=self.instance.owner, url_normalized=normalized_url
+                )
                 .exclude(pk=self.instance.pk)
                 .exists()
             )

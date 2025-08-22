@@ -8,6 +8,7 @@ from bookmarks.utils import (
     humanize_absolute_date,
     humanize_relative_date,
     parse_timestamp,
+    normalize_url,
 )
 
 
@@ -182,3 +183,181 @@ class UtilsTestCase(TestCase):
 
         with self.assertRaises(ValueError):
             self.verify_timestamp(now, 1000000000)
+
+    def test_normalize_url_trailing_slash_handling(self):
+        test_cases = [
+            ("https://example.com/", "https://example.com"),
+            (
+                "https://example.com/path/",
+                "https://example.com/path",
+            ),
+            ("https://example.com/path/to/page/", "https://example.com/path/to/page"),
+            (
+                "https://example.com/path",
+                "https://example.com/path",
+            ),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
+
+    def test_normalize_url_query_parameters(self):
+        test_cases = [
+            ("https://example.com?z=1&a=2", "https://example.com?a=2&z=1"),
+            ("https://example.com?c=3&b=2&a=1", "https://example.com?a=1&b=2&c=3"),
+            ("https://example.com?param=value", "https://example.com?param=value"),
+            ("https://example.com?", "https://example.com"),
+            (
+                "https://example.com?empty=&filled=value",
+                "https://example.com?empty=&filled=value",
+            ),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
+
+    def test_normalize_url_case_sensitivity(self):
+        test_cases = [
+            (
+                "https://EXAMPLE.com/Path/To/Page",
+                "https://example.com/Path/To/Page",
+            ),
+            ("https://EXAMPLE.COM/API/v1/Users", "https://example.com/API/v1/Users"),
+            (
+                "HTTPS://EXAMPLE.COM/path",
+                "https://example.com/path",
+            ),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
+
+    def test_normalize_url_special_characters_and_encoding(self):
+        test_cases = [
+            (
+                "https://example.com/path%20with%20spaces",
+                "https://example.com/path%20with%20spaces",
+            ),
+            ("https://example.com/caf%C3%A9", "https://example.com/caf%C3%A9"),
+            (
+                "https://example.com/path?q=hello%20world",
+                "https://example.com/path?q=hello%20world",
+            ),
+            ("https://example.com/pàth", "https://example.com/pàth"),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
+
+    def test_normalize_url_various_protocols(self):
+        test_cases = [
+            ("FTP://example.com", "ftp://example.com"),
+            ("HTTP://EXAMPLE.COM", "http://example.com"),
+            ("https://example.com", "https://example.com"),
+            ("file:///path/to/file", "file:///path/to/file"),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
+
+    def test_normalize_url_port_handling(self):
+        test_cases = [
+            ("https://example.com:8080", "https://example.com:8080"),
+            ("https://EXAMPLE.COM:8080", "https://example.com:8080"),
+            ("http://example.com:80", "http://example.com:80"),
+            ("https://example.com:443", "https://example.com:443"),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
+
+    def test_normalize_url_authentication_handling(self):
+        test_cases = [
+            ("https://user:pass@EXAMPLE.COM", "https://user:pass@example.com"),
+            ("https://user@EXAMPLE.COM", "https://user@example.com"),
+            ("ftp://admin:secret@EXAMPLE.COM", "ftp://admin:secret@example.com"),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
+
+    def test_normalize_url_fragment_handling(self):
+        test_cases = [
+            ("https://example.com#", "https://example.com"),
+            ("https://example.com#section", "https://example.com#section"),
+            ("https://EXAMPLE.COM/path#Section", "https://example.com/path#Section"),
+            ("https://EXAMPLE.COM/path/#Section", "https://example.com/path#Section"),
+            ("https://example.com?a=1#fragment", "https://example.com?a=1#fragment"),
+            (
+                "https://example.com?z=2&a=1#fragment",
+                "https://example.com?a=1&z=2#fragment",
+            ),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
+
+    def test_normalize_url_edge_cases(self):
+        test_cases = [
+            ("", ""),
+            ("   ", ""),
+            ("   https://example.com   ", "https://example.com"),
+            ("not-a-url", "not-a-url"),
+            ("://invalid", "://invalid"),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
+
+    def test_normalize_url_internationalized_domain_names(self):
+        test_cases = [
+            (
+                "https://xn--fsq.xn--0zwm56d",
+                "https://xn--fsq.xn--0zwm56d",
+            ),
+            ("https://测试.中国", "https://测试.中国"),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected.lower() if expected else expected, result)
+
+    def test_normalize_url_complex_query_parameters(self):
+        test_cases = [
+            (
+                "https://example.com?z=1&a=2&z=3&b=4",
+                "https://example.com?a=2&b=4&z=1&z=3",  # Multiple values for same key
+            ),
+            (
+                "https://example.com?param=value1&param=value2",
+                "https://example.com?param=value1&param=value2",
+            ),
+            (
+                "https://example.com?special=%21%40%23%24%25",
+                "https://example.com?special=%21%40%23%24%25",
+            ),
+        ]
+
+        for original, expected in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(expected, result)
