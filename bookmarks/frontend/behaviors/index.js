@@ -54,8 +54,6 @@ export class Behavior {
   destroy() {}
 }
 
-Behavior.interacting = false;
-
 export function registerBehavior(name, behavior) {
   behaviorRegistry[name] = behavior;
 }

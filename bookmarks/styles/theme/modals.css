@@ -106,7 +106,6 @@
   & .modal-footer {
     padding: var(--unit-6);
     padding-top: 0;
-    text-align: right;
   }
 }
 

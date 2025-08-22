@@ -93,6 +93,12 @@ document.addEventListener("turbo:load", () => {
     return;
   }
 
+  // Ignore if there is a modal dialog, which should handle its own focus
+  const modal = document.querySelector("[aria-modal='true']");
+  if (modal) {
+    return;
+  }
+
   // Check if there is an explicit focus target for the next page load
   for (const target of afterPageLoadFocusTarget) {
     const element = document.querySelector(target);

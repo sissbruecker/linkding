@@ -31,22 +31,17 @@
 }
 
 /* Confirm button component */
-span.confirmation {
-  display: flex;
-  align-items: baseline;
-  gap: var(--unit-1);
-  color: var(--error-color) !important;
+.confirm-dropdown.active {
+  position: fixed;
+  z-index: 500;
 
-  svg {
-    align-self: center;
-  }
-
-  .btn.btn-link {
-    color: var(--error-color) !important;
-
-    &:hover {
-      text-decoration: underline;
-    }
+  & .menu {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    gap: var(--unit-2);
+    padding: var(--unit-2);
   }
 }
 

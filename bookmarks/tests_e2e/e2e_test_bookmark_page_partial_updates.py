@@ -123,7 +123,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse("linkding:bookmarks.index"), p)
 
             self.locate_bookmark("Bookmark 2").get_by_text("Remove").click()
-            self.locate_bookmark("Bookmark 2").get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             self.assertVisibleBookmarks(["Bookmark 1", "Bookmark 3"])
             self.assertVisibleTags(["Tag 1", "Tag 3"])
@@ -140,7 +140,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             expect(self.locate_bookmark("Bookmark 2")).to_have_class("unread")
             self.locate_bookmark("Bookmark 2").get_by_text("Unread").click()
-            self.locate_bookmark("Bookmark 2").get_by_text("Yes").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             expect(self.locate_bookmark("Bookmark 2")).not_to_have_class("unread")
             self.assertReloads(0)
@@ -156,7 +156,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             expect(self.locate_bookmark("Bookmark 2")).to_have_class("shared")
             self.locate_bookmark("Bookmark 2").get_by_text("Shared").click()
-            self.locate_bookmark("Bookmark 2").get_by_text("Yes").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             expect(self.locate_bookmark("Bookmark 2")).not_to_have_class("shared")
             self.assertReloads(0)
@@ -173,7 +173,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             ).click()
             self.select_bulk_action("Archive")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             self.assertVisibleBookmarks(["Bookmark 1", "Bookmark 3"])
             self.assertVisibleTags(["Tag 1", "Tag 3"])
@@ -191,7 +191,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             ).click()
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             self.assertVisibleBookmarks(["Bookmark 1", "Bookmark 3"])
             self.assertVisibleTags(["Tag 1", "Tag 3"])
@@ -216,7 +216,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse("linkding:bookmarks.archived"), p)
 
             self.locate_bookmark("Archived Bookmark 2").get_by_text("Remove").click()
-            self.locate_bookmark("Archived Bookmark 2").get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             self.assertVisibleBookmarks(["Archived Bookmark 1", "Archived Bookmark 3"])
             self.assertVisibleTags(["Archived Tag 1", "Archived Tag 3"])
@@ -234,7 +234,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             ).click()
             self.select_bulk_action("Unarchive")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             self.assertVisibleBookmarks(["Archived Bookmark 1", "Archived Bookmark 3"])
             self.assertVisibleTags(["Archived Tag 1", "Archived Tag 3"])
@@ -252,7 +252,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             ).click()
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             self.assertVisibleBookmarks(["Archived Bookmark 1", "Archived Bookmark 3"])
             self.assertVisibleTags(["Archived Tag 1", "Archived Tag 3"])
@@ -293,7 +293,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.open(reverse("linkding:bookmarks.shared"), p)
 
             self.locate_bookmark("My Bookmark 2").get_by_text("Remove").click()
-            self.locate_bookmark("My Bookmark 2").get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             self.assertVisibleBookmarks(
                 [

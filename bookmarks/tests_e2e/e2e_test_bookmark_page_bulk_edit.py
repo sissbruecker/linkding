@@ -46,7 +46,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
             expect(bookmark_list).not_to_be_visible()
 
@@ -84,7 +84,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
             expect(bookmark_list).not_to_be_visible()
 
@@ -122,7 +122,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
             expect(bookmark_list).not_to_be_visible()
 
@@ -160,7 +160,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
             expect(bookmark_list).not_to_be_visible()
 
@@ -291,7 +291,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             # Execute bulk action
             self.select_bulk_action("Mark as unread")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             # Wait until bookmark list is updated (old reference becomes invisible)
             expect(bookmark_list).not_to_be_visible()
@@ -323,7 +323,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
 
             self.select_bulk_action("Delete")
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
-            self.locate_bulk_edit_bar().get_by_text("Confirm").click()
+            self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
             expect(bookmark_list).not_to_be_visible()
 

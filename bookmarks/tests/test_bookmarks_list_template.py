@@ -231,7 +231,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             f"""
         <button type="submit" name="unshare" value="{bookmark.id}"
                 class="btn btn-link btn-sm btn-icon"
-                ld-confirm-button ld-confirm-icon="ld-icon-unshare" ld-confirm-question="Unshare?">
+                ld-confirm-button ld-confirm-question="Unshare?">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
             <use xlink:href="#ld-icon-share"></use>
           </svg>
@@ -247,7 +247,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             f"""
         <button type="submit" name="mark_as_read" value="{bookmark.id}"
                 class="btn btn-link btn-sm btn-icon"
-                ld-confirm-button ld-confirm-icon="ld-icon-read" ld-confirm-question="Mark as read?">
+                ld-confirm-button ld-confirm-question="Mark as read?">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
             <use xlink:href="#ld-icon-unread"></use>
           </svg>

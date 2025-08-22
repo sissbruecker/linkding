@@ -92,3 +92,6 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
             ).click()
         else:
             self.page.locator("nav").get_by_text(main_menu_item, exact=True).click()
+
+    def locate_confirm_dialog(self):
+        return self.page.locator(".dropdown.confirm-dropdown")

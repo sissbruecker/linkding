@@ -501,7 +501,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         modal = self.get_index_details_modal(bookmark)
         delete_button = modal.find("button", {"type": "submit", "name": "remove"})
         self.assertIsNotNone(delete_button)
-        self.assertEqual("Delete...", delete_button.text.strip())
+        self.assertEqual("Delete", delete_button.text.strip())
         self.assertEqual(str(bookmark.id), delete_button["value"])
 
         form = delete_button.find_parent("form")
