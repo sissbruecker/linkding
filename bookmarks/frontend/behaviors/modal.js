@@ -23,32 +23,22 @@ export class ModalBehavior extends Behavior {
     this.closeButton.removeEventListener("click", this.onClose);
     document.removeEventListener("keydown", this.onKeyDown);
 
-    this.clearInert();
+    this.removeScrollLock();
     this.focusTrap.destroy();
   }
 
   init() {
-    this.setupInert();
+    this.setupScrollLock();
     this.focusTrap = new FocusTrapController(
       this.element.querySelector(".modal-container"),
     );
   }
 
-  setupInert() {
-    // Inert all other elements on the page
-    document
-      .querySelectorAll("body > *:not(.modals)")
-      .forEach((el) => el.setAttribute("inert", ""));
-    // Lock scroll on the body
+  setupScrollLock() {
     document.body.classList.add("scroll-lock");
   }
 
-  clearInert() {
-    // Clear inert attribute from all elements to allow focus outside the modal again
-    document
-      .querySelectorAll("body > *")
-      .forEach((el) => el.removeAttribute("inert"));
-    // Remove scroll lock from the body
+  removeScrollLock() {
     document.body.classList.remove("scroll-lock");
   }
 
@@ -85,7 +75,7 @@ export class ModalBehavior extends Behavior {
 
   doClose() {
     this.element.remove();
-    this.clearInert();
+    this.removeScrollLock();
     this.element.dispatchEvent(new CustomEvent("modal:close"));
   }
 }

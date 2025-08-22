@@ -87,4 +87,43 @@
     border-bottom: solid 1px var(--secondary-border-color);
     margin: var(--unit-2) 0;
   }
+
+  &.with-arrow {
+    overflow: visible;
+    --arrow-size: 16px;
+    --arrow-offset: 0px;
+
+    .menu-arrow {
+      display: block;
+      position: absolute;
+      inset-inline-start: calc(50% + var(--arrow-offset));
+      top: 0;
+      width: var(--arrow-size);
+      height: var(--arrow-size);
+      translate: -50% -50%;
+      rotate: 45deg;
+      background: inherit;
+      border: inherit;
+      clip-path: polygon(0 0, 0 100%, 100% 0);
+    }
+
+    &.top-aligned {
+      transform: translateY(
+        calc(calc(var(--arrow-size) / 2) + var(--layout-spacing-sm))
+      );
+    }
+
+    &.bottom-aligned {
+      transform: translateY(
+        calc(calc(calc(var(--arrow-size) / 2) + var(--layout-spacing-sm)) * -1)
+      );
+
+      .menu-arrow {
+        top: auto;
+        bottom: 0;
+        rotate: 225deg;
+        translate: -50% 50%;
+      }
+    }
+  }
 }
