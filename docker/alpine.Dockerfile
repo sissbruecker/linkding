@@ -1,4 +1,4 @@
-FROM node:18-alpine AS node-build
+FROM node:22-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY rollup.config.mjs postcss.config.js package.json package-lock.json ./
@@ -10,7 +10,7 @@ COPY bookmarks/styles ./bookmarks/styles
 RUN npm run build
 
 
-FROM python:3.13.7-alpine3.21 AS build-deps
+FROM python:3.13.7-alpine3.22 AS build-deps
 # Add required packages
 # alpine-sdk linux-headers pkgconfig: build Python packages from source
 # libpq-dev: build Postgres client from source
@@ -47,7 +47,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.13.7-alpine3.21 AS linkding
+FROM python:3.13.7-alpine3.22 AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
 RUN apk update && apk add bash curl icu libpq mailcap libssl3
@@ -85,7 +85,7 @@ CMD curl -f http://localhost:${LD_SERVER_PORT:-9090}/${LD_CONTEXT_PATH}health ||
 CMD ["./bootstrap.sh"]
 
 
-FROM node:18-alpine AS ublock-build
+FROM node:22-alpine AS ublock-build
 WORKDIR /etc/linkding
 # Install necessary tools
 # Download and unzip the latest uBlock Origin Lite release
@@ -105,7 +105,7 @@ RUN apk add --no-cache curl jq unzip && \
 
 FROM linkding AS linkding-plus
 # install node, chromium
-RUN apk update && apk add nodejs npm chromium
+RUN apk update && apk add nodejs npm chromium-swiftshader
 # install single-file-cli
 RUN npm install -g single-file-cli@2.0.75
 # copy uBlock
