@@ -24,6 +24,6 @@ export LD_DB_PASSWORD=linkding
 export LD_SUPERUSER_NAME=admin
 export LD_SUPERUSER_PASSWORD=admin
 
-python manage.py migrate
-python manage.py create_initial_superuser
-python manage.py runserver
+uv run manage.py migrate
+uv run manage.py create_initial_superuser
+uv run manage.py runserver

@@ -1,0 +1,39 @@
+[project]
+name = "linkding"
+version = "1.42.0"
+description = "Self-hosted bookmark manager that is designed be to be minimal, fast, and easy to set up using Docker."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.12.3",
+    "bleach>=6.1.0",
+    "bleach-allowlist>=1.0.3",
+    "django>=5.2.3",
+    "django-registration>=3.4",
+    "django-widget-tweaks>=1.5.0",
+    "djangorestframework>=3.15.2",
+    "huey>=2.5.1",
+    "markdown>=3.7",
+    "mozilla-django-oidc>=4.0.1",
+    "psycopg[binary]>=3.2.9",
+    "python-dateutil>=2.9.0.post0",
+    "requests>=2.32.4",
+    "supervisor>=4.2.5",
+    "uwsgi>=2.0.28",
+    "waybackpy>=3.0.6",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "coverage>=7.10.4",
+    "django-debug-toolbar>=6.0.0",
+    "playwright>=1.54.0",
+    "pytest>=8.4.1",
+    "pytest-django>=4.11.1",
+    "pytest-xdist>=3.8.0",
+]
+
+[tool.uv]
+# Prefer system Python for now, less complications when copying the venv in the Docker build
+python-preference = "system"

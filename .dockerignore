@@ -10,10 +10,10 @@
 !/package.json
 !/package-lock.json
 !/postcss.config.js
-!/requirements.dev.txt
-!/requirements.txt
+!/pyproject.toml
 !/rollup.config.mjs
 !/supervisord.conf
+!/uv.lock
 !/uwsgi.ini
 !/version.txt
 

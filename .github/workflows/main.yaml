@@ -15,7 +15,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -25,10 +27,10 @@ jobs:
         run: npm ci
       - name: Setup Python environment
         run: |
-          pip install -r requirements.txt -r requirements.dev.txt
+          uv sync
           mkdir data
       - name: Run tests
-        run: python manage.py test bookmarks.tests
+        run: uv run manage.py test bookmarks.tests
   e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-latest
@@ -37,7 +39,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -47,12 +51,12 @@ jobs:
         run: npm ci
       - name: Setup Python environment
         run: |
-          pip install -r requirements.txt -r requirements.dev.txt
-          playwright install chromium
+          uv sync
+          uv run playwright install chromium
           mkdir data
       - name: Run build
         run: |
           npm run build
-          python manage.py collectstatic
+          uv run manage.py collectstatic
       - name: Run tests
-        run: python manage.py test bookmarks.tests_e2e --pattern="e2e_test_*.py"
+        run: uv run manage.py test bookmarks.tests_e2e --pattern="e2e_test_*.py"
