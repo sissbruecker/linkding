@@ -15,7 +15,6 @@ dependencies = [
     "huey>=2.5.1",
     "markdown>=3.7",
     "mozilla-django-oidc>=4.0.1",
-    "psycopg[binary]>=3.2.9",
     "python-dateutil>=2.9.0.post0",
     "requests>=2.32.4",
     "supervisor>=4.2.5",
@@ -29,9 +28,20 @@ dev = [
     "coverage>=7.10.4",
     "django-debug-toolbar>=6.0.0",
     "playwright>=1.54.0",
+    "psycopg[binary]>=3.2.9",
     "pytest>=8.4.1",
     "pytest-django>=4.11.1",
     "pytest-xdist>=3.8.0",
+]
+# For PostgreSQL support, use the binary release for development so that not
+# everyone needs to build from source. For production, use a separate dependency
+# group that builds the driver from source. uv also needs to build it from
+# source to update the lockfile, which requires libpq. On macOS:
+# - brew install libpq
+# - export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+# - uv add --group postgres psycopg[c]
+postgres = [
+    "psycopg[c]>=3.2.9",
 ]
 
 [tool.uv]

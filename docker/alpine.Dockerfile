@@ -23,7 +23,7 @@ ADD https://astral.sh/uv/0.8.13/install.sh /uv-installer.sh
 RUN chmod +x /uv-installer.sh && /uv-installer.sh
 # install python dependencies
 COPY pyproject.toml uv.lock ./
-RUN /root/.local/bin/uv sync --no-dev
+RUN /root/.local/bin/uv sync --no-dev --group postgres
 
 
 FROM build-deps AS compile-icu
