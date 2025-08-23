@@ -22,9 +22,10 @@ def create_snapshot(url: str, filepath: str):
         command = f"{monolith_path} '{url}' {monolith_options} -o {temp_filepath}"
         subprocess.run(command, check=True, shell=True)
 
-        with open(temp_filepath, "rb") as raw_file, gzip.open(
-            filepath, "wb"
-        ) as gz_file:
+        with (
+            open(temp_filepath, "rb") as raw_file,
+            gzip.open(filepath, "wb") as gz_file,
+        ):
             shutil.copyfileobj(raw_file, gz_file)
 
         os.remove(temp_filepath)

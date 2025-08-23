@@ -1,5 +1,6 @@
 import { Behavior, registerBehavior } from "./index";
 import TagAutoCompleteComponent from "../components/TagAutocomplete.svelte";
+import { mount } from "svelte";
 
 class TagAutocomplete extends Behavior {
   constructor(element) {
@@ -12,7 +13,7 @@ class TagAutocomplete extends Behavior {
 
     const container = document.createElement("div");
 
-    new TagAutoCompleteComponent({
+    mount(TagAutoCompleteComponent, {
       target: container,
       props: {
         id: input.id,

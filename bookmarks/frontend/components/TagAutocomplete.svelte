@@ -1,21 +1,23 @@
 <script>
   import {cache} from "../cache";
-  import {getCurrentWord, getCurrentWordBounds} from "../util";
+  import {getCurrentWord, getCurrentWordBounds, preventDefault} from "../util";
 
-  export let id;
-  export let name;
-  export let value;
-  export let placeholder;
-  export let ariaDescribedBy;
-  export let variant = 'default';
+  let {
+    id,
+    name,
+    value,
+    placeholder,
+    ariaDescribedBy,
+    variant = 'default'
+  } = $props();
 
-  let isFocus = false;
-  let isOpen = false;
+  let isFocus = $state(false);
+  let isOpen = $state(false);
   let input = null;
-  let suggestionList = null;
+  let suggestionList = $state(null);
 
-  let suggestions = [];
-  let selectedIndex = 0;
+  let suggestions = $state([]);
+  let selectedIndex = $state(0);
 
   function handleFocus() {
     isFocus = true;
@@ -112,8 +114,8 @@
     <input id="{id}" name="{name}" value="{value ||''}" placeholder="{placeholder || ' '}"
            class="form-input" type="text" autocomplete="off" autocapitalize="off"
            aria-describedby="{ariaDescribedBy}"
-           on:input={handleInput} on:keydown={handleKeyDown}
-           on:focus={handleFocus} on:blur={handleBlur}>
+           oninput={handleInput} onkeydown={handleKeyDown}
+           onfocus={handleFocus} onblur={handleBlur}>
   </div>
 
   <!-- autocomplete suggestion list -->
@@ -122,7 +124,7 @@
     <!-- menu list items -->
     {#each suggestions as tag,i}
       <li class="menu-item" class:selected={selectedIndex === i}>
-        <a href="#" on:mousedown|preventDefault={() => complete(tag)}>
+        <a href="#" onmousedown={preventDefault(() => complete(tag))}>
           {tag.name}
         </a>
       </li>
@@ -141,14 +143,14 @@
     display: block;
   }
 
-  .form-autocomplete-input {
+  .form-autocomplete .form-autocomplete-input {
     box-sizing: border-box;
     height: var(--control-size);
     min-height: var(--control-size);
     padding: 0;
   }
 
-  .form-autocomplete-input input {
+  .form-autocomplete .form-autocomplete-input input {
     width: 100%;
     height: 100%;
     border: none;

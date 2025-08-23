@@ -2,22 +2,24 @@
   import {SearchHistory} from "./SearchHistory";
   import {api} from "../api";
   import {cache} from "../cache";
-  import {clampText, debounce, getCurrentWord, getCurrentWordBounds} from "../util";
+  import {clampText, debounce, getCurrentWord, getCurrentWordBounds, preventDefault} from "../util";
 
   const searchHistory = new SearchHistory()
 
-  export let name;
-  export let placeholder;
-  export let value;
-  export let mode = '';
-  export let search;
-  export let linkTarget = '_blank';
+  let {
+    name,
+    placeholder,
+    value = $bindable(),
+    mode = '',
+    search,
+    linkTarget = '_blank'
+  } = $props();
 
-  let isFocus = false;
-  let isOpen = false;
-  let suggestions = []
-  let selectedIndex = undefined;
-  let input = null;
+  let isFocus = $state(false);
+  let isOpen = $state(false);
+  let suggestions = $state([])
+  let selectedIndex = $state(undefined);
+  let input = $state(null);
 
   // Track current search query after loading the page
   searchHistory.pushCurrent()
@@ -201,7 +203,7 @@
   <div class="form-autocomplete-input form-input" class:is-focused={isFocus}>
     <input type="search" class="form-input" name="{name}" placeholder="{placeholder}" autocomplete="off" value="{value}"
            bind:this={input}
-           on:input={handleInput} on:keydown={handleKeyDown} on:focus={handleFocus} on:blur={handleBlur}>
+           oninput={handleInput} onkeydown={handleKeyDown} onfocus={handleFocus} onblur={handleBlur}>
   </div>
 
   <ul class="menu" class:open={isOpen}>
@@ -210,7 +212,7 @@
     {/if}
     {#each suggestions.tags as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
-        <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
+        <a href="#" onmousedown={preventDefault(() => completeSuggestion(suggestion))}>
           {suggestion.label}
         </a>
       </li>
@@ -221,7 +223,7 @@
     {/if}
     {#each suggestions.recentSearches as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
-        <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
+        <a href="#" onmousedown={preventDefault(() => completeSuggestion(suggestion))}>
           {suggestion.label}
         </a>
       </li>
@@ -232,7 +234,7 @@
     {/if}
     {#each suggestions.bookmarks as suggestion}
       <li class="menu-item" class:selected={selectedIndex === suggestion.index}>
-        <a href="#" on:mousedown|preventDefault={() => completeSuggestion(suggestion)}>
+        <a href="#" onmousedown={preventDefault(() => completeSuggestion(suggestion))}>
           {suggestion.label}
         </a>
       </li>

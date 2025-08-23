@@ -1,3 +1,4 @@
+import { mount } from "svelte";
 import { Behavior, registerBehavior } from "./index";
 import SearchAutoCompleteComponent from "../components/SearchAutoComplete.svelte";
 
@@ -12,7 +13,7 @@ class SearchAutocomplete extends Behavior {
 
     const container = document.createElement("div");
 
-    new SearchAutoCompleteComponent({
+    mount(SearchAutoCompleteComponent, {
       target: container,
       props: {
         name: "q",
