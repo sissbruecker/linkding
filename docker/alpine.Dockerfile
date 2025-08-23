@@ -100,15 +100,14 @@ RUN apk add --no-cache curl jq unzip && \
     rm uBOLite.zip && \
     jq '.declarative_net_request.rule_resources |= map(if .id == "annoyances-overlays" or .id == "annoyances-cookies" or .id == "annoyances-social" or .id == "annoyances-widgets" or .id == "annoyances-others" then .enabled = true else . end)' \
         uBOLite.chromium.mv3/manifest.json > temp.json && \
-    mv temp.json uBOLite.chromium.mv3/manifest.json && \
-    sed -i 's/const out = \[ '\''default'\'' \];/const out = await dnr.getEnabledRulesets();/' uBOLite.chromium.mv3/js/ruleset-manager.js
+    mv temp.json uBOLite.chromium.mv3/manifest.json
 
 
 FROM linkding AS linkding-plus
 # install node, chromium
 RUN apk update && apk add nodejs npm chromium
-# install single-file from fork for now, which contains several hotfixes
-RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/4c54b3bc704cfb3e96cec2d24854caca3df0b3b6
+# install single-file-cli
+RUN npm install -g single-file-cli@2.0.75
 # copy uBlock
 COPY --from=ublock-build /etc/linkding/uBOLite.chromium.mv3 uBOLite.chromium.mv3/
 # create chromium profile folder for user running background tasks and set permissions
