@@ -18,11 +18,12 @@ FROM python:3.13.7-alpine3.21 AS build-deps
 # libffi-dev openssl-dev rust cargo: build Python cryptography from source
 RUN apk update && apk add alpine-sdk linux-headers libpq-dev pkgconfig icu-dev sqlite-dev libffi-dev openssl-dev rust cargo
 WORKDIR /etc/linkding
-# install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
+# install uv, use installer script for now as distroless images are not availabe for armv7
+ADD https://astral.sh/uv/0.8.13/install.sh /uv-installer.sh
+RUN chmod +x /uv-installer.sh && /uv-installer.sh
 # install python dependencies
 COPY pyproject.toml uv.lock ./
-RUN uv sync --no-dev
+RUN /root/.local/bin/uv sync --no-dev
 
 
 FROM build-deps AS compile-icu
