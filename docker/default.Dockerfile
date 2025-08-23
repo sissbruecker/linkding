@@ -10,7 +10,7 @@ COPY bookmarks/styles ./bookmarks/styles
 RUN npm run build
 
 
-FROM python:3.12.9-slim-bookworm AS build-deps
+FROM python:3.13.7-slim-bookworm AS build-deps
 # Add required packages
 # build-essential pkg-config: build Python packages from source
 # libpq-dev: build Postgres client from source
@@ -20,14 +20,11 @@ RUN apt-get update && apt-get -y install build-essential pkg-config libpq-dev li
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 WORKDIR /etc/linkding
+# install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
 # install python dependencies
-COPY requirements.txt requirements.txt
-# Need to build psycopg2 from source for ARM platforms
-RUN sed -i 's/psycopg2-binary/psycopg2/g' requirements.txt
-RUN mkdir /opt/venv && \
-    python -m venv --upgrade-deps --copies /opt/venv && \
-    /opt/venv/bin/pip install --upgrade pip wheel && \
-    /opt/venv/bin/pip install -r requirements.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --no-dev
 
 
 FROM build-deps AS compile-icu
@@ -51,13 +48,13 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.12.9-slim-bookworm AS linkding
+FROM python:3.13.7-slim-bookworm AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
 RUN apt-get update && apt-get -y install mime-support libpq-dev libicu-dev libssl3 curl
 WORKDIR /etc/linkding
 # copy python dependencies
-COPY --from=build-deps /opt/venv /opt/venv
+COPY --from=build-deps /etc/linkding/.venv /etc/linkding/.venv
 # copy output from node build
 COPY --from=node-build /etc/linkding/bookmarks/static bookmarks/static/
 # copy compiled icu extension
@@ -65,8 +62,8 @@ COPY --from=compile-icu /etc/linkding/libicu.so libicu.so
 # copy application code
 COPY . .
 # Activate virtual env
-ENV VIRTUAL_ENV=/opt/venv
-ENV PATH=/opt/venv/bin:$PATH
+ENV VIRTUAL_ENV=/etc/linkding/.venv
+ENV PATH="/etc/linkding/.venv/bin:$PATH"
 # Generate static files
 RUN mkdir data && \
     python manage.py collectstatic

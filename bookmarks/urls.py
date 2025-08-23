@@ -122,10 +122,9 @@ if settings.LD_ENABLE_OIDC:
     urlpatterns.append(path("oidc/", include("mozilla_django_oidc.urls")))
 
 # Debug toolbar
-if settings.DEBUG:
-    import debug_toolbar
-
-    urlpatterns.append(path("__debug__/", include(debug_toolbar.urls)))
+# if settings.DEBUG:
+#    import debug_toolbar
+#    urlpatterns.append(path("__debug__/", include(debug_toolbar.urls)))
 
 # Registration
 if settings.ALLOW_REGISTRATION:

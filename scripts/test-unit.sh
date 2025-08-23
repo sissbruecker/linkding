@@ -1,1 +1,1 @@
-python manage.py test bookmarks.tests
+uv run manage.py test bookmarks.tests
