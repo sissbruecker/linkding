@@ -1,0 +1,131 @@
+---
+###############################################################
+#                   Authelia configuration                    #
+###############################################################
+
+server:
+  address: 'tcp://:9091'
+
+log:
+  level: 'debug'
+
+totp:
+  issuer: 'authelia.com'
+
+identity_validation:
+  reset_password:
+    jwt_secret: 'a_very_important_secret'
+
+authentication_backend:
+  file:
+    path: '/config/users_database.yml'
+
+access_control:
+  default_policy: 'deny'
+  rules:
+    - domain: 'traefik.example.com'
+      policy: 'one_factor'
+    - domain: 'linkding.example.com'
+      policy: 'one_factor'
+
+session:
+  secret: 'insecure_session_secret'
+
+  cookies:
+    - name: 'authelia_session'
+      domain: 'example.com'  # Should match whatever your root protected domain is
+      authelia_url: 'https://authelia.example.com'
+      expiration: '1 hour'  # 1 hour
+      inactivity: '5 minutes'  # 5 minutes
+      default_redirection_url: 'https://linkding.example.com'
+
+regulation:
+  max_retries: 3
+  find_time: '2 minutes'
+  ban_time: '5 minutes'
+
+storage:
+  encryption_key: 'you_must_generate_a_random_string_of_more_than_twenty_chars_and_configure_this'
+  local:
+    path: '/config/db.sqlite3'
+
+notifier:
+  filesystem:
+    filename: '/tmp/notification.txt'
+
+identity_providers:
+  oidc:
+    ## The other portions of the mandatory OpenID Connect 1.0 configuration go here.
+    ## See: https://www.authelia.com/c/oidc
+    hmac_secret: 'this_is_a_secret_abc123abc123abc'
+    jwks:
+      - key_id: 'example'
+        algorithm: 'RS256'
+        use: 'sig'
+        key: |
+          -----BEGIN PRIVATE KEY-----
+          MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCuS2pK2VzqW+Sn
+          hBATps7vo2AdZCtF3p+FOJ4WEwQoiJarS0pAJxKn4BT9PHP1gY8XCs45Qys586xQ
+          UZwS1/9B482tQwkDQkfqXOIfTzqhTydVsi6t8Ff7ywW8K2lURcK+PnSE91Yp8tSO
+          YWlXDajoI8wKkRSpcCApkmBZ3hJiJR9DlcfwKBJSNxt+DbuobQs4SOpjSY4fnDpn
+          S5DFc72hiFOxvdx48y8c08UU+zNyHIIjYQ1995HwXysn7UwWCJaC4lI4ecaxHa01
+          4irOx3HsuXEzs/U5UBs2lBXFfKn/JHAPVJvxlER5ciUCNiHGWWh+A7hrd9BemoMQ
+          kRCIlldJAgMBAAECggEACtSWGmhTFx+Gb/fbeWMjRv4RkAX8T+NHaZN09FVya9Pf
+          ++0p5B5hcQPSPhGqeXoXYoTJ/4IqXpejEJsfngakvosJqe9pURXmatxiczRcxe8J
+          mFBCCQ4vI27wUGroqMNMeH6gRi5p4OGtXlsUfQO06BboXAw7mtNENl0ZhmAPp6BB
+          ZWyQm90Kwx4T0JgNwdlau+9ZWQ/10/7mOs1bX+8vZDFCmzbzFfoPjgEo+Mw1sE/H
+          i5kQxWErkWfeiabVp/7JlazHSYygwk21t1VgSBP4tgfkdAht68BievwguxCIrFRG
+          MPCkgzktJgIfo5k0yuo//afKUKo+OViQ3ZB4YdGKkQKBgQDPgl59fqRZpGCwnKPu
+          ymVi2c/bxjm6aK2VLX2dUFrPprzmfvUY8j/jDDcx4zOJg7jxNs2PGDooLDOSwa82
+          i+YPTnBHlS3PBUp7jLPdCcZ0I8gMT5OWxnmPwGqUS6BqVTAhDq3QsJxD88FS8eD2
+          mbFuBh5WAhj9URX+vc/FwLO/+QKBgQDXBhOXNAB64goQOM7ymUxihLQtYemO9h5N
+          /cXsxpJF8KH/PtWpw9c6nc2d/GPs4OYoCaqsuQVSyQXDcXayNC6Dn8KwUrJP2yGL
+          CHOAGg6HJbq+c5AKE1ytzvblTCyOcHZCjtlqwqJwO68xTWfSdbkvYYnfwyx+g0O9
+          SsoouvzF0QKBgHI2GBnMZVrtbUZnwJbCkVD5/zzAeq+Nw9RyqEu4mXLnG9tljzM+
+          ykkGRS7RFWGfvWAOQM98jy3jPjONJQnJsENGcegERKVIDTm5NJn5MmBj/UxBVENN
+          VET5q++ZPF6qKoZXVPWi7y87b3Fereosp4qeFX5TQzvRsGB4Sm5WZNjJAoGAbezN
+          Vx9en3OvcVuZcKyuQC9XbVwA6vUnyPdTmBhr7xV1u+eDk6ZrAaxq0bmV3COdhhpr
+          BqIP9qKOL7xx0eibXu7tuPaN8gU0wL8xTOwFQVIohfTOTlhXqQOFdPPcU3Vq/9vH
+          iqy2Hmpkxe+shAtrAK38rkg5FvRETSFO+EOftgECgYEAi7nAy4ta2X5hHqt+86Rr
+          OD1M1zdhreF73WvSBIeKiR+rffbgBvIRNFkGk4iYs6Wc6ZyoS+FEJGjO33Om+I1s
+          Emd8JSHhRcRBq6cOsDzo4PKzMVSJaWpAfmCk9wVjAz0gpJDn2MtSanTqn1749A3L
+          VU7Fiz0jxshSPqw2KIjcnBI=
+          -----END PRIVATE KEY-----
+        certificate_chain: |
+          -----BEGIN CERTIFICATE-----
+          MIIDIzCCAgugAwIBAgIQBDUsQ9wfCEtzppdn5GlKUDANBgkqhkiG9w0BAQsFADAy
+          MREwDwYDVQQKEwhBdXRoZWxpYTEdMBsGA1UEAxMUYXV0aGVsaWEuZXhhbXBsZS5j
+          b20wHhcNMjUwODIzMTEwOTM2WhcNMjYwODIzMTEwOTM2WjAyMREwDwYDVQQKEwhB
+          dXRoZWxpYTEdMBsGA1UEAxMUYXV0aGVsaWEuZXhhbXBsZS5jb20wggEiMA0GCSqG
+          SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCuS2pK2VzqW+SnhBATps7vo2AdZCtF3p+F
+          OJ4WEwQoiJarS0pAJxKn4BT9PHP1gY8XCs45Qys586xQUZwS1/9B482tQwkDQkfq
+          XOIfTzqhTydVsi6t8Ff7ywW8K2lURcK+PnSE91Yp8tSOYWlXDajoI8wKkRSpcCAp
+          kmBZ3hJiJR9DlcfwKBJSNxt+DbuobQs4SOpjSY4fnDpnS5DFc72hiFOxvdx48y8c
+          08UU+zNyHIIjYQ1995HwXysn7UwWCJaC4lI4ecaxHa014irOx3HsuXEzs/U5UBs2
+          lBXFfKn/JHAPVJvxlER5ciUCNiHGWWh+A7hrd9BemoMQkRCIlldJAgMBAAGjNTAz
+          MA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAKBggrBgEFBQcDATAMBgNVHRMBAf8E
+          AjAAMA0GCSqGSIb3DQEBCwUAA4IBAQAb910zH+0Yqxxq+LgJiIFC5guJAorY9WlD
+          nRHvt/1i+ZvNdc57Xq6W5/YI1g5IG/EWyDOSr5mkw6VWvGrN/HTE7cH9d2LPyWxb
+          n5dyUezUMdoXmizANJq7ixQLLSJiRFRhYGjiMK816m9zY/3KZqacpTJDsrhM2i6d
+          aaGgfkxpivMDb4PEZs4dDlR5PfFuEBFWpTDBdUeWEx/sL3t1Zfogr6lKb8PmmnEI
+          RKzofXAvAPQ69hE3jSWSldxqgE0Jofzwiw4dcLLAHmLlJDkbB+2HMJljFW9Fj7fK
+          DW7HwcVQqJ4GOW/1IjuogZuDQUlXZPMI3iujoOhYOypx6Wpf4LzO
+          -----END CERTIFICATE-----
+    clients:
+      - client_id: 'linkding'
+        client_name: 'Linkding'
+        client_secret: '$pbkdf2-sha512$310000$c8p78n7pUMln0jzvd4aK4Q$JNRBzwAo0ek5qKn50cFzzvE9RXV88h1wJn5KGiHrD0YKtZaR/nCb2CJPOsKaPK0hjf.9yHxzQGZziziccp6Yng'  # The digest of 'insecure_secret'.
+        public: false
+        authorization_policy: 'one_factor'
+        require_pkce: false
+        pkce_challenge_method: ''
+        redirect_uris:
+          - 'https://linkding.example.com/oidc/callback/'
+        scopes:
+          - 'openid'
+          - 'email'
+          - 'profile'
+        access_token_signed_response_alg: 'none'
+        userinfo_signed_response_alg: 'none'
+        token_endpoint_auth_method: 'client_secret_post'
+...
