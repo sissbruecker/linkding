@@ -1,0 +1,33 @@
+# DO NOT USE THIS!
+# This is only intended for testing PostgreSQL functionality when developing Linkding.
+# Follow the linkding documentation to set up a proper production deployment.
+
+services:
+  postgres:
+    image: 'postgres:16'
+    environment:
+      POSTGRES_DB: linkding
+      POSTGRES_USER: linkding
+      POSTGRES_PASSWORD: linkding
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U linkding -d linkding']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  linkding:
+    image: 'sissbruecker/linkding:local'
+    environment:
+      LD_SUPERUSER_NAME: 'admin'
+      LD_SUPERUSER_PASSWORD: 'admin'
+      LD_DB_ENGINE: 'postgres'
+      LD_DB_HOST: 'postgres'
+      LD_DB_PORT: '5432'
+      LD_DB_DATABASE: 'linkding'
+      LD_DB_USER: 'linkding'
+      LD_DB_PASSWORD: 'linkding'
+    ports:
+      - '9090:9090'
+    depends_on:
+      postgres:
+        condition: service_healthy
