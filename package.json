@@ -27,12 +27,11 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/wasm-node": "^4.13.0",
     "cssnano": "^7.0.6",
+    "lit": "^3.3.1",
     "postcss": "^8.4.45",
     "postcss-cli": "^11.0.0",
     "postcss-import": "^16.1.0",
-    "postcss-nesting": "^13.0.0",
-    "rollup-plugin-svelte": "^7.2.2",
-    "svelte": "^5.0.0"
+    "postcss-nesting": "^13.0.0"
   },
   "devDependencies": {
     "prettier": "^3.3.3"

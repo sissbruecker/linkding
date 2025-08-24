@@ -1,6 +1,5 @@
-import { mount } from "svelte";
 import { Behavior, registerBehavior } from "./index";
-import SearchAutoCompleteComponent from "../components/SearchAutoComplete.svelte";
+import "../components/SearchAutocomplete.js";
 
 class SearchAutocomplete extends Behavior {
   constructor(element) {
@@ -11,26 +10,20 @@ class SearchAutocomplete extends Behavior {
       return;
     }
 
-    const container = document.createElement("div");
-
-    mount(SearchAutoCompleteComponent, {
-      target: container,
-      props: {
-        name: "q",
-        placeholder: input.getAttribute("placeholder") || "",
-        value: input.value,
-        linkTarget: input.dataset.linkTarget,
-        mode: input.dataset.mode,
-        search: {
-          user: input.dataset.user,
-          shared: input.dataset.shared,
-          unread: input.dataset.unread,
-        },
-      },
-    });
+    const autocomplete = document.createElement("ld-search-autocomplete");
+    autocomplete.name = "q";
+    autocomplete.placeholder = input.getAttribute("placeholder") || "";
+    autocomplete.value = input.value;
+    autocomplete.linkTarget = input.dataset.linkTarget || "_blank";
+    autocomplete.mode = input.dataset.mode || "";
+    autocomplete.search = {
+      user: input.dataset.user,
+      shared: input.dataset.shared,
+      unread: input.dataset.unread,
+    };
 
     this.input = input;
-    this.autocomplete = container.firstElementChild;
+    this.autocomplete = autocomplete;
     input.replaceWith(this.autocomplete);
   }
 

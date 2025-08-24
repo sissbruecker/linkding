@@ -11,7 +11,5 @@ import "./behaviors/global-shortcuts";
 import "./behaviors/search-autocomplete";
 import "./behaviors/tag-autocomplete";
 
-export { default as TagAutoComplete } from "./components/TagAutocomplete.svelte";
-export { default as SearchAutoComplete } from "./components/SearchAutoComplete.svelte";
 export { api } from "./api";
 export { cache } from "./cache";

@@ -1,6 +1,5 @@
 import { Behavior, registerBehavior } from "./index";
-import TagAutoCompleteComponent from "../components/TagAutocomplete.svelte";
-import { mount } from "svelte";
+import "../components/TagAutocomplete.js";
 
 class TagAutocomplete extends Behavior {
   constructor(element) {
@@ -11,22 +10,16 @@ class TagAutocomplete extends Behavior {
       return;
     }
 
-    const container = document.createElement("div");
-
-    mount(TagAutoCompleteComponent, {
-      target: container,
-      props: {
-        id: input.id,
-        name: input.name,
-        value: input.value,
-        placeholder: input.getAttribute("placeholder") || "",
-        ariaDescribedBy: input.getAttribute("aria-describedby") || "",
-        variant: input.getAttribute("variant"),
-      },
-    });
+    const autocomplete = document.createElement("ld-tag-autocomplete");
+    autocomplete.id = input.id;
+    autocomplete.name = input.name;
+    autocomplete.value = input.value;
+    autocomplete.placeholder = input.getAttribute("placeholder") || "";
+    autocomplete.ariaDescribedBy = input.getAttribute("aria-describedby") || "";
+    autocomplete.variant = input.getAttribute("variant") || "default";
 
     this.input = input;
-    this.autocomplete = container.firstElementChild;
+    this.autocomplete = autocomplete;
     input.replaceWith(this.autocomplete);
   }
 
