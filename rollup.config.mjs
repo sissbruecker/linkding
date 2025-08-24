@@ -1,21 +1,25 @@
-import svelte from 'rollup-plugin-svelte';
-import resolve from '@rollup/plugin-node-resolve';
-import terser from '@rollup/plugin-terser';
+import svelte from "rollup-plugin-svelte";
+import resolve from "@rollup/plugin-node-resolve";
+import terser from "@rollup/plugin-terser";
 
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
-  input: 'bookmarks/frontend/index.js',
+  input: "bookmarks/frontend/index.js",
   output: {
     sourcemap: true,
-    format: 'iife',
-    name: 'linkding',
+    format: "iife",
+    name: "linkding",
     // Generate bundle in static folder to that it is picked up by Django static files finder
-    file: 'bookmarks/static/bundle.js',
+    file: "bookmarks/static/bundle.js",
   },
   plugins: [
     svelte({
       emitCss: false,
+      compilerOptions: {
+        // Workaround for rollup-plugin-svelte not setting the compiler option when emitCss is false
+        css: "injected",
+      },
     }),
 
     // If you have external dependencies installed from

@@ -25,6 +25,7 @@ class A11yNavigationFocusTest(LinkdingE2ETestCase):
             focused_tag = page.evaluate(
                 "document.activeElement?.tagName + '|' + document.activeElement?.name"
             )
+            page.wait_for_timeout(timeout=1000)
             self.assertEqual("INPUT|url", focused_tag)
 
     def test_page_navigation_focus(self):

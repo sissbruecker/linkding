@@ -1,4 +1,4 @@
-FROM node:18-alpine AS node-build
+FROM node:22-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY rollup.config.mjs postcss.config.js package.json package-lock.json ./
@@ -10,7 +10,7 @@ COPY bookmarks/styles ./bookmarks/styles
 RUN npm run build
 
 
-FROM python:3.13.7-alpine3.21 AS build-deps
+FROM python:3.13.7-alpine3.22 AS build-deps
 # Add required packages
 # alpine-sdk linux-headers pkgconfig: build Python packages from source
 # libpq-dev: build Postgres client from source
@@ -47,7 +47,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.13.7-alpine3.21 AS linkding
+FROM python:3.13.7-alpine3.22 AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
 RUN apk update && apk add bash curl icu libpq mailcap libssl3
@@ -85,7 +85,7 @@ CMD curl -f http://localhost:${LD_SERVER_PORT:-9090}/${LD_CONTEXT_PATH}health ||
 CMD ["./bootstrap.sh"]
 
 
-FROM node:18-alpine AS ublock-build
+FROM node:22-alpine AS ublock-build
 WORKDIR /etc/linkding
 # Install necessary tools
 # Download and unzip the latest uBlock Origin Lite release
@@ -100,15 +100,14 @@ RUN apk add --no-cache curl jq unzip && \
     rm uBOLite.zip && \
     jq '.declarative_net_request.rule_resources |= map(if .id == "annoyances-overlays" or .id == "annoyances-cookies" or .id == "annoyances-social" or .id == "annoyances-widgets" or .id == "annoyances-others" then .enabled = true else . end)' \
         uBOLite.chromium.mv3/manifest.json > temp.json && \
-    mv temp.json uBOLite.chromium.mv3/manifest.json && \
-    sed -i 's/const out = \[ '\''default'\'' \];/const out = await dnr.getEnabledRulesets();/' uBOLite.chromium.mv3/js/ruleset-manager.js
+    mv temp.json uBOLite.chromium.mv3/manifest.json
 
 
 FROM linkding AS linkding-plus
 # install node, chromium
-RUN apk update && apk add nodejs npm chromium
-# install single-file from fork for now, which contains several hotfixes
-RUN npm install -g https://github.com/sissbruecker/single-file-cli/tarball/4c54b3bc704cfb3e96cec2d24854caca3df0b3b6
+RUN apk update && apk add nodejs npm chromium-swiftshader
+# install single-file-cli
+RUN npm install -g single-file-cli@2.0.75
 # copy uBlock
 COPY --from=ublock-build /etc/linkding/uBOLite.chromium.mv3 uBOLite.chromium.mv3/
 # create chromium profile folder for user running background tasks and set permissions

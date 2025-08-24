@@ -23,7 +23,7 @@
   "homepage": "https://github.com/sissbruecker/linkding#readme",
   "dependencies": {
     "@hotwired/turbo": "^8.0.6",
-    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/wasm-node": "^4.13.0",
     "cssnano": "^7.0.6",
@@ -31,8 +31,8 @@
     "postcss-cli": "^11.0.0",
     "postcss-import": "^16.1.0",
     "postcss-nesting": "^13.0.0",
-    "rollup-plugin-svelte": "^7.2.0",
-    "svelte": "^4.0.0"
+    "rollup-plugin-svelte": "^7.2.2",
+    "svelte": "^5.0.0"
   },
   "devDependencies": {
     "prettier": "^3.3.3"

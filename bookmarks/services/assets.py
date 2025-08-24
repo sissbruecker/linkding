@@ -39,9 +39,10 @@ def create_snapshot(asset: BookmarkAsset):
         # Store as gzip in asset folder
         filename = _generate_asset_filename(asset, asset.bookmark.url, "html.gz")
         filepath = os.path.join(settings.LD_ASSET_FOLDER, filename)
-        with open(temp_filepath, "rb") as temp_file, gzip.open(
-            filepath, "wb"
-        ) as gz_file:
+        with (
+            open(temp_filepath, "rb") as temp_file,
+            gzip.open(filepath, "wb") as gz_file,
+        ):
             shutil.copyfileobj(temp_file, gz_file)
 
         # Remove temporary file

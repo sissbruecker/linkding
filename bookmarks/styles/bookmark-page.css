@@ -365,7 +365,8 @@ li[ld-bookmark-item] {
       top: 0;
       bottom: 0;
       left: calc(
-        -1 * calc(var(--bulk-edit-toggle-width) + var(--bulk-edit-toggle-offset))
+        -1 *
+          calc(var(--bulk-edit-toggle-width) + var(--bulk-edit-toggle-offset))
       );
       width: calc(
         var(--bulk-edit-toggle-width) + var(--bulk-edit-toggle-offset)
