@@ -3,13 +3,14 @@
   position: relative;
 
   & .form-autocomplete-input {
+    box-sizing: border-box;
     align-content: flex-start;
     display: flex;
     flex-wrap: wrap;
-    height: auto;
-    min-height: var(--unit-8);
-    padding: var(--unit-h);
     background: var(--input-bg-color);
+    height: var(--control-size);
+    min-height: var(--control-size);
+    padding: 0;
 
     &.is-focused {
       outline: var(--focus-outline);
@@ -22,10 +23,11 @@
       box-shadow: none;
       display: inline-block;
       flex: 1 0 auto;
-      height: var(--unit-6);
       line-height: var(--unit-4);
-      margin: var(--unit-h);
-      width: auto;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      border: none;
 
       &:focus {
         outline: none;
@@ -33,11 +35,30 @@
     }
   }
 
+  &.small {
+    .form-autocomplete-input {
+      height: var(--control-size-sm);
+      min-height: var(--control-size-sm);
+    }
+
+    .form-autocomplete-input input {
+      padding: 0.05rem 0.3rem;
+      font-size: var(--font-size-sm);
+    }
+
+    .menu .menu-item {
+      font-size: var(--font-size-sm);
+    }
+  }
+
   & .menu {
+    display: none;
     left: 0;
     position: absolute;
     top: 100%;
     width: 100%;
+    max-height: var(--menu-max-height, 200px);
+    overflow: auto;
 
     & .menu-item.selected > a,
     & .menu-item > a:hover {
@@ -53,5 +74,9 @@
       font-size: 0.6rem;
       font-weight: bold;
     }
+  }
+
+  & .menu.open {
+    display: block;
   }
 }
