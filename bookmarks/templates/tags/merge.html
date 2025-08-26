@@ -1,0 +1,68 @@
+{% extends "bookmarks/layout.html" %}
+{% load shared %}
+{% load widget_tweaks %}
+
+{% block head %}
+  {% with page_title="Merge tags - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+  <div class="tags-editor-page">
+    <main aria-labelledby="main-heading">
+      <div class="section-header">
+        <h1 id="main-heading">Merge tags</h1>
+      </div>
+
+      <details class="mb-4">
+        <summary>
+          <span class="text-bold mb-1">How to merge tags</span>
+        </summary>
+        <ol>
+          <li>Enter the name of the tag you want to keep</li>
+          <li>Enter the names of tags to merge into the target tag</li>
+          <li>The target tag is added to all bookmarks that have any of the merge tags</li>
+          <li>The merged tags are deleted</li>
+        </ol>
+      </details>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group {% if form.target_tag.errors %}has-error{% endif %}" ld-tag-autocomplete>
+          <label for="{{ form.target_tag.id_for_label }}" class="form-label">Target tag</label>
+          {{ form.target_tag|add_class:"form-input"|attr:"autocomplete:off"|attr:"autocapitalize:off"|attr:"placeholder: " }}
+          <div class="form-input-hint">
+            Enter the name of the tag you want to keep. The tags entered below will be merged into this one.
+          </div>
+          {% if form.target_tag.errors %}
+            <div class="form-input-hint">
+              {{ form.target_tag.errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="form-group {% if form.merge_tags.errors %}has-error{% endif %}" ld-tag-autocomplete>
+          <label for="{{ form.merge_tags.id_for_label }}" class="form-label">Tags to merge</label>
+          {{ form.merge_tags|add_class:"form-input"|attr:"autocomplete:off"|attr:"autocapitalize:off"|attr:"placeholder: " }}
+          <div class="form-input-hint">Enter the names of tags to merge into the target tag, separated by spaces. These
+            tags will be deleted after merging.
+          </div>
+          {% if form.merge_tags.errors %}
+            <div class="form-input-hint">
+              {{ form.merge_tags.errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-group d-flex justify-between">
+          <button type="submit" class="btn btn-primary">Merge Tags</button>
+          <a href="{% url 'linkding:tags.index' %}" class="btn ml-auto">Cancel</a>
+        </div>
+      </form>
+    </main>
+  </div>
+{% endblock %}

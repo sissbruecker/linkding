@@ -346,12 +346,6 @@ li[ld-bookmark-item] {
 .bookmark-pagination {
   margin-top: var(--unit-4);
 
-  /* Remove left padding from first pagination link */
-
-  & .page-item:first-child a {
-    padding-left: 0;
-  }
-
   &.sticky {
     position: sticky;
     bottom: 0;

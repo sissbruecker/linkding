@@ -1,0 +1,65 @@
+.crud-page {
+  .crud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--unit-6);
+
+    h1 {
+      font-size: var(--font-size-xl);
+      margin: 0;
+    }
+  }
+
+  .crud-filters {
+    background: var(--gray-50);
+    border-radius: var(--border-radius);
+    border: solid 1px var(--secondary-border-color);
+    padding: var(--unit-3);
+    margin-bottom: var(--unit-4);
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--unit-4);
+
+      & .form-group {
+        margin: 0;
+      }
+
+      &.form-input,
+      &.form-select {
+        width: auto;
+      }
+
+      & .form-group:has(.form-checkbox) {
+        align-self: flex-end;
+      }
+    }
+  }
+
+  .crud-table {
+    .btn.btn-link {
+      padding: 0;
+      height: unset;
+    }
+
+    th,
+    td {
+      max-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    th.actions,
+    td.actions {
+      width: 1%;
+      max-width: 150px;
+
+      *:not(:last-child) {
+        margin-right: var(--unit-2);
+      }
+    }
+  }
+}

@@ -25,27 +25,27 @@ class BundleIndexViewTestCase(TestCase, BookmarkFactoryMixin):
 
         for bundle in bundles:
             expected_list_item = f"""
-            <div class="list-item" data-bundle-id="{bundle.id}" draggable="true">
-              <div class="list-item-icon text-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                  <path d="M9 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
-                  <path d="M9 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
-                  <path d="M9 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
-                  <path d="M15 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
-                  <path d="M15 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
-                  <path d="M15 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
-                </svg>
-              </div>
-              <div class="list-item-text">
-                <span class="truncate">{bundle.name}</span>
-              </div>
-              <div class="list-item-actions">
+            <tr data-bundle-id="{bundle.id}" draggable="true">
+              <td>
+                <div class="d-flex align-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="text-secondary mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M9 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                    <path d="M9 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                    <path d="M9 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                    <path d="M15 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                    <path d="M15 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                    <path d="M15 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>
+                  </svg>
+                  <span>{ bundle.name }</span>
+                </div>
+              </td>
+              <td class="actions">
                 <a class="btn btn-link" href="{reverse("linkding:bundles.edit", args=[bundle.id])}">Edit</a>
                 <button ld-confirm-button type="submit" name="remove_bundle" value="{bundle.id}" class="btn btn-link">Remove</button>
-              </div>
-            </div>
+              </td>
+            </tr>
             """
 
             self.assertInHTML(expected_list_item, html)
@@ -61,7 +61,7 @@ class BundleIndexViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
         html = response.content.decode()
 
-        self.assertInHTML(f'<span class="truncate">{user_bundle.name}</span>', html)
+        self.assertInHTML(f"<span>{user_bundle.name}</span>", html)
         self.assertNotIn(other_user_bundle.name, html)
 
     def test_empty_state(self):
@@ -83,7 +83,7 @@ class BundleIndexViewTestCase(TestCase, BookmarkFactoryMixin):
         html = response.content.decode()
 
         self.assertInHTML(
-            f'<a href="{reverse("linkding:bundles.new")}" class="btn btn-primary">Add new bundle</a>',
+            f'<a href="{reverse("linkding:bundles.new")}" class="btn">Add bundle</a>',
             html,
         )
 

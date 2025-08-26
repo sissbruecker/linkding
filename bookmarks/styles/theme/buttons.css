@@ -119,6 +119,12 @@
     }
   }
 
+  /* Button no border */
+  &.btn-noborder {
+    border-color: transparent;
+    box-shadow: none;
+  }
+
   /* Button Link */
 
   &.btn-link {
