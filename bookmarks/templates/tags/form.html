@@ -1,0 +1,19 @@
+{% load widget_tweaks %}
+
+<div class="form-group {% if form.name.errors %}has-error{% endif %}">
+  <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
+  {{ form.name|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
+  <div class="form-input-hint">Tag names are case-insensitive and cannot contain spaces (spaces will be replaced with hyphens).</div>
+  {% if form.name.errors %}
+    <div class="form-input-hint">
+      {{ form.name.errors }}
+    </div>
+  {% endif %}
+</div>
+
+<div class="divider"></div>
+
+<div class="form-group d-flex justify-between">
+  <button type="submit" class="btn btn-primary">Save</button>
+  <a href="{% url 'linkding:tags.index' %}" class="btn ml-auto">Cancel</a>
+</div>

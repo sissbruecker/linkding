@@ -1,11 +1,18 @@
 from django import forms
 from django.forms.utils import ErrorList
+from django.utils import timezone
 
-from bookmarks.models import Bookmark, build_tag_string
-from bookmarks.validators import BookmarkURLValidator
-from bookmarks.type_defs import HttpRequest
+from bookmarks.models import (
+    Bookmark,
+    Tag,
+    build_tag_string,
+    parse_tag_string,
+    sanitize_tag_name,
+)
 from bookmarks.services.bookmarks import create_bookmark, update_bookmark
+from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import normalize_url
+from bookmarks.validators import BookmarkURLValidator
 
 
 class CustomErrorList(ErrorList):
@@ -105,3 +112,88 @@ def convert_tag_string(tag_string: str):
     # Tag strings coming from inputs are space-separated, however services.bookmarks functions expect comma-separated
     # strings
     return tag_string.replace(" ", ",")
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ["name"]
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs, error_class=CustomErrorList)
+        self.user = user
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name", "").strip()
+
+        name = sanitize_tag_name(name)
+
+        queryset = Tag.objects.filter(name__iexact=name, owner=self.user)
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            raise forms.ValidationError(f'Tag "{name}" already exists.')
+
+        return name
+
+    def save(self, commit=True):
+        tag = super().save(commit=False)
+        if not self.instance.pk:
+            tag.owner = self.user
+            tag.date_added = timezone.now()
+        else:
+            tag.date_modified = timezone.now()
+        if commit:
+            tag.save()
+        return tag
+
+
+class TagMergeForm(forms.Form):
+    target_tag = forms.CharField()
+    merge_tags = forms.CharField()
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs, error_class=CustomErrorList)
+        self.user = user
+
+    def clean_target_tag(self):
+        target_tag_name = self.cleaned_data.get("target_tag", "")
+
+        target_tag_names = parse_tag_string(target_tag_name, " ")
+        if len(target_tag_names) != 1:
+            raise forms.ValidationError(
+                "Please enter only one tag name for the target tag."
+            )
+
+        target_tag_name = target_tag_names[0]
+
+        try:
+            target_tag = Tag.objects.get(name__iexact=target_tag_name, owner=self.user)
+        except Tag.DoesNotExist:
+            raise forms.ValidationError(f'Tag "{target_tag_name}" does not exist.')
+
+        return target_tag
+
+    def clean_merge_tags(self):
+        merge_tags_string = self.cleaned_data.get("merge_tags", "")
+
+        merge_tag_names = parse_tag_string(merge_tags_string, " ")
+        if not merge_tag_names:
+            raise forms.ValidationError("Please enter at least one tag to merge.")
+
+        merge_tags = []
+        for tag_name in merge_tag_names:
+            try:
+                tag = Tag.objects.get(name__iexact=tag_name, owner=self.user)
+                merge_tags.append(tag)
+            except Tag.DoesNotExist:
+                raise forms.ValidationError(f'Tag "{tag_name}" does not exist.')
+
+        target_tag = self.cleaned_data.get("target_tag")
+        if target_tag and target_tag in merge_tags:
+            raise forms.ValidationError(
+                "The target tag cannot be selected for merging."
+            )
+
+        return merge_tags

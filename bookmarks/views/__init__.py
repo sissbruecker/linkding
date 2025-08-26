@@ -2,6 +2,7 @@ from .assets import *
 from .auth import *
 from .bookmarks import *
 from . import bundles
+from . import tags
 from .settings import *
 from .toasts import *
 from .health import health

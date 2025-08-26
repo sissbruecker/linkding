@@ -33,6 +33,11 @@
       }
     }
 
+    &:first-child a {
+      /* Remove left padding from first pagination link */
+      padding-left: 0;
+    }
+
     &.active {
       & a {
         background: var(--primary-color);

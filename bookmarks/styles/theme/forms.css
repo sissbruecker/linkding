@@ -430,13 +430,21 @@ textarea.form-input {
 /* Form element: Input groups */
 .input-group {
   display: flex;
+  border-radius: var(--border-radius);
+  box-shadow: var(--input-box-shadow);
+
+  > * {
+    box-shadow: none !important;
+  }
 
   .input-group-addon {
+    display: flex;
+    align-items: center;
     background: var(--body-color);
     border: var(--border-width) solid var(--input-border-color);
     border-radius: var(--border-radius);
     line-height: var(--line-height);
-    padding: var(--control-padding-y) var(--control-padding-x);
+    padding: 0 var(--control-padding-x);
     white-space: nowrap;
 
     &.addon-sm {

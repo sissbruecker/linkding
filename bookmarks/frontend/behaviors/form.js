@@ -39,6 +39,36 @@ class AutoSubmitBehavior extends Behavior {
   }
 }
 
+// Resets form controls to their initial values before Turbo caches the DOM.
+// Useful for filter forms where navigating back would otherwise still show
+// values from after the form submission, which means the filters would be out
+// of sync with the URL.
+class FormResetBehavior extends Behavior {
+  constructor(element) {
+    super(element);
+
+    this.controls = this.element.querySelectorAll("input, select");
+    this.controls.forEach((control) => {
+      if (control.type === "checkbox" || control.type === "radio") {
+        control.__initialValue = control.checked;
+      } else {
+        control.__initialValue = control.value;
+      }
+    });
+  }
+
+  destroy() {
+    this.controls.forEach((control) => {
+      if (control.type === "checkbox" || control.type === "radio") {
+        control.checked = control.__initialValue;
+      } else {
+        control.value = control.__initialValue;
+      }
+      delete control.__initialValue;
+    });
+  }
+}
+
 class UploadButton extends Behavior {
   constructor(element) {
     super(element);
@@ -75,4 +105,5 @@ class UploadButton extends Behavior {
 
 registerBehavior("ld-form-submit", FormSubmit);
 registerBehavior("ld-auto-submit", AutoSubmitBehavior);
+registerBehavior("ld-form-reset", FormResetBehavior);
 registerBehavior("ld-upload-button", UploadButton);

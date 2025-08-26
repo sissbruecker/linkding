@@ -1,0 +1,23 @@
+{% extends "bookmarks/layout.html" %}
+{% load shared %}
+
+{% block head %}
+  {% with page_title="Edit tag - Linkding" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+  <div class="tags-editor-page">
+    <main aria-labelledby="main-heading">
+      <div class="section-header">
+        <h1 id="main-heading">Edit tag</h1>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% include 'tags/form.html' %}
+      </form>
+    </main>
+  </div>
+{% endblock %}

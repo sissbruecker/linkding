@@ -1,20 +1,15 @@
 .bundles-page {
-  h1 {
-    font-size: var(--font-size-lg);
-    margin-bottom: var(--unit-6);
-  }
-
-  .item-list {
-    .list-item .list-item-icon {
+  .crud-table {
+    svg {
       cursor: grab;
     }
 
-    .list-item.drag-start {
+    tr.drag-start {
       --secondary-border-color: transparent;
     }
 
-    .list-item.dragging > * {
-      visibility: hidden;
+    tr.dragging > * {
+      opacity: 0;
     }
   }
 }

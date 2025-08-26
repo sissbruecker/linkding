@@ -242,6 +242,36 @@
   margin-top: var(--unit-4) !important;
 }
 
+.m-6 {
+  margin: var(--unit-6) !important;
+}
+
+.mb-6 {
+  margin-bottom: var(--unit-6) !important;
+}
+
+.ml-6 {
+  margin-left: var(--unit-6) !important;
+}
+
+.mr-6 {
+  margin-right: var(--unit-6) !important;
+}
+
+.mt-6 {
+  margin-top: var(--unit-6) !important;
+}
+
+.mx-6 {
+  margin-left: var(--unit-6) !important;
+  margin-right: var(--unit-6) !important;
+}
+
+.my-6 {
+  margin-bottom: var(--unit-6) !important;
+  margin-top: var(--unit-6) !important;
+}
+
 .ml-auto {
   margin-left: auto;
 }
@@ -291,6 +321,10 @@
 }
 
 /* Flex */
+.flex-column {
+  flex-direction: column;
+}
+
 .align-baseline {
   align-items: baseline;
 }
@@ -301,4 +335,8 @@
 
 .justify-between {
   justify-content: space-between;
+}
+
+.gap-2 {
+  gap: var(--unit-2);
 }
