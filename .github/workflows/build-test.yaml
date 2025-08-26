@@ -1,4 +1,4 @@
-name: build-preview
+name: build-test
 
 on: workflow_dispatch
 
@@ -8,10 +8,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Read version from file
-        id: get_version
-        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -39,7 +35,7 @@ jobs:
           file: ./docker/default.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            ghcr.io/sissbruecker/linkding:preview
+            ghcr.io/sissbruecker/linkding:test
           target: linkding
           push: true
 
@@ -50,6 +46,28 @@ jobs:
           file: ./docker/alpine.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            ghcr.io/sissbruecker/linkding:preview-alpine
+            ghcr.io/sissbruecker/linkding:test-alpine
           target: linkding
+          push: true
+
+      - name: Build latest-plus
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/default.Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          tags: |
+            ghcr.io/sissbruecker/linkding:test-plus
+          target: linkding-plus
+          push: true
+
+      - name: Build latest-plus-alpine
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/alpine.Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          tags: |
+            ghcr.io/sissbruecker/linkding:test-plus-alpine
+          target: linkding-plus
           push: true
