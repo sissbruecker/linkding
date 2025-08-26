@@ -660,3 +660,21 @@ class BookmarkSharedViewTestCase(
         feed = soup.select_one('head link[type="application/rss+xml"]')
         self.assertIsNotNone(feed)
         self.assertEqual(feed.attrs["href"], reverse("linkding:feeds.public_shared"))
+
+    def test_tag_menu_visible_for_authenticated_user(self):
+        self.authenticate()
+
+        response = self.client.get(reverse("linkding:bookmarks.shared"))
+        html = response.content.decode()
+
+        soup = self.make_soup(html)
+        tag_menu = soup.find(attrs={"aria-label": "Tags menu"})
+        self.assertIsNotNone(tag_menu)
+
+    def test_tag_menu_not_visible_for_unauthenticated_user(self):
+        response = self.client.get(reverse("linkding:bookmarks.shared"))
+        html = response.content.decode()
+
+        soup = self.make_soup(html)
+        tag_menu = soup.find(attrs={"aria-label": "Tags menu"})
+        self.assertIsNone(tag_menu)
