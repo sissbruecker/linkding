@@ -324,3 +324,14 @@ class ParserTestCase(TestCase, ImportTestMixin):
         self.assertEqual(
             bookmarks[0].notes, "Interesting notes about the <style> HTML element."
         )
+
+    def test_unescape_href_attribute(self):
+        html = self.render_html(
+            tags_html="""
+        <DT><A HREF="https://example.com&center=123" ADD_DATE="1">Imported bookmark</A>
+        <DD>Imported bookmark description
+        """
+        )
+
+        bookmarks = parse(html)
+        self.assertEqual(bookmarks[0].href, "https://example.com&center=123")
