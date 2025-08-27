@@ -12,7 +12,7 @@
   }
 
   .crud-filters {
-    background: var(--gray-50);
+    background: var(--body-color-contrast);
     border-radius: var(--border-radius);
     border: solid 1px var(--secondary-border-color);
     padding: var(--unit-3);

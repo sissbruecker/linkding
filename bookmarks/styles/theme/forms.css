@@ -440,7 +440,7 @@ textarea.form-input {
   .input-group-addon {
     display: flex;
     align-items: center;
-    background: var(--body-color);
+    background: var(--input-bg-color);
     border: var(--border-width) solid var(--input-border-color);
     border-radius: var(--border-radius);
     line-height: var(--line-height);
