@@ -49,12 +49,49 @@ class SearchQueryTokenizer:
         while (
             self.current_char
             and not self.current_char.isspace()
-            and self.current_char not in "()"
+            and self.current_char not in "()\"'"
         ):
             term += self.current_char
             self.advance()
 
         return term
+
+    def read_quoted_string(self, quote_char: str) -> str:
+        """Read a quoted string, handling escaped quotes."""
+        content = ""
+        self.advance()  # skip opening quote
+
+        while self.current_char and self.current_char != quote_char:
+            if self.current_char == "\\":
+                # Handle escaped characters
+                self.advance()
+                if self.current_char:
+                    if self.current_char == "n":
+                        content += "\n"
+                    elif self.current_char == "t":
+                        content += "\t"
+                    elif self.current_char == "r":
+                        content += "\r"
+                    elif self.current_char == "\\":
+                        content += "\\"
+                    elif self.current_char == quote_char:
+                        content += quote_char
+                    else:
+                        # For any other escaped character, just include it as-is
+                        content += self.current_char
+                    self.advance()
+            else:
+                content += self.current_char
+                self.advance()
+
+        if self.current_char == quote_char:
+            self.advance()  # skip closing quote
+        else:
+            # Unclosed quote - we could raise an error here, but let's be lenient
+            # and treat it as if the quote was closed at the end
+            pass
+
+        return content
 
     def tokenize(self) -> List[Token]:
         """Convert the query string into a list of tokens."""
@@ -74,6 +111,11 @@ class SearchQueryTokenizer:
             elif self.current_char == ")":
                 tokens.append(Token(TokenType.RPAREN, ")", start_pos))
                 self.advance()
+            elif self.current_char in "\"'":
+                # Read a quoted string - always treated as a term
+                quote_char = self.current_char
+                term = self.read_quoted_string(quote_char)
+                tokens.append(Token(TokenType.TERM, term, start_pos))
             else:
                 # Read a term and check if it's a keyword
                 term = self.read_term()

@@ -160,6 +160,60 @@ class SearchQueryTokenizerTest(TestCase):
         self.assertEqual(tokens[2].value, "books")
         self.assertEqual(tokens[3].type, TokenType.EOF)
 
+    def test_quoted_strings(self):
+        # Double quotes
+        tokenizer = SearchQueryTokenizer('"good and bad"')
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TERM)
+        self.assertEqual(tokens[0].value, "good and bad")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+        # Single quotes
+        tokenizer = SearchQueryTokenizer("'hello world'")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TERM)
+        self.assertEqual(tokens[0].value, "hello world")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+    def test_quoted_strings_with_operators(self):
+        tokenizer = SearchQueryTokenizer('"good and bad" or programming')
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 4)
+        self.assertEqual(tokens[0].type, TokenType.TERM)
+        self.assertEqual(tokens[0].value, "good and bad")
+        self.assertEqual(tokens[1].type, TokenType.OR)
+        self.assertEqual(tokens[2].type, TokenType.TERM)
+        self.assertEqual(tokens[2].value, "programming")
+        self.assertEqual(tokens[3].type, TokenType.EOF)
+
+    def test_escaped_quotes(self):
+        # Escaped double quote within double quotes
+        tokenizer = SearchQueryTokenizer('"say \\"hello\\""')
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TERM)
+        self.assertEqual(tokens[0].value, 'say "hello"')
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+        # Escaped single quote within single quotes
+        tokenizer = SearchQueryTokenizer("'don\\'t worry'")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TERM)
+        self.assertEqual(tokens[0].value, "don't worry")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+    def test_unclosed_quotes(self):
+        # Unclosed quote should be handled gracefully
+        tokenizer = SearchQueryTokenizer('"unclosed quote')
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TERM)
+        self.assertEqual(tokens[0].value, "unclosed quote")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
 
 class SearchQueryParserTest(TestCase):
     """Test cases for the search query parser."""
@@ -300,6 +354,50 @@ class SearchQueryParserTest(TestCase):
         expected = _or(_term("https://github.com"), _term("https://gitlab.com"))
         self.assertEqual(result, expected)
 
+    def test_quoted_strings(self):
+        # Basic quoted string
+        result = parse_search_query('"good and bad"')
+        expected = _term("good and bad")
+        self.assertEqual(result, expected)
+
+        # Single quotes
+        result = parse_search_query("'hello world'")
+        expected = _term("hello world")
+        self.assertEqual(result, expected)
+
+    def test_quoted_strings_with_operators(self):
+        # Quoted string with OR
+        result = parse_search_query('"good and bad" or programming')
+        expected = _or(_term("good and bad"), _term("programming"))
+        self.assertEqual(result, expected)
+
+        # Quoted string with AND
+        result = parse_search_query('documentation and "API reference"')
+        expected = _and(_term("documentation"), _term("API reference"))
+        self.assertEqual(result, expected)
+
+        # Quoted string with NOT
+        result = parse_search_query('programming and not "bad practices"')
+        expected = _and(_term("programming"), _not(_term("bad practices")))
+        self.assertEqual(result, expected)
+
+    def test_multiple_quoted_strings(self):
+        result = parse_search_query('"hello world" and "goodbye moon"')
+        expected = _and(_term("hello world"), _term("goodbye moon"))
+        self.assertEqual(result, expected)
+
+    def test_quoted_strings_with_parentheses(self):
+        result = parse_search_query('("good morning" or "good evening") and coffee')
+        expected = _and(
+            _or(_term("good morning"), _term("good evening")), _term("coffee")
+        )
+        self.assertEqual(result, expected)
+
+    def test_escaped_quotes_in_terms(self):
+        result = parse_search_query('"say \\"hello\\""')
+        expected = _term('say "hello"')
+        self.assertEqual(result, expected)
+
     def test_operator_words_as_substrings(self):
         # Terms that contain operator words as substrings should be treated as terms
         result = parse_search_query("android and notification")
@@ -344,6 +442,16 @@ class SearchQueryParserTest(TestCase):
                         ),
                     ),
                     _not(_term("jquery")),
+                ),
+            ),
+            (
+                '"machine learning" and (python or r) and not "deep learning"',
+                _and(
+                    _and(
+                        _term("machine learning"),
+                        _or(_term("python"), _term("r")),
+                    ),
+                    _not(_term("deep learning")),
                 ),
             ),
         ]
