@@ -136,11 +136,11 @@ def _base_bookmarks_query(
         query_set = query_set.filter(tags__name__iexact=tag_name)
 
     # Untagged bookmarks
-    if query["untagged"]:
-        query_set = query_set.filter(tags=None)
+    # if query["untagged"]:
+    #    query_set = query_set.filter(tags=None)
     # Legacy unread bookmarks filter from query
-    if query["unread"]:
-        query_set = query_set.filter(unread=True)
+    #if query["unread"]:
+    #    query_set = query_set.filter(unread=True)
 
     # Unread filter from bookmark search
     if search.unread == BookmarkSearch.FILTER_UNREAD_YES:
