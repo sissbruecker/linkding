@@ -269,8 +269,12 @@ class SearchQueryParser:
         """Parse AND expressions (medium precedence), including implicit AND."""
         left = self.parse_not_expression()
 
-        while (self.current_token.type == TokenType.AND or
-               self.current_token.type in [TokenType.TERM, TokenType.TAG, TokenType.LPAREN, TokenType.NOT]):
+        while self.current_token.type == TokenType.AND or self.current_token.type in [
+            TokenType.TERM,
+            TokenType.TAG,
+            TokenType.LPAREN,
+            TokenType.NOT,
+        ]:
 
             if self.current_token.type == TokenType.AND:
                 self.advance()  # consume explicit AND

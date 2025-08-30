@@ -1575,24 +1575,24 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         # Setup test data
         self.python_bookmark = self.setup_bookmark(
             title="Python Tutorial",
-            tags=[self.setup_tag(name="python"), self.setup_tag(name="tutorial")]
+            tags=[self.setup_tag(name="python"), self.setup_tag(name="tutorial")],
         )
         self.java_bookmark = self.setup_bookmark(
             title="Java Guide",
-            tags=[self.setup_tag(name="java"), self.setup_tag(name="programming")]
+            tags=[self.setup_tag(name="java"), self.setup_tag(name="programming")],
         )
         self.deprecated_python_bookmark = self.setup_bookmark(
             title="Old Python Guide",
-            tags=[self.setup_tag(name="python"), self.setup_tag(name="deprecated")]
+            tags=[self.setup_tag(name="python"), self.setup_tag(name="deprecated")],
         )
         self.javascript_tutorial = self.setup_bookmark(
             title="JavaScript Basics",
-            tags=[self.setup_tag(name="javascript"), self.setup_tag(name="tutorial")]
+            tags=[self.setup_tag(name="javascript"), self.setup_tag(name="tutorial")],
         )
         self.web_development = self.setup_bookmark(
             title="Web Development with React",
             description="Modern web development",
-            tags=[self.setup_tag(name="react"), self.setup_tag(name="web")]
+            tags=[self.setup_tag(name="react"), self.setup_tag(name="web")],
         )
 
     def test_explicit_and_operator(self):
@@ -1605,7 +1605,10 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         """Test explicit OR operator between tags."""
         search = BookmarkSearch(q="#python OR #java")
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertCountEqual(list(query), [self.python_bookmark, self.java_bookmark, self.deprecated_python_bookmark])
+        self.assertCountEqual(
+            list(query),
+            [self.python_bookmark, self.java_bookmark, self.deprecated_python_bookmark],
+        )
 
     def test_explicit_not_operator(self):
         """Test explicit NOT operator."""
@@ -1625,6 +1628,19 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertCountEqual(list(query), [self.python_bookmark])
 
+    def test_nested_and_expression(self):
+        search = BookmarkSearch(q="nonexistingterm OR (#python AND #tutorial)")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [self.python_bookmark])
+
+        search = BookmarkSearch(
+            q="(#javascript AND #tutorial) OR (#python AND #tutorial)"
+        )
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(
+            list(query), [self.javascript_tutorial, self.python_bookmark]
+        )
+
     def test_mixed_terms_and_tags_with_operators(self):
         """Test mixed terms and tags with logical operators."""
         # Set lax mode to allow term matching against tags
@@ -1633,7 +1649,9 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
 
         search = BookmarkSearch(q="(tutorial OR guide) AND #python")
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertCountEqual(list(query), [self.python_bookmark, self.deprecated_python_bookmark])
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.deprecated_python_bookmark]
+        )
 
     def test_parentheses_change_precedence(self):
         """Test that parentheses change operator precedence."""
@@ -1645,12 +1663,16 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         # Should be: (python AND tutorial) OR (javascript AND tutorial)
         search = BookmarkSearch(q="python AND tutorial OR javascript AND tutorial")
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertCountEqual(list(query), [self.python_bookmark, self.javascript_tutorial])
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.javascript_tutorial]
+        )
 
         # With parentheses: (python OR javascript) AND tutorial
         search = BookmarkSearch(q="(python OR javascript) AND tutorial")
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertCountEqual(list(query), [self.python_bookmark, self.javascript_tutorial])
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.javascript_tutorial]
+        )
 
     def test_complex_query_with_all_operators(self):
         """Test complex query combining all operators."""
@@ -1658,9 +1680,13 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         self.profile.tag_search = self.profile.TAG_SEARCH_LAX
         self.profile.save()
 
-        search = BookmarkSearch(q="(#python OR #javascript) AND tutorial AND NOT #deprecated")
+        search = BookmarkSearch(
+            q="(#python OR #javascript) AND tutorial AND NOT #deprecated"
+        )
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertCountEqual(list(query), [self.python_bookmark, self.javascript_tutorial])
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.javascript_tutorial]
+        )
 
     def test_quoted_strings_with_operators(self):
         """Test quoted strings work with logical operators."""
@@ -1670,7 +1696,10 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
 
         search = BookmarkSearch(q='"Web Development" OR tutorial')
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertCountEqual(list(query), [self.web_development, self.python_bookmark, self.javascript_tutorial])
+        self.assertCountEqual(
+            list(query),
+            [self.web_development, self.python_bookmark, self.javascript_tutorial],
+        )
 
     def test_implicit_and_with_quoted_strings(self):
         """Test implicit AND works with quoted strings."""
@@ -1682,13 +1711,17 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         """Test that simple terms still work as before."""
         search = BookmarkSearch(q="python")
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertCountEqual(list(query), [self.python_bookmark, self.deprecated_python_bookmark])
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.deprecated_python_bookmark]
+        )
 
     def test_backward_compatibility_simple_tags(self):
         """Test that simple tags still work as before."""
         search = BookmarkSearch(q="#tutorial")
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertCountEqual(list(query), [self.python_bookmark, self.javascript_tutorial])
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.javascript_tutorial]
+        )
 
     def test_backward_compatibility_multiple_terms(self):
         """Test that multiple terms get implicit AND (new behavior)."""
@@ -1702,7 +1735,10 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         search = BookmarkSearch(q="")
         query = queries.query_bookmarks(self.user, self.profile, search)
         expected = [
-            self.python_bookmark, self.java_bookmark, self.deprecated_python_bookmark,
-            self.javascript_tutorial, self.web_development
+            self.python_bookmark,
+            self.java_bookmark,
+            self.deprecated_python_bookmark,
+            self.javascript_tutorial,
+            self.web_development,
         ]
         self.assertCountEqual(list(query), expected)

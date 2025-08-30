@@ -391,8 +391,8 @@ class SearchQueryParserTest(TestCase):
         # Test implicit AND with NOT
         result = parse_search_query("programming AND books OR streaming NOT videos")
         expected = _or(
-            _and(_term("programming"), _term("books")), 
-            _and(_term("streaming"), _not(_term("videos")))
+            _and(_term("programming"), _term("books")),
+            _and(_term("streaming"), _not(_term("videos"))),
         )
         self.assertEqual(result, expected)
 
@@ -576,7 +576,10 @@ class SearchQueryParserTest(TestCase):
 
         # Implicit AND with OR
         result = parse_search_query("python tutorial or java guide")
-        expected = _or(_and(_term("python"), _term("tutorial")), _and(_term("java"), _term("guide")))
+        expected = _or(
+            _and(_term("python"), _term("tutorial")),
+            _and(_term("java"), _term("guide")),
+        )
         self.assertEqual(result, expected)
 
     def test_implicit_and_with_not(self):
@@ -587,7 +590,9 @@ class SearchQueryParserTest(TestCase):
 
         # Implicit AND with NOT at end
         result = parse_search_query("python tutorial not deprecated")
-        expected = _and(_and(_term("python"), _term("tutorial")), _not(_term("deprecated")))
+        expected = _and(
+            _and(_term("python"), _term("tutorial")), _not(_term("deprecated"))
+        )
         self.assertEqual(result, expected)
 
     def test_implicit_and_with_parentheses(self):
@@ -597,53 +602,57 @@ class SearchQueryParserTest(TestCase):
         self.assertEqual(result, expected)
 
         # Complex parentheses with implicit AND
-        result = parse_search_query("(machine learning #python) and (web development #javascript)")
+        result = parse_search_query(
+            "(machine learning #python) and (web development #javascript)"
+        )
         expected = _and(
             _and(_and(_term("machine"), _term("learning")), _tag("python")),
-            _and(_and(_term("web"), _term("development")), _tag("javascript"))
+            _and(_and(_term("web"), _term("development")), _tag("javascript")),
         )
         self.assertEqual(result, expected)
 
     def test_complex_precedence_with_implicit_and(self):
         # Test complex precedence scenarios to ensure implicit AND works correctly
-        
+
         # Implicit AND with OR has correct precedence: "a b or c d" -> "(a AND b) OR (c AND d)"
         result = parse_search_query("python tutorial or javascript guide")
         expected = _or(
             _and(_term("python"), _term("tutorial")),
-            _and(_term("javascript"), _term("guide"))
+            _and(_term("javascript"), _term("guide")),
         )
         self.assertEqual(result, expected)
-        
-        # Implicit AND with NOT: "not deprecated tutorial" -> "NOT deprecated AND tutorial"  
+
+        # Implicit AND with NOT: "not deprecated tutorial" -> "NOT deprecated AND tutorial"
         result = parse_search_query("not deprecated tutorial")
         expected = _and(_not(_term("deprecated")), _term("tutorial"))
         self.assertEqual(result, expected)
-        
-        # Mixed explicit and implicit AND: "python and tutorial guide" -> "(python AND tutorial) AND guide"  
+
+        # Mixed explicit and implicit AND: "python and tutorial guide" -> "(python AND tutorial) AND guide"
         result = parse_search_query("python and tutorial guide")
         expected = _and(_and(_term("python"), _term("tutorial")), _term("guide"))
         self.assertEqual(result, expected)
-        
+
         # Parentheses override implicit AND precedence: "(python tutorial) or (javascript guide)"
-        result = parse_search_query("(python tutorial) or (javascript guide)")  
+        result = parse_search_query("(python tutorial) or (javascript guide)")
         expected = _or(
             _and(_term("python"), _term("tutorial")),
-            _and(_term("javascript"), _term("guide"))
+            _and(_term("javascript"), _term("guide")),
         )
         self.assertEqual(result, expected)
-        
+
         # Complex: "machine learning and (python or r) tutorial #beginner"
-        result = parse_search_query("machine learning and (python or r) tutorial #beginner")
+        result = parse_search_query(
+            "machine learning and (python or r) tutorial #beginner"
+        )
         expected = _and(
             _and(
                 _and(
                     _and(_term("machine"), _term("learning")),
-                    _or(_term("python"), _term("r"))
+                    _or(_term("python"), _term("r")),
                 ),
-                _term("tutorial")
+                _term("tutorial"),
             ),
-            _tag("beginner")
+            _tag("beginner"),
         )
         self.assertEqual(result, expected)
 
@@ -717,8 +726,10 @@ class SearchQueryParserTest(TestCase):
                 "machine learning tutorial #python beginner",
                 _and(
                     _and(
-                        _and(_and(_term("machine"), _term("learning")), _term("tutorial")),
-                        _tag("python")
+                        _and(
+                            _and(_term("machine"), _term("learning")), _term("tutorial")
+                        ),
+                        _tag("python"),
                     ),
                     _term("beginner"),
                 ),

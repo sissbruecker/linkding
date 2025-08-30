@@ -27,7 +27,9 @@ from bookmarks.services.search_query_parser import (
 from bookmarks.utils import unique
 
 
-def apply_ast_to_queryset(query_set: QuerySet, ast_node: SearchExpression, profile: UserProfile) -> QuerySet:
+def apply_ast_to_queryset(
+    query_set: QuerySet, ast_node: SearchExpression, profile: UserProfile
+) -> QuerySet:
     """Apply search query AST to Django QuerySet, handling tags properly."""
     if isinstance(ast_node, TermExpression):
         # Search across title, description, notes, URL
@@ -41,7 +43,9 @@ def apply_ast_to_queryset(query_set: QuerySet, ast_node: SearchExpression, profi
         # In lax mode, also search in tag names
         if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
             conditions = conditions | Exists(
-                Bookmark.objects.filter(id=OuterRef("id"), tags__name__iexact=ast_node.term)
+                Bookmark.objects.filter(
+                    id=OuterRef("id"), tags__name__iexact=ast_node.term
+                )
             )
 
         return query_set.filter(conditions)
@@ -86,14 +90,22 @@ def convert_ast_to_q_object(ast_node: SearchExpression, profile: UserProfile) ->
         # In lax mode, also search in tag names
         if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
             conditions = conditions | Exists(
-                Bookmark.objects.filter(id=OuterRef("id"), tags__name__iexact=ast_node.term)
+                Bookmark.objects.filter(
+                    id=OuterRef("id"), tags__name__iexact=ast_node.term
+                )
             )
 
         return conditions
 
     elif isinstance(ast_node, TagExpression):
-        # For Q objects, we can use direct tag filtering
-        return Q(tags__name__iexact=ast_node.tag)
+        # Use Exists() to avoid reusing the same join when combining multiple tag expressions
+        return Q(
+            Exists(
+                Bookmark.objects.filter(
+                    id=OuterRef("id"), tags__name__iexact=ast_node.tag
+                )
+            )
+        )
 
     elif isinstance(ast_node, AndExpression):
         # Combine left and right with AND
@@ -212,20 +224,17 @@ def _base_bookmarks_query(
             # If the date format is invalid, ignore the filter
             pass
 
-    # Try new advanced search query parser first
-    try:
-        ast = parse_search_query(search.q)
-        if ast:
-            # Apply AST to queryset, handling tags properly
-            query_set = apply_ast_to_queryset(query_set, ast, profile)
-    except Exception:
-        raise ValidationError("Invalid search query syntax")
+    # Use new advanced search query parser
+    ast = parse_search_query(search.q)
+    if ast:
+        # Apply AST to queryset, handling tags properly
+        query_set = apply_ast_to_queryset(query_set, ast, profile)
 
     # Untagged bookmarks
     # if query["untagged"]:
     #    query_set = query_set.filter(tags=None)
     # Legacy unread bookmarks filter from query
-    #if query["unread"]:
+    # if query["unread"]:
     #    query_set = query_set.filter(unread=True)
 
     # Unread filter from bookmark search
