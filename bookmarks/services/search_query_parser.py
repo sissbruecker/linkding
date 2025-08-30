@@ -135,7 +135,9 @@ class SearchQueryTokenizer:
             elif self.current_char == "#":
                 # Read a tag
                 tag = self.read_tag()
-                tokens.append(Token(TokenType.TAG, tag, start_pos))
+                # Only add the tag token if it has content
+                if tag:
+                    tokens.append(Token(TokenType.TAG, tag, start_pos))
             else:
                 # Read a term and check if it's a keyword
                 term = self.read_term()

@@ -263,13 +263,28 @@ class SearchQueryTokenizerTest(TestCase):
         self.assertEqual(tokens[5].type, TokenType.EOF)
 
     def test_empty_tag(self):
-        # Tag with just # should be handled gracefully
+        # Tag with just # should be ignored (no token created)
         tokenizer = SearchQueryTokenizer("# ")
         tokens = tokenizer.tokenize()
-        self.assertEqual(len(tokens), 2)
-        self.assertEqual(tokens[0].type, TokenType.TAG)
-        self.assertEqual(tokens[0].value, "")
-        self.assertEqual(tokens[1].type, TokenType.EOF)
+        self.assertEqual(len(tokens), 1)
+        self.assertEqual(tokens[0].type, TokenType.EOF)
+
+        # Empty tag at end of string
+        tokenizer = SearchQueryTokenizer("#")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 1)
+        self.assertEqual(tokens[0].type, TokenType.EOF)
+
+        # Empty tag mixed with other terms
+        tokenizer = SearchQueryTokenizer("python # and django")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 4)
+        self.assertEqual(tokens[0].type, TokenType.TERM)
+        self.assertEqual(tokens[0].value, "python")
+        self.assertEqual(tokens[1].type, TokenType.AND)
+        self.assertEqual(tokens[2].type, TokenType.TERM)
+        self.assertEqual(tokens[2].value, "django")
+        self.assertEqual(tokens[3].type, TokenType.EOF)
 
 
 class SearchQueryParserTest(TestCase):
@@ -495,6 +510,20 @@ class SearchQueryParserTest(TestCase):
     def test_tags_with_parentheses(self):
         result = parse_search_query("(#frontend or #backend) and javascript")
         expected = _and(_or(_tag("frontend"), _tag("backend")), _term("javascript"))
+        self.assertEqual(result, expected)
+
+    def test_empty_tags_ignored(self):
+        # Empty tags should be ignored in queries, but this creates grammatically invalid queries
+        # So let's test the tokenizer behavior directly and valid parser scenarios
+
+        # Test single empty tag
+        result = parse_search_query("#")
+        expected = None  # Empty query
+        self.assertEqual(result, expected)
+
+        # Test query that's just an empty tag and whitespace
+        result = parse_search_query("# ")
+        expected = None  # Empty query
         self.assertEqual(result, expected)
 
     def test_operator_words_as_substrings(self):
