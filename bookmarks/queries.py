@@ -27,108 +27,6 @@ from bookmarks.services.search_query_parser import (
 from bookmarks.utils import unique
 
 
-def apply_ast_to_queryset(
-    query_set: QuerySet, ast_node: SearchExpression, profile: UserProfile
-) -> QuerySet:
-    """Apply search query AST to Django QuerySet, handling tags properly."""
-    if isinstance(ast_node, TermExpression):
-        # Search across title, description, notes, URL
-        conditions = (
-            Q(title__icontains=ast_node.term)
-            | Q(description__icontains=ast_node.term)
-            | Q(notes__icontains=ast_node.term)
-            | Q(url__icontains=ast_node.term)
-        )
-
-        # In lax mode, also search in tag names
-        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
-            conditions = conditions | Exists(
-                Bookmark.objects.filter(
-                    id=OuterRef("id"), tags__name__iexact=ast_node.term
-                )
-            )
-
-        return query_set.filter(conditions)
-
-    elif isinstance(ast_node, TagExpression):
-        # Apply tag filter separately to ensure proper many-to-many handling
-        return query_set.filter(tags__name__iexact=ast_node.tag)
-
-    elif isinstance(ast_node, AndExpression):
-        # Apply left side, then right side (creating separate joins for tags)
-        query_set = apply_ast_to_queryset(query_set, ast_node.left, profile)
-        query_set = apply_ast_to_queryset(query_set, ast_node.right, profile)
-        return query_set
-
-    elif isinstance(ast_node, OrExpression):
-        # For OR expressions, we need to use Q objects to avoid multiple QuerySet operations
-        left_q = convert_ast_to_q_object(ast_node.left, profile)
-        right_q = convert_ast_to_q_object(ast_node.right, profile)
-        return query_set.filter(left_q | right_q)
-
-    elif isinstance(ast_node, NotExpression):
-        # For NOT expressions, use Q objects
-        operand_q = convert_ast_to_q_object(ast_node.operand, profile)
-        return query_set.filter(~operand_q)
-
-    else:
-        # Fallback for unknown node types
-        return query_set
-
-
-def convert_ast_to_q_object(ast_node: SearchExpression, profile: UserProfile) -> Q:
-    """Convert search query AST to Django Q object for use in OR/NOT expressions."""
-    if isinstance(ast_node, TermExpression):
-        # Search across title, description, notes, URL
-        conditions = (
-            Q(title__icontains=ast_node.term)
-            | Q(description__icontains=ast_node.term)
-            | Q(notes__icontains=ast_node.term)
-            | Q(url__icontains=ast_node.term)
-        )
-
-        # In lax mode, also search in tag names
-        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
-            conditions = conditions | Exists(
-                Bookmark.objects.filter(
-                    id=OuterRef("id"), tags__name__iexact=ast_node.term
-                )
-            )
-
-        return conditions
-
-    elif isinstance(ast_node, TagExpression):
-        # Use Exists() to avoid reusing the same join when combining multiple tag expressions
-        return Q(
-            Exists(
-                Bookmark.objects.filter(
-                    id=OuterRef("id"), tags__name__iexact=ast_node.tag
-                )
-            )
-        )
-
-    elif isinstance(ast_node, AndExpression):
-        # Combine left and right with AND
-        left_q = convert_ast_to_q_object(ast_node.left, profile)
-        right_q = convert_ast_to_q_object(ast_node.right, profile)
-        return left_q & right_q
-
-    elif isinstance(ast_node, OrExpression):
-        # Combine left and right with OR
-        left_q = convert_ast_to_q_object(ast_node.left, profile)
-        right_q = convert_ast_to_q_object(ast_node.right, profile)
-        return left_q | right_q
-
-    elif isinstance(ast_node, NotExpression):
-        # Negate the operand
-        operand_q = convert_ast_to_q_object(ast_node.operand, profile)
-        return ~operand_q
-
-    else:
-        # Fallback for unknown node types
-        return Q()
-
-
 def query_bookmarks(
     user: User,
     profile: UserProfile,
@@ -224,11 +122,11 @@ def _base_bookmarks_query(
             # If the date format is invalid, ignore the filter
             pass
 
-    # Use new advanced search query parser
+    # Filter by search query
     ast = parse_search_query(search.q)
     if ast:
-        # Apply AST to queryset, handling tags properly
-        query_set = apply_ast_to_queryset(query_set, ast, profile)
+        search_query = convert_ast_to_q_object(ast, profile)
+        query_set = query_set.filter(search_query)
 
     # Untagged bookmarks
     # if query["untagged"]:
@@ -359,3 +257,55 @@ def parse_query_string(query_string):
         "untagged": untagged,
         "unread": unread,
     }
+
+
+def convert_ast_to_q_object(ast_node: SearchExpression, profile: UserProfile) -> Q:
+    if isinstance(ast_node, TermExpression):
+        # Search across title, description, notes, URL
+        conditions = (
+            Q(title__icontains=ast_node.term)
+            | Q(description__icontains=ast_node.term)
+            | Q(notes__icontains=ast_node.term)
+            | Q(url__icontains=ast_node.term)
+        )
+
+        # In lax mode, also search in tag names
+        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+            conditions = conditions | Exists(
+                Bookmark.objects.filter(
+                    id=OuterRef("id"), tags__name__iexact=ast_node.term
+                )
+            )
+
+        return conditions
+
+    elif isinstance(ast_node, TagExpression):
+        # Use Exists() to avoid reusing the same join when combining multiple tag expressions with and
+        return Q(
+            Exists(
+                Bookmark.objects.filter(
+                    id=OuterRef("id"), tags__name__iexact=ast_node.tag
+                )
+            )
+        )
+
+    elif isinstance(ast_node, AndExpression):
+        # Combine left and right with AND
+        left_q = convert_ast_to_q_object(ast_node.left, profile)
+        right_q = convert_ast_to_q_object(ast_node.right, profile)
+        return left_q & right_q
+
+    elif isinstance(ast_node, OrExpression):
+        # Combine left and right with OR
+        left_q = convert_ast_to_q_object(ast_node.left, profile)
+        right_q = convert_ast_to_q_object(ast_node.right, profile)
+        return left_q | right_q
+
+    elif isinstance(ast_node, NotExpression):
+        # Negate the operand
+        operand_q = convert_ast_to_q_object(ast_node.operand, profile)
+        return ~operand_q
+
+    else:
+        # Fallback for unknown node types
+        return Q()
