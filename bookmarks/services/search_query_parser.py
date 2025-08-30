@@ -5,6 +5,7 @@ from typing import List, Union, Optional
 
 class TokenType(Enum):
     TERM = "TERM"
+    TAG = "TAG"
     AND = "AND"
     OR = "OR"
     NOT = "NOT"
@@ -49,7 +50,7 @@ class SearchQueryTokenizer:
         while (
             self.current_char
             and not self.current_char.isspace()
-            and self.current_char not in "()\"'"
+            and self.current_char not in "()\"'#"
         ):
             term += self.current_char
             self.advance()
@@ -93,6 +94,21 @@ class SearchQueryTokenizer:
 
         return content
 
+    def read_tag(self) -> str:
+        """Read a tag (starts with # and continues until whitespace or special chars)."""
+        tag = ""
+        self.advance()  # skip the # character
+
+        while (
+            self.current_char
+            and not self.current_char.isspace()
+            and self.current_char not in "()\"'"
+        ):
+            tag += self.current_char
+            self.advance()
+
+        return tag
+
     def tokenize(self) -> List[Token]:
         """Convert the query string into a list of tokens."""
         tokens = []
@@ -116,6 +132,10 @@ class SearchQueryTokenizer:
                 quote_char = self.current_char
                 term = self.read_quoted_string(quote_char)
                 tokens.append(Token(TokenType.TERM, term, start_pos))
+            elif self.current_char == "#":
+                # Read a tag
+                tag = self.read_tag()
+                tokens.append(Token(TokenType.TAG, tag, start_pos))
             else:
                 # Read a term and check if it's a keyword
                 term = self.read_term()
@@ -148,6 +168,13 @@ class TermExpression(SearchExpression):
     """A search term expression."""
 
     term: str
+
+
+@dataclass
+class TagExpression(SearchExpression):
+    """A tag expression (starts with #)."""
+
+    tag: str
 
 
 @dataclass
@@ -257,11 +284,15 @@ class SearchQueryParser:
         return self.parse_primary_expression()
 
     def parse_primary_expression(self) -> SearchExpression:
-        """Parse primary expressions (terms and parenthesized expressions)."""
+        """Parse primary expressions (terms, tags, and parenthesized expressions)."""
         if self.current_token.type == TokenType.TERM:
             term = self.current_token.value
             self.advance()
             return TermExpression(term)
+        elif self.current_token.type == TokenType.TAG:
+            tag = self.current_token.value
+            self.advance()
+            return TagExpression(tag)
         elif self.current_token.type == TokenType.LPAREN:
             self.advance()  # consume (
             expr = self.parse_or_expression()

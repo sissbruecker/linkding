@@ -5,6 +5,7 @@ from bookmarks.services.search_query_parser import (
     TokenType,
     SearchExpression,
     TermExpression,
+    TagExpression,
     AndExpression,
     OrExpression,
     NotExpression,
@@ -16,6 +17,11 @@ from bookmarks.services.search_query_parser import (
 def _term(term: str) -> TermExpression:
     """Helper to create a TermExpression."""
     return TermExpression(term)
+
+
+def _tag(tag: str) -> TagExpression:
+    """Helper to create a TagExpression."""
+    return TagExpression(tag)
 
 
 def _and(left: SearchExpression, right: SearchExpression) -> AndExpression:
@@ -214,6 +220,57 @@ class SearchQueryTokenizerTest(TestCase):
         self.assertEqual(tokens[0].value, "unclosed quote")
         self.assertEqual(tokens[1].type, TokenType.EOF)
 
+    def test_tags(self):
+        # Basic tag
+        tokenizer = SearchQueryTokenizer("#python")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TAG)
+        self.assertEqual(tokens[0].value, "python")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+        # Tag with hyphens
+        tokenizer = SearchQueryTokenizer("#machine-learning")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TAG)
+        self.assertEqual(tokens[0].value, "machine-learning")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+    def test_tags_with_operators(self):
+        tokenizer = SearchQueryTokenizer("#python and #django")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 4)
+        self.assertEqual(tokens[0].type, TokenType.TAG)
+        self.assertEqual(tokens[0].value, "python")
+        self.assertEqual(tokens[1].type, TokenType.AND)
+        self.assertEqual(tokens[2].type, TokenType.TAG)
+        self.assertEqual(tokens[2].value, "django")
+        self.assertEqual(tokens[3].type, TokenType.EOF)
+
+    def test_tags_mixed_with_terms(self):
+        tokenizer = SearchQueryTokenizer("programming and #python and web")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 6)
+        self.assertEqual(tokens[0].type, TokenType.TERM)
+        self.assertEqual(tokens[0].value, "programming")
+        self.assertEqual(tokens[1].type, TokenType.AND)
+        self.assertEqual(tokens[2].type, TokenType.TAG)
+        self.assertEqual(tokens[2].value, "python")
+        self.assertEqual(tokens[3].type, TokenType.AND)
+        self.assertEqual(tokens[4].type, TokenType.TERM)
+        self.assertEqual(tokens[4].value, "web")
+        self.assertEqual(tokens[5].type, TokenType.EOF)
+
+    def test_empty_tag(self):
+        # Tag with just # should be handled gracefully
+        tokenizer = SearchQueryTokenizer("# ")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TAG)
+        self.assertEqual(tokens[0].value, "")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
 
 class SearchQueryParserTest(TestCase):
     """Test cases for the search query parser."""
@@ -398,6 +455,48 @@ class SearchQueryParserTest(TestCase):
         expected = _term('say "hello"')
         self.assertEqual(result, expected)
 
+    def test_tags(self):
+        # Basic tag
+        result = parse_search_query("#python")
+        expected = _tag("python")
+        self.assertEqual(result, expected)
+
+        # Tag with hyphens
+        result = parse_search_query("#machine-learning")
+        expected = _tag("machine-learning")
+        self.assertEqual(result, expected)
+
+    def test_tags_with_operators(self):
+        # Tag with AND
+        result = parse_search_query("#python and #django")
+        expected = _and(_tag("python"), _tag("django"))
+        self.assertEqual(result, expected)
+
+        # Tag with OR
+        result = parse_search_query("#frontend or #backend")
+        expected = _or(_tag("frontend"), _tag("backend"))
+        self.assertEqual(result, expected)
+
+        # Tag with NOT
+        result = parse_search_query("not #deprecated")
+        expected = _not(_tag("deprecated"))
+        self.assertEqual(result, expected)
+
+    def test_tags_mixed_with_terms(self):
+        result = parse_search_query("programming and #python and tutorial")
+        expected = _and(_and(_term("programming"), _tag("python")), _term("tutorial"))
+        self.assertEqual(result, expected)
+
+    def test_tags_with_quoted_strings(self):
+        result = parse_search_query('"machine learning" and #python')
+        expected = _and(_term("machine learning"), _tag("python"))
+        self.assertEqual(result, expected)
+
+    def test_tags_with_parentheses(self):
+        result = parse_search_query("(#frontend or #backend) and javascript")
+        expected = _and(_or(_tag("frontend"), _tag("backend")), _term("javascript"))
+        self.assertEqual(result, expected)
+
     def test_operator_words_as_substrings(self):
         # Terms that contain operator words as substrings should be treated as terms
         result = parse_search_query("android and notification")
@@ -452,6 +551,16 @@ class SearchQueryParserTest(TestCase):
                         _or(_term("python"), _term("r")),
                     ),
                     _not(_term("deep learning")),
+                ),
+            ),
+            (
+                "(#python or #javascript) and tutorial and not #deprecated",
+                _and(
+                    _and(
+                        _or(_tag("python"), _tag("javascript")),
+                        _term("tutorial"),
+                    ),
+                    _not(_tag("deprecated")),
                 ),
             ),
         ]
