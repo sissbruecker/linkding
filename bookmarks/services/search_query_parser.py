@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Union, Optional
+from typing import List, Optional
 
 
 class TokenType(Enum):
@@ -266,11 +266,16 @@ class SearchQueryParser:
         return left
 
     def parse_and_expression(self) -> SearchExpression:
-        """Parse AND expressions (medium precedence)."""
+        """Parse AND expressions (medium precedence), including implicit AND."""
         left = self.parse_not_expression()
 
-        while self.current_token.type == TokenType.AND:
-            self.advance()  # consume AND
+        while (self.current_token.type == TokenType.AND or
+               self.current_token.type in [TokenType.TERM, TokenType.TAG, TokenType.LPAREN, TokenType.NOT]):
+
+            if self.current_token.type == TokenType.AND:
+                self.advance()  # consume explicit AND
+            # else: implicit AND (don't advance token)
+
             right = self.parse_not_expression()
             left = AndExpression(left, right)
 

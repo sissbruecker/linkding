@@ -388,9 +388,13 @@ class SearchQueryParserTest(TestCase):
         expected = _or(_and(_term("programming"), _term("books")), _term("streaming"))
         self.assertEqual(result, expected)
 
-        # Test malformed query with missing operator between terms and NOT
-        with self.assertRaises(SearchQueryParseError):
-            parse_search_query("programming AND books OR streaming NOT videos")
+        # Test implicit AND with NOT
+        result = parse_search_query("programming AND books OR streaming NOT videos")
+        expected = _or(
+            _and(_term("programming"), _term("books")), 
+            _and(_term("streaming"), _not(_term("videos")))
+        )
+        self.assertEqual(result, expected)
 
     def test_case_insensitive_operators_with_explicit_operators(self):
         result = parse_search_query("programming AND books OR streaming AND NOT videos")
@@ -526,6 +530,123 @@ class SearchQueryParserTest(TestCase):
         expected = None  # Empty query
         self.assertEqual(result, expected)
 
+    def test_implicit_and_basic(self):
+        # Basic implicit AND between terms
+        result = parse_search_query("programming book")
+        expected = _and(_term("programming"), _term("book"))
+        self.assertEqual(result, expected)
+
+        # Three terms with implicit AND
+        result = parse_search_query("python machine learning")
+        expected = _and(_and(_term("python"), _term("machine")), _term("learning"))
+        self.assertEqual(result, expected)
+
+    def test_implicit_and_with_tags(self):
+        # Implicit AND between term and tag
+        result = parse_search_query("tutorial #python")
+        expected = _and(_term("tutorial"), _tag("python"))
+        self.assertEqual(result, expected)
+
+        # Implicit AND between tag and term
+        result = parse_search_query("#javascript tutorial")
+        expected = _and(_tag("javascript"), _term("tutorial"))
+        self.assertEqual(result, expected)
+
+        # Multiple tags with implicit AND
+        result = parse_search_query("#python #django #tutorial")
+        expected = _and(_and(_tag("python"), _tag("django")), _tag("tutorial"))
+        self.assertEqual(result, expected)
+
+    def test_implicit_and_with_quoted_strings(self):
+        # Implicit AND with quoted strings
+        result = parse_search_query('"machine learning" tutorial')
+        expected = _and(_term("machine learning"), _term("tutorial"))
+        self.assertEqual(result, expected)
+
+        # Mixed types with implicit AND
+        result = parse_search_query('"deep learning" #python tutorial')
+        expected = _and(_and(_term("deep learning"), _tag("python")), _term("tutorial"))
+        self.assertEqual(result, expected)
+
+    def test_implicit_and_with_explicit_operators(self):
+        # Mixed implicit and explicit AND
+        result = parse_search_query("python tutorial and django")
+        expected = _and(_and(_term("python"), _term("tutorial")), _term("django"))
+        self.assertEqual(result, expected)
+
+        # Implicit AND with OR
+        result = parse_search_query("python tutorial or java guide")
+        expected = _or(_and(_term("python"), _term("tutorial")), _and(_term("java"), _term("guide")))
+        self.assertEqual(result, expected)
+
+    def test_implicit_and_with_not(self):
+        # NOT with implicit AND
+        result = parse_search_query("not deprecated tutorial")
+        expected = _and(_not(_term("deprecated")), _term("tutorial"))
+        self.assertEqual(result, expected)
+
+        # Implicit AND with NOT at end
+        result = parse_search_query("python tutorial not deprecated")
+        expected = _and(_and(_term("python"), _term("tutorial")), _not(_term("deprecated")))
+        self.assertEqual(result, expected)
+
+    def test_implicit_and_with_parentheses(self):
+        # Parentheses with implicit AND
+        result = parse_search_query("(python tutorial) or java")
+        expected = _or(_and(_term("python"), _term("tutorial")), _term("java"))
+        self.assertEqual(result, expected)
+
+        # Complex parentheses with implicit AND
+        result = parse_search_query("(machine learning #python) and (web development #javascript)")
+        expected = _and(
+            _and(_and(_term("machine"), _term("learning")), _tag("python")),
+            _and(_and(_term("web"), _term("development")), _tag("javascript"))
+        )
+        self.assertEqual(result, expected)
+
+    def test_complex_precedence_with_implicit_and(self):
+        # Test complex precedence scenarios to ensure implicit AND works correctly
+        
+        # Implicit AND with OR has correct precedence: "a b or c d" -> "(a AND b) OR (c AND d)"
+        result = parse_search_query("python tutorial or javascript guide")
+        expected = _or(
+            _and(_term("python"), _term("tutorial")),
+            _and(_term("javascript"), _term("guide"))
+        )
+        self.assertEqual(result, expected)
+        
+        # Implicit AND with NOT: "not deprecated tutorial" -> "NOT deprecated AND tutorial"  
+        result = parse_search_query("not deprecated tutorial")
+        expected = _and(_not(_term("deprecated")), _term("tutorial"))
+        self.assertEqual(result, expected)
+        
+        # Mixed explicit and implicit AND: "python and tutorial guide" -> "(python AND tutorial) AND guide"  
+        result = parse_search_query("python and tutorial guide")
+        expected = _and(_and(_term("python"), _term("tutorial")), _term("guide"))
+        self.assertEqual(result, expected)
+        
+        # Parentheses override implicit AND precedence: "(python tutorial) or (javascript guide)"
+        result = parse_search_query("(python tutorial) or (javascript guide)")  
+        expected = _or(
+            _and(_term("python"), _term("tutorial")),
+            _and(_term("javascript"), _term("guide"))
+        )
+        self.assertEqual(result, expected)
+        
+        # Complex: "machine learning and (python or r) tutorial #beginner"
+        result = parse_search_query("machine learning and (python or r) tutorial #beginner")
+        expected = _and(
+            _and(
+                _and(
+                    _and(_term("machine"), _term("learning")),
+                    _or(_term("python"), _term("r"))
+                ),
+                _term("tutorial")
+            ),
+            _tag("beginner")
+        )
+        self.assertEqual(result, expected)
+
     def test_operator_words_as_substrings(self):
         # Terms that contain operator words as substrings should be treated as terms
         result = parse_search_query("android and notification")
@@ -590,6 +711,16 @@ class SearchQueryParserTest(TestCase):
                         _term("tutorial"),
                     ),
                     _not(_tag("deprecated")),
+                ),
+            ),
+            (
+                "machine learning tutorial #python beginner",
+                _and(
+                    _and(
+                        _and(_and(_term("machine"), _term("learning")), _term("tutorial")),
+                        _tag("python")
+                    ),
+                    _term("beginner"),
                 ),
             ),
         ]
