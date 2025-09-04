@@ -26,7 +26,14 @@ from bookmarks.models import (
     User,
     BookmarkBundle,
 )
-from bookmarks.services import assets, bookmarks, bundles, auto_tagging, website_loader
+from bookmarks.services import (
+    assets,
+    bookmarks,
+    bundles,
+    auto_tagging,
+    website_loader,
+    ollama,
+)
 from bookmarks.utils import normalize_url
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
@@ -120,6 +127,7 @@ class BookmarkViewSet(
 
         # Return tags that would be automatically applied to the bookmark
         profile = request.user.profile
+
         auto_tags = []
         if profile.auto_tagging_rules:
             try:
@@ -129,6 +137,14 @@ class BookmarkViewSet(
                     f"Failed to auto-tag bookmark. url={url}",
                     exc_info=e,
                 )
+        try:
+            ollama_tags = ollama.generate_tags(metadata, request.global_settings)
+            auto_tags.extend(ollama_tags)
+        except Exception as e:
+            logger.error(
+                f"Failed to generate tags from Ollama. url={url}",
+                exc_info=e,
+            )
 
         return Response(
             {

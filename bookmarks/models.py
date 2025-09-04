@@ -52,6 +52,14 @@ def build_tag_string(tag_names: List[str], delimiter: str = ","):
     return delimiter.join(tag_names)
 
 
+def get_ollama_base_api_url():
+    return os.getenv("LD_OLLAMA_BASE_API_URL", "http://localhost:11434/api/generate")
+
+
+def get_ollama_model_name():
+    return os.getenv("LD_OLLAMA_MODEL_NAME", "gemma3:270m")
+
+
 class Bookmark(models.Model):
     url = models.CharField(max_length=2048, validators=[BookmarkURLValidator()])
     url_normalized = models.CharField(max_length=2048, blank=True, db_index=True)
@@ -593,6 +601,12 @@ class GlobalSettings(models.Model):
         User, on_delete=models.SET_NULL, null=True, blank=True
     )
     enable_link_prefetch = models.BooleanField(default=False, null=False)
+    ollama_base_api_url = models.CharField(
+        max_length=2048, blank=True, null=False, default=get_ollama_base_api_url
+    )
+    ollama_model_name = models.CharField(
+        max_length=100, blank=True, null=False, default=get_ollama_model_name
+    )
 
     @classmethod
     def get(cls):
@@ -611,7 +625,13 @@ class GlobalSettings(models.Model):
 class GlobalSettingsForm(forms.ModelForm):
     class Meta:
         model = GlobalSettings
-        fields = ["landing_page", "guest_profile_user", "enable_link_prefetch"]
+        fields = [
+            "landing_page",
+            "guest_profile_user",
+            "enable_link_prefetch",
+            "ollama_base_api_url",
+            "ollama_model_name",
+        ]
 
     def __init__(self, *args, **kwargs):
         super(GlobalSettingsForm, self).__init__(*args, **kwargs)

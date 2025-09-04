@@ -289,3 +289,15 @@ Example: `LD_SINGLEFILE_OPTIONS=--user-agent="Mozilla/5.0 (Macintosh; Intel Mac 
 Values: `true` or `false` | Default =  `false`
 
 Set uWSGI [disable-logging](https://uwsgi-docs.readthedocs.io/en/latest/Options.html#disable-logging) parameter to disable request logs, except for requests with a client (4xx) or server (5xx) error response.
+
+### `LD_OLLAMA_BASE_API_URL`
+
+Values: `String` | Default = `empty string`
+
+The base URL for the Ollama API, for example `http://localhost:11434`.
+
+### `LD_OLLAMA_MODEL_NAME`
+
+Values: `String` | Default = `empty string`
+
+The name of the Ollama model to use, for example `llama2`.
