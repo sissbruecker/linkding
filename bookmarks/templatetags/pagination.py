@@ -14,7 +14,7 @@ register = template.Library()
 )
 def pagination(context, page: Page):
     request = context["request"]
-    base_url = request.build_absolute_uri(request.path)
+    base_url = request.path
 
     # remove page number and details from query parameters
     query_params = request.GET.copy()
