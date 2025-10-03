@@ -1,3 +1,4 @@
+import os
 from django.contrib import admin, messages
 from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import UserAdmin
@@ -83,6 +84,7 @@ class LinkdingAdminSite(AdminSite):
 
     def get_app_list(self, request, app_label=None):
         app_list = super().get_app_list(request, app_label)
+        context_path = os.getenv("LD_CONTEXT_PATH", "")
         app_list += [
             {
                 "name": "Huey",
@@ -91,7 +93,7 @@ class LinkdingAdminSite(AdminSite):
                     {
                         "name": "Queued tasks",
                         "object_name": "background_tasks",
-                        "admin_url": "/admin/tasks/",
+                        "admin_url": f"/{context_path}admin/tasks/",
                         "view_only": True,
                     }
                 ],
