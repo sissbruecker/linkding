@@ -108,7 +108,7 @@ export class TagAutocomplete extends LitElement {
       suggestion.name +
       " " +
       value.substring(bounds.end);
-    this.input.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+    this.dispatchEvent(new CustomEvent("input", { bubbles: true }));
 
     this.close();
   }
