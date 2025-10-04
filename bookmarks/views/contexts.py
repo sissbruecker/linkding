@@ -339,7 +339,7 @@ class TagCloudContext:
 
         query_set = request_context.get_tag_query_set(self.search)
         tags = list(query_set)
-        selected_tags = self.get_selected_tags(tags)
+        selected_tags = self.get_selected_tags()
         unique_tags = utils.unique(tags, key=lambda x: str.lower(x.name))
         unique_selected_tags = utils.unique(
             selected_tags, key=lambda x: str.lower(x.name)
@@ -353,11 +353,8 @@ class TagCloudContext:
         self.selected_tags = unique_selected_tags
         self.has_selected_tags = has_selected_tags
 
-    def get_selected_tags(self, tags: List[Tag]):
-        tag_names = extract_tag_names_from_query(
-            self.search.q, self.request.user_profile
-        )
-        return [tag for tag in tags if tag.name.lower() in tag_names]
+    def get_selected_tags(self):
+        raise NotImplementedError("Must be implemented by subclass")
 
     def get_selected_tags_legacy(self, tags: List[Tag]):
         parsed_query = queries.parse_query_string(self.search.q)
@@ -372,13 +369,36 @@ class TagCloudContext:
 class ActiveTagCloudContext(TagCloudContext):
     request_context = ActiveBookmarksContext
 
+    def get_selected_tags(self):
+        return list(
+            queries.get_tags_for_query(
+                self.request.user, self.request.user_profile, self.search.q
+            )
+        )
+
 
 class ArchivedTagCloudContext(TagCloudContext):
     request_context = ArchivedBookmarksContext
 
+    def get_selected_tags(self):
+        return list(
+            queries.get_tags_for_query(
+                self.request.user, self.request.user_profile, self.search.q
+            )
+        )
+
 
 class SharedTagCloudContext(TagCloudContext):
     request_context = SharedBookmarksContext
+
+    def get_selected_tags(self):
+        user = User.objects.filter(username=self.search.user).first()
+        public_only = not self.request.user.is_authenticated
+        return list(
+            queries.get_shared_tags_for_query(
+                user, self.request.user_profile, self.search.q, public_only
+            )
+        )
 
 
 class BookmarkAssetItem:
