@@ -4,7 +4,7 @@
     {% if tag_cloud.has_selected_tags %}
       <p class="selected-tags">
         {% for tag in tag_cloud.selected_tags %}
-          <a href="?{% remove_tag_from_query tag.name %}"
+          <a href="?{{ tag.query_params }}"
              class="text-bold mr-2">
             <span>-{{ tag.name }}</span>
           </a>

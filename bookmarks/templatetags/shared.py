@@ -40,37 +40,6 @@ def add_tag_to_query(context, tag_name: str):
 
 
 @register.simple_tag(takes_context=True)
-def remove_tag_from_query(context, tag_name: str):
-    params = context.request.GET.copy()
-    if params.__contains__("q"):
-        # Split query string into parts
-        query_string = params.__getitem__("q")
-        query_parts = query_string.split()
-        # Remove tag with hash
-        tag_name_with_hash = "#" + tag_name
-        query_parts = [
-            part
-            for part in query_parts
-            if str.lower(part) != str.lower(tag_name_with_hash)
-        ]
-        # When using lax tag search, also remove tag without hash
-        profile = context.request.user_profile
-        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
-            query_parts = [
-                part for part in query_parts if str.lower(part) != str.lower(tag_name)
-            ]
-        # Rebuild query string
-        query_string = " ".join(query_parts)
-        params.__setitem__("q", query_string)
-
-    # Remove details ID and page number
-    params.pop("details", None)
-    params.pop("page", None)
-
-    return params.urlencode()
-
-
-@register.simple_tag(takes_context=True)
 def replace_query_param(context, **kwargs):
     query = context.request.GET.copy()
 

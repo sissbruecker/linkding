@@ -22,7 +22,7 @@ from bookmarks.models import (
 from bookmarks.services.search_query_parser import (
     parse_search_query,
     SearchQueryParseError,
-    extract_tag_names_from_query,
+    strip_tag_from_query,
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.type_defs import HttpRequest
@@ -327,6 +327,13 @@ class TagGroup:
         return [group]
 
 
+class SelectedTagItem:
+    def __init__(self, tag: Tag, query_params: str):
+        self.tag = tag
+        self.name = tag.name
+        self.query_params = query_params
+
+
 class TagCloudContext:
     request_context = RequestContext
 
@@ -348,9 +355,21 @@ class TagCloudContext:
         unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
         groups = TagGroup.create_tag_groups(user_profile.tag_grouping, unselected_tags)
 
+        selected_tag_items = []
+        for tag in unique_selected_tags:
+            query_without_tag = strip_tag_from_query(
+                search.q or "", tag.name, user_profile
+            )
+            params = request.GET.copy()
+            params.pop("details", None)
+            params.pop("page", None)
+            params["q"] = query_without_tag
+
+            selected_tag_items.append(SelectedTagItem(tag, params.urlencode()))
+
         self.tags = unique_tags
         self.groups = groups
-        self.selected_tags = unique_selected_tags
+        self.selected_tags = selected_tag_items
         self.has_selected_tags = has_selected_tags
 
     def get_selected_tags(self):
