@@ -576,14 +576,77 @@ def _strip_tag_from_expression(
         return expr
 
 
-def strip_tag_from_query(
-    query: str, tag_name: str, user_profile: UserProfile | None = None
-) -> str:
-    # Parse the query into an AST
+def _extract_tag_names_from_expression(
+    expr: Optional[SearchExpression], enable_lax_search: bool = False
+) -> List[str]:
+    if expr is None:
+        return []
+
+    if isinstance(expr, TagExpression):
+        return [expr.tag]
+
+    elif isinstance(expr, TermExpression):
+        # In lax search mode, terms are also considered tags
+        if enable_lax_search:
+            return [expr.term]
+        return []
+
+    elif isinstance(expr, SpecialKeywordExpression):
+        # Special keywords are not tags
+        return []
+
+    elif isinstance(expr, NotExpression):
+        # Recursively extract from the operand
+        return _extract_tag_names_from_expression(expr.operand, enable_lax_search)
+
+    elif isinstance(expr, (AndExpression, OrExpression)):
+        # Recursively extract from both sides and combine
+        left_tags = _extract_tag_names_from_expression(expr.left, enable_lax_search)
+        right_tags = _extract_tag_names_from_expression(expr.right, enable_lax_search)
+        return left_tags + right_tags
+
+    else:
+        # Unknown expression type
+        return []
+
+
+def extract_tag_names_from_query(
+    query: str, user_profile: UserProfile | None = None
+) -> List[str]:
     try:
         ast = parse_search_query(query)
     except SearchQueryParseError:
-        # If parsing fails, return the original query
+        return []
+
+    if ast is None:
+        return []
+
+    # Determine if lax search is enabled
+    enable_lax_search = False
+    if user_profile is not None:
+        enable_lax_search = user_profile.tag_search == UserProfile.TAG_SEARCH_LAX
+
+    # Extract tag names from the AST
+    tag_names = _extract_tag_names_from_expression(ast, enable_lax_search)
+
+    # Deduplicate (case-insensitive) and sort
+    seen = set()
+    unique_tags = []
+    for tag in tag_names:
+        tag_lower = tag.lower()
+        if tag_lower not in seen:
+            seen.add(tag_lower)
+            unique_tags.append(tag_lower)
+
+    return sorted(unique_tags)
+
+
+def strip_tag_from_query(
+    query: str, tag_name: str, user_profile: UserProfile | None = None
+) -> str:
+    try:
+        ast = parse_search_query(query)
+    except SearchQueryParseError:
         return query
 
     if ast is None:

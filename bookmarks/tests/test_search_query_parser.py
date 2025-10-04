@@ -14,6 +14,7 @@ from bookmarks.services.search_query_parser import (
     parse_search_query,
     expression_to_string,
     strip_tag_from_query,
+    extract_tag_names_from_query,
 )
 from bookmarks.models import UserProfile
 
@@ -1191,3 +1192,154 @@ class StripTagFromQueryLaxSearchTest(TestCase):
     def test_no_profile_defaults_to_strict(self):
         result = strip_tag_from_query("books #books", "books", None)
         self.assertEqual(result, "books")
+
+
+class ExtractTagNamesFromQueryTest(TestCase):
+    def test_empty_query(self):
+        result = extract_tag_names_from_query("")
+        self.assertEqual(result, [])
+
+    def test_whitespace_query(self):
+        result = extract_tag_names_from_query("   ")
+        self.assertEqual(result, [])
+
+    def test_single_tag(self):
+        result = extract_tag_names_from_query("#python")
+        self.assertEqual(result, ["python"])
+
+    def test_multiple_tags(self):
+        result = extract_tag_names_from_query("#python and #django")
+        self.assertEqual(result, ["django", "python"])
+
+    def test_tags_with_or(self):
+        result = extract_tag_names_from_query("#python or #ruby")
+        self.assertEqual(result, ["python", "ruby"])
+
+    def test_tags_with_not(self):
+        result = extract_tag_names_from_query("not #deprecated")
+        self.assertEqual(result, ["deprecated"])
+
+    def test_tags_in_complex_query(self):
+        result = extract_tag_names_from_query(
+            "(#python or #ruby) and #tutorial and not #deprecated"
+        )
+        self.assertEqual(result, ["deprecated", "python", "ruby", "tutorial"])
+
+    def test_duplicate_tags(self):
+        # Duplicates should be removed
+        result = extract_tag_names_from_query("#python and #python")
+        self.assertEqual(result, ["python"])
+
+    def test_case_insensitive_deduplication(self):
+        # Different cases of same tag should be deduplicated
+        result = extract_tag_names_from_query("#Python and #PYTHON and #python")
+        self.assertEqual(result, ["python"])
+
+    def test_mixed_tags_and_terms(self):
+        # In strict mode (default), only tags are extracted
+        result = extract_tag_names_from_query("tutorial #python guide #django")
+        self.assertEqual(result, ["django", "python"])
+
+    def test_only_terms_no_tags(self):
+        # Query with only terms and no tags
+        result = extract_tag_names_from_query("tutorial guide")
+        self.assertEqual(result, [])
+
+    def test_special_keywords_not_extracted(self):
+        # Special keywords should not be extracted as tags
+        result = extract_tag_names_from_query("!unread and #python")
+        self.assertEqual(result, ["python"])
+
+    def test_tags_in_nested_parentheses(self):
+        result = extract_tag_names_from_query("((#python and #django) or #ruby)")
+        self.assertEqual(result, ["django", "python", "ruby"])
+
+    def test_invalid_query_returns_empty(self):
+        # Malformed query should return empty list
+        result = extract_tag_names_from_query("(unclosed paren")
+        self.assertEqual(result, [])
+
+    def test_tags_with_hyphens(self):
+        result = extract_tag_names_from_query("#machine-learning and #deep-learning")
+        self.assertEqual(result, ["deep-learning", "machine-learning"])
+
+
+class ExtractTagNamesFromQueryLaxSearchTest(TestCase):
+    def setUp(self):
+        self.lax_profile = type(
+            "UserProfile", (), {"tag_search": UserProfile.TAG_SEARCH_LAX}
+        )()
+        self.strict_profile = type(
+            "UserProfile", (), {"tag_search": UserProfile.TAG_SEARCH_STRICT}
+        )()
+
+    def test_lax_search_extracts_terms(self):
+        # In lax mode, terms should be extracted as tags
+        result = extract_tag_names_from_query("python and django", self.lax_profile)
+        self.assertEqual(result, ["django", "python"])
+
+    def test_lax_search_mixed_tags_and_terms(self):
+        # Both tags and terms should be extracted
+        result = extract_tag_names_from_query(
+            "tutorial #python guide #django", self.lax_profile
+        )
+        self.assertEqual(result, ["django", "guide", "python", "tutorial"])
+
+    def test_lax_search_deduplicates_tags_and_terms(self):
+        # Same value as both tag and term should appear once
+        result = extract_tag_names_from_query("python #python", self.lax_profile)
+        self.assertEqual(result, ["python"])
+
+    def test_lax_search_case_insensitive_dedup(self):
+        # Case insensitive deduplication with mixed tags and terms
+        result = extract_tag_names_from_query("Python #python PYTHON", self.lax_profile)
+        self.assertEqual(result, ["python"])
+
+    def test_lax_search_terms_in_or_expression(self):
+        result = extract_tag_names_from_query(
+            "(python or ruby) and tutorial", self.lax_profile
+        )
+        self.assertEqual(result, ["python", "ruby", "tutorial"])
+
+    def test_lax_search_terms_in_not_expression(self):
+        result = extract_tag_names_from_query(
+            "tutorial and not deprecated", self.lax_profile
+        )
+        self.assertEqual(result, ["deprecated", "tutorial"])
+
+    def test_lax_search_quoted_terms(self):
+        # Quoted terms should also be extracted
+        result = extract_tag_names_from_query(
+            '"machine learning" and #python', self.lax_profile
+        )
+        self.assertEqual(result, ["machine learning", "python"])
+
+    def test_lax_search_complex_query(self):
+        result = extract_tag_names_from_query(
+            "(python or #ruby) and tutorial and not #deprecated", self.lax_profile
+        )
+        self.assertEqual(result, ["deprecated", "python", "ruby", "tutorial"])
+
+    def test_lax_search_special_keywords_not_extracted(self):
+        # Special keywords should not be extracted even in lax mode
+        result = extract_tag_names_from_query(
+            "!unread and python and #django", self.lax_profile
+        )
+        self.assertEqual(result, ["django", "python"])
+
+    def test_strict_search_ignores_terms(self):
+        # In strict mode, terms should NOT be extracted
+        result = extract_tag_names_from_query("python and django", self.strict_profile)
+        self.assertEqual(result, [])
+
+    def test_strict_search_only_tags(self):
+        # In strict mode, only tags are extracted
+        result = extract_tag_names_from_query(
+            "tutorial #python guide #django", self.strict_profile
+        )
+        self.assertEqual(result, ["django", "python"])
+
+    def test_no_profile_defaults_to_strict(self):
+        # Without a profile, should behave like strict mode
+        result = extract_tag_names_from_query("python #django", None)
+        self.assertEqual(result, ["django"])
