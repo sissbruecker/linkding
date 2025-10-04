@@ -6,6 +6,7 @@ from bookmarks.services.search_query_parser import (
     SearchExpression,
     TermExpression,
     TagExpression,
+    SpecialKeywordExpression,
     AndExpression,
     OrExpression,
     NotExpression,
@@ -37,6 +38,11 @@ def _or(left: SearchExpression, right: SearchExpression) -> OrExpression:
 def _not(operand: SearchExpression) -> NotExpression:
     """Helper to create a NotExpression."""
     return NotExpression(operand)
+
+
+def _keyword(keyword: str) -> SpecialKeywordExpression:
+    """Helper to create a SpecialKeywordExpression."""
+    return SpecialKeywordExpression(keyword)
 
 
 class SearchQueryTokenizerTest(TestCase):
@@ -286,6 +292,59 @@ class SearchQueryTokenizerTest(TestCase):
         self.assertEqual(tokens[2].value, "django")
         self.assertEqual(tokens[3].type, TokenType.EOF)
 
+    def test_special_keywords(self):
+        tokenizer = SearchQueryTokenizer("!unread")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.SPECIAL_KEYWORD)
+        self.assertEqual(tokens[0].value, "unread")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+        tokenizer = SearchQueryTokenizer("!untagged")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.SPECIAL_KEYWORD)
+        self.assertEqual(tokens[0].value, "untagged")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+    def test_special_keywords_with_operators(self):
+        tokenizer = SearchQueryTokenizer("!unread and !untagged")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 4)
+        self.assertEqual(tokens[0].type, TokenType.SPECIAL_KEYWORD)
+        self.assertEqual(tokens[0].value, "unread")
+        self.assertEqual(tokens[1].type, TokenType.AND)
+        self.assertEqual(tokens[2].type, TokenType.SPECIAL_KEYWORD)
+        self.assertEqual(tokens[2].value, "untagged")
+        self.assertEqual(tokens[3].type, TokenType.EOF)
+
+    def test_special_keywords_mixed_with_terms_and_tags(self):
+        tokenizer = SearchQueryTokenizer("!unread and #python and tutorial")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 6)
+        self.assertEqual(tokens[0].type, TokenType.SPECIAL_KEYWORD)
+        self.assertEqual(tokens[0].value, "unread")
+        self.assertEqual(tokens[1].type, TokenType.AND)
+        self.assertEqual(tokens[2].type, TokenType.TAG)
+        self.assertEqual(tokens[2].value, "python")
+        self.assertEqual(tokens[3].type, TokenType.AND)
+        self.assertEqual(tokens[4].type, TokenType.TERM)
+        self.assertEqual(tokens[4].value, "tutorial")
+        self.assertEqual(tokens[5].type, TokenType.EOF)
+
+    def test_empty_special_keyword(self):
+        # Special keyword with just ! should be ignored (no token created)
+        tokenizer = SearchQueryTokenizer("! ")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 1)
+        self.assertEqual(tokens[0].type, TokenType.EOF)
+
+        # Empty special keyword at end of string
+        tokenizer = SearchQueryTokenizer("!")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 1)
+        self.assertEqual(tokens[0].type, TokenType.EOF)
+
 
 class SearchQueryParserTest(TestCase):
     """Test cases for the search query parser."""
@@ -528,6 +587,53 @@ class SearchQueryParserTest(TestCase):
         # Test query that's just an empty tag and whitespace
         result = parse_search_query("# ")
         expected = None  # Empty query
+        self.assertEqual(result, expected)
+
+    def test_special_keywords(self):
+        result = parse_search_query("!unread")
+        expected = _keyword("unread")
+        self.assertEqual(result, expected)
+
+        result = parse_search_query("!untagged")
+        expected = _keyword("untagged")
+        self.assertEqual(result, expected)
+
+    def test_special_keywords_with_operators(self):
+        # Special keyword with AND
+        result = parse_search_query("!unread and !untagged")
+        expected = _and(_keyword("unread"), _keyword("untagged"))
+        self.assertEqual(result, expected)
+
+        # Special keyword with OR
+        result = parse_search_query("!unread or !untagged")
+        expected = _or(_keyword("unread"), _keyword("untagged"))
+        self.assertEqual(result, expected)
+
+        # Special keyword with NOT
+        result = parse_search_query("not !unread")
+        expected = _not(_keyword("unread"))
+        self.assertEqual(result, expected)
+
+    def test_special_keywords_mixed_with_terms_and_tags(self):
+        result = parse_search_query("!unread and #python and tutorial")
+        expected = _and(_and(_keyword("unread"), _tag("python")), _term("tutorial"))
+        self.assertEqual(result, expected)
+
+    def test_special_keywords_with_quoted_strings(self):
+        result = parse_search_query('"machine learning" and !unread')
+        expected = _and(_term("machine learning"), _keyword("unread"))
+        self.assertEqual(result, expected)
+
+    def test_special_keywords_with_parentheses(self):
+        result = parse_search_query("(!unread or !untagged) and javascript")
+        expected = _and(
+            _or(_keyword("unread"), _keyword("untagged")), _term("javascript")
+        )
+        self.assertEqual(result, expected)
+
+    def test_special_keywords_within_quoted_string(self):
+        result = parse_search_query("'!unread and !untagged'")
+        expected = _term("!unread and !untagged")
         self.assertEqual(result, expected)
 
     def test_implicit_and_basic(self):

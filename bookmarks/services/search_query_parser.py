@@ -6,6 +6,7 @@ from typing import List, Optional
 class TokenType(Enum):
     TERM = "TERM"
     TAG = "TAG"
+    SPECIAL_KEYWORD = "SPECIAL_KEYWORD"
     AND = "AND"
     OR = "OR"
     NOT = "NOT"
@@ -50,7 +51,7 @@ class SearchQueryTokenizer:
         while (
             self.current_char
             and not self.current_char.isspace()
-            and self.current_char not in "()\"'#"
+            and self.current_char not in "()\"'#!"
         ):
             term += self.current_char
             self.advance()
@@ -109,6 +110,21 @@ class SearchQueryTokenizer:
 
         return tag
 
+    def read_special_keyword(self) -> str:
+        """Read a special keyword (starts with ! and continues until whitespace or special chars)."""
+        keyword = ""
+        self.advance()  # skip the ! character
+
+        while (
+            self.current_char
+            and not self.current_char.isspace()
+            and self.current_char not in "()\"'"
+        ):
+            keyword += self.current_char
+            self.advance()
+
+        return keyword
+
     def tokenize(self) -> List[Token]:
         """Convert the query string into a list of tokens."""
         tokens = []
@@ -138,6 +154,12 @@ class SearchQueryTokenizer:
                 # Only add the tag token if it has content
                 if tag:
                     tokens.append(Token(TokenType.TAG, tag, start_pos))
+            elif self.current_char == "!":
+                # Read a special keyword
+                keyword = self.read_special_keyword()
+                # Only add the keyword token if it has content
+                if keyword:
+                    tokens.append(Token(TokenType.SPECIAL_KEYWORD, keyword, start_pos))
             else:
                 # Read a term and check if it's a keyword
                 term = self.read_term()
@@ -177,6 +199,13 @@ class TagExpression(SearchExpression):
     """A tag expression (starts with #)."""
 
     tag: str
+
+
+@dataclass
+class SpecialKeywordExpression(SearchExpression):
+    """A special keyword expression (starts with !)."""
+
+    keyword: str
 
 
 @dataclass
@@ -272,6 +301,7 @@ class SearchQueryParser:
         while self.current_token.type == TokenType.AND or self.current_token.type in [
             TokenType.TERM,
             TokenType.TAG,
+            TokenType.SPECIAL_KEYWORD,
             TokenType.LPAREN,
             TokenType.NOT,
         ]:
@@ -295,7 +325,7 @@ class SearchQueryParser:
         return self.parse_primary_expression()
 
     def parse_primary_expression(self) -> SearchExpression:
-        """Parse primary expressions (terms, tags, and parenthesized expressions)."""
+        """Parse primary expressions (terms, tags, special keywords, and parenthesized expressions)."""
         if self.current_token.type == TokenType.TERM:
             term = self.current_token.value
             self.advance()
@@ -304,6 +334,10 @@ class SearchQueryParser:
             tag = self.current_token.value
             self.advance()
             return TagExpression(tag)
+        elif self.current_token.type == TokenType.SPECIAL_KEYWORD:
+            keyword = self.current_token.value
+            self.advance()
+            return SpecialKeywordExpression(keyword)
         elif self.current_token.type == TokenType.LPAREN:
             self.advance()  # consume (
             expr = self.parse_or_expression()
