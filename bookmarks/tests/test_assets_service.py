@@ -33,11 +33,13 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
     def tearDown(self) -> None:
         self.mock_singlefile_create_snapshot_patcher.stop()
 
-    def get_saved_snapshot_file(self):
+    def get_saved_snapshot_file(
+        self, year=timezone.now().strftime("%Y"), month=timezone.now().strftime("%m")
+    ):
         # look up first file in the asset folder
-        files = os.listdir(self.assets_dir)
+        files = os.listdir(os.path.join(self.assets_dir, year, month))
         if files:
-            return files[0]
+            return os.path.join(year, month, files[0])
 
     def test_create_snapshot_asset(self):
         bookmark = self.setup_bookmark()
@@ -70,9 +72,13 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         assets.create_snapshot(asset)
 
         expected_temp_filename = "snapshot_2023-08-11_214511_https___example.com.tmp"
-        expected_temp_filepath = os.path.join(self.assets_dir, expected_temp_filename)
+        expected_temp_filepath = os.path.join(
+            self.assets_dir, "2023", "08", expected_temp_filename
+        )
         expected_filename = "snapshot_2023-08-11_214511_https___example.com.html.gz"
-        expected_filepath = os.path.join(self.assets_dir, expected_filename)
+        expected_filepath = os.path.join(
+            self.assets_dir, "2023", "08", expected_filename
+        )
 
         # should call singlefile.create_snapshot with the correct arguments
         self.mock_singlefile_create_snapshot.assert_called_once_with(
@@ -93,7 +99,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         # should update asset status and file
         asset.refresh_from_db()
         self.assertEqual(asset.status, BookmarkAsset.STATUS_COMPLETE)
-        self.assertEqual(asset.file, expected_filename)
+        self.assertEqual(asset.file, os.path.join("2023", "08", expected_filename))
         self.assertTrue(asset.gzip)
 
         # should update bookmark modified date
@@ -123,8 +129,10 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
 
         saved_file = self.get_saved_snapshot_file()
 
-        self.assertEqual(192, len(saved_file))
-        self.assertTrue(saved_file.startswith("snapshot_"))
+        self.assertEqual(200, len(saved_file))
+        year = timezone.now().strftime("%Y")
+        month = timezone.now().strftime("%m")
+        self.assertTrue(saved_file.startswith(f"{year}/{month}/snapshot_"))
         self.assertTrue(saved_file.endswith("aaaa.html.gz"))
 
     def test_upload_snapshot(self):
@@ -141,7 +149,9 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertIsNotNone(saved_file_name)
 
         # verify file name
-        self.assertTrue(saved_file_name.startswith("snapshot_"))
+        year = timezone.now().strftime("%Y")
+        month = timezone.now().strftime("%m")
+        self.assertTrue(saved_file_name.startswith(f"{year}/{month}/snapshot_"))
         self.assertTrue(saved_file_name.endswith("_https___example.com.html.gz"))
 
         # gzip file should contain the correct content
@@ -184,8 +194,10 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
 
         saved_file = self.get_saved_snapshot_file()
 
-        self.assertEqual(192, len(saved_file))
-        self.assertTrue(saved_file.startswith("snapshot_"))
+        self.assertEqual(200, len(saved_file))
+        year = timezone.now().strftime("%Y")
+        month = timezone.now().strftime("%m")
+        self.assertTrue(saved_file.startswith(f"{year}/{month}/snapshot_"))
         self.assertTrue(saved_file.endswith("aaaa.html.gz"))
 
     @disable_logging
@@ -206,7 +218,9 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertIsNotNone(upload_file)
 
         # verify file name
-        self.assertTrue(saved_file_name.startswith("upload_"))
+        year = timezone.now().strftime("%Y")
+        month = timezone.now().strftime("%m")
+        self.assertTrue(saved_file_name.startswith(f"{year}/{month}/upload_"))
         self.assertTrue(saved_file_name.endswith("_test_file.txt.gz"))
 
         # file should contain the correct content
@@ -245,7 +259,9 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertIsNotNone(upload_file)
 
         # verify file name
-        self.assertTrue(saved_file_name.startswith("upload_"))
+        year = timezone.now().strftime("%Y")
+        month = timezone.now().strftime("%m")
+        self.assertTrue(saved_file_name.startswith(f"{year}/{month}/upload_"))
         self.assertTrue(saved_file_name.endswith("_test_file.html.gz"))
 
         # file should contain the correct content
@@ -281,8 +297,10 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
 
         saved_file = self.get_saved_snapshot_file()
 
-        self.assertEqual(192, len(saved_file))
-        self.assertTrue(saved_file.startswith("upload_"))
+        self.assertEqual(200, len(saved_file))
+        year = timezone.now().strftime("%Y")
+        month = timezone.now().strftime("%m")
+        self.assertTrue(saved_file.startswith(f"{year}/{month}/upload_"))
         self.assertTrue(saved_file.endswith("aaaa.txt.gz"))
 
     @disable_logging
