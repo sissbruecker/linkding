@@ -1736,3 +1736,162 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         search = BookmarkSearch(q="(python AND tutorial")
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertCountEqual(list(query), [])
+
+
+class GetTagsForQueryTestCase(TestCase, BookmarkFactoryMixin):
+    def setUp(self):
+        self.user = self.get_or_create_test_user()
+        self.profile = self.user.profile
+
+    def test_returns_tags_matching_query(self):
+        python_tag = self.setup_tag(name="python")
+        django_tag = self.setup_tag(name="django")
+        self.setup_tag(name="unused")
+
+        result = queries.get_tags_for_query(
+            self.user, self.profile, "#python and #django"
+        )
+        self.assertCountEqual(list(result), [python_tag, django_tag])
+
+    def test_case_insensitive_matching(self):
+        python_tag = self.setup_tag(name="Python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "#python")
+        self.assertCountEqual(list(result), [python_tag])
+
+        # having two tags with the same name returns both for now
+        other_python_tag = self.setup_tag(name="python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "#python")
+        self.assertCountEqual(list(result), [python_tag, other_python_tag])
+
+    def test_lax_mode_includes_terms(self):
+        python_tag = self.setup_tag(name="python")
+        django_tag = self.setup_tag(name="django")
+
+        self.profile.tag_search = UserProfile.TAG_SEARCH_LAX
+        self.profile.save()
+
+        result = queries.get_tags_for_query(
+            self.user, self.profile, "#python and django"
+        )
+        self.assertCountEqual(list(result), [python_tag, django_tag])
+
+    def test_strict_mode_excludes_terms(self):
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+
+        result = queries.get_tags_for_query(
+            self.user, self.profile, "#python and django"
+        )
+        self.assertCountEqual(list(result), [python_tag])
+
+    def test_only_returns_user_tags(self):
+        python_tag = self.setup_tag(name="python")
+
+        other_user = self.setup_user()
+        other_python = self.setup_tag(name="python", user=other_user)
+        other_django = self.setup_tag(name="django", user=other_user)
+
+        result = queries.get_tags_for_query(
+            self.user, self.profile, "#python and #django"
+        )
+        self.assertCountEqual(list(result), [python_tag])
+        self.assertNotIn(other_python, list(result))
+        self.assertNotIn(other_django, list(result))
+
+    def test_empty_query_returns_no_tags(self):
+        self.setup_tag(name="python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "")
+        self.assertCountEqual(list(result), [])
+
+    def test_query_with_no_tags_returns_empty(self):
+        self.setup_tag(name="python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "!unread")
+        self.assertCountEqual(list(result), [])
+
+    def test_nonexistent_tag_returns_empty(self):
+        self.setup_tag(name="python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "#ruby")
+        self.assertCountEqual(list(result), [])
+
+
+class GetSharedTagsForQueryTestCase(TestCase, BookmarkFactoryMixin):
+    def setUp(self):
+        self.user = self.get_or_create_test_user()
+        self.profile = self.user.profile
+        self.profile.enable_sharing = True
+        self.profile.save()
+
+    def test_returns_tags_from_shared_bookmarks(self):
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=True, tags=[python_tag])
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=False
+        )
+        self.assertCountEqual(list(result), [python_tag])
+
+    def test_excludes_tags_from_non_shared_bookmarks(self):
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=False, tags=[python_tag])
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=False
+        )
+        self.assertCountEqual(list(result), [])
+
+    def test_respects_sharing_enabled_setting(self):
+        self.profile.enable_sharing = False
+        self.profile.save()
+
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=True, tags=[python_tag])
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=False
+        )
+        self.assertCountEqual(list(result), [])
+
+    def test_public_only_flag(self):
+        # public sharing disabled
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=True, tags=[python_tag])
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=True
+        )
+        self.assertCountEqual(list(result), [])
+
+        # public sharing enabled
+        self.profile.enable_public_sharing = True
+        self.profile.save()
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=True
+        )
+        self.assertCountEqual(list(result), [python_tag])
+
+    def test_filters_by_user(self):
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=True, tags=[python_tag])
+
+        other_user = self.setup_user()
+        other_user.profile.enable_sharing = True
+        other_user.profile.save()
+        other_tag = self.setup_tag(name="python", user=other_user)
+        self.setup_bookmark(shared=True, tags=[other_tag], user=other_user)
+
+        result = queries.get_shared_tags_for_query(
+            self.user, self.profile, "#python and #django", public_only=False
+        )
+        self.assertCountEqual(list(result), [python_tag])
+        self.assertNotIn(other_tag, list(result))

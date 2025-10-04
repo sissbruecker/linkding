@@ -25,6 +25,7 @@ from bookmarks.services.search_query_parser import (
     OrExpression,
     NotExpression,
     SearchQueryParseError,
+    extract_tag_names_from_query,
 )
 from bookmarks.utils import unique
 
@@ -231,6 +232,46 @@ def query_shared_bookmark_users(
 
 def get_user_tags(user: User):
     return Tag.objects.filter(owner=user).all()
+
+
+def get_tags_for_query(user: User, profile: UserProfile, query: str) -> QuerySet:
+    tag_names = extract_tag_names_from_query(query, profile)
+
+    if not tag_names:
+        return Tag.objects.none()
+
+    tag_conditions = Q()
+    for tag_name in tag_names:
+        tag_conditions |= Q(name__iexact=tag_name)
+
+    return Tag.objects.filter(owner=user).filter(tag_conditions).distinct()
+
+
+def get_shared_tags_for_query(
+    user: Optional[User], profile: UserProfile, query: str, public_only: bool
+) -> QuerySet:
+    tag_names = extract_tag_names_from_query(query, profile)
+
+    if not tag_names:
+        return Tag.objects.none()
+
+    # Build conditions similar to query_shared_bookmarks
+    conditions = Q(bookmark__shared=True) & Q(
+        bookmark__owner__profile__enable_sharing=True
+    )
+    if public_only:
+        conditions = conditions & Q(
+            bookmark__owner__profile__enable_public_sharing=True
+        )
+    if user is not None:
+        conditions = conditions & Q(bookmark__owner=user)
+
+    # Build case-insensitive query for tag names
+    tag_conditions = Q()
+    for tag_name in tag_names:
+        tag_conditions |= Q(name__iexact=tag_name)
+
+    return Tag.objects.filter(conditions).filter(tag_conditions).distinct()
 
 
 def parse_query_string(query_string):
