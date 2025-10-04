@@ -11,7 +11,7 @@
 </div>
 
 <div class="form-group {% if form.search.errors %}has-error{% endif %}">
-  <label for="{{ form.search.id_for_label }}" class="form-label">Search</label>
+  <label for="{{ form.search.id_for_label }}" class="form-label">Search terms</label>
   {{ form.search|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
   {% if form.search.errors %}
     <div class="form-input-hint">
@@ -19,7 +19,7 @@
     </div>
   {% endif %}
   <div class="form-input-hint">
-    Search terms to match bookmarks in this bundle.
+    All of these search terms must be present in a bookmark to match.
   </div>
 </div>
 
