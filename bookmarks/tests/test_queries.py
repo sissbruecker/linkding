@@ -1730,3 +1730,9 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
             self.web_development,
         ]
         self.assertCountEqual(list(query), expected)
+
+    def test_unparseable_query_returns_no_results(self):
+        # Use a query that causes a parse error (unclosed parenthesis)
+        search = BookmarkSearch(q="(python AND tutorial")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [])

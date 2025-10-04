@@ -24,6 +24,7 @@ from bookmarks.services.search_query_parser import (
     AndExpression,
     OrExpression,
     NotExpression,
+    SearchQueryParseError,
 )
 from bookmarks.utils import unique
 
@@ -124,10 +125,14 @@ def _base_bookmarks_query(
             pass
 
     # Filter by search query
-    ast = parse_search_query(search.q)
-    if ast:
-        search_query = convert_ast_to_q_object(ast, profile)
-        query_set = query_set.filter(search_query)
+    try:
+        ast = parse_search_query(search.q)
+        if ast:
+            search_query = convert_ast_to_q_object(ast, profile)
+            query_set = query_set.filter(search_query)
+    except SearchQueryParseError:
+        # If the query cannot be parsed, return zero results
+        query_set = query_set.none()
 
     # Unread filter from bookmark search
     if search.unread == BookmarkSearch.FILTER_UNREAD_YES:
