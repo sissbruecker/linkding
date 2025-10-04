@@ -22,6 +22,7 @@ from bookmarks.models import (
 from bookmarks.services.search_query_parser import (
     parse_search_query,
     SearchQueryParseError,
+    extract_tag_names_from_query,
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.type_defs import HttpRequest
@@ -353,6 +354,12 @@ class TagCloudContext:
         self.has_selected_tags = has_selected_tags
 
     def get_selected_tags(self, tags: List[Tag]):
+        tag_names = extract_tag_names_from_query(
+            self.search.q, self.request.user_profile
+        )
+        return [tag for tag in tags if tag.name.lower() in tag_names]
+
+    def get_selected_tags_legacy(self, tags: List[Tag]):
         parsed_query = queries.parse_query_string(self.search.q)
         tag_names = parsed_query["tag_names"]
         if self.request.user_profile.tag_search == UserProfile.TAG_SEARCH_LAX:
