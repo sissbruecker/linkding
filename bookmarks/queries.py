@@ -20,6 +20,7 @@ from bookmarks.services.search_query_parser import (
     SearchExpression,
     TermExpression,
     TagExpression,
+    SpecialKeywordExpression,
     AndExpression,
     OrExpression,
     NotExpression,
@@ -127,13 +128,6 @@ def _base_bookmarks_query(
     if ast:
         search_query = convert_ast_to_q_object(ast, profile)
         query_set = query_set.filter(search_query)
-
-    # Untagged bookmarks
-    # if query["untagged"]:
-    #    query_set = query_set.filter(tags=None)
-    # Legacy unread bookmarks filter from query
-    # if query["unread"]:
-    #    query_set = query_set.filter(unread=True)
 
     # Unread filter from bookmark search
     if search.unread == BookmarkSearch.FILTER_UNREAD_YES:
@@ -288,6 +282,16 @@ def convert_ast_to_q_object(ast_node: SearchExpression, profile: UserProfile) ->
                 )
             )
         )
+
+    elif isinstance(ast_node, SpecialKeywordExpression):
+        # Handle special keywords
+        if ast_node.keyword.lower() == "unread":
+            return Q(unread=True)
+        elif ast_node.keyword.lower() == "untagged":
+            return Q(tags=None)
+        else:
+            # Unknown keyword, return empty Q object (matches all)
+            return Q()
 
     elif isinstance(ast_node, AndExpression):
         # Combine left and right with AND
