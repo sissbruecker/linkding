@@ -1017,6 +1017,21 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             '<p class="empty-title h5">You have no bookmarks yet</p>', html
         )
 
+    def test_empty_state_with_valid_query_no_results(self):
+        self.setup_bookmark(title="Test Bookmark")
+        html = self.render_template(url="/bookmarks?q=nonexistent")
+
+        self.assertInHTML(
+            '<p class="empty-title h5">You have no bookmarks yet</p>', html
+        )
+
+    def test_empty_state_with_invalid_query(self):
+        self.setup_bookmark()
+        html = self.render_template(url="/bookmarks?q=(test")
+
+        self.assertInHTML('<p class="empty-title h5">Invalid search query</p>', html)
+        self.assertIn("Expected RPAREN", html)
+
     def test_pagination_is_not_sticky_by_default(self):
         self.setup_bookmark()
         html = self.render_template()

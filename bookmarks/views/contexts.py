@@ -19,6 +19,10 @@ from bookmarks.models import (
     UserProfile,
     Tag,
 )
+from bookmarks.services.search_query_parser import (
+    parse_search_query,
+    SearchQueryParseError,
+)
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
@@ -186,6 +190,15 @@ class BookmarkListContext:
 
         self.request = request
         self.search = search
+
+        self.query_is_valid = True
+        self.query_error_message = None
+        if search.q:
+            try:
+                parse_search_query(search.q)
+            except SearchQueryParseError as e:
+                self.query_is_valid = False
+                self.query_error_message = e.message
 
         query_set = request_context.get_bookmark_query_set(self.search)
         page_number = request.GET.get("page")
