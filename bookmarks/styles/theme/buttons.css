@@ -113,6 +113,7 @@
   &.btn-error {
     --btn-border-color: var(--error-color);
     --btn-text-color: var(--error-color);
+    --btn-icon-color: var(--error-color);
 
     &:hover {
       --btn-hover-bg-color: var(--error-color-shade);
