@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional
 
+from bookmarks.models import UserProfile
+
 
 class TokenType(Enum):
     TERM = "TERM"
@@ -369,3 +371,234 @@ def parse_search_query(query: str) -> Optional[SearchExpression]:
     tokens = tokenizer.tokenize()
     parser = SearchQueryParser(tokens)
     return parser.parse()
+
+
+def _needs_parentheses(expr: SearchExpression, parent_type: type) -> bool:
+    if isinstance(expr, OrExpression) and parent_type == AndExpression:
+        return True
+    # AndExpression or OrExpression needs parentheses when inside NotExpression
+    if isinstance(expr, (AndExpression, OrExpression)) and parent_type == NotExpression:
+        return True
+    return False
+
+
+def _is_simple_expression(expr: SearchExpression) -> bool:
+    """Check if an expression is simple (term, tag, or keyword)."""
+    return isinstance(expr, (TermExpression, TagExpression, SpecialKeywordExpression))
+
+
+def _expression_to_string(expr: SearchExpression, parent_type: type = None) -> str:
+    if isinstance(expr, TermExpression):
+        # Quote terms if they contain spaces or special characters
+        if " " in expr.term or any(c in expr.term for c in ["(", ")", '"', "'"]):
+            # Escape any quotes in the term
+            escaped = expr.term.replace("\\", "\\\\").replace('"', '\\"')
+            return f'"{escaped}"'
+        return expr.term
+
+    elif isinstance(expr, TagExpression):
+        return f"#{expr.tag}"
+
+    elif isinstance(expr, SpecialKeywordExpression):
+        return f"!{expr.keyword}"
+
+    elif isinstance(expr, NotExpression):
+        # Don't pass parent type to children
+        operand_str = _expression_to_string(expr.operand, None)
+        # Add parentheses if the operand is a binary operation
+        if isinstance(expr.operand, (AndExpression, OrExpression)):
+            return f"not ({operand_str})"
+        return f"not {operand_str}"
+
+    elif isinstance(expr, AndExpression):
+        # Don't pass parent type to children - they'll add their own parens only if needed
+        left_str = _expression_to_string(expr.left, None)
+        right_str = _expression_to_string(expr.right, None)
+
+        # Add parentheses to children if needed for precedence
+        if _needs_parentheses(expr.left, AndExpression):
+            left_str = f"({left_str})"
+        if _needs_parentheses(expr.right, AndExpression):
+            right_str = f"({right_str})"
+
+        result = f"{left_str} {right_str}"
+
+        # Add outer parentheses if needed based on parent context
+        if parent_type and _needs_parentheses(expr, parent_type):
+            result = f"({result})"
+
+        return result
+
+    elif isinstance(expr, OrExpression):
+        # Don't pass parent type to children
+        left_str = _expression_to_string(expr.left, None)
+        right_str = _expression_to_string(expr.right, None)
+
+        # OrExpression children don't need parentheses unless they're also OR (handled by recursion)
+        result = f"{left_str} or {right_str}"
+
+        # Add outer parentheses if needed based on parent context
+        if parent_type and _needs_parentheses(expr, parent_type):
+            result = f"({result})"
+
+        return result
+
+    else:
+        raise ValueError(f"Unknown expression type: {type(expr)}")
+
+
+def expression_to_string(expr: Optional[SearchExpression]) -> str:
+    if expr is None:
+        return ""
+    return _expression_to_string(expr)
+
+
+def _simplify_expression(
+    expr: Optional[SearchExpression],
+) -> Optional[SearchExpression]:
+    if expr is None:
+        return None
+
+    if isinstance(expr, (TermExpression, TagExpression, SpecialKeywordExpression)):
+        # Leaf nodes are already simple
+        return expr
+
+    elif isinstance(expr, NotExpression):
+        # Simplify the operand
+        simplified_operand = _simplify_expression(expr.operand)
+        if simplified_operand is None:
+            # If the operand is empty, the whole NOT expression is invalid/empty
+            return None
+        return NotExpression(simplified_operand)
+
+    elif isinstance(expr, AndExpression):
+        # Simplify both sides
+        left = _simplify_expression(expr.left)
+        right = _simplify_expression(expr.right)
+
+        # If either side is None, return the other side
+        if left is None and right is None:
+            return None
+        elif left is None:
+            return right
+        elif right is None:
+            return left
+        else:
+            return AndExpression(left, right)
+
+    elif isinstance(expr, OrExpression):
+        # Simplify both sides
+        left = _simplify_expression(expr.left)
+        right = _simplify_expression(expr.right)
+
+        # If both sides are None, return None
+        if left is None and right is None:
+            return None
+        # If one side is None, return the other side
+        elif left is None:
+            return right
+        elif right is None:
+            return left
+        else:
+            return OrExpression(left, right)
+
+    else:
+        # Unknown expression type, return as-is
+        return expr
+
+
+def _strip_tag_from_expression(
+    expr: Optional[SearchExpression], tag_name: str, enable_lax_search: bool = False
+) -> Optional[SearchExpression]:
+    if expr is None:
+        return None
+
+    if isinstance(expr, TagExpression):
+        # Remove this tag if it matches
+        if expr.tag.lower() == tag_name.lower():
+            return None
+        return expr
+
+    elif isinstance(expr, TermExpression):
+        # In lax search mode, also remove terms that match the tag name
+        if enable_lax_search and expr.term.lower() == tag_name.lower():
+            return None
+        return expr
+
+    elif isinstance(expr, SpecialKeywordExpression):
+        # Keep special keywords as-is
+        return expr
+
+    elif isinstance(expr, NotExpression):
+        # Recursively filter the operand
+        filtered_operand = _strip_tag_from_expression(
+            expr.operand, tag_name, enable_lax_search
+        )
+        if filtered_operand is None:
+            # If the operand is removed, the whole NOT expression should be removed
+            return None
+        return NotExpression(filtered_operand)
+
+    elif isinstance(expr, AndExpression):
+        # Recursively filter both sides
+        left = _strip_tag_from_expression(expr.left, tag_name, enable_lax_search)
+        right = _strip_tag_from_expression(expr.right, tag_name, enable_lax_search)
+
+        # If both sides are removed, remove the AND expression
+        if left is None and right is None:
+            return None
+        # If one side is removed, return the other side
+        elif left is None:
+            return right
+        elif right is None:
+            return left
+        else:
+            return AndExpression(left, right)
+
+    elif isinstance(expr, OrExpression):
+        # Recursively filter both sides
+        left = _strip_tag_from_expression(expr.left, tag_name, enable_lax_search)
+        right = _strip_tag_from_expression(expr.right, tag_name, enable_lax_search)
+
+        # If both sides are removed, remove the OR expression
+        if left is None and right is None:
+            return None
+        # If one side is removed, return the other side
+        elif left is None:
+            return right
+        elif right is None:
+            return left
+        else:
+            return OrExpression(left, right)
+
+    else:
+        # Unknown expression type, return as-is
+        return expr
+
+
+def strip_tag_from_query(
+    query: str, tag_name: str, user_profile: UserProfile | None = None
+) -> str:
+    # Parse the query into an AST
+    try:
+        ast = parse_search_query(query)
+    except SearchQueryParseError:
+        # If parsing fails, return the original query
+        return query
+
+    if ast is None:
+        return ""
+
+    # Determine if lax search is enabled
+    enable_lax_search = False
+    if user_profile is not None:
+        enable_lax_search = user_profile.tag_search == UserProfile.TAG_SEARCH_LAX
+
+    # Strip the tag from the AST
+    filtered_ast = _strip_tag_from_expression(ast, tag_name, enable_lax_search)
+
+    # Simplify the AST to fix structure
+    simplified_ast = _simplify_expression(filtered_ast)
+
+    # Convert back to a query string
+    return expression_to_string(simplified_ast)

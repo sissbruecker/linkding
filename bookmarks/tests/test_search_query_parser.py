@@ -12,7 +12,10 @@ from bookmarks.services.search_query_parser import (
     NotExpression,
     SearchQueryParseError,
     parse_search_query,
+    expression_to_string,
+    strip_tag_from_query,
 )
+from bookmarks.models import UserProfile
 
 
 def _term(term: str) -> TermExpression:
@@ -885,3 +888,306 @@ class SearchQueryParserErrorTest(TestCase):
         with self.assertRaises(SearchQueryParseError) as cm:
             parse_search_query("not")
         self.assertIn("Unexpected token EOF", str(cm.exception))
+
+
+class ExpressionToStringTest(TestCase):
+    def test_simple_term(self):
+        expr = _term("python")
+        self.assertEqual(expression_to_string(expr), "python")
+
+    def test_simple_tag(self):
+        expr = _tag("python")
+        self.assertEqual(expression_to_string(expr), "#python")
+
+    def test_simple_keyword(self):
+        expr = _keyword("unread")
+        self.assertEqual(expression_to_string(expr), "!unread")
+
+    def test_term_with_spaces(self):
+        expr = _term("machine learning")
+        self.assertEqual(expression_to_string(expr), '"machine learning"')
+
+    def test_term_with_quotes(self):
+        expr = _term('say "hello"')
+        self.assertEqual(expression_to_string(expr), '"say \\"hello\\""')
+
+    def test_and_expression_implicit(self):
+        expr = _and(_term("python"), _term("tutorial"))
+        self.assertEqual(expression_to_string(expr), "python tutorial")
+
+    def test_and_expression_with_tags(self):
+        expr = _and(_tag("python"), _tag("django"))
+        self.assertEqual(expression_to_string(expr), "#python #django")
+
+    def test_and_expression_complex(self):
+        # When AND contains OR, use explicit "and"
+        expr = _and(_or(_term("python"), _term("ruby")), _term("tutorial"))
+        self.assertEqual(expression_to_string(expr), "(python or ruby) tutorial")
+
+    def test_or_expression(self):
+        expr = _or(_term("python"), _term("ruby"))
+        self.assertEqual(expression_to_string(expr), "python or ruby")
+
+    def test_or_expression_with_and(self):
+        expr = _or(_and(_term("python"), _term("tutorial")), _term("ruby"))
+        self.assertEqual(expression_to_string(expr), "python tutorial or ruby")
+
+    def test_not_expression(self):
+        expr = _not(_term("deprecated"))
+        self.assertEqual(expression_to_string(expr), "not deprecated")
+
+    def test_not_with_tag(self):
+        expr = _not(_tag("deprecated"))
+        self.assertEqual(expression_to_string(expr), "not #deprecated")
+
+    def test_not_with_and(self):
+        expr = _not(_and(_term("python"), _term("deprecated")))
+        self.assertEqual(expression_to_string(expr), "not (python deprecated)")
+
+    def test_complex_nested_expression(self):
+        expr = _and(
+            _or(_term("python"), _term("ruby")),
+            _or(_term("tutorial"), _term("guide")),
+        )
+        result = expression_to_string(expr)
+        self.assertEqual(result, "(python or ruby) (tutorial or guide)")
+
+    def test_implicit_and_chain(self):
+        expr = _and(_and(_term("machine"), _term("learning")), _term("tutorial"))
+        self.assertEqual(expression_to_string(expr), "machine learning tutorial")
+
+    def test_none_expression(self):
+        self.assertEqual(expression_to_string(None), "")
+
+    def test_round_trip(self):
+        test_cases = [
+            "#python",
+            "python tutorial",
+            "#python #django",
+            "python or ruby",
+            "not deprecated",
+            "(python or ruby) and tutorial",
+            "tutorial and (python or ruby)",
+            "(python or ruby) tutorial",
+            "tutorial (python or ruby)",
+        ]
+
+        for query in test_cases:
+            with self.subTest(query=query):
+                ast = parse_search_query(query)
+                result = expression_to_string(ast)
+                ast2 = parse_search_query(result)
+                self.assertEqual(ast, ast2)
+
+
+class StripTagFromQueryTest(TestCase):
+    def test_single_tag(self):
+        result = strip_tag_from_query("#books", "books")
+        self.assertEqual(result, "")
+
+    def test_tag_with_and(self):
+        result = strip_tag_from_query("#history and #books", "books")
+        self.assertEqual(result, "#history")
+
+    def test_tag_with_and_not(self):
+        result = strip_tag_from_query("#history and not #books", "books")
+        self.assertEqual(result, "#history")
+
+    def test_implicit_and_with_term_and_tags(self):
+        result = strip_tag_from_query("roman #history #books", "books")
+        self.assertEqual(result, "roman #history")
+
+    def test_tag_in_or_expression(self):
+        result = strip_tag_from_query("roman and (#history or #books)", "books")
+        self.assertEqual(result, "roman #history")
+
+    def test_term_and_tag_implicit(self):
+        result = strip_tag_from_query("roman and #books", "books")
+        self.assertEqual(result, "roman")
+
+    def test_complex_or_with_and(self):
+        result = strip_tag_from_query(
+            "(roman and #books) or (greek and #books)", "books"
+        )
+        self.assertEqual(result, "roman or greek")
+
+    def test_case_insensitive(self):
+        result = strip_tag_from_query("#Books and #History", "books")
+        self.assertEqual(result, "#History")
+
+    def test_tag_not_present(self):
+        result = strip_tag_from_query("#history and #science", "books")
+        self.assertEqual(result, "#history #science")
+
+    def test_only_tag_with_term(self):
+        result = strip_tag_from_query("tutorial #python", "python")
+        self.assertEqual(result, "tutorial")
+
+    def test_multiple_same_tags(self):
+        result = strip_tag_from_query("#books or #books", "books")
+        self.assertEqual(result, "")
+
+    def test_nested_parentheses(self):
+        result = strip_tag_from_query("((#books and tutorial) or guide)", "books")
+        self.assertEqual(result, "tutorial or guide")
+
+    def test_not_expression_with_tag(self):
+        result = strip_tag_from_query("tutorial and not #books", "books")
+        self.assertEqual(result, "tutorial")
+
+    def test_only_not_tag(self):
+        result = strip_tag_from_query("not #books", "books")
+        self.assertEqual(result, "")
+
+    def test_complex_query(self):
+        result = strip_tag_from_query(
+            "(#python or #ruby) and tutorial and not #books", "books"
+        )
+        self.assertEqual(result, "(#python or #ruby) tutorial")
+
+    def test_empty_query(self):
+        result = strip_tag_from_query("", "books")
+        self.assertEqual(result, "")
+
+    def test_whitespace_only(self):
+        result = strip_tag_from_query("   ", "books")
+        self.assertEqual(result, "")
+
+    def test_special_keywords_preserved(self):
+        result = strip_tag_from_query("!unread and #books", "books")
+        self.assertEqual(result, "!unread")
+
+    def test_quoted_terms_preserved(self):
+        result = strip_tag_from_query('"machine learning" and #books', "books")
+        self.assertEqual(result, '"machine learning"')
+
+    def test_all_tags_in_and_chain(self):
+        result = strip_tag_from_query("#books and #books and #books", "books")
+        self.assertEqual(result, "")
+
+    def test_tag_similar_name(self):
+        # Should not remove #book when removing #books
+        result = strip_tag_from_query("#book and #books", "books")
+        self.assertEqual(result, "#book")
+
+    def test_invalid_query_returns_original(self):
+        # If query is malformed, should return original
+        result = strip_tag_from_query("(unclosed paren", "books")
+        self.assertEqual(result, "(unclosed paren")
+
+    def test_implicit_and_in_output(self):
+        result = strip_tag_from_query("python tutorial #books #django", "books")
+        self.assertEqual(result, "python tutorial #django")
+
+    def test_nested_or_simplify_parenthesis(self):
+        result = strip_tag_from_query(
+            "(#books or tutorial) and (#books or guide)", "books"
+        )
+        self.assertEqual(result, "tutorial guide")
+
+    def test_nested_or_preserve_parenthesis(self):
+        result = strip_tag_from_query(
+            "(#books or tutorial or guide) and (#books or help or lesson)", "books"
+        )
+        self.assertEqual(result, "(tutorial or guide) (help or lesson)")
+
+    def test_left_side_removed(self):
+        result = strip_tag_from_query("#books and python", "books")
+        self.assertEqual(result, "python")
+
+    def test_right_side_removed(self):
+        result = strip_tag_from_query("python and #books", "books")
+        self.assertEqual(result, "python")
+
+
+class StripTagFromQueryLaxSearchTest(TestCase):
+    def setUp(self):
+        self.lax_profile = type(
+            "UserProfile", (), {"tag_search": UserProfile.TAG_SEARCH_LAX}
+        )()
+        self.strict_profile = type(
+            "UserProfile", (), {"tag_search": UserProfile.TAG_SEARCH_STRICT}
+        )()
+
+    def test_lax_search_removes_matching_term(self):
+        result = strip_tag_from_query("books", "books", self.lax_profile)
+        self.assertEqual(result, "")
+
+    def test_lax_search_removes_term_case_insensitive(self):
+        result = strip_tag_from_query("Books", "books", self.lax_profile)
+        self.assertEqual(result, "")
+
+        result = strip_tag_from_query("BOOKS", "books", self.lax_profile)
+        self.assertEqual(result, "")
+
+    def test_lax_search_multiple_terms(self):
+        result = strip_tag_from_query("books and history", "books", self.lax_profile)
+        self.assertEqual(result, "history")
+
+    def test_lax_search_preserves_non_matching_terms(self):
+        result = strip_tag_from_query("history and science", "books", self.lax_profile)
+        self.assertEqual(result, "history science")
+
+    def test_lax_search_removes_both_tag_and_term(self):
+        result = strip_tag_from_query("books #books", "books", self.lax_profile)
+        self.assertEqual(result, "")
+
+    def test_lax_search_mixed_tag_and_term(self):
+        result = strip_tag_from_query(
+            "books and #history and #books", "books", self.lax_profile
+        )
+        self.assertEqual(result, "#history")
+
+    def test_lax_search_term_in_or_expression(self):
+        result = strip_tag_from_query(
+            "(books or history) and guide", "books", self.lax_profile
+        )
+        self.assertEqual(result, "history guide")
+
+    def test_lax_search_term_in_not_expression(self):
+        result = strip_tag_from_query(
+            "history and not books", "books", self.lax_profile
+        )
+        self.assertEqual(result, "history")
+
+    def test_lax_search_only_not_term(self):
+        result = strip_tag_from_query("not books", "books", self.lax_profile)
+        self.assertEqual(result, "")
+
+    def test_lax_search_complex_query(self):
+        result = strip_tag_from_query(
+            "(books or #books) and (history or guide)", "books", self.lax_profile
+        )
+        self.assertEqual(result, "history or guide")
+
+    def test_lax_search_quoted_term_with_same_name(self):
+        result = strip_tag_from_query('"books" and history', "books", self.lax_profile)
+        self.assertEqual(result, "history")
+
+    def test_lax_search_partial_match_not_removed(self):
+        result = strip_tag_from_query("bookshelf", "books", self.lax_profile)
+        self.assertEqual(result, "bookshelf")
+
+    def test_lax_search_multiple_occurrences(self):
+        result = strip_tag_from_query(
+            "books or books or history", "books", self.lax_profile
+        )
+        self.assertEqual(result, "history")
+
+    def test_lax_search_nested_expressions(self):
+        result = strip_tag_from_query(
+            "((books and tutorial) or guide) and history", "books", self.lax_profile
+        )
+        self.assertEqual(result, "(tutorial or guide) history")
+
+    def test_strict_search_preserves_terms(self):
+        result = strip_tag_from_query("books", "books", self.strict_profile)
+        self.assertEqual(result, "books")
+
+    def test_strict_search_preserves_terms_with_tags(self):
+        result = strip_tag_from_query("books #books", "books", self.strict_profile)
+        self.assertEqual(result, "books")
+
+    def test_no_profile_defaults_to_strict(self):
+        result = strip_tag_from_query("books #books", "books", None)
+        self.assertEqual(result, "books")
