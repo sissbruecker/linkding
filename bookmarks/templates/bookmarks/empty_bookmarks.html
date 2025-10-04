@@ -2,8 +2,8 @@
   {% if not bookmark_list.query_is_valid %}
     <p class="empty-title h5">Invalid search query</p>
     <p class="empty-subtitle">
-      The search query you entered is not valid. Common reasons are unclosed parentheses, unclosed quotes or a not
-      operator without an operand. The error message from the parser is: "{{ bookmark_list.query_error_message }}".
+      The search query you entered is not valid. Common reasons are unclosed parentheses or a logical operator (AND, OR,
+      NOT) without operands. The error message from the parser is: "{{ bookmark_list.query_error_message }}".
     </p>
   {% else %}
     <p class="empty-title h5">You have no bookmarks yet</p>

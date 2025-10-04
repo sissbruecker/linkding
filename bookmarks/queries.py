@@ -57,6 +57,68 @@ def query_shared_bookmarks(
     return _base_bookmarks_query(user, profile, search).filter(conditions)
 
 
+def _convert_ast_to_q_object(ast_node: SearchExpression, profile: UserProfile) -> Q:
+    if isinstance(ast_node, TermExpression):
+        # Search across title, description, notes, URL
+        conditions = (
+            Q(title__icontains=ast_node.term)
+            | Q(description__icontains=ast_node.term)
+            | Q(notes__icontains=ast_node.term)
+            | Q(url__icontains=ast_node.term)
+        )
+
+        # In lax mode, also search in tag names
+        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+            conditions = conditions | Exists(
+                Bookmark.objects.filter(
+                    id=OuterRef("id"), tags__name__iexact=ast_node.term
+                )
+            )
+
+        return conditions
+
+    elif isinstance(ast_node, TagExpression):
+        # Use Exists() to avoid reusing the same join when combining multiple tag expressions with and
+        return Q(
+            Exists(
+                Bookmark.objects.filter(
+                    id=OuterRef("id"), tags__name__iexact=ast_node.tag
+                )
+            )
+        )
+
+    elif isinstance(ast_node, SpecialKeywordExpression):
+        # Handle special keywords
+        if ast_node.keyword.lower() == "unread":
+            return Q(unread=True)
+        elif ast_node.keyword.lower() == "untagged":
+            return Q(tags=None)
+        else:
+            # Unknown keyword, return empty Q object (matches all)
+            return Q()
+
+    elif isinstance(ast_node, AndExpression):
+        # Combine left and right with AND
+        left_q = _convert_ast_to_q_object(ast_node.left, profile)
+        right_q = _convert_ast_to_q_object(ast_node.right, profile)
+        return left_q & right_q
+
+    elif isinstance(ast_node, OrExpression):
+        # Combine left and right with OR
+        left_q = _convert_ast_to_q_object(ast_node.left, profile)
+        right_q = _convert_ast_to_q_object(ast_node.right, profile)
+        return left_q | right_q
+
+    elif isinstance(ast_node, NotExpression):
+        # Negate the operand
+        operand_q = _convert_ast_to_q_object(ast_node.operand, profile)
+        return ~operand_q
+
+    else:
+        # Fallback for unknown node types
+        return Q()
+
+
 def _filter_bundle(query_set: QuerySet, bundle: BookmarkBundle) -> QuerySet:
     # Search terms
     search_terms = parse_query_string(bundle.search)["search_terms"]
@@ -129,11 +191,11 @@ def _base_bookmarks_query(
     try:
         ast = parse_search_query(search.q)
         if ast:
-            search_query = convert_ast_to_q_object(ast, profile)
+            search_query = _convert_ast_to_q_object(ast, profile)
             query_set = query_set.filter(search_query)
     except SearchQueryParseError:
         # If the query cannot be parsed, return zero results
-        query_set = query_set.none()
+        return Bookmark.objects.none()
 
     # Unread filter from bookmark search
     if search.unread == BookmarkSearch.FILTER_UNREAD_YES:
@@ -266,7 +328,6 @@ def get_shared_tags_for_query(
     if user is not None:
         conditions = conditions & Q(bookmark__owner=user)
 
-    # Build case-insensitive query for tag names
     tag_conditions = Q()
     for tag_name in tag_names:
         tag_conditions |= Q(name__iexact=tag_name)
@@ -297,65 +358,3 @@ def parse_query_string(query_string):
         "untagged": untagged,
         "unread": unread,
     }
-
-
-def convert_ast_to_q_object(ast_node: SearchExpression, profile: UserProfile) -> Q:
-    if isinstance(ast_node, TermExpression):
-        # Search across title, description, notes, URL
-        conditions = (
-            Q(title__icontains=ast_node.term)
-            | Q(description__icontains=ast_node.term)
-            | Q(notes__icontains=ast_node.term)
-            | Q(url__icontains=ast_node.term)
-        )
-
-        # In lax mode, also search in tag names
-        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
-            conditions = conditions | Exists(
-                Bookmark.objects.filter(
-                    id=OuterRef("id"), tags__name__iexact=ast_node.term
-                )
-            )
-
-        return conditions
-
-    elif isinstance(ast_node, TagExpression):
-        # Use Exists() to avoid reusing the same join when combining multiple tag expressions with and
-        return Q(
-            Exists(
-                Bookmark.objects.filter(
-                    id=OuterRef("id"), tags__name__iexact=ast_node.tag
-                )
-            )
-        )
-
-    elif isinstance(ast_node, SpecialKeywordExpression):
-        # Handle special keywords
-        if ast_node.keyword.lower() == "unread":
-            return Q(unread=True)
-        elif ast_node.keyword.lower() == "untagged":
-            return Q(tags=None)
-        else:
-            # Unknown keyword, return empty Q object (matches all)
-            return Q()
-
-    elif isinstance(ast_node, AndExpression):
-        # Combine left and right with AND
-        left_q = convert_ast_to_q_object(ast_node.left, profile)
-        right_q = convert_ast_to_q_object(ast_node.right, profile)
-        return left_q & right_q
-
-    elif isinstance(ast_node, OrExpression):
-        # Combine left and right with OR
-        left_q = convert_ast_to_q_object(ast_node.left, profile)
-        right_q = convert_ast_to_q_object(ast_node.right, profile)
-        return left_q | right_q
-
-    elif isinstance(ast_node, NotExpression):
-        # Negate the operand
-        operand_q = convert_ast_to_q_object(ast_node.operand, profile)
-        return ~operand_q
-
-    else:
-        # Fallback for unknown node types
-        return Q()

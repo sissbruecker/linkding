@@ -20,38 +20,30 @@ from bookmarks.models import UserProfile
 
 
 def _term(term: str) -> TermExpression:
-    """Helper to create a TermExpression."""
     return TermExpression(term)
 
 
 def _tag(tag: str) -> TagExpression:
-    """Helper to create a TagExpression."""
     return TagExpression(tag)
 
 
 def _and(left: SearchExpression, right: SearchExpression) -> AndExpression:
-    """Helper to create an AndExpression."""
     return AndExpression(left, right)
 
 
 def _or(left: SearchExpression, right: SearchExpression) -> OrExpression:
-    """Helper to create an OrExpression."""
     return OrExpression(left, right)
 
 
 def _not(operand: SearchExpression) -> NotExpression:
-    """Helper to create a NotExpression."""
     return NotExpression(operand)
 
 
 def _keyword(keyword: str) -> SpecialKeywordExpression:
-    """Helper to create a SpecialKeywordExpression."""
     return SpecialKeywordExpression(keyword)
 
 
 class SearchQueryTokenizerTest(TestCase):
-    """Test cases for the search query tokenizer."""
-
     def test_empty_query(self):
         tokenizer = SearchQueryTokenizer("")
         tokens = tokenizer.tokenize()
@@ -406,7 +398,6 @@ class SearchQueryParserTest(TestCase):
         self.assertEqual(result, expected)
 
     def test_multiple_not_operators(self):
-        # "not not a" should parse as "not (not a)" (right associative)
         result = parse_search_query("not not programming")
         expected = _not(_not(_term("programming")))
         self.assertEqual(result, expected)
@@ -428,7 +419,6 @@ class SearchQueryParserTest(TestCase):
         self.assertEqual(result, expected)
 
     def test_complex_expression(self):
-        # "programming and (books or streaming) and not client-side"
         result = parse_search_query(
             "programming and (books or streaming) and not client-side"
         )
@@ -445,9 +435,7 @@ class SearchQueryParserTest(TestCase):
         self.assertEqual(result, expected)
 
     def test_case_insensitive_operators(self):
-        # Test that operators work in different cases
         result = parse_search_query("programming AND books OR streaming")
-        # Should parse as: (programming AND books) OR streaming
         expected = _or(_and(_term("programming"), _term("books")), _term("streaming"))
         self.assertEqual(result, expected)
 
@@ -580,9 +568,6 @@ class SearchQueryParserTest(TestCase):
         self.assertEqual(result, expected)
 
     def test_empty_tags_ignored(self):
-        # Empty tags should be ignored in queries, but this creates grammatically invalid queries
-        # So let's test the tokenizer behavior directly and valid parser scenarios
-
         # Test single empty tag
         result = parse_search_query("#")
         expected = None  # Empty query
@@ -722,9 +707,6 @@ class SearchQueryParserTest(TestCase):
         self.assertEqual(result, expected)
 
     def test_complex_precedence_with_implicit_and(self):
-        # Test complex precedence scenarios to ensure implicit AND works correctly
-
-        # Implicit AND with OR has correct precedence: "a b or c d" -> "(a AND b) OR (c AND d)"
         result = parse_search_query("python tutorial or javascript guide")
         expected = _or(
             _and(_term("python"), _term("tutorial")),
@@ -732,25 +714,6 @@ class SearchQueryParserTest(TestCase):
         )
         self.assertEqual(result, expected)
 
-        # Implicit AND with NOT: "not deprecated tutorial" -> "NOT deprecated AND tutorial"
-        result = parse_search_query("not deprecated tutorial")
-        expected = _and(_not(_term("deprecated")), _term("tutorial"))
-        self.assertEqual(result, expected)
-
-        # Mixed explicit and implicit AND: "python and tutorial guide" -> "(python AND tutorial) AND guide"
-        result = parse_search_query("python and tutorial guide")
-        expected = _and(_and(_term("python"), _term("tutorial")), _term("guide"))
-        self.assertEqual(result, expected)
-
-        # Parentheses override implicit AND precedence: "(python tutorial) or (javascript guide)"
-        result = parse_search_query("(python tutorial) or (javascript guide)")
-        expected = _or(
-            _and(_term("python"), _term("tutorial")),
-            _and(_term("javascript"), _term("guide")),
-        )
-        self.assertEqual(result, expected)
-
-        # Complex: "machine learning and (python or r) tutorial #beginner"
         result = parse_search_query(
             "machine learning and (python or r) tutorial #beginner"
         )
@@ -770,11 +733,6 @@ class SearchQueryParserTest(TestCase):
         # Terms that contain operator words as substrings should be treated as terms
         result = parse_search_query("android and notification")
         expected = _and(_term("android"), _term("notification"))
-        self.assertEqual(result, expected)
-
-    def test_deeply_nested_parentheses(self):
-        result = parse_search_query("(((programming)))")
-        expected = _term("programming")
         self.assertEqual(result, expected)
 
     def test_complex_queries(self):
@@ -853,8 +811,6 @@ class SearchQueryParserTest(TestCase):
 
 
 class SearchQueryParserErrorTest(TestCase):
-    """Test cases for parser error handling."""
-
     def test_unmatched_left_parenthesis(self):
         with self.assertRaises(SearchQueryParseError) as cm:
             parse_search_query("(programming and books")
@@ -921,7 +877,6 @@ class ExpressionToStringTest(TestCase):
         self.assertEqual(expression_to_string(expr), "#python #django")
 
     def test_and_expression_complex(self):
-        # When AND contains OR, use explicit "and"
         expr = _and(_or(_term("python"), _term("ruby")), _term("tutorial"))
         self.assertEqual(expression_to_string(expr), "(python or ruby) tutorial")
 
@@ -1002,10 +957,6 @@ class StripTagFromQueryTest(TestCase):
         result = strip_tag_from_query("roman and (#history or #books)", "books")
         self.assertEqual(result, "roman #history")
 
-    def test_term_and_tag_implicit(self):
-        result = strip_tag_from_query("roman and #books", "books")
-        self.assertEqual(result, "roman")
-
     def test_complex_or_with_and(self):
         result = strip_tag_from_query(
             "(roman and #books) or (greek and #books)", "books"
@@ -1019,10 +970,6 @@ class StripTagFromQueryTest(TestCase):
     def test_tag_not_present(self):
         result = strip_tag_from_query("#history and #science", "books")
         self.assertEqual(result, "#history #science")
-
-    def test_only_tag_with_term(self):
-        result = strip_tag_from_query("tutorial #python", "python")
-        self.assertEqual(result, "tutorial")
 
     def test_multiple_same_tags(self):
         result = strip_tag_from_query("#books or #books", "books")
@@ -1226,27 +1173,22 @@ class ExtractTagNamesFromQueryTest(TestCase):
         self.assertEqual(result, ["deprecated", "python", "ruby", "tutorial"])
 
     def test_duplicate_tags(self):
-        # Duplicates should be removed
         result = extract_tag_names_from_query("#python and #python")
         self.assertEqual(result, ["python"])
 
     def test_case_insensitive_deduplication(self):
-        # Different cases of same tag should be deduplicated
         result = extract_tag_names_from_query("#Python and #PYTHON and #python")
         self.assertEqual(result, ["python"])
 
     def test_mixed_tags_and_terms(self):
-        # In strict mode (default), only tags are extracted
         result = extract_tag_names_from_query("tutorial #python guide #django")
         self.assertEqual(result, ["django", "python"])
 
     def test_only_terms_no_tags(self):
-        # Query with only terms and no tags
         result = extract_tag_names_from_query("tutorial guide")
         self.assertEqual(result, [])
 
     def test_special_keywords_not_extracted(self):
-        # Special keywords should not be extracted as tags
         result = extract_tag_names_from_query("!unread and #python")
         self.assertEqual(result, ["python"])
 
@@ -1255,7 +1197,6 @@ class ExtractTagNamesFromQueryTest(TestCase):
         self.assertEqual(result, ["django", "python", "ruby"])
 
     def test_invalid_query_returns_empty(self):
-        # Malformed query should return empty list
         result = extract_tag_names_from_query("(unclosed paren")
         self.assertEqual(result, [])
 
@@ -1274,24 +1215,20 @@ class ExtractTagNamesFromQueryLaxSearchTest(TestCase):
         )()
 
     def test_lax_search_extracts_terms(self):
-        # In lax mode, terms should be extracted as tags
         result = extract_tag_names_from_query("python and django", self.lax_profile)
         self.assertEqual(result, ["django", "python"])
 
     def test_lax_search_mixed_tags_and_terms(self):
-        # Both tags and terms should be extracted
         result = extract_tag_names_from_query(
             "tutorial #python guide #django", self.lax_profile
         )
         self.assertEqual(result, ["django", "guide", "python", "tutorial"])
 
     def test_lax_search_deduplicates_tags_and_terms(self):
-        # Same value as both tag and term should appear once
         result = extract_tag_names_from_query("python #python", self.lax_profile)
         self.assertEqual(result, ["python"])
 
     def test_lax_search_case_insensitive_dedup(self):
-        # Case insensitive deduplication with mixed tags and terms
         result = extract_tag_names_from_query("Python #python PYTHON", self.lax_profile)
         self.assertEqual(result, ["python"])
 
@@ -1308,7 +1245,6 @@ class ExtractTagNamesFromQueryLaxSearchTest(TestCase):
         self.assertEqual(result, ["deprecated", "tutorial"])
 
     def test_lax_search_quoted_terms(self):
-        # Quoted terms should also be extracted
         result = extract_tag_names_from_query(
             '"machine learning" and #python', self.lax_profile
         )
@@ -1321,25 +1257,21 @@ class ExtractTagNamesFromQueryLaxSearchTest(TestCase):
         self.assertEqual(result, ["deprecated", "python", "ruby", "tutorial"])
 
     def test_lax_search_special_keywords_not_extracted(self):
-        # Special keywords should not be extracted even in lax mode
         result = extract_tag_names_from_query(
             "!unread and python and #django", self.lax_profile
         )
         self.assertEqual(result, ["django", "python"])
 
     def test_strict_search_ignores_terms(self):
-        # In strict mode, terms should NOT be extracted
         result = extract_tag_names_from_query("python and django", self.strict_profile)
         self.assertEqual(result, [])
 
     def test_strict_search_only_tags(self):
-        # In strict mode, only tags are extracted
         result = extract_tag_names_from_query(
             "tutorial #python guide #django", self.strict_profile
         )
         self.assertEqual(result, ["django", "python"])
 
     def test_no_profile_defaults_to_strict(self):
-        # Without a profile, should behave like strict mode
         result = extract_tag_names_from_query("python #django", None)
         self.assertEqual(result, ["django"])

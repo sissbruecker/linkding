@@ -25,8 +25,6 @@ class Token:
 
 
 class SearchQueryTokenizer:
-    """Tokenizer for the search query language."""
-
     def __init__(self, query: str):
         self.query = query.strip()
         self.position = 0
@@ -47,7 +45,6 @@ class SearchQueryTokenizer:
 
     def read_term(self) -> str:
         """Read a search term (sequence of non-whitespace, non-special characters)."""
-        start_pos = self.position
         term = ""
 
         while (
@@ -163,7 +160,7 @@ class SearchQueryTokenizer:
                 if keyword:
                     tokens.append(Token(TokenType.SPECIAL_KEYWORD, keyword, start_pos))
             else:
-                # Read a term and check if it's a keyword
+                # Read a term and check if it's an operator
                 term = self.read_term()
                 term_lower = term.lower()
 
@@ -180,62 +177,43 @@ class SearchQueryTokenizer:
         return tokens
 
 
-# AST Node classes for different expression types
-
-
 class SearchExpression:
-    """Base class for all search expressions."""
-
     pass
 
 
 @dataclass
 class TermExpression(SearchExpression):
-    """A search term expression."""
-
     term: str
 
 
 @dataclass
 class TagExpression(SearchExpression):
-    """A tag expression (starts with #)."""
-
     tag: str
 
 
 @dataclass
 class SpecialKeywordExpression(SearchExpression):
-    """A special keyword expression (starts with !)."""
-
     keyword: str
 
 
 @dataclass
 class AndExpression(SearchExpression):
-    """A logical AND expression."""
-
     left: SearchExpression
     right: SearchExpression
 
 
 @dataclass
 class OrExpression(SearchExpression):
-    """A logical OR expression."""
-
     left: SearchExpression
     right: SearchExpression
 
 
 @dataclass
 class NotExpression(SearchExpression):
-    """A logical NOT expression."""
-
     operand: SearchExpression
 
 
 class SearchQueryParseError(Exception):
-    """Exception raised when parsing fails."""
-
     def __init__(self, message: str, position: int):
         self.message = message
         self.position = position
@@ -243,8 +221,6 @@ class SearchQueryParseError(Exception):
 
 
 class SearchQueryParser:
-    """Parser for the search query language using recursive descent parsing."""
-
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.position = 0
@@ -353,17 +329,6 @@ class SearchQueryParser:
 
 
 def parse_search_query(query: str) -> Optional[SearchExpression]:
-    """Parse a search query string into an AST.
-
-    Args:
-        query: The search query string to parse
-
-    Returns:
-        The parsed AST or None if the query is empty
-
-    Raises:
-        SearchQueryParseError: If the query is malformed
-    """
     if not query or not query.strip():
         return None
 
@@ -453,60 +418,6 @@ def expression_to_string(expr: Optional[SearchExpression]) -> str:
     return _expression_to_string(expr)
 
 
-def _simplify_expression(
-    expr: Optional[SearchExpression],
-) -> Optional[SearchExpression]:
-    if expr is None:
-        return None
-
-    if isinstance(expr, (TermExpression, TagExpression, SpecialKeywordExpression)):
-        # Leaf nodes are already simple
-        return expr
-
-    elif isinstance(expr, NotExpression):
-        # Simplify the operand
-        simplified_operand = _simplify_expression(expr.operand)
-        if simplified_operand is None:
-            # If the operand is empty, the whole NOT expression is invalid/empty
-            return None
-        return NotExpression(simplified_operand)
-
-    elif isinstance(expr, AndExpression):
-        # Simplify both sides
-        left = _simplify_expression(expr.left)
-        right = _simplify_expression(expr.right)
-
-        # If either side is None, return the other side
-        if left is None and right is None:
-            return None
-        elif left is None:
-            return right
-        elif right is None:
-            return left
-        else:
-            return AndExpression(left, right)
-
-    elif isinstance(expr, OrExpression):
-        # Simplify both sides
-        left = _simplify_expression(expr.left)
-        right = _simplify_expression(expr.right)
-
-        # If both sides are None, return None
-        if left is None and right is None:
-            return None
-        # If one side is None, return the other side
-        elif left is None:
-            return right
-        elif right is None:
-            return left
-        else:
-            return OrExpression(left, right)
-
-    else:
-        # Unknown expression type, return as-is
-        return expr
-
-
 def _strip_tag_from_expression(
     expr: Optional[SearchExpression], tag_name: str, enable_lax_search: bool = False
 ) -> Optional[SearchExpression]:
@@ -576,6 +487,29 @@ def _strip_tag_from_expression(
         return expr
 
 
+def strip_tag_from_query(
+    query: str, tag_name: str, user_profile: UserProfile | None = None
+) -> str:
+    try:
+        ast = parse_search_query(query)
+    except SearchQueryParseError:
+        return query
+
+    if ast is None:
+        return ""
+
+    # Determine if lax search is enabled
+    enable_lax_search = False
+    if user_profile is not None:
+        enable_lax_search = user_profile.tag_search == UserProfile.TAG_SEARCH_LAX
+
+    # Strip the tag from the AST
+    filtered_ast = _strip_tag_from_expression(ast, tag_name, enable_lax_search)
+
+    # Convert back to a query string
+    return expression_to_string(filtered_ast)
+
+
 def _extract_tag_names_from_expression(
     expr: Optional[SearchExpression], enable_lax_search: bool = False
 ) -> List[str]:
@@ -639,29 +573,3 @@ def extract_tag_names_from_query(
             unique_tags.append(tag_lower)
 
     return sorted(unique_tags)
-
-
-def strip_tag_from_query(
-    query: str, tag_name: str, user_profile: UserProfile | None = None
-) -> str:
-    try:
-        ast = parse_search_query(query)
-    except SearchQueryParseError:
-        return query
-
-    if ast is None:
-        return ""
-
-    # Determine if lax search is enabled
-    enable_lax_search = False
-    if user_profile is not None:
-        enable_lax_search = user_profile.tag_search == UserProfile.TAG_SEARCH_LAX
-
-    # Strip the tag from the AST
-    filtered_ast = _strip_tag_from_expression(ast, tag_name, enable_lax_search)
-
-    # Simplify the AST to fix structure
-    simplified_ast = _simplify_expression(filtered_ast)
-
-    # Convert back to a query string
-    return expression_to_string(simplified_ast)
