@@ -31,7 +31,7 @@ export default defineConfig({
           label: "Guides",
           items: [
             { label: "Backups", slug: "backups" },
-            //{ label: "Bookmark Search", slug: "search" },
+            { label: "Search", slug: "search" },
             { label: "Archiving", slug: "archiving" },
             { label: "Auto Tagging", slug: "auto-tagging" },
             { label: "Keyboard Shortcuts", slug: "shortcuts" },

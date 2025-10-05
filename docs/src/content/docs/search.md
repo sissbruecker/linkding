@@ -1,5 +1,5 @@
 ---
-title: Bookmark Search
+title: Search
 ---
 
 linkding provides a comprehensive search function for finding bookmarks. This guide gives on overview of the search capabilities and provides some examples.
@@ -12,7 +12,7 @@ Every search query is made up of one or more expressions. An expression can be a
 |--------------|------------------------------------|------------------------------------------------------------|
 | Word         | `history`                          | Search for a single word in title, description, notes, URL |
 | Phrase       | `"history of rome"`                | Search for an exact phrase by enclosing it in quotes       |
-| Tag          | `#book`                            | Search for tag                                             |
+| Tag          | `#book`                            | Search for a tag                                           |
 | AND operator | `#history and #book`               | Both expressions must match                                |
 | OR operator  | `#book or #article`                | Either expression must match                               |
 | NOT operator | `not #article`                     | Expression must not match                                  |
