@@ -1,5 +1,77 @@
 # Changelog
 
+## v1.44.0 (05/10/2025)
+
+### What's Changed
+* Add new search engine that supports logical expressions (and, or, not) by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1198
+* Fix pagination links to use relative URLs by @dunlor in https://github.com/sissbruecker/linkding/pull/1186
+* Fix queued tasks link when context path is used by @dunlor in https://github.com/sissbruecker/linkding/pull/1187
+* Fix bundle preview pagination resetting to first page by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1194
+
+### New Contributors
+* @dunlor made their first contribution in https://github.com/sissbruecker/linkding/pull/1186
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.43.0...v1.44.0
+
+---
+
+## v1.43.0 (28/09/2025)
+
+### What's Changed
+* Add basic tag management by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1175
+* Normalize URLs when checking for duplicates by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1169
+* Add option to mark bookmarks as shared by default by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1170
+* Use modal dialog for confirming actions by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1168
+* Fix error when filtering bookmark assets in the admin UI by @proog in https://github.com/sissbruecker/linkding/pull/1162
+* Document API bundle filter by @proog in https://github.com/sissbruecker/linkding/pull/1161
+* Add alfred-linkding-bookmarks to community.md by @FireFingers21 in https://github.com/sissbruecker/linkding/pull/1160
+* Switch to uv by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1172
+* Replace Svelte components with Lit elements by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1174
+* Bump versions by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1173
+* Bump astro from 5.12.8 to 5.13.2 in /docs by @dependabot[bot] in https://github.com/sissbruecker/linkding/pull/1166
+* Bump vite from 6.3.5 to 6.3.6 in /docs by @dependabot[bot] in https://github.com/sissbruecker/linkding/pull/1184
+
+### New Contributors
+* @FireFingers21 made their first contribution in https://github.com/sissbruecker/linkding/pull/1160
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.42.0...v1.43.0
+
+---
+
+## v1.42.0 (16/08/2025)
+
+### What's Changed
+* Bulk create HTML snapshots by @Tql-ws1 in https://github.com/sissbruecker/linkding/pull/1132
+* Create bundle from current search query by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1154
+* Add alternative bookmarklet that uses browser metadata by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1159
+* Add date and time to HTML export filename by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1101
+* Automatically compress uploads with gzip by @hkclark in https://github.com/sissbruecker/linkding/pull/1087
+* Show bookmark bundles in admin by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1110
+* Allow filtering feeds by bundle by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1152
+* Submit bookmark form with Ctrl/Cmd + Enter by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1158
+* Improve bookmark form accessibility by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1116
+* Fix custom CSS not being used in reader mode by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1102
+* Use filename when downloading asset through UI by @proog in https://github.com/sissbruecker/linkding/pull/1146
+* Update order when deleting bundle by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1114
+* Wrap long titles in bookmark details modal by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1150
+* Ignore tags with just whitespace by @pvl in https://github.com/sissbruecker/linkding/pull/1125
+* Ignore tags that exceed length limit during import by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1153
+* Add CloudBreak on Managed Hosting by @benjaminoakes in https://github.com/sissbruecker/linkding/pull/1079
+* Add Pocket migration to to community page by @hkclark in https://github.com/sissbruecker/linkding/pull/1112
+* Add linkding-media-archiver to community.md by @proog in https://github.com/sissbruecker/linkding/pull/1144
+* Bump astro from 5.7.13 to 5.12.8 in /docs by @dependabot[bot] in https://github.com/sissbruecker/linkding/pull/1147
+
+### New Contributors
+* @hkclark made their first contribution in https://github.com/sissbruecker/linkding/pull/1087
+* @benjaminoakes made their first contribution in https://github.com/sissbruecker/linkding/pull/1079
+* @proog made their first contribution in https://github.com/sissbruecker/linkding/pull/1146
+* @pvl made their first contribution in https://github.com/sissbruecker/linkding/pull/1125
+* @Tql-ws1 made their first contribution in https://github.com/sissbruecker/linkding/pull/1132
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.41.0...v1.42.0
+
+---
+
 ## v1.41.0 (19/06/2025)
 
 ### What's Changed
