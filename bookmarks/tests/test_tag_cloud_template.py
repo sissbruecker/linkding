@@ -234,6 +234,21 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             rendered_template,
         )
 
+    def test_tag_url_wraps_or_expression_in_parenthesis(self):
+        tag = self.setup_tag(name="tag1")
+        self.setup_bookmark(tags=[tag], title="term1")
+
+        rendered_template = self.render_template(url="/test?q=term1 or term2")
+
+        self.assertInHTML(
+            """
+            <a href="?q=%28term1+or+term2%29+%23tag1" class="mr-2" data-is-tag-item>
+              <span class="highlight-char">t</span><span>ag1</span>
+            </a>
+        """,
+            rendered_template,
+        )
+
     def test_selected_tags(self):
         tags = [
             self.setup_tag(name="tag1"),
@@ -258,6 +273,63 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertInHTML(
             """
             <a href="?q=%23tag1"
+               class="text-bold mr-2">
+                <span>-tag2</span>
+            </a>
+        """,
+            rendered_template,
+        )
+
+    def test_selected_tags_complex_queries(self):
+        tags = [
+            self.setup_tag(name="tag1"),
+            self.setup_tag(name="tag2"),
+        ]
+        self.setup_bookmark(tags=tags)
+
+        rendered_template = self.render_template(url="/test?q=%23tag1 or not %23tag2")
+
+        self.assertNumSelectedTags(rendered_template, 2)
+
+        self.assertInHTML(
+            """
+            <a href="?q=not+%23tag2"
+               class="text-bold mr-2">
+                <span>-tag1</span>
+            </a>
+        """,
+            rendered_template,
+        )
+
+        self.assertInHTML(
+            """
+            <a href="?q=%23tag1"
+               class="text-bold mr-2">
+                <span>-tag2</span>
+            </a>
+        """,
+            rendered_template,
+        )
+
+        rendered_template = self.render_template(
+            url="/test?q=%23tag1 and not (%23tag2 or term)"
+        )
+
+        self.assertNumSelectedTags(rendered_template, 2)
+
+        self.assertInHTML(
+            """
+            <a href="?q=not+%28%23tag2+or+term%29"
+               class="text-bold mr-2">
+                <span>-tag1</span>
+            </a>
+        """,
+            rendered_template,
+        )
+
+        self.assertInHTML(
+            """
+            <a href="?q=%23tag1+not+term"
                class="text-bold mr-2">
                 <span>-tag2</span>
             </a>
@@ -407,6 +479,12 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.setup_bookmark(tags=tags)
 
         rendered_template = self.render_template(url="/test?q=%23tag1 %23tag2")
+
+        self.assertTagGroups(rendered_template, [["tag3", "tag4", "tag5"]])
+
+        rendered_template = self.render_template(
+            url="/test?q=%23tag1 or (%23tag2 or not term)"
+        )
 
         self.assertTagGroups(rendered_template, [["tag3", "tag4", "tag5"]])
 

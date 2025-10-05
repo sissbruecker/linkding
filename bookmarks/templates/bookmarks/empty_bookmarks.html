@@ -1,9 +1,17 @@
 <div class="empty">
-  <p class="empty-title h5">You have no bookmarks yet</p>
-  <p class="empty-subtitle">
-    You can get started by <a href="{% url 'linkding:bookmarks.new' %}">adding</a> bookmarks,
-    <a href="{% url 'linkding:settings.general' %}">importing</a> your existing bookmarks or configuring the
-    <a href="{% url 'linkding:settings.integrations' %}">browser extension</a> or the <a
-      href="{% url 'linkding:settings.integrations' %}">bookmarklet</a>.
-  </p>
+  {% if not bookmark_list.query_is_valid %}
+    <p class="empty-title h5">Invalid search query</p>
+    <p class="empty-subtitle">
+      The search query you entered is not valid. Common reasons are unclosed parentheses or a logical operator (AND, OR,
+      NOT) without operands. The error message from the parser is: "{{ bookmark_list.query_error_message }}".
+    </p>
+  {% else %}
+    <p class="empty-title h5">You have no bookmarks yet</p>
+    <p class="empty-subtitle">
+      You can get started by <a href="{% url 'linkding:bookmarks.new' %}">adding</a> bookmarks,
+      <a href="{% url 'linkding:settings.general' %}">importing</a> your existing bookmarks or configuring the
+      <a href="{% url 'linkding:settings.integrations' %}">browser extension</a> or the <a
+        href="{% url 'linkding:settings.integrations' %}">bookmarklet</a>.
+    </p>
+  {% endif %}
 </div>

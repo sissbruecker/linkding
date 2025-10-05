@@ -4,7 +4,7 @@
     {% if tag_cloud.has_selected_tags %}
       <p class="selected-tags">
         {% for tag in tag_cloud.selected_tags %}
-          <a href="?{% remove_tag_from_query tag.name %}"
+          <a href="?{{ tag.query_string }}"
              class="text-bold mr-2">
             <span>-{{ tag.name }}</span>
           </a>
@@ -17,14 +17,14 @@
           {% for tag in group.tags %}
             {# Highlight first char of first tag in group #}
             {% if forloop.counter == 1 %}
-              <a href="?{% add_tag_to_query tag.name %}"
+              <a href="?{{ tag.query_string }}"
                  class="mr-2" data-is-tag-item>
                 <span
                     class="highlight-char">{{ tag.name|first_char }}</span><span>{{ tag.name|remaining_chars:1 }}</span>
               </a>
             {% else %}
               {# Render remaining tags normally #}
-              <a href="?{% add_tag_to_query tag.name %}"
+              <a href="?{{ tag.query_string }}"
                  class="mr-2" data-is-tag-item>
                 <span>{{ tag.name }}</span>
               </a>

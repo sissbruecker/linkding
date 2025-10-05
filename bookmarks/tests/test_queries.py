@@ -11,7 +11,7 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin, random_sentence
 from bookmarks.utils import unique
 
 
-class QueriesTestCase(TestCase, BookmarkFactoryMixin):
+class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
     def setUp(self):
         self.profile = self.get_or_create_test_user().profile
 
@@ -1551,3 +1551,324 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             None, self.profile, BookmarkSearch(q="", bundle=bundle), False
         )
         self.assertQueryResult(query, [matching_bookmarks])
+
+
+# Legacy search should be covered by basic test suite which was effectively the
+# full test suite before advanced search was introduced.
+class QueriesLegacySearchTestCase(QueriesBasicTestCase):
+    def setUp(self):
+        super().setUp()
+        self.profile.legacy_search = True
+        self.profile.save()
+
+
+class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
+
+    def setUp(self):
+        self.user = self.get_or_create_test_user()
+        self.profile = self.user.profile
+
+        self.python_bookmark = self.setup_bookmark(
+            title="Python Tutorial",
+            tags=[self.setup_tag(name="python"), self.setup_tag(name="tutorial")],
+        )
+        self.java_bookmark = self.setup_bookmark(
+            title="Java Guide",
+            tags=[self.setup_tag(name="java"), self.setup_tag(name="programming")],
+        )
+        self.deprecated_python_bookmark = self.setup_bookmark(
+            title="Old Python Guide",
+            tags=[self.setup_tag(name="python"), self.setup_tag(name="deprecated")],
+        )
+        self.javascript_tutorial = self.setup_bookmark(
+            title="JavaScript Basics",
+            tags=[self.setup_tag(name="javascript"), self.setup_tag(name="tutorial")],
+        )
+        self.web_development = self.setup_bookmark(
+            title="Web Development with React",
+            description="Modern web development",
+            tags=[self.setup_tag(name="react"), self.setup_tag(name="web")],
+        )
+
+    def test_explicit_and_operator(self):
+        search = BookmarkSearch(q="python AND tutorial")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [self.python_bookmark])
+
+    def test_or_operator(self):
+        search = BookmarkSearch(q="#python OR #java")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(
+            list(query),
+            [self.python_bookmark, self.java_bookmark, self.deprecated_python_bookmark],
+        )
+
+    def test_not_operator(self):
+        search = BookmarkSearch(q="#python AND NOT #deprecated")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [self.python_bookmark])
+
+    def test_implicit_and_between_terms(self):
+        search = BookmarkSearch(q="web development")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [self.web_development])
+
+        search = BookmarkSearch(q="python tutorial")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [self.python_bookmark])
+
+    def test_implicit_and_between_tags(self):
+        search = BookmarkSearch(q="#python #tutorial")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [self.python_bookmark])
+
+    def test_nested_and_expression(self):
+        search = BookmarkSearch(q="nonexistingterm OR (#python AND #tutorial)")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [self.python_bookmark])
+
+        search = BookmarkSearch(
+            q="(#javascript AND #tutorial) OR (#python AND #tutorial)"
+        )
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(
+            list(query), [self.javascript_tutorial, self.python_bookmark]
+        )
+
+    def test_mixed_terms_and_tags_with_operators(self):
+        # Set lax mode to allow term matching against tags
+        self.profile.tag_search = self.profile.TAG_SEARCH_LAX
+        self.profile.save()
+
+        search = BookmarkSearch(q="(tutorial OR guide) AND #python")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.deprecated_python_bookmark]
+        )
+
+    def test_parentheses(self):
+        # Set lax mode to allow term matching against tags
+        self.profile.tag_search = self.profile.TAG_SEARCH_LAX
+        self.profile.save()
+
+        # Without parentheses
+        search = BookmarkSearch(q="python AND tutorial OR javascript AND tutorial")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.javascript_tutorial]
+        )
+
+        # With parentheses
+        search = BookmarkSearch(q="(python OR javascript) AND tutorial")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.javascript_tutorial]
+        )
+
+    def test_complex_query_with_all_operators(self):
+        # Set lax mode to allow term matching against tags
+        self.profile.tag_search = self.profile.TAG_SEARCH_LAX
+        self.profile.save()
+
+        search = BookmarkSearch(
+            q="(#python OR #javascript) AND tutorial AND NOT #deprecated"
+        )
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(
+            list(query), [self.python_bookmark, self.javascript_tutorial]
+        )
+
+    def test_quoted_strings_with_operators(self):
+        # Set lax mode to allow term matching against tags
+        self.profile.tag_search = self.profile.TAG_SEARCH_LAX
+        self.profile.save()
+
+        search = BookmarkSearch(q='"Web Development" OR tutorial')
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(
+            list(query),
+            [self.web_development, self.python_bookmark, self.javascript_tutorial],
+        )
+
+    def test_implicit_and_with_quoted_strings(self):
+        search = BookmarkSearch(q='"Web Development" react')
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [self.web_development])
+
+    def test_empty_query(self):
+        # empty query returns all bookmarks
+        search = BookmarkSearch(q="")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        expected = [
+            self.python_bookmark,
+            self.java_bookmark,
+            self.deprecated_python_bookmark,
+            self.javascript_tutorial,
+            self.web_development,
+        ]
+        self.assertCountEqual(list(query), expected)
+
+    def test_unparseable_query_returns_no_results(self):
+        # Use a query that causes a parse error (unclosed parenthesis)
+        search = BookmarkSearch(q="(python AND tutorial")
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertCountEqual(list(query), [])
+
+
+class GetTagsForQueryTestCase(TestCase, BookmarkFactoryMixin):
+    def setUp(self):
+        self.user = self.get_or_create_test_user()
+        self.profile = self.user.profile
+
+    def test_returns_tags_matching_query(self):
+        python_tag = self.setup_tag(name="python")
+        django_tag = self.setup_tag(name="django")
+        self.setup_tag(name="unused")
+
+        result = queries.get_tags_for_query(
+            self.user, self.profile, "#python and #django"
+        )
+        self.assertCountEqual(list(result), [python_tag, django_tag])
+
+    def test_case_insensitive_matching(self):
+        python_tag = self.setup_tag(name="Python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "#python")
+        self.assertCountEqual(list(result), [python_tag])
+
+        # having two tags with the same name returns both for now
+        other_python_tag = self.setup_tag(name="python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "#python")
+        self.assertCountEqual(list(result), [python_tag, other_python_tag])
+
+    def test_lax_mode_includes_terms(self):
+        python_tag = self.setup_tag(name="python")
+        django_tag = self.setup_tag(name="django")
+
+        self.profile.tag_search = UserProfile.TAG_SEARCH_LAX
+        self.profile.save()
+
+        result = queries.get_tags_for_query(
+            self.user, self.profile, "#python and django"
+        )
+        self.assertCountEqual(list(result), [python_tag, django_tag])
+
+    def test_strict_mode_excludes_terms(self):
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+
+        result = queries.get_tags_for_query(
+            self.user, self.profile, "#python and django"
+        )
+        self.assertCountEqual(list(result), [python_tag])
+
+    def test_only_returns_user_tags(self):
+        python_tag = self.setup_tag(name="python")
+
+        other_user = self.setup_user()
+        other_python = self.setup_tag(name="python", user=other_user)
+        other_django = self.setup_tag(name="django", user=other_user)
+
+        result = queries.get_tags_for_query(
+            self.user, self.profile, "#python and #django"
+        )
+        self.assertCountEqual(list(result), [python_tag])
+        self.assertNotIn(other_python, list(result))
+        self.assertNotIn(other_django, list(result))
+
+    def test_empty_query_returns_no_tags(self):
+        self.setup_tag(name="python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "")
+        self.assertCountEqual(list(result), [])
+
+    def test_query_with_no_tags_returns_empty(self):
+        self.setup_tag(name="python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "!unread")
+        self.assertCountEqual(list(result), [])
+
+    def test_nonexistent_tag_returns_empty(self):
+        self.setup_tag(name="python")
+
+        result = queries.get_tags_for_query(self.user, self.profile, "#ruby")
+        self.assertCountEqual(list(result), [])
+
+
+class GetSharedTagsForQueryTestCase(TestCase, BookmarkFactoryMixin):
+    def setUp(self):
+        self.user = self.get_or_create_test_user()
+        self.profile = self.user.profile
+        self.profile.enable_sharing = True
+        self.profile.save()
+
+    def test_returns_tags_from_shared_bookmarks(self):
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=True, tags=[python_tag])
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=False
+        )
+        self.assertCountEqual(list(result), [python_tag])
+
+    def test_excludes_tags_from_non_shared_bookmarks(self):
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=False, tags=[python_tag])
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=False
+        )
+        self.assertCountEqual(list(result), [])
+
+    def test_respects_sharing_enabled_setting(self):
+        self.profile.enable_sharing = False
+        self.profile.save()
+
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=True, tags=[python_tag])
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=False
+        )
+        self.assertCountEqual(list(result), [])
+
+    def test_public_only_flag(self):
+        # public sharing disabled
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=True, tags=[python_tag])
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=True
+        )
+        self.assertCountEqual(list(result), [])
+
+        # public sharing enabled
+        self.profile.enable_public_sharing = True
+        self.profile.save()
+
+        result = queries.get_shared_tags_for_query(
+            None, self.profile, "#python and #django", public_only=True
+        )
+        self.assertCountEqual(list(result), [python_tag])
+
+    def test_filters_by_user(self):
+        python_tag = self.setup_tag(name="python")
+        self.setup_tag(name="django")
+        self.setup_bookmark(shared=True, tags=[python_tag])
+
+        other_user = self.setup_user()
+        other_user.profile.enable_sharing = True
+        other_user.profile.save()
+        other_tag = self.setup_tag(name="python", user=other_user)
+        self.setup_bookmark(shared=True, tags=[other_tag], user=other_user)
+
+        result = queries.get_shared_tags_for_query(
+            self.user, self.profile, "#python and #django", public_only=False
+        )
+        self.assertCountEqual(list(result), [python_tag])
+        self.assertNotIn(other_tag, list(result))

@@ -19,6 +19,12 @@ from bookmarks.models import (
     UserProfile,
     Tag,
 )
+from bookmarks.services.search_query_parser import (
+    parse_search_query,
+    strip_tag_from_query,
+    OrExpression,
+    SearchQueryParseError,
+)
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
@@ -36,6 +42,16 @@ class RequestContext:
         self.action_url = reverse(self.action_view)
         self.query_params = request.GET.copy()
         self.query_params.pop("details", None)
+
+        self.query_is_valid = True
+        self.query_error_message = None
+        self.search_expression = None
+        if not request.user_profile.legacy_search:
+            try:
+                self.search_expression = parse_search_query(request.GET.get("q"))
+            except SearchQueryParseError as e:
+                self.query_is_valid = False
+                self.query_error_message = e.message
 
     def get_url(self, view_url: str, add: dict = None, remove: dict = None) -> str:
         query_params = self.query_params.copy()
@@ -131,6 +147,8 @@ class BookmarkItem:
         self.description = bookmark.resolved_description
         self.notes = bookmark.notes
         self.tag_names = bookmark.tag_names
+        self.tags = [AddTagItem(context, tag) for tag in bookmark.tags.all()]
+        self.tags.sort(key=lambda item: item.name)
         if bookmark.latest_snapshot_id:
             self.snapshot_url = reverse(
                 "linkding:assets.view", args=[bookmark.latest_snapshot_id]
@@ -186,6 +204,8 @@ class BookmarkListContext:
 
         self.request = request
         self.search = search
+        self.query_is_valid = request_context.query_is_valid
+        self.query_error_message = request_context.query_error_message
 
         query_set = request_context.get_bookmark_query_set(self.search)
         page_number = request.GET.get("page")
@@ -257,58 +277,168 @@ class SharedBookmarkListContext(BookmarkListContext):
     request_context = SharedBookmarksContext
 
 
+class AddTagItem:
+    def __init__(self, context: RequestContext, tag: Tag):
+        self.tag = tag
+        self.name = tag.name
+
+        params = context.query_params.copy()
+        query_with_tag = params.get("q", "")
+        if isinstance(context.search_expression, OrExpression):
+            # If the current search expression is an OR expression, wrap in parentheses
+            query_with_tag = f"({query_with_tag})"
+        query_with_tag = f"{query_with_tag} #{tag.name}".strip()
+
+        params["q"] = query_with_tag
+        params.pop("details", None)
+        params.pop("page", None)
+
+        if context.request.user_profile.legacy_search:
+            self.query_string = self._generate_query_string_legacy(context, tag)
+        else:
+            self.query_string = self._generate_query_string(context, tag)
+
+    @staticmethod
+    def _generate_query_string(context: RequestContext, tag: Tag) -> str:
+        params = context.query_params.copy()
+        query_with_tag = params.get("q", "")
+        if isinstance(context.search_expression, OrExpression):
+            # If the current search expression is an OR expression, wrap in parentheses
+            query_with_tag = f"({query_with_tag})"
+        query_with_tag = f"{query_with_tag} #{tag.name}".strip()
+
+        params["q"] = query_with_tag
+        params.pop("details", None)
+        params.pop("page", None)
+
+        return params.urlencode()
+
+    @staticmethod
+    def _generate_query_string_legacy(context: RequestContext, tag: Tag) -> str:
+        params = context.query_params.copy()
+        query_with_tag = params.get("q", "")
+        query_with_tag = f"{query_with_tag} #{tag.name}".strip()
+
+        params["q"] = query_with_tag
+        params.pop("details", None)
+        params.pop("page", None)
+
+        return params.urlencode()
+
+
+class RemoveTagItem:
+    def __init__(self, context: RequestContext, tag: Tag):
+        self.tag = tag
+        self.name = tag.name
+
+        if context.request.user_profile.legacy_search:
+            self.query_string = self._generate_query_string_legacy(context, tag)
+        else:
+            self.query_string = self._generate_query_string(context, tag)
+
+    @staticmethod
+    def _generate_query_string(context: RequestContext, tag: Tag) -> str:
+        params = context.query_params.copy()
+        query = params.get("q", "")
+        profile = context.request.user_profile
+        query_without_tag = strip_tag_from_query(query, tag.name, profile)
+
+        params["q"] = query_without_tag
+        params.pop("details", None)
+        params.pop("page", None)
+
+        return params.urlencode()
+
+    @staticmethod
+    def _generate_query_string_legacy(context: RequestContext, tag: Tag) -> str:
+        params = context.request.GET.copy()
+        if params.__contains__("q"):
+            # Split query string into parts
+            query_string = params.__getitem__("q")
+            query_parts = query_string.split()
+            # Remove tag with hash
+            tag_name_with_hash = "#" + tag.name
+            query_parts = [
+                part
+                for part in query_parts
+                if str.lower(part) != str.lower(tag_name_with_hash)
+            ]
+            # When using lax tag search, also remove tag without hash
+            profile = context.request.user_profile
+            if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+                query_parts = [
+                    part
+                    for part in query_parts
+                    if str.lower(part) != str.lower(tag.name)
+                ]
+            # Rebuild query string
+            query_string = " ".join(query_parts)
+            params.__setitem__("q", query_string)
+
+        # Remove details ID and page number
+        params.pop("details", None)
+        params.pop("page", None)
+
+        return params.urlencode()
+
+
 class TagGroup:
-    def __init__(self, char: str):
+    def __init__(self, context: RequestContext, char: str):
+        self.context = context
         self.tags = []
         self.char = char
 
     def __repr__(self):
         return f"<{self.char} TagGroup>"
 
+    def add_tag(self, tag: Tag):
+        self.tags.append(AddTagItem(self.context, tag))
+
     @staticmethod
-    def create_tag_groups(mode: str, tags: Set[Tag]):
+    def create_tag_groups(context: RequestContext, mode: str, tags: Set[Tag]):
         if mode == UserProfile.TAG_GROUPING_ALPHABETICAL:
-            return TagGroup._create_tag_groups_alphabetical(tags)
+            return TagGroup._create_tag_groups_alphabetical(context, tags)
         elif mode == UserProfile.TAG_GROUPING_DISABLED:
-            return TagGroup._create_tag_groups_disabled(tags)
+            return TagGroup._create_tag_groups_disabled(context, tags)
         else:
             raise ValueError(f"{mode} is not a valid tag grouping mode")
 
     @staticmethod
-    def _create_tag_groups_alphabetical(tags: Set[Tag]):
+    def _create_tag_groups_alphabetical(context: RequestContext, tags: Set[Tag]):
         # Ensure groups, as well as tags within groups, are ordered alphabetically
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
         group = None
         groups = []
+
         cjk_used = False
-        cjk_group = TagGroup("Ideographic")
+        cjk_group = TagGroup(context, "Ideographic")
 
         # Group tags that start with a different character than the previous one
         for tag in sorted_tags:
             tag_char = tag.name[0].lower()
             if CJK_RE.match(tag_char):
                 cjk_used = True
-                cjk_group.tags.append(tag)
+                cjk_group.add_tag(tag)
             elif not group or group.char != tag_char:
-                group = TagGroup(tag_char)
+                group = TagGroup(context, tag_char)
                 groups.append(group)
-                group.tags.append(tag)
+                group.add_tag(tag)
             else:
-                group.tags.append(tag)
+                group.add_tag(tag)
 
         if cjk_used:
             groups.append(cjk_group)
         return groups
 
     @staticmethod
-    def _create_tag_groups_disabled(tags: Set[Tag]):
+    def _create_tag_groups_disabled(context: RequestContext, tags: Set[Tag]):
         if len(tags) == 0:
             return []
 
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
-        group = TagGroup("Ungrouped")
+        group = TagGroup(context, "Ungrouped")
         for tag in sorted_tags:
-            group.tags.append(tag)
+            group.add_tag(tag)
 
         return [group]
 
@@ -325,21 +455,30 @@ class TagCloudContext:
 
         query_set = request_context.get_tag_query_set(self.search)
         tags = list(query_set)
-        selected_tags = self.get_selected_tags(tags)
+        selected_tags = self.get_selected_tags()
         unique_tags = utils.unique(tags, key=lambda x: str.lower(x.name))
         unique_selected_tags = utils.unique(
             selected_tags, key=lambda x: str.lower(x.name)
         )
         has_selected_tags = len(unique_selected_tags) > 0
         unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
-        groups = TagGroup.create_tag_groups(user_profile.tag_grouping, unselected_tags)
+        groups = TagGroup.create_tag_groups(
+            request_context, user_profile.tag_grouping, unselected_tags
+        )
+
+        selected_tag_items = []
+        for tag in unique_selected_tags:
+            selected_tag_items.append(RemoveTagItem(request_context, tag))
 
         self.tags = unique_tags
         self.groups = groups
-        self.selected_tags = unique_selected_tags
+        self.selected_tags = selected_tag_items
         self.has_selected_tags = has_selected_tags
 
-    def get_selected_tags(self, tags: List[Tag]):
+    def get_selected_tags(self):
+        raise NotImplementedError("Must be implemented by subclass")
+
+    def get_selected_tags_legacy(self, tags: List[Tag]):
         parsed_query = queries.parse_query_string(self.search.q)
         tag_names = parsed_query["tag_names"]
         if self.request.user_profile.tag_search == UserProfile.TAG_SEARCH_LAX:
@@ -352,13 +491,36 @@ class TagCloudContext:
 class ActiveTagCloudContext(TagCloudContext):
     request_context = ActiveBookmarksContext
 
+    def get_selected_tags(self):
+        return list(
+            queries.get_tags_for_query(
+                self.request.user, self.request.user_profile, self.search.q
+            )
+        )
+
 
 class ArchivedTagCloudContext(TagCloudContext):
     request_context = ArchivedBookmarksContext
 
+    def get_selected_tags(self):
+        return list(
+            queries.get_tags_for_query(
+                self.request.user, self.request.user_profile, self.search.q
+            )
+        )
+
 
 class SharedTagCloudContext(TagCloudContext):
     request_context = SharedBookmarksContext
+
+    def get_selected_tags(self):
+        user = User.objects.filter(username=self.search.user).first()
+        public_only = not self.request.user.is_authenticated
+        return list(
+            queries.get_shared_tags_for_query(
+                user, self.request.user_profile, self.search.q, public_only
+            )
+        )
 
 
 class BookmarkAssetItem:
@@ -403,6 +565,9 @@ class BookmarkDetailsContext:
         self.close_url = request_context.index()
 
         self.bookmark = bookmark
+        self.tags = [AddTagItem(request_context, tag) for tag in bookmark.tags.all()]
+        self.tags.sort(key=lambda item: item.name)
+
         self.profile = request.user_profile
         self.is_editable = bookmark.owner == user
         self.sharing_enabled = user_profile.enable_sharing

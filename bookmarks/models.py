@@ -2,7 +2,6 @@ import binascii
 import hashlib
 import logging
 import os
-from functools import cached_property
 from typing import List
 
 from django import forms
@@ -486,6 +485,7 @@ class UserProfile(models.Model):
     sticky_pagination = models.BooleanField(default=False, null=False)
     collapse_side_panel = models.BooleanField(default=False, null=False)
     hide_bundles = models.BooleanField(default=False, null=False)
+    legacy_search = models.BooleanField(default=False, null=False)
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -528,6 +528,7 @@ class UserProfileForm(forms.ModelForm):
             "sticky_pagination",
             "collapse_side_panel",
             "hide_bundles",
+            "legacy_search",
         ]
 
 

@@ -476,6 +476,27 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertEqual(tag_links[1].text, "#tag2")
         self.assertEqual(tag_links[2].text, "#tag3")
 
+    def test_bookmark_tag_query_string(self):
+        # appends tag to existing query string
+        bookmark = self.setup_bookmark(title="term1 term2")
+        tag1 = self.setup_tag(name="tag1")
+        bookmark.tags.add(tag1)
+
+        html = self.render_template(url="/bookmarks?q=term1 and term2")
+        soup = self.make_soup(html)
+        tags = soup.select_one(".tags")
+        tag_links = tags.find_all("a")
+        self.assertEqual(len(tag_links), 1)
+        self.assertEqual(tag_links[0]["href"], "?q=term1+and+term2+%23tag1")
+
+        # wraps or expression in parentheses
+        html = self.render_template(url="/bookmarks?q=term1 or term2")
+        soup = self.make_soup(html)
+        tags = soup.select_one(".tags")
+        tag_links = tags.find_all("a")
+        self.assertEqual(len(tag_links), 1)
+        self.assertEqual(tag_links[0]["href"], "?q=%28term1+or+term2%29+%23tag1")
+
     def test_should_render_web_archive_link_with_absolute_date_setting(self):
         bookmark = self.setup_date_format_test(
             UserProfile.BOOKMARK_DATE_DISPLAY_ABSOLUTE,
@@ -1013,6 +1034,34 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def test_empty_state(self):
         html = self.render_template()
 
+        self.assertInHTML(
+            '<p class="empty-title h5">You have no bookmarks yet</p>', html
+        )
+
+    def test_empty_state_with_valid_query_no_results(self):
+        self.setup_bookmark(title="Test Bookmark")
+        html = self.render_template(url="/bookmarks?q=nonexistent")
+
+        self.assertInHTML(
+            '<p class="empty-title h5">You have no bookmarks yet</p>', html
+        )
+
+    def test_empty_state_with_invalid_query(self):
+        self.setup_bookmark()
+        html = self.render_template(url="/bookmarks?q=(test")
+
+        self.assertInHTML('<p class="empty-title h5">Invalid search query</p>', html)
+        self.assertIn("Expected RPAREN", html)
+
+    def test_empty_state_with_legacy_search(self):
+        profile = self.get_or_create_test_user().profile
+        profile.legacy_search = True
+        profile.save()
+
+        self.setup_bookmark()
+        html = self.render_template(url="/bookmarks?q=(test")
+
+        # With legacy search, search queries are not validated
         self.assertInHTML(
             '<p class="empty-title h5">You have no bookmarks yet</p>', html
         )

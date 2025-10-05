@@ -36,14 +36,14 @@
             {% endif %}
             {% if bookmark_list.description_display == 'inline' %}
               <div class="description inline truncate">
-                {% if bookmark_item.tag_names %}
+                {% if bookmark_item.tags %}
                   <span class="tags">
-                  {% for tag_name in bookmark_item.tag_names %}
-                    <a href="?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
+                  {% for tag in bookmark_item.tags %}
+                    <a href="?{{ tag.query_string }}">#{{ tag.name }}</a>
                   {% endfor %}
                 </span>
                 {% endif %}
-                {% if bookmark_item.tag_names and bookmark_item.description %} | {% endif %}
+                {% if bookmark_item.tags and bookmark_item.description %} | {% endif %}
                 {% if bookmark_item.description %}
                   <span>{{ bookmark_item.description }}</span>
                 {% endif %}
@@ -52,10 +52,10 @@
               {% if bookmark_item.description %}
                 <div class="description separate">{{ bookmark_item.description }}</div>
               {% endif %}
-              {% if bookmark_item.tag_names %}
+              {% if bookmark_item.tags %}
                 <div class="tags">
-                  {% for tag_name in bookmark_item.tag_names %}
-                    <a href="?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
+                  {% for tag in bookmark_item.tags %}
+                    <a href="?{{ tag.query_string }}">#{{ tag.name }}</a>
                   {% endfor %}
                 </div>
               {% endif %}

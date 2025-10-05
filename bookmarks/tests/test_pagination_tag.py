@@ -192,10 +192,6 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
             100, 10, 2, url="/test?details=1&page=2"
         )
         self.assertPrevLink(rendered_template, 1, href="/test?page=1")
-        self.assertPageLink(
-            rendered_template, 1, False, href="/test?page=1"
-        )
-        self.assertPageLink(
-            rendered_template, 2, True, href="/test?page=2"
-        )
+        self.assertPageLink(rendered_template, 1, False, href="/test?page=1")
+        self.assertPageLink(rendered_template, 2, True, href="/test?page=2")
         self.assertNextLink(rendered_template, 3, href="/test?page=3")
