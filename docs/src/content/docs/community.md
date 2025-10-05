@@ -34,3 +34,5 @@ This section lists community projects around using linkding, in alphabetical ord
 - [Pocket2Linkding](https://github.com/hkclark/Pocket2Linkding/) A tool to migrate from Mozilla Pocket to linkding. Preserves the date the link was added to pocket and any tags.
 - [Postman collection](https://gist.github.com/gingerbeardman/f0b42502f3bc9344e92ce63afd4360d3) a group of saved request templates for API testing. By [gingerbeardman](https://github.com/gingerbeardman)
 - [serchding](https://github.com/ldwgchen/serchding) Full-text search for linkding. By [ldwgchen](https://github.com/ldwgchen)
+- [linkding-api](https://github.com/vbsampath/linkding-api) A Javascript library implementing linkding REST API by [vbsampath](https://github.com/vbsampath)
+- [linkding-client](https://github.com/vbsampath/linkding-client) A Javascript client for accessing linkding REST API using linkding-api. By [vbsampath](https://github.com/vbsampath)
