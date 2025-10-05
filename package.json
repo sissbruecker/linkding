@@ -1,8 +1,5 @@
 {
   "name": "linkding",
-  "version": "1.43.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
     "build": "npm run build-js && npm run build-theme-light && npm run build-theme-dark",
     "build-js": "rollup -c",
@@ -10,17 +7,6 @@
     "build-theme-dark": "postcss -o bookmarks/static/theme-dark.css bookmarks/styles/theme-dark.css",
     "dev": "rollup -c -w"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sissbruecker/linkding.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/sissbruecker/linkding/issues"
-  },
-  "homepage": "https://github.com/sissbruecker/linkding#readme",
   "dependencies": {
     "@hotwired/turbo": "^8.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
