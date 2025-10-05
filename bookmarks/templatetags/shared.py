@@ -24,22 +24,6 @@ def update_query_string(context, **kwargs):
 
 
 @register.simple_tag(takes_context=True)
-def add_tag_to_query(context, tag_name: str):
-    params = context.request.GET.copy()
-
-    # Append to or create query string
-    query_string = params.get("q", "")
-    query_string = (query_string + " #" + tag_name).strip()
-    params.setlist("q", [query_string])
-
-    # Remove details ID and page number
-    params.pop("details", None)
-    params.pop("page", None)
-
-    return params.urlencode()
-
-
-@register.simple_tag(takes_context=True)
 def replace_query_param(context, **kwargs):
     query = context.request.GET.copy()
 
@@ -49,11 +33,6 @@ def replace_query_param(context, **kwargs):
         query.__setitem__(key, value)
 
     return query.urlencode()
-
-
-@register.filter(name="hash_tag")
-def hash_tag(tag_name):
-    return "#" + tag_name
 
 
 @register.filter(name="first_char")

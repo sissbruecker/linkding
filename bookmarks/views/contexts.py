@@ -21,8 +21,9 @@ from bookmarks.models import (
 )
 from bookmarks.services.search_query_parser import (
     parse_search_query,
-    SearchQueryParseError,
     strip_tag_from_query,
+    OrExpression,
+    SearchQueryParseError,
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.type_defs import HttpRequest
@@ -41,6 +42,11 @@ class RequestContext:
         self.action_url = reverse(self.action_view)
         self.query_params = request.GET.copy()
         self.query_params.pop("details", None)
+        self.search_expression = None
+        try:
+            self.search_expression = parse_search_query(request.GET.get("q"))
+        except SearchQueryParseError:
+            pass
 
     def get_url(self, view_url: str, add: dict = None, remove: dict = None) -> str:
         query_params = self.query_params.copy()
@@ -136,6 +142,8 @@ class BookmarkItem:
         self.description = bookmark.resolved_description
         self.notes = bookmark.notes
         self.tag_names = bookmark.tag_names
+        self.tags = [AddTagItem(context, tag) for tag in bookmark.tags.all()]
+        self.tags.sort(key=lambda item: item.name)
         if bookmark.latest_snapshot_id:
             self.snapshot_url = reverse(
                 "linkding:assets.view", args=[bookmark.latest_snapshot_id]
@@ -271,67 +279,101 @@ class SharedBookmarkListContext(BookmarkListContext):
     request_context = SharedBookmarksContext
 
 
+class AddTagItem:
+    def __init__(self, context: RequestContext, tag: Tag):
+        self.tag = tag
+        self.name = tag.name
+
+        params = context.query_params.copy()
+        query_with_tag = params.get("q", "")
+        if isinstance(context.search_expression, OrExpression):
+            # If the current search expression is an OR expression, wrap in parentheses
+            query_with_tag = f"({query_with_tag})"
+        query_with_tag = f"{query_with_tag} #{tag.name}".strip()
+
+        params["q"] = query_with_tag
+        params.pop("details", None)
+        params.pop("page", None)
+
+        self.query_string = params.urlencode()
+
+
+class RemoveTagItem:
+    def __init__(self, context: RequestContext, tag: Tag):
+        self.tag = tag
+        self.name = tag.name
+
+        profile = context.request.user_profile
+        query = context.query_params.get("q", "")
+        query_without_tag = strip_tag_from_query(query, tag.name, profile)
+
+        params = context.query_params.copy()
+        params["q"] = query_without_tag
+        params.pop("details", None)
+        params.pop("page", None)
+
+        self.query_string = params.urlencode()
+
+
 class TagGroup:
-    def __init__(self, char: str):
+    def __init__(self, context: RequestContext, char: str):
+        self.context = context
         self.tags = []
         self.char = char
 
     def __repr__(self):
         return f"<{self.char} TagGroup>"
 
+    def add_tag(self, tag: Tag):
+        self.tags.append(AddTagItem(self.context, tag))
+
     @staticmethod
-    def create_tag_groups(mode: str, tags: Set[Tag]):
+    def create_tag_groups(context: RequestContext, mode: str, tags: Set[Tag]):
         if mode == UserProfile.TAG_GROUPING_ALPHABETICAL:
-            return TagGroup._create_tag_groups_alphabetical(tags)
+            return TagGroup._create_tag_groups_alphabetical(context, tags)
         elif mode == UserProfile.TAG_GROUPING_DISABLED:
-            return TagGroup._create_tag_groups_disabled(tags)
+            return TagGroup._create_tag_groups_disabled(context, tags)
         else:
             raise ValueError(f"{mode} is not a valid tag grouping mode")
 
     @staticmethod
-    def _create_tag_groups_alphabetical(tags: Set[Tag]):
+    def _create_tag_groups_alphabetical(context: RequestContext, tags: Set[Tag]):
         # Ensure groups, as well as tags within groups, are ordered alphabetically
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
         group = None
         groups = []
+
         cjk_used = False
-        cjk_group = TagGroup("Ideographic")
+        cjk_group = TagGroup(context, "Ideographic")
 
         # Group tags that start with a different character than the previous one
         for tag in sorted_tags:
             tag_char = tag.name[0].lower()
             if CJK_RE.match(tag_char):
                 cjk_used = True
-                cjk_group.tags.append(tag)
+                cjk_group.add_tag(tag)
             elif not group or group.char != tag_char:
-                group = TagGroup(tag_char)
+                group = TagGroup(context, tag_char)
                 groups.append(group)
-                group.tags.append(tag)
+                group.add_tag(tag)
             else:
-                group.tags.append(tag)
+                group.add_tag(tag)
 
         if cjk_used:
             groups.append(cjk_group)
         return groups
 
     @staticmethod
-    def _create_tag_groups_disabled(tags: Set[Tag]):
+    def _create_tag_groups_disabled(context: RequestContext, tags: Set[Tag]):
         if len(tags) == 0:
             return []
 
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
-        group = TagGroup("Ungrouped")
+        group = TagGroup(context, "Ungrouped")
         for tag in sorted_tags:
-            group.tags.append(tag)
+            group.add_tag(tag)
 
         return [group]
-
-
-class SelectedTagItem:
-    def __init__(self, tag: Tag, query_params: str):
-        self.tag = tag
-        self.name = tag.name
-        self.query_params = query_params
 
 
 class TagCloudContext:
@@ -353,19 +395,13 @@ class TagCloudContext:
         )
         has_selected_tags = len(unique_selected_tags) > 0
         unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
-        groups = TagGroup.create_tag_groups(user_profile.tag_grouping, unselected_tags)
+        groups = TagGroup.create_tag_groups(
+            request_context, user_profile.tag_grouping, unselected_tags
+        )
 
         selected_tag_items = []
         for tag in unique_selected_tags:
-            query_without_tag = strip_tag_from_query(
-                search.q or "", tag.name, user_profile
-            )
-            params = request.GET.copy()
-            params.pop("details", None)
-            params.pop("page", None)
-            params["q"] = query_without_tag
-
-            selected_tag_items.append(SelectedTagItem(tag, params.urlencode()))
+            selected_tag_items.append(RemoveTagItem(request_context, tag))
 
         self.tags = unique_tags
         self.groups = groups
@@ -462,6 +498,9 @@ class BookmarkDetailsContext:
         self.close_url = request_context.index()
 
         self.bookmark = bookmark
+        self.tags = [AddTagItem(request_context, tag) for tag in bookmark.tags.all()]
+        self.tags.sort(key=lambda item: item.name)
+
         self.profile = request.user_profile
         self.is_editable = bookmark.owner == user
         self.sharing_enabled = user_profile.enable_sharing

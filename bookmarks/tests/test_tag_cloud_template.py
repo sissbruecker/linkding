@@ -234,6 +234,21 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             rendered_template,
         )
 
+    def test_tag_url_wraps_or_expression_in_parenthesis(self):
+        tag = self.setup_tag(name="tag1")
+        self.setup_bookmark(tags=[tag], title="term1")
+
+        rendered_template = self.render_template(url="/test?q=term1 or term2")
+
+        self.assertInHTML(
+            """
+            <a href="?q=%28term1+or+term2%29+%23tag1" class="mr-2" data-is-tag-item>
+              <span class="highlight-char">t</span><span>ag1</span>
+            </a>
+        """,
+            rendered_template,
+        )
+
     def test_selected_tags(self):
         tags = [
             self.setup_tag(name="tag1"),

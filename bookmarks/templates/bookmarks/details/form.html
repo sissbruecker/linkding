@@ -84,8 +84,8 @@
       <section class="tags col-1">
         <h3 id="details-modal-tags-title">Tags</h3>
         <div>
-          {% for tag_name in details.bookmark.tag_names %}
-            <a href="{% url 'linkding:bookmarks.index' %}?{% add_tag_to_query tag_name %}">{{ tag_name|hash_tag }}</a>
+          {% for tag in details.tags %}
+            <a href="{% url 'linkding:bookmarks.index' %}?{{ tag.query_string }}">#{{ tag.name }}</a>
           {% endfor %}
         </div>
       </section>
