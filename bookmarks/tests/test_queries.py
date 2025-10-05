@@ -11,7 +11,7 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin, random_sentence
 from bookmarks.utils import unique
 
 
-class QueriesTestCase(TestCase, BookmarkFactoryMixin):
+class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
     def setUp(self):
         self.profile = self.get_or_create_test_user().profile
 
@@ -1551,6 +1551,15 @@ class QueriesTestCase(TestCase, BookmarkFactoryMixin):
             None, self.profile, BookmarkSearch(q="", bundle=bundle), False
         )
         self.assertQueryResult(query, [matching_bookmarks])
+
+
+# Legacy search should be covered by basic test suite which was effectively the
+# full test suite before advanced search was introduced.
+class QueriesLegacySearchTestCase(QueriesBasicTestCase):
+    def setUp(self):
+        super().setUp()
+        self.profile.legacy_search = True
+        self.profile.save()
 
 
 class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):

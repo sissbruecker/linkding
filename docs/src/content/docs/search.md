@@ -65,3 +65,10 @@ Search bookmarks that contain both "history" and "rome", but are not tagged with
 history rome not (#article or #book)
 ```
 Search bookmarks that contain both "history" and "rome", but are not tagged with either "article" or "book".
+
+## Legacy Search
+
+A new search engine that supports the above expressions was introduced in linkding v1.44.0.
+If you run into any issues with the new search, you can switch back to the old one by enabling legacy search in the settings.
+Please report any issues you encounter with the new search on [GitHub](https://github.com/sissbruecker/linkding/issues) so they can be addressed.
+This option will be removed in a future version.

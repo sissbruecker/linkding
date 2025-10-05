@@ -42,11 +42,16 @@ class RequestContext:
         self.action_url = reverse(self.action_view)
         self.query_params = request.GET.copy()
         self.query_params.pop("details", None)
+
+        self.query_is_valid = True
+        self.query_error_message = None
         self.search_expression = None
-        try:
-            self.search_expression = parse_search_query(request.GET.get("q"))
-        except SearchQueryParseError:
-            pass
+        if not request.user_profile.legacy_search:
+            try:
+                self.search_expression = parse_search_query(request.GET.get("q"))
+            except SearchQueryParseError as e:
+                self.query_is_valid = False
+                self.query_error_message = e.message
 
     def get_url(self, view_url: str, add: dict = None, remove: dict = None) -> str:
         query_params = self.query_params.copy()
@@ -199,15 +204,8 @@ class BookmarkListContext:
 
         self.request = request
         self.search = search
-
-        self.query_is_valid = True
-        self.query_error_message = None
-        if search.q:
-            try:
-                parse_search_query(search.q)
-            except SearchQueryParseError as e:
-                self.query_is_valid = False
-                self.query_error_message = e.message
+        self.query_is_valid = request_context.query_is_valid
+        self.query_error_message = request_context.query_error_message
 
         query_set = request_context.get_bookmark_query_set(self.search)
         page_number = request.GET.get("page")
@@ -295,7 +293,37 @@ class AddTagItem:
         params.pop("details", None)
         params.pop("page", None)
 
-        self.query_string = params.urlencode()
+        if context.request.user_profile.legacy_search:
+            self.query_string = self._generate_query_string_legacy(context, tag)
+        else:
+            self.query_string = self._generate_query_string(context, tag)
+
+    @staticmethod
+    def _generate_query_string(context: RequestContext, tag: Tag) -> str:
+        params = context.query_params.copy()
+        query_with_tag = params.get("q", "")
+        if isinstance(context.search_expression, OrExpression):
+            # If the current search expression is an OR expression, wrap in parentheses
+            query_with_tag = f"({query_with_tag})"
+        query_with_tag = f"{query_with_tag} #{tag.name}".strip()
+
+        params["q"] = query_with_tag
+        params.pop("details", None)
+        params.pop("page", None)
+
+        return params.urlencode()
+
+    @staticmethod
+    def _generate_query_string_legacy(context: RequestContext, tag: Tag) -> str:
+        params = context.query_params.copy()
+        query_with_tag = params.get("q", "")
+        query_with_tag = f"{query_with_tag} #{tag.name}".strip()
+
+        params["q"] = query_with_tag
+        params.pop("details", None)
+        params.pop("page", None)
+
+        return params.urlencode()
 
 
 class RemoveTagItem:
@@ -303,16 +331,55 @@ class RemoveTagItem:
         self.tag = tag
         self.name = tag.name
 
+        if context.request.user_profile.legacy_search:
+            self.query_string = self._generate_query_string_legacy(context, tag)
+        else:
+            self.query_string = self._generate_query_string(context, tag)
+
+    @staticmethod
+    def _generate_query_string(context: RequestContext, tag: Tag) -> str:
+        params = context.query_params.copy()
+        query = params.get("q", "")
         profile = context.request.user_profile
-        query = context.query_params.get("q", "")
         query_without_tag = strip_tag_from_query(query, tag.name, profile)
 
-        params = context.query_params.copy()
         params["q"] = query_without_tag
         params.pop("details", None)
         params.pop("page", None)
 
-        self.query_string = params.urlencode()
+        return params.urlencode()
+
+    @staticmethod
+    def _generate_query_string_legacy(context: RequestContext, tag: Tag) -> str:
+        params = context.request.GET.copy()
+        if params.__contains__("q"):
+            # Split query string into parts
+            query_string = params.__getitem__("q")
+            query_parts = query_string.split()
+            # Remove tag with hash
+            tag_name_with_hash = "#" + tag.name
+            query_parts = [
+                part
+                for part in query_parts
+                if str.lower(part) != str.lower(tag_name_with_hash)
+            ]
+            # When using lax tag search, also remove tag without hash
+            profile = context.request.user_profile
+            if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+                query_parts = [
+                    part
+                    for part in query_parts
+                    if str.lower(part) != str.lower(tag.name)
+                ]
+            # Rebuild query string
+            query_string = " ".join(query_parts)
+            params.__setitem__("q", query_string)
+
+        # Remove details ID and page number
+        params.pop("details", None)
+        params.pop("page", None)
+
+        return params.urlencode()
 
 
 class TagGroup:

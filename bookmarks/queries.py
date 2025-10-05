@@ -119,6 +119,60 @@ def _convert_ast_to_q_object(ast_node: SearchExpression, profile: UserProfile) -
         return Q()
 
 
+def _filter_search_query(
+    query_set: QuerySet, query_string: str, profile: UserProfile
+) -> QuerySet:
+    """New search filtering logic using logical expressions."""
+
+    try:
+        ast = parse_search_query(query_string)
+        if ast:
+            search_query = _convert_ast_to_q_object(ast, profile)
+            query_set = query_set.filter(search_query)
+    except SearchQueryParseError:
+        # If the query cannot be parsed, return zero results
+        return query_set.none()
+
+    return query_set
+
+
+def _filter_search_query_legacy(
+    query_set: QuerySet, query_string: str, profile: UserProfile
+) -> QuerySet:
+    """Legacy search filtering logic where everything is just combined with AND."""
+
+    # Split query into search terms and tags
+    query = parse_query_string(query_string)
+
+    # Filter for search terms and tags
+    for term in query["search_terms"]:
+        conditions = (
+            Q(title__icontains=term)
+            | Q(description__icontains=term)
+            | Q(notes__icontains=term)
+            | Q(url__icontains=term)
+        )
+
+        if profile.tag_search == UserProfile.TAG_SEARCH_LAX:
+            conditions = conditions | Exists(
+                Bookmark.objects.filter(id=OuterRef("id"), tags__name__iexact=term)
+            )
+
+        query_set = query_set.filter(conditions)
+
+    for tag_name in query["tag_names"]:
+        query_set = query_set.filter(tags__name__iexact=tag_name)
+
+    # Untagged bookmarks
+    if query["untagged"]:
+        query_set = query_set.filter(tags=None)
+    # Legacy unread bookmarks filter from query
+    if query["unread"]:
+        query_set = query_set.filter(unread=True)
+
+    return query_set
+
+
 def _filter_bundle(query_set: QuerySet, bundle: BookmarkBundle) -> QuerySet:
     # Search terms
     search_terms = parse_query_string(bundle.search)["search_terms"]
@@ -188,14 +242,10 @@ def _base_bookmarks_query(
             pass
 
     # Filter by search query
-    try:
-        ast = parse_search_query(search.q)
-        if ast:
-            search_query = _convert_ast_to_q_object(ast, profile)
-            query_set = query_set.filter(search_query)
-    except SearchQueryParseError:
-        # If the query cannot be parsed, return zero results
-        return Bookmark.objects.none()
+    if profile.legacy_search:
+        query_set = _filter_search_query_legacy(query_set, search.q, profile)
+    else:
+        query_set = _filter_search_query(query_set, search.q, profile)
 
     # Unread filter from bookmark search
     if search.unread == BookmarkSearch.FILTER_UNREAD_YES:

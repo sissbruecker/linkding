@@ -159,6 +159,18 @@
           </div>
         </div>
         <div class="form-group">
+          <label for="{{ form.legacy_search.id_for_label }}" class="form-checkbox">
+            {{ form.legacy_search }}
+            <i class="form-icon"></i> Enable legacy search
+          </label>
+          <div class="form-input-hint">
+            Since version 1.44.0, linkding has a new search engine that supports logical expressions (and, or, not).
+            If you run into any issues with the new search, you can enable this option to temporarily switch back to the old search.
+            Please report any issues you encounter with the new search on <a href="https://github.com/sissbruecker/linkding/issues" target="_blank">GitHub</a> so they can be addressed.
+            This option will be removed in a future version.
+          </div>
+        </div>
+        <div class="form-group">
           <label for="{{ form.tag_grouping.id_for_label }}" class="form-label">Tag grouping</label>
           {{ form.tag_grouping|add_class:"form-select width-25 width-sm-100" }}
           <div class="form-input-hint">
