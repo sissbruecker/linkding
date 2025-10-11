@@ -114,6 +114,47 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(updated_bookmark.id, original_bookmark.id)
         self.assertEqual(updated_bookmark.title, bookmark_data.title)
 
+    def test_create_should_update_existing_bookmark_when_normalized_url_is_empty(
+        self,
+    ):
+        # Test behavior when url_normalized is empty for whatever reason
+        # In this case should at least match the URL directly
+        original_bookmark = self.setup_bookmark(url="https://example.com")
+        Bookmark.objects.update(url_normalized="")
+        bookmark_data = Bookmark(
+            url="https://example.com",
+            title="Updated Title",
+            description="Updated description",
+        )
+        updated_bookmark = create_bookmark(
+            bookmark_data, "", self.get_or_create_test_user()
+        )
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(updated_bookmark.id, original_bookmark.id)
+        self.assertEqual(updated_bookmark.title, bookmark_data.title)
+
+    def test_create_should_update_first_existing_bookmark_for_multiple_duplicates(
+        self,
+    ):
+        first_dupe = self.setup_bookmark(url="https://example.com")
+        second_dupe = self.setup_bookmark(url="https://example.com/")
+
+        bookmark_data = Bookmark(
+            url="https://example.com",
+            title="Updated Title",
+            description="Updated description",
+        )
+        create_bookmark(bookmark_data, "", self.get_or_create_test_user())
+
+        self.assertEqual(Bookmark.objects.count(), 2)
+
+        first_dupe.refresh_from_db()
+        self.assertEqual(first_dupe.title, bookmark_data.title)
+
+        second_dupe.refresh_from_db()
+        self.assertNotEqual(second_dupe.title, bookmark_data.title)
+
     def test_create_should_populate_url_normalized_field(self):
         bookmark_data = Bookmark(
             url="https://EXAMPLE.COM/path/?z=1&a=2",
