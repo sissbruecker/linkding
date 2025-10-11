@@ -9,6 +9,7 @@ docker run -d \
   -e POSTGRES_USER=linkding \
   -e POSTGRES_PASSWORD=linkding \
   -p 5432:5432 \
+  -v $(pwd)/tmp/postgres-data:/var/lib/postgresql/data \
   --name linkding-postgres-test \
   postgres
 
