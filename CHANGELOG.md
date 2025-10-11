@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.44.1 (11/10/2025)
+
+### What's Changed
+* Fix normalized URL not being generated in bookmark import by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1202
+* Fix missing tags causing errors in import with Postgres by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1203
+* Check for dupes by exact URL if normalized URL is missing by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1204
+* Attempt to fix botched normalized URL migration from 1.43.0 by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1205
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.44.0...v1.44.1
+
+---
+
 ## v1.44.0 (05/10/2025)
 
 ### What's Changed
