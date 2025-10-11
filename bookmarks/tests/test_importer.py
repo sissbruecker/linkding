@@ -409,6 +409,21 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         self.assertEqual(import_result.success, 0)
         self.assertEqual(import_result.failed, 2)
 
+    def test_generate_normalized_url(self):
+        html_tags = [
+            BookmarkHtmlTag(href="https://example.com/?z=1&a=2#"),
+            BookmarkHtmlTag(
+                href="foo.bar"
+            ),  # invalid URL, should be skipped without error
+        ]
+        import_html = self.render_html(tags=html_tags)
+        import_netscape_html(import_html, self.get_or_create_test_user())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(
+            Bookmark.objects.all()[0].url_normalized, "https://example.com?a=2&z=1"
+        )
+
     def test_private_flag(self):
         # does not map private flag if not enabled in options
         test_html = self.render_html(
