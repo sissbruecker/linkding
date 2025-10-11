@@ -1,6 +1,6 @@
 [project]
 name = "linkding"
-version = "1.44.0"
+version = "1.44.1"
 description = "Self-hosted bookmark manager that is designed be to be minimal, fast, and easy to set up using Docker."
 readme = "README.md"
 requires-python = ">=3.13"
