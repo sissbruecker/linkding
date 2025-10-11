@@ -1,13 +1,15 @@
 import datetime
 import email
+import unittest
 import urllib.parse
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.tests.helpers import BookmarkFactoryMixin
-from bookmarks.models import FeedToken, User
 from bookmarks.feeds import sanitize
+from bookmarks.models import FeedToken, User
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 def rfc2822_date(date):
@@ -343,6 +345,10 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=5)
 
+    @unittest.skipIf(
+        settings.LD_DB_ENGINE == "postgres",
+        "Postgres does not allow NUL in text columns",
+    )
     def test_strip_control_characters(self):
         self.setup_bookmark(
             title="test\n\r\t\0\x08title", description="test\n\r\t\0\x08description"
