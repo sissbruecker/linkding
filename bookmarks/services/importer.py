@@ -45,8 +45,9 @@ class TagCache:
         result = []
         for tag_name in tag_names:
             tag = self.get(tag_name)
+            # Tag may not have been created if tag name exceeded maximum length
             # Prevent returning duplicates
-            if not (tag in result):
+            if tag and not (tag in result):
                 result.append(tag)
 
         return result
