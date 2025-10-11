@@ -4,7 +4,6 @@ from typing import Union
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, User, parse_tag_string
-from bookmarks.utils import normalize_url
 from bookmarks.services import auto_tagging
 from bookmarks.services import tasks
 from bookmarks.services import website_loader
@@ -20,9 +19,8 @@ def create_bookmark(
     disable_html_snapshot: bool = False,
 ):
     # If URL is already bookmarked, then update it
-    normalized_url = normalize_url(bookmark.url)
-    existing_bookmark: Bookmark = Bookmark.objects.filter(
-        owner=current_user, url_normalized=normalized_url
+    existing_bookmark: Bookmark = Bookmark.query_existing(
+        current_user, bookmark.url
     ).first()
 
     if existing_bookmark is not None:
