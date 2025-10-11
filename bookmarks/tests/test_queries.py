@@ -1199,7 +1199,11 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         sorted_bookmarks = sorted(bookmarks, key=lambda b: b.resolved_title.lower())
 
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertEqual(list(query), sorted_bookmarks)
+
+        # Use resolved title for comparison as Postgres returns bookmarks with same resolved title in random order
+        expected_effective_titles = [b.resolved_title for b in sorted_bookmarks]
+        actual_effective_titles = [b.resolved_title for b in query]
+        self.assertEqual(expected_effective_titles, actual_effective_titles)
 
     def test_sort_by_title_desc(self):
         search = BookmarkSearch(sort=BookmarkSearch.SORT_TITLE_DESC)
@@ -1210,7 +1214,11 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         )
 
         query = queries.query_bookmarks(self.user, self.profile, search)
-        self.assertEqual(list(query), sorted_bookmarks)
+
+        # Use resolved title for comparison as Postgres returns bookmarks with same resolved title in random order
+        expected_effective_titles = [b.resolved_title for b in sorted_bookmarks]
+        actual_effective_titles = [b.resolved_title for b in query]
+        self.assertEqual(expected_effective_titles, actual_effective_titles)
 
     def test_query_bookmarks_filter_modified_since(self):
         # Create bookmarks with different modification dates
