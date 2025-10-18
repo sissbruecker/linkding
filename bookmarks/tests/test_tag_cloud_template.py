@@ -32,7 +32,12 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         template_to_render = Template("{% include 'bookmarks/tag_cloud.html' %}")
         return template_to_render.render(context)
 
-    def assertTagGroups(self, rendered_template: str, groups: List[List[str]]):
+    def assertTagGroups(
+        self,
+        rendered_template: str,
+        groups: List[List[str]],
+        highlight_first_char: bool = True,
+    ):
         soup = self.make_soup(rendered_template)
         group_elements = soup.select("p.group")
 
@@ -47,6 +52,18 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             for tag_index, tag in enumerate(tags, start=0):
                 link_element = link_elements[tag_index]
                 self.assertEqual(link_element.text.strip(), tag)
+
+                if tag_index == 0:
+                    if highlight_first_char:
+                        self.assertIn(
+                            f'<span class="highlight-char">{tag[0]}</span>',
+                            str(link_element),
+                        )
+                    else:
+                        self.assertNotIn(
+                            f'<span class="highlight-char">{tag[0]}</span>',
+                            str(link_element),
+                        )
 
     def assertNumSelectedTags(self, rendered_template: str, count: int):
         soup = self.make_soup(rendered_template)
@@ -178,6 +195,7 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
                     "Coyote",
                 ],
             ],
+            False,
         )
 
     def test_no_duplicate_tag_names(self):

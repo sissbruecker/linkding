@@ -383,10 +383,13 @@ class RemoveTagItem:
 
 
 class TagGroup:
-    def __init__(self, context: RequestContext, char: str):
+    def __init__(
+        self, context: RequestContext, char: str, highlight_first_char: bool = True
+    ):
         self.context = context
         self.tags = []
         self.char = char
+        self.highlight_first_char = highlight_first_char
 
     def __repr__(self):
         return f"<{self.char} TagGroup>"
@@ -436,7 +439,7 @@ class TagGroup:
             return []
 
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
-        group = TagGroup(context, "Ungrouped")
+        group = TagGroup(context, "Ungrouped", highlight_first_char=False)
         for tag in sorted_tags:
             group.add_tag(tag)
 
