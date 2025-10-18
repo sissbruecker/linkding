@@ -195,6 +195,7 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
                     "Coyote",
                 ],
             ],
+            False,
         )
 
     def test_no_duplicate_tag_names(self):
