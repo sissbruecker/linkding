@@ -2,7 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
 	"name": "Python 3",
-	"image": "mcr.microsoft.com/devcontainers/python:3.12",
+	"image": "mcr.microsoft.com/devcontainers/python:3.13",
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {}
 	},
@@ -14,7 +14,7 @@
 	"forwardPorts": [8000],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install --user -r requirements.txt -r requirements.dev.txt && npm install && mkdir -p data && python3 manage.py migrate",
+	"postCreateCommand": "pip install uv && uv sync --group dev && npm install && mkdir -p data && uv run manage.py migrate",
 
 	// Configure tool-specific properties.
 	"customizations": {

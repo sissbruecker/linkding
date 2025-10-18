@@ -105,25 +105,20 @@ make format
 
 ### DevContainers
 
-> [!WARNING]
-> The dev container setup is currently broken after switching to uv.
-> Feel free to contribute a PR if you want to fix it.
-> The instructions below are outdated until then.
-
 This repository also supports DevContainers: [![Open in Remote - Containers](https://img.shields.io/static/v1?label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/sissbruecker/linkding.git)
 
 Once checked out, only the following commands are required to get started:
 
 Create a user for the frontend:
 ```
-python3 manage.py createsuperuser --username=joe --email=joe@example.com
+uv run manage.py createsuperuser --username=joe --email=joe@example.com
 ```
 Start the Node.js development server (used for compiling JavaScript components like tag auto-completion) with:
 ```
-npm run dev
+make frontend
 ```
 Start the Django development server with:
 ```
-python3 manage.py runserver
+make serve
 ```
 The frontend is now available under http://localhost:8000
