@@ -115,10 +115,10 @@ uv run manage.py createsuperuser --username=joe --email=joe@example.com
 ```
 Start the Node.js development server (used for compiling JavaScript components like tag auto-completion) with:
 ```
-npm run dev
+make frontend
 ```
 Start the Django development server with:
 ```
-uv run manage.py runserver
+make serve
 ```
 The frontend is now available under http://localhost:8000
