@@ -17,7 +17,7 @@ dependencies = [
     "mozilla-django-oidc>=4.0.1",
     "python-dateutil>=2.9.0.post0",
     "requests>=2.32.4",
-    "supervisor>=4.2.5",
+    "supervisor>=4.3.0",
     "uwsgi>=2.0.28",
     "waybackpy>=3.0.6",
 ]
