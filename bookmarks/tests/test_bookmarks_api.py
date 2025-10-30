@@ -649,6 +649,24 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         bookmark = Bookmark.objects.get(url=data["url"])
         self.assertCountEqual(bookmark.tags.all(), [tag1, tag2])
 
+    def test_create_bookmark_with_date_added(self):
+        self.authenticate()
+
+        date1= timezone.now() - datetime.timedelta(days=30)
+        data = { "url": "https://example.com/", "date_added": date1.isoformat() }
+        self.post(reverse("linkding:bookmark-list"), data, status.HTTP_201_CREATED)
+        bookmark = Bookmark.objects.get(url=data["url"])
+        self.assertEqual(bookmark.date_added.isoformat(), date1.isoformat())
+
+    def test_create_bookmark_with_date_modified(self):
+        self.authenticate()
+
+        date1= timezone.now() - datetime.timedelta(days=15)
+        data = { "url": "https://example.com/", "date_modified": date1.isoformat() }
+        self.post(reverse("linkding:bookmark-list"), data, status.HTTP_201_CREATED)
+        bookmark = Bookmark.objects.get(url=data["url"])
+        self.assertEqual(bookmark.date_modified.isoformat(), date1.isoformat())
+
     def test_get_bookmark(self):
         self.authenticate()
         bookmark = self.setup_bookmark()
