@@ -292,6 +292,24 @@ def _base_bookmarks_query(
             query_set = query_set.order_by(order_field).reverse()
     elif search.sort == BookmarkSearch.SORT_ADDED_ASC:
         query_set = query_set.order_by("date_added")
+    elif search.sort == BookmarkSearch.SORT_USAGE_DESC:
+        # Sort by usage (access count) descending, requires join with BookmarkUsage
+        # Only available when user is authenticated and has tracking enabled
+        if search.request and search.request.user.is_authenticated:
+            from bookmarks.models import BookmarkUsage
+            from django.db.models import OuterRef, Subquery
+
+            # Subquery to get access_count for current user
+            usage_subquery = BookmarkUsage.objects.filter(
+                bookmark=OuterRef("pk"), user=search.request.user
+            ).values("access_count")[:1]
+
+            query_set = query_set.annotate(
+                user_access_count=Subquery(usage_subquery)
+            ).order_by("-user_access_count", "-date_added")
+        else:
+            # Fallback to default sort if user not authenticated
+            query_set = query_set.order_by("-date_added")
     else:
         # Sort by date added, descending by default
         query_set = query_set.order_by("-date_added")

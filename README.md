@@ -20,6 +20,7 @@ The name comes from:
 - Clean UI optimized for readability
 - Organize bookmarks with tags
 - Bulk editing, Markdown notes, read it later functionality
+- Optional usage tracking to identify most-used bookmarks (privacy-first, per-user)
 - Share bookmarks with other users or guests
 - Automatically provides titles, descriptions and icons of bookmarked websites
 - Automatically archive websites, either as local HTML file or on Internet Archive

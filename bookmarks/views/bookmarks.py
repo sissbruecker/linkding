@@ -374,5 +374,29 @@ def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
 
 
 @login_required
+def visit(request: HttpRequest, bookmark_id: int):
+    """
+    Tracks bookmark visit and redirects to the bookmark URL.
+    Only increments the counter if the user has usage tracking enabled.
+    """
+    from django.db.models import F
+    from django.shortcuts import get_object_or_404
+    from bookmarks.models import BookmarkUsage
+
+    bookmark = get_object_or_404(Bookmark, pk=bookmark_id)
+
+    # Only track if user has usage tracking enabled
+    if request.user.profile.enable_usage_tracking:
+        # Get or create the BookmarkUsage entry for this user+bookmark
+        usage, created = BookmarkUsage.objects.get_or_create(
+            bookmark=bookmark, user=request.user, defaults={"access_count": 0}
+        )
+        # Atomically increment the counter
+        BookmarkUsage.objects.filter(pk=usage.pk).update(access_count=F("access_count") + 1)
+
+    return HttpResponseRedirect(bookmark.url)
+
+
+@login_required
 def close(request: HttpRequest):
     return render(request, "bookmarks/close.html")
