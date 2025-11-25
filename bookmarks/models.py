@@ -432,6 +432,11 @@ class UserProfile(models.Model):
     collapse_side_panel = models.BooleanField(default=False, null=False)
     hide_bundles = models.BooleanField(default=False, null=False)
     legacy_search = models.BooleanField(default=False, null=False)
+    openai_api_key = models.CharField(max_length=255, blank=True, null=False)
+    openai_model = models.CharField(
+        max_length=100, blank=True, null=False, default="gpt-5-nano"
+    )
+    openai_tag_vocabulary = models.TextField(blank=True, null=False)
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -441,6 +446,44 @@ class UserProfile(models.Model):
         else:
             self.custom_css_hash = ""
         super().save(*args, **kwargs)
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = [
+            "theme",
+            "bookmark_date_display",
+            "bookmark_description_display",
+            "bookmark_description_max_lines",
+            "bookmark_link_target",
+            "web_archive_integration",
+            "tag_search",
+            "tag_grouping",
+            "enable_sharing",
+            "enable_public_sharing",
+            "enable_favicons",
+            "enable_preview_images",
+            "enable_automatic_html_snapshots",
+            "display_url",
+            "display_view_bookmark_action",
+            "display_edit_bookmark_action",
+            "display_archive_bookmark_action",
+            "display_remove_bookmark_action",
+            "permanent_notes",
+            "default_mark_unread",
+            "default_mark_shared",
+            "custom_css",
+            "auto_tagging_rules",
+            "openai_api_key",
+            "openai_model",
+            "openai_tag_vocabulary",
+            "items_per_page",
+            "sticky_pagination",
+            "collapse_side_panel",
+            "hide_bundles",
+            "legacy_search",
+        ]
 
 
 @receiver(post_save, sender=User)

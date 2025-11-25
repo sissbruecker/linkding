@@ -104,6 +104,17 @@ def update_profile(request: HttpRequest):
     favicons_were_enabled = profile.enable_favicons
     previews_were_enabled = profile.enable_preview_images
     form = UserProfileForm(request.POST, instance=profile)
+
+    # Validate OpenAI API key if provided
+    if form.is_valid():
+        openai_api_key = form.cleaned_data.get("openai_api_key")
+        if openai_api_key:
+            from bookmarks.services.openai_tagger import validate_api_key
+
+            is_valid, error_msg = validate_api_key(openai_api_key)
+            if not is_valid:
+                form.add_error("openai_api_key", error_msg)
+
     if form.is_valid():
         form.save()
         messages.success(request, "Profile updated", "settings_success_message")

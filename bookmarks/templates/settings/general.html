@@ -149,6 +149,61 @@ reddit.com/r/Music music reddit</pre>
           {% endformhelp %}
         </div>
         <div class="form-group">
+          <details {% if form.openai_api_key.value or form.openai_tag_vocabulary.value %}open{% endif %}>
+            <summary>
+              <span class="form-label d-inline-block">OpenAI auto-tagging</span>
+            </summary>
+
+            <div class="form-group">
+              <label for="{{ form.openai_api_key.id_for_label }}" class="form-label">
+                OpenAI API Key
+              </label>
+              {{ form.openai_api_key|add_class:"form-input"|attr:"type:password" }}
+              <div class="form-input-hint">
+                Your OpenAI API Key from
+                <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a>.
+                Leave blank to disable AI auto-tagging.
+              </div>
+            </div>
+
+            <div class="form-group{% if form.openai_model.errors %} has-error{% endif %}">
+              <label for="{{ form.openai_model.id_for_label }}" class="form-label">
+                Model Name
+              </label>
+              {{ form.openai_model|add_class:"form-input width-50 width-md-100" }}
+              {% if form.openai_model.errors %}
+              <div class="form-input-hint is-error">
+                {{ form.openai_model.errors }}
+              </div>
+              {% endif %}
+              <div class="form-input-hint">
+                Default: <code>gpt-5-nano</code>.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.openai_tag_vocabulary.id_for_label }}" class="form-label">
+                Allowed Tags
+              </label>
+              {{ form.openai_tag_vocabulary|add_class:"form-input monospace"|attr:"rows:8" }}
+              <div class="form-input-hint">
+                One tag per line. AI will <strong>only</strong> suggest tags from this list.
+                Example:
+                <pre>programming
+python
+javascript
+tutorial
+article
+video</pre>
+              </div>
+            </div>
+          </details>
+
+          <div class="form-input-hint">
+            <strong>How it works:</strong> AI auto-tagging runs when you create bookmarks without manually adding tags. Only tags from your allowed list will be suggested. Use bulk "Refresh AI tags" to regenerate tags for existing bookmarks.
+          </div>
+        </div>
+        <div class="form-group">
           {% formfield form.enable_favicons label="Enable Favicons" has_help=True %}
           {% formhelp form.enable_favicons %}
             Automatically loads favicons for bookmarked websites and displays them next to each bookmark.
