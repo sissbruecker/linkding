@@ -154,11 +154,16 @@ reddit.com/r/Music music reddit</pre>
               <span class="form-label d-inline-block">OpenAI auto-tagging</span>
             </summary>
 
-            <div class="form-group">
+            <div class="form-group{% if form.openai_api_key.errors %} has-error{% endif %}">
               <label for="{{ form.openai_api_key.id_for_label }}" class="form-label">
                 OpenAI API Key
               </label>
               {{ form.openai_api_key|add_class:"form-input"|attr:"type:password" }}
+              {% if form.openai_api_key.errors %}
+              <div class="form-input-hint is-error">
+                {{ form.openai_api_key.errors }}
+              </div>
+              {% endif %}
               <div class="form-input-hint">
                 Your OpenAI API Key from
                 <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a>.
