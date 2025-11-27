@@ -24,6 +24,9 @@ def is_openai_enabled(user: User) -> bool:
 
     Returns True if both API Key and tag vocabulary are configured.
     """
+    if not user.is_authenticated:
+        return False
+
     profile = user.profile
     has_api_key = bool(profile.openai_api_key and profile.openai_api_key.strip())
     has_vocabulary = bool(

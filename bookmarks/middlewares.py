@@ -12,6 +12,9 @@ default_global_settings = GlobalSettings()
 
 standard_profile = UserProfile()
 standard_profile.enable_favicons = True
+standard_profile.openai_api_key = ""
+standard_profile.openai_model = ""
+standard_profile.openai_tag_vocabulary = ""
 
 
 class LinkdingMiddleware:
