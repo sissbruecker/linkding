@@ -432,11 +432,10 @@ class UserProfile(models.Model):
     collapse_side_panel = models.BooleanField(default=False, null=False)
     hide_bundles = models.BooleanField(default=False, null=False)
     legacy_search = models.BooleanField(default=False, null=False)
-    openai_api_key = models.CharField(max_length=255, blank=True, null=False)
-    openai_model = models.CharField(
-        max_length=100, blank=True, null=False, default="gpt-5-nano"
-    )
-    openai_tag_vocabulary = models.TextField(blank=True, null=False)
+    ai_api_key = models.CharField(max_length=256, blank=True, null=False)
+    ai_model = models.CharField(max_length=128, blank=True, null=False)
+    ai_tag_vocabulary = models.TextField(blank=True, null=False)
+    ai_base_url = models.CharField(max_length=128, blank=True, null=False)
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -475,9 +474,10 @@ class UserProfileForm(forms.ModelForm):
             "default_mark_shared",
             "custom_css",
             "auto_tagging_rules",
-            "openai_api_key",
-            "openai_model",
-            "openai_tag_vocabulary",
+            "ai_api_key",
+            "ai_model",
+            "ai_tag_vocabulary",
+            "ai_base_url",
             "items_per_page",
             "sticky_pagination",
             "collapse_side_panel",

@@ -149,57 +149,63 @@ reddit.com/r/Music music reddit</pre>
           {% endformhelp %}
         </div>
         <div class="form-group">
-          <details {% if form.openai_api_key.value or form.openai_tag_vocabulary.value %}open{% endif %}>
+          <details {% if form.ai_api_key.value or form.ai_tag_vocabulary.value %}open{% endif %}>
             <summary>
-              <span class="form-label d-inline-block">OpenAI auto-tagging</span>
+              <span class="form-label d-inline-block">AI auto-tagging</span>
             </summary>
 
-            <div class="form-group{% if form.openai_api_key.errors %} has-error{% endif %}">
-              <label for="{{ form.openai_api_key.id_for_label }}" class="form-label">
-                OpenAI API Key
+            <div class="form-group{% if form.ai_api_key.errors %} has-error{% endif %}">
+              <label for="{{ form.ai_api_key.id_for_label }}" class="form-label">
+                API key
               </label>
-              {{ form.openai_api_key|add_class:"form-input"|attr:"type:password" }}
-              {% if form.openai_api_key.errors %}
+              {{ form.ai_api_key|add_class:"form-input"|attr:"type:password" }}
+              {% if form.ai_api_key.errors %}
               <div class="form-input-hint is-error">
-                {{ form.openai_api_key.errors }}
+                {{ form.ai_api_key.errors }}
               </div>
               {% endif %}
               <div class="form-input-hint">
-                Your OpenAI API Key from
-                <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a>.
-                Leave blank to disable AI auto-tagging.
+                Not required if using a compatible API without authentication.
               </div>
             </div>
 
-            <div class="form-group{% if form.openai_model.errors %} has-error{% endif %}">
-              <label for="{{ form.openai_model.id_for_label }}" class="form-label">
-                Model Name
+            <div class="form-group{% if form.ai_model.errors %} has-error{% endif %}">
+              <label for="{{ form.ai_model.id_for_label }}" class="form-label">
+                Model name
               </label>
-              {{ form.openai_model|add_class:"form-input width-50 width-md-100" }}
-              {% if form.openai_model.errors %}
+              {{ form.ai_model|add_class:"form-input width-50 width-md-100" }}
+              {% if form.ai_model.errors %}
               <div class="form-input-hint is-error">
-                {{ form.openai_model.errors }}
+                {{ form.ai_model.errors }}
               </div>
               {% endif %}
               <div class="form-input-hint">
-                Default: <code>gpt-5-nano</code>.
+                <strong>Note:</strong> ensure the model you choose supports structured outputs.
+              </div>
+            </div>
+
+            <div class="form-group{% if form.ai_base_url.errors %} has-error{% endif %}">
+              <label for="{{ form.ai_base_url.id_for_label }}" class="form-label">
+                Base URL
+              </label>
+              {{ form.ai_base_url|add_class:"form-input width-50 width-md-100" }}
+              {% if form.ai_base_url.errors %}
+              <div class="form-input-hint is-error">
+                {{ form.ai_base_url.errors }}
+              </div>
+              {% endif %}
+              <div class="form-input-hint">
+                Leave blank to use OpenAI. You can use any OpenAI-compatible API, either self-hosted (Ollama: <code>http://localhost:11434/v1</code>) or cloud-based (Perplexity: <code>https://api.perplexity.ai</code>, OpenRouter: <code>https://openrouter.ai/api/v1</code>).
               </div>
             </div>
 
             <div class="form-group">
-              <label for="{{ form.openai_tag_vocabulary.id_for_label }}" class="form-label">
-                Allowed Tags
+              <label for="{{ form.ai_tag_vocabulary.id_for_label }}" class="form-label">
+                Allowed tags
               </label>
-              {{ form.openai_tag_vocabulary|add_class:"form-input monospace"|attr:"rows:8" }}
+              {{ form.ai_tag_vocabulary|add_class:"form-input monospace"|attr:"rows:8" }}
               <div class="form-input-hint">
                 One tag per line. AI will <strong>only</strong> suggest tags from this list.
-                Example:
-                <pre>programming
-python
-javascript
-tutorial
-article
-video</pre>
               </div>
             </div>
           </details>

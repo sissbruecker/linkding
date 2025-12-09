@@ -216,9 +216,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "display_url",
             "permanent_notes",
             "search_preferences",
-            "openai_api_key",
-            "openai_model",
-            "openai_tag_vocabulary",
+            "ai_api_key",
+            "ai_model",
+            "ai_tag_vocabulary",
+            "ai_base_url",
             "version",
         ]
 

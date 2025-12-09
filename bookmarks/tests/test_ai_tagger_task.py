@@ -15,8 +15,9 @@ class OpenAITaggerTaskTestCase(TestCase, BookmarkFactoryMixin):
         huey.immediate = True
 
         self.user = self.get_or_create_test_user()
-        self.user.profile.openai_api_key = "sk-test"
-        self.user.profile.openai_tag_vocabulary = "programming\npython"
+        self.user.profile.ai_api_key = "sk-test"
+        self.user.profile.ai_model = "gpt-5-nano"
+        self.user.profile.ai_tag_vocabulary = "programming\npython"
         self.user.profile.save()
         self.bookmark = self.setup_bookmark(user=self.user)
 
@@ -31,7 +32,7 @@ class OpenAITaggerTaskTestCase(TestCase, BookmarkFactoryMixin):
 
         # Should not schedule if user disabled
         mock_task.reset_mock()
-        self.user.profile.openai_api_key = ""
+        self.user.profile.ai_api_key = ""
         self.user.profile.save()
         auto_tag_bookmark(self.user, self.bookmark)
         mock_task.assert_not_called()
@@ -42,7 +43,7 @@ class OpenAITaggerTaskTestCase(TestCase, BookmarkFactoryMixin):
         auto_tag_bookmark(self.user, self.bookmark)
         mock_task.assert_not_called()
 
-    @patch("bookmarks.services.openai_tagger.get_ai_tags")
+    @patch("bookmarks.services.ai_auto_tagger.get_ai_tags")
     def test_task_applies_tags(self, mock_get_tags):
         mock_get_tags.return_value = ["programming", "python"]
 
@@ -52,7 +53,7 @@ class OpenAITaggerTaskTestCase(TestCase, BookmarkFactoryMixin):
         tags = list(self.bookmark.tags.values_list("name", flat=True))
         self.assertCountEqual(tags, ["programming", "python"])
 
-    @patch("bookmarks.services.openai_tagger.get_ai_tags")
+    @patch("bookmarks.services.ai_auto_tagger.get_ai_tags")
     def test_task_skips_if_tags_exist(self, mock_get_tags):
         tag = self.setup_tag(name="manual", user=self.user)
         self.bookmark.tags.add(tag)
@@ -65,7 +66,7 @@ class OpenAITaggerTaskTestCase(TestCase, BookmarkFactoryMixin):
         tags = list(self.bookmark.tags.values_list("name", flat=True))
         self.assertEqual(tags, ["manual"])
 
-    @patch("bookmarks.services.openai_tagger.get_ai_tags")
+    @patch("bookmarks.services.ai_auto_tagger.get_ai_tags")
     def test_task_handles_empty_suggestions(self, mock_get_tags):
         mock_get_tags.return_value = []
 
@@ -74,7 +75,7 @@ class OpenAITaggerTaskTestCase(TestCase, BookmarkFactoryMixin):
         self.bookmark.refresh_from_db()
         self.assertEqual(self.bookmark.tags.count(), 0)
 
-    @patch("bookmarks.services.openai_tagger.get_ai_tags")
+    @patch("bookmarks.services.ai_auto_tagger.get_ai_tags")
     def test_task_handles_missing_objects(self, mock_get_tags):
         # Invalid bookmark ID
         _auto_tag_bookmark_task(99999, self.user.id)
@@ -84,7 +85,7 @@ class OpenAITaggerTaskTestCase(TestCase, BookmarkFactoryMixin):
         _auto_tag_bookmark_task(self.bookmark.id, 99999)
         mock_get_tags.assert_not_called()
 
-    @patch("bookmarks.services.openai_tagger.get_ai_tags")
+    @patch("bookmarks.services.ai_auto_tagger.get_ai_tags")
     def test_task_handles_exceptions(self, mock_get_tags):
         mock_get_tags.side_effect = Exception("Unexpected error")
 

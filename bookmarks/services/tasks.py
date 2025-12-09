@@ -251,11 +251,11 @@ def _refresh_metadata_task(bookmark_id: int):
 
 
 def auto_tag_bookmark(user: User, bookmark: Bookmark):
-    """Schedule AI auto-tagging task if OpenAI is configured for user."""
+    """Schedule AI auto-tagging task if AI auto-tagging is configured for user."""
     if not settings.LD_DISABLE_BACKGROUND_TASKS:
-        from bookmarks.services.openai_tagger import is_openai_enabled
+        from bookmarks.services.ai_auto_tagger import is_ai_auto_tagging_enabled
 
-        if is_openai_enabled(user):
+        if is_ai_auto_tagging_enabled(user):
             _auto_tag_bookmark_task(bookmark.id, user.id)
 
 
@@ -277,7 +277,7 @@ def _auto_tag_bookmark_task(bookmark_id: int, user_id: int):
             return
 
         # Get AI suggestions
-        from bookmarks.services.openai_tagger import get_ai_tags
+        from bookmarks.services.ai_auto_tagger import get_ai_tags
 
         ai_tag_names = get_ai_tags(bookmark, user)
 
@@ -295,7 +295,7 @@ def _auto_tag_bookmark_task(bookmark_id: int, user_id: int):
     except User.DoesNotExist:
         logger.error(f"User {user_id} not found for AI tagging")
     except Exception as e:
-        # Avoid re-raising exception to prevent task retries and wasting OpenAI credits
+        # Avoid re-raising exception to prevent task retries and wasting AI credits
         logger.error(f"Failed to auto-tag bookmark {bookmark_id}", exc_info=e)
 
 

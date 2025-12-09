@@ -2,7 +2,13 @@ import logging
 from typing import List, Optional, Tuple
 
 from django.contrib.auth.models import User
-from openai import OpenAI, APIError, AuthenticationError, RateLimitError
+from openai import (
+    OpenAI,
+    APIError,
+    APIConnectionError,
+    AuthenticationError,
+    RateLimitError,
+)
 from pydantic import BaseModel, Field
 
 from bookmarks.models import Bookmark
@@ -11,28 +17,34 @@ logger = logging.getLogger(__name__)
 
 
 class TagSuggestions(BaseModel):
-    """Pydantic model for OpenAI structured outputs"""
+    """Pydantic model for structured outputs"""
 
     tags: List[str] = Field(
         description="List of relevant tags from the allowed vocabulary"
     )
 
 
-def is_openai_enabled(user: User) -> bool:
+def is_ai_auto_tagging_enabled(user: User) -> bool:
     """
     Check if AI auto-tagging is enabled for the user.
 
-    Returns True if both API Key and tag vocabulary are configured.
+    Returns True if the user has provided necessary AI configuration.
     """
     if not user.is_authenticated:
         return False
 
     profile = user.profile
-    has_api_key = bool(profile.openai_api_key and profile.openai_api_key.strip())
+    has_api_key = bool(profile.ai_api_key and profile.ai_api_key.strip())
     has_vocabulary = bool(
-        profile.openai_tag_vocabulary and profile.openai_tag_vocabulary.strip()
+        profile.ai_tag_vocabulary and profile.ai_tag_vocabulary.strip()
     )
-    return has_api_key and has_vocabulary
+    has_base_url = bool(profile.ai_base_url and profile.ai_base_url.strip())
+    has_model = bool(profile.ai_model and profile.ai_model.strip())
+
+    if has_base_url:
+        return has_vocabulary and has_model
+
+    return has_api_key and has_vocabulary and has_model
 
 
 def parse_tag_vocabulary(vocabulary_text: str) -> List[str]:
@@ -62,7 +74,7 @@ def parse_tag_vocabulary(vocabulary_text: str) -> List[str]:
 
 def get_ai_tags(bookmark: Bookmark, user: User) -> List[str]:
     """
-    Get AI-suggested tags for a bookmark using OpenAI's structured outputs.
+    Get AI-suggested tags for a bookmark using structured outputs.
 
     Args:
         bookmark: The bookmark to tag
@@ -75,7 +87,7 @@ def get_ai_tags(bookmark: Bookmark, user: User) -> List[str]:
         profile = user.profile
 
         # Parse allowed tags
-        allowed_tags = parse_tag_vocabulary(profile.openai_tag_vocabulary)
+        allowed_tags = parse_tag_vocabulary(profile.ai_tag_vocabulary)
         if not allowed_tags:
             logger.warning(
                 f"AI auto-tagging skipped - empty vocabulary for user {user.username}"
@@ -100,20 +112,25 @@ Description: {bookmark.description or "N/A"}
 Allowed tags: {', '.join(allowed_tags)}
 """
 
-        # Call OpenAI with structured outputs
-        client = OpenAI(api_key=profile.openai_api_key)
+        base_url = profile.ai_base_url.strip() if profile.ai_base_url else None
+        ai_api_key = profile.ai_api_key.strip() if profile.ai_api_key else "apikey"
 
-        response = client.responses.parse(
-            model=profile.openai_model or "gpt-5-nano",
-            input=[
+        if base_url:
+            client = OpenAI(api_key=ai_api_key, base_url=base_url)
+        else:
+            client = OpenAI(api_key=ai_api_key)
+
+        response = client.chat.completions.parse(
+            model=profile.ai_model,
+            messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            text_format=TagSuggestions,
+            response_format=TagSuggestions,
         )
 
         # Extract and validate suggested tags
-        suggested = response.output_parsed
+        suggested = response.choices[0].message.parsed
 
         if not suggested or not suggested.tags:
             return []
@@ -124,72 +141,85 @@ Allowed tags: {', '.join(allowed_tags)}
             tag.lower() for tag in suggested.tags if tag.lower() in allowed_tags_set
         ]
 
-        logger.info(
-            f"OpenAI suggested tags for bookmark {bookmark.id}: {validated_tags}"
-        )
+        logger.info(f"AI tags for bookmark {bookmark.id}: {validated_tags}")
         return validated_tags
 
     except AuthenticationError as e:
         logger.error(
-            f"OpenAI authentication failed for user {user.username}: {e}",
+            f"AI authentication failed for user {user.username}: {e}",
             exc_info=False,
         )
         return []
     except RateLimitError as e:
         logger.warning(
-            f"OpenAI rate limit hit for user {user.username}: {e}", exc_info=False
+            f"AI rate limit hit for user {user.username}: {e}", exc_info=False
         )
         # Re-raise to trigger Huey retry
         raise
-    except APIError as e:
+    except APIConnectionError as e:
         logger.error(
-            f"OpenAI API error for bookmark {bookmark.id}: {e}", exc_info=False
+            f"AI connection error for bookmark {bookmark.id}: {e}", exc_info=False
         )
+        # Re-raise to trigger Huey retry for transient network errors
+        raise
+    except APIError as e:
+        logger.error(f"AI API error for bookmark {bookmark.id}: {e}", exc_info=False)
         # Re-raise to trigger Huey retry for transient errors
         if e.status_code and e.status_code >= 500:
             raise
         return []
     except Exception as e:
         logger.error(
-            f"Unexpected error during OpenAI tagging for bookmark {bookmark.id}: {e}",
+            f"Unexpected error during AI auto-tagging for bookmark {bookmark.id}: {e}",
             exc_info=True,
         )
         return []
 
 
-def list_openai_models(api_key: str):
+def list_ai_models(api_key: str, base_url: Optional[str] = None):
     """
-    List available OpenAI models.
+    List available AI models.
 
     Args:
-        api_key: The OpenAI API key to use
+        api_key: The AI API key to use
+        base_url: Optional base URL for the API endpoint
 
     Returns:
         List of available models
     """
-    client = OpenAI(api_key=api_key)
+    if base_url:
+        client = OpenAI(api_key=api_key, base_url=base_url)
+    else:
+        client = OpenAI(api_key=api_key)
     return client.models.list()
 
 
-def validate_api_key(api_key: str) -> Tuple[bool, Optional[str]]:
+def validate_api_key(
+    api_key: str, base_url: Optional[str] = None
+) -> Tuple[bool, Optional[str]]:
     """
-    Validate an OpenAI API key by making a test request.
+    Validate an AI API key by making a test request. Skips validation if a custom base_url is provided.
 
     Args:
         api_key: The API key to validate
+        base_url: Optional base URL for the API endpoint
 
     Returns:
         Tuple of (is_valid, error_message)
     """
+    # Skip validation when using custom base_url
+    if base_url:
+        return True, None
+
     if not api_key or not api_key.strip():
         return False, "API key cannot be empty"
 
     try:
-        list_openai_models(api_key)
+        list_ai_models(api_key, base_url)
         return True, None
     except AuthenticationError:
-        return False, "Invalid API key. Please check your OpenAI API key."
+        return False, "Invalid API key. Please check your AI API key."
     except APIError as e:
-        return False, f"OpenAI API error: {e.message}"
+        return False, f"AI API error: {e.message}"
     except Exception as e:
         return False, f"Error validating API key: {str(e)}"

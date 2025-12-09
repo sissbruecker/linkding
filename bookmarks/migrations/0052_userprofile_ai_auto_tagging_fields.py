@@ -12,17 +12,22 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="userprofile",
-            name="openai_api_key",
-            field=models.CharField(blank=True, max_length=255),
+            name="ai_api_key",
+            field=models.CharField(blank=True, max_length=256),
         ),
         migrations.AddField(
             model_name="userprofile",
-            name="openai_model",
-            field=models.CharField(blank=True, default="gpt-5-nano", max_length=100),
+            name="ai_model",
+            field=models.CharField(blank=True, max_length=128),
         ),
         migrations.AddField(
             model_name="userprofile",
-            name="openai_tag_vocabulary",
+            name="ai_tag_vocabulary",
             field=models.TextField(blank=True),
+        ),
+        migrations.AddField(
+            model_name="userprofile",
+            name="ai_base_url",
+            field=models.CharField(blank=True, max_length=128),
         ),
     ]

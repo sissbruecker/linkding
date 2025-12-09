@@ -40,9 +40,9 @@ class BulkRefreshAITagsActionTestCase(TestCase, BookmarkFactoryMixin):
         # Test full integration from view to service to task
         # Need to mock at the task level to verify it propagates down
 
-        # Enable OpenAI for user (required for task scheduling)
-        self.user.profile.openai_api_key = "sk-test"
-        self.user.profile.openai_tag_vocabulary = "programming"
+        # Enable AI auto-tagging for user (required for task scheduling)
+        self.user.profile.ai_api_key = "sk-test"
+        self.user.profile.ai_tag_vocabulary = "programming"
         self.user.profile.save()
 
         bookmark1 = self.setup_bookmark()

@@ -27,7 +27,7 @@ from bookmarks.services.search_query_parser import (
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
-from bookmarks.services.openai_tagger import is_openai_enabled
+from bookmarks.services.ai_auto_tagger import is_ai_auto_tagging_enabled
 
 CJK_RE = re.compile(r"[\u4e00-\u9fff]+")
 
@@ -240,7 +240,7 @@ class BookmarkListContext:
         self.collapse_side_panel = user_profile.collapse_side_panel
         self.is_preview = False
         self.snapshot_feature_enabled = settings.LD_ENABLE_SNAPSHOTS
-        self.is_openai_enabled = is_openai_enabled(user)
+        self.is_ai_auto_tagging_enabled = is_ai_auto_tagging_enabled(user)
 
     @staticmethod
     def generate_return_url(search: BookmarkSearch, base_url: str, page: int = None):
