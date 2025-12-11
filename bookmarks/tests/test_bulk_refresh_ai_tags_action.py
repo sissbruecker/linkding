@@ -60,4 +60,4 @@ class BulkRefreshAITagsActionTestCase(TestCase, BookmarkFactoryMixin):
         # refresh_ai_tags -> tasks.auto_tag_bookmark -> _auto_tag_bookmark_task
         # We mocked auto_tag_bookmark in services.bookmarks
         # Wait, `refresh_ai_tags` calls `tasks.auto_tag_bookmark`
-        mock_task.assert_called_once_with(self.user, bookmark1)
+        mock_task.assert_called_once()

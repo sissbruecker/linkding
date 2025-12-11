@@ -19,8 +19,8 @@ class RefreshAITagsServiceTestCase(TestCase, BookmarkFactoryMixin):
         refresh_ai_tags([bookmark1.id, bookmark2.id], self.user)
 
         self.assertEqual(mock_auto_tag.call_count, 2)
-        mock_auto_tag.assert_any_call(self.user, bookmark1)
-        mock_auto_tag.assert_any_call(self.user, bookmark2)
+        mock_auto_tag.assert_any_call(self.user, bookmark1, True)
+        mock_auto_tag.assert_any_call(self.user, bookmark2, True)
 
     @patch("bookmarks.services.tasks.auto_tag_bookmark")
     def test_refresh_ai_tags_ignores_other_users_bookmarks(self, mock_auto_tag):
@@ -31,7 +31,7 @@ class RefreshAITagsServiceTestCase(TestCase, BookmarkFactoryMixin):
 
         # Should only call for bookmark1
         self.assertEqual(mock_auto_tag.call_count, 1)
-        mock_auto_tag.assert_called_once_with(self.user, bookmark1)
+        mock_auto_tag.assert_called_once_with(self.user, bookmark1, True)
 
     @patch("bookmarks.services.tasks.auto_tag_bookmark")
     def test_refresh_ai_tags_handles_mixed_id_types(self, mock_auto_tag):
