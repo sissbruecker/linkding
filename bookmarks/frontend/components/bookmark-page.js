@@ -82,6 +82,7 @@ class BookmarkPage extends HeadlessElement {
       this.querySelectorAll(".bulk-edit-checkbox:not(.all) input"),
     );
     this.selectAcross = this.querySelector("label.select-across");
+    this.executeButton = this.querySelector("button[name='bulk_execute']");
 
     // Add listeners
     this.activeToggle.addEventListener("click", this.onToggleBulkEdit);
@@ -97,6 +98,7 @@ class BookmarkPage extends HeadlessElement {
       checkbox.checked = false;
     });
     this.updateSelectAcross(false);
+    this.updateExecuteButton();
 
     // Update total number of bookmarks
     const totalHolder = this.querySelector("[data-bookmarks-total]");
@@ -119,6 +121,7 @@ class BookmarkPage extends HeadlessElement {
       checkbox.checked = allChecked;
     });
     this.updateSelectAcross(allChecked);
+    this.updateExecuteButton();
   }
 
   onToggleBookmark() {
@@ -127,6 +130,7 @@ class BookmarkPage extends HeadlessElement {
     });
     this.allCheckbox.checked = allChecked;
     this.updateSelectAcross(allChecked);
+    this.updateExecuteButton();
   }
 
   updateSelectAcross(allChecked) {
@@ -136,6 +140,13 @@ class BookmarkPage extends HeadlessElement {
       this.selectAcross.classList.add("d-none");
       this.selectAcross.querySelector("input").checked = false;
     }
+  }
+
+  updateExecuteButton() {
+    const anyChecked = this.bookmarkCheckboxes.some((checkbox) => {
+      return checkbox.checked;
+    });
+    this.executeButton.disabled = !anyChecked;
   }
 }
 

@@ -319,3 +319,36 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
         expect(
             self.locate_bulk_edit_bar().get_by_text("All 70 bookmarks")
         ).to_be_visible()
+
+    def test_execute_button_is_disabled_when_no_bookmarks_selected(self):
+        self.setup_numbered_bookmarks(5)
+
+        url = reverse("linkding:bookmarks.index")
+        self.open(url)
+
+        self.locate_bulk_edit_toggle().click()
+
+        execute_button = self.locate_bulk_edit_bar().get_by_text("Execute")
+
+        # Execute button should be disabled by default
+        expect(execute_button).to_be_disabled()
+
+        # Check a single bookmark - execute button should be enabled
+        self.locate_bookmark("Bookmark 1").locator(
+            "label.bulk-edit-checkbox"
+        ).click()
+        expect(execute_button).to_be_enabled()
+
+        # Uncheck the bookmark - execute button should be disabled again
+        self.locate_bookmark("Bookmark 1").locator(
+            "label.bulk-edit-checkbox"
+        ).click()
+        expect(execute_button).to_be_disabled()
+
+        # Check all bookmarks - execute button should be enabled
+        self.locate_bulk_edit_select_all().click()
+        expect(execute_button).to_be_enabled()
+
+        # Uncheck all bookmarks - execute button should be disabled again
+        self.locate_bulk_edit_select_all().click()
+        expect(execute_button).to_be_disabled()
