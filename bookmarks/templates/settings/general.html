@@ -149,7 +149,7 @@ reddit.com/r/Music music reddit</pre>
           {% endformhelp %}
         </div>
         <div class="form-group">
-          <details {% if form.ai_api_key.value or form.ai_tag_vocabulary.value %}open{% endif %}>
+          <details {% if form.ai_api_key.value or form.ai_base_url.value %}open{% endif %}>
             <summary>
               <span class="form-label d-inline-block">AI auto-tagging</span>
             </summary>
@@ -205,7 +205,8 @@ reddit.com/r/Music music reddit</pre>
               </label>
               {{ form.ai_tag_vocabulary|add_class:"form-input monospace"|attr:"rows:8" }}
               <div class="form-input-hint">
-                One tag per line. AI will <strong>only</strong> suggest tags from this list.
+                One tag per line. AI will <strong>only</strong> suggest tags from this list.<br>
+                <strong>Note:</strong> large tag lists increase API costs per request. The entire vocabulary is sent with each API call.
               </div>
             </div>
           </details>
