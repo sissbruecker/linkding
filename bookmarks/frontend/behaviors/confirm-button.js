@@ -52,6 +52,18 @@ class ConfirmButtonBehavior extends Behavior {
       this.element.getAttribute("ld-confirm-question") || "Are you sure?";
     question.style.fontWeight = "bold";
 
+    // Add warning for bulk AI auto-tagging
+    const form = this.element.closest("form");
+    const bulkActionSelect = form?.querySelector('select[name="bulk_action"]');
+    const isBulkRefreshAITags = bulkActionSelect?.value === "bulk_refresh_ai_tags";
+
+    let warningText = null;
+    if (isBulkRefreshAITags) {
+      warningText = document.createElement("p");
+      warningText.className = "text-small text-error mb-2";
+      warningText.textContent = "This will trigger API calls to your AI provider for each selected bookmark, which may exceed rate limits or incur unexpected costs.";
+    }
+
     const cancelButton = document.createElement("button");
     cancelButton.textContent = "Cancel";
     cancelButton.type = "button";
@@ -70,7 +82,11 @@ class ConfirmButtonBehavior extends Behavior {
     const arrow = document.createElement("div");
     arrow.className = "menu-arrow";
 
-    menu.append(question, cancelButton, confirmButton, arrow);
+    if (warningText) {
+      menu.append(question, warningText, cancelButton, confirmButton, arrow);
+    } else {
+      menu.append(question, cancelButton, confirmButton, arrow);
+    }
     dropdown.append(menu);
     document.body.append(dropdown);
 
