@@ -9,6 +9,8 @@ from bookmarks.services import tasks
 from bookmarks.services import website_loader
 from bookmarks.services.tags import get_or_create_tags
 
+import requests
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,7 +51,20 @@ def create_bookmark(
     ):
         tasks.create_html_snapshot(bookmark)
 
+    if(current_user.profile.webhook_enabled):
+        send_webhook(current_user, bookmark)
+
     return bookmark
+
+def send_webhook(current_user, bookmark):
+    if(current_user.profile.webhook_url == ""): 
+        return
+    
+    has_to_send_webhook = bookmark.tags.filter(name="crawl").exists()
+    if(has_to_send_webhook):
+        payload = {"url": bookmark.url, "title": bookmark.title}
+        
+        requests.post(current_user.profile.webhook_url, json=payload)
 
 
 def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):

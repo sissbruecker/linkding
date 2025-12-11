@@ -497,6 +497,10 @@ class UserProfile(models.Model):
     collapse_side_panel = models.BooleanField(default=False, null=False)
     hide_bundles = models.BooleanField(default=False, null=False)
     legacy_search = models.BooleanField(default=False, null=False)
+    webhook_url = models.URLField(default="", null=True)
+    webhook_tag = models.CharField(default="webhook", null=False)
+    webhook_enabled = models.BooleanField(default=False, null=False)
+    
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -540,6 +544,9 @@ class UserProfileForm(forms.ModelForm):
             "collapse_side_panel",
             "hide_bundles",
             "legacy_search",
+            "webhook_url",
+            "webhook_tag",
+            "webhook_enabled"
         ]
 
 
