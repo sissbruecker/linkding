@@ -28,7 +28,7 @@ class OpenAITaggerTaskTestCase(TestCase, BookmarkFactoryMixin):
     def test_auto_tag_bookmark_schedule(self, mock_task):
         # Should schedule if enabled
         auto_tag_bookmark(self.user, self.bookmark)
-        mock_task.assert_called_once_with(self.bookmark.id, self.user.id)
+        mock_task.assert_called_once_with(self.bookmark.id, self.user.id, False)
 
         # Should not schedule if user disabled
         mock_task.reset_mock()

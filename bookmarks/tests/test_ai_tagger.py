@@ -233,7 +233,9 @@ class OpenAITaggerTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(tags, ["programming"])
         # Verify OpenAI client was called with base_url
         mock_openai.assert_called_once_with(
-            api_key=self.user.profile.ai_api_key, base_url="http://localhost:11434/v1"
+            api_key=self.user.profile.ai_api_key,
+            base_url="http://localhost:11434/v1",
+            timeout=60.0,
         )
 
     @patch("bookmarks.services.ai_auto_tagger.OpenAI")
@@ -257,7 +259,9 @@ class OpenAITaggerTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(tags, ["programming"])
         # Verify OpenAI client was called without base_url
-        mock_openai.assert_called_once_with(api_key=self.user.profile.ai_api_key)
+        mock_openai.assert_called_once_with(
+            api_key=self.user.profile.ai_api_key, timeout=60.0
+        )
 
     @patch("bookmarks.services.ai_auto_tagger.OpenAI")
     def test_validate_api_key_skips_validation_with_base_url(self, mock_openai):
