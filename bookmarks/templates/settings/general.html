@@ -158,7 +158,7 @@ reddit.com/r/Music music reddit</pre>
               <label for="{{ form.ai_api_key.id_for_label }}" class="form-label">
                 API key
               </label>
-              {{ form.ai_api_key|add_class:"form-input"|attr:"type:password" }}
+              {{ form.ai_api_key|add_class:"form-input" }}
               {% if form.ai_api_key.errors %}
               <div class="form-input-hint is-error">
                 {{ form.ai_api_key.errors }}

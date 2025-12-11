@@ -18,6 +18,21 @@ from bookmarks.validators import BookmarkURLValidator
 logger = logging.getLogger(__name__)
 
 
+class MaskedPasswordInput(forms.PasswordInput):
+    """
+    A password input that shows bullets when there's an existing value.
+    """
+
+    def __init__(self, attrs=None, render_value=True):
+        # Enable render_value so we can display the masked value
+        super().__init__(attrs=attrs, render_value=render_value)
+
+    def get_context(self, name, value, attrs):
+        if value:
+            value = "••••••••••••••••••••••••"
+        return super().get_context(name, value, attrs)
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=64)
     date_added = models.DateTimeField()
@@ -484,6 +499,20 @@ class UserProfileForm(forms.ModelForm):
             "hide_bundles",
             "legacy_search",
         ]
+        widgets = {
+            "ai_api_key": MaskedPasswordInput(),
+        }
+
+    def clean_ai_api_key(self):
+        """
+        If the submitted value is the masked placeholder, preserve the existing value,
+        otherwise return the new value.
+        """
+        value = self.cleaned_data.get("ai_api_key")
+        # If masked bullets, keep the existing value (user didn't change it)
+        if value == "••••••••••••••••••••••••":
+            return self.instance.ai_api_key
+        return value
 
 
 @receiver(post_save, sender=User)

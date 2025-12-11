@@ -1294,6 +1294,21 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
         self.assertUserProfile(response, profile)
 
+    def test_user_profile_does_not_expose_api_key(self):
+        self.authenticate()
+
+        # Set an API key on the profile
+        profile = self.user.profile
+        profile.ai_api_key = "sk-proj-123"
+        profile.save()
+
+        # Get the profile
+        url = reverse("linkding:user-profile")
+        response = self.get(url, expected_status_code=status.HTTP_200_OK)
+
+        # API key should not be in the response (write-only field)
+        self.assertNotIn("ai_api_key", response.data)
+
     def create_singlefile_upload_body(self):
         url = "https://example.com"
         file_content = b"dummy content"
