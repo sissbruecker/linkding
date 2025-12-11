@@ -116,9 +116,9 @@ Allowed tags: {', '.join(allowed_tags)}
         ai_api_key = profile.ai_api_key.strip() if profile.ai_api_key else "apikey"
 
         if base_url:
-            client = OpenAI(api_key=ai_api_key, base_url=base_url)
+            client = OpenAI(api_key=ai_api_key, base_url=base_url, timeout=60.0)
         else:
-            client = OpenAI(api_key=ai_api_key)
+            client = OpenAI(api_key=ai_api_key, timeout=60.0)
 
         response = client.chat.completions.parse(
             model=profile.ai_model,
@@ -188,9 +188,9 @@ def list_ai_models(api_key: str, base_url: Optional[str] = None):
         List of available models
     """
     if base_url:
-        client = OpenAI(api_key=api_key, base_url=base_url)
+        client = OpenAI(api_key=api_key, base_url=base_url, timeout=60.0)
     else:
-        client = OpenAI(api_key=api_key)
+        client = OpenAI(api_key=api_key, timeout=60.0)
     return client.models.list()
 
 
