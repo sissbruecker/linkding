@@ -250,27 +250,28 @@ def _refresh_metadata_task(bookmark_id: int):
     logger.info(f"Successfully refreshed metadata for bookmark. url={bookmark.url}")
 
 
-def auto_tag_bookmark(user: User, bookmark: Bookmark):
+def auto_tag_bookmark(user: User, bookmark: Bookmark, force: bool = False):
     """Schedule AI auto-tagging task if AI auto-tagging is configured for user."""
     if not settings.LD_DISABLE_BACKGROUND_TASKS:
         from bookmarks.services.ai_auto_tagger import is_ai_auto_tagging_enabled
 
         if is_ai_auto_tagging_enabled(user):
-            _auto_tag_bookmark_task(bookmark.id, user.id)
+            _auto_tag_bookmark_task(bookmark.id, user.id, force)
 
 
 @task()
-def _auto_tag_bookmark_task(bookmark_id: int, user_id: int):
+def _auto_tag_bookmark_task(bookmark_id: int, user_id: int, force: bool = False):
     """
     Background task to generate and apply AI tags.
     Only applies if bookmark currently has no tags and was just created.
+    If force=True, applies AI tags even if the bookmark already has tags.
     """
     try:
         bookmark = Bookmark.objects.get(id=bookmark_id)
         user = User.objects.get(id=user_id)
 
         # Skip if bookmark already has tags
-        if bookmark.tags.exists():
+        if bookmark.tags.exists() and not force:
             logger.info(
                 f"Skipping AI tagging - bookmark {bookmark_id} already has tags"
             )

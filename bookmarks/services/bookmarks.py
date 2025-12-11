@@ -217,7 +217,7 @@ def refresh_ai_tags(bookmark_ids: list[Union[int, str]], current_user: User):
     )
 
     for bookmark in owned_bookmarks:
-        tasks.auto_tag_bookmark(current_user, bookmark)
+        tasks.auto_tag_bookmark(current_user, bookmark, True)
 
 
 def create_html_snapshots(bookmark_ids: list[int | str], current_user: User):
