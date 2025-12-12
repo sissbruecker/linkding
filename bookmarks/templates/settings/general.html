@@ -27,24 +27,9 @@
     <form action="{% url 'linkding:settings.update' %}" method="post" novalidate data-turbo="false">
       {% csrf_token %}
 
-      <h2 id="rest-api-heading">Webhook</h2>
-      <div class="form-group">
-        <label for="{{ form.webhook_enabled.id_for_label }}" class="form-checkbox">
-          {{ form.webhook_enabled }}
-          <i class="form-icon"></i> Enabled
-        </label>
-        <label for="{{ form.webhook_url.id_for_label }}" class="form-label">Webhook URL</label>
-        <div class="width-50 width-md-100">
-          {{ form.webhook_url|add_class:"form-input width-100" }}
-          <p>The following URL can be used to send the bookmark with a POST request. The body of the URL will contain
-            the URL and Title of the added bookmark</p>
-        </div>
-        <label for="{{ form.webhook_tag.id_for_label }}" class="form-label">Webhook tag</label>
-        <div class="width-50 width-md-100">
-          {{ form.webhook_tag|add_class:"form-input width-100" }}
-          <p>Only the bookmarks with this tag will be notified</p>
-        </div>
-      </div>
+
+
+
       <div class="form-group">
         <label for="{{ form.theme.id_for_label }}" class="form-label">Theme</label>
         {{ form.theme|add_class:"form-select width-25 width-sm-100" }}
@@ -326,6 +311,43 @@ reddit.com/r/Music music reddit</pre>
           Allows to add custom CSS to the page.
         </div>
       </div>
+
+      <div class="form-group">
+        <label for="{{ form.webhook_enabled.id_for_label }}" class="form-checkbox">
+          {{ form.webhook_enabled }}
+          <i class="form-icon"></i> Enable Webhooks
+        </label>
+        <details>
+          <summary>
+            <span class="form-label d-inline-block">Webhooks settings</span>
+          </summary>
+          <label for="{{ form.webhook_url.id_for_label }}" class="form-label">Webhook URL</label>
+          {{ form.webhook_url|add_class:"form-input width-100" }}
+          <div class="form-input-hint">
+            <p>The following URL will be used to send the bookmark data via a POST request. <br>
+              The request body is sent as JSON and includes the bookmark's URL, title, description, notes,
+              website_title, website_description, date_added, and a list of associated tags.</p>
+          </div>
+
+          <label for="{{ form.webhook_tag.id_for_label }}" class="form-label">Webhook tag</label>
+          {{ form.webhook_tag|add_class:"form-input width-100" }}
+          <div class="form-input-hint">
+            <p>Only the bookmarks with this tag will be notified</p>
+          </div>
+
+          <label for="{{ form.webhook_use_basic_auth.id_for_label }}" class="form-label">Authentication</label>
+          {{ form.webhook_use_basic_auth }}
+          <i class="form-icon"></i> Use basic auth
+
+          <label for="{{ form.webhhook_auth_username.id_for_label}}" class="form-label">Username</label>
+          {{ form.webhook_auth_username|add_class:"form-input width-25" }}
+
+          <label for="{{ form.webhhook_auth_password.id_for_label }}" class="form-label">Password</label>
+          {{ form.webhook_auth_password|add_class:"form-input width-25" }}
+
+        </details>
+      </div>
+
       <div class="form-group">
         <input type="submit" name="update_profile" value="Save" class="btn btn-primary btn-wide mt-2">
       </div>
@@ -449,6 +471,18 @@ reddit.com/r/Music music reddit</pre>
     const defaultMarkShared = document.getElementById("{{ form.default_mark_shared.id_for_label }}");
     const bookmarkDescriptionDisplay = document.getElementById("{{ form.bookmark_description_display.id_for_label }}");
     const bookmarkDescriptionMaxLines = document.getElementById("{{ form.bookmark_description_max_lines.id_for_label }}");
+
+    const webhook_use_basic_auth = document.getElementById("{{ form.webhook_use_basic_auth.id_for_label }}");
+    const webhook_auth_username = document.getElementById("{{ form.webhook_auth_username.id_for_label }}");
+    const webhook_auth_password = document.getElementById("{{ form.webhook_auth_password.id_for_label }}");
+
+    webhook_use_basic_auth.addEventListener("change", toggleBasicAuthFields);
+    toggleBasicAuthFields()
+
+    function toggleBasicAuthFields() {
+      webhook_auth_username.disabled = !webhook_use_basic_auth.checked
+      webhook_auth_password.disabled = !webhook_use_basic_auth.checked
+    }
 
     // Automatically disable public bookmark sharing and default shared option if bookmark sharing is disabled
     function updateSharingOptions() {

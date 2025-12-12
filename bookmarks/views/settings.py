@@ -52,6 +52,9 @@ def general(request: HttpRequest, status=200, context_overrides=None):
     webhook_url = request.user_profile.webhook_url
     webhook_tag = request.user_profile.webhook_tag
     webhook_enabled = request.user_profile.webhook_enabled
+    webhook_use_basic_auth = request.user_profile.webhook_use_basic_auth
+    webhook_auth_username = request.user_profile.webhook_auth_username
+    webhook_auth_password = request.user_profile.webhook_auth_password
 
     return render(
         request,
@@ -67,6 +70,9 @@ def general(request: HttpRequest, status=200, context_overrides=None):
             "webhook_url": webhook_url,
             "webhook_tag": webhook_tag,
             "webhook_enabled": webhook_enabled,
+            "webhook_use_basic_auth": webhook_use_basic_auth,
+            "webhook_auth_username": webhook_auth_username,
+            "webhook_auth_password": webhook_auth_password,
             **context_overrides,
         },
         status=status,

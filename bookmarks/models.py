@@ -500,6 +500,10 @@ class UserProfile(models.Model):
     webhook_url = models.URLField(default="", null=True)
     webhook_tag = models.CharField(default="webhook", null=False)
     webhook_enabled = models.BooleanField(default=False, null=False)
+    webhook_use_basic_auth = models.BooleanField(default=False, null=False)
+    webhook_auth_username = models.CharField(blank=True, null=True)
+    webhook_auth_password = models.CharField(blank=True, null=True)
+    
     
 
     def save(self, *args, **kwargs):
@@ -546,8 +550,14 @@ class UserProfileForm(forms.ModelForm):
             "legacy_search",
             "webhook_url",
             "webhook_tag",
-            "webhook_enabled"
+            "webhook_enabled",
+            "webhook_use_basic_auth",
+            "webhook_auth_username",
+            "webhook_auth_password",
         ]
+        widgets={
+             "webhook_auth_password": forms.PasswordInput(render_value=True)
+        }
 
 
 @receiver(post_save, sender=User)

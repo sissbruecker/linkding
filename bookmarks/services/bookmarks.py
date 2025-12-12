@@ -10,6 +10,7 @@ from bookmarks.services import website_loader
 from bookmarks.services.tags import get_or_create_tags
 
 import requests
+from requests.auth import HTTPBasicAuth
 
 logger = logging.getLogger(__name__)
 
@@ -51,20 +52,64 @@ def create_bookmark(
     ):
         tasks.create_html_snapshot(bookmark)
 
-    if(current_user.profile.webhook_enabled):
+    if (current_user.profile.webhook_enabled):
         send_webhook(current_user, bookmark)
 
     return bookmark
 
+
 def send_webhook(current_user, bookmark):
-    if(current_user.profile.webhook_url == ""): 
-        return
+    basic_auth_username = current_user.profile.webhook_auth_username
+    basic_auth_password = current_user.profile.webhook_auth_password
     
-    has_to_send_webhook = bookmark.tags.filter(name="crawl").exists()
-    if(has_to_send_webhook):
-        payload = {"url": bookmark.url, "title": bookmark.title}
-        
-        requests.post(current_user.profile.webhook_url, json=payload)
+    basic_auth = HTTPBasicAuth(basic_auth_username, basic_auth_password)
+    webhook_url = current_user.profile.webhook_url
+
+    if not webhook_url:
+        return
+
+    wehbook_tag = current_user.profile.webhook_tag
+    has_to_send_webhook = bookmark.tags.filter(name=wehbook_tag).exists()
+    if has_to_send_webhook:
+        payload = {
+            "url": bookmark.url,
+            "user": current_user.username,
+            "title": bookmark.title,
+            "description": bookmark.description,
+            "notes": bookmark.notes,
+            "website_title": bookmark.website_title,
+            "website_description": bookmark.website_description,
+            "date_added": bookmark.date_added.isoformat(),
+            "tags": bookmark.tag_names
+        }
+
+        headers = {'User-Agent': 'Linkding'}
+
+        try:
+            response = requests.post(
+                webhook_url,
+                json=payload,
+                headers=headers,
+                auth=basic_auth,
+                timeout=5
+            )
+
+            # check for HTTP errors
+            response.raise_for_status()
+
+            logger.info(
+                f"Successfully sent webhook for user '{current_user.username}' "
+                f"to '{webhook_url}'"
+            )
+
+        except requests.exceptions.RequestException as e:
+            logger.error(
+                f"Error sending webhook for user '{current_user.username}' "
+                f"to '{webhook_url}'. Error: \"{e}\""
+            )
+            if response is not None:
+                logger.error(
+                    f"Webhook response status code: {response.status_code}")
 
 
 def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
