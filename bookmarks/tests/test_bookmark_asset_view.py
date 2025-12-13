@@ -141,7 +141,7 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_reader_view_access_guest_user(self):
         self.view_access_guest_user_test("linkding:assets.read")
 
-    def test_snapshot_download_name(self):
+    def test_snapshot_download_headers(self):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset_with_file(bookmark)
         response = self.client.get(reverse("linkding:assets.view", args=[asset.id]))
@@ -151,8 +151,9 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
             response["Content-Disposition"],
             f'inline; filename="{asset.display_name}.html"',
         )
+        self.assertEqual(response["Content-Security-Policy"], "sandbox")
 
-    def test_uploaded_file_download_name(self):
+    def test_uploaded_file_download_headers(self):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset_with_uploaded_file(bookmark)
         response = self.client.get(reverse("linkding:assets.view", args=[asset.id]))
@@ -162,3 +163,4 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
             response["Content-Disposition"],
             f'inline; filename="{asset.display_name}"',
         )
+        self.assertEqual(response["Content-Security-Policy"], "sandbox")

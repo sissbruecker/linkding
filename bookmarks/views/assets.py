@@ -33,6 +33,7 @@ def view(request, asset_id: int):
 
     response = HttpResponse(content, content_type=asset.content_type)
     response["Content-Disposition"] = f'inline; filename="{asset.download_name}"'
+    response["Content-Security-Policy"] = "sandbox"
     return response
 
 
