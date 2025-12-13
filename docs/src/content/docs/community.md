@@ -17,6 +17,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [k8s + s3](https://github.com/jzck/linkding-k8s-s3) - Setup for hosting stateless linkding on k8s with sqlite replicated to s3. By [jzck](https://github.com/jzck)
 - [Linka!](https://github.com/cmsax/linka) Web app (also a PWA) for quickly searching & opening bookmarks in linkding, support multi keywords, exclude mode and other advance options. By [cmsax](https://github.com/cmsax)
 - [LinkBuddy](https://github.com/peterto/LinkBuddy) An open-source Android and iOS client for linkding, written in React Native. Android apk available on [github](https://github.com/peterto/LinkBuddy/releases) and iOS version on [Apple AppStore](https://apps.apple.com/us/app/linkbuddy-for-linkding/id6740408952). By [peterto](https://github.com/peterto).
+- [linkding-api](https://github.com/vbsampath/linkding-api) A Javascript library implementing linkding REST API by [vbsampath](https://github.com/vbsampath)
 - [linkding-archiver](https://github.com/sebw/linkding-archiver) A Python application that integrates with SingleFile and Tube Archivist to archive your links and videos. By [sebw](https://github.com/sebw)  
 - [linkding-cli](https://github.com/bachya/linkding-cli) A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). By [bachya](https://github.com/bachya)
 - [linkding-extension](https://github.com/jeroenpardon/linkding-extension) Chromium compatible extension that wraps the linkding bookmarklet. Tested with Chrome, Edge, Brave. By [jeroenpardon](https://github.com/jeroenpardon)
@@ -34,5 +35,3 @@ This section lists community projects around using linkding, in alphabetical ord
 - [Pocket2Linkding](https://github.com/hkclark/Pocket2Linkding/) A tool to migrate from Mozilla Pocket to linkding. Preserves the date the link was added to pocket and any tags.
 - [Postman collection](https://gist.github.com/gingerbeardman/f0b42502f3bc9344e92ce63afd4360d3) a group of saved request templates for API testing. By [gingerbeardman](https://github.com/gingerbeardman)
 - [serchding](https://github.com/ldwgchen/serchding) Full-text search for linkding. By [ldwgchen](https://github.com/ldwgchen)
-- [linkding-api](https://github.com/vbsampath/linkding-api) A Javascript library implementing linkding REST API by [vbsampath](https://github.com/vbsampath)
-- [linkding-client](https://github.com/vbsampath/linkding-client) A Javascript client for accessing linkding REST API using linkding-api. By [vbsampath](https://github.com/vbsampath)
