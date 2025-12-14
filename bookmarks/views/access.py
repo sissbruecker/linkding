@@ -1,6 +1,6 @@
 from django.http import Http404
 
-from bookmarks.models import Bookmark, BookmarkAsset, BookmarkBundle, Toast
+from bookmarks.models import ApiToken, Bookmark, BookmarkAsset, BookmarkBundle, Toast
 from bookmarks.type_defs import HttpRequest
 
 
@@ -65,3 +65,10 @@ def toast_write(request: HttpRequest, toast_id: int | str):
         return Toast.objects.get(pk=toast_id, owner=request.user)
     except Toast.DoesNotExist:
         raise Http404("Toast does not exist")
+
+
+def api_token_write(request: HttpRequest, token_id: int | str):
+    try:
+        return ApiToken.objects.get(id=token_id, user=request.user)
+    except (ApiToken.DoesNotExist, ValueError):
+        raise Http404("API token does not exist")

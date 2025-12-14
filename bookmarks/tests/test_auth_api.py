@@ -1,6 +1,5 @@
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 
 from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
 
@@ -8,9 +7,7 @@ from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
 class AuthApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
     def authenticate(self, keyword):
-        self.api_token = Token.objects.get_or_create(
-            user=self.get_or_create_test_user()
-        )[0]
+        self.api_token = self.setup_api_token()
         self.client.credentials(HTTP_AUTHORIZATION=f"{keyword} {self.api_token.key}")
 
     def test_auth_with_token_keyword(self):

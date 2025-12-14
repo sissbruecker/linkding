@@ -25,7 +25,10 @@
       <p>The bookmarklet is an alternative, cross-browser way to quickly add new bookmarks without opening the linkding
         application first. Here's how it works:</p>
       <ul>
-        <li>Choose your preferred method for detecting website titles and descriptions below (<a href="https://linkding.link/troubleshooting/#automatically-detected-title-and-description-are-incorrect" target="_blank">Help</a>)</li>
+        <li>Choose your preferred method for detecting website titles and descriptions below (<a
+            href="https://linkding.link/troubleshooting/#automatically-detected-title-and-description-are-incorrect"
+            target="_blank">Help</a>)
+        </li>
         <li>Drag the bookmarklet below into your browser's bookmark bar / toolbar</li>
         <li>Open the website that you want to bookmark</li>
         <li>Click the bookmarklet in your browser's toolbar</li>
@@ -49,27 +52,122 @@
       <div class="bookmarklet-container">
         <a id="bookmarklet-server" href="javascript: {% include 'bookmarks/bookmarklet.js' %}" data-turbo="false"
            class="btn btn-primary">📎 Add bookmark</a>
-        <a id="bookmarklet-client" href="javascript: {% include 'bookmarks/bookmarklet_clientside.js' %}" data-turbo="false"
-           class="btn btn-primary" style="display: none;">📎 Add bookmark</a>
+        <a id="bookmarklet-client" href="javascript: {% include 'bookmarks/bookmarklet_clientside.js' %}"
+           data-turbo="false" class="btn btn-primary" style="display: none;">📎 Add bookmark</a>
       </div>
+
+      <script>
+          (function init() {
+              // Bookmarklet type toggle
+              const radioButtons = document.querySelectorAll('input[name="bookmarklet-type"]');
+              const serverBookmarklet = document.getElementById('bookmarklet-server');
+              const clientBookmarklet = document.getElementById('bookmarklet-client');
+
+              function toggleBookmarklet() {
+                  const selectedValue = document.querySelector('input[name="bookmarklet-type"]:checked').value;
+                  if (selectedValue === 'server') {
+                      serverBookmarklet.style.display = 'inline-block';
+                      clientBookmarklet.style.display = 'none';
+                  } else {
+                      serverBookmarklet.style.display = 'none';
+                      clientBookmarklet.style.display = 'inline-block';
+                  }
+              }
+
+              toggleBookmarklet();
+              radioButtons.forEach(function (radio) {
+                  radio.addEventListener('change', toggleBookmarklet);
+              });
+          })();
+      </script>
     </section>
 
-    <section aria-labelledby="rest-api-heading">
-      <h2 id="rest-api-heading">REST API</h2>
-      <p>The following token can be used to authenticate 3rd-party applications against the REST API:</p>
-      <div class="form-group">
-        <div class="width-50 width-md-100">
-          <input class="form-input" value="{{ api_token }}" readonly>
-        </div>
-      </div>
-      <p>
-        <strong>Please treat this token as you would any other credential.</strong>
-        Any party with access to this token can access and manage all your bookmarks.
-        If you think that a token was compromised you can revoke (delete) it in the <a
-          target="_blank" href="{% url 'admin:authtoken_tokenproxy_changelist' %}">admin panel</a>.
-        After deleting the token, a new one will be generated when you reload this settings page.
-      </p>
-    </section>
+    <turbo-frame id="api-section">
+      <section aria-labelledby="rest-api-heading">
+        <h2 id="rest-api-heading">REST API</h2>
+
+        {% if api_success_message %}
+          <div class="toast toast-success mb-2">
+            {{ api_success_message }}
+          </div>
+        {% endif %}
+
+        {% if api_token_name and api_token_key %}
+          <div class="mt-4 mb-6">
+            <p class="mb-2"><strong>Copy this token now, it will only be shown once:</strong></p>
+            <label class="text-assistive" for="new-token-key">New token key</label>
+            <div class="input-group">
+              <input class="form-input" value="{{ api_token_key }}" readonly id="new-token-key">
+              <button id="copy-new-token-key" class="btn input-group-btn" type="button">Copy</button>
+            </div>
+          </div>
+        {% endif %}
+
+        <p>
+          API tokens can be used to authenticate 3rd-party applications against the REST API. <strong>Please treat
+          tokens as you would any other credential.</strong> Any party with access to a token can access and manage all
+          your bookmarks.
+        </p>
+
+        {% if api_tokens %}
+          <form method="post"
+                action="{% url 'linkding:settings.integrations.delete_api_token' %}"
+                data-turbo-frame="api-section">
+            <table class="table crud-table mb-6">
+              <thead>
+              <tr>
+                <th>Name</th>
+                <th>Created</th>
+                <th class="actions">
+                  <span class="text-assistive">Actions</span>
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for token in api_tokens %}
+                <tr>
+                  <td>{{ token.name }}</td>
+                  <td>{{ token.created|date:"M d, Y H:i" }}</td>
+                  <td class="actions">
+                    {% csrf_token %}
+                    <button ld-confirm-button name="token_id" value="{{ token.id }}" type="submit"
+                            class="btn btn-link">Delete
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </form>
+        {% endif %}
+
+        <a class="btn" href="{% url 'linkding:settings.integrations.create_api_token' %}"
+           data-turbo-frame="api-modal">Create API token</a>
+      </section>
+
+      <turbo-frame id="api-modal"></turbo-frame>
+
+      <script>
+          (function init() {
+              // Copy new token key to clipboard
+              const copyButton = document.getElementById('copy-new-token-key');
+              if (copyButton) {
+                  copyButton.addEventListener('click', () => {
+                      const tokenInput = document.getElementById('new-token-key');
+                      const tokenValue = tokenInput.value;
+                      navigator.clipboard.writeText(tokenValue).then(() => {
+                          copyButton.textContent = 'Copied!';
+                          setTimeout(() => {
+                              copyButton.textContent = 'Copy';
+                          }, 2000);
+                      }, (err) => {
+                          console.error('Could not copy text: ', err);
+                      });
+                  });
+              }
+          })();
+      </script>
+    </turbo-frame>
 
     <section aria-labelledby="rss-feeds-heading">
       <h2 id="rss-feeds-heading">RSS Feeds</h2>
@@ -78,7 +176,8 @@
         <li><a target="_blank" href="{{ all_feed_url }}">All bookmarks</a></li>
         <li><a target="_blank" href="{{ unread_feed_url }}">Unread bookmarks</a></li>
         <li><a target="_blank" href="{{ shared_feed_url }}">Shared bookmarks</a></li>
-        <li><a target="_blank" href="{{ public_shared_feed_url }}">Public shared bookmarks</a><br><span class="text-small text-secondary">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span>
+        <li><a target="_blank" href="{{ public_shared_feed_url }}">Public shared bookmarks</a><br><span
+            class="text-small text-secondary">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span>
         </li>
       </ul>
       <p>
@@ -108,28 +207,4 @@
       </p>
     </section>
   </main>
-
-  <script>
-    (function init() {
-      const radioButtons = document.querySelectorAll('input[name="bookmarklet-type"]');
-      const serverBookmarklet = document.getElementById('bookmarklet-server');
-      const clientBookmarklet = document.getElementById('bookmarklet-client');
-
-      function toggleBookmarklet() {
-        const selectedValue = document.querySelector('input[name="bookmarklet-type"]:checked').value;
-        if (selectedValue === 'server') {
-          serverBookmarklet.style.display = 'inline-block';
-          clientBookmarklet.style.display = 'none';
-        } else {
-          serverBookmarklet.style.display = 'none';
-          clientBookmarklet.style.display = 'inline-block';
-        }
-      }
-
-      toggleBookmarklet();
-      radioButtons.forEach(function(radio) {
-        radio.addEventListener('change', toggleBookmarklet);
-      });
-    })();
-  </script>
 {% endblock %}

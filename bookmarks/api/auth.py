@@ -2,12 +2,16 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.authentication import TokenAuthentication, get_authorization_header
 
+from bookmarks.models import ApiToken
+
 
 class LinkdingTokenAuthentication(TokenAuthentication):
     """
-    Extends DRF TokenAuthentication to add support for multiple keywords
+    Extends DRF TokenAuthentication to add support for multiple keywords and
+    multiple tokens per user.
     """
 
+    model = ApiToken
     keywords = [keyword.lower().encode() for keyword in ["Token", "Bearer"]]
 
     def authenticate(self, request):
