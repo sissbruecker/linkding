@@ -1,4 +1,4 @@
-import { Behavior } from "./index";
+import { Behavior, registerBehavior } from "./index";
 import { FocusTrapController } from "./focus-utils";
 
 export class ModalBehavior extends Behavior {
@@ -77,5 +77,14 @@ export class ModalBehavior extends Behavior {
     this.element.remove();
     this.removeScrollLock();
     this.element.dispatchEvent(new CustomEvent("modal:close"));
+
+    // Navigate to close URL
+    const closeUrl = this.element.dataset.closeUrl;
+    const frame = this.element.dataset.turboFrame;
+    if (closeUrl) {
+      Turbo.visit(closeUrl, { frame: frame });
+    }
   }
 }
+
+registerBehavior("ld-modal", ModalBehavior);

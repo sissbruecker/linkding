@@ -9,7 +9,6 @@ from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 import bookmarks.services.bookmarks
@@ -35,9 +34,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.mock_assets_upload_snapshot_patcher.stop()
 
     def authenticate(self):
-        self.api_token = Token.objects.get_or_create(
-            user=self.get_or_create_test_user()
-        )[0]
+        self.api_token = self.setup_api_token()
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.api_token.key)
 
     def assertBookmarkListEqual(self, data_list, bookmarks):

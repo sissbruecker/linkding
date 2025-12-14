@@ -3,7 +3,6 @@ from django.db.utils import DEFAULT_DB_ALIAS
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 
 from bookmarks.models import GlobalSettings
 from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
@@ -12,9 +11,7 @@ from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
 class BookmarksApiPerformanceTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
 
     def setUp(self) -> None:
-        self.api_token = Token.objects.get_or_create(
-            user=self.get_or_create_test_user()
-        )[0]
+        self.api_token = self.setup_api_token()
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.api_token.key)
 
         # create global settings

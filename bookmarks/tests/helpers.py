@@ -14,10 +14,16 @@ from django.test import override_settings
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from bookmarks.models import Bookmark, BookmarkAsset, BookmarkBundle, Tag, User
+from bookmarks.models import (
+    ApiToken,
+    Bookmark,
+    BookmarkAsset,
+    BookmarkBundle,
+    Tag,
+    User,
+)
 
 
 class BookmarkFactoryMixin:
@@ -275,6 +281,15 @@ class BookmarkFactoryMixin:
         user.profile.save()
         return user
 
+    def setup_api_token(self, user: User = None, name: str = ""):
+        if user is None:
+            user = self.get_or_create_test_user()
+        if not name:
+            name = get_random_string(length=32)
+        token = ApiToken(user=user, name=name)
+        token.save()
+        return token
+
     def get_tags_from_bookmarks(self, bookmarks: list[Bookmark]):
         all_tags = []
         for bookmark in bookmarks:
@@ -361,9 +376,9 @@ class TagCloudTestMixin(TestCase, HtmlTestMixin):
 
 class LinkdingApiTestCase(APITestCase):
     def authenticate(self):
-        self.api_token = Token.objects.get_or_create(
-            user=self.get_or_create_test_user()
-        )[0]
+        user = self.get_or_create_test_user()
+        self.api_token = ApiToken(user=user, name="Test Token")
+        self.api_token.save()
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.api_token.key)
 
     def get(self, url, expected_status_code=status.HTTP_200_OK):

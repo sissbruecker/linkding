@@ -587,6 +587,29 @@ class FeedToken(models.Model):
         return self.key
 
 
+class ApiToken(models.Model):
+    key = models.CharField(max_length=40, unique=True)
+    user = models.ForeignKey(
+        User,
+        related_name="api_tokens",
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(max_length=128, blank=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
+
+    def __str__(self):
+        return f"{self.name} ({self.user.username})"
+
+
 class GlobalSettings(models.Model):
     LANDING_PAGE_LOGIN = "login"
     LANDING_PAGE_SHARED_BOOKMARKS = "shared_bookmarks"

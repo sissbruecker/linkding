@@ -2,16 +2,13 @@ import urllib.parse
 
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 
 from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
 
 
 class BookmarksApiPermissionsTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def authenticate(self) -> None:
-        self.api_token = Token.objects.get_or_create(
-            user=self.get_or_create_test_user()
-        )[0]
+        self.api_token = self.setup_api_token()
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.api_token.key)
 
     def test_list_bookmarks_requires_authentication(self):
