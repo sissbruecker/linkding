@@ -82,7 +82,7 @@ export class ModalBehavior extends Behavior {
     const closeUrl = this.element.dataset.closeUrl;
     const frame = this.element.dataset.turboFrame;
     if (closeUrl) {
-      Turbo.visit(closeUrl, { frame: frame });
+      Turbo.visit(closeUrl, { action: "replace", frame: frame });
     }
   }
 }
