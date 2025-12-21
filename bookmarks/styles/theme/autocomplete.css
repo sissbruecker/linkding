@@ -1,7 +1,5 @@
 /* Autocomplete */
 .form-autocomplete {
-  position: relative;
-
   & .form-autocomplete-input {
     box-sizing: border-box;
     align-content: flex-start;
@@ -53,10 +51,7 @@
 
   & .menu {
     display: none;
-    left: 0;
-    position: absolute;
-    top: 100%;
-    width: 100%;
+    position: fixed;
     max-height: var(--menu-max-height, 200px);
     overflow: auto;
 

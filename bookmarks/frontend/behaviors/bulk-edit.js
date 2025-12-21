@@ -72,10 +72,7 @@ class BulkEdit extends Behavior {
   onToggleActive() {
     this.active = !this.active;
     if (this.active) {
-      this.element.classList.add("active", "activating");
-      setTimeout(() => {
-        this.element.classList.remove("activating");
-      }, 500);
+      this.element.classList.add("active");
     } else {
       this.element.classList.remove("active");
     }

@@ -478,12 +478,6 @@ ul.bookmark-list {
     border-bottom-color: transparent;
   }
 
-  /* remove overflow after opening animation, otherwise tag autocomplete overlay gets cut off */
-
-  &.active:not(.activating) .bulk-edit-bar {
-    overflow: visible;
-  }
-
   /* make sticky pagination expand to cover checkboxes to the left */
 
   &.active .bookmark-pagination.sticky:before {

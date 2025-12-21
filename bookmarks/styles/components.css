@@ -42,6 +42,7 @@
     box-sizing: border-box;
     gap: var(--unit-2);
     padding: var(--unit-2);
+    transform: none;
   }
 }
 
