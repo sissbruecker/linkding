@@ -22,10 +22,10 @@ class A11yNavigationFocusTest(LinkdingE2ETestCase):
 
             # Bookmark form views should focus the URL input
             page.goto(self.live_server_url + reverse("linkding:bookmarks.new"))
+            page.wait_for_timeout(timeout=1000)
             focused_tag = page.evaluate(
                 "document.activeElement?.tagName + '|' + document.activeElement?.name"
             )
-            page.wait_for_timeout(timeout=1000)
             self.assertEqual("INPUT|url", focused_tag)
 
     def test_page_navigation_focus(self):

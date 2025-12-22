@@ -1,5 +1,8 @@
-/* Common styles */
 .bookmark-details {
+  .modal-container {
+    width: 100%;
+  }
+
   .title {
     word-break: break-word;
     display: -webkit-box;
@@ -94,11 +97,4 @@
     justify-content: space-between;
     align-items: center;
   }
-}
-
-/* Bookmark details view specific */
-.bookmark-details.page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--unit-6);
 }

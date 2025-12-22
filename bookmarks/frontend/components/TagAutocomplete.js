@@ -1,4 +1,5 @@
-import { LitElement, html } from "lit";
+import { html, LitElement } from "lit";
+import { PositionController } from "../behaviors/position-controller.js";
 import { cache } from "../cache.js";
 import { getCurrentWord, getCurrentWordBounds } from "../util.js";
 
@@ -39,6 +40,17 @@ export class TagAutocomplete extends LitElement {
   firstUpdated() {
     this.input = this.querySelector("input");
     this.suggestionList = this.querySelector(".menu");
+    this.positionController = new PositionController({
+      anchor: this.input,
+      overlay: this.suggestionList,
+      autoWidth: true,
+      placement: "bottom-start",
+    });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.close();
   }
 
   handleFocus() {
@@ -92,12 +104,14 @@ export class TagAutocomplete extends LitElement {
   open() {
     this.isOpen = true;
     this.selectedIndex = 0;
+    this.positionController.enable();
   }
 
   close() {
     this.isOpen = false;
     this.suggestions = [];
     this.selectedIndex = 0;
+    this.positionController.disable();
   }
 
   complete(suggestion) {

@@ -62,7 +62,6 @@
   gap: var(--unit-4);
   max-height: 75vh;
   max-width: var(--control-width-md);
-  width: 100%;
 
   & .modal-header {
     display: flex;

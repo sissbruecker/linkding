@@ -8,6 +8,7 @@
     "dev": "rollup -c -w"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.7.4",
     "@hotwired/turbo": "^8.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",

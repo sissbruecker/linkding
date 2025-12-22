@@ -63,6 +63,16 @@ urlpatterns = [
         views.settings.integrations,
         name="settings.integrations",
     ),
+    path(
+        "settings/integrations/create-api-token",
+        views.settings.create_api_token,
+        name="settings.integrations.create_api_token",
+    ),
+    path(
+        "settings/integrations/delete-api-token",
+        views.settings.delete_api_token,
+        name="settings.integrations.delete_api_token",
+    ),
     path("settings/import", views.settings.bookmark_import, name="settings.import"),
     path("settings/export", views.settings.bookmark_export, name="settings.export"),
     # Toasts

@@ -1,4 +1,5 @@
 import { LitElement, html } from "lit";
+import { PositionController } from "../behaviors/position-controller";
 import { SearchHistory } from "./SearchHistory.js";
 import { api } from "../api.js";
 import { cache } from "../cache.js";
@@ -41,6 +42,7 @@ export class SearchAutocomplete extends LitElement {
     };
     this.selectedIndex = undefined;
     this.input = null;
+    this.menu = null;
     this.searchHistory = new SearchHistory();
     this.debouncedLoadSuggestions = debounce(() => this.loadSuggestions());
   }
@@ -52,9 +54,21 @@ export class SearchAutocomplete extends LitElement {
   firstUpdated() {
     this.style.setProperty("--menu-max-height", "400px");
     this.input = this.querySelector("input");
+    this.menu = this.querySelector(".menu");
     // Track current search query after loading the page
     this.searchHistory.pushCurrent();
     this.updateSuggestions();
+    this.positionController = new PositionController({
+      anchor: this.input,
+      overlay: this.menu,
+      autoWidth: true,
+      placement: "bottom-start",
+    });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.close();
   }
 
   handleFocus() {
@@ -105,12 +119,14 @@ export class SearchAutocomplete extends LitElement {
 
   open() {
     this.isOpen = true;
+    this.positionController.enable();
   }
 
   close() {
     this.isOpen = false;
     this.updateSuggestions();
     this.selectedIndex = undefined;
+    this.positionController.disable();
   }
 
   hasSuggestions() {

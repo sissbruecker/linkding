@@ -1,5 +1,6 @@
 import { Behavior, registerBehavior } from "./index";
 import { FocusTrapController, isKeyboardActive } from "./focus-utils";
+import { PositionController } from "./position-controller";
 
 let confirmId = 0;
 
@@ -74,7 +75,13 @@ class ConfirmButtonBehavior extends Behavior {
     dropdown.append(menu);
     document.body.append(dropdown);
 
-    this.positionController = new AnchorPositionController(this.element, menu);
+    this.positionController = new PositionController({
+      anchor: this.element,
+      overlay: menu,
+      arrow: arrow,
+      offset: 12,
+    });
+    this.positionController.enable();
     this.focusTrap = new FocusTrapController(menu);
     this.dropdown = dropdown;
     this.opened = true;
@@ -95,78 +102,11 @@ class ConfirmButtonBehavior extends Behavior {
 
   close() {
     if (!this.opened) return;
-    this.positionController.destroy();
+    this.positionController.disable();
     this.focusTrap.destroy();
     this.dropdown.remove();
     this.element.focus({ focusVisible: isKeyboardActive() });
     this.opened = false;
-  }
-}
-
-class AnchorPositionController {
-  constructor(anchor, overlay) {
-    this.anchor = anchor;
-    this.overlay = overlay;
-
-    this.handleScroll = this.handleScroll.bind(this);
-    window.addEventListener("scroll", this.handleScroll, { capture: true });
-
-    this.updatePosition();
-  }
-
-  handleScroll() {
-    if (this.debounce) {
-      return;
-    }
-
-    this.debounce = true;
-
-    requestAnimationFrame(() => {
-      this.updatePosition();
-      this.debounce = false;
-    });
-  }
-
-  updatePosition() {
-    const anchorRect = this.anchor.getBoundingClientRect();
-    const overlayRect = this.overlay.getBoundingClientRect();
-    const bufferX = 10;
-    const bufferY = 30;
-
-    let left = anchorRect.left - (overlayRect.width - anchorRect.width) / 2;
-    const initialLeft = left;
-    const overflowLeft = left < bufferX;
-    const overflowRight =
-      left + overlayRect.width > window.innerWidth - bufferX;
-
-    if (overflowLeft) {
-      left = bufferX;
-    } else if (overflowRight) {
-      left = window.innerWidth - overlayRect.width - bufferX;
-    }
-
-    const delta = initialLeft - left;
-    this.overlay.style.setProperty("--arrow-offset", `${delta}px`);
-
-    let top = anchorRect.bottom;
-    const overflowBottom =
-      top + overlayRect.height > window.innerHeight - bufferY;
-
-    if (overflowBottom) {
-      top = anchorRect.top - overlayRect.height;
-      this.overlay.classList.remove("top-aligned");
-      this.overlay.classList.add("bottom-aligned");
-    } else {
-      this.overlay.classList.remove("bottom-aligned");
-      this.overlay.classList.add("top-aligned");
-    }
-
-    this.overlay.style.left = `${left}px`;
-    this.overlay.style.top = `${top}px`;
-  }
-
-  destroy() {
-    window.removeEventListener("scroll", this.handleScroll, { capture: true });
   }
 }
 
