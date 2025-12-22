@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookmarks', '0051_fix_normalized_url'),
+        ('bookmarks', '0053_migrate_api_tokens'),
     ]
 
     operations = [

@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     dependencies = [
         (
             "bookmarks",
-            "0052_userprofile_webhook_enabled_userprofile_webhook_tag_and_more",
+            "0054_userprofile_webhook_enabled_userprofile_webhook_tag_and_more",
         ),
     ]
 
