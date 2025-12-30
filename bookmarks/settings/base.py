@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "bookmarks.apps.BookmarksConfig",
+    "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -225,6 +226,40 @@ if LD_ENABLE_AUTH_PROXY:
 trusted_origins = os.getenv("LD_CSRF_TRUSTED_ORIGINS", "")
 if trusted_origins:
     CSRF_TRUSTED_ORIGINS = trusted_origins.split(",")
+
+# CORS
+# https://pypi.org/project/django-cors-headers/
+cors_enabled = False
+cors_origins = os.getenv("LD_CORS_ALLOWED_ORIGINS", "")
+if cors_origins:
+    CORS_ALLOWED_ORIGINS = cors_origins.split(",")
+    cors_enabled = True
+
+cores_regex = os.getenv("LD_CORS_ALLOWED_REGEX", "")
+if cores_regex:
+    CORS_ALLOWED_ORIGIN_REGEXES = [cores_regex]
+    cors_enabled = True
+
+cors_all = os.getenv("LD_CORS_ALLOW_ALL", False) in (True, "True", "true", "1")
+if cors_all:
+    CORS_ALLOW_ALL_ORIGINS = True
+    cors_enabled = True
+
+if cors_enabled:
+    MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
+    CORS_ALLOW_CREDENTIALS = os.getenv("LD_CORS_ALLOW_CREDENTIALS", False) in (True, "True", "true", "1")
+    CORS_URLS_REGEX = os.getenv("LD_CORS_URLS_REGEX", r"^/api/.*$")
+    cors_methods = os.getenv("LD_CORS_ALLOWED_METHODS", "")
+    if cors_methods:
+        CORS_ALLOW_METHODS = cors_methods.split(",")
+    CORS_ALLOW_HEADERS = os.getenv("LD_CORS_ALLOWED_HEADERS", "authorization,content-type").split(",")
+    cors_expose_headers = os.getenv("LD_CORS_EXPOSE_HEADERS", "")
+    if cors_expose_headers:
+        CORS_EXPOSE_HEADERS = cors_expose_headers.split(",")
+    cors_preflight_max_age = os.getenv("LD_CORS_PREFLIGHT_MAX_AGE")
+    if cors_preflight_max_age:
+        CORS_PREFLIGHT_MAX_AGE = int(cors_preflight_max_age)
+    CORS_ALLOW_PRIVATE_NETWORK = os.getenv("LD_CORS_ALLOW_PRIVATE_NETWORK", False) in (True, "True", "true", "1")
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases

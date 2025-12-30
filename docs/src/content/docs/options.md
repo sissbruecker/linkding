@@ -179,6 +179,26 @@ identity_providers:
 
 </details>
 
+### `LD_CORS_*`
+
+If CORS support is needed, it can be enabled by setting one of three options:
+
+- `LD_CORS_ALLOWED_ORIGINS` - A comma-separated list of allowed Origins
+- `LD_CORS_ALLOWED_REGEX` - A regular expression that is matched to decide if the requested Origin is allowed. This setting roughly corresponds to `CORS_ALLOWED_ORIGIN_REGEXES` except that it only allows a single regular expression
+- `LD_CORS_ALLOW_ALL` - When set to `True`, all Origins are allowed
+
+Full details of how CORS headers are handled is available inside the [django-cors-headers](https://pypi.org/project/django-cors-headers/) documentation. Each environment variable corresponds to the corresponding django-cors-headers variable, but without the `LD_` prefix, except where noted.
+
+Once CORS is enabled, a number of other options are available, but most users should not need to modify them:
+
+- `LD_CORS_ALLOW_CREDENTIALS` - If `True`, cookies will be allowed to be included in cross-site HTTP requests
+- `LD_CORS_URLS_REGEX` - Regex which restricts the URL’s for which the CORS headers will be sent. The default is "`^/api/.*$`" 
+- `LD_CORS_ALLOWED_METHODS` - A list of HTTP verbs that are allowed for the actual request
+- `LD_CORS_ALLOWED_HEADERS` - Comma-separated list of "non-standard" HTTP headers to allow from the browser. Defaults to "`authorization,content-type`"
+- `LD_CORS_EXPOSE_HEADERS` - he list of extra HTTP headers to expose to the browser, in addition to the default safelisted headers
+- `LD_CORS_PREFLIGHT_MAX_AGE` - The number of seconds the browser can cache the preflight response
+- `LD_CORS_ALLOW_PRIVATE_NETWORK` - If `True`, allow requests from sites on "public" IP to this server on a "private" IP
+
 ### `LD_CSRF_TRUSTED_ORIGINS`
 
 Values: `String` | Default = None
