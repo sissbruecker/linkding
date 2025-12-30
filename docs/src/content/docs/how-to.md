@@ -94,3 +94,51 @@ The font size can be adjusted globally by adding the following CSS to the custom
 You can adjust the `--font-size`, `--font-size-sm` and `--font-size-lg` variables to your liking.
 Note that increasing the font might also require you to adjust the line-height in certain places to better separate texts from each other.
 As an example, the above also increases the font size and line height of the bookmark list and tag cloud.
+
+## Track bookmark usage and sort by most-used
+
+linkding includes an optional usage tracking feature that allows you to identify which bookmarks you access most frequently. This feature is privacy-focused and disabled by default.
+
+### How it works
+
+When enabled, linkding tracks how many times you click on each bookmark link. Each user's usage data is stored separately and privately - you only see your own click counts, never other users' data.
+
+The feature works for:
+- Your own bookmarks
+- Shared bookmarks from other users
+- Both count toward your personal "most used" statistics
+
+### Enabling usage tracking
+
+1. Navigate to **Settings → General**
+2. Enable the **"Enable usage tracking"** checkbox
+3. Click **Save**
+
+Once enabled:
+- Clicking bookmark links will increment your personal usage counter
+- A new **"Most Used"** option appears in the sort dropdown
+- Bookmarks are sorted by your access count (descending), then by date added
+
+### Privacy guarantees
+
+- **Opt-in only**: The feature is disabled by default
+- **Per-user tracking**: Your usage data is separate from other users
+- **Local only**: All data stays on your linkding instance
+- **Reversible**: You can disable tracking anytime in settings
+- **Anonymous users**: Public/shared bookmark viewers never see usage tracking options
+
+### Disabling usage tracking
+
+To disable:
+1. Go to **Settings → General**
+2. Uncheck **"Enable usage tracking"**
+3. Click **Save**
+
+When disabled:
+- The "Most Used" sort option disappears
+- Your existing usage data remains in the database (but isn't displayed)
+- Clicking bookmarks no longer increments counters
+
+:::note
+Your usage statistics are never visible to other users, even if you share bookmarks with them. Each user only sees their own usage data.
+:::

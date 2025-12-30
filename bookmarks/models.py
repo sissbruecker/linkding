@@ -196,6 +196,27 @@ class BookmarkBundle(models.Model):
         return self.name
 
 
+class BookmarkUsage(models.Model):
+    """
+    Tracks bookmark usage statistics per user.
+    Allows each user to track their own access patterns independently.
+    """
+
+    bookmark = models.ForeignKey(Bookmark, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    access_count = models.IntegerField(default=0, null=False)
+    last_accessed = models.DateTimeField(auto_now=True, null=False)
+
+    class Meta:
+        unique_together = [["bookmark", "user"]]
+        indexes = [
+            models.Index(fields=["user", "-access_count"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.bookmark.resolved_title} ({self.access_count} clicks)"
+
+
 class BookmarkBundleForm(forms.ModelForm):
     class Meta:
         model = BookmarkBundle
@@ -207,6 +228,7 @@ class BookmarkSearch:
     SORT_ADDED_DESC = "added_desc"
     SORT_TITLE_ASC = "title_asc"
     SORT_TITLE_DESC = "title_desc"
+    SORT_USAGE_DESC = "usage_desc"
 
     FILTER_SHARED_OFF = "off"
     FILTER_SHARED_SHARED = "yes"
@@ -367,6 +389,22 @@ class BookmarkSearchForm(forms.Form):
             user_choices.insert(0, ("", "Everyone"))
             self.fields["user"].choices = user_choices
 
+        # Dynamically add "Most Used" sort option if user has tracking enabled
+        if (
+            search.request
+            and hasattr(search.request, "user")
+            and search.request.user.is_authenticated
+            and search.request.user.profile.enable_usage_tracking
+        ):
+            # Show "Most Used" first when tracking is enabled
+            self.fields["sort"].choices = [
+                (BookmarkSearch.SORT_USAGE_DESC, "Most Used"),
+                (BookmarkSearch.SORT_ADDED_ASC, "Added ↑"),
+                (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
+                (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
+                (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
+            ]
+
         for param in search.params:
             # set initial values for modified params
             value = search.__dict__.get(param)
@@ -497,6 +535,7 @@ class UserProfile(models.Model):
     collapse_side_panel = models.BooleanField(default=False, null=False)
     hide_bundles = models.BooleanField(default=False, null=False)
     legacy_search = models.BooleanField(default=False, null=False)
+    enable_usage_tracking = models.BooleanField(default=False, null=False)
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -540,6 +579,7 @@ class UserProfileForm(forms.ModelForm):
             "collapse_side_panel",
             "hide_bundles",
             "legacy_search",
+            "enable_usage_tracking",
         ]
 
 
