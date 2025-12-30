@@ -8,6 +8,7 @@ from bookmarks.services import auto_tagging
 from bookmarks.services import tasks
 from bookmarks.services import website_loader
 from bookmarks.services.tags import get_or_create_tags
+from bookmarks.services.webhooks import BookmarkTagProxy, send_webhook
 
 logger = logging.getLogger(__name__)
 
@@ -49,15 +50,24 @@ def create_bookmark(
     ):
         tasks.create_html_snapshot(bookmark)
 
+    send_webhook(current_user, event="new_bookmark", new_bookmark=bookmark)
+
     return bookmark
 
 
 def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
-    # Detect URL change
     original_bookmark = Bookmark.objects.get(id=bookmark.id)
+
+    # Query old tag names
+    old_tag_names = list(original_bookmark.tags.values_list('name', flat=True))
+    # Create a frozen proxy of the original bookmark with old tags
+    frozen_old_bookmark = BookmarkTagProxy(original_bookmark, old_tag_names)
+
+    # Detect URL change
     has_url_changed = original_bookmark.url != bookmark.url
     # Update tag list
     _update_bookmark_tags(bookmark, tag_string, current_user)
+
     # Update dates
     bookmark.date_modified = timezone.now()
     bookmark.save()
@@ -69,6 +79,10 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     if has_url_changed:
         # Update web archive snapshot, if URL changed
         tasks.create_web_archive_snapshot(current_user, bookmark, True)
+
+    # Send "updated_bookmark" webhook
+    send_webhook(current_user, "updated_bookmark",
+                 bookmark, frozen_old_bookmark)
 
     return bookmark
 
@@ -117,7 +131,16 @@ def unarchive_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
 def delete_bookmarks(bookmark_ids: [Union[int, str]], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
-    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).delete()
+    bookmarks_to_delete = Bookmark.objects.filter(
+        owner=current_user, id__in=sanitized_bookmark_ids)
+
+    for bookmark in bookmarks_to_delete:
+        send_webhook(current_user,
+                     event="deleted_bookmark",
+                     new_bookmark=None,
+                     old_bookmark=bookmark)
+
+    bookmarks_to_delete.delete()
 
 
 def tag_bookmarks(bookmark_ids: [Union[int, str]], tag_string: str, current_user: User):

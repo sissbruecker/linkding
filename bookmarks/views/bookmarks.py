@@ -204,9 +204,10 @@ def edit(request: HttpRequest, bookmark_id: int):
 
 
 def remove(request: HttpRequest, bookmark_id: int | str):
-    bookmark = access.bookmark_write(request, bookmark_id)
-    bookmark.delete()
-
+    current_user = request.user
+    bookmark = access.bookmark_write(request, bookmark_id)   
+    
+    delete_bookmarks([bookmark.id], current_user)
 
 def archive(request: HttpRequest, bookmark_id: int | str):
     bookmark = access.bookmark_write(request, bookmark_id)
