@@ -20,6 +20,21 @@ from bookmarks.validators import BookmarkURLValidator
 logger = logging.getLogger(__name__)
 
 
+class MaskedPasswordInput(forms.PasswordInput):
+    """
+    A password input that shows bullets when there's an existing value.
+    """
+
+    def __init__(self, attrs=None, render_value=True):
+        # Enable render_value so we can display the masked value
+        super().__init__(attrs=attrs, render_value=render_value)
+
+    def get_context(self, name, value, attrs):
+        if value:
+            value = "••••••••••••••••••••••••"
+        return super().get_context(name, value, attrs)
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=64)
     date_added = models.DateTimeField()
@@ -497,6 +512,10 @@ class UserProfile(models.Model):
     collapse_side_panel = models.BooleanField(default=False, null=False)
     hide_bundles = models.BooleanField(default=False, null=False)
     legacy_search = models.BooleanField(default=False, null=False)
+    ai_api_key = models.CharField(max_length=256, blank=True, null=False)
+    ai_model = models.CharField(max_length=128, blank=True, null=False)
+    ai_tag_vocabulary = models.TextField(blank=True, null=False)
+    ai_base_url = models.CharField(max_length=128, blank=True, null=False)
 
     def save(self, *args, **kwargs):
         if self.custom_css:
@@ -535,12 +554,30 @@ class UserProfileForm(forms.ModelForm):
             "default_mark_shared",
             "custom_css",
             "auto_tagging_rules",
+            "ai_api_key",
+            "ai_model",
+            "ai_tag_vocabulary",
+            "ai_base_url",
             "items_per_page",
             "sticky_pagination",
             "collapse_side_panel",
             "hide_bundles",
             "legacy_search",
         ]
+        widgets = {
+            "ai_api_key": MaskedPasswordInput(),
+        }
+
+    def clean_ai_api_key(self):
+        """
+        If the submitted value is the masked placeholder, preserve the existing value,
+        otherwise return the new value.
+        """
+        value = self.cleaned_data.get("ai_api_key")
+        # If masked bullets, keep the existing value (user didn't change it)
+        if value == "••••••••••••••••••••••••":
+            return self.instance.ai_api_key
+        return value
 
 
 @receiver(post_save, sender=User)
