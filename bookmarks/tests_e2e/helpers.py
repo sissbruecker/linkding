@@ -1,18 +1,63 @@
+import os
+
 from django.contrib.staticfiles.testing import LiveServerTestCase
-from playwright.sync_api import BrowserContext, Playwright, Page
+from playwright.sync_api import BrowserContext, Page, sync_playwright
 from playwright.sync_api import expect
 
 from bookmarks.tests.helpers import BookmarkFactoryMixin
+
+SCREENSHOT_DIR = "test-results/screenshots"
 
 
 class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
     def setUp(self) -> None:
         self.client.force_login(self.get_or_create_test_user())
         self.cookie = self.client.cookies["sessionid"]
+        self.playwright = None
+        self.browser = None
+        self.context = None
+        self.page = None
 
-    def setup_browser(self, playwright) -> BrowserContext:
-        browser = playwright.chromium.launch(headless=True)
-        context = browser.new_context()
+    def tearDown(self) -> None:
+        if self.page and self._outcome:
+            result = self._outcome.result
+            if result:
+                # Check if current test is in failures or errors
+                test_failed = any(test == self for test, _ in result.failures)
+                test_errored = any(test == self for test, _ in result.errors)
+                if test_failed or test_errored:
+                    self._capture_screenshot()
+        if self.browser:
+            self.browser.close()
+        if self.playwright:
+            self.playwright.stop()
+        super().tearDown()
+
+    def _ensure_playwright(self):
+        if not self.playwright:
+            self.playwright = sync_playwright().start()
+            self.browser = self.playwright.chromium.launch(headless=True)
+
+    def close_browser(self):
+        """Close browser early to allow ORM assertions after browser tests."""
+        if self.browser:
+            self.browser.close()
+            self.browser = None
+        if self.playwright:
+            self.playwright.stop()
+            self.playwright = None
+        self.page = None
+
+    def _capture_screenshot(self):
+        os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+        filename = f"{self.__class__.__name__}_{self._testMethodName}.png"
+        filepath = os.path.join(SCREENSHOT_DIR, filename)
+        self.page.screenshot(path=filepath, full_page=True)
+        print(f"\nScreenshot saved: {filepath}")
+
+    def setup_browser(self) -> BrowserContext:
+        self._ensure_playwright()
+        context = self.browser.new_context()
         context.add_cookies(
             [
                 {
@@ -25,9 +70,9 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         )
         return context
 
-    def open(self, url: str, playwright: Playwright) -> Page:
-        browser = self.setup_browser(playwright)
-        self.page = browser.new_page()
+    def open(self, url: str) -> Page:
+        self.context = self.setup_browser()
+        self.page = self.context.new_page()
         self.page.goto(self.live_server_url + url)
         self.page.on("load", self.on_load)
         self.num_loads = 0

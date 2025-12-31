@@ -1,5 +1,5 @@
 from django.urls import reverse
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
 from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
@@ -22,31 +22,29 @@ class CollapseSidePanelE2ETestCase(LinkdingE2ETestCase):
         ).to_be_visible()
 
     def test_side_panel_should_be_visible_by_default(self):
-        with sync_playwright() as p:
-            self.open(reverse("linkding:bookmarks.index"), p)
-            self.assertSidePanelIsVisible()
+        self.open(reverse("linkding:bookmarks.index"))
+        self.assertSidePanelIsVisible()
 
-            self.page.goto(
-                self.live_server_url + reverse("linkding:bookmarks.archived")
-            )
-            self.assertSidePanelIsVisible()
+        self.page.goto(
+            self.live_server_url + reverse("linkding:bookmarks.archived")
+        )
+        self.assertSidePanelIsVisible()
 
-            self.page.goto(self.live_server_url + reverse("linkding:bookmarks.shared"))
-            self.assertSidePanelIsVisible()
+        self.page.goto(self.live_server_url + reverse("linkding:bookmarks.shared"))
+        self.assertSidePanelIsVisible()
 
     def test_side_panel_should_be_hidden_when_collapsed(self):
         user = self.get_or_create_test_user()
         user.profile.collapse_side_panel = True
         user.profile.save()
 
-        with sync_playwright() as p:
-            self.open(reverse("linkding:bookmarks.index"), p)
-            self.assertSidePanelIsHidden()
+        self.open(reverse("linkding:bookmarks.index"))
+        self.assertSidePanelIsHidden()
 
-            self.page.goto(
-                self.live_server_url + reverse("linkding:bookmarks.archived")
-            )
-            self.assertSidePanelIsHidden()
+        self.page.goto(
+            self.live_server_url + reverse("linkding:bookmarks.archived")
+        )
+        self.assertSidePanelIsHidden()
 
-            self.page.goto(self.live_server_url + reverse("linkding:bookmarks.shared"))
-            self.assertSidePanelIsHidden()
+        self.page.goto(self.live_server_url + reverse("linkding:bookmarks.shared"))
+        self.assertSidePanelIsHidden()
