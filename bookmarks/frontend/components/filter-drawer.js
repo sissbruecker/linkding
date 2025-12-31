@@ -22,16 +22,20 @@ customElements.define("ld-filter-drawer-trigger", FilterDrawerTrigger);
 
 class FilterDrawer extends Modal {
   connectedCallback() {
-    this.classList.add("modal", "drawer", "filter-drawer");
+    this.classList.add("modal", "drawer");
 
     // Render modal structure
     render(
       html`
-        <div class="modal-overlay"></div>
+        <div class="modal-overlay" data-close-modal></div>
         <div class="modal-container" role="dialog" aria-modal="true">
           <div class="modal-header">
             <h2>Filters</h2>
-            <button class="btn btn-noborder close" aria-label="Close dialog">
+            <button
+              class="btn btn-noborder close"
+              aria-label="Close dialog"
+              data-close-modal
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -49,9 +53,7 @@ class FilterDrawer extends Modal {
               </svg>
             </button>
           </div>
-          <div class="modal-body">
-            <div class="content"></div>
-          </div>
+          <div class="modal-body"></div>
         </div>
       `,
       this,
@@ -61,6 +63,8 @@ class FilterDrawer extends Modal {
     // Force close on turbo cache to restore content
     this.doClose = this.doClose.bind(this);
     document.addEventListener("turbo:before-cache", this.doClose);
+    // Force reflow to make transform transition work
+    this.getBoundingClientRect();
     // Add active class to start slide-in animation
     requestAnimationFrame(() => this.classList.add("active"));
     // Call super after rendering to ensure elements are available
@@ -70,7 +74,7 @@ class FilterDrawer extends Modal {
   disconnectedCallback() {
     super.disconnectedCallback();
     this.teleportBack();
-    document.addEventListener("turbo:before-cache", this.doClose);
+    document.removeEventListener("turbo:before-cache", this.doClose);
   }
 
   mapHeading(container, from, to) {
@@ -83,7 +87,7 @@ class FilterDrawer extends Modal {
   }
 
   teleport() {
-    const content = this.querySelector(".content");
+    const content = this.querySelector(".modal-body");
     const sidePanel = document.querySelector(".side-panel");
     content.append(...sidePanel.children);
     this.mapHeading(content, "h2", "h3");
@@ -91,7 +95,7 @@ class FilterDrawer extends Modal {
 
   teleportBack() {
     const sidePanel = document.querySelector(".side-panel");
-    const content = this.querySelector(".content");
+    const content = this.querySelector(".modal-body");
     sidePanel.append(...content.children);
     this.mapHeading(sidePanel, "h3", "h2");
   }

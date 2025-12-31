@@ -5,11 +5,10 @@ export class Modal extends HTMLElement {
     requestAnimationFrame(() => {
       this.onClose = this.onClose.bind(this);
       this.onKeyDown = this.onKeyDown.bind(this);
-      this.overlay = this.querySelector(".modal-overlay");
-      this.closeButton = this.querySelector(".modal-header .close");
 
-      this.overlay.addEventListener("click", this.onClose);
-      this.closeButton.addEventListener("click", this.onClose);
+      this.querySelectorAll("[data-close-modal]").forEach((btn) => {
+        btn.addEventListener("click", this.onClose);
+      });
       document.addEventListener("keydown", this.onKeyDown);
 
       this.setupScrollLock();
@@ -20,8 +19,9 @@ export class Modal extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.overlay.removeEventListener("click", this.onClose);
-    this.closeButton.removeEventListener("click", this.onClose);
+    this.querySelectorAll("[data-close-modal]").forEach((btn) => {
+      btn.removeEventListener("click", this.onClose);
+    });
     document.removeEventListener("keydown", this.onKeyDown);
 
     this.removeScrollLock();
@@ -74,8 +74,9 @@ export class Modal extends HTMLElement {
     // Navigate to close URL
     const closeUrl = this.dataset.closeUrl;
     const frame = this.dataset.turboFrame;
+    const action = this.dataset.turboAction || "replace";
     if (closeUrl) {
-      Turbo.visit(closeUrl, { action: "replace", frame: frame });
+      Turbo.visit(closeUrl, { action, frame: frame });
     }
   }
 }

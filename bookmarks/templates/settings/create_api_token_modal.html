@@ -3,40 +3,25 @@
         data-turbo-frame="api-section">
     {% csrf_token %}
     <ld-modal class="modal active" data-close-url="{% url 'linkding:settings.integrations' %}"
-         data-turbo-frame="api-modal">
-      <div class="modal-overlay"></div>
+              data-turbo-frame="api-modal">
+      <div class="modal-overlay" data-close-modal></div>
       <div class="modal-container" role="dialog" aria-modal="true">
-        <div class="modal-header">
-          <h2 class="title">Create API Token</h2>
-          <button type="button" class="btn btn-noborder close" aria-label="Close dialog">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                 stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M18 6l-12 12"></path>
-              <path d="M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
+        {% include 'shared/modal_header.html' with title="Create API Token" %}
         <div class="modal-body">
-          <div class="content">
-            <div class="form-group">
-              <label class="form-label" for="token-name">Token name</label>
-              <input type="text"
-                     class="form-input"
-                     id="token-name"
-                     name="name"
-                     placeholder="e.g., Browser Extension, Mobile App"
-                     value="API Token"
-                     maxlength="128">
-              <p class="form-input-hint">A descriptive name to identify the purpose of the token</p>
-            </div>
+          <div class="form-group">
+            <label class="form-label" for="token-name">Token name</label>
+            <input type="text"
+                   class="form-input"
+                   id="token-name"
+                   name="name"
+                   placeholder="e.g., Browser Extension, Mobile App"
+                   value="API Token"
+                   maxlength="128">
+            <p class="form-input-hint">A descriptive name to identify the purpose of the token</p>
           </div>
         </div>
-
         <div class="modal-footer d-flex justify-between">
-          <a class="btn btn-wide"
-             href="{% url 'linkding:settings.integrations' %}"
-             data-turbo-frame="api-modal">Cancel</a>
+          <a class="btn btn-wide" data-close-modal>Cancel</a>
           <button type="submit" class="btn btn-primary">Create Token</button>
         </div>
       </div>

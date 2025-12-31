@@ -1,25 +1,12 @@
 <ld-details-modal class="modal active bookmark-details"
                   data-bookmark-id="{{ details.bookmark.id }}" data-close-url="{{ details.close_url }}"
                   data-turbo-frame="details-modal">
-  <div class="modal-overlay"></div>
+  <div class="modal-overlay" data-close-modal></div>
   <div class="modal-container" role="dialog" aria-modal="true">
-    <div class="modal-header">
-      <h2 class="title">{{ details.bookmark.resolved_title }}</h2>
-      <button class="btn btn-noborder close" aria-label="Close dialog">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-             stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <path d="M18 6l-12 12"></path>
-          <path d="M6 6l12 12"></path>
-        </svg>
-      </button>
-    </div>
+    {% include 'shared/modal_header.html' with title=details.bookmark.resolved_title %}
     <div class="modal-body">
-      <div class="content">
-        {% include 'bookmarks/details/form.html' %}
-      </div>
+      {% include 'bookmarks/details/form.html' %}
     </div>
-
     {% if details.is_editable %}
       <div class="modal-footer">
         <div class="actions">
