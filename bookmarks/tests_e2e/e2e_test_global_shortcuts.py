@@ -10,7 +10,9 @@ class GlobalShortcutsE2ETestCase(LinkdingE2ETestCase):
 
         self.page.press("body", "s")
 
-        expect(self.page.get_by_placeholder("Search for words or #tags")).to_be_focused()
+        expect(
+            self.page.get_by_placeholder("Search for words or #tags")
+        ).to_be_focused()
 
     def test_add_bookmark(self):
         self.open(reverse("linkding:bookmarks.index"))

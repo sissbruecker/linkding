@@ -57,8 +57,7 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
 
     def test_with_initial_url_prefills_title_and_description(self):
         page_url = (
-            reverse("linkding:bookmarks.new")
-            + f"?url={quote('https://example.com')}"
+            reverse("linkding:bookmarks.new") + f"?url={quote('https://example.com')}"
         )
         page = self.open(page_url)
         url = page.get_by_label("URL")

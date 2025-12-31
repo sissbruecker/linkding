@@ -25,9 +25,7 @@ class CollapseSidePanelE2ETestCase(LinkdingE2ETestCase):
         self.open(reverse("linkding:bookmarks.index"))
         self.assertSidePanelIsVisible()
 
-        self.page.goto(
-            self.live_server_url + reverse("linkding:bookmarks.archived")
-        )
+        self.page.goto(self.live_server_url + reverse("linkding:bookmarks.archived"))
         self.assertSidePanelIsVisible()
 
         self.page.goto(self.live_server_url + reverse("linkding:bookmarks.shared"))
@@ -41,9 +39,7 @@ class CollapseSidePanelE2ETestCase(LinkdingE2ETestCase):
         self.open(reverse("linkding:bookmarks.index"))
         self.assertSidePanelIsHidden()
 
-        self.page.goto(
-            self.live_server_url + reverse("linkding:bookmarks.archived")
-        )
+        self.page.goto(self.live_server_url + reverse("linkding:bookmarks.archived"))
         self.assertSidePanelIsHidden()
 
         self.page.goto(self.live_server_url + reverse("linkding:bookmarks.shared"))

@@ -159,9 +159,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.open(reverse("linkding:bookmarks.index"))
 
         self.locate_bulk_edit_toggle().click()
-        self.locate_bookmark("Bookmark 2").locator(
-            "label.bulk-edit-checkbox"
-        ).click()
+        self.locate_bookmark("Bookmark 2").locator("label.bulk-edit-checkbox").click()
         self.select_bulk_action("Archive")
         self.locate_bulk_edit_bar().get_by_text("Execute").click()
         self.locate_confirm_dialog().get_by_text("Confirm").click()
@@ -176,9 +174,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         self.open(reverse("linkding:bookmarks.index"))
 
         self.locate_bulk_edit_toggle().click()
-        self.locate_bookmark("Bookmark 2").locator(
-            "label.bulk-edit-checkbox"
-        ).click()
+        self.locate_bookmark("Bookmark 2").locator("label.bulk-edit-checkbox").click()
         self.select_bulk_action("Delete")
         self.locate_bulk_edit_bar().get_by_text("Execute").click()
         self.locate_confirm_dialog().get_by_text("Confirm").click()

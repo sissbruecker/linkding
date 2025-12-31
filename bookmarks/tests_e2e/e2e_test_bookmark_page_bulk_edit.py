@@ -255,15 +255,11 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
         expect(self.locate_bulk_edit_select_across()).to_be_checked()
 
         # Hide select across by toggling a single bookmark
-        self.locate_bookmark("Bookmark 1").locator(
-            "label.bulk-edit-checkbox"
-        ).click()
+        self.locate_bookmark("Bookmark 1").locator("label.bulk-edit-checkbox").click()
         expect(self.locate_bulk_edit_select_across()).not_to_be_visible()
 
         # Show select across again, verify it is unchecked
-        self.locate_bookmark("Bookmark 1").locator(
-            "label.bulk-edit-checkbox"
-        ).click()
+        self.locate_bookmark("Bookmark 1").locator("label.bulk-edit-checkbox").click()
         expect(self.locate_bulk_edit_select_across()).not_to_be_checked()
 
     def test_execute_resets_all_checkboxes(self):

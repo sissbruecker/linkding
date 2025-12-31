@@ -62,9 +62,7 @@ class A11yNavigationFocusTest(LinkdingE2ETestCase):
 
         # Closing modal should move focus back to the bookmark item
         page.keyboard.press("Escape")
-        focused = self.locate_bookmark(bookmark.title).locator(
-            "a.view-action:focus"
-        )
+        focused = self.locate_bookmark(bookmark.title).locator("a.view-action:focus")
         expect(focused).to_be_visible()
 
     def reset_focus(self):
