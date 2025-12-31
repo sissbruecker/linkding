@@ -1,4 +1,5 @@
 import os
+import sys
 
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from playwright.sync_api import BrowserContext, Page, sync_playwright
@@ -7,6 +8,9 @@ from playwright.sync_api import expect
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 SCREENSHOT_DIR = "test-results/screenshots"
+
+# Allow Django ORM operations within Playwright's async context
+os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
 
 class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
@@ -19,34 +23,40 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         self.page = None
 
     def tearDown(self) -> None:
-        if self.page and self._outcome:
-            result = self._outcome.result
-            if result:
-                # Check if current test is in failures or errors
-                test_failed = any(test == self for test, _ in result.failures)
-                test_errored = any(test == self for test, _ in result.errors)
-                if test_failed or test_errored:
-                    self._capture_screenshot()
+        if self.page and self._test_has_failed():
+            self._capture_screenshot()
         if self.browser:
             self.browser.close()
         if self.playwright:
             self.playwright.stop()
         super().tearDown()
 
+    def _test_has_failed(self) -> bool:
+        """Detect if the current test has failed. Works with both Django/unittest and pytest."""
+        # Check if there's a current exception being handled
+        if sys.exc_info()[0] is not None:
+            return True
+        # Check _outcome for failure info
+        if self._outcome is not None:
+            # Direct success flag (set by unittest)
+            if not self._outcome.success:
+                return True
+            result = self._outcome.result
+            if result:
+                # pytest stores exception info in _excinfo
+                if hasattr(result, "_excinfo") and result._excinfo:
+                    return True
+                # Django/unittest stores failures and errors in the result
+                if hasattr(result, "failures") and result.failures:
+                    return True
+                if hasattr(result, "errors") and result.errors:
+                    return True
+        return False
+
     def _ensure_playwright(self):
         if not self.playwright:
             self.playwright = sync_playwright().start()
             self.browser = self.playwright.chromium.launch(headless=True)
-
-    def close_browser(self):
-        """Close browser early to allow ORM assertions after browser tests."""
-        if self.browser:
-            self.browser.close()
-            self.browser = None
-        if self.playwright:
-            self.playwright.stop()
-            self.playwright = None
-        self.page = None
 
     def _capture_screenshot(self):
         os.makedirs(SCREENSHOT_DIR, exist_ok=True)

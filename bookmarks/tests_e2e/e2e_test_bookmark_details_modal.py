@@ -139,9 +139,6 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
         # verify bookmark is deleted
         expect(self.locate_bookmark(bookmark.title)).not_to_be_visible()
 
-        # Close browser before ORM assertions
-        self.close_browser()
-
         self.assertEqual(Bookmark.objects.count(), 0)
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True)

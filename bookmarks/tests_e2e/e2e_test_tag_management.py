@@ -49,12 +49,9 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         tag_row = self.locate_tag_row("test-tag")
         expect(tag_row).to_be_visible()
 
-        # Close browser before ORM assertions
-        self.close_browser()
-
         # Verify the tag was actually created in the database
         self.assertEqual(
-            Tag.objects.filter(owner=self.get_or_create_test_user()).count(), 0
+            Tag.objects.filter(owner=self.get_or_create_test_user()).count(), 1
         )
         tag = Tag.objects.get(owner=self.get_or_create_test_user())
         self.assertEqual(tag.name, "test-tag")
@@ -86,9 +83,6 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         # Verify the error is shown (tag already exists)
         error_hint = modal.get_by_text('Tag "existing-tag" already exists')
         expect(error_hint).to_be_visible()
-
-        # Close browser before ORM assertions
-        self.close_browser()
 
         # Verify no additional tag was created
         self.assertEqual(
@@ -126,9 +120,6 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         expect(self.locate_tag_row("new-name")).to_be_visible()
         expect(self.locate_tag_row("old-name")).not_to_be_visible()
 
-        # Close browser before ORM assertions
-        self.close_browser()
-
         # Verify the tag was updated in the database
         tag.refresh_from_db()
         self.assertEqual(tag.name, "new-name")
@@ -161,9 +152,6 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         # Verify the error is shown (tag already exists)
         error_hint = modal.get_by_text('Tag "other-tag" already exists')
         expect(error_hint).to_be_visible()
-
-        # Close browser before ORM assertions
-        self.close_browser()
 
         # Verify the tag was not modified
         tag.refresh_from_db()
@@ -208,9 +196,6 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         expect(self.locate_tag_row("target-tag")).to_be_visible()
         expect(self.locate_tag_row("merge-tag1")).not_to_be_visible()
         expect(self.locate_tag_row("merge-tag2")).not_to_be_visible()
-
-        # Close browser before ORM assertions
-        self.close_browser()
 
         # Verify the merge tags were deleted
         self.assertEqual(
@@ -264,9 +249,6 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         expect(
             modal.get_by_text("The target tag cannot be selected for merging")
         ).to_be_visible()
-
-        # Close browser before ORM assertions
-        self.close_browser()
 
         # Verify no tags were deleted
         self.assertEqual(

@@ -319,9 +319,6 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
             self.live_server_url + reverse("linkding:bookmarks.new")
         )
 
-        # Close browser before ORM assertions
-        self.close_browser()
-
         self.assertEqual(1, Bookmark.objects.count())
         bookmark = Bookmark.objects.first()
         self.assertEqual("https://example.com", bookmark.url)

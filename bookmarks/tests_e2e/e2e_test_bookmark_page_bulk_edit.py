@@ -49,9 +49,6 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
         # Wait until bookmark list is updated (old reference becomes invisible)
         bookmark_list.wait_for_element_state("hidden", timeout=1000)
 
-        # Close browser before ORM assertions
-        self.close_browser()
-
         self.assertEqual(
             0,
             Bookmark.objects.filter(
@@ -88,9 +85,6 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
         self.locate_confirm_dialog().get_by_text("Confirm").click()
         # Wait until bookmark list is updated (old reference becomes invisible)
         bookmark_list.wait_for_element_state("hidden", timeout=1000)
-
-        # Close browser before ORM assertions
-        self.close_browser()
 
         self.assertEqual(
             50,
@@ -129,9 +123,6 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
         # Wait until bookmark list is updated (old reference becomes invisible)
         bookmark_list.wait_for_element_state("hidden", timeout=1000)
 
-        # Close browser before ORM assertions
-        self.close_browser()
-
         self.assertEqual(
             50,
             Bookmark.objects.filter(
@@ -168,9 +159,6 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
         self.locate_confirm_dialog().get_by_text("Confirm").click()
         # Wait until bookmark list is updated (old reference becomes invisible)
         bookmark_list.wait_for_element_state("hidden", timeout=1000)
-
-        # Close browser before ORM assertions
-        self.close_browser()
 
         self.assertEqual(
             50,
