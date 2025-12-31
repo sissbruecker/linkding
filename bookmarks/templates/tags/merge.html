@@ -30,9 +30,11 @@
       <form method="post">
         {% csrf_token %}
 
-        <div class="form-group {% if form.target_tag.errors %}has-error{% endif %}" ld-tag-autocomplete>
+        <div class="form-group {% if form.target_tag.errors %}has-error{% endif %}">
           <label for="{{ form.target_tag.id_for_label }}" class="form-label">Target tag</label>
-          {{ form.target_tag|add_class:"form-input"|attr:"autocomplete:off"|attr:"autocapitalize:off"|attr:"placeholder: " }}
+          <ld-tag-autocomplete input-id="{{ form.target_tag.auto_id }}" input-name="{{ form.target_tag.html_name }}"
+                               input-value="{{ form.target_tag.value|default_if_none:'' }}">
+          </ld-tag-autocomplete>
           <div class="form-input-hint">
             Enter the name of the tag you want to keep. The tags entered below will be merged into this one.
           </div>
@@ -43,9 +45,11 @@
           {% endif %}
         </div>
 
-        <div class="form-group {% if form.merge_tags.errors %}has-error{% endif %}" ld-tag-autocomplete>
+        <div class="form-group {% if form.merge_tags.errors %}has-error{% endif %}">
           <label for="{{ form.merge_tags.id_for_label }}" class="form-label">Tags to merge</label>
-          {{ form.merge_tags|add_class:"form-input"|attr:"autocomplete:off"|attr:"autocapitalize:off"|attr:"placeholder: " }}
+          <ld-tag-autocomplete input-id="{{ form.merge_tags.auto_id }}" input-name="{{ form.merge_tags.html_name }}"
+                               input-value="{{ form.merge_tags.value|default_if_none:'' }}">
+          </ld-tag-autocomplete>
           <div class="form-input-hint">Enter the names of tags to merge into the target tag, separated by spaces. These
             tags will be deleted after merging.
           </div>

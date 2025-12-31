@@ -6,7 +6,7 @@
 {% block title %}Bookmarks - Linkding{% endblock %}
 
 {% block content %}
-  <div ld-bulk-edit
+  <ld-bookmark-page
        class="bookmarks-page grid columns-md-1 {% if bookmark_list.collapse_side_panel %}collapse-side-panel{% endif %}">
 
     {# Bookmark list #}
@@ -16,7 +16,9 @@
         <div class="header-controls">
           {% bookmark_search bookmark_list.search %}
           {% include 'bookmarks/bulk_edit/toggle.html' %}
-          <button ld-filter-drawer-trigger class="btn ml-2">Filters</button>
+          <ld-filter-drawer-trigger>
+            <button class="btn ml-2">Filters</button>
+          </ld-filter-drawer-trigger>
         </div>
       </div>
 
@@ -37,7 +39,7 @@
       {% include 'bookmarks/bundle_section.html' %}
       {% include 'bookmarks/tag_section.html' %}
     </div>
-  </div>
+  </ld-bookmark-page>
 {% endblock %}
 
 {% block overlays %}

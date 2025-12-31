@@ -84,10 +84,10 @@ class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         soup = self.make_soup(response.content.decode())
         search_field = soup.select_one('input[name="search"]')
-        all_tags_field = soup.select_one('input[name="all_tags"]')
+        all_tags_field = soup.select_one('ld-tag-autocomplete[input-name="all_tags"]')
 
         self.assertEqual(search_field.get("value"), "machine learning")
-        self.assertEqual(all_tags_field.get("value"), "python ai")
+        self.assertEqual(all_tags_field.get("input-value"), "python ai")
 
     def test_should_ignore_special_search_commands(self):
         query = "python tutorial !untagged !unread"
@@ -96,20 +96,20 @@ class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         soup = self.make_soup(response.content.decode())
         search_field = soup.select_one('input[name="search"]')
-        all_tags_field = soup.select_one('input[name="all_tags"]')
+        all_tags_field = soup.select_one('ld-tag-autocomplete[input-name="all_tags"]')
 
         self.assertEqual(search_field.get("value"), "python tutorial")
-        self.assertIsNone(all_tags_field.get("value"))
+        self.assertEqual(all_tags_field.get("input-value"), "")
 
     def test_should_not_prefill_when_no_query_parameter(self):
         response = self.client.get(reverse("linkding:bundles.new"))
 
         soup = self.make_soup(response.content.decode())
         search_field = soup.select_one('input[name="search"]')
-        all_tags_field = soup.select_one('input[name="all_tags"]')
+        all_tags_field = soup.select_one('ld-tag-autocomplete[input-name="all_tags"]')
 
         self.assertIsNone(search_field.get("value"))
-        self.assertIsNone(all_tags_field.get("value"))
+        self.assertEqual(all_tags_field.get("input-value"), "")
 
     def test_should_not_prefill_when_editing_existing_bundle(self):
         bundle = self.setup_bundle(
@@ -126,10 +126,10 @@ class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         soup = self.make_soup(response.content.decode())
         search_field = soup.select_one('input[name="search"]')
-        all_tags_field = soup.select_one('input[name="all_tags"]')
+        all_tags_field = soup.select_one('ld-tag-autocomplete[input-name="all_tags"]')
 
         self.assertEqual(search_field.get("value"), "Tutorial")
-        self.assertEqual(all_tags_field.get("value"), "java spring")
+        self.assertEqual(all_tags_field.get("input-value"), "java spring")
 
     def test_should_show_correct_preview_with_prefilled_values(self):
         bundle_tag = self.setup_tag()

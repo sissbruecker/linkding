@@ -23,40 +23,42 @@
 
       {# Filters #}
       <div class="crud-filters">
-        <form method="get" class="mb-2" ld-form-reset>
-          <div class="form-group">
-            <label class="form-label text-assistive" for="search">Search tags</label>
-            <div class="input-group">
-              <input type="text" id="search" name="search" value="{{ search }}" placeholder="Search tags..."
-                     class="form-input">
-              <button type="submit" class="btn input-group-btn">Search</button>
+        <ld-form data-form-reset>
+          <form method="get" class="mb-2">
+            <div class="form-group">
+              <label class="form-label text-assistive" for="search">Search tags</label>
+              <div class="input-group">
+                <input type="text" id="search" name="search" value="{{ search }}" placeholder="Search tags..."
+                       class="form-input">
+                <button type="submit" class="btn input-group-btn">Search</button>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label text-assistive" for="sort">Sort by</label>
-            <div class="input-group">
+            <div class="form-group">
+              <label class="form-label text-assistive" for="sort">Sort by</label>
+              <div class="input-group">
               <span class="input-group-addon text-secondary">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
                     stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14"/><path
                     d="M21 15l-4 4l-4 -4m4 4v-14"/></svg>
               </span>
-              <select id="sort" name="sort" class="form-select" ld-auto-submit>
-                <option value="name-asc" {% if sort == "name-asc" %}selected{% endif %}>Name A-Z</option>
-                <option value="name-desc" {% if sort == "name-desc" %}selected{% endif %}>Name Z-A</option>
-                <option value="count-asc" {% if sort == "count-asc" %}selected{% endif %}>Fewest bookmarks</option>
-                <option value="count-desc" {% if sort == "count-desc" %}selected{% endif %}>Most bookmarks</option>
-              </select>
+                <select id="sort" name="sort" class="form-select" data-submit-on-change>
+                  <option value="name-asc" {% if sort == "name-asc" %}selected{% endif %}>Name A-Z</option>
+                  <option value="name-desc" {% if sort == "name-desc" %}selected{% endif %}>Name Z-A</option>
+                  <option value="count-asc" {% if sort == "count-asc" %}selected{% endif %}>Fewest bookmarks</option>
+                  <option value="count-desc" {% if sort == "count-desc" %}selected{% endif %}>Most bookmarks</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label class="form-checkbox">
-              <input type="checkbox" name="unused" value="true" {% if unused_only %}checked{% endif %} ld-auto-submit>
-              <i class="form-icon"></i> Show only unused tags
-            </label>
-          </div>
-        </form>
-
+            <div class="form-group">
+              <label class="form-checkbox">
+                <input type="checkbox" name="unused" value="true" {% if unused_only %}checked{% endif %}
+                       data-submit-on-change>
+                <i class="form-icon"></i> Show only unused tags
+              </label>
+            </div>
+          </form>
+        </ld-form>
         {# Tags count #}
         <p class="text-secondary text-small m-0">
           {% if search or unused_only %}
@@ -96,7 +98,7 @@
                 <td class="actions">
                   <a class="btn btn-link" href="{% url 'linkding:tags.edit' tag.id %}">Edit</a>
                   <button type="submit" name="delete_tag" value="{{ tag.id }}" class="btn btn-link text-error"
-                          ld-confirm-button>
+                          data-confirm>
                     Remove
                   </button>
                 </td>

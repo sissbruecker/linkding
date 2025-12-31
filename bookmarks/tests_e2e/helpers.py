@@ -43,18 +43,18 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         self.num_loads = 0
 
     def locate_bookmark_list(self):
-        return self.page.locator("ul[ld-bookmark-list]")
+        return self.page.locator("ul.bookmark-list")
 
     def locate_bookmark(self, title: str):
-        bookmark_tags = self.page.locator("li[ld-bookmark-item]")
+        bookmark_tags = self.page.locator("ul.bookmark-list > li")
         return bookmark_tags.filter(has_text=title)
 
     def count_bookmarks(self):
-        bookmark_tags = self.page.locator("li[ld-bookmark-item]")
+        bookmark_tags = self.page.locator("ul.bookmark-list > li")
         return bookmark_tags.count()
 
     def locate_details_modal(self):
-        return self.page.locator(".modal.bookmark-details")
+        return self.page.locator("ld-details-modal")
 
     def open_details_modal(self, bookmark):
         details_button = self.locate_bookmark(bookmark.title).get_by_text("View")
@@ -94,4 +94,4 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
             self.page.locator("nav").get_by_text(main_menu_item, exact=True).click()
 
     def locate_confirm_dialog(self):
-        return self.page.locator(".dropdown.confirm-dropdown")
+        return self.page.locator("ld-confirm-dropdown")

@@ -118,8 +118,9 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             """
-            <input type="text" name="tag_string" value="tag1 tag2 tag3" 
-                aria-describedby="id_tag_string_help" autocapitalize="off" autocomplete="off" class="form-input" id="id_tag_string">
+                <ld-tag-autocomplete input-id="id_tag_string" input-name="tag_string" input-value="tag1 tag2 tag3"
+                         input-aria-describedby="id_tag_string_help">
+                </ld-tag-autocomplete>
             """,
             html,
         )

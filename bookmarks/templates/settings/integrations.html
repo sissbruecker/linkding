@@ -130,7 +130,7 @@
                   <td>{{ token.created|date:"M d, Y H:i" }}</td>
                   <td class="actions">
                     {% csrf_token %}
-                    <button ld-confirm-button name="token_id" value="{{ token.id }}" type="submit"
+                    <button data-confirm name="token_id" value="{{ token.id }}" type="submit"
                             class="btn btn-link">Delete
                     </button>
                   </td>

@@ -20,7 +20,7 @@ class FilterDrawerE2ETestCase(LinkdingE2ETestCase):
             drawer_trigger.click()
 
             # verify drawer is visible
-            drawer = page.locator(".modal.drawer.filter-drawer")
+            drawer = page.locator("ld-filter-drawer")
             expect(drawer).to_be_visible()
             expect(drawer.locator("h2")).to_have_text("Filters")
 
@@ -51,7 +51,7 @@ class FilterDrawerE2ETestCase(LinkdingE2ETestCase):
             drawer_trigger.click()
 
             # verify tags are displayed
-            drawer = page.locator(".modal.drawer.filter-drawer")
+            drawer = page.locator("ld-filter-drawer")
             unselected_tags = drawer.locator(".unselected-tags")
             expect(unselected_tags.get_by_text("cooking")).to_be_visible()
             expect(unselected_tags.get_by_text("hiking")).to_be_visible()

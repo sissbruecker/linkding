@@ -174,10 +174,10 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
             page = self.open(reverse("linkding:bookmarks.new"), p)
 
             title_field = page.get_by_label("Title")
-            title_clear_button = page.locator("[ld-clear-button][data-for='id_title']")
+            title_clear_button = page.locator("ld-clear-button[data-for='id_title']")
             description_field = page.get_by_label("Description")
             description_clear_button = page.locator(
-                "[ld-clear-button][data-for='id_description']"
+                "ld-clear-button[data-for='id_description']"
             )
 
             # Initially, clear buttons should be hidden because fields are empty

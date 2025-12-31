@@ -21,7 +21,7 @@
               <a class="btn btn-link" href="{% url 'linkding:assets.view' asset.id %}" target="_blank">View</a>
             {% endif %}
             {% if details.is_editable %}
-              <button ld-confirm-button type="submit" name="remove_asset" value="{{ asset.id }}" class="btn btn-link">
+              <button data-confirm type="submit" name="remove_asset" value="{{ asset.id }}" class="btn btn-link">
                 Remove
               </button>
             {% endif %}
@@ -39,11 +39,13 @@
         </button>
       {% endif %}
       {% if details.uploads_enabled %}
-        <button ld-upload-button id="upload-asset" name="upload_asset" value="{{ details.bookmark.id }}" type="submit"
-                class="btn btn-sm">Upload file
-        </button>
+        <ld-upload-button>
+          <button id="upload-asset" name="upload_asset" value="{{ details.bookmark.id }}" type="submit"
+                  class="btn btn-sm">Upload file
+          </button>
+          <input id="upload-asset-file" name="upload_asset_file" type="file" class="d-hide">
+        </ld-upload-button>
       {% endif %}
-      <input id="upload-asset-file" name="upload_asset_file" type="file" class="d-hide">
     </div>
   {% endif %}
 </div>

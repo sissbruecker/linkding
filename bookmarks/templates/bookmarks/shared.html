@@ -4,7 +4,7 @@
 {% load bookmarks %}
 
 {% block content %}
-  <div
+  <ld-bookmark-page no-bulk-edit
       class="bookmarks-page grid columns-md-1 {% if bookmark_list.collapse_side_panel %}collapse-side-panel{% endif %}">
 
     {# Bookmark list #}
@@ -13,7 +13,9 @@
         <h1 id="main-heading">Shared bookmarks</h1>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search mode='shared' %}
-          <button ld-filter-drawer-trigger class="btn ml-2">Filters</button>
+          <ld-filter-drawer-trigger>
+            <button class="btn ml-2">Filters</button>
+          </ld-filter-drawer-trigger>
         </div>
       </div>
 
@@ -40,7 +42,7 @@
       </section>
       {% include 'bookmarks/tag_section.html' %}
     </div>
-  </div>
+  </ld-bookmark-page>
 {% endblock %}
 
 {% block overlays %}

@@ -11,14 +11,16 @@
         style="--ld-bookmark-description-max-lines:{{ bookmark_list.description_max_lines }};"
         data-bookmarks-total="{{ bookmark_list.bookmarks_total }}">
       {% for bookmark_item in bookmark_list.items %}
-        <li ld-bookmark-item data-bookmark-id="{{ bookmark_item.id }}" role="listitem"
+        <li data-bookmark-id="{{ bookmark_item.id }}" role="listitem"
             {% if bookmark_item.css_classes %}class="{{ bookmark_item.css_classes }}"{% endif %}>
           <div class="content">
             <div class="title">
-              <label class="form-checkbox bulk-edit-checkbox">
-                <input type="checkbox" name="bookmark_id" value="{{ bookmark_item.id }}">
-                <i class="form-icon"></i>
-              </label>
+              {% if not bookmark_list.is_preview %}
+                <label class="form-checkbox bulk-edit-checkbox">
+                  <input type="checkbox" name="bookmark_id" value="{{ bookmark_item.id }}">
+                  <i class="form-icon"></i>
+                </label>
+              {% endif %}
               {% if bookmark_item.favicon_file and bookmark_list.show_favicons %}
                 <img class="favicon" src="{% static bookmark_item.favicon_file %}" alt="">
               {% endif %}
@@ -85,7 +87,7 @@
                 {# View link is visible for both owned and shared bookmarks #}
                 {% if bookmark_list.show_view_action %}
                   <a href="{{ bookmark_item.details_url }}" class="view-action"
-                    data-turbo-action="replace" data-turbo-frame="details-modal">View</a>
+                     data-turbo-action="replace" data-turbo-frame="details-modal">View</a>
                 {% endif %}
                 {% if bookmark_item.is_editable %}
                   {# Bookmark owner actions #}
@@ -104,7 +106,7 @@
                     {% endif %}
                   {% endif %}
                   {% if bookmark_list.show_remove_action %}
-                    <button ld-confirm-button type="submit" name="remove" value="{{ bookmark_item.id }}"
+                    <button data-confirm type="submit" name="remove" value="{{ bookmark_item.id }}"
                             class="btn btn-link btn-sm">Remove
                     </button>
                   {% endif %}
@@ -120,7 +122,7 @@
                     {% if bookmark_item.show_mark_as_read %}
                       <button type="submit" name="mark_as_read" value="{{ bookmark_item.id }}"
                               class="btn btn-link btn-sm btn-icon"
-                              ld-confirm-button ld-confirm-question="Mark as read?">
+                              data-confirm data-confirm-question="Mark as read?">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
                           <use xlink:href="#ld-icon-unread"></use>
                         </svg>
@@ -130,7 +132,7 @@
                     {% if bookmark_item.show_unshare %}
                       <button type="submit" name="unshare" value="{{ bookmark_item.id }}"
                               class="btn btn-link btn-sm btn-icon"
-                              ld-confirm-button ld-confirm-question="Unshare?">
+                              data-confirm data-confirm-question="Unshare?">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
                           <use xlink:href="#ld-icon-share"></use>
                         </svg>

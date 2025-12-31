@@ -315,12 +315,12 @@ class BookmarkListTestMixin(TestCase, HtmlTestMixin):
         )
         self.assertIsNotNone(bookmark_list)
 
-        bookmark_items = bookmark_list.select("li[ld-bookmark-item]")
+        bookmark_items = bookmark_list.select("ul.bookmark-list > li")
         self.assertEqual(len(bookmark_items), len(bookmarks))
 
         for bookmark in bookmarks:
             bookmark_item = bookmark_list.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
+                f'ul.bookmark-list > li a[href="{bookmark.url}"][target="{link_target}"]'
             )
             self.assertIsNotNone(bookmark_item)
 
@@ -331,7 +331,7 @@ class BookmarkListTestMixin(TestCase, HtmlTestMixin):
 
         for bookmark in bookmarks:
             bookmark_item = soup.select_one(
-                f'li[ld-bookmark-item] a[href="{bookmark.url}"][target="{link_target}"]'
+                f'ul.bookmark-list > li a[href="{bookmark.url}"][target="{link_target}"]'
             )
             self.assertIsNone(bookmark_item)
 

@@ -27,10 +27,8 @@
           <option value="bulk_snapshot">Create HTML snapshot</option>
         {% endif %}
       </select>
-      <div class="tag-autocomplete d-none" ld-tag-autocomplete>
-        <input name="bulk_tag_string" class="form-input input-sm" placeholder="Tag names..." variant="small">
-      </div>
-      <button ld-confirm-button type="submit" name="bulk_execute" class="btn btn-link btn-sm">
+      <ld-tag-autocomplete input-name="bulk_tag_string" input-placeholder="Tag names..." variant="small"></ld-tag-autocomplete>
+      <button data-confirm type="submit" name="bulk_execute" class="btn btn-link btn-sm">
         <span>Execute</span>
       </button>
 

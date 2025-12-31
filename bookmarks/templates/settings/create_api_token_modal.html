@@ -2,7 +2,7 @@
   <form method="post" action="{% url 'linkding:settings.integrations.create_api_token' %}"
         data-turbo-frame="api-section">
     {% csrf_token %}
-    <div class="modal active" ld-modal data-close-url="{% url 'linkding:settings.integrations' %}"
+    <ld-modal class="modal active" data-close-url="{% url 'linkding:settings.integrations' %}"
          data-turbo-frame="api-modal">
       <div class="modal-overlay"></div>
       <div class="modal-container" role="dialog" aria-modal="true">
@@ -40,6 +40,6 @@
           <button type="submit" class="btn btn-primary">Create Token</button>
         </div>
       </div>
-    </div>
+    </ld-modal>
   </form>
 </turbo-frame>

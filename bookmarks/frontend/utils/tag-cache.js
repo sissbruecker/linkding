@@ -1,6 +1,6 @@
-import { api } from "./api.js";
+import { api } from "../api.js";
 
-class Cache {
+class TagCache {
   constructor(api) {
     this.api = api;
 
@@ -32,4 +32,4 @@ class Cache {
   }
 }
 
-export const cache = new Cache(api);
+export const cache = new TagCache(api);

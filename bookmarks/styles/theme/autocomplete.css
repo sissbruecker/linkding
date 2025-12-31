@@ -23,7 +23,7 @@
       flex: 1 0 auto;
       line-height: var(--unit-4);
       width: 100%;
-      height: 100%;
+      height: 100% !important;
       margin: 0;
       border: none;
 

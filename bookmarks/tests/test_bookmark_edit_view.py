@@ -122,8 +122,9 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
         tag_string = build_tag_string(bookmark.tag_names, " ")
         self.assertInHTML(
             f"""
-            <input type="text" name="tag_string" value="{tag_string}" 
-                    autocomplete="off" autocapitalize="off" class="form-input" id="id_tag_string" aria-describedby="id_tag_string_help">
+                <ld-tag-autocomplete input-id="id_tag_string" input-name="tag_string" input-value="{tag_string}"
+                         input-aria-describedby="id_tag_string_help">
+                </ld-tag-autocomplete>
         """,
             html,
         )

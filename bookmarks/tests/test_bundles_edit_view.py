@@ -55,37 +55,44 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
         html = response.content.decode()
 
         self.assertInHTML(
-            f'<input type="text" name="name" value="{bundle.name}" '
-            'autocomplete="off" placeholder=" " class="form-input" '
-            'maxlength="256" required id="id_name">',
+            f"""
+                <input type="text" name="name" value="{bundle.name}"
+                autocomplete="off" placeholder=" " class="form-input"
+                maxlength="256" required id="id_name">         
+            """,
             html,
         )
 
         self.assertInHTML(
-            f'<input type="text" name="search" value="{bundle.search}" '
-            'autocomplete="off" placeholder=" " class="form-input" '
-            'maxlength="256" id="id_search">',
+            f"""
+                <input type="text" name="search" value="{bundle.search}"
+                autocomplete="off" placeholder=" " class="form-input"
+                maxlength="256" id="id_search">
+            """,
             html,
         )
 
         self.assertInHTML(
-            f'<input type="text" name="any_tags" value="{bundle.any_tags}" '
-            'autocomplete="off" autocapitalize="off" class="form-input" '
-            'maxlength="1024" id="id_any_tags">',
+            f"""
+                <ld-tag-autocomplete input-name="any_tags" input-value="{bundle.any_tags}"
+                input-id="id_any_tags">
+            """,
             html,
         )
 
         self.assertInHTML(
-            f'<input type="text" name="all_tags" value="{bundle.all_tags}" '
-            'autocomplete="off" autocapitalize="off" class="form-input" '
-            'maxlength="1024" id="id_all_tags">',
+            f"""
+                <ld-tag-autocomplete input-name="all_tags" input-value="{bundle.all_tags}"
+                input-id="id_all_tags">
+            """,
             html,
         )
 
         self.assertInHTML(
-            f'<input type="text" name="excluded_tags" value="{bundle.excluded_tags}" '
-            'autocomplete="off" autocapitalize="off" class="form-input" '
-            'maxlength="1024" id="id_excluded_tags">',
+            f"""
+                <ld-tag-autocomplete input-name="excluded_tags" input-value="{bundle.excluded_tags}"
+                input-id="id_excluded_tags">
+            """,
             html,
         )
 

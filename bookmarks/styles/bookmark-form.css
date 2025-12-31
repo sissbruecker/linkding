@@ -22,7 +22,7 @@
     font-size: var(--font-size-sm);
   }
 
-  & .form-group .clear-button,
+  & .form-group ld-clear-button,
   & .form-group #refresh-button {
     display: none;
   }

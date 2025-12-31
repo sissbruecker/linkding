@@ -15,6 +15,11 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         input_element = soup.find("input", {"name": input_name})
         if input_element:
             return input_element.find_parent("div", class_="form-group")
+        autocomplete_element = soup.find(
+            "ld-tag-autocomplete", {"input-name": input_name}
+        )
+        if autocomplete_element:
+            return autocomplete_element.find_parent("div", class_="form-group")
         return None
 
     def test_merge_tags(self):

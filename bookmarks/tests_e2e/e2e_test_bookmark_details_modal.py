@@ -144,7 +144,6 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
                 self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             # verify bookmark is deleted
-            self.locate_bookmark(bookmark.title)
             expect(self.locate_bookmark(bookmark.title)).not_to_be_visible()
 
         self.assertEqual(Bookmark.objects.count(), 0)

@@ -1,15 +1,16 @@
-import { html, LitElement } from "lit";
-import { PositionController } from "../behaviors/position-controller.js";
-import { cache } from "../cache.js";
-import { getCurrentWord, getCurrentWordBounds } from "../util.js";
+import { html, nothing } from "lit";
+import { TurboLitElement } from "../utils/element.js";
+import { getCurrentWord, getCurrentWordBounds } from "../utils/input.js";
+import { PositionController } from "../utils/position-controller.js";
+import { cache } from "../utils/tag-cache.js";
 
-export class TagAutocomplete extends LitElement {
+export class TagAutocomplete extends TurboLitElement {
   static properties = {
-    id: { type: String },
-    name: { type: String },
-    value: { type: String },
-    placeholder: { type: String },
-    ariaDescribedBy: { type: String, attribute: "aria-described-by" },
+    inputId: { type: String, attribute: "input-id" },
+    inputName: { type: String, attribute: "input-name" },
+    inputValue: { type: String, attribute: "input-value" },
+    inputPlaceholder: { type: String, attribute: "input-placeholder" },
+    inputAriaDescribedBy: { type: String, attribute: "input-aria-describedby" },
     variant: { type: String },
     isFocus: { state: true },
     isOpen: { state: true },
@@ -19,11 +20,11 @@ export class TagAutocomplete extends LitElement {
 
   constructor() {
     super();
-    this.id = "";
-    this.name = "";
-    this.value = "";
-    this.placeholder = "";
-    this.ariaDescribedBy = "";
+    this.inputId = "";
+    this.inputName = "";
+    this.inputValue = "";
+    this.inputPlaceholder = "";
+    this.inputAriaDescribedBy = "";
     this.variant = "default";
     this.isFocus = false;
     this.isOpen = false;
@@ -31,10 +32,6 @@ export class TagAutocomplete extends LitElement {
     this.selectedIndex = 0;
     this.input = null;
     this.suggestionList = null;
-  }
-
-  createRenderRoot() {
-    return this;
   }
 
   firstUpdated() {
@@ -159,15 +156,15 @@ export class TagAutocomplete extends LitElement {
         >
           <!-- autocomplete real input box -->
           <input
-            id="${this.id}"
-            name="${this.name}"
-            .value="${this.value || ""}"
-            placeholder="${this.placeholder || " "}"
+            id="${this.inputId || nothing}"
+            name="${this.inputName || nothing}"
+            .value="${this.inputValue || ""}"
+            placeholder="${this.inputPlaceholder || " "}"
             class="form-input"
             type="text"
             autocomplete="off"
             autocapitalize="off"
-            aria-describedby="${this.ariaDescribedBy}"
+            aria-describedby="${this.inputAriaDescribedBy || nothing}"
             @input=${this.handleInput}
             @keydown=${this.handleKeyDown}
             @focus=${this.handleFocus}

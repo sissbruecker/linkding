@@ -1,23 +1,26 @@
-import { LitElement, html } from "lit";
-import { PositionController } from "../behaviors/position-controller";
-import { SearchHistory } from "./SearchHistory.js";
+import { html } from "lit";
 import { api } from "../api.js";
-import { cache } from "../cache.js";
+import { TurboLitElement } from "../utils/element.js";
 import {
   clampText,
   debounce,
   getCurrentWord,
   getCurrentWordBounds,
-} from "../util.js";
+} from "../utils/input.js";
+import { PositionController } from "../utils/position-controller.js";
+import { SearchHistory } from "../utils/search-history.js";
+import { cache } from "../utils/tag-cache.js";
 
-export class SearchAutocomplete extends LitElement {
+export class SearchAutocomplete extends TurboLitElement {
   static properties = {
-    name: { type: String },
-    placeholder: { type: String },
-    value: { type: String },
+    inputName: { type: String, attribute: "input-name" },
+    inputPlaceholder: { type: String, attribute: "input-placeholder" },
+    inputValue: { type: String, attribute: "input-value" },
     mode: { type: String },
-    search: { type: Object },
-    linkTarget: { type: String },
+    user: { type: String },
+    shared: { type: String },
+    unread: { type: String },
+    target: { type: String },
     isFocus: { state: true },
     isOpen: { state: true },
     suggestions: { state: true },
@@ -26,12 +29,11 @@ export class SearchAutocomplete extends LitElement {
 
   constructor() {
     super();
-    this.name = "";
-    this.placeholder = "";
-    this.value = "";
+    this.inputName = "";
+    this.inputPlaceholder = "";
+    this.inputValue = "";
     this.mode = "";
-    this.search = {};
-    this.linkTarget = "_blank";
+    this.target = "_blank";
     this.isFocus = false;
     this.isOpen = false;
     this.suggestions = {
@@ -45,10 +47,6 @@ export class SearchAutocomplete extends LitElement {
     this.menu = null;
     this.searchHistory = new SearchHistory();
     this.debouncedLoadSuggestions = debounce(() => this.loadSuggestions());
-  }
-
-  createRenderRoot() {
-    return this;
   }
 
   firstUpdated() {
@@ -81,7 +79,7 @@ export class SearchAutocomplete extends LitElement {
   }
 
   handleInput(e) {
-    this.value = e.target.value;
+    this.inputValue = e.target.value;
     this.debouncedLoadSuggestions();
   }
 
@@ -162,7 +160,7 @@ export class SearchAutocomplete extends LitElement {
 
     // Recent search suggestions
     const recentSearches = this.searchHistory
-      .getRecentSearches(this.value, 5)
+      .getRecentSearches(this.inputValue, 5)
       .map((value) => ({
         type: "search",
         index: nextIndex(),
@@ -173,11 +171,13 @@ export class SearchAutocomplete extends LitElement {
     // Bookmark suggestions
     let bookmarks = [];
 
-    if (this.value && this.value.length >= 3) {
+    if (this.inputValue && this.inputValue.length >= 3) {
       const path = this.mode ? `/${this.mode}` : "";
       const suggestionSearch = {
-        ...this.search,
-        q: this.value,
+        user: this.user,
+        shared: this.shared,
+        unread: this.unread,
+        q: this.inputValue,
       };
       const fetchedBookmarks = await api.listBookmarks(suggestionSearch, {
         limit: 5,
@@ -219,11 +219,11 @@ export class SearchAutocomplete extends LitElement {
 
   completeSuggestion(suggestion) {
     if (suggestion.type === "search") {
-      this.value = suggestion.value;
+      this.inputValue = suggestion.value;
       this.close();
     }
     if (suggestion.type === "bookmark") {
-      window.open(suggestion.bookmark.url, this.linkTarget);
+      window.open(suggestion.bookmark.url, this.target);
       this.close();
     }
     if (suggestion.type === "tag") {
@@ -293,10 +293,10 @@ export class SearchAutocomplete extends LitElement {
           <input
             type="search"
             class="form-input"
-            name="${this.name}"
-            placeholder="${this.placeholder}"
+            name="${this.inputName}"
+            placeholder="${this.inputPlaceholder}"
             autocomplete="off"
-            .value="${this.value}"
+            .value="${this.inputValue}"
             @input=${this.handleInput}
             @keydown=${this.handleKeyDown}
             @focus=${this.handleFocus}

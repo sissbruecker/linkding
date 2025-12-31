@@ -1,37 +1,31 @@
-import { Behavior, registerBehavior } from "./index";
-import { FocusTrapController } from "./focus-utils";
+import { FocusTrapController } from "../utils/focus.js";
 
-export class ModalBehavior extends Behavior {
-  constructor(element) {
-    super(element);
+export class Modal extends HTMLElement {
+  connectedCallback() {
+    requestAnimationFrame(() => {
+      this.onClose = this.onClose.bind(this);
+      this.onKeyDown = this.onKeyDown.bind(this);
+      this.overlay = this.querySelector(".modal-overlay");
+      this.closeButton = this.querySelector(".modal-header .close");
 
-    this.onClose = this.onClose.bind(this);
-    this.onKeyDown = this.onKeyDown.bind(this);
+      this.overlay.addEventListener("click", this.onClose);
+      this.closeButton.addEventListener("click", this.onClose);
+      document.addEventListener("keydown", this.onKeyDown);
 
-    this.overlay = element.querySelector(".modal-overlay");
-    this.closeButton = element.querySelector(".modal-header .close");
-
-    this.overlay.addEventListener("click", this.onClose);
-    this.closeButton.addEventListener("click", this.onClose);
-    document.addEventListener("keydown", this.onKeyDown);
-
-    this.init();
+      this.setupScrollLock();
+      this.focusTrap = new FocusTrapController(
+        this.querySelector(".modal-container"),
+      );
+    });
   }
 
-  destroy() {
+  disconnectedCallback() {
     this.overlay.removeEventListener("click", this.onClose);
     this.closeButton.removeEventListener("click", this.onClose);
     document.removeEventListener("keydown", this.onKeyDown);
 
     this.removeScrollLock();
     this.focusTrap.destroy();
-  }
-
-  init() {
-    this.setupScrollLock();
-    this.focusTrap = new FocusTrapController(
-      this.element.querySelector(".modal-container"),
-    );
   }
 
   setupScrollLock() {
@@ -61,8 +55,8 @@ export class ModalBehavior extends Behavior {
 
   onClose(event) {
     event.preventDefault();
-    this.element.classList.add("closing");
-    this.element.addEventListener(
+    this.classList.add("closing");
+    this.addEventListener(
       "animationend",
       (event) => {
         if (event.animationName === "fade-out") {
@@ -74,17 +68,16 @@ export class ModalBehavior extends Behavior {
   }
 
   doClose() {
-    this.element.remove();
-    this.removeScrollLock();
-    this.element.dispatchEvent(new CustomEvent("modal:close"));
+    this.remove();
+    this.dispatchEvent(new CustomEvent("modal:close"));
 
     // Navigate to close URL
-    const closeUrl = this.element.dataset.closeUrl;
-    const frame = this.element.dataset.turboFrame;
+    const closeUrl = this.dataset.closeUrl;
+    const frame = this.dataset.turboFrame;
     if (closeUrl) {
       Turbo.visit(closeUrl, { action: "replace", frame: frame });
     }
   }
 }
 
-registerBehavior("ld-modal", ModalBehavior);
+customElements.define("ld-modal", Modal);

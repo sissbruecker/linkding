@@ -9,13 +9,6 @@ export function debounce(callback, delay = 250) {
   };
 }
 
-export function preventDefault(fn) {
-  return function (event) {
-    event.preventDefault();
-    fn.call(this, event);
-  };
-}
-
 export function clampText(text, maxChars = 30) {
   if (!text || text.length <= 30) return text;
 

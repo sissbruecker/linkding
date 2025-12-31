@@ -24,7 +24,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         )
 
     def assertVisibleBookmarks(self, titles: List[str]):
-        bookmark_tags = self.page.locator("li[ld-bookmark-item]")
+        bookmark_tags = self.page.locator("ul.bookmark-list > li")
         expect(bookmark_tags).to_have_count(len(titles))
 
         for title in titles:
@@ -59,12 +59,12 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             url = reverse("linkding:bookmarks.index") + "?sort=title_asc"
             page = self.open(url, p)
 
-            first_item = page.locator("li[ld-bookmark-item]").first
+            first_item = page.locator("ul.bookmark-list > li").first
             expect(first_item).to_contain_text("foo 1")
 
             first_item.get_by_text("Archive").click()
 
-            first_item = page.locator("li[ld-bookmark-item]").first
+            first_item = page.locator("ul.bookmark-list > li").first
             expect(first_item).to_contain_text("foo 2")
 
     def test_partial_update_respects_page(self):

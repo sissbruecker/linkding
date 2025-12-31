@@ -5,7 +5,7 @@ from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 from bookmarks.models import Bookmark
 
 
-class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
+class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
     def setup_test_data(self):
         self.setup_numbered_bookmarks(50)
         self.setup_numbered_bookmarks(50, archived=True)
@@ -39,7 +39,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("linkding:bookmarks.index"), p)
 
-            bookmark_list = self.locate_bookmark_list()
+            bookmark_list = self.locate_bookmark_list().element_handle()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
             self.locate_bulk_edit_select_across().click()
@@ -48,7 +48,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
-            expect(bookmark_list).not_to_be_visible()
+            bookmark_list.wait_for_element_state("hidden", timeout=1000)
 
         self.assertEqual(
             0,
@@ -77,7 +77,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("linkding:bookmarks.archived"), p)
 
-            bookmark_list = self.locate_bookmark_list()
+            bookmark_list = self.locate_bookmark_list().element_handle()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
             self.locate_bulk_edit_select_across().click()
@@ -86,7 +86,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
-            expect(bookmark_list).not_to_be_visible()
+            bookmark_list.wait_for_element_state("hidden", timeout=1000)
 
         self.assertEqual(
             50,
@@ -115,7 +115,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("linkding:bookmarks.index") + "?q=foo", p)
 
-            bookmark_list = self.locate_bookmark_list()
+            bookmark_list = self.locate_bookmark_list().element_handle()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
             self.locate_bulk_edit_select_across().click()
@@ -124,7 +124,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
-            expect(bookmark_list).not_to_be_visible()
+            bookmark_list.wait_for_element_state("hidden", timeout=1000)
 
         self.assertEqual(
             50,
@@ -153,7 +153,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse("linkding:bookmarks.archived") + "?q=foo", p)
 
-            bookmark_list = self.locate_bookmark_list()
+            bookmark_list = self.locate_bookmark_list().element_handle()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
             self.locate_bulk_edit_select_across().click()
@@ -162,7 +162,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
-            expect(bookmark_list).not_to_be_visible()
+            bookmark_list.wait_for_element_state("hidden", timeout=1000)
 
         self.assertEqual(
             50,
@@ -281,7 +281,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             url = reverse("linkding:bookmarks.index")
             page = self.open(url, p)
 
-            bookmark_list = self.locate_bookmark_list()
+            bookmark_list = self.locate_bookmark_list().element_handle()
 
             # Select all bookmarks, enable select across
             self.locate_bulk_edit_toggle().click()
@@ -294,7 +294,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.locate_confirm_dialog().get_by_text("Confirm").click()
 
             # Wait until bookmark list is updated (old reference becomes invisible)
-            expect(bookmark_list).not_to_be_visible()
+            bookmark_list.wait_for_element_state("hidden", timeout=1000)
 
             # Verify bulk edit checkboxes are reset
             checkboxes = page.locator("label.bulk-edit-checkbox input")
@@ -313,7 +313,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             url = reverse("linkding:bookmarks.index")
             self.open(url, p)
 
-            bookmark_list = self.locate_bookmark_list()
+            bookmark_list = self.locate_bookmark_list().element_handle()
             self.locate_bulk_edit_toggle().click()
             self.locate_bulk_edit_select_all().click()
 
@@ -325,7 +325,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             self.locate_bulk_edit_bar().get_by_text("Execute").click()
             self.locate_confirm_dialog().get_by_text("Confirm").click()
             # Wait until bookmark list is updated (old reference becomes invisible)
-            expect(bookmark_list).not_to_be_visible()
+            bookmark_list.wait_for_element_state("hidden", timeout=1000)
 
             expect(self.locate_bulk_edit_select_all()).not_to_be_checked()
             self.locate_bulk_edit_select_all().click()

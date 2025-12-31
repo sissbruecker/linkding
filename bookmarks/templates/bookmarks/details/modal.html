@@ -1,6 +1,6 @@
-<div class="modal active bookmark-details" ld-details-modal
-     data-bookmark-id="{{ details.bookmark.id }}" data-close-url="{{ details.close_url }}"
-     data-turbo-frame="details-modal">
+<ld-details-modal class="modal active bookmark-details"
+                  data-bookmark-id="{{ details.bookmark.id }}" data-close-url="{{ details.close_url }}"
+                  data-turbo-frame="details-modal">
   <div class="modal-overlay"></div>
   <div class="modal-container" role="dialog" aria-modal="true">
     <div class="modal-header">
@@ -31,7 +31,7 @@
             <form action="{{ details.delete_url }}" method="post" data-turbo-action="replace">
               {% csrf_token %}
               <input type="hidden" name="disable_turbo" value="true">
-              <button ld-confirm-button class="btn btn-error btn-wide"
+              <button data-confirm class="btn btn-error btn-wide"
                       type="submit" name="remove" value="{{ details.bookmark.id }}">
                 Delete
               </button>
@@ -41,4 +41,4 @@
       </div>
     {% endif %}
   </div>
-</div>
+</ld-details-modal>
