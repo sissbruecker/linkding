@@ -19,5 +19,12 @@ format:
 	npx prettier bookmarks/frontend --write
 	npx prettier bookmarks/styles --write
 
+e2e:
+	uv run playwright install chromium
+	rm -rf static
+	npm run build
+	uv run manage.py collectstatic --no-input
+	uv run pytest bookmarks/tests_e2e -n auto -o "python_files=e2e_test_*.py"
+
 frontend:
 	npm run dev
