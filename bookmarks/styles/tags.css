@@ -4,3 +4,9 @@
     margin: 0 auto;
   }
 }
+
+.tag-edit-modal {
+  .modal-container {
+    max-width: 400px;
+  }
+}

@@ -14,8 +14,8 @@
       <div class="crud-header">
         <h1 id="main-heading">Tags</h1>
         <div class="d-flex gap-2 ml-auto">
-          <a href="{% url 'linkding:tags.new' %}" class="btn">Add Tag</a>
-          <a href="{% url 'linkding:tags.merge' %}" class="btn">Merge Tags</a>
+          <a href="{% url 'linkding:tags.new' %}" data-turbo-frame="tag-modal" class="btn">Create Tag</a>
+          <a href="{% url 'linkding:tags.merge' %}" data-turbo-frame="tag-modal" class="btn">Merge Tags</a>
         </div>
       </div>
 
@@ -96,7 +96,8 @@
                   </a>
                 </td>
                 <td class="actions">
-                  <a class="btn btn-link" href="{% url 'linkding:tags.edit' tag.id %}">Edit</a>
+                  <a class="btn btn-link" href="{% url 'linkding:tags.edit' tag.id %}"
+                     data-turbo-frame="tag-modal">Edit</a>
                   <button type="submit" name="delete_tag" value="{{ tag.id }}" class="btn btn-link text-error"
                           data-confirm>
                     Remove
@@ -124,4 +125,5 @@
       {% endif %}
     </main>
   </div>
+  <turbo-frame id="tag-modal"></turbo-frame>
 {% endblock %}

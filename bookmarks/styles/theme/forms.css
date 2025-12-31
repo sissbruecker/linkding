@@ -20,9 +20,6 @@
 }
 
 .form-group {
-  &:first-of-type {
-    margin-top: var(--unit-4);
-  }
   &:not(:last-child) {
     margin-bottom: var(--unit-4);
   }
