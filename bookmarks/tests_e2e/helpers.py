@@ -1,5 +1,4 @@
 import os
-import sys
 
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from playwright.sync_api import BrowserContext, Page, sync_playwright
@@ -33,14 +32,8 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
 
     def _test_has_failed(self) -> bool:
         """Detect if the current test has failed. Works with both Django/unittest and pytest."""
-        # Check if there's a current exception being handled
-        if sys.exc_info()[0] is not None:
-            return True
         # Check _outcome for failure info
         if self._outcome is not None:
-            # Direct success flag (set by unittest)
-            if not self._outcome.success:
-                return True
             result = self._outcome.result
             if result:
                 # pytest stores exception info in _excinfo
@@ -51,10 +44,6 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
                 if hasattr(result, "failures"):
                     for failed_test, _ in result.failures:
                         if failed_test is self:
-                            return True
-                if hasattr(result, "errors"):
-                    for errored_test, _ in result.errors:
-                        if errored_test is self:
                             return True
         return False
 
@@ -68,7 +57,6 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         filename = f"{self.__class__.__name__}_{self._testMethodName}.png"
         filepath = os.path.join(SCREENSHOT_DIR, filename)
         self.page.screenshot(path=filepath, full_page=True)
-        print(f"\nScreenshot saved: {filepath}")
 
     def setup_browser(self) -> BrowserContext:
         self._ensure_playwright()
