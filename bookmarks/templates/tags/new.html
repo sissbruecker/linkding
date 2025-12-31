@@ -1,23 +1,19 @@
-{% extends "bookmarks/layout.html" %}
-{% load shared %}
-
-{% block head %}
-  {% with page_title="Add tag - Linkding" %}
-    {{ block.super }}
-  {% endwith %}
-{% endblock %}
-
-{% block content %}
-  <div class="tags-editor-page">
-    <main aria-labelledby="main-heading">
-      <div class="section-header">
-        <h1 id="main-heading">New tag</h1>
+<turbo-frame id="tag-modal">
+  <form method="post" action="{% url 'linkding:tags.new' %}" data-turbo-frame="_top" novalidate>
+    {% csrf_token %}
+    <ld-modal class="modal tag-edit-modal active" data-close-url="{% url 'linkding:tags.index' %}"
+              data-turbo-frame="tag-modal">
+      <div class="modal-overlay" data-close-modal></div>
+      <div class="modal-container" role="dialog" aria-modal="true">
+        {% include 'shared/modal_header.html' with title="Create Tag" %}
+        <div class="modal-body">
+          {% include 'tags/form.html' %}
+        </div>
+        <div class="modal-footer d-flex justify-between">
+          <button type="button" class="btn btn-wide" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary btn-wide">Save</button>
+        </div>
       </div>
-
-      <form method="post" novalidate>
-        {% csrf_token %}
-        {% include 'tags/form.html' %}
-      </form>
-    </main>
-  </div>
-{% endblock %}
+    </ld-modal>
+  </form>
+</turbo-frame>

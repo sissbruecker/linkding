@@ -1,3 +1,5 @@
+from bs4 import TemplateString
+from bs4.element import NavigableString, CData
 from django.test import TestCase
 from django.urls import reverse
 
@@ -9,6 +11,11 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def setUp(self) -> None:
         self.user = self.get_or_create_test_user()
         self.client.force_login(self.user)
+
+    def get_text(self, element):
+        # Invalid form responses are wrapped in <template> tags, which BeautifulSoup
+        # treats as TemplateString objects. Include those when extracting text.
+        return element.get_text(types=(NavigableString, CData, TemplateString))
 
     def get_form_group(self, response, input_name):
         soup = self.make_soup(response.content.decode())
@@ -109,10 +116,12 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertEqual(response.status_code, 422)
 
         target_tag_group = self.get_form_group(response, "target_tag")
-        self.assertIn('Tag "target_tag" does not exist', target_tag_group.get_text())
+        self.assertIn(
+            'Tag "target_tag" does not exist', self.get_text(target_tag_group)
+        )
 
         merge_tags_group = self.get_form_group(response, "merge_tags")
-        self.assertIn('Tag "merge_tag" does not exist', merge_tags_group.get_text())
+        self.assertIn('Tag "merge_tag" does not exist', self.get_text(merge_tags_group))
 
     def test_validate_missing_target_tag(self):
         merge_tag = self.setup_tag(name="merge_tag")
@@ -125,7 +134,7 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertEqual(response.status_code, 422)
 
         target_tag_group = self.get_form_group(response, "target_tag")
-        self.assertIn("This field is required", target_tag_group.get_text())
+        self.assertIn("This field is required", self.get_text(target_tag_group))
         self.assertTrue(Tag.objects.filter(id=merge_tag.id).exists())
 
     def test_validate_missing_merge_tags(self):
@@ -138,7 +147,7 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertEqual(response.status_code, 422)
         merge_tags_group = self.get_form_group(response, "merge_tags")
-        self.assertIn("This field is required", merge_tags_group.get_text())
+        self.assertIn("This field is required", self.get_text(merge_tags_group))
 
     def test_validate_nonexistent_target_tag(self):
         merge_tag = self.setup_tag(name="merge_tag")
@@ -152,7 +161,7 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         target_tag_group = self.get_form_group(response, "target_tag")
         self.assertIn(
-            'Tag "nonexistent_tag" does not exist', target_tag_group.get_text()
+            'Tag "nonexistent_tag" does not exist', self.get_text(target_tag_group)
         )
 
     def test_validate_nonexistent_merge_tag(self):
@@ -167,7 +176,7 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertEqual(response.status_code, 422)
         merge_tags_group = self.get_form_group(response, "merge_tags")
         self.assertIn(
-            'Tag "nonexistent_tag" does not exist', merge_tags_group.get_text()
+            'Tag "nonexistent_tag" does not exist', self.get_text(merge_tags_group)
         )
 
     def test_validate_multiple_target_tags(self):
@@ -184,7 +193,7 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         target_tag_group = self.get_form_group(response, "target_tag")
         self.assertIn(
             "Please enter only one tag name for the target tag",
-            target_tag_group.get_text(),
+            self.get_text(target_tag_group),
         )
 
     def test_validate_target_tag_in_merge_list(self):
@@ -200,7 +209,8 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         merge_tags_group = self.get_form_group(response, "merge_tags")
         self.assertIn(
-            "The target tag cannot be selected for merging", merge_tags_group.get_text()
+            "The target tag cannot be selected for merging",
+            self.get_text(merge_tags_group),
         )
 
     def test_merge_shows_success_message(self):

@@ -12,6 +12,15 @@ document.addEventListener("turbo:render", () => {
   isTopFrameVisit = false;
 });
 
+document.addEventListener("turbo:before-morph-element", (event) => {
+  if (event.target instanceof TurboLitElement) {
+    // Prevent Turbo from morphing Lit elements, which would remove rendered
+    // contents. For now this means that any Lit element / widget can not be
+    // updated from the server when using morphing.
+    event.preventDefault();
+  }
+});
+
 export class TurboLitElement extends LitElement {
   constructor() {
     super();
