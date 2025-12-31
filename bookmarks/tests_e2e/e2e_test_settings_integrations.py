@@ -5,25 +5,6 @@ from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 
 class SettingsIntegrationsE2ETestCase(LinkdingE2ETestCase):
-
-    def test_delete_api_token(self):
-        self.setup_api_token(name="Token To Delete")
-
-        self.open(reverse("linkding:settings.integrations"))
-
-        token_table = self.page.locator("table.crud-table")
-        expect(token_table.get_by_text("Token To Delete")).to_be_visible()
-
-        # Click delete button for the token
-        token_row = token_table.locator("tr").filter(has_text="Token To Delete")
-        token_row.get_by_role("button", name="Delete").click()
-
-        # Confirm deletion
-        self.locate_confirm_dialog().get_by_text("Confirm").click()
-
-        # Verify the token is removed from the table
-        expect(token_table.get_by_text("Token To Delete")).not_to_be_visible()
-    
     def test_create_api_token(self):
         self.open(reverse("linkding:settings.integrations"))
 
@@ -63,4 +44,22 @@ class SettingsIntegrationsE2ETestCase(LinkdingE2ETestCase):
         expect(new_token_input).not_to_be_visible()
 
         # But the token should still be listed in the table
-        expect(token_table.get_by_text("My Test Tokenn")).to_be_visible()
+        expect(token_table.get_by_text("My Test Token")).to_be_visible()
+
+    def test_delete_api_token(self):
+        self.setup_api_token(name="Token To Delete")
+
+        self.open(reverse("linkding:settings.integrations"))
+
+        token_table = self.page.locator("table.crud-table")
+        expect(token_table.get_by_text("Token To Delete")).to_be_visible()
+
+        # Click delete button for the token
+        token_row = token_table.locator("tr").filter(has_text="Token To Delete")
+        token_row.get_by_role("button", name="Delete").click()
+
+        # Confirm deletion
+        self.locate_confirm_dialog().get_by_text("Confirm").click()
+
+        # Verify the token is removed from the table
+        expect(token_table.get_by_text("Token To Delete")).not_to_be_visible()
