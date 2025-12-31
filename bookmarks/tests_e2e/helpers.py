@@ -47,10 +47,15 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
                 if hasattr(result, "_excinfo") and result._excinfo:
                     return True
                 # Django/unittest stores failures and errors in the result
-                if hasattr(result, "failures") and result.failures:
-                    return True
-                if hasattr(result, "errors") and result.errors:
-                    return True
+                # Check if THIS test is in failures/errors (not just any test)
+                if hasattr(result, "failures"):
+                    for failed_test, _ in result.failures:
+                        if failed_test is self:
+                            return True
+                if hasattr(result, "errors"):
+                    for errored_test, _ in result.errors:
+                        if errored_test is self:
+                            return True
         return False
 
     def _ensure_playwright(self):
