@@ -448,7 +448,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         soup = self.make_soup(html)
         bookmark_list = soup.select_one("ul.bookmark-list")
         style = bookmark_list["style"]
-        self.assertIn("--ld-bookmark-description-max-lines:1;", style)
+        self.assertIn("--ld-bookmark-description-max-lines:1", style)
 
         profile = self.get_or_create_test_user().profile
         profile.bookmark_description_max_lines = 3
@@ -458,7 +458,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         soup = self.make_soup(html)
         bookmark_list = soup.select_one("ul.bookmark-list")
         style = bookmark_list["style"]
-        self.assertIn("--ld-bookmark-description-max-lines:3;", style)
+        self.assertIn("--ld-bookmark-description-max-lines:3", style)
 
     def test_bookmark_tag_ordering(self):
         bookmark = self.setup_bookmark()

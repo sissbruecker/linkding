@@ -98,7 +98,7 @@ make test
 
 ### Formatting
 
-Format Python code with black, and JavaScript code with prettier:
+Format Python code with black, Django templates with djlint, and JavaScript code with prettier:
 ```
 make format
 ```

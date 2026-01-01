@@ -1,5 +1,4 @@
 {% load shared %}
-
 <ul class="pagination">
   {% if prev_link %}
     <li class="page-item">
@@ -10,7 +9,6 @@
       <a href="#" tabindex="-1">Previous</a>
     </li>
   {% endif %}
-
   {% for page_link in page_links %}
     {% if page_link %}
       <li class="page-item {% if page_link.active %}active{% endif %}">
@@ -22,7 +20,6 @@
       </li>
     {% endif %}
   {% endfor %}
-
   {% if next_link %}
     <li class="page-item">
       <a href="{{ next_link }}" tabindex="-1">Next</a>

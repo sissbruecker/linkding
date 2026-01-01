@@ -4,12 +4,19 @@
       <h2 id="bundles-heading">Bundles</h2>
       <ld-dropdown class="dropdown dropdown-right ml-auto">
         <button class="btn btn-noborder dropdown-toggle" aria-label="Bundles menu">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-            <path d="M4 6l16 0"/>
-            <path d="M4 12l16 0"/>
-            <path d="M4 18l16 0"/>
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="20"
+               height="20"
+               viewBox="0 0 24 24"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="2"
+               stroke-linecap="round"
+               stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M4 6l16 0" />
+            <path d="M4 12l16 0" />
+            <path d="M4 18l16 0" />
           </svg>
         </button>
         <ul class="menu" role="list" tabindex="-1">
@@ -18,8 +25,9 @@
           </li>
           {% if bookmark_list.search.q %}
             <li class="menu-item">
-              <a href="{% url 'linkding:bundles.new' %}?q={{ bookmark_list.search.q|urlencode }}" class="menu-link">Create
-                bundle from search</a>
+              <a href="{% url 'linkding:bundles.new' %}?q={{ bookmark_list.search.q|urlencode }}"
+                 class="menu-link">Create
+              bundle from search</a>
             </li>
           {% endif %}
         </ul>

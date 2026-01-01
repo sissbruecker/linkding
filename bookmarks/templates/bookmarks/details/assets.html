@@ -3,47 +3,53 @@
     <div class="item-list assets">
       {% for asset in details.assets %}
         <div class="list-item" data-asset-id="{{ asset.id }}">
-          <div class="list-item-icon {{ asset.icon_classes }}">
-            {% include 'bookmarks/details/asset_icon.html' %}
-          </div>
+          <div class="list-item-icon {{ asset.icon_classes }}">{% include 'bookmarks/details/asset_icon.html' %}</div>
           <div class="list-item-text {{ asset.text_classes }}">
-          <span class="truncate">
-            {{ asset.display_name }}
-            {% if asset.status == 'pending' %}(queued){% endif %}
-            {% if asset.status == 'failure' %}(failed){% endif %}
-          </span>
-            {% if asset.file_size %}
-              <span class="filesize">{{ asset.file_size|filesizeformat }}</span>
-            {% endif %}
+            <span class="truncate">
+              {{ asset.display_name }}
+              {% if asset.status == 'pending' %}(queued){% endif %}
+              {% if asset.status == 'failure' %}(failed){% endif %}
+            </span>
+            {% if asset.file_size %}<span class="filesize">{{ asset.file_size|filesizeformat }}</span>{% endif %}
           </div>
           <div class="list-item-actions">
             {% if asset.file %}
-              <a class="btn btn-link" href="{% url 'linkding:assets.view' asset.id %}" target="_blank">View</a>
+              <a class="btn btn-link"
+                 href="{% url 'linkding:assets.view' asset.id %}"
+                 target="_blank">View</a>
             {% endif %}
             {% if details.is_editable %}
-              <button data-confirm type="submit" name="remove_asset" value="{{ asset.id }}" class="btn btn-link">
-                Remove
-              </button>
+              <button data-confirm
+                      type="submit"
+                      name="remove_asset"
+                      value="{{ asset.id }}"
+                      class="btn btn-link">Remove</button>
             {% endif %}
           </div>
         </div>
       {% endfor %}
     </div>
   {% endif %}
-
   {% if details.is_editable %}
     <div class="assets-actions">
       {% if details.snapshots_enabled %}
-        <button type="submit" name="create_html_snapshot" value="{{ details.bookmark.id }}" class="btn btn-sm"
-                {% if details.has_pending_assets %}disabled{% endif %}>Create HTML snapshot
-        </button>
+        <button type="submit"
+                name="create_html_snapshot"
+                value="{{ details.bookmark.id }}"
+                class="btn btn-sm"
+                {% if details.has_pending_assets %}disabled{% endif %}>Create HTML snapshot</button>
       {% endif %}
       {% if details.uploads_enabled %}
         <ld-upload-button>
-          <button id="upload-asset" name="upload_asset" value="{{ details.bookmark.id }}" type="submit"
-                  class="btn btn-sm">Upload file
-          </button>
-          <input id="upload-asset-file" name="upload_asset_file" type="file" class="d-hide">
+          <button id="upload-asset"
+                  name="upload_asset"
+                  value="{{ details.bookmark.id }}"
+                  type="submit"
+                  class="btn btn-sm">Upload file</button>
+          <input id="upload-asset-file"
+                 name="upload_asset_file"
+                 type="file"
+                 class="d-hide">
         </ld-upload-button>
       {% endif %}
     </div>

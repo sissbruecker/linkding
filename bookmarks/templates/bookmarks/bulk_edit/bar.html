@@ -1,42 +1,41 @@
 {% load shared %}
 {% htmlmin %}
-  <div class="bulk-edit-bar">
-    <div class="bulk-edit-actions">
-      <label class="form-checkbox bulk-edit-checkbox all">
-        <input type="checkbox">
-        <i class="form-icon"></i>
-      </label>
-      <select name="bulk_action" class="form-select select-sm">
-        {% if not 'bulk_archive' in disable_actions %}
-          <option value="bulk_archive">Archive</option>
-        {% endif %}
-        {% if not 'bulk_unarchive' in disable_actions %}
-          <option value="bulk_unarchive">Unarchive</option>
-        {% endif %}
-        <option value="bulk_delete">Delete</option>
-        <option value="bulk_tag">Add tags</option>
-        <option value="bulk_untag">Remove tags</option>
-        <option value="bulk_read">Mark as read</option>
-        <option value="bulk_unread">Mark as unread</option>
-        {% if request.user_profile.enable_sharing %}
-          <option value="bulk_share">Share</option>
-          <option value="bulk_unshare">Unshare</option>
-        {% endif %}
-        <option value="bulk_refresh">Refresh from website</option>
-        {% if bookmark_list.snapshot_feature_enabled %}
-          <option value="bulk_snapshot">Create HTML snapshot</option>
-        {% endif %}
-      </select>
-      <ld-tag-autocomplete input-name="bulk_tag_string" input-placeholder="Tag names..." variant="small"></ld-tag-autocomplete>
-      <button data-confirm type="submit" name="bulk_execute" class="btn btn-link btn-sm">
-        <span>Execute</span>
-      </button>
-
-      <label class="form-checkbox select-across d-none">
-        <input type="checkbox" name="bulk_select_across">
-        <i class="form-icon"></i>
-        All pages (<span class="total">{{ bookmark_list.bookmarks_total }}</span> bookmarks)
-      </label>
-    </div>
+<div class="bulk-edit-bar">
+  <div class="bulk-edit-actions">
+    <label class="form-checkbox bulk-edit-checkbox all">
+      <input type="checkbox">
+      <i class="form-icon"></i>
+    </label>
+    <select name="bulk_action" class="form-select select-sm">
+      {% if not 'bulk_archive' in disable_actions %}<option value="bulk_archive">Archive</option>{% endif %}
+      {% if not 'bulk_unarchive' in disable_actions %}<option value="bulk_unarchive">Unarchive</option>{% endif %}
+      <option value="bulk_delete">Delete</option>
+      <option value="bulk_tag">Add tags</option>
+      <option value="bulk_untag">Remove tags</option>
+      <option value="bulk_read">Mark as read</option>
+      <option value="bulk_unread">Mark as unread</option>
+      {% if request.user_profile.enable_sharing %}
+        <option value="bulk_share">Share</option>
+        <option value="bulk_unshare">Unshare</option>
+      {% endif %}
+      <option value="bulk_refresh">Refresh from website</option>
+      {% if bookmark_list.snapshot_feature_enabled %}<option value="bulk_snapshot">Create HTML snapshot</option>{% endif %}
+    </select>
+    <ld-tag-autocomplete input-name="bulk_tag_string"
+                         input-placeholder="Tag names..."
+                         variant="small">
+    </ld-tag-autocomplete>
+    <button data-confirm
+            type="submit"
+            name="bulk_execute"
+            class="btn btn-link btn-sm">
+      <span>Execute</span>
+    </button>
+    <label class="form-checkbox select-across d-none">
+      <input type="checkbox" name="bulk_select_across">
+      <i class="form-icon"></i>
+      All pages (<span class="total">{{ bookmark_list.bookmarks_total }}</span> bookmarks)
+    </label>
   </div>
+</div>
 {% endhtmlmin %}

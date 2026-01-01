@@ -20,7 +20,7 @@ class TagsNewViewTestCase(TestCase, BookmarkFactoryMixin):
     def test_show_error_for_empty_name(self):
         response = self.client.post(reverse("linkding:tags.new"), {"name": ""})
 
-        self.assertContains(response, "This field is required", status_code=422)
+        self.assertContains(response, "This field is required")
         self.assertEqual(Tag.objects.count(), 0)
 
     def test_show_error_for_duplicate_name(self):
@@ -30,9 +30,7 @@ class TagsNewViewTestCase(TestCase, BookmarkFactoryMixin):
             reverse("linkding:tags.new"), {"name": "existing_tag"}
         )
 
-        self.assertContains(
-            response, "Tag &quot;existing_tag&quot; already exists", status_code=422
-        )
+        self.assertContains(response, "Tag &quot;existing_tag&quot; already exists")
         self.assertEqual(Tag.objects.count(), 1)
 
     def test_show_error_for_duplicate_name_different_casing(self):
@@ -42,9 +40,7 @@ class TagsNewViewTestCase(TestCase, BookmarkFactoryMixin):
             reverse("linkding:tags.new"), {"name": "existing_TAG"}
         )
 
-        self.assertContains(
-            response, "Tag &quot;existing_TAG&quot; already exists", status_code=422
-        )
+        self.assertContains(response, "Tag &quot;existing_TAG&quot; already exists")
         self.assertEqual(Tag.objects.count(), 1)
 
     def test_no_error_for_duplicate_name_different_user(self):

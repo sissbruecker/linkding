@@ -113,7 +113,6 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             reverse("linkding:tags.merge"),
             {"target_tag": "target_tag", "merge_tags": "merge_tag"},
         )
-        self.assertEqual(response.status_code, 422)
 
         target_tag_group = self.get_form_group(response, "target_tag")
         self.assertIn(
@@ -131,8 +130,6 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             {"target_tag": "", "merge_tags": "merge_tag"},
         )
 
-        self.assertEqual(response.status_code, 422)
-
         target_tag_group = self.get_form_group(response, "target_tag")
         self.assertIn("This field is required", self.get_text(target_tag_group))
         self.assertTrue(Tag.objects.filter(id=merge_tag.id).exists())
@@ -145,7 +142,6 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             {"target_tag": "target_tag", "merge_tags": ""},
         )
 
-        self.assertEqual(response.status_code, 422)
         merge_tags_group = self.get_form_group(response, "merge_tags")
         self.assertIn("This field is required", self.get_text(merge_tags_group))
 
@@ -156,8 +152,6 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             reverse("linkding:tags.merge"),
             {"target_tag": "nonexistent_tag", "merge_tags": "merge_tag"},
         )
-
-        self.assertEqual(response.status_code, 422)
 
         target_tag_group = self.get_form_group(response, "target_tag")
         self.assertIn(
@@ -173,7 +167,6 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             {"target_tag": "target_tag", "merge_tags": "merge_tag1 nonexistent_tag"},
         )
 
-        self.assertEqual(response.status_code, 422)
         merge_tags_group = self.get_form_group(response, "merge_tags")
         self.assertIn(
             'Tag "nonexistent_tag" does not exist', self.get_text(merge_tags_group)
@@ -187,8 +180,6 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             reverse("linkding:tags.merge"),
             {"target_tag": "target_tag1 target_tag2", "merge_tags": "some_tag"},
         )
-
-        self.assertEqual(response.status_code, 422)
 
         target_tag_group = self.get_form_group(response, "target_tag")
         self.assertIn(
@@ -204,8 +195,6 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             reverse("linkding:tags.merge"),
             {"target_tag": "target_tag", "merge_tags": "target_tag merge_tag"},
         )
-
-        self.assertEqual(response.status_code, 422)
 
         merge_tags_group = self.get_form_group(response, "merge_tags")
         self.assertIn(

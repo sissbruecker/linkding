@@ -1,7 +1,6 @@
 {% load widget_tweaks %}
 {% load static %}
 {% load shared %}
-
 <div class="bookmarks-form">
   {% csrf_token %}
   {{ form.auto_close|attr:"type:hidden" }}
@@ -11,11 +10,7 @@
       {{ form.url|form_field:"validation"|add_class:"form-input"|attr:"autofocus" }}
       <i class="form-icon loading"></i>
     </div>
-    {% if form.url.errors %}
-      <div class="form-input-hint">
-        {{ form.url.errors }}
-      </div>
-    {% endif %}
+    {% if form.url.errors %}<div class="form-input-hint">{{ form.url.errors }}</div>{% endif %}
     <div class="form-input-hint bookmark-exists">
       This URL is already bookmarked.
       The form has been pre-filled with the existing bookmark, and saving the form will update the existing bookmark.
@@ -23,7 +18,9 @@
   </div>
   <div class="form-group">
     <label for="{{ form.tag_string.id_for_label }}" class="form-label">Tags</label>
-    <ld-tag-autocomplete input-id="{{ form.tag_string.auto_id }}" input-name="{{ form.tag_string.html_name }}" input-value="{{ form.tag_string.value|default_if_none:'' }}"
+    <ld-tag-autocomplete input-id="{{ form.tag_string.auto_id }}"
+                         input-name="{{ form.tag_string.html_name }}"
+                         input-value="{{ form.tag_string.value|default_if_none:'' }}"
                          input-aria-describedby="{{ form.tag_string.auto_id }}_help">
     </ld-tag-autocomplete>
     <div id="{{ form.tag_string.auto_id }}_help" class="form-input-hint">
@@ -39,9 +36,7 @@
       <div class="flex">
         <button id="refresh-button" class="btn btn-link suffix-button" type="button">Refresh from website</button>
         <ld-clear-button data-for="{{ form.title.id_for_label }}">
-          <button class="ml-2 btn btn-link suffix-button" type="button">
-            Clear
-          </button>
+          <button class="ml-2 btn btn-link suffix-button" type="button">Clear</button>
         </ld-clear-button>
       </div>
     </div>
@@ -52,9 +47,7 @@
     <div class="d-flex justify-between align-baseline">
       <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
       <ld-clear-button data-for="{{ form.description.id_for_label }}">
-        <button class="btn btn-link suffix-button" type="button">
-          Clear
-        </button>
+        <button class="btn btn-link suffix-button" type="button">Clear</button>
       </ld-clear-button>
     </div>
     {{ form.description|add_class:"form-input"|attr:"rows:3" }}
@@ -67,9 +60,7 @@
       </summary>
       <label for="{{ form.notes.id_for_label }}" class="text-assistive">Notes</label>
       {{ form.notes|form_field:"help"|add_class:"form-input"|attr:"rows:8" }}
-      <div id="{{ form.notes.auto_id }}_help" class="form-input-hint">
-        Additional notes, supports Markdown.
-      </div>
+      <div id="{{ form.notes.auto_id }}_help" class="form-input-hint">Additional notes, supports Markdown.</div>
     </details>
     {{ form.notes.errors }}
   </div>
@@ -104,151 +95,153 @@
     {% if form.is_auto_close %}
       <input type="submit" value="Save and close" class="btn btn-primary btn-wide">
     {% else %}
-      <input type="submit" value="Save" class="btn btn-primary btn btn-primary btn-wide">
+      <input type="submit"
+             value="Save"
+             class="btn btn-primary btn btn-primary btn-wide">
     {% endif %}
     <a href="{{ return_url }}" class="btn">Cancel</a>
   </div>
   <script type="application/javascript">
-      /**
-       * - Pre-fill title and description with metadata from website as soon as URL changes
-       * - Show hint if URL is already bookmarked
-       */
-      (function init() {
-          const urlInput = document.getElementById('{{ form.url.id_for_label }}');
-          const titleInput = document.getElementById('{{ form.title.id_for_label }}');
-          const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
-          const notesDetails = document.querySelector('form details.notes');
-          const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
-          const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
-          const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
-          const refreshButton = document.getElementById('refresh-button');
-          const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
-          const editedBookmarkId = {{ form.instance.id|default:0 }};
-          let isTitleModified = !!titleInput.value;
-          let isDescriptionModified = !!descriptionInput.value;
+    /**
+     * - Pre-fill title and description with metadata from website as soon as URL changes
+     * - Show hint if URL is already bookmarked
+     */
+    (function init() {
+      const urlInput = document.getElementById('{{ form.url.id_for_label }}');
+      const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+      const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+      const notesDetails = document.querySelector('form details.notes');
+      const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
+      const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
+      const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
+      const refreshButton = document.getElementById('refresh-button');
+      const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
+      const editedBookmarkId = parseInt('{{ form.instance.id|default:0 }}');
+      let isTitleModified = !!titleInput.value;
+      let isDescriptionModified = !!descriptionInput.value;
 
-          function toggleLoadingIcon(input, show) {
-              const icon = input.parentNode.querySelector('i.form-icon');
-              icon.style['visibility'] = show ? 'visible' : 'hidden';
-          }
+      function toggleLoadingIcon(input, show) {
+        const icon = input.parentNode.querySelector('i.form-icon');
+        icon.style['visibility'] = show ? 'visible' : 'hidden';
+      }
 
-          function updateInput(input, value) {
-              if (!input) {
-                  return;
+      function updateInput(input, value) {
+        if (!input) {
+          return;
+        }
+        input.value = value;
+        input.dispatchEvent(new Event('value-changed'));
+      }
+
+      function updateCheckbox(input, value) {
+        if (!input) {
+          return;
+        }
+        input.checked = value;
+      }
+
+      function checkUrl() {
+        if (!urlInput.value) {
+          return;
+        }
+
+        toggleLoadingIcon(urlInput, true);
+
+        const websiteUrl = encodeURIComponent(urlInput.value);
+        const requestUrl = `{% url 'linkding:api-root' %}bookmarks/check?url=${websiteUrl}`;
+        fetch(requestUrl)
+          .then(response => response.json())
+          .then(data => {
+            const metadata = data.metadata;
+            toggleLoadingIcon(urlInput, false);
+
+            // Display hint if URL is already bookmarked
+            const existingBookmark = data.bookmark;
+            bookmarkExistsHint.style['display'] = existingBookmark ? 'block' : 'none';
+            refreshButton.style['display'] = existingBookmark ? 'inline-block' : 'none';
+
+            // Prefill form with existing bookmark data
+            if (existingBookmark) {
+              // Workaround: tag input will be replaced by tag autocomplete, so
+              // defer getting the input until we need it
+              const tagsInput = document.getElementById('{{ form.tag_string.id_for_label }}');
+
+              bookmarkExistsHint.style['display'] = 'block';
+              notesDetails.open = !!existingBookmark.notes;
+              updateInput(titleInput, existingBookmark.title);
+              updateInput(descriptionInput, existingBookmark.description);
+              updateInput(notesInput, existingBookmark.notes);
+              updateInput(tagsInput, existingBookmark.tag_names.join(" "));
+              updateCheckbox(unreadCheckbox, existingBookmark.unread);
+              updateCheckbox(sharedCheckbox, existingBookmark.shared);
+            } else {
+              // Update title and description with website metadata, unless they have been modified
+              if (!isTitleModified) {
+                updateInput(titleInput, metadata.title);
               }
-              input.value = value;
-              input.dispatchEvent(new Event('value-changed'));
-          }
-
-          function updateCheckbox(input, value) {
-              if (!input) {
-                  return;
+              if (!isDescriptionModified) {
+                updateInput(descriptionInput, metadata.description);
               }
-              input.checked = value;
-          }
+            }
 
-          function checkUrl() {
-              if (!urlInput.value) {
-                  return;
-              }
+            // Preview auto tags
+            const autoTags = data.auto_tags;
+            const autoTagsHint = document.querySelector('.form-input-hint.auto-tags');
 
-              toggleLoadingIcon(urlInput, true);
+            if (autoTags.length > 0) {
+              autoTags.sort();
+              autoTagsHint.style['display'] = 'block';
+              autoTagsHint.innerHTML = `Auto tags: ${autoTags.join(" ")}`;
+            } else {
+              autoTagsHint.style['display'] = 'none';
+            }
+          });
+      }
 
-              const websiteUrl = encodeURIComponent(urlInput.value);
-              const requestUrl = `{% url 'linkding:api-root' %}bookmarks/check?url=${websiteUrl}`;
-              fetch(requestUrl)
-                  .then(response => response.json())
-                  .then(data => {
-                      const metadata = data.metadata;
-                      toggleLoadingIcon(urlInput, false);
+      function refreshMetadata() {
+        if (!urlInput.value) {
+          return;
+        }
 
-                      // Display hint if URL is already bookmarked
-                      const existingBookmark = data.bookmark;
-                      bookmarkExistsHint.style['display'] = existingBookmark ? 'block' : 'none';
-                      refreshButton.style['display'] = existingBookmark ? 'inline-block' : 'none';
+        toggleLoadingIcon(urlInput, true);
 
-                      // Prefill form with existing bookmark data
-                      if (existingBookmark) {
-                          // Workaround: tag input will be replaced by tag autocomplete, so
-                          // defer getting the input until we need it
-                          const tagsInput = document.getElementById('{{ form.tag_string.id_for_label }}');
+        const websiteUrl = encodeURIComponent(urlInput.value);
+        const requestUrl = `{% url 'linkding:api-root' %}bookmarks/check?url=${websiteUrl}&ignore_cache=true`;
 
-                          bookmarkExistsHint.style['display'] = 'block';
-                          notesDetails.open = !!existingBookmark.notes;
-                          updateInput(titleInput, existingBookmark.title);
-                          updateInput(descriptionInput, existingBookmark.description);
-                          updateInput(notesInput, existingBookmark.notes);
-                          updateInput(tagsInput, existingBookmark.tag_names.join(" "));
-                          updateCheckbox(unreadCheckbox, existingBookmark.unread);
-                          updateCheckbox(sharedCheckbox, existingBookmark.shared);
-                      } else {
-                          // Update title and description with website metadata, unless they have been modified
-                          if (!isTitleModified) {
-                              updateInput(titleInput, metadata.title);
-                          }
-                          if (!isDescriptionModified) {
-                              updateInput(descriptionInput, metadata.description);
-                          }
-                      }
+        fetch(requestUrl)
+          .then(response => response.json())
+          .then(data => {
+            const metadata = data.metadata;
+            const existingBookmark = data.bookmark;
+            toggleLoadingIcon(urlInput, false);
 
-                      // Preview auto tags
-                      const autoTags = data.auto_tags;
-                      const autoTagsHint = document.querySelector('.form-input-hint.auto-tags');
+            if (metadata.title && metadata.title !== existingBookmark?.title) {
+              titleInput.value = metadata.title;
+              titleInput.classList.add("modified");
+            }
 
-                      if (autoTags.length > 0) {
-                          autoTags.sort();
-                          autoTagsHint.style['display'] = 'block';
-                          autoTagsHint.innerHTML = `Auto tags: ${autoTags.join(" ")}`;
-                      } else {
-                          autoTagsHint.style['display'] = 'none';
-                      }
-                  });
-          }
+            if (metadata.description && metadata.description !== existingBookmark?.description) {
+              descriptionInput.value = metadata.description;
+              descriptionInput.classList.add("modified");
+            }
+          });
+      }
 
-          function refreshMetadata() {
-              if (!urlInput.value) {
-                  return;
-              }
+      refreshButton.addEventListener('click', refreshMetadata);
 
-              toggleLoadingIcon(urlInput, true);
-
-              const websiteUrl = encodeURIComponent(urlInput.value);
-              const requestUrl = `{% url 'linkding:api-root' %}bookmarks/check?url=${websiteUrl}&ignore_cache=true`;
-
-              fetch(requestUrl)
-                  .then(response => response.json())
-                  .then(data => {
-                      const metadata = data.metadata;
-                      const existingBookmark = data.bookmark;
-                      toggleLoadingIcon(urlInput, false);
-
-                      if (metadata.title && metadata.title !== existingBookmark?.title) {
-                          titleInput.value = metadata.title;
-                          titleInput.classList.add("modified");
-                      }
-
-                      if (metadata.description && metadata.description !== existingBookmark?.description) {
-                          descriptionInput.value = metadata.description;
-                          descriptionInput.classList.add("modified");
-                      }
-                  });
-          }
-
-          refreshButton.addEventListener('click', refreshMetadata);
-
-          // Fetch website metadata when page loads and when URL changes, unless we are editing an existing bookmark
-          if (!editedBookmarkId) {
-              checkUrl();
-              urlInput.addEventListener('input', checkUrl);
-              titleInput.addEventListener('input', () => {
-                  isTitleModified = true;
-              });
-              descriptionInput.addEventListener('input', () => {
-                  isDescriptionModified = true;
-              });
-          } else {
-              refreshButton.style['display'] = 'inline-block';
-          }
-      })();
+      // Fetch website metadata when page loads and when URL changes, unless we are editing an existing bookmark
+      if (!editedBookmarkId) {
+        checkUrl();
+        urlInput.addEventListener('input', checkUrl);
+        titleInput.addEventListener('input', () => {
+          isTitleModified = true;
+        });
+        descriptionInput.addEventListener('input', () => {
+          isDescriptionModified = true;
+        });
+      } else {
+        refreshButton.style['display'] = 'inline-block';
+      }
+    })();
   </script>
 </div>

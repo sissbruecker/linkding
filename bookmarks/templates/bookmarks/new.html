@@ -1,11 +1,7 @@
-{% extends 'bookmarks/layout.html' %}
-
+{% extends 'shared/layout.html' %}
 {% block head %}
-  {% with page_title="New bookmark - Linkding" %}
-    {{ block.super }}
-  {% endwith %}
+  {% with page_title="New bookmark - Linkding" %}{{ block.super }}{% endwith %}
 {% endblock %}
-
 {% block content %}
   <div class="bookmarks-form-page">
     <main aria-labelledby="main-heading">

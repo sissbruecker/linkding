@@ -1,18 +1,16 @@
-{% extends 'bookmarks/layout.html' %}
+{% extends 'shared/layout.html' %}
 {% load widget_tweaks %}
-
 {% block head %}
-  {% with page_title="Registration - Linkding" %}
-    {{ block.super }}
-  {% endwith %}
+  {% with page_title="Registration - Linkding" %}{{ block.super }}{% endwith %}
 {% endblock %}
-
 {% block content %}
   <main class="mx-auto width-50 width-md-100" aria-labelledby="main-heading">
     <div class="section-header">
       <h1 id="main-heading">Register</h1>
     </div>
-    <form method="post" action="{% url 'django_registration_register' %}" novalidate>
+    <form method="post"
+          action="{% url 'django_registration_register' %}"
+          novalidate>
       {% csrf_token %}
       <div class="form-group  {% if form.errors.username %}has-error{% endif %}">
         <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
@@ -34,7 +32,7 @@
         {{ form.password2|add_class:'form-input'|attr:"placeholder: " }}
         <div class="form-input-hint">{{ form.errors.password2 }}</div>
       </div>
-      <br/>
+      <br />
       <input type="submit" value="Register" class="btn btn-primary btn-wide">
       <input type="hidden" name="next" value="{{ next }}">
     </form>

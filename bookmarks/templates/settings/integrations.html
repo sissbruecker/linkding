@@ -1,33 +1,40 @@
-{% extends "bookmarks/layout.html" %}
-
+{% extends "shared/layout.html" %}
 {% block head %}
-  {% with page_title="Integrations - Linkding" %}
-    {{ block.super }}
-  {% endwith %}
+  {% with page_title="Integrations - Linkding" %}{{ block.super }}{% endwith %}
 {% endblock %}
-
 {% block content %}
   <main class="settings-page" aria-labelledby="main-heading">
     <h1 id="main-heading">Integrations</h1>
-
     <section aria-labelledby="browser-extension-heading">
       <h2 id="browser-extension-heading">Browser Extension</h2>
-      <p>The browser extension allows you to quickly add new bookmarks without leaving the page that you are on. The
-        extension is available in the official extension stores for:</p>
+      <p>
+        The browser extension allows you to quickly add new bookmarks without leaving the page that you are on. The
+        extension is available in the official extension stores for:
+      </p>
       <ul>
-        <li><a href="https://addons.mozilla.org/firefox/addon/linkding-extension/" target="_blank">Firefox</a></li>
-        <li><a href="https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe"
-               target="_blank">Chrome</a></li>
+        <li>
+          <a href="https://addons.mozilla.org/firefox/addon/linkding-extension/"
+             target="_blank">Firefox</a>
+        </li>
+        <li>
+          <a href="https://chrome.google.com/webstore/detail/linkding-extension/beakmhbijpdhipnjhnclmhgjlddhidpe"
+             target="_blank">Chrome</a>
+        </li>
       </ul>
-      <p>The extension is <a href="https://github.com/sissbruecker/linkding-extension" target="_blank">open source</a>
-        as well, which enables you to build and manually load it into any browser that supports Chrome extensions.</p>
+      <p>
+        The extension is <a href="https://github.com/sissbruecker/linkding-extension"
+    target="_blank">open source</a>
+        as well, which enables you to build and manually load it into any browser that supports Chrome extensions.
+      </p>
       <h2>Bookmarklet</h2>
-      <p>The bookmarklet is an alternative, cross-browser way to quickly add new bookmarks without opening the linkding
-        application first. Here's how it works:</p>
+      <p>
+        The bookmarklet is an alternative, cross-browser way to quickly add new bookmarks without opening the linkding
+        application first. Here's how it works:
+      </p>
       <ul>
-        <li>Choose your preferred method for detecting website titles and descriptions below (<a
-            href="https://linkding.link/troubleshooting/#automatically-detected-title-and-description-are-incorrect"
-            target="_blank">Help</a>)
+        <li>
+          Choose your preferred method for detecting website titles and descriptions below (<a href="https://linkding.link/troubleshooting/#automatically-detected-title-and-description-are-incorrect"
+   target="_blank">Help</a>)
         </li>
         <li>Drag the bookmarklet below into your browser's bookmark bar / toolbar</li>
         <li>Open the website that you want to bookmark</li>
@@ -35,86 +42,94 @@
         <li>linkding opens in a new window or tab and allows you to add a bookmark for the site</li>
         <li>After saving the bookmark, the linkding window closes, and you are back on your website</li>
       </ul>
-
-      <div class="form-group radio-group" role="radiogroup" aria-labelledby="detection-method-label">
+      <div class="form-group radio-group"
+           role="radiogroup"
+           aria-labelledby="detection-method-label">
         <p id="detection-method-label">Choose your preferred bookmarklet:</p>
         <label for="detection-method-server" class="form-radio">
-          <input id="detection-method-server" type="radio" name="bookmarklet-type" value="server" checked>
+          <input id="detection-method-server"
+                 type="radio"
+                 name="bookmarklet-type"
+                 value="server"
+                 checked>
           <i class="form-icon"></i>
           Detect title and description on the server
         </label>
         <label for="detection-method-client" class="form-radio">
-          <input id="detection-method-client" type="radio" name="bookmarklet-type" value="client">
+          <input id="detection-method-client"
+                 type="radio"
+                 name="bookmarklet-type"
+                 value="client">
           <i class="form-icon"></i>
           Detect title and description in the browser
         </label>
       </div>
       <div class="bookmarklet-container">
-        <a id="bookmarklet-server" href="javascript: {% include 'bookmarks/bookmarklet.js' %}" data-turbo="false"
+        <a id="bookmarklet-server"
+           href="javascript: {% include 'settings/bookmarklet.js' %}"
+           data-turbo="false"
            class="btn btn-primary">📎 Add bookmark</a>
-        <a id="bookmarklet-client" href="javascript: {% include 'bookmarks/bookmarklet_clientside.js' %}"
-           data-turbo="false" class="btn btn-primary" style="display: none;">📎 Add bookmark</a>
+        <a id="bookmarklet-client"
+           href="javascript: {% include 'settings/bookmarklet_clientside.js' %}"
+           data-turbo="false"
+           class="btn btn-primary"
+           style="display: none">📎 Add bookmark</a>
       </div>
-
       <script>
-          (function init() {
-              // Bookmarklet type toggle
-              const radioButtons = document.querySelectorAll('input[name="bookmarklet-type"]');
-              const serverBookmarklet = document.getElementById('bookmarklet-server');
-              const clientBookmarklet = document.getElementById('bookmarklet-client');
+        (function init() {
+          // Bookmarklet type toggle
+          const radioButtons = document.querySelectorAll('input[name="bookmarklet-type"]');
+          const serverBookmarklet = document.getElementById('bookmarklet-server');
+          const clientBookmarklet = document.getElementById('bookmarklet-client');
 
-              function toggleBookmarklet() {
-                  const selectedValue = document.querySelector('input[name="bookmarklet-type"]:checked').value;
-                  if (selectedValue === 'server') {
-                      serverBookmarklet.style.display = 'inline-block';
-                      clientBookmarklet.style.display = 'none';
-                  } else {
-                      serverBookmarklet.style.display = 'none';
-                      clientBookmarklet.style.display = 'inline-block';
-                  }
-              }
+          function toggleBookmarklet() {
+            const selectedValue = document.querySelector('input[name="bookmarklet-type"]:checked').value;
+            if (selectedValue === 'server') {
+              serverBookmarklet.style.display = 'inline-block';
+              clientBookmarklet.style.display = 'none';
+            } else {
+              serverBookmarklet.style.display = 'none';
+              clientBookmarklet.style.display = 'inline-block';
+            }
+          }
 
-              toggleBookmarklet();
-              radioButtons.forEach(function (radio) {
-                  radio.addEventListener('change', toggleBookmarklet);
-              });
-          })();
+          toggleBookmarklet();
+          radioButtons.forEach(function(radio) {
+            radio.addEventListener('change', toggleBookmarklet);
+          });
+        })();
       </script>
     </section>
-
     <turbo-frame id="api-section">
-      <section aria-labelledby="rest-api-heading">
-        <h2 id="rest-api-heading">REST API</h2>
-
-        {% if api_success_message %}
-          <div class="toast toast-success mb-2">
-            {{ api_success_message }}
+    <section aria-labelledby="rest-api-heading">
+      <h2 id="rest-api-heading">REST API</h2>
+      {% if api_success_message %}<div class="toast toast-success mb-2">{{ api_success_message }}</div>{% endif %}
+      {% if api_token_name and api_token_key %}
+        <div class="mt-4 mb-6">
+          <p class="mb-2">
+            <strong>Copy this token now, it will only be shown once:</strong>
+          </p>
+          <label class="text-assistive" for="new-token-key">New token key</label>
+          <div class="input-group">
+            <input class="form-input"
+                   value="{{ api_token_key }}"
+                   readonly
+                   id="new-token-key">
+            <button id="copy-new-token-key" class="btn input-group-btn" type="button">Copy</button>
           </div>
-        {% endif %}
-
-        {% if api_token_name and api_token_key %}
-          <div class="mt-4 mb-6">
-            <p class="mb-2"><strong>Copy this token now, it will only be shown once:</strong></p>
-            <label class="text-assistive" for="new-token-key">New token key</label>
-            <div class="input-group">
-              <input class="form-input" value="{{ api_token_key }}" readonly id="new-token-key">
-              <button id="copy-new-token-key" class="btn input-group-btn" type="button">Copy</button>
-            </div>
-          </div>
-        {% endif %}
-
-        <p>
-          API tokens can be used to authenticate 3rd-party applications against the REST API. <strong>Please treat
-          tokens as you would any other credential.</strong> Any party with access to a token can access and manage all
-          your bookmarks.
-        </p>
-
-        {% if api_tokens %}
-          <form method="post"
-                action="{% url 'linkding:settings.integrations.delete_api_token' %}"
-                data-turbo-frame="api-section">
-            <table class="table crud-table mb-6">
-              <thead>
+        </div>
+      {% endif %}
+      <p>
+        API tokens can be used to authenticate 3rd-party applications against the REST API. <strong>Please treat
+        tokens as you would any other credential.</strong> Any party with access to a token can access and manage all
+        your bookmarks.
+      </p>
+      {% if api_tokens %}
+        <form method="post"
+              action="{% url 'linkding:settings.integrations.delete_api_token' %}"
+              data-turbo-frame="api-section">
+          <table class="table crud-table mb-6">
+            <thead>
               <tr>
                 <th>Name</th>
                 <th>Created</th>
@@ -122,87 +137,96 @@
                   <span class="text-assistive">Actions</span>
                 </th>
               </tr>
-              </thead>
-              <tbody>
+            </thead>
+            <tbody>
               {% for token in api_tokens %}
                 <tr>
                   <td>{{ token.name }}</td>
                   <td>{{ token.created|date:"M d, Y H:i" }}</td>
                   <td class="actions">
                     {% csrf_token %}
-                    <button data-confirm name="token_id" value="{{ token.id }}" type="submit"
-                            class="btn btn-link">Delete
-                    </button>
+                    <button data-confirm
+                            name="token_id"
+                            value="{{ token.id }}"
+                            type="submit"
+                            class="btn btn-link">Delete</button>
                   </td>
                 </tr>
               {% endfor %}
-              </tbody>
-            </table>
-          </form>
-        {% endif %}
-
-        <a class="btn" href="{% url 'linkding:settings.integrations.create_api_token' %}"
-           data-turbo-frame="api-modal">Create API token</a>
-      </section>
-
-      <turbo-frame id="api-modal"></turbo-frame>
-
-      <script>
-          (function init() {
-              // Copy new token key to clipboard
-              const copyButton = document.getElementById('copy-new-token-key');
-              if (copyButton) {
-                  copyButton.addEventListener('click', () => {
-                      const tokenInput = document.getElementById('new-token-key');
-                      const tokenValue = tokenInput.value;
-                      navigator.clipboard.writeText(tokenValue).then(() => {
-                          copyButton.textContent = 'Copied!';
-                          setTimeout(() => {
-                              copyButton.textContent = 'Copy';
-                          }, 2000);
-                      }, (err) => {
-                          console.error('Could not copy text: ', err);
-                      });
-                  });
-              }
-          })();
-      </script>
+            </tbody>
+          </table>
+        </form>
+      {% endif %}
+      <a class="btn"
+         href="{% url 'linkding:settings.integrations.create_api_token' %}"
+         data-turbo-frame="api-modal">Create API token</a>
+    </section>
+    <turbo-frame id="api-modal"></turbo-frame>
+    <script>
+      (function init() {
+        // Copy new token key to clipboard
+        const copyButton = document.getElementById('copy-new-token-key');
+        if (copyButton) {
+          copyButton.addEventListener('click', () => {
+            const tokenInput = document.getElementById('new-token-key');
+            const tokenValue = tokenInput.value;
+            navigator.clipboard.writeText(tokenValue).then(() => {
+              copyButton.textContent = 'Copied!';
+              setTimeout(() => {
+                copyButton.textContent = 'Copy';
+              }, 2000);
+            }, (err) => {
+              console.error('Could not copy text: ', err);
+            });
+          });
+        }
+      })();
+    </script>
     </turbo-frame>
-
     <section aria-labelledby="rss-feeds-heading">
       <h2 id="rss-feeds-heading">RSS Feeds</h2>
       <p>The following URLs provide RSS feeds for your bookmarks:</p>
       <ul style="list-style-position: outside;">
-        <li><a target="_blank" href="{{ all_feed_url }}">All bookmarks</a></li>
-        <li><a target="_blank" href="{{ unread_feed_url }}">Unread bookmarks</a></li>
-        <li><a target="_blank" href="{{ shared_feed_url }}">Shared bookmarks</a></li>
-        <li><a target="_blank" href="{{ public_shared_feed_url }}">Public shared bookmarks</a><br><span
-            class="text-small text-secondary">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span>
+        <li>
+          <a target="_blank" href="{{ all_feed_url }}">All bookmarks</a>
+        </li>
+        <li>
+          <a target="_blank" href="{{ unread_feed_url }}">Unread bookmarks</a>
+        </li>
+        <li>
+          <a target="_blank" href="{{ shared_feed_url }}">Shared bookmarks</a>
+        </li>
+        <li>
+          <a target="_blank" href="{{ public_shared_feed_url }}">Public shared bookmarks</a>
+          <br>
+          <span class="text-small text-secondary">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span>
         </li>
       </ul>
-      <p>
-        All URLs support the following URL parameters:
-      </p>
+      <p>All URLs support the following URL parameters:</p>
       <ul style="list-style-position: outside;">
-        <li>A <code>limit</code> parameter for specifying the maximum number of bookmarks to include in the feed. By
+        <li>
+          A <code>limit</code> parameter for specifying the maximum number of bookmarks to include in the feed. By
           default, only the latest 100 matching bookmarks are included.
         </li>
-        <li>A <code>q</code> URL parameter for specifying a search query. You can get an example by doing a search in
+        <li>
+          A <code>q</code> URL parameter for specifying a search query. You can get an example by doing a search in
           the bookmarks view and then copying the parameter from the URL.
         </li>
-        <li>An <code>unread</code> parameter for filtering for unread or read bookmarks. Use <code>yes</code> for unread
+        <li>
+          An <code>unread</code> parameter for filtering for unread or read bookmarks. Use <code>yes</code> for unread
           bookmarks and <code>no</code> for read bookmarks.
         </li>
-        <li>A <code>shared</code> parameter for filtering for shared or unshared bookmarks. Use <code>yes</code> for
+        <li>
+          A <code>shared</code> parameter for filtering for shared or unshared bookmarks. Use <code>yes</code> for
           shared bookmarks and <code>no</code> for unshared bookmarks.
         </li>
       </ul>
       <p>
         <strong>Please note that these URLs include an authentication token that should be treated like any other
-          credential.</strong>
+        credential.</strong>
         Any party with access to these URLs can read all your bookmarks.
-        If you think that a URL was compromised you can delete the feed token for your user in the <a
-          target="_blank" href="{% url 'admin:bookmarks_feedtoken_changelist' %}">admin panel</a>.
+        If you think that a URL was compromised you can delete the feed token for your user in the <a target="_blank"
+    href="{% url 'admin:bookmarks_feedtoken_changelist' %}">admin panel</a>.
         After deleting the feed token, new URLs will be generated when you reload this settings page.
       </p>
     </section>

@@ -1,19 +1,21 @@
 <turbo-frame id="tag-modal">
-  <form method="post" action="{% url 'linkding:tags.edit' tag.id %}" data-turbo-frame="_top" novalidate>
-    {% csrf_token %}
-    <ld-modal class="modal tag-edit-modal active" data-close-url="{% url 'linkding:tags.index' %}"
-              data-turbo-frame="tag-modal">
-      <div class="modal-overlay" data-close-modal></div>
-      <div class="modal-container" role="dialog" aria-modal="true">
-        {% include 'shared/modal_header.html' with title="Edit Tag" %}
-        <div class="modal-body">
-          {% include 'tags/form.html' %}
-        </div>
-        <div class="modal-footer d-flex justify-between">
-          <button type="button" class="btn btn-wide" data-close-modal>Cancel</button>
-          <button type="submit" class="btn btn-primary btn-wide">Save</button>
-        </div>
+<form method="post"
+      action="{% url 'linkding:tags.edit' tag.id %}"
+      data-turbo-frame="_top"
+      novalidate>
+  {% csrf_token %}
+  <ld-modal class="modal tag-edit-modal active"
+            data-close-url="{% url 'linkding:tags.index' %}"
+            data-turbo-frame="tag-modal">
+    <div class="modal-overlay" data-close-modal></div>
+    <div class="modal-container" role="dialog" aria-modal="true">
+      {% include 'shared/modal_header.html' with title="Edit Tag" %}
+      <div class="modal-body">{% include 'tags/form.html' %}</div>
+      <div class="modal-footer d-flex justify-between">
+        <button type="button" class="btn btn-wide" data-close-modal>Cancel</button>
+        <button type="submit" class="btn btn-primary btn-wide">Save</button>
       </div>
-    </ld-modal>
-  </form>
+    </div>
+  </ld-modal>
+</form>
 </turbo-frame>

@@ -5,12 +5,13 @@ from django.urls import reverse
 from bookmarks.models import Toast
 from bookmarks.tests.helpers import (
     BookmarkFactoryMixin,
+    HtmlTestMixin,
     random_sentence,
     disable_logging,
 )
 
 
-class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
+class ToastsViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
@@ -72,11 +73,13 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_form_tag(self):
         self.create_toast()
-        expected_form_tag = f'<form action="{reverse("linkding:toasts.acknowledge")}?return_url={reverse("linkding:bookmarks.index")}" method="post">'
+        expected_action = f'{reverse("linkding:toasts.acknowledge")}?return_url={reverse("linkding:bookmarks.index")}'
 
         response = self.client.get(reverse("linkding:bookmarks.index"))
+        soup = self.make_soup(response.content.decode())
+        form = soup.find("form", attrs={"action": expected_action, "method": "post"})
 
-        self.assertContains(response, expected_form_tag)
+        self.assertIsNotNone(form)
 
     def test_toast_content(self):
         toast = self.create_toast()

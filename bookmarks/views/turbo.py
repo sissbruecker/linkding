@@ -1,5 +1,4 @@
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render as django_render
 from django.template import loader
 
 
@@ -14,24 +13,49 @@ def is_frame(request: HttpRequest, frame: str) -> bool:
     return request.headers.get("Turbo-Frame") == frame
 
 
-def stream(request: HttpRequest, template_name: str, context: dict) -> HttpResponse:
-    response = django_render(request, template_name, context)
-    response["Content-Type"] = "text/vnd.turbo-stream.html"
+def frame(request: HttpRequest, template_name: str, context: dict) -> HttpResponse:
+    """
+    Renders the specified template into an HTML skeleton including <head> with
+    respective metadata. The template should only contain a frame. Used for
+    Turbo Frame requests that modify the top frame's URL.
+    """
+    html = loader.render_to_string("shared/top_frame.html", context, request)
+    content = loader.render_to_string(template_name, context, request)
+    html = html.replace("<!--content-->", content)
+    response = HttpResponse(html, status=200)
     return response
+
+
+def update(
+    request: HttpRequest,
+    target: str,
+    template_name: str,
+    context: dict,
+    method: str | None = "",
+) -> str:
+    """Render a template wrapped in an update turbo-stream element."""
+    content = loader.render_to_string(template_name, context, request)
+    method_attr = f' method="{method}"' if method else ""
+    return f'<turbo-stream action="update"{method_attr} target="{target}"><template>{content}</template></turbo-stream>'
 
 
 def replace(
-    request: HttpRequest, target_id: str, template_name: str, context: dict, status=None
-) -> HttpResponse:
-    """
-    Returns a Turbo steam for replacing a specific target with the rendered
-    template. Mostly useful for updating forms in place after failed submissions,
-    without having to create a separate template.
-    """
-    if status is None:
-        status = 200
+    request: HttpRequest,
+    target: str,
+    template_name: str,
+    context: dict,
+    method: str | None = "",
+) -> str:
+    """Render a template wrapped in a replace turbo-stream element."""
     content = loader.render_to_string(template_name, context, request)
-    stream_content = f'<turbo-stream action="replace" method="morph" target="{target_id}"><template>{content}</template></turbo-stream>'
-    response = HttpResponse(stream_content, status=status)
-    response["Content-Type"] = "text/vnd.turbo-stream.html"
-    return response
+    method_attr = f' method="{method}"' if method else ""
+    return f'<turbo-stream action="replace"{method_attr} target="{target}"><template>{content}</template></turbo-stream>'
+
+
+def stream(*streams: str) -> HttpResponse:
+    """Combine multiple stream elements into a turbo-stream response."""
+    return HttpResponse(
+        "\n".join(streams),
+        status=200,
+        content_type="text/vnd.turbo-stream.html",
+    )

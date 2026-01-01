@@ -1,26 +1,24 @@
-{% extends "bookmarks/layout.html" %}
+{% extends "shared/layout.html" %}
 {% load shared %}
 {% load pagination %}
-
 {% block head %}
-  {% with page_title="Tags - Linkding" %}
-    {{ block.super }}
-  {% endwith %}
+  {% with page_title="Tags - Linkding" %}{{ block.super }}{% endwith %}
 {% endblock %}
-
 {% block content %}
   <div class="tags-page crud-page">
     <main aria-labelledby="main-heading">
       <div class="crud-header">
         <h1 id="main-heading">Tags</h1>
         <div class="d-flex gap-2 ml-auto">
-          <a href="{% url 'linkding:tags.new' %}" data-turbo-frame="tag-modal" class="btn">Create Tag</a>
-          <a href="{% url 'linkding:tags.merge' %}" data-turbo-frame="tag-modal" class="btn">Merge Tags</a>
+          <a href="{% url 'linkding:tags.new' %}"
+             data-turbo-frame="tag-modal"
+             class="btn">Create Tag</a>
+          <a href="{% url 'linkding:tags.merge' %}"
+             data-turbo-frame="tag-modal"
+             class="btn">Merge Tags</a>
         </div>
       </div>
-
       {% include 'shared/messages.html' %}
-
       {# Filters #}
       <div class="crud-filters">
         <ld-form data-form-reset>
@@ -28,7 +26,11 @@
             <div class="form-group">
               <label class="form-label text-assistive" for="search">Search tags</label>
               <div class="input-group">
-                <input type="text" id="search" name="search" value="{{ search }}" placeholder="Search tags..."
+                <input type="text"
+                       id="search"
+                       name="search"
+                       value="{{ search }}"
+                       placeholder="Search tags..."
                        class="form-input">
                 <button type="submit" class="btn input-group-btn">Search</button>
               </div>
@@ -36,12 +38,21 @@
             <div class="form-group">
               <label class="form-label text-assistive" for="sort">Sort by</label>
               <div class="input-group">
-              <span class="input-group-addon text-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path
-                    stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14"/><path
-                    d="M21 15l-4 4l-4 -4m4 4v-14"/></svg>
-              </span>
+                <span class="input-group-addon text-secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       width="20"
+                       height="20"
+                       viewBox="0 0 24 24"
+                       fill="none"
+                       stroke="currentColor"
+                       stroke-width="2"
+                       stroke-linecap="round"
+                       stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 9l4 -4l4 4m-4 -4v14" />
+                    <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+                  </svg>
+                </span>
                 <select id="sort" name="sort" class="form-select" data-submit-on-change>
                   <option value="name-asc" {% if sort == "name-asc" %}selected{% endif %}>Name A-Z</option>
                   <option value="name-desc" {% if sort == "name-desc" %}selected{% endif %}>Name Z-A</option>
@@ -52,7 +63,10 @@
             </div>
             <div class="form-group">
               <label class="form-checkbox">
-                <input type="checkbox" name="unused" value="true" {% if unused_only %}checked{% endif %}
+                <input type="checkbox"
+                       name="unused"
+                       value="true"
+                       {% if unused_only %}checked{% endif %}
                        data-submit-on-change>
                 <i class="form-icon"></i> Show only unused tags
               </label>
@@ -68,50 +82,46 @@
           {% endif %}
         </p>
       </div>
-
       {# Tags List #}
       {% if page.object_list %}
         <form method="post">
           {% csrf_token %}
-
           <table class="table crud-table">
             <thead>
-            <tr>
-              <th>Name</th>
-              <th style="width: 25%">Bookmarks</th>
-              <th class="actions">
-                <span class="text-assistive">Actions</span>
-              </th>
-            </tr>
+              <tr>
+                <th>Name</th>
+                <th style="width: 25%">Bookmarks</th>
+                <th class="actions">
+                  <span class="text-assistive">Actions</span>
+                </th>
+              </tr>
             </thead>
             <tbody>
-            {% for tag in page.object_list %}
-              <tr>
-                <td>
-                  {{ tag.name }}
-                </td>
-                <td style="width: 25%">
-                  <a class="btn btn-link" href="{% url 'linkding:bookmarks.index' %}?q=%23{{ tag.name|urlencode }}">
-                    {{ tag.bookmark_count }}
-                  </a>
-                </td>
-                <td class="actions">
-                  <a class="btn btn-link" href="{% url 'linkding:tags.edit' tag.id %}"
-                     data-turbo-frame="tag-modal">Edit</a>
-                  <button type="submit" name="delete_tag" value="{{ tag.id }}" class="btn btn-link text-error"
-                          data-confirm>
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            {% endfor %}
+              {% for tag in page.object_list %}
+                <tr>
+                  <td>{{ tag.name }}</td>
+                  <td style="width: 25%">
+                    <a class="btn btn-link"
+                       href="{% url 'linkding:bookmarks.index' %}?q=%23{{ tag.name|urlencode }}">
+                      {{ tag.bookmark_count }}
+                    </a>
+                  </td>
+                  <td class="actions">
+                    <a class="btn btn-link"
+                       href="{% url 'linkding:tags.edit' tag.id %}"
+                       data-turbo-frame="tag-modal">Edit</a>
+                    <button type="submit"
+                            name="delete_tag"
+                            value="{{ tag.id }}"
+                            class="btn btn-link text-error"
+                            data-confirm>Remove</button>
+                  </td>
+                </tr>
+              {% endfor %}
             </tbody>
           </table>
-
         </form>
-
         {% pagination page %}
-
       {% else %}
         <div class="empty">
           {% if search or unused_only %}

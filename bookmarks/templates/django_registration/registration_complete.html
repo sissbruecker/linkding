@@ -1,19 +1,13 @@
-{% extends 'bookmarks/layout.html' %}
+{% extends 'shared/layout.html' %}
 {% load widget_tweaks %}
-
 {% block head %}
-  {% with page_title="Registration complete - Linkding" %}
-    {{ block.super }}
-  {% endwith %}
+  {% with page_title="Registration complete - Linkding" %}{{ block.super }}{% endwith %}
 {% endblock %}
-
 {% block content %}
   <main class="mx-auto width-50 width-md-100" aria-labelledby="main-heading">
     <div class="section-header">
       <h1 id="main-heading">Registration complete</h1>
     </div>
-    <p class="text-success">
-      You can now use the application.
-    </p>
+    <p class="text-success">You can now use the application.</p>
   </main>
 {% endblock %}

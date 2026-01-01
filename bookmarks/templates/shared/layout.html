@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+{# Use data attributes as storage for access in static scripts #}
+<html lang="en" data-api-base-url="{% url 'linkding:api-root' %}">
+  {% block head %}
+    {% include 'shared/head.html' %}
+  {% endblock %}
+  <body>
+    <div class="d-none">
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <symbol id="ld-icon-unread" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"></path>
+        <path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"></path>
+        <path d="M3 6l0 13"></path>
+        <path d="M12 6l0 13"></path>
+        <path d="M21 6l0 13"></path>
+        </symbol>
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <symbol id="ld-icon-share" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+        <path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+        <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+        <path d="M8.7 10.7l6.6 -3.4"></path>
+        <path d="M8.7 13.3l6.6 3.4"></path>
+        </symbol>
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <symbol id="ld-icon-note" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
+        <path d="M9 7l6 0"></path>
+        <path d="M9 11l6 0"></path>
+        <path d="M9 15l4 0"></path>
+        </symbol>
+      </svg>
+    </div>
+    <header class="container">
+      {% if has_toasts %}
+        <div class="message-list">
+          <form action="{% url 'linkding:toasts.acknowledge' %}?return_url={{ request.path | urlencode }}"
+                method="post">
+            {% csrf_token %}
+            {% for toast in toast_messages %}
+              <div class="toast d-flex">
+                {{ toast.message }}
+                <button type="submit"
+                        name="toast"
+                        value="{{ toast.id }}"
+                        class="btn btn-clear"></button>
+              </div>
+            {% endfor %}
+          </form>
+        </div>
+      {% endif %}
+      <div class="d-flex justify-between">
+        <a href="{% url 'linkding:root' %}" class="app-link d-flex align-center">
+          <img class="app-logo" src="{% static 'logo.png' %}" alt="Application logo">
+          <span class="app-name">LINKDING</span>
+        </a>
+        <nav>
+          {% if request.user.is_authenticated %}
+            {# Only show nav items menu when logged in #}
+            {% include 'shared/nav_menu.html' %}
+          {% else %}
+            {# Otherwise show login link #}
+            <a href="{% url 'login' %}" class="btn btn-link">Login</a>
+          {% endif %}
+        </nav>
+      </div>
+    </header>
+    <div class="content container">
+      {% block content %}{% endblock %}
+    </div>
+    <div class="modals">
+      {% block overlays %}{% endblock %}
+    </div>
+  </body>
+</html>

@@ -35,7 +35,7 @@ from bookmarks.services.bookmarks import (
 )
 from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import get_safe_return_url
-from bookmarks.views import access, contexts, partials, turbo
+from bookmarks.views import access, contexts, turbo
 
 
 @login_required
@@ -66,6 +66,18 @@ def index(request: HttpRequest):
     )
 
 
+def index_update(request: HttpRequest):
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
+    bookmark_list = contexts.ActiveBookmarkListContext(request, search)
+    tag_cloud = contexts.ActiveTagCloudContext(request, search)
+    details = contexts.get_details_context(
+        request, contexts.ActiveBookmarkDetailsContext
+    )
+    return render_bookmarks_update(request, bookmark_list, tag_cloud, details)
+
+
 @login_required
 def archived(request: HttpRequest):
     if request.method == "POST":
@@ -92,6 +104,18 @@ def archived(request: HttpRequest):
             "details": bookmark_details,
         },
     )
+
+
+def archived_update(request: HttpRequest):
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
+    bookmark_list = contexts.ArchivedBookmarkListContext(request, search)
+    tag_cloud = contexts.ArchivedTagCloudContext(request, search)
+    details = contexts.get_details_context(
+        request, contexts.ArchivedBookmarkDetailsContext
+    )
+    return render_bookmarks_update(request, bookmark_list, tag_cloud, details)
 
 
 def shared(request: HttpRequest):
@@ -124,21 +148,53 @@ def shared(request: HttpRequest):
     )
 
 
+def shared_update(request: HttpRequest):
+    search = BookmarkSearch.from_request(
+        request, request.GET, request.user_profile.search_preferences
+    )
+    bookmark_list = contexts.SharedBookmarkListContext(request, search)
+    tag_cloud = contexts.SharedTagCloudContext(request, search)
+    details = contexts.get_details_context(
+        request, contexts.SharedBookmarkDetailsContext
+    )
+    return render_bookmarks_update(request, bookmark_list, tag_cloud, details)
+
+
 def render_bookmarks_view(request: HttpRequest, template_name, context):
     if context["details"]:
         context["page_title"] = "Bookmark details - Linkding"
 
     if turbo.is_frame(request, "details-modal"):
-        return render(
-            request,
-            "bookmarks/updates/details-modal-frame.html",
-            context,
-        )
+        return turbo.frame(request, "bookmarks/details/modal.html", context)
 
     return render(
         request,
         template_name,
         context,
+    )
+
+
+def render_bookmarks_update(request, bookmark_list, tag_cloud, details):
+    return turbo.stream(
+        turbo.update(
+            request,
+            "bookmark-list-container",
+            "bookmarks/bookmark_list.html",
+            {"bookmark_list": bookmark_list},
+        ),
+        turbo.update(
+            request,
+            "tag-cloud-container",
+            "bookmarks/tag_cloud.html",
+            {"tag_cloud": tag_cloud},
+        ),
+        turbo.replace(
+            request,
+            "details-modal",
+            "bookmarks/details/modal.html",
+            {"details": details},
+            method="morph",
+        ),
     )
 
 
@@ -272,7 +328,7 @@ def index_action(request: HttpRequest):
         return response
 
     if turbo.accept(request):
-        return partials.active_bookmark_update(request)
+        return index_update(request)
 
     return utils.redirect_with_query(request, reverse("linkding:bookmarks.index"))
 
@@ -289,7 +345,7 @@ def archived_action(request: HttpRequest):
         return response
 
     if turbo.accept(request):
-        return partials.archived_bookmark_update(request)
+        return archived_update(request)
 
     return utils.redirect_with_query(request, reverse("linkding:bookmarks.archived"))
 
@@ -304,7 +360,7 @@ def shared_action(request: HttpRequest):
         return response
 
     if turbo.accept(request):
-        return partials.shared_bookmark_update(request)
+        return shared_update(request)
 
     return utils.redirect_with_query(request, reverse("linkding:bookmarks.shared"))
 

@@ -16,6 +16,7 @@ test:
 
 format:
 	uv run black bookmarks
+	uv run djlint bookmarks/templates --reformat --quiet
 	npx prettier bookmarks/frontend --write
 	npx prettier bookmarks/styles --write
 

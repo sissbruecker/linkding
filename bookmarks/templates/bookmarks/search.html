@@ -1,27 +1,31 @@
 {% load widget_tweaks %}
-
 <div class="search-container">
   <form id="search" action="" method="get" role="search">
-    <ld-search-autocomplete
-        input-name="q"
-        input-placeholder="Search for words or #tags"
-        input-value="{{ search.q|default_if_none:'' }}"
-        target="{{ request.user_profile.bookmark_link_target }}"
-        mode="{{ mode }}"
-        user="{{ search.user }}"
-        shared="{{ search.shared }}"
-        unread="{{ search.unread }}">
+    <ld-search-autocomplete input-name="q"
+                            input-placeholder="Search for words or #tags"
+                            input-value="{{ search.q|default_if_none:'' }}"
+                            target="{{ request.user_profile.bookmark_link_target }}"
+                            mode="{{ mode }}"
+                            user="{{ search.user }}"
+                            shared="{{ search.shared }}"
+                            unread="{{ search.unread }}">
     </ld-search-autocomplete>
     <input type="submit" value="Search" class="d-none">
-    {% for hidden_field in search_form.hidden_fields %}
-      {{ hidden_field }}
-    {% endfor %}
+    {% for hidden_field in search_form.hidden_fields %}{{ hidden_field }}{% endfor %}
   </form>
   <ld-dropdown class="search-options dropdown dropdown-right">
-    <button type="button" aria-label="Search preferences"
+    <button type="button"
+            aria-label="Search preferences"
             class="btn dropdown-toggle{% if search.has_modified_preferences %} badge{% endif %}">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2"
-           stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           width="20"
+           height="20"
+           viewBox="0 0 24 24"
+           stroke-width="2"
+           stroke="currentColor"
+           fill="none"
+           stroke-linecap="round"
+           stroke-linejoin="round">
         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
         <path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
         <path d="M6 4v4"></path>
@@ -45,7 +49,9 @@
           </div>
         {% endif %}
         {% if 'shared' in preferences_form.editable_fields %}
-          <div class="form-group radio-group" role="radiogroup" aria-labelledby="search-shared-label">
+          <div class="form-group radio-group"
+               role="radiogroup"
+               aria-labelledby="search-shared-label">
             <label id="search-shared-label"
                    class="form-label{% if 'shared' in search.modified_params %} text-bold{% endif %}">
               Shared filter
@@ -60,7 +66,9 @@
           </div>
         {% endif %}
         {% if 'unread' in preferences_form.editable_fields %}
-          <div class="form-group radio-group" role="radiogroup" aria-labelledby="search-unread-label">
+          <div class="form-group radio-group"
+               role="radiogroup"
+               aria-labelledby="search-unread-label">
             <label id="search-unread-label"
                    class="form-label{% if 'unread' in search.modified_params %} text-bold{% endif %}">
               Unread filter
@@ -80,10 +88,7 @@
             <button type="submit" class="btn btn-sm" name="save">Save as default</button>
           {% endif %}
         </div>
-
-        {% for hidden_field in preferences_form.hidden_fields %}
-          {{ hidden_field }}
-        {% endfor %}
+        {% for hidden_field in preferences_form.hidden_fields %}{{ hidden_field }}{% endfor %}
       </form>
     </div>
   </ld-dropdown>

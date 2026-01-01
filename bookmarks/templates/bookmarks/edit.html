@@ -1,11 +1,7 @@
-{% extends 'bookmarks/layout.html' %}
-
+{% extends 'shared/layout.html' %}
 {% block head %}
-  {% with page_title="Edit bookmark - Linkding" %}
-    {{ block.super }}
-  {% endwith %}
+  {% with page_title="Edit bookmark - Linkding" %}{{ block.super }}{% endwith %}
 {% endblock %}
-
 {% block content %}
   <div class="bookmarks-form-page">
     <main aria-labelledby="main-heading">
@@ -13,7 +9,8 @@
         <h1 id="main-heading">Edit bookmark</h1>
       </div>
       <ld-form data-submit-on-ctrl-enter>
-        <form action="{% url 'linkding:bookmarks.edit' bookmark_id %}?return_url={{ return_url|urlencode }}" method="post"
+        <form action="{% url 'linkding:bookmarks.edit' bookmark_id %}?return_url={{ return_url|urlencode }}"
+              method="post"
               novalidate>
           {% include 'bookmarks/form.html' %}
         </form>

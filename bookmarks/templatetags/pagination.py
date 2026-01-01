@@ -9,9 +9,7 @@ NUM_ADJACENT_PAGES = 2
 register = template.Library()
 
 
-@register.inclusion_tag(
-    "bookmarks/pagination.html", name="pagination", takes_context=True
-)
+@register.inclusion_tag("shared/pagination.html", name="pagination", takes_context=True)
 def pagination(context, page: Page):
     request = context["request"]
     base_url = request.path

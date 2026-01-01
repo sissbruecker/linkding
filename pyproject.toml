@@ -27,6 +27,7 @@ dev = [
     "black>=25.1.0",
     "coverage>=7.10.4",
     "django-debug-toolbar>=6.0.0",
+    "djlint>=1.36.4",
     "playwright>=1.54.0",
     "psycopg[binary]>=3.2.9",
     "pytest>=8.4.1",
@@ -47,3 +48,12 @@ postgres = [
 [tool.uv]
 # Prefer system Python for now, less complications when copying the venv in the Docker build
 python-preference = "system"
+
+[tool.djlint]
+custom_html="ld-\\w+,ld-\\w+-\\w+"
+indent=2
+format_js=true
+profile="django"
+
+[tool.djlint.js]
+indent_size=2

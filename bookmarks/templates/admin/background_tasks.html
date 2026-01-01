@@ -1,24 +1,23 @@
 {% extends "admin/base_site.html" %}
-
 {% block content %}
   <table style="width: 100%">
     <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Args</th>
-      <th>Retries</th>
-    </tr>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Args</th>
+        <th>Retries</th>
+      </tr>
     </thead>
     <tbody>
-    {% for task in tasks %}
-      <tr>
-        <td>{{ task.id }}</td>
-        <td>{{ task.name }}</td>
-        <td>{{ task.args }}</td>
-        <td>{{ task.retries }}</td>
-      </tr>
-    {% endfor %}
+      {% for task in tasks %}
+        <tr>
+          <td>{{ task.id }}</td>
+          <td>{{ task.name }}</td>
+          <td>{{ task.args }}</td>
+          <td>{{ task.retries }}</td>
+        </tr>
+      {% endfor %}
     </tbody>
   </table>
   <p class="paginator">

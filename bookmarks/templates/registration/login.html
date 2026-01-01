@@ -1,12 +1,8 @@
-{% extends 'bookmarks/layout.html' %}
+{% extends 'shared/layout.html' %}
 {% load widget_tweaks %}
-
 {% block head %}
-  {% with page_title="Login - Linkding" %}
-    {{ block.super }}
-  {% endwith %}
+  {% with page_title="Login - Linkding" %}{{ block.super }}{% endwith %}
 {% endblock %}
-
 {% block content %}
   <main class="mx-auto width-50 width-md-100" aria-labelledby="main-heading">
     <div class="section-header">
@@ -27,13 +23,14 @@
         <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
         {{ form.password|add_class:'form-input'|attr:'placeholder: ' }}
       </div>
-
-      <br/>
+      <br />
       <div class="d-flex justify-between">
-        <input type="submit" value="Login" class="btn btn-primary btn-wide"/>
-        <input type="hidden" name="next" value="{{ next }}"/>
+        <input type="submit" value="Login" class="btn btn-primary btn-wide" />
+        <input type="hidden" name="next" value="{{ next }}" />
         {% if enable_oidc %}
-          <a class="btn btn-link" href="{% url 'oidc_authentication_init' %}" data-turbo="false">Login with OIDC</a>
+          <a class="btn btn-link"
+             href="{% url 'oidc_authentication_init' %}"
+             data-turbo="false">Login with OIDC</a>
         {% endif %}
         {% if allow_registration %}
           <a href="{% url 'django_registration_register' %}" class="btn btn-link">Register</a>

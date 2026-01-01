@@ -78,8 +78,14 @@ def tag_new(request: HttpRequest):
             messages.success(request, f'Tag "{tag.name}" created successfully.')
             return HttpResponseRedirect(reverse("linkding:tags.index"))
         else:
-            return turbo.replace(
-                request, "tag-modal", "tags/new.html", {"form": form}, status=422
+            return turbo.stream(
+                turbo.replace(
+                    request,
+                    "tag-modal",
+                    "tags/new.html",
+                    {"form": form},
+                    method="morph",
+                )
             )
 
     return render(request, "tags/new.html", {"form": form})
@@ -97,12 +103,14 @@ def tag_edit(request: HttpRequest, tag_id: int):
             messages.success(request, f'Tag "{tag.name}" updated successfully.')
             return HttpResponseRedirect(reverse("linkding:tags.index"))
         else:
-            return turbo.replace(
-                request,
-                "tag-modal",
-                "tags/edit.html",
-                {"tag": tag, "form": form},
-                status=422,
+            return turbo.stream(
+                turbo.replace(
+                    request,
+                    "tag-modal",
+                    "tags/edit.html",
+                    {"tag": tag, "form": form},
+                    method="morph",
+                )
             )
 
     return render(request, "tags/edit.html", {"tag": tag, "form": form})
@@ -154,12 +162,14 @@ def tag_merge(request: HttpRequest):
 
             return HttpResponseRedirect(reverse("linkding:tags.index"))
         else:
-            return turbo.replace(
-                request,
-                "tag-modal",
-                "tags/merge.html",
-                {"form": form},
-                status=422,
+            return turbo.stream(
+                turbo.replace(
+                    request,
+                    "tag-modal",
+                    "tags/merge.html",
+                    {"form": form},
+                    method="morph",
+                )
             )
 
     return render(request, "tags/merge.html", {"form": form})

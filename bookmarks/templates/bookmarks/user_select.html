@@ -1,10 +1,7 @@
 {% load widget_tweaks %}
-
 <ld-form data-form-reset>
   <form id="user-select" action="" method="get">
-    {% for hidden_field in form.hidden_fields %}
-      {{ hidden_field }}
-    {% endfor %}
+    {% for hidden_field in form.hidden_fields %}{{ hidden_field }}{% endfor %}
     <div class="form-group">
       <div class="d-flex">
         {% render_field form.user class+="form-select" data-submit-on-change="" %}

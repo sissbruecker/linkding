@@ -48,7 +48,7 @@ class TagsEditViewTestCase(TestCase, BookmarkFactoryMixin):
             reverse("linkding:tags.edit", args=[tag.id]), {"name": ""}
         )
 
-        self.assertContains(response, "This field is required", status_code=422)
+        self.assertContains(response, "This field is required")
         tag.refresh_from_db()
         self.assertEqual(tag.name, "tag1")
 
@@ -60,9 +60,7 @@ class TagsEditViewTestCase(TestCase, BookmarkFactoryMixin):
             reverse("linkding:tags.edit", args=[tag1.id]), {"name": "tag2"}
         )
 
-        self.assertContains(
-            response, "Tag &quot;tag2&quot; already exists", status_code=422
-        )
+        self.assertContains(response, "Tag &quot;tag2&quot; already exists")
         tag1.refresh_from_db()
         self.assertEqual(tag1.name, "tag1")
 
@@ -74,9 +72,7 @@ class TagsEditViewTestCase(TestCase, BookmarkFactoryMixin):
             reverse("linkding:tags.edit", args=[tag1.id]), {"name": "TAG2"}
         )
 
-        self.assertContains(
-            response, "Tag &quot;TAG2&quot; already exists", status_code=422
-        )
+        self.assertContains(response, "Tag &quot;TAG2&quot; already exists")
         tag1.refresh_from_db()
         self.assertEqual(tag1.name, "tag1")
 
