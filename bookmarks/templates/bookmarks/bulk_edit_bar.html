@@ -7,8 +7,12 @@
       <i class="form-icon"></i>
     </label>
     <select name="bulk_action" class="form-select select-sm">
-      {% if not 'bulk_archive' in disable_actions %}<option value="bulk_archive">Archive</option>{% endif %}
-      {% if not 'bulk_unarchive' in disable_actions %}<option value="bulk_unarchive">Unarchive</option>{% endif %}
+      {% if not 'bulk_archive' in bookmark_list.bulk_edit_disabled_actions %}
+        <option value="bulk_archive">Archive</option>
+      {% endif %}
+      {% if not 'bulk_unarchive' in bookmark_list.bulk_edit_disabled_actions %}
+        <option value="bulk_unarchive">Unarchive</option>
+      {% endif %}
       <option value="bulk_delete">Delete</option>
       <option value="bulk_tag">Add tags</option>
       <option value="bulk_untag">Remove tags</option>

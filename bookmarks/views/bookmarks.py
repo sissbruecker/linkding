@@ -55,7 +55,6 @@ def index(request: HttpRequest):
 
     return render_bookmarks_view(
         request,
-        "bookmarks/index.html",
         {
             "page_title": "Bookmarks - Linkding",
             "bookmark_list": bookmark_list,
@@ -95,7 +94,6 @@ def archived(request: HttpRequest):
 
     return render_bookmarks_view(
         request,
-        "bookmarks/archive.html",
         {
             "page_title": "Archived bookmarks - Linkding",
             "bookmark_list": bookmark_list,
@@ -130,19 +128,15 @@ def shared(request: HttpRequest):
     bookmark_details = contexts.get_details_context(
         request, contexts.SharedBookmarkDetailsContext
     )
-    public_only = not request.user.is_authenticated
-    users = queries.query_shared_bookmark_users(
-        request.user_profile, bookmark_list.search, public_only
-    )
+    user_list = contexts.UserListContext(request, search)
     return render_bookmarks_view(
         request,
-        "bookmarks/shared.html",
         {
             "page_title": "Shared bookmarks - Linkding",
             "bookmark_list": bookmark_list,
             "tag_cloud": tag_cloud,
             "details": bookmark_details,
-            "users": users,
+            "user_list": user_list,
             "rss_feed_url": reverse("linkding:feeds.public_shared"),
         },
     )
@@ -160,7 +154,7 @@ def shared_update(request: HttpRequest):
     return render_bookmarks_update(request, bookmark_list, tag_cloud, details)
 
 
-def render_bookmarks_view(request: HttpRequest, template_name, context):
+def render_bookmarks_view(request: HttpRequest, context):
     if context["details"]:
         context["page_title"] = "Bookmark details - Linkding"
 
@@ -169,7 +163,7 @@ def render_bookmarks_view(request: HttpRequest, template_name, context):
 
     return render(
         request,
-        template_name,
+        "bookmarks/bookmark_page.html",
         context,
     )
 

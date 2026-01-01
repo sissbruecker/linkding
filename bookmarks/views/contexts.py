@@ -15,6 +15,7 @@ from bookmarks.models import (
     BookmarkAsset,
     BookmarkBundle,
     BookmarkSearch,
+    BookmarkSearchForm,
     User,
     UserProfile,
     Tag,
@@ -266,14 +267,26 @@ class BookmarkListContext:
 
 
 class ActiveBookmarkListContext(BookmarkListContext):
+    list_title = "Bookmarks"
+    search_mode = ""
+    bulk_edit_enabled = True
+    bulk_edit_disabled_actions = "bulk_unarchive"
     request_context = ActiveBookmarksContext
 
 
 class ArchivedBookmarkListContext(BookmarkListContext):
+    list_title = "Archived bookmarks"
+    search_mode = "archived"
+    bulk_edit_enabled = True
+    bulk_edit_disabled_actions = "bulk_archive"
     request_context = ArchivedBookmarksContext
 
 
 class SharedBookmarkListContext(BookmarkListContext):
+    list_title = "Shared bookmarks"
+    search_mode = "shared"
+    bulk_edit_enabled = False
+    bulk_edit_disabled_actions = ""
     request_context = SharedBookmarksContext
 
 
@@ -649,3 +662,13 @@ class BundlesContext:
             (bundle for bundle in self.bundles if bundle.id == selected_bundle_id),
             None,
         )
+
+
+class UserListContext:
+    def __init__(self, request: HttpRequest, search: BookmarkSearch) -> None:
+        public_only = not request.user.is_authenticated
+        users = queries.query_shared_bookmark_users(
+            request.user_profile, search, public_only
+        )
+        users = sorted(users, key=lambda x: str.lower(x.username))
+        self.form = BookmarkSearchForm(search, editable_fields=["user"], users=users)

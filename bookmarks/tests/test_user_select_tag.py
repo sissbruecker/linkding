@@ -1,29 +1,27 @@
-from django.db.models import QuerySet
 from django.template import Template, RequestContext
 from django.test import TestCase, RequestFactory
 
 from bookmarks.models import BookmarkSearch, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.views import contexts
 
 
 class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
-    def render_template(self, url: str, users: QuerySet[User] = User.objects.all()):
+    def render_template(self, url: str):
         rf = RequestFactory()
         request = rf.get(url)
         request.user = self.get_or_create_test_user()
         request.user_profile = self.get_or_create_test_user().profile
         search = BookmarkSearch.from_request(request, request.GET)
+        user_list = contexts.UserListContext(request, search)
         context = RequestContext(
             request,
             {
                 "request": request,
-                "search": search,
-                "users": users,
+                "user_list": user_list,
             },
         )
-        template_to_render = Template(
-            "{% load bookmarks %}" "{% user_select search users %}"
-        )
+        template_to_render = Template("{% include 'bookmarks/user_section.html' %}")
         return template_to_render.render(context)
 
     def assertUserOption(self, html: str, user: User, selected: bool = False):
@@ -49,6 +47,9 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
         self.assertNotIn(needle, html)
 
     def test_empty_option(self):
+        user1 = self.setup_user(name="user1", enable_sharing=True)
+        self.setup_bookmark(user=user1, shared=True)
+
         rendered_template = self.render_template("/test")
 
         self.assertInHTML(
@@ -59,22 +60,30 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
         )
 
     def test_render_user_options(self):
-        user1 = User.objects.create_user("user1", "user1@example.com", "password123")
-        user2 = User.objects.create_user("user2", "user2@example.com", "password123")
-        user3 = User.objects.create_user("user3", "user3@example.com", "password123")
+        user1 = self.setup_user(name="user1", enable_sharing=True)
+        user2 = self.setup_user(name="user2", enable_sharing=True)
+        user3 = self.setup_user(name="user3", enable_sharing=True)
 
-        rendered_template = self.render_template("/test", User.objects.all())
+        self.setup_bookmark(user=user1, shared=True)
+        self.setup_bookmark(user=user2, shared=True)
+        self.setup_bookmark(user=user3, shared=True)
+
+        rendered_template = self.render_template("/test")
 
         self.assertUserOption(rendered_template, user1)
         self.assertUserOption(rendered_template, user2)
         self.assertUserOption(rendered_template, user3)
 
     def test_preselect_user_option(self):
-        user1 = User.objects.create_user("user1", "user1@example.com", "password123")
-        User.objects.create_user("user2", "user2@example.com", "password123")
-        User.objects.create_user("user3", "user3@example.com", "password123")
+        user1 = self.setup_user(name="user1", enable_sharing=True)
+        user2 = self.setup_user(name="user2", enable_sharing=True)
+        user3 = self.setup_user(name="user3", enable_sharing=True)
 
-        rendered_template = self.render_template("/test?user=user1", User.objects.all())
+        self.setup_bookmark(user=user1, shared=True)
+        self.setup_bookmark(user=user2, shared=True)
+        self.setup_bookmark(user=user3, shared=True)
+
+        rendered_template = self.render_template("/test?user=user1")
 
         self.assertUserOption(rendered_template, user1, True)
 

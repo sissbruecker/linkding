@@ -1,0 +1,22 @@
+{% load widget_tweaks %}
+<section aria-labelledby="user-heading">
+  <div class="section-header">
+    <h2 id="user-heading">User</h2>
+  </div>
+  <div>
+    <ld-form data-form-reset>
+      <form id="user-select" action="" method="get">
+        {% for hidden_field in user_list.form.hidden_fields %}{{ hidden_field }}{% endfor %}
+        <div class="form-group">
+          <div class="d-flex">
+            {% render_field user_list.form.user class+="form-select" data-submit-on-change="" %}
+            <noscript>
+              <button type="submit" class="btn btn-link ml-2">Apply</button>
+            </noscript>
+          </div>
+        </div>
+      </form>
+    </ld-form>
+    <br>
+  </div>
+</section>
