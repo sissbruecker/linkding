@@ -76,10 +76,16 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
     def open(self, url: str) -> Page:
         self.context = self.setup_browser()
         self.page = self.context.new_page()
+        self.page.on("pageerror", self.on_page_error)
         self.page.goto(self.live_server_url + url)
         self.page.on("load", self.on_load)
         self.num_loads = 0
         return self.page
+
+    def on_page_error(self, error):
+        print(f"[JS ERROR] {error}")
+        if hasattr(error, "stack"):
+            print(f"[JS STACK] {error.stack}")
 
     def on_load(self):
         self.num_loads += 1
