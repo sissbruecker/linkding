@@ -321,4 +321,4 @@ class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
         self.assertEqual(1, Bookmark.objects.count())
         bookmark = Bookmark.objects.first()
         self.assertEqual("https://example.com", bookmark.url)
-        self.assertEqual("Example Domain", bookmark.title)
+        self.assertEqual("Test description", bookmark.description)
