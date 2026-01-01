@@ -30,7 +30,7 @@ jobs:
           uv sync
           mkdir data
       - name: Run tests
-        run: uv run manage.py test bookmarks.tests
+        run: uv run pytest -n auto
   e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-latest
@@ -59,4 +59,10 @@ jobs:
           npm run build
           uv run manage.py collectstatic
       - name: Run tests
-        run: uv run manage.py test bookmarks.tests_e2e --pattern="e2e_test_*.py"
+        run: uv run pytest bookmarks/tests_e2e -n auto -o "python_files=e2e_test_*.py"
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: test-results/screenshots

@@ -1,18 +1,66 @@
+import os
+
 from django.contrib.staticfiles.testing import LiveServerTestCase
-from playwright.sync_api import BrowserContext, Playwright, Page
+from playwright.sync_api import BrowserContext, Page, sync_playwright
 from playwright.sync_api import expect
 
 from bookmarks.tests.helpers import BookmarkFactoryMixin
+
+SCREENSHOT_DIR = "test-results/screenshots"
+
+# Allow Django ORM operations within Playwright's async context
+os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
 
 class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
     def setUp(self) -> None:
         self.client.force_login(self.get_or_create_test_user())
         self.cookie = self.client.cookies["sessionid"]
+        self.playwright = None
+        self.browser = None
+        self.context = None
+        self.page = None
 
-    def setup_browser(self, playwright) -> BrowserContext:
-        browser = playwright.chromium.launch(headless=True)
-        context = browser.new_context()
+    def tearDown(self) -> None:
+        if self.page and self._test_has_failed():
+            self._capture_screenshot()
+        if self.browser:
+            self.browser.close()
+        if self.playwright:
+            self.playwright.stop()
+        super().tearDown()
+
+    def _test_has_failed(self) -> bool:
+        """Detect if the current test has failed. Works with both Django/unittest and pytest."""
+        # Check _outcome for failure info
+        if self._outcome is not None:
+            result = self._outcome.result
+            if result:
+                # pytest stores exception info in _excinfo
+                if hasattr(result, "_excinfo") and result._excinfo:
+                    return True
+                # Django/unittest stores failures and errors in the result
+                # Check if THIS test is in failures/errors (not just any test)
+                if hasattr(result, "failures"):
+                    for failed_test, _ in result.failures:
+                        if failed_test is self:
+                            return True
+        return False
+
+    def _ensure_playwright(self):
+        if not self.playwright:
+            self.playwright = sync_playwright().start()
+            self.browser = self.playwright.chromium.launch(headless=True)
+
+    def _capture_screenshot(self):
+        os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+        filename = f"{self.__class__.__name__}_{self._testMethodName}.png"
+        filepath = os.path.join(SCREENSHOT_DIR, filename)
+        self.page.screenshot(path=filepath, full_page=True)
+
+    def setup_browser(self) -> BrowserContext:
+        self._ensure_playwright()
+        context = self.browser.new_context()
         context.add_cookies(
             [
                 {
@@ -25,13 +73,19 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         )
         return context
 
-    def open(self, url: str, playwright: Playwright) -> Page:
-        browser = self.setup_browser(playwright)
-        self.page = browser.new_page()
+    def open(self, url: str) -> Page:
+        self.context = self.setup_browser()
+        self.page = self.context.new_page()
+        self.page.on("pageerror", self.on_page_error)
         self.page.goto(self.live_server_url + url)
         self.page.on("load", self.on_load)
         self.num_loads = 0
         return self.page
+
+    def on_page_error(self, error):
+        print(f"[JS ERROR] {error}")
+        if hasattr(error, "stack"):
+            print(f"[JS STACK] {error.stack}")
 
     def on_load(self):
         self.num_loads += 1

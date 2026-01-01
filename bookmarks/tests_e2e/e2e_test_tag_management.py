@@ -1,5 +1,5 @@
 from django.urls import reverse
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect
 
 from bookmarks.models import Tag
 from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
@@ -25,30 +25,29 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         expect(success_message).to_contain_text(text)
 
     def test_create_tag(self):
-        with sync_playwright() as p:
-            self.open(reverse("linkding:tags.index"), p)
+        self.open(reverse("linkding:tags.index"))
 
-            # Click the Create Tag button to open the modal
-            self.page.get_by_text("Create Tag").click()
+        # Click the Create Tag button to open the modal
+        self.page.get_by_text("Create Tag").click()
 
-            modal = self.locate_tag_modal()
+        modal = self.locate_tag_modal()
 
-            # Fill in a tag name
-            name_input = modal.get_by_label("Name")
-            name_input.fill("test-tag")
+        # Fill in a tag name
+        name_input = modal.get_by_label("Name")
+        name_input.fill("test-tag")
 
-            # Submit the form
-            modal.get_by_text("Save").click()
+        # Submit the form
+        modal.get_by_text("Save").click()
 
-            # Verify modal is closed and we're back on the tags page
-            expect(modal).not_to_be_visible()
+        # Verify modal is closed and we're back on the tags page
+        expect(modal).not_to_be_visible()
 
-            # Verify the success message is shown
-            self.verify_success_message('Tag "test-tag" created successfully.')
+        # Verify the success message is shown
+        self.verify_success_message('Tag "test-tag" created successfully.')
 
-            # Verify the new tag is shown in the list
-            tag_row = self.locate_tag_row("test-tag")
-            expect(tag_row).to_be_visible()
+        # Verify the new tag is shown in the list
+        tag_row = self.locate_tag_row("test-tag")
+        expect(tag_row).to_be_visible()
 
         # Verify the tag was actually created in the database
         self.assertEqual(
@@ -60,31 +59,30 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
     def test_create_tag_validation_error(self):
         existing_tag = self.setup_tag(name="existing-tag")
 
-        with sync_playwright() as p:
-            self.open(reverse("linkding:tags.index"), p)
+        self.open(reverse("linkding:tags.index"))
 
-            # Click the Create Tag button to open the modal
-            self.page.get_by_text("Create Tag").click()
+        # Click the Create Tag button to open the modal
+        self.page.get_by_text("Create Tag").click()
 
-            modal = self.locate_tag_modal()
+        modal = self.locate_tag_modal()
 
-            # Submit with empty value
-            modal.get_by_text("Save").click()
+        # Submit with empty value
+        modal.get_by_text("Save").click()
 
-            # Verify the error is shown (field is required)
-            error_hint = modal.get_by_text("This field is required")
-            expect(error_hint).to_be_visible()
+        # Verify the error is shown (field is required)
+        error_hint = modal.get_by_text("This field is required")
+        expect(error_hint).to_be_visible()
 
-            # Fill in the name of an existing tag
-            name_input = modal.get_by_label("Name")
-            name_input.fill(existing_tag.name)
+        # Fill in the name of an existing tag
+        name_input = modal.get_by_label("Name")
+        name_input.fill(existing_tag.name)
 
-            # Submit the form
-            modal.get_by_text("Save").click()
+        # Submit the form
+        modal.get_by_text("Save").click()
 
-            # Verify the error is shown (tag already exists)
-            error_hint = modal.get_by_text('Tag "existing-tag" already exists')
-            expect(error_hint).to_be_visible()
+        # Verify the error is shown (tag already exists)
+        error_hint = modal.get_by_text('Tag "existing-tag" already exists')
+        expect(error_hint).to_be_visible()
 
         # Verify no additional tag was created
         self.assertEqual(
@@ -94,34 +92,33 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
     def test_edit_tag(self):
         tag = self.setup_tag(name="old-name")
 
-        with sync_playwright() as p:
-            self.open(reverse("linkding:tags.index"), p)
+        self.open(reverse("linkding:tags.index"))
 
-            # Click the Edit button for the tag
-            tag_row = self.locate_tag_row(tag.name)
-            tag_row.get_by_role("link", name="Edit").click()
+        # Click the Edit button for the tag
+        tag_row = self.locate_tag_row(tag.name)
+        tag_row.get_by_role("link", name="Edit").click()
 
-            modal = self.locate_tag_modal()
+        modal = self.locate_tag_modal()
 
-            # Verify the form is pre-filled with the tag name
-            name_input = modal.get_by_label("Name")
-            expect(name_input).to_have_value(tag.name)
+        # Verify the form is pre-filled with the tag name
+        name_input = modal.get_by_label("Name")
+        expect(name_input).to_have_value(tag.name)
 
-            # Change the tag name
-            name_input.fill("new-name")
+        # Change the tag name
+        name_input.fill("new-name")
 
-            # Submit the form
-            modal.get_by_text("Save").click()
+        # Submit the form
+        modal.get_by_text("Save").click()
 
-            # Verify modal is closed
-            expect(modal).not_to_be_visible()
+        # Verify modal is closed
+        expect(modal).not_to_be_visible()
 
-            # Verify the success message is shown
-            self.verify_success_message('Tag "new-name" updated successfully.')
+        # Verify the success message is shown
+        self.verify_success_message('Tag "new-name" updated successfully.')
 
-            # Verify the updated tag is shown in the list
-            expect(self.locate_tag_row("new-name")).to_be_visible()
-            expect(self.locate_tag_row("old-name")).not_to_be_visible()
+        # Verify the updated tag is shown in the list
+        expect(self.locate_tag_row("new-name")).to_be_visible()
+        expect(self.locate_tag_row("old-name")).not_to_be_visible()
 
         # Verify the tag was updated in the database
         tag.refresh_from_db()
@@ -131,31 +128,30 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         tag = self.setup_tag(name="tag-to-edit")
         other_tag = self.setup_tag(name="other-tag")
 
-        with sync_playwright() as p:
-            self.open(reverse("linkding:tags.index"), p)
+        self.open(reverse("linkding:tags.index"))
 
-            # Click the Edit button for the tag
-            tag_row = self.locate_tag_row(tag.name)
-            tag_row.get_by_role("link", name="Edit").click()
+        # Click the Edit button for the tag
+        tag_row = self.locate_tag_row(tag.name)
+        tag_row.get_by_role("link", name="Edit").click()
 
-            modal = self.locate_tag_modal()
+        modal = self.locate_tag_modal()
 
-            # Clear the name and submit
-            name_input = modal.get_by_label("Name")
-            name_input.fill("")
-            modal.get_by_text("Save").click()
+        # Clear the name and submit
+        name_input = modal.get_by_label("Name")
+        name_input.fill("")
+        modal.get_by_text("Save").click()
 
-            # Verify the error is shown (field is required)
-            error_hint = modal.get_by_text("This field is required")
-            expect(error_hint).to_be_visible()
+        # Verify the error is shown (field is required)
+        error_hint = modal.get_by_text("This field is required")
+        expect(error_hint).to_be_visible()
 
-            # Fill in the name of another existing tag
-            name_input.fill(other_tag.name)
-            modal.get_by_text("Save").click()
+        # Fill in the name of another existing tag
+        name_input.fill(other_tag.name)
+        modal.get_by_text("Save").click()
 
-            # Verify the error is shown (tag already exists)
-            error_hint = modal.get_by_text('Tag "other-tag" already exists')
-            expect(error_hint).to_be_visible()
+        # Verify the error is shown (tag already exists)
+        error_hint = modal.get_by_text('Tag "other-tag" already exists')
+        expect(error_hint).to_be_visible()
 
         # Verify the tag was not modified
         tag.refresh_from_db()
@@ -170,37 +166,36 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         bookmark1 = self.setup_bookmark(tags=[merge_tag1])
         bookmark2 = self.setup_bookmark(tags=[merge_tag2])
 
-        with sync_playwright() as p:
-            self.open(reverse("linkding:tags.index"), p)
+        self.open(reverse("linkding:tags.index"))
 
-            # Click the Merge Tags button to open the modal
-            self.page.get_by_text("Merge Tags", exact=True).click()
+        # Click the Merge Tags button to open the modal
+        self.page.get_by_text("Merge Tags", exact=True).click()
 
-            modal = self.locate_merge_modal()
+        modal = self.locate_merge_modal()
 
-            # Fill in the target tag
-            target_input = modal.get_by_label("Target tag")
-            target_input.fill(target_tag.name)
+        # Fill in the target tag
+        target_input = modal.get_by_label("Target tag")
+        target_input.fill(target_tag.name)
 
-            # Fill in the tags to merge
-            merge_input = modal.get_by_label("Tags to merge")
-            merge_input.fill(f"{merge_tag1.name} {merge_tag2.name}")
+        # Fill in the tags to merge
+        merge_input = modal.get_by_label("Tags to merge")
+        merge_input.fill(f"{merge_tag1.name} {merge_tag2.name}")
 
-            # Submit the form
-            modal.get_by_role("button", name="Merge Tags").click()
+        # Submit the form
+        modal.get_by_role("button", name="Merge Tags").click()
 
-            # Verify modal is closed
-            expect(modal).not_to_be_visible()
+        # Verify modal is closed
+        expect(modal).not_to_be_visible()
 
-            # Verify the success message is shown
-            self.verify_success_message(
-                'Successfully merged 2 tags (merge-tag1, merge-tag2) into "target-tag".'
-            )
+        # Verify the success message is shown
+        self.verify_success_message(
+            'Successfully merged 2 tags (merge-tag1, merge-tag2) into "target-tag".'
+        )
 
-            # Verify the merged tags are no longer in the list
-            expect(self.locate_tag_row("target-tag")).to_be_visible()
-            expect(self.locate_tag_row("merge-tag1")).not_to_be_visible()
-            expect(self.locate_tag_row("merge-tag2")).not_to_be_visible()
+        # Verify the merged tags are no longer in the list
+        expect(self.locate_tag_row("target-tag")).to_be_visible()
+        expect(self.locate_tag_row("merge-tag1")).not_to_be_visible()
+        expect(self.locate_tag_row("merge-tag2")).not_to_be_visible()
 
         # Verify the merge tags were deleted
         self.assertEqual(
@@ -217,44 +212,43 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         target_tag = self.setup_tag(name="target-tag")
         merge_tag = self.setup_tag(name="merge-tag")
 
-        with sync_playwright() as p:
-            self.open(reverse("linkding:tags.index"), p)
+        self.open(reverse("linkding:tags.index"))
 
-            # Click the Merge Tags button to open the modal
-            self.page.get_by_text("Merge Tags", exact=True).click()
+        # Click the Merge Tags button to open the modal
+        self.page.get_by_text("Merge Tags", exact=True).click()
 
-            modal = self.locate_merge_modal()
+        modal = self.locate_merge_modal()
 
-            # Submit with empty values
-            modal.get_by_role("button", name="Merge Tags").click()
+        # Submit with empty values
+        modal.get_by_role("button", name="Merge Tags").click()
 
-            # Verify the errors are shown
-            expect(modal.get_by_text("This field is required").first).to_be_visible()
+        # Verify the errors are shown
+        expect(modal.get_by_text("This field is required").first).to_be_visible()
 
-            # Fill in non-existent target tag
-            target_input = modal.get_by_label("Target tag")
-            target_input.fill("nonexistent-tag")
+        # Fill in non-existent target tag
+        target_input = modal.get_by_label("Target tag")
+        target_input.fill("nonexistent-tag")
 
-            merge_input = modal.get_by_label("Tags to merge")
-            merge_input.fill(merge_tag.name)
+        merge_input = modal.get_by_label("Tags to merge")
+        merge_input.fill(merge_tag.name)
 
-            modal.get_by_role("button", name="Merge Tags").click()
+        modal.get_by_role("button", name="Merge Tags").click()
 
-            # Verify error for non-existent target tag
-            expect(
-                modal.get_by_text('Tag "nonexistent-tag" does not exist')
-            ).to_be_visible()
+        # Verify error for non-existent target tag
+        expect(
+            modal.get_by_text('Tag "nonexistent-tag" does not exist')
+        ).to_be_visible()
 
-            # Fill in valid target but target tag in merge tags
-            target_input.fill(target_tag.name)
-            merge_input.fill(target_tag.name)
+        # Fill in valid target but target tag in merge tags
+        target_input.fill(target_tag.name)
+        merge_input.fill(target_tag.name)
 
-            modal.get_by_role("button", name="Merge Tags").click()
+        modal.get_by_role("button", name="Merge Tags").click()
 
-            # Verify error for target tag in merge tags
-            expect(
-                modal.get_by_text("The target tag cannot be selected for merging")
-            ).to_be_visible()
+        # Verify error for target tag in merge tags
+        expect(
+            modal.get_by_text("The target tag cannot be selected for merging")
+        ).to_be_visible()
 
         # Verify no tags were deleted
         self.assertEqual(
