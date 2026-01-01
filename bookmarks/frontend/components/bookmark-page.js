@@ -1,5 +1,7 @@
-class BookmarkPage extends HTMLElement {
-  connectedCallback() {
+import { HeadlessElement } from "../utils/element.js";
+
+class BookmarkPage extends HeadlessElement {
+  init() {
     this.update = this.update.bind(this);
     this.onToggleNotes = this.onToggleNotes.bind(this);
     this.onToggleBulkEdit = this.onToggleBulkEdit.bind(this);
@@ -17,13 +19,11 @@ class BookmarkPage extends HTMLElement {
   }
 
   update() {
-    requestAnimationFrame(() => {
-      const items = this.querySelectorAll("ul.bookmark-list > li");
-      this.updateTooltips(items);
-      this.updateNotesToggles(items, this.oldItems);
-      this.updateBulkEdit(items, this.oldItems);
-      this.oldItems = items;
-    });
+    const items = this.querySelectorAll("ul.bookmark-list > li");
+    this.updateTooltips(items);
+    this.updateNotesToggles(items, this.oldItems);
+    this.updateBulkEdit(items, this.oldItems);
+    this.oldItems = items;
   }
 
   updateTooltips(items) {

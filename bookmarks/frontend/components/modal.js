@@ -1,29 +1,23 @@
 import { FocusTrapController } from "../utils/focus.js";
+import { HeadlessElement } from "../utils/element.js";
 
-export class Modal extends HTMLElement {
-  connectedCallback() {
-    requestAnimationFrame(() => {
-      this.onClose = this.onClose.bind(this);
-      this.onKeyDown = this.onKeyDown.bind(this);
+export class Modal extends HeadlessElement {
+  init() {
+    this.onClose = this.onClose.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
 
-      this.querySelectorAll("[data-close-modal]").forEach((btn) => {
-        btn.addEventListener("click", this.onClose);
-      });
-      document.addEventListener("keydown", this.onKeyDown);
-
-      this.setupScrollLock();
-      this.focusTrap = new FocusTrapController(
-        this.querySelector(".modal-container"),
-      );
+    this.querySelectorAll("[data-close-modal]").forEach((btn) => {
+      btn.addEventListener("click", this.onClose);
     });
+    this.addEventListener("keydown", this.onKeyDown);
+
+    this.setupScrollLock();
+    this.focusTrap = new FocusTrapController(
+      this.querySelector(".modal-container"),
+    );
   }
 
   disconnectedCallback() {
-    this.querySelectorAll("[data-close-modal]").forEach((btn) => {
-      btn.removeEventListener("click", this.onClose);
-    });
-    document.removeEventListener("keydown", this.onKeyDown);
-
     this.removeScrollLock();
     this.focusTrap.destroy();
   }

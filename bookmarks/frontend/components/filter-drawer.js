@@ -1,15 +1,12 @@
 import { html, render } from "lit";
 import { Modal } from "./modal.js";
+import { HeadlessElement } from "../utils/element.js";
 import { isKeyboardActive } from "../utils/focus.js";
 
-class FilterDrawerTrigger extends HTMLElement {
-  connectedCallback() {
+class FilterDrawerTrigger extends HeadlessElement {
+  init() {
     this.onClick = this.onClick.bind(this);
     this.addEventListener("click", this.onClick.bind(this));
-  }
-
-  disconnectedCallback() {
-    this.removeEventListener("click", this.onClick.bind(this));
   }
 
   onClick() {
@@ -67,8 +64,8 @@ class FilterDrawer extends Modal {
     this.getBoundingClientRect();
     // Add active class to start slide-in animation
     requestAnimationFrame(() => this.classList.add("active"));
-    // Call super after rendering to ensure elements are available
-    super.connectedCallback();
+    // Call super.init() after rendering to ensure elements are available
+    super.init();
   }
 
   disconnectedCallback() {

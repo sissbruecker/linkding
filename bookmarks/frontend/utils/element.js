@@ -1,5 +1,34 @@
 import { LitElement } from "lit";
 
+/**
+ * Base class for custom elements that wrap existing server-rendered DOM.
+ *
+ * Handles timing issues where connectedCallback fires before child elements
+ * are parsed during initial page load. With Turbo navigation, children are
+ * always available, but on fresh page loads they may not be.
+ *
+ * Subclasses should override init() instead of connectedCallback().
+ */
+export class HeadlessElement extends HTMLElement {
+  connectedCallback() {
+    if (this.__initialized) {
+      return;
+    }
+    this.__initialized = true;
+    if (document.readyState === "loading") {
+      document.addEventListener("turbo:load", () => this.init(), {
+        once: true,
+      });
+    } else {
+      this.init();
+    }
+  }
+
+  init() {
+    // Override in subclass
+  }
+}
+
 let isTopFrameVisit = false;
 
 document.addEventListener("turbo:visit", (event) => {

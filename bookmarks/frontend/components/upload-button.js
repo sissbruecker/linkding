@@ -1,20 +1,15 @@
-class UploadButton extends HTMLElement {
-  connectedCallback() {
+import { HeadlessElement } from "../utils/element.js";
+
+class UploadButton extends HeadlessElement {
+  init() {
     this.onClick = this.onClick.bind(this);
     this.onChange = this.onChange.bind(this);
 
-    requestAnimationFrame(() => {
-      this.button = this.querySelector('button[type="submit"]');
-      this.button.addEventListener("click", this.onClick);
+    this.button = this.querySelector('button[type="submit"]');
+    this.button.addEventListener("click", this.onClick);
 
-      this.fileInput = this.querySelector('input[type="file"]');
-      this.fileInput.addEventListener("change", this.onChange);
-    });
-  }
-
-  disconnectedCallback() {
-    this.button.removeEventListener("click", this.onClick);
-    this.fileInput.removeEventListener("change", this.onChange);
+    this.fileInput = this.querySelector('input[type="file"]');
+    this.fileInput.addEventListener("change", this.onChange);
   }
 
   onClick(event) {

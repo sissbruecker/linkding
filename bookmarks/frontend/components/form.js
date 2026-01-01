@@ -1,28 +1,26 @@
-class Form extends HTMLElement {
+import { HeadlessElement } from "../utils/element.js";
+
+class Form extends HeadlessElement {
   constructor() {
     super();
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onChange = this.onChange.bind(this);
   }
 
-  connectedCallback() {
+  init() {
     this.addEventListener("keydown", this.onKeyDown);
     this.addEventListener("change", this.onChange);
 
-    requestAnimationFrame(() => {
-      if (this.hasAttribute("data-form-reset")) {
-        // Resets form controls to their initial values before Turbo caches the DOM.
-        // Useful for filter forms where navigating back would otherwise still show
-        // values from after the form submission, which means the filters would be out
-        // of sync with the URL.
-        this.initFormReset();
-      }
-    });
+    if (this.hasAttribute("data-form-reset")) {
+      // Resets form controls to their initial values before Turbo caches the DOM.
+      // Useful for filter forms where navigating back would otherwise still show
+      // values from after the form submission, which means the filters would be out
+      // of sync with the URL.
+      this.initFormReset();
+    }
   }
 
   disconnectedCallback() {
-    this.removeEventListener("keydown", this.onKeyDown);
-    this.removeEventListener("change", this.onChange);
     if (this.hasAttribute("data-form-reset")) {
       this.resetForm();
     }

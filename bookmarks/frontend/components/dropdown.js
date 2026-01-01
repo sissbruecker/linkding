@@ -1,4 +1,6 @@
-class Dropdown extends HTMLElement {
+import { HeadlessElement } from "../utils/element.js";
+
+class Dropdown extends HeadlessElement {
   constructor() {
     super();
     this.opened = false;
@@ -8,26 +10,20 @@ class Dropdown extends HTMLElement {
     this.onFocusOut = this.onFocusOut.bind(this);
   }
 
-  connectedCallback() {
-    // Defer setup to next frame when children are available in the DOM
-    requestAnimationFrame(() => {
-      // Prevent opening the dropdown automatically on focus, so that it only
-      // opens on click when JS is enabled
-      this.style.setProperty("--dropdown-focus-display", "none");
-      this.addEventListener("keydown", this.onEscape);
-      this.addEventListener("focusout", this.onFocusOut);
+  init() {
+    // Prevent opening the dropdown automatically on focus, so that it only
+    // opens on click when JS is enabled
+    this.style.setProperty("--dropdown-focus-display", "none");
+    this.addEventListener("keydown", this.onEscape);
+    this.addEventListener("focusout", this.onFocusOut);
 
-      this.toggle = this.querySelector(".dropdown-toggle");
-      this.toggle.setAttribute("aria-expanded", "false");
-      this.toggle.addEventListener("click", this.onClick);
-    });
+    this.toggle = this.querySelector(".dropdown-toggle");
+    this.toggle.setAttribute("aria-expanded", "false");
+    this.toggle.addEventListener("click", this.onClick);
   }
 
   disconnectedCallback() {
     this.close();
-    this.toggle?.removeEventListener("click", this.onClick);
-    this.removeEventListener("keydown", this.onEscape);
-    this.removeEventListener("focusout", this.onFocusOut);
   }
 
   open() {
