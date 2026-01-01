@@ -5,32 +5,32 @@ description = "Self-hosted bookmark manager that is designed be to be minimal, f
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "beautifulsoup4>=4.12.3",
-    "bleach>=6.1.0",
+    "beautifulsoup4>=4.14.3",
+    "bleach>=6.3.0",
     "bleach-allowlist>=1.0.3",
-    "django>=5.2.3",
-    "django-registration>=3.4",
+    "django>=6.0",
+    "django-registration>=5.2.1",
     "django-widget-tweaks>=1.5.0",
-    "djangorestframework>=3.15.2",
-    "huey>=2.5.1",
-    "markdown>=3.7",
-    "mozilla-django-oidc>=4.0.1",
+    "djangorestframework>=3.16.1",
+    "huey>=2.5.5",
+    "markdown>=3.10",
+    "mozilla-django-oidc>=5.0.2",
     "python-dateutil>=2.9.0.post0",
-    "requests>=2.32.4",
+    "requests>=2.32.5",
     "supervisor>=4.3.0",
-    "uwsgi>=2.0.28",
+    "uwsgi>=2.0.31",
     "waybackpy>=3.0.6",
 ]
 
 [dependency-groups]
 dev = [
-    "black>=25.1.0",
-    "coverage>=7.10.4",
-    "django-debug-toolbar>=6.0.0",
+    "black>=25.12.0",
+    "coverage>=7.13.1",
+    "django-debug-toolbar>=6.1.0",
     "djlint>=1.36.4",
-    "playwright>=1.54.0",
+    "playwright>=1.57.0",
     "psycopg[binary]>=3.2.9",
-    "pytest>=8.4.1",
+    "pytest>=9.0.2",
     "pytest-django>=4.11.1",
     "pytest-xdist>=3.8.0",
 ]
