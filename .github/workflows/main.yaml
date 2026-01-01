@@ -60,3 +60,9 @@ jobs:
           uv run manage.py collectstatic
       - name: Run tests
         run: uv run pytest bookmarks/tests_e2e -n auto -o "python_files=e2e_test_*.py"
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: test-results/screenshots
