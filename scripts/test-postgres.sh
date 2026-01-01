@@ -23,7 +23,8 @@ export LD_DB_ENGINE=postgres
 export LD_DB_USER=linkding
 export LD_DB_PASSWORD=linkding
 
-./scripts/test.sh
+make test
+make e2e
 
 # Remove postgres container
 docker rm -f linkding-postgres-test || true
