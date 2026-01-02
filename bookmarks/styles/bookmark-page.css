@@ -266,6 +266,9 @@ ul.bookmark-list {
       & a:visited:hover {
         color: var(--alternative-color);
       }
+      & a:not(:last-child) {
+        margin-right: var(--unit-1);
+      }
     }
 
     & .actions,

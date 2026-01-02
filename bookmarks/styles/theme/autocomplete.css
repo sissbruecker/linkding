@@ -54,6 +54,10 @@
     position: fixed;
     max-height: var(--menu-max-height, 200px);
     overflow: auto;
+    
+    & .menu-item {
+      white-space: normal;
+    }
 
     & .menu-item.selected > a,
     & .menu-item > a:hover {
@@ -63,7 +67,7 @@
 
     & .group-item,
     & .group-item:hover {
-      color: var(--tertiary-text-color);
+      margin-top: var(--unit-2);
       text-transform: uppercase;
       background: none;
       font-size: 0.6rem;

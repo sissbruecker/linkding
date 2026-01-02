@@ -290,6 +290,10 @@
   font-weight: normal;
 }
 
+.text-semibold {
+  font-weight: 500;
+}
+
 .text-bold {
   font-weight: bold;
 }

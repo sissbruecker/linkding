@@ -103,7 +103,8 @@
 
   & .list-item-actions {
     display: flex;
-    gap: var(--unit-4);
+    gap: var(--unit-2);
+    margin-left: var(--unit-4);
     align-items: center;
 
     & .btn.btn-link {
