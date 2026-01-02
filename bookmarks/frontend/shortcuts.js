@@ -17,7 +17,7 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
 
     // Detect current bookmark list item
-    const items = document.querySelectorAll("ul.bookmark-list > li");
+    const items = [...document.querySelectorAll("ul.bookmark-list > li")];
     const path = event.composedPath();
     const currentItem = path.find((item) => items.includes(item));
 

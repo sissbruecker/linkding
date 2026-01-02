@@ -1,7 +1,8 @@
 {% extends "shared/layout.html" %}
 {% load static shared bookmarks %}
 {% block content %}
-  <ld-bookmark-page class="bookmarks-page grid columns-md-1 {% if bookmark_list.collapse_side_panel %}collapse-side-panel{% endif %}">
+  <ld-bookmark-page {% if not bookmark_list.bulk_edit_enabled %}no-bulk-edit{% endif %}
+                    class="bookmarks-page grid columns-md-1 {% if bookmark_list.collapse_side_panel %}collapse-side-panel{% endif %}">
     {# Bookmark list #}
     <main class="main col-2" aria-labelledby="main-heading">
       <div class="section-header {% if bookmark_list.bulk_edit_enabled %}mb-0{% endif %}">
