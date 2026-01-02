@@ -10,3 +10,4 @@ from .manifest import manifest
 from .custom_css import custom_css
 from .root import root
 from .opensearch import opensearch
+

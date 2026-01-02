@@ -106,6 +106,12 @@ urlpatterns = [
     path("opensearch.xml", views.opensearch, name="opensearch"),
 ]
 
+# Live reload (debug only)
+if settings.DEBUG:
+    from bookmarks.views import reload
+
+    urlpatterns.append(path("live_reload", reload.live_reload, name="live_reload"))
+
 # Put all linkding URLs into a linkding namespace
 urlpatterns = [path("", include((urlpatterns, "linkding")))]
 
