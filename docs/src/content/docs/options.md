@@ -179,6 +179,38 @@ identity_providers:
 
 </details>
 
+<details>
+
+<summary>Authentik Example</summary>
+
+#### Linkding Configuration
+
+```bash
+LD_ENABLE_AUTH_PROXY=False
+LD_ENABLE_OIDC=True
+OIDC_OP_AUTHORIZATION_ENDPOINT=https://auth.example.com/api/oidc/authorization/
+OIDC_OP_TOKEN_ENDPOINT=https://auth.example.com/api/oidc/token/
+OIDC_OP_USER_ENDPOINT=https://auth.example.com/api/oidc/userinfo/
+OIDC_OP_JWKS_ENDPOINT=https://auth.example.com/jwks/
+OIDC_RP_CLIENT_ID=myClientId
+OIDC_RP_CLIENT_SECRET=myClientSecret
+OIDC_USERNAME_CLAIM=preferred_username
+LD_AUTH_PROXY_LOGOUT_URL=https://auth.example.com/application/o/linkding/end-session
+```
+#### Authentik Configuration
+
+Create an application provider:
+
+```yaml
+Provider Name: Provider for Linkding
+Client ID: myClientId
+Client Secret: myClientSecret
+Redirect URIs Origins - Strict: https://linkding.example.com/oidc/callback/
+Logout URI: https://linkding.example.com/logout/
+```
+
+</details>
+
 ### `LD_CSRF_TRUSTED_ORIGINS`
 
 Values: `String` | Default = None
