@@ -304,7 +304,7 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
         self.locate_bulk_edit_select_all().click()
 
         expect(
-            self.locate_bulk_edit_bar().get_by_text("All pages (100 bookmarks)")
+            self.locate_bulk_edit_bar().get_by_text("All 100 bookmarks")
         ).to_be_visible()
 
         self.select_bulk_action("Delete")
@@ -317,5 +317,5 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
         self.locate_bulk_edit_select_all().click()
 
         expect(
-            self.locate_bulk_edit_bar().get_by_text("All pages (70 bookmarks)")
+            self.locate_bulk_edit_bar().get_by_text("All 70 bookmarks")
         ).to_be_visible()
