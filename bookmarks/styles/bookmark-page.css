@@ -139,7 +139,7 @@
 
 ul.bookmark-list {
   list-style: none;
-  margin: 0;
+  margin: var(--unit-4) 0 0 0;
   padding: 0;
 
   /* Increase line-height for better separation within / between items */
@@ -426,92 +426,18 @@ ul.bookmark-list {
   --bulk-edit-bar-offset: calc(
     var(--bulk-edit-toggle-width) + (2 * var(--bulk-edit-toggle-offset))
   );
-  --bulk-edit-transition-duration: 400ms;
 }
 
 ld-bookmark-page {
   & .bulk-edit-bar {
-    margin-top: -1px;
-    margin-left: calc(-1 * var(--bulk-edit-bar-offset));
-    margin-bottom: var(--unit-4);
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height var(--bulk-edit-transition-duration);
-    background: var(--bulk-actions-bg-color);
-  }
-
-  &.active .bulk-edit-bar {
-    max-height: 37px;
-    border-bottom: solid 1px var(--secondary-border-color);
-  }
-
-  /* Hide section border when bulk edit bar is opened, otherwise borders overlap in dark mode due to using contrast colors */
-
-  &.active .main .section-header {
-    border-bottom-color: transparent;
-  }
-
-  /* make sticky pagination expand to cover checkboxes to the left */
-
-  &.active .bookmark-pagination.sticky:before {
-    content: "";
-    position: absolute;
-    top: -1px;
-    bottom: 0;
-    left: calc(
-      -1 * calc(var(--bulk-edit-toggle-width) + var(--bulk-edit-toggle-offset))
-    );
-    width: calc(var(--bulk-edit-toggle-width) + var(--bulk-edit-toggle-offset));
-    background: var(--body-color);
-    border-top: solid 1px var(--secondary-border-color);
-  }
-
-  /* All checkbox */
-
-  & .form-checkbox.bulk-edit-checkbox.all {
-    display: block;
-    width: var(--bulk-edit-toggle-width);
-    margin: 0 0 0 var(--bulk-edit-toggle-offset);
-    padding: 0;
-  }
-
-  /* Bookmark checkboxes */
-
-  & .form-checkbox.bulk-edit-checkbox:not(.all) {
-    display: block;
-    position: absolute;
-    width: var(--bulk-edit-toggle-width);
-    min-height: var(--bulk-edit-toggle-width);
-    left: calc(
-      -1 * var(--bulk-edit-toggle-width) - var(--bulk-edit-toggle-offset)
-    );
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 0;
-    margin: 0;
-    visibility: hidden;
-    opacity: 0;
-    transition: all var(--bulk-edit-transition-duration);
-
-    .form-icon {
-      top: 0;
-    }
-  }
-
-  &.active .form-checkbox.bulk-edit-checkbox:not(.all) {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  /* Actions */
-
-  & .bulk-edit-actions {
-    display: flex;
+    display: none;
     align-items: center;
     padding: var(--unit-1) 0;
-    border-top: solid 1px var(--secondary-border-color);
     gap: var(--unit-2);
+    background: var(--bulk-actions-bg-color);
+    border-bottom: solid 1px var(--secondary-border-color);
 
+    /* Actions */
     & button {
       --control-padding-x-sm: 0;
     }
@@ -532,6 +458,49 @@ ld-bookmark-page {
       margin: 0 0 0 auto;
       font-size: var(--font-size-sm);
     }
+  }
+
+  &.active .bulk-edit-bar {
+    display: flex;
+  }
+
+  /* All checkbox */
+
+  & .form-checkbox.bulk-edit-checkbox.all {
+    display: block;
+    width: var(--bulk-edit-toggle-width);
+    margin: 0 0 0 var(--bulk-edit-toggle-offset);
+    padding: 0;
+  }
+
+  /* Bookmark checkboxes */
+
+  & .form-checkbox.bulk-edit-checkbox:not(.all) {
+    display: none;
+    position: absolute;
+    width: var(--bulk-edit-toggle-width);
+    min-height: var(--bulk-edit-toggle-width);
+    left: calc(
+      -1 * var(--bulk-edit-toggle-width) - var(--bulk-edit-toggle-offset)
+    );
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0;
+    margin: 0;
+
+    .form-icon {
+      top: 0;
+    }
+  }
+
+  &.active .form-checkbox.bulk-edit-checkbox:not(.all) {
+    display: block;
+  }
+
+  &.active ul.bookmark-list > li {
+    padding-left: calc(
+      var(--bulk-edit-toggle-width) + calc(var(--bulk-edit-toggle-offset) * 2)
+    );
   }
 
   & ld-tag-autocomplete {
