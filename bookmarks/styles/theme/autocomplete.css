@@ -54,7 +54,7 @@
     position: fixed;
     max-height: var(--menu-max-height, 200px);
     overflow: auto;
-    
+
     & .menu-item {
       white-space: normal;
     }
