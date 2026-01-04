@@ -38,12 +38,12 @@ def create_snapshot(url: str, filepath: str):
             )
             process.terminate()
             process.wait(timeout=20)
-            raise SingleFileError("Timeout expired while creating snapshot")
+            raise SingleFileError("Timeout expired while creating snapshot") from None
         except subprocess.TimeoutExpired:
             # Kill the whole process group, which should also clean up any chromium
             # processes spawned by single-file
             logger.error("Timeout expired while terminating. Killing process...")
             os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-            raise SingleFileError("Timeout expired while creating snapshot")
+            raise SingleFileError("Timeout expired while creating snapshot") from None
     except subprocess.CalledProcessError as error:
-        raise SingleFileError(f"Failed to create snapshot: {error.stderr}")
+        raise SingleFileError(f"Failed to create snapshot: {error.stderr}") from error

@@ -25,7 +25,6 @@ def create_wayback_machine_save_api_mock(
 
 
 class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self):
         huey.immediate = True
         huey.results = True

@@ -6,7 +6,6 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
 class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
@@ -19,14 +18,14 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertInHTML(
             f"""
-            <a href="{reverse('linkding:bookmarks.shared')}" class="menu-link">Shared</a>
+            <a href="{reverse("linkding:bookmarks.shared")}" class="menu-link">Shared</a>
         """,
             html,
             count=0,
         )
         self.assertInHTML(
             f"""
-            <a href="{reverse('linkding:bookmarks.shared')}" class="menu-link">Shared bookmarks</a>
+            <a href="{reverse("linkding:bookmarks.shared")}" class="menu-link">Shared bookmarks</a>
         """,
             html,
             count=0,
@@ -39,14 +38,14 @@ class LayoutTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         self.assertInHTML(
             f"""
-            <a href="{reverse('linkding:bookmarks.shared')}" class="menu-link">Shared</a>
+            <a href="{reverse("linkding:bookmarks.shared")}" class="menu-link">Shared</a>
         """,
             html,
             count=1,
         )
         self.assertInHTML(
             f"""
-            <a href="{reverse('linkding:bookmarks.shared')}" class="menu-link">Shared bookmarks</a>
+            <a href="{reverse("linkding:bookmarks.shared")}" class="menu-link">Shared bookmarks</a>
         """,
             html,
             count=1,

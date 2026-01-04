@@ -5,7 +5,7 @@ import shutil
 
 from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
-from django.utils import timezone, formats
+from django.utils import formats, timezone
 
 from bookmarks.models import Bookmark, BookmarkAsset
 from bookmarks.services import singlefile

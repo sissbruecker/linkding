@@ -28,9 +28,11 @@ class SingleFileServiceTestCase(TestCase):
                 singlefile.create_snapshot("http://example.com", "nonexistentfile.tmp")
 
         # so also check that it raises error if output file isn't created
-        with mock.patch("subprocess.Popen"):
-            with self.assertRaises(singlefile.SingleFileError):
-                singlefile.create_snapshot("http://example.com", "nonexistentfile.tmp")
+        with (
+            mock.patch("subprocess.Popen"),
+            self.assertRaises(singlefile.SingleFileError),
+        ):
+            singlefile.create_snapshot("http://example.com", "nonexistentfile.tmp")
 
     def test_create_snapshot_empty_options(self):
         mock_process = mock.Mock()

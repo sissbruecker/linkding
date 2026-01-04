@@ -3,12 +3,11 @@ from unittest import mock
 
 from django.test import TestCase
 
-from bookmarks.models import User
 from bookmarks.management.commands.create_initial_superuser import Command
+from bookmarks.models import User
 
 
 class TestCreateInitialSuperuserCommand(TestCase):
-
     @mock.patch.dict(
         os.environ,
         {"LD_SUPERUSER_NAME": "john", "LD_SUPERUSER_PASSWORD": "password123"},

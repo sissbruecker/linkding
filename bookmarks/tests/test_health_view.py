@@ -7,7 +7,6 @@ from bookmarks.views.settings import app_version
 
 
 class HealthViewTestCase(TestCase):
-
     def test_health_healthy(self):
         response = self.client.get("/health")
 

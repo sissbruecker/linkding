@@ -50,10 +50,7 @@ class BaseBookmarksFeed(Feed):
 
     def items(self, context: FeedContext):
         limit = context.request.GET.get("limit", 100)
-        if limit:
-            data = context.query_set[: int(limit)]
-        else:
-            data = list(context.query_set)
+        data = context.query_set[: int(limit)] if limit else list(context.query_set)
         prefetch_related_objects(data, "tags")
         return data
 

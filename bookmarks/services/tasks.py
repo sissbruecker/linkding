@@ -1,6 +1,5 @@
 import functools
 import logging
-from typing import List
 
 import waybackpy
 from django.conf import settings
@@ -10,7 +9,7 @@ from django.utils import timezone
 from huey import crontab
 from huey.contrib.djhuey import HUEY as huey
 from huey.exceptions import TaskLockedException
-from waybackpy.exceptions import WaybackError, TooManyRequestsError
+from waybackpy.exceptions import TooManyRequestsError, WaybackError
 
 from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
 from bookmarks.services import assets, favicon_loader, preview_image_loader
@@ -263,7 +262,7 @@ def create_html_snapshot(bookmark: Bookmark):
     asset.save()
 
 
-def create_html_snapshots(bookmark_list: List[Bookmark]):
+def create_html_snapshots(bookmark_list: list[Bookmark]):
     if not is_html_snapshot_feature_active():
         return
 

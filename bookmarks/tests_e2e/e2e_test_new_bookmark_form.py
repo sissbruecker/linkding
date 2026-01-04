@@ -17,7 +17,6 @@ mock_website_metadata = website_loader.WebsiteMetadata(
 
 
 class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
-
     def setUp(self) -> None:
         super().setUp()
         self.website_loader_patch = patch.object(

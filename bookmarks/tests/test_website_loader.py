@@ -1,7 +1,8 @@
 from unittest import mock
-from bookmarks.services import website_loader
 
 from django.test import TestCase
+
+from bookmarks.services import website_loader
 
 
 class MockStreamingResponse:
@@ -12,7 +13,7 @@ class MockStreamingResponse:
             self.chunks.append(chunk.encode("utf-8"))
 
             if index == insert_head_after_chunk:
-                self.chunks.append("</head>".encode("utf-8"))
+                self.chunks.append(b"</head>")
 
     def iter_content(self, **kwargs):
         return self.chunks
@@ -92,7 +93,7 @@ class WebsiteLoaderTestCase(TestCase):
     def test_load_page_removes_bytes_after_end_of_head(self):
         with mock.patch("requests.get") as mock_get:
             mock_response = MockStreamingResponse(num_chunks=1, chunk_size=0)
-            mock_response.chunks[0] = "<head>人</head>".encode("utf-8")
+            mock_response.chunks[0] = "<head>人</head>".encode()
             # add a single byte that can't be decoded to utf-8
             mock_response.chunks[0] += 0xFF.to_bytes(1, "big")
             mock_get.return_value = mock_response

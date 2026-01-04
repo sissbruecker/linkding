@@ -3,7 +3,7 @@ import urllib.parse
 from django.urls import reverse
 from rest_framework import status
 
-from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, LinkdingApiTestCase
 
 
 class BookmarksApiPermissionsTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):

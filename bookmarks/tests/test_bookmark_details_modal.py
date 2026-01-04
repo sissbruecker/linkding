@@ -262,9 +262,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertIsNotNone(image)
 
     def test_internet_archive_link_with_fallback_url(self):
-        date_added = timezone.datetime(
-            2023, 8, 11, 21, 45, 11, tzinfo=datetime.timezone.utc
-        )
+        date_added = timezone.datetime(2023, 8, 11, 21, 45, 11, tzinfo=datetime.UTC)
         bookmark = self.setup_bookmark(url="https://example.com/", added=date_added)
         fallback_web_archive_url = (
             "https://web.archive.org/web/20230811214511/https://example.com/"

@@ -1,12 +1,11 @@
 import html
-from typing import List
 
 from bookmarks.models import Bookmark
 
-BookmarkDocument = List[str]
+BookmarkDocument = list[str]
 
 
-def export_netscape_html(bookmarks: List[Bookmark]):
+def export_netscape_html(bookmarks: list[Bookmark]):
     doc = []
     append_header(doc)
     append_list_start(doc)

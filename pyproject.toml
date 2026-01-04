@@ -24,7 +24,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=25.12.0",
     "coverage>=7.13.1",
     "django-debug-toolbar>=6.1.0",
     "djlint>=1.36.4",
@@ -33,6 +32,7 @@ dev = [
     "pytest>=9.0.2",
     "pytest-django>=4.11.1",
     "pytest-xdist>=3.8.0",
+    "ruff>=0.14.10",
 ]
 # For PostgreSQL support, use the binary release for development so that not
 # everyone needs to build from source. For production, use a separate dependency
@@ -57,3 +57,21 @@ profile="django"
 
 [tool.djlint.js]
 indent_size=2
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+# ignore line length violations
+ignore = ["E501"]

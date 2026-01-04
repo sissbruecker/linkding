@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.middleware import RemoteUserMiddleware
 
-from bookmarks.models import UserProfile, GlobalSettings
+from bookmarks.models import GlobalSettings, UserProfile
 
 
 class CustomRemoteUserMiddleware(RemoteUserMiddleware):
@@ -22,7 +22,7 @@ class LinkdingMiddleware:
         # add global settings to request
         try:
             global_settings = GlobalSettings.get()
-        except:
+        except Exception:
             global_settings = default_global_settings
         request.global_settings = global_settings
 

@@ -1,7 +1,7 @@
+import importlib
 import json
 import os
 import sqlite3
-import importlib
 
 from django.core.management.base import BaseCommand
 

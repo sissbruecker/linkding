@@ -1,22 +1,22 @@
 from django.test import TestCase
 
-from bookmarks.services.search_query_parser import (
-    SearchQueryTokenizer,
-    TokenType,
-    SearchExpression,
-    TermExpression,
-    TagExpression,
-    SpecialKeywordExpression,
-    AndExpression,
-    OrExpression,
-    NotExpression,
-    SearchQueryParseError,
-    parse_search_query,
-    expression_to_string,
-    strip_tag_from_query,
-    extract_tag_names_from_query,
-)
 from bookmarks.models import UserProfile
+from bookmarks.services.search_query_parser import (
+    AndExpression,
+    NotExpression,
+    OrExpression,
+    SearchExpression,
+    SearchQueryParseError,
+    SearchQueryTokenizer,
+    SpecialKeywordExpression,
+    TagExpression,
+    TermExpression,
+    TokenType,
+    expression_to_string,
+    extract_tag_names_from_query,
+    parse_search_query,
+    strip_tag_from_query,
+)
 
 
 def _term(term: str) -> TermExpression:

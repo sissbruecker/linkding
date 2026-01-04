@@ -2,12 +2,11 @@ import re
 
 import bleach
 import markdown
-from bleach_allowlist import markdown_tags, markdown_attrs
+from bleach_allowlist import markdown_attrs, markdown_tags
 from django import template
 from django.utils.safestring import mark_safe
 
 from bookmarks import utils
-from bookmarks.models import UserProfile
 
 register = template.Library()
 
@@ -82,7 +81,7 @@ class HtmlMinNode(template.Node):
 def render_markdown(context, markdown_text):
     # naive approach to reusing the renderer for a single request
     # works for bookmark list for now
-    if not ("markdown_renderer" in context):
+    if "markdown_renderer" not in context:
         renderer = markdown.Markdown(extensions=["fenced_code", "nl2br"])
         context["markdown_renderer"] = renderer
     else:

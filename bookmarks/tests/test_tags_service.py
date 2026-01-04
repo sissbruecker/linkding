@@ -9,7 +9,6 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 class TagServiceTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self) -> None:
         self.get_or_create_test_user()
 

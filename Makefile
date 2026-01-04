@@ -14,8 +14,11 @@ tasks:
 test:
 	uv run pytest -n auto
 
+lint:
+	uv run ruff check bookmarks
+
 format:
-	uv run black bookmarks
+	uv run ruff format bookmarks
 	uv run djlint bookmarks/templates --reformat --quiet --warn
 	npx prettier bookmarks/frontend --write
 	npx prettier bookmarks/styles --write

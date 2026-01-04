@@ -2,6 +2,8 @@
 Development settings for linkding webapp
 """
 
+# ruff: noqa
+
 # Start from development settings
 # noinspection PyUnresolvedReferences
 from .base import *

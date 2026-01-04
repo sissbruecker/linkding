@@ -1,5 +1,3 @@
-from typing import List
-
 from django.urls import reverse
 from playwright.sync_api import expect
 
@@ -23,7 +21,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             user=self.setup_user(enable_sharing=True),
         )
 
-    def assertVisibleBookmarks(self, titles: List[str]):
+    def assertVisibleBookmarks(self, titles: list[str]):
         bookmark_tags = self.page.locator("ul.bookmark-list > li")
         expect(bookmark_tags).to_have_count(len(titles))
 
@@ -31,7 +29,7 @@ class BookmarkPagePartialUpdatesE2ETestCase(LinkdingE2ETestCase):
             matching_tag = bookmark_tags.filter(has_text=title)
             expect(matching_tag).to_be_visible()
 
-    def assertVisibleTags(self, titles: List[str]):
+    def assertVisibleTags(self, titles: list[str]):
         tag_tags = self.page.locator(".tag-cloud .unselected-tags a")
         expect(tag_tags).to_have_count(len(titles))
 

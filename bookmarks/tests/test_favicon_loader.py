@@ -1,7 +1,7 @@
 import io
 import os.path
-import time
 import tempfile
+import time
 from pathlib import Path
 from unittest import mock
 

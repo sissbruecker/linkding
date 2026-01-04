@@ -30,7 +30,6 @@ DISABLED_URL_VALIDATION_TEST_CASES = [
 
 
 class BookmarkValidationTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self) -> None:
         self.get_or_create_test_user()
 

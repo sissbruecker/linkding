@@ -167,7 +167,9 @@ class TagMergeForm(forms.Form):
         try:
             target_tag = Tag.objects.get(name__iexact=target_tag_name, owner=self.user)
         except Tag.DoesNotExist:
-            raise forms.ValidationError(f'Tag "{target_tag_name}" does not exist.')
+            raise forms.ValidationError(
+                f'Tag "{target_tag_name}" does not exist.'
+            ) from None
 
         return target_tag
 
@@ -184,7 +186,9 @@ class TagMergeForm(forms.Form):
                 tag = Tag.objects.get(name__iexact=tag_name, owner=self.user)
                 merge_tags.append(tag)
             except Tag.DoesNotExist:
-                raise forms.ValidationError(f'Tag "{tag_name}" does not exist.')
+                raise forms.ValidationError(
+                    f'Tag "{tag_name}" does not exist.'
+                ) from None
 
         target_tag = self.cleaned_data.get("target_tag")
         if target_tag and target_tag in merge_tags:

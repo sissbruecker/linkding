@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import prefetch_related_objects
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
@@ -16,13 +16,12 @@ from django.utils import timezone
 from bookmarks.models import (
     ApiToken,
     Bookmark,
-    UserProfileForm,
     FeedToken,
     GlobalSettings,
     GlobalSettingsForm,
+    UserProfileForm,
 )
-from bookmarks.services import exporter, tasks
-from bookmarks.services import importer
+from bookmarks.services import exporter, importer, tasks
 from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import app_version
 from bookmarks.views import access
@@ -272,7 +271,7 @@ def bookmark_import(request: HttpRequest):
                 + " bookmarks could not be imported. Please check the logs for more details."
             )
             messages.error(request, err_msg, "settings_error_message")
-    except:
+    except Exception:
         logging.exception("Unexpected error during bookmark import")
         messages.error(
             request,
@@ -301,7 +300,7 @@ def bookmark_export(request: HttpRequest):
         response.write(file_content)
 
         return response
-    except:
+    except Exception:
         return render(
             request,
             "settings/general.html",

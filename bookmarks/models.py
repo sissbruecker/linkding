@@ -1,20 +1,19 @@
+import binascii
 import hashlib
 import logging
 import os
-from typing import List
 
-import binascii
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.http import QueryDict
 
-from bookmarks.utils import unique, normalize_url
+from bookmarks.utils import normalize_url, unique
 from bookmarks.validators import BookmarkURLValidator
 
 logger = logging.getLogger(__name__)
@@ -48,7 +47,7 @@ def parse_tag_string(tag_string: str, delimiter: str = ","):
     return names
 
 
-def build_tag_string(tag_names: List[str], delimiter: str = ","):
+def build_tag_string(tag_names: list[str], delimiter: str = ","):
     return delimiter.join(tag_names)
 
 
@@ -354,8 +353,8 @@ class BookmarkSearchForm(forms.Form):
     def __init__(
         self,
         search: BookmarkSearch,
-        editable_fields: List[str] = None,
-        users: List[User] = None,
+        editable_fields: list[str] = None,
+        users: list[User] = None,
     ):
         super().__init__()
         editable_fields = editable_fields or []
@@ -640,7 +639,7 @@ class GlobalSettings(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk and GlobalSettings.objects.exists():
             raise Exception("There is already one instance of GlobalSettings")
-        return super(GlobalSettings, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class GlobalSettingsForm(forms.ModelForm):
@@ -649,5 +648,5 @@ class GlobalSettingsForm(forms.ModelForm):
         fields = ["landing_page", "guest_profile_user", "enable_link_prefetch"]
 
     def __init__(self, *args, **kwargs):
-        super(GlobalSettingsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["guest_profile_user"].empty_label = "Standard profile"

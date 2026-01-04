@@ -1,6 +1,5 @@
 import re
 import urllib.parse
-from typing import Set, List
 
 from django.conf import settings
 from django.core.paginator import Paginator
@@ -8,23 +7,22 @@ from django.db import models
 from django.http import Http404
 from django.urls import reverse
 
-from bookmarks import queries
-from bookmarks import utils
+from bookmarks import queries, utils
 from bookmarks.models import (
     Bookmark,
     BookmarkAsset,
     BookmarkBundle,
     BookmarkSearch,
     BookmarkSearchForm,
+    Tag,
     User,
     UserProfile,
-    Tag,
 )
 from bookmarks.services.search_query_parser import (
-    parse_search_query,
-    strip_tag_from_query,
     OrExpression,
     SearchQueryParseError,
+    parse_search_query,
+    strip_tag_from_query,
 )
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.type_defs import HttpRequest
@@ -411,7 +409,7 @@ class TagGroup:
         self.tags.append(AddTagItem(self.context, tag))
 
     @staticmethod
-    def create_tag_groups(context: RequestContext, mode: str, tags: Set[Tag]):
+    def create_tag_groups(context: RequestContext, mode: str, tags: set[Tag]):
         if mode == UserProfile.TAG_GROUPING_ALPHABETICAL:
             return TagGroup._create_tag_groups_alphabetical(context, tags)
         elif mode == UserProfile.TAG_GROUPING_DISABLED:
@@ -420,7 +418,7 @@ class TagGroup:
             raise ValueError(f"{mode} is not a valid tag grouping mode")
 
     @staticmethod
-    def _create_tag_groups_alphabetical(context: RequestContext, tags: Set[Tag]):
+    def _create_tag_groups_alphabetical(context: RequestContext, tags: set[Tag]):
         # Ensure groups, as well as tags within groups, are ordered alphabetically
         sorted_tags = sorted(tags, key=lambda x: str.lower(x.name))
         group = None
@@ -447,7 +445,7 @@ class TagGroup:
         return groups
 
     @staticmethod
-    def _create_tag_groups_disabled(context: RequestContext, tags: Set[Tag]):
+    def _create_tag_groups_disabled(context: RequestContext, tags: set[Tag]):
         if len(tags) == 0:
             return []
 
@@ -494,7 +492,7 @@ class TagCloudContext:
     def get_selected_tags(self):
         raise NotImplementedError("Must be implemented by subclass")
 
-    def get_selected_tags_legacy(self, tags: List[Tag]):
+    def get_selected_tags_legacy(self, tags: list[Tag]):
         parsed_query = queries.parse_query_string(self.search.q)
         tag_names = parsed_query["tag_names"]
         if self.request.user_profile.tag_search == UserProfile.TAG_SEARCH_LAX:

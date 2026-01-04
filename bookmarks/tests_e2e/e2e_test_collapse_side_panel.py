@@ -5,7 +5,6 @@ from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 
 class CollapseSidePanelE2ETestCase(LinkdingE2ETestCase):
-
     def setUp(self) -> None:
         super().setUp()
 

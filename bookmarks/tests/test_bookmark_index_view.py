@@ -299,7 +299,7 @@ class BookmarkIndexViewTestCase(
         html = response.content.decode()
 
         self.assertInHTML(
-            f"""
+            """
           <select name="bulk_action" class="form-select select-sm">
             <option value="bulk_archive">Archive</option>
             <option value="bulk_delete">Delete</option>
@@ -320,7 +320,7 @@ class BookmarkIndexViewTestCase(
         html = response.content.decode()
 
         self.assertInHTML(
-            f"""
+            """
           <select name="bulk_action" class="form-select select-sm">
             <option value="bulk_archive">Archive</option>
             <option value="bulk_delete">Delete</option>
@@ -345,7 +345,7 @@ class BookmarkIndexViewTestCase(
         html = response.content.decode()
 
         self.assertInHTML(
-            f"""
+            """
           <select name="bulk_action" class="form-select select-sm">
             <option value="bulk_archive">Archive</option>
             <option value="bulk_delete">Delete</option>
@@ -372,7 +372,7 @@ class BookmarkIndexViewTestCase(
         html = response.content.decode()
 
         self.assertInHTML(
-            f"""
+            """
           <select name="bulk_action" class="form-select select-sm">
             <option value="bulk_archive">Archive</option>
             <option value="bulk_delete">Delete</option>

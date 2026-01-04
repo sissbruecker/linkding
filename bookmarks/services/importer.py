@@ -1,13 +1,12 @@
 import logging
 from dataclasses import dataclass
-from typing import List
 
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, Tag
 from bookmarks.services import tasks
-from bookmarks.services.parser import parse, NetscapeBookmark
+from bookmarks.services.parser import NetscapeBookmark, parse
 from bookmarks.utils import normalize_url, parse_timestamp
 
 logger = logging.getLogger(__name__)
@@ -41,13 +40,13 @@ class TagCache:
         else:
             return None
 
-    def get_all(self, tag_names: List[str]):
+    def get_all(self, tag_names: list[str]):
         result = []
         for tag_name in tag_names:
             tag = self.get(tag_name)
             # Tag may not have been created if tag name exceeded maximum length
             # Prevent returning duplicates
-            if tag and not (tag in result):
+            if tag and tag not in result:
                 result.append(tag)
 
         return result
@@ -57,14 +56,16 @@ class TagCache:
 
 
 def import_netscape_html(
-    html: str, user: User, options: ImportOptions = ImportOptions()
+    html: str, user: User, options: ImportOptions | None = None
 ) -> ImportResult:
+    if options is None:
+        options = ImportOptions()
     result = ImportResult()
     import_start = timezone.now()
 
     try:
         netscape_bookmarks = parse(html)
-    except:
+    except Exception:
         logging.exception("Could not read bookmarks file.")
         raise
 
@@ -91,7 +92,7 @@ def import_netscape_html(
     return result
 
 
-def _create_missing_tags(netscape_bookmarks: List[NetscapeBookmark], user: User):
+def _create_missing_tags(netscape_bookmarks: list[NetscapeBookmark], user: User):
     tag_cache = TagCache(user)
     tags_to_create = []
 
@@ -114,7 +115,7 @@ def _create_missing_tags(netscape_bookmarks: List[NetscapeBookmark], user: User)
     Tag.objects.bulk_create(tags_to_create)
 
 
-def _get_batches(items: List, batch_size: int):
+def _get_batches(items: list, batch_size: int):
     batches = []
     offset = 0
     num_items = len(items)
@@ -129,7 +130,7 @@ def _get_batches(items: List, batch_size: int):
 
 
 def _import_batch(
-    netscape_bookmarks: List[NetscapeBookmark],
+    netscape_bookmarks: list[NetscapeBookmark],
     user: User,
     options: ImportOptions,
     tag_cache: TagCache,
@@ -172,7 +173,7 @@ def _import_batch(
                 bookmarks_to_create.append(bookmark)
 
             result.success = result.success + 1
-        except:
+        except Exception:
             shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + "..."
             logging.exception("Error importing bookmark: " + shortened_bookmark_tag_str)
             result.failed = result.failed + 1

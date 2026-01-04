@@ -3,8 +3,8 @@ import os
 
 from django.conf import settings
 from django.http import (
-    HttpResponse,
     Http404,
+    HttpResponse,
 )
 from django.shortcuts import render
 

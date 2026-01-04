@@ -1,8 +1,7 @@
 import os
 
 from django.contrib.staticfiles.testing import LiveServerTestCase
-from playwright.sync_api import BrowserContext, Page, sync_playwright
-from playwright.sync_api import expect
+from playwright.sync_api import BrowserContext, Page, expect, sync_playwright
 
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 

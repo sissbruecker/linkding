@@ -2,7 +2,7 @@ import datetime
 import io
 import urllib.parse
 from collections import OrderedDict
-from unittest.mock import patch, ANY
+from unittest.mock import ANY, patch
 
 from django.contrib.auth.models import User
 from django.test import override_settings
@@ -16,12 +16,11 @@ from bookmarks.models import Bookmark, BookmarkSearch, UserProfile
 from bookmarks.services import website_loader
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.services.website_loader import WebsiteMetadata
-from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, LinkdingApiTestCase
 from bookmarks.utils import app_version
 
 
 class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
-
     def setUp(self):
         self.mock_assets_upload_snapshot_patcher = patch(
             "bookmarks.services.assets.upload_snapshot",
@@ -359,9 +358,9 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             self.setup_bookmark(title="searchvalue", shared=True, user=user2),
             self.setup_bookmark(title="searchvalue", shared=True, user=user3),
         ]
-        self.setup_bookmark(shared=True, user=user1),
-        self.setup_bookmark(shared=True, user=user2),
-        self.setup_bookmark(shared=True, user=user3),
+        self.setup_bookmark(shared=True, user=user1)
+        self.setup_bookmark(shared=True, user=user2)
+        self.setup_bookmark(shared=True, user=user3)
 
         response = self.get(
             reverse("linkding:bookmark-shared") + "?q=searchvalue",
@@ -675,9 +674,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         bookmark = self.setup_bookmark(
             web_archive_snapshot_url="",
             url="https://example.com/",
-            added=timezone.datetime(
-                2023, 8, 11, 21, 45, 11, tzinfo=datetime.timezone.utc
-            ),
+            added=timezone.datetime(2023, 8, 11, 21, 45, 11, tzinfo=datetime.UTC),
         )
 
         url = reverse("linkding:bookmark-detail", args=[bookmark.id])

@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from bookmarks.models import BookmarkAsset
-from bookmarks.tests.helpers import LinkdingApiTestCase, BookmarkFactoryMixin
+from bookmarks.tests.helpers import BookmarkFactoryMixin, LinkdingApiTestCase
 
 
 class BookmarkAssetsApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):

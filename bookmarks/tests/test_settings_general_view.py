@@ -1,20 +1,19 @@
 import hashlib
 import random
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import requests
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from requests import RequestException
 
-from bookmarks.models import UserProfile, GlobalSettings
+from bookmarks.models import GlobalSettings, UserProfile
 from bookmarks.services import tasks
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 from bookmarks.views.settings import app_version, get_version_info
 
 
 class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
@@ -57,7 +56,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
     def assertSuccessMessage(self, html, message: str, count=1):
         self.assertInHTML(
             f"""
-            <div class="toast toast-success mb-4">{ message }</div>
+            <div class="toast toast-success mb-4">{message}</div>
         """,
             html,
             count=count,
@@ -66,7 +65,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
     def assertErrorMessage(self, html, message: str, count=1):
         self.assertInHTML(
             f"""
-            <div class="toast toast-error mb-4">{ message }</div>
+            <div class="toast toast-error mb-4">{message}</div>
         """,
             html,
             count=count,
@@ -456,7 +455,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_get_version_info_shows_latest_version_when_versions_are_not_equal(self):
         latest_version_response_mock = Mock(
-            status_code=200, json=lambda: {"name": f"v123.0.1"}
+            status_code=200, json=lambda: {"name": "v123.0.1"}
         )
         with patch.object(requests, "get", return_value=latest_version_response_mock):
             version_info = get_version_info(random.random())

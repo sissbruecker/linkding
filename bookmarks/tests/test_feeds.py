@@ -19,7 +19,6 @@ def rfc2822_date(date):
 
 
 class FeedsTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
@@ -257,12 +256,12 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertContains(response, f"<guid>{bookmark2.url}</guid>", count=1)
 
     def test_unread_parameter(self):
-        self.setup_bookmark(unread=True),
-        self.setup_bookmark(unread=True),
-        self.setup_bookmark(unread=False),
-        self.setup_bookmark(unread=False),
-        self.setup_bookmark(unread=False),
-        self.setup_bookmark(unread=False),
+        self.setup_bookmark(unread=True)
+        self.setup_bookmark(unread=True)
+        self.setup_bookmark(unread=False)
+        self.setup_bookmark(unread=False)
+        self.setup_bookmark(unread=False)
+        self.setup_bookmark(unread=False)
 
         # without unread parameter
         response = self.client.get(reverse("linkding:feeds.all", args=[self.token.key]))
@@ -356,9 +355,9 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse("linkding:feeds.all", args=[self.token.key]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "<item>", count=1)
-        self.assertContains(response, f"<title>test\n\r\ttitle</title>", count=1)
+        self.assertContains(response, "<title>test\n\r\ttitle</title>", count=1)
         self.assertContains(
-            response, f"<description>test\n\r\tdescription</description>", count=1
+            response, "<description>test\n\r\tdescription</description>", count=1
         )
 
     def test_sanitize_with_none_text(self):
@@ -371,8 +370,8 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(tags=[tag1]),
         ]
 
-        self.setup_bookmark(),
-        self.setup_bookmark(),
+        self.setup_bookmark()
+        self.setup_bookmark()
 
         bundle = self.setup_bundle(all_tags=tag1.name)
 

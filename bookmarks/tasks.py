@@ -1,2 +1,3 @@
 # Expose task modules to Huey Django extension
-import bookmarks.services.tasks
+# noinspection PyUnusedImports
+import bookmarks.services.tasks  # noqa: F401

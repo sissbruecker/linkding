@@ -6,7 +6,6 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
 class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
@@ -14,7 +13,7 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
     def assertSuccessMessage(self, response, message: str):
         self.assertInHTML(
             f"""
-            <div class="toast toast-success mb-4">{ message }</div>
+            <div class="toast toast-success mb-4">{message}</div>
         """,
             response.content.decode("utf-8"),
         )
@@ -25,7 +24,7 @@ class SettingsImportViewTestCase(TestCase, BookmarkFactoryMixin):
     def assertErrorMessage(self, response, message: str):
         self.assertInHTML(
             f"""
-            <div class="toast toast-error mb-4">{ message }</div>
+            <div class="toast toast-error mb-4">{message}</div>
         """,
             response.content.decode("utf-8"),
         )

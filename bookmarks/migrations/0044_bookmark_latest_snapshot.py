@@ -25,7 +25,6 @@ def reverse(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("bookmarks", "0043_userprofile_collapse_side_panel"),
     ]

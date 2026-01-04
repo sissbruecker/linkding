@@ -7,13 +7,12 @@ from django.utils import timezone
 from bookmarks.utils import (
     humanize_absolute_date,
     humanize_relative_date,
-    parse_timestamp,
     normalize_url,
+    parse_timestamp,
 )
 
 
 class UtilsTestCase(TestCase):
-
     def test_humanize_absolute_date(self):
         test_cases = [
             (

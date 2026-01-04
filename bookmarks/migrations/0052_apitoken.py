@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("bookmarks", "0051_fix_normalized_url"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

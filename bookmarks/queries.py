@@ -1,9 +1,9 @@
-from typing import Optional
+import contextlib
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.db.models import Q, QuerySet, Exists, OuterRef, Case, When, CharField
+from django.db.models import Case, CharField, Exists, OuterRef, Q, QuerySet, When
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import Lower
 
@@ -16,16 +16,16 @@ from bookmarks.models import (
     parse_tag_string,
 )
 from bookmarks.services.search_query_parser import (
-    parse_search_query,
-    SearchExpression,
-    TermExpression,
-    TagExpression,
-    SpecialKeywordExpression,
     AndExpression,
-    OrExpression,
     NotExpression,
+    OrExpression,
+    SearchExpression,
     SearchQueryParseError,
+    SpecialKeywordExpression,
+    TagExpression,
+    TermExpression,
     extract_tag_names_from_query,
+    parse_search_query,
 )
 from bookmarks.utils import unique
 
@@ -45,7 +45,7 @@ def query_archived_bookmarks(
 
 
 def query_shared_bookmarks(
-    user: Optional[User],
+    user: User | None,
     profile: UserProfile,
     search: BookmarkSearch,
     public_only: bool,
@@ -215,7 +215,7 @@ def _filter_bundle(query_set: QuerySet, bundle: BookmarkBundle) -> QuerySet:
 
 
 def _base_bookmarks_query(
-    user: Optional[User],
+    user: User | None,
     profile: UserProfile,
     search: BookmarkSearch,
 ) -> QuerySet:
@@ -227,19 +227,15 @@ def _base_bookmarks_query(
 
     # Filter by modified_since if provided
     if search.modified_since:
-        try:
+        # If the date format is invalid, ignore the filter
+        with contextlib.suppress(ValidationError):
             query_set = query_set.filter(date_modified__gt=search.modified_since)
-        except ValidationError:
-            # If the date format is invalid, ignore the filter
-            pass
 
     # Filter by added_since if provided
     if search.added_since:
-        try:
+        # If the date format is invalid, ignore the filter
+        with contextlib.suppress(ValidationError):
             query_set = query_set.filter(date_added__gt=search.added_since)
-        except ValidationError:
-            # If the date format is invalid, ignore the filter
-            pass
 
     # Filter by search query
     if profile.legacy_search:
@@ -320,7 +316,7 @@ def query_archived_bookmark_tags(
 
 
 def query_shared_bookmark_tags(
-    user: Optional[User],
+    user: User | None,
     profile: UserProfile,
     search: BookmarkSearch,
     public_only: bool,
@@ -360,7 +356,7 @@ def get_tags_for_query(user: User, profile: UserProfile, query: str) -> QuerySet
 
 
 def get_shared_tags_for_query(
-    user: Optional[User], profile: UserProfile, query: str, public_only: bool
+    user: User | None, profile: UserProfile, query: str, public_only: bool
 ) -> QuerySet:
     tag_names = extract_tag_names_from_query(query, profile)
 

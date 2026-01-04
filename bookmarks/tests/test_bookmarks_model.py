@@ -4,7 +4,6 @@ from bookmarks.models import Bookmark
 
 
 class BookmarkTestCase(TestCase):
-
     def test_bookmark_resolved_title(self):
         bookmark = Bookmark(
             title="Custom title",

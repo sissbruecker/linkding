@@ -1,5 +1,5 @@
-from django.template import Template, RequestContext
-from django.test import TestCase, RequestFactory
+from django.template import RequestContext, Template
+from django.test import RequestFactory, TestCase
 
 from bookmarks.models import BookmarkSearch, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin
@@ -27,7 +27,7 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
     def assertUserOption(self, html: str, user: User, selected: bool = False):
         self.assertInHTML(
             f"""
-          <option value="{user.username}" {'selected' if selected else ''}>
+          <option value="{user.username}" {"selected" if selected else ""}>
             {user.username}
           </option>        
         """,
@@ -53,8 +53,8 @@ class UserSelectTagTest(TestCase, BookmarkFactoryMixin):
         rendered_template = self.render_template("/test")
 
         self.assertInHTML(
-            f"""
-          <option value="" selected="">Everyone</option>        
+            """
+          <option value="" selected="">Everyone</option>
         """,
             rendered_template,
         )

@@ -96,9 +96,17 @@ Run all tests with pytest:
 make test
 ```
 
+
+### Linting
+
+Run linting with ruff:
+```
+make lint
+```
+
 ### Formatting
 
-Format Python code with black, Django templates with djlint, and JavaScript code with prettier:
+Format Python code with ruff, Django templates with djlint, and JavaScript code with prettier:
 ```
 make format
 ```

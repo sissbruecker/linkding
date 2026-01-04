@@ -5,7 +5,6 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
