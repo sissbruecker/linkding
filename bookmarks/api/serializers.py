@@ -107,16 +107,14 @@ class BookmarkSerializer(serializers.ModelSerializer):
         if not obj.favicon_file:
             return None
         request = self.context.get("request")
-        favicon_file_path = static(obj.favicon_file)
-        favicon_url = request.build_absolute_uri(favicon_file_path)
+        favicon_url = static(obj.favicon_file)
         return favicon_url
 
     def get_preview_image_url(self, obj: Bookmark):
         if not obj.preview_image_file:
             return None
         request = self.context.get("request")
-        preview_image_file_path = static(obj.preview_image_file)
-        preview_image_url = request.build_absolute_uri(preview_image_file_path)
+        preview_image_url = static(obj.preview_image_file)
         return preview_image_url
 
     def get_web_archive_snapshot_url(self, obj: Bookmark):
