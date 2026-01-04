@@ -23,8 +23,8 @@
            href="{% url 'linkding:assets.read' details.latest_snapshot.id %}"
            target="{{ details.profile.bookmark_link_target }}">
           {% if details.show_link_icons %}
-            <svg class="favicon" xmlns="http://www.w3.org/2000/svg">
-              <use xlink:href="#ld-icon-unread"></use>
+            <svg class="favicon">
+              <use href="{% static 'icons.svg' %}?v={{ app_version }}#unread"></use>
             </svg>
           {% endif %}
           <span>Reader mode</span>

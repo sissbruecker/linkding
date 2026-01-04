@@ -13,6 +13,7 @@ from bookmarks.middlewares import LinkdingMiddleware
 from bookmarks.models import Bookmark, BookmarkSearch, UserProfile, User
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 from bookmarks.views import contexts
+from bookmarks.utils import app_version
 
 
 class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
@@ -214,10 +215,10 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def assertNotesToggle(self, html: str, count=1):
         self.assertInHTML(
-            """
+            f"""
         <button type="button" class="btn btn-link btn-sm btn-icon toggle-notes">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-            <use xlink:href="#ld-icon-note"></use>
+          <svg width="16" height="16">
+            <use href="/static/icons.svg?v={app_version}#note"></use>
           </svg>
           Notes
         </button>      
@@ -232,8 +233,8 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         <button type="submit" name="unshare" value="{bookmark.id}"
                 class="btn btn-link btn-sm btn-icon"
                 data-confirm data-confirm-question="Unshare?">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-            <use xlink:href="#ld-icon-share"></use>
+          <svg width="16" height="16">
+            <use href="/static/icons.svg?v={app_version}#share"></use>
           </svg>
           Shared
         </button>    
@@ -248,8 +249,8 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         <button type="submit" name="mark_as_read" value="{bookmark.id}"
                 class="btn btn-link btn-sm btn-icon"
                 data-confirm data-confirm-question="Mark as read?">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-            <use xlink:href="#ld-icon-unread"></use>
+          <svg width="16" height="16">
+            <use href="/static/icons.svg?v={app_version}#unread"></use>
           </svg>
           Unread
         </button>   
