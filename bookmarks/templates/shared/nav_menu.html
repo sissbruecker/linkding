@@ -1,4 +1,4 @@
-{% load shared %}
+{% load shared static %}
 {% htmlmin %}
 {# Basic menu list #}
 <div class="hide-md">
@@ -57,26 +57,16 @@
   <a href="{% url 'linkding:bookmarks.new' %}"
      aria-label="Add bookmark"
      class="btn btn-primary">
-    <svg xmlns="http://www.w3.org/2000/svg"
-         fill="none"
-         viewBox="0 0 24 24"
-         stroke="currentColor"
-         style="width: 24px;
-                height: 24px">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+    <svg width="24" height="24">
+      <use href="{% static 'icons.svg' %}?v={{ app_version }}#plus"></use>
     </svg>
   </a>
   <ld-dropdown class="dropdown dropdown-right">
     <button class="btn btn-link dropdown-toggle"
             aria-label="Navigation menu"
             tabindex="0">
-      <svg xmlns="http://www.w3.org/2000/svg"
-           fill="none"
-           viewBox="0 0 24 24"
-           stroke="currentColor"
-           style="width: 24px;
-                  height: 24px">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      <svg width="24" height="24">
+        <use href="{% static 'icons.svg' %}?v={{ app_version }}#menu"></use>
       </svg>
     </button>
     <!-- menu component -->

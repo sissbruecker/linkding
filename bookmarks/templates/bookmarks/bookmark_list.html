@@ -1,6 +1,4 @@
-{% load static %}
-{% load shared %}
-{% load pagination %}
+{% load static shared pagination %}
 {% if bookmark_list.is_empty %}
   {% include 'bookmarks/empty_bookmarks.html' %}
 {% else %}
@@ -123,8 +121,8 @@
                               class="btn btn-link btn-sm btn-icon"
                               data-confirm
                               data-confirm-question="Mark as read?">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                          <use xlink:href="#ld-icon-unread"></use>
+                        <svg width="16" height="16">
+                          <use href="{% static 'icons.svg' %}?v={{ app_version }}#unread"></use>
                         </svg>
                         Unread
                       </button>
@@ -136,16 +134,16 @@
                               class="btn btn-link btn-sm btn-icon"
                               data-confirm
                               data-confirm-question="Unshare?">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                          <use xlink:href="#ld-icon-share"></use>
+                        <svg width="16" height="16">
+                          <use href="{% static 'icons.svg' %}?v={{ app_version }}#share"></use>
                         </svg>
                         Shared
                       </button>
                     {% endif %}
                     {% if bookmark_item.show_notes_button %}
                       <button type="button" class="btn btn-link btn-sm btn-icon toggle-notes">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                          <use xlink:href="#ld-icon-note"></use>
+                        <svg width="16" height="16">
+                          <use href="{% static 'icons.svg' %}?v={{ app_version }}#note"></use>
                         </svg>
                         Notes
                       </button>

@@ -22,6 +22,7 @@ def bookmark_search(context, search: BookmarkSearch, mode: str = ""):
         )
     return {
         "request": context["request"],
+        "app_version": context["app_version"],
         "search": search,
         "search_form": search_form,
         "preferences_form": preferences_form,
