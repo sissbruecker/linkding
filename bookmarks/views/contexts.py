@@ -8,12 +8,12 @@ from django.http import Http404
 from django.urls import reverse
 
 from bookmarks import queries, utils
+from bookmarks.forms import BookmarkSearchForm
 from bookmarks.models import (
     Bookmark,
     BookmarkAsset,
     BookmarkBundle,
     BookmarkSearch,
-    BookmarkSearchForm,
     Tag,
     User,
     UserProfile,

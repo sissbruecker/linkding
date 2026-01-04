@@ -1,38 +1,32 @@
-{% load widget_tweaks %}
 {% load static %}
 {% load shared %}
 <div class="bookmarks-form">
   {% csrf_token %}
-  {{ form.auto_close|attr:"type:hidden" }}
-  <div class="form-group {% if form.url.errors %}has-error{% endif %}">
-    <label for="{{ form.url.id_for_label }}" class="form-label">URL</label>
+  {{ form.auto_close }}
+  <div class="form-group">
+    {% formlabel form.url "URL" %}
     <div class="has-icon-right">
-      {{ form.url|form_field:"validation"|add_class:"form-input"|attr:"autofocus" }}
+      {% formfield form.url autofocus=True %}
       <i class="form-icon loading"></i>
     </div>
-    {% if form.url.errors %}<div class="form-input-hint">{{ form.url.errors }}</div>{% endif %}
+    {{ form.url.errors }}
     <div class="form-input-hint bookmark-exists">
       This URL is already bookmarked.
       The form has been pre-filled with the existing bookmark, and saving the form will update the existing bookmark.
     </div>
   </div>
   <div class="form-group">
-    <label for="{{ form.tag_string.id_for_label }}" class="form-label">Tags</label>
-    <ld-tag-autocomplete input-id="{{ form.tag_string.auto_id }}"
-                         input-name="{{ form.tag_string.html_name }}"
-                         input-value="{{ form.tag_string.value|default_if_none:'' }}"
-                         input-aria-describedby="{{ form.tag_string.auto_id }}_help">
-    </ld-tag-autocomplete>
-    <div id="{{ form.tag_string.auto_id }}_help" class="form-input-hint">
+    {% formlabel form.tag_string "Tags" %}
+    {% formfield form.tag_string has_help=True %}
+    {% formhelp form.tag_string %}
       Enter any number of tags separated by space and <strong>without</strong> the hash (#).
       If a tag does not exist it will be automatically created.
-    </div>
+    {% endformhelp %}
     <div class="form-input-hint auto-tags"></div>
-    {{ form.tag_string.errors }}
   </div>
   <div class="form-group">
     <div class="d-flex justify-between align-baseline">
-      <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+      {% formlabel form.title "Title" %}
       <div class="flex">
         <button id="refresh-button" class="btn btn-link suffix-button" type="button">Refresh from website</button>
         <ld-clear-button data-for="{{ form.title.id_for_label }}">
@@ -40,18 +34,16 @@
         </ld-clear-button>
       </div>
     </div>
-    {{ form.title|add_class:"form-input"|attr:"autocomplete:off" }}
-    {{ form.title.errors }}
+    {% formfield form.title %}
   </div>
   <div class="form-group">
     <div class="d-flex justify-between align-baseline">
-      <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+      {% formlabel form.description "Description" %}
       <ld-clear-button data-for="{{ form.description.id_for_label }}">
         <button class="btn btn-link suffix-button" type="button">Clear</button>
       </ld-clear-button>
     </div>
-    {{ form.description|add_class:"form-input"|attr:"rows:3" }}
-    {{ form.description.errors }}
+    {% formfield form.description rows="3" %}
   </div>
   <div class="form-group">
     <details class="notes"{% if form.has_notes %} open{% endif %}>
@@ -59,35 +51,28 @@
         <span class="form-label d-inline-block">Notes</span>
       </summary>
       <label for="{{ form.notes.id_for_label }}" class="text-assistive">Notes</label>
-      {{ form.notes|form_field:"help"|add_class:"form-input"|attr:"rows:8" }}
-      <div id="{{ form.notes.auto_id }}_help" class="form-input-hint">Additional notes, supports Markdown.</div>
+      {% formfield form.notes rows="8" has_help=True %}
+      {% formhelp form.notes %}
+        Additional notes, supports Markdown.
+      {% endformhelp %}
     </details>
-    {{ form.notes.errors }}
   </div>
   <div class="form-group">
-    <div class="form-checkbox">
-      {{ form.unread|form_field:"help" }}
-      <i class="form-icon"></i>
-      <label for="{{ form.unread.id_for_label }}">Mark as unread</label>
-    </div>
-    <div id="{{ form.unread.auto_id }}_help" class="form-input-hint">
+    {% formfield form.unread label="Mark as unread" has_help=True %}
+    {% formhelp form.unread %}
       Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them.
-    </div>
+    {% endformhelp %}
   </div>
   {% if request.user_profile.enable_sharing %}
     <div class="form-group">
-      <div class="form-checkbox">
-        {{ form.shared|form_field:"help" }}
-        <i class="form-icon"></i>
-        <label for="{{ form.shared.id_for_label }}">Share</label>
-      </div>
-      <div id="{{ form.shared.auto_id }}_help" class="form-input-hint">
+      {% formfield form.shared label="Share" has_help=True %}
+      {% formhelp form.shared %}
         {% if request.user_profile.enable_public_sharing %}
           Share this bookmark with other registered users and anonymous users.
         {% else %}
           Share this bookmark with other registered users.
         {% endif %}
-      </div>
+      {% endformhelp %}
     </div>
   {% endif %}
   <div class="divider"></div>

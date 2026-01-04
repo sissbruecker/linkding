@@ -7,6 +7,7 @@ from django import template
 from django.utils.safestring import mark_safe
 
 from bookmarks import utils
+from bookmarks.widgets import FormCheckbox
 
 register = template.Library()
 
@@ -102,20 +103,60 @@ def append_attr(widget, attr, value):
         attrs[attr] = value
 
 
-@register.filter("form_field")
-def form_field(field, modifier_string):
-    modifiers = modifier_string.split(",")
+@register.simple_tag
+def formlabel(field, label_text):
+    return mark_safe(
+        f'<label for="{field.id_for_label}" class="form-label">{label_text}</label>'
+    )
+
+
+@register.simple_tag
+def formfield(field, **kwargs):
+    widget = field.field.widget
+
+    label = kwargs.pop("label", None)
+    if label and isinstance(widget, FormCheckbox):
+        widget.label = label
+
+    if kwargs.pop("has_help", False):
+        append_attr(widget, "aria-describedby", field.auto_id + "_help")
+
     has_errors = hasattr(field, "errors") and field.errors
-
-    if "validation" in modifiers and has_errors:
-        append_attr(field.field.widget, "aria-describedby", field.auto_id + "_error")
-    if "help" in modifiers:
-        append_attr(field.field.widget, "aria-describedby", field.auto_id + "_help")
-
-    # Some assistive technologies announce a field as invalid when it has the
-    # required attribute, even if the user has not interacted with the field
-    # yet. Set aria-invalid false to prevent this behavior.
+    if has_errors:
+        append_attr(widget, "class", "is-error")
+        append_attr(widget, "aria-describedby", field.auto_id + "_error")
     if field.field.required and not has_errors:
-        append_attr(field.field.widget, "aria-invalid", "false")
+        append_attr(widget, "aria-invalid", "false")
 
-    return field
+    for attr, value in kwargs.items():
+        attr = attr.replace("_", "-")
+        if attr == "class":
+            append_attr(widget, "class", value)
+        else:
+            widget.attrs[attr] = value
+
+    return field.as_widget()
+
+
+@register.tag
+def formhelp(parser, token):
+    try:
+        tag_name, field_var = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            f"{token.contents.split()[0]!r} tag requires a single argument (form field)"
+        ) from None
+    nodelist = parser.parse(("endformhelp",))
+    parser.delete_first_token()
+    return FormHelpNode(nodelist, field_var)
+
+
+class FormHelpNode(template.Node):
+    def __init__(self, nodelist, field_var):
+        self.nodelist = nodelist
+        self.field_var = template.Variable(field_var)
+
+    def render(self, context):
+        field = self.field_var.resolve(context)
+        content = self.nodelist.render(context)
+        return f'<div id="{field.auto_id}_help" class="form-input-hint">{content}</div>'

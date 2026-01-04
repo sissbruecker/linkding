@@ -31,6 +31,15 @@
         outline: none;
       }
     }
+
+    &:has(.is-error) {
+      background: var(--error-color-shade);
+      border-color: var(--error-color);
+
+      &.is-focused {
+        outline-color: var(--error-color);
+      }
+    }
   }
 
   &.small {

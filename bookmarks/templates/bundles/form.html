@@ -1,38 +1,37 @@
-{% load widget_tweaks %}
-<div class="form-group {% if form.name.errors %}has-error{% endif %}">
-  <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
-  {{ form.name|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
-  {% if form.name.errors %}<div class="form-input-hint">{{ form.name.errors }}</div>{% endif %}
-</div>
-<div class="form-group {% if form.search.errors %}has-error{% endif %}">
-  <label for="{{ form.search.id_for_label }}" class="form-label">Search terms</label>
-  {{ form.search|add_class:"form-input"|attr:"autocomplete:off"|attr:"placeholder: " }}
-  {% if form.search.errors %}<div class="form-input-hint">{{ form.search.errors }}</div>{% endif %}
-  <div class="form-input-hint">All of these search terms must be present in a bookmark to match.</div>
+{% load shared %}
+<div class="form-group">
+  {% formlabel form.name "Name" %}
+  {% formfield form.name %}
+  {{ form.name.errors }}
 </div>
 <div class="form-group">
-  <label for="{{ form.any_tags.id_for_label }}" class="form-label">Tags</label>
-  <ld-tag-autocomplete input-id="{{ form.any_tags.auto_id }}"
-                       input-name="{{ form.any_tags.html_name }}"
-                       input-value="{{ form.any_tags.value|default_if_none:'' }}">
-  </ld-tag-autocomplete>
-  <div class="form-input-hint">At least one of these tags must be present in a bookmark to match.</div>
+  {% formlabel form.search "Search terms" %}
+  {% formfield form.search has_help=True %}
+  {{ form.search.errors }}
+  {% formhelp form.search %}
+    All of these search terms must be present in a bookmark to match.
+  {% endformhelp %}
 </div>
 <div class="form-group">
-  <label for="{{ form.all_tags.id_for_label }}" class="form-label">Required tags</label>
-  <ld-tag-autocomplete input-id="{{ form.all_tags.auto_id }}"
-                       input-name="{{ form.all_tags.html_name }}"
-                       input-value="{{ form.all_tags.value|default_if_none:'' }}">
-  </ld-tag-autocomplete>
-  <div class="form-input-hint">All of these tags must be present in a bookmark to match.</div>
+  {% formlabel form.any_tags "Tags" %}
+  {% formfield form.any_tags has_help=True %}
+  {% formhelp form.any_tags %}
+    At least one of these tags must be present in a bookmark to match.
+  {% endformhelp %}
 </div>
 <div class="form-group">
-  <label for="{{ form.excluded_tags.id_for_label }}" class="form-label">Excluded tags</label>
-  <ld-tag-autocomplete input-id="{{ form.excluded_tags.auto_id }}"
-                       input-name="{{ form.excluded_tags.html_name }}"
-                       input-value="{{ form.excluded_tags.value|default_if_none:'' }}">
-  </ld-tag-autocomplete>
-  <div class="form-input-hint">None of these tags must be present in a bookmark to match.</div>
+  {% formlabel form.all_tags "Required tags" %}
+  {% formfield form.all_tags has_help=True %}
+  {% formhelp form.all_tags %}
+    All of these tags must be present in a bookmark to match.
+  {% endformhelp %}
+</div>
+<div class="form-group">
+  {% formlabel form.excluded_tags "Excluded tags" %}
+  {% formfield form.excluded_tags has_help=True %}
+  {% formhelp form.excluded_tags %}
+    None of these tags must be present in a bookmark to match.
+  {% endformhelp %}
 </div>
 <div class="form-footer d-flex mt-4">
   <input type="submit"

@@ -29,6 +29,10 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             return autocomplete_element.find_parent("div", class_="form-group")
         return None
 
+    def get_autocomplete(self, response, input_name):
+        soup = self.make_soup(response.content.decode())
+        return soup.find("ld-tag-autocomplete", {"input-name": input_name})
+
     def test_merge_tags(self):
         target_tag = self.setup_tag(name="target_tag")
         merge_tag1 = self.setup_tag(name="merge_tag1")
@@ -134,6 +138,9 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertIn("This field is required", self.get_text(target_tag_group))
         self.assertTrue(Tag.objects.filter(id=merge_tag.id).exists())
 
+        autocomplete = self.get_autocomplete(response, "target_tag")
+        self.assertIn("is-error", autocomplete.get("input-class", ""))
+
     def test_validate_missing_merge_tags(self):
         self.setup_tag(name="target_tag")
 
@@ -144,6 +151,9 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         merge_tags_group = self.get_form_group(response, "merge_tags")
         self.assertIn("This field is required", self.get_text(merge_tags_group))
+
+        autocomplete = self.get_autocomplete(response, "merge_tags")
+        self.assertIn("is-error", autocomplete.get("input-class", ""))
 
     def test_validate_nonexistent_target_tag(self):
         self.setup_tag(name="merge_tag")

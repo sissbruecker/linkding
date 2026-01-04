@@ -56,8 +56,8 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(
             f"""
                 <input type="text" name="name" value="{bundle.name}"
-                autocomplete="off" placeholder=" " class="form-input"
-                maxlength="256" required id="id_name">         
+                autocomplete="off" class="form-input"
+                maxlength="256" aria-invalid="false" required id="id_name">
             """,
             html,
         )
@@ -65,8 +65,8 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(
             f"""
                 <input type="text" name="search" value="{bundle.search}"
-                autocomplete="off" placeholder=" " class="form-input"
-                maxlength="256" id="id_search">
+                autocomplete="off" class="form-input"
+                maxlength="256" aria-describedby="id_search_help" id="id_search">
             """,
             html,
         )
@@ -74,7 +74,7 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(
             f"""
                 <ld-tag-autocomplete input-name="any_tags" input-value="{bundle.any_tags}"
-                input-id="id_any_tags">
+                input-aria-describedby="id_any_tags_help" input-id="id_any_tags">
             """,
             html,
         )
@@ -82,7 +82,7 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(
             f"""
                 <ld-tag-autocomplete input-name="all_tags" input-value="{bundle.all_tags}"
-                input-id="id_all_tags">
+                input-aria-describedby="id_all_tags_help" input-id="id_all_tags">
             """,
             html,
         )
@@ -90,7 +90,7 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertInHTML(
             f"""
                 <ld-tag-autocomplete input-name="excluded_tags" input-value="{bundle.excluded_tags}"
-                input-id="id_excluded_tags">
+                input-aria-describedby="id_excluded_tags_help" input-id="id_excluded_tags">
             """,
             html,
         )

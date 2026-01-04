@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from bookmarks.models import BookmarkSearch, BookmarkSearchForm
+from bookmarks.forms import BookmarkSearchForm
+from bookmarks.models import BookmarkSearch
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 

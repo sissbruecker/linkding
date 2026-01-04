@@ -13,13 +13,12 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 
+from bookmarks.forms import GlobalSettingsForm, UserProfileForm
 from bookmarks.models import (
     ApiToken,
     Bookmark,
     FeedToken,
     GlobalSettings,
-    GlobalSettingsForm,
-    UserProfileForm,
 )
 from bookmarks.services import exporter, importer, tasks
 from bookmarks.type_defs import HttpRequest
@@ -301,10 +300,11 @@ def bookmark_export(request: HttpRequest):
 
         return response
     except Exception:
-        return render(
+        return general(
             request,
-            "settings/general.html",
-            {"export_error": "An error occurred during bookmark export."},
+            context_overrides={
+                "export_error": "An error occurred during bookmark export."
+            },
         )
 
 
