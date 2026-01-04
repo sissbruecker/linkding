@@ -53,12 +53,10 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
                 or generate_fallback_webarchive_url(bookmark.url, bookmark.date_added)
             )
             expectation["favicon_url"] = (
-                f"http://testserver/static/{bookmark.favicon_file}"
-                if bookmark.favicon_file
-                else None
+                f"/static/{bookmark.favicon_file}" if bookmark.favicon_file else None
             )
             expectation["preview_image_url"] = (
-                f"http://testserver/static/{bookmark.preview_image_file}"
+                f"/static/{bookmark.preview_image_file}"
                 if bookmark.preview_image_file
                 else None
             )
@@ -1006,12 +1004,8 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.url, bookmark_data["url"])
         self.assertEqual(bookmark.title, bookmark_data["title"])
         self.assertEqual(bookmark.description, bookmark_data["description"])
-        self.assertEqual(
-            "http://testserver/static/favicon.png", bookmark_data["favicon_url"]
-        )
-        self.assertEqual(
-            "http://testserver/static/preview.png", bookmark_data["preview_image_url"]
-        )
+        self.assertEqual("/static/favicon.png", bookmark_data["favicon_url"])
+        self.assertEqual("/static/preview.png", bookmark_data["preview_image_url"])
 
     def test_check_returns_scraped_metadata_if_url_is_bookmarked(self):
         self.authenticate()
