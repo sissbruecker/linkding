@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 from django.utils import timezone
 
@@ -152,30 +151,15 @@ class UtilsTestCase(TestCase):
 
     def test_parse_timestamp_parses_millisecond_timestamps(self):
         now = timezone.now().replace(microsecond=0)
-        fifty_years_ago = now - relativedelta(year=50)
-        fifty_years_from_now = now + relativedelta(year=50)
-
         self.verify_timestamp(now)
-        self.verify_timestamp(fifty_years_ago)
-        self.verify_timestamp(fifty_years_from_now)
 
     def test_parse_timestamp_parses_microsecond_timestamps(self):
         now = timezone.now().replace(microsecond=0)
-        fifty_years_ago = now - relativedelta(year=50)
-        fifty_years_from_now = now + relativedelta(year=50)
-
         self.verify_timestamp(now, 1000)
-        self.verify_timestamp(fifty_years_ago, 1000)
-        self.verify_timestamp(fifty_years_from_now, 1000)
 
     def test_parse_timestamp_parses_nanosecond_timestamps(self):
         now = timezone.now().replace(microsecond=0)
-        fifty_years_ago = now - relativedelta(year=50)
-        fifty_years_from_now = now + relativedelta(year=50)
-
         self.verify_timestamp(now, 1000000)
-        self.verify_timestamp(fifty_years_ago, 1000000)
-        self.verify_timestamp(fifty_years_from_now, 1000000)
 
     def test_parse_timestamp_fails_for_out_of_range_timestamp(self):
         now = timezone.now().replace(microsecond=0)

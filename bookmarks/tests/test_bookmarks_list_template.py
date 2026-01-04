@@ -1,6 +1,5 @@
 import datetime
 
-from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponse
 from django.template import RequestContext, Template
@@ -285,7 +284,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self, date_display_setting: str, web_archive_url: str = ""
     ):
         bookmark = self.setup_bookmark()
-        bookmark.date_added = timezone.now() - relativedelta(days=8)
+        bookmark.date_added = timezone.now() - datetime.timedelta(days=8)
         bookmark.web_archive_snapshot_url = web_archive_url
         bookmark.save()
         user = self.get_or_create_test_user()
@@ -554,7 +553,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_web_archive_link_target_should_be_blank_by_default(self):
         bookmark = self.setup_bookmark()
-        bookmark.date_added = timezone.now() - relativedelta(days=8)
+        bookmark.date_added = timezone.now() - datetime.timedelta(days=8)
         bookmark.web_archive_snapshot_url = "https://example.com"
         bookmark.save()
 
@@ -570,7 +569,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         profile.save()
 
         bookmark = self.setup_bookmark()
-        bookmark.date_added = timezone.now() - relativedelta(days=8)
+        bookmark.date_added = timezone.now() - datetime.timedelta(days=8)
         bookmark.web_archive_snapshot_url = "https://example.com"
         bookmark.save()
 
@@ -998,7 +997,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         profile.save()
 
         bookmark = self.setup_bookmark()
-        bookmark.date_added = timezone.now() - relativedelta(days=8)
+        bookmark.date_added = timezone.now() - datetime.timedelta(days=8)
         bookmark.web_archive_snapshot_url = (
             "https://web.archive.org/web/20230531200136/https://example.com"
         )
@@ -1099,7 +1098,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_no_actions_rendered_when_is_preview(self):
         bookmark = self.setup_bookmark()
-        bookmark.date_added = timezone.now() - relativedelta(days=8)
+        bookmark.date_added = timezone.now() - datetime.timedelta(days=8)
         bookmark.web_archive_snapshot_url = "https://example.com"
         bookmark.save()
 
