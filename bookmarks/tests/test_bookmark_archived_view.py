@@ -15,7 +15,6 @@ from bookmarks.tests.helpers import (
 class BookmarkArchivedViewTestCase(
     TestCase, BookmarkFactoryMixin, BookmarkListTestMixin, TagCloudTestMixin
 ):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
@@ -305,7 +304,7 @@ class BookmarkArchivedViewTestCase(
         html = response.content.decode()
 
         self.assertInHTML(
-            f"""
+            """
           <select name="bulk_action" class="form-select select-sm">
             <option value="bulk_unarchive">Unarchive</option>
             <option value="bulk_delete">Delete</option>
@@ -326,7 +325,7 @@ class BookmarkArchivedViewTestCase(
         html = response.content.decode()
 
         self.assertInHTML(
-            f"""
+            """
           <select name="bulk_action" class="form-select select-sm">
             <option value="bulk_unarchive">Unarchive</option>
             <option value="bulk_delete">Delete</option>
@@ -351,7 +350,7 @@ class BookmarkArchivedViewTestCase(
         html = response.content.decode()
 
         self.assertInHTML(
-            f"""
+            """
           <select name="bulk_action" class="form-select select-sm">
             <option value="bulk_unarchive">Unarchive</option>
             <option value="bulk_delete">Delete</option>
@@ -378,7 +377,7 @@ class BookmarkArchivedViewTestCase(
         html = response.content.decode()
 
         self.assertInHTML(
-            f"""
+            """
           <select name="bulk_action" class="form-select select-sm">
             <option value="bulk_unarchive">Unarchive</option>
             <option value="bulk_delete">Delete</option>

@@ -4,29 +4,29 @@ import os
 
 from django.conf import settings
 from django.http import Http404, StreamingHttpResponse
-from rest_framework import viewsets, mixins, status
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.routers import SimpleRouter, DefaultRouter
+from rest_framework.routers import DefaultRouter, SimpleRouter
 
 from bookmarks import queries
 from bookmarks.api.serializers import (
-    BookmarkSerializer,
     BookmarkAssetSerializer,
+    BookmarkBundleSerializer,
+    BookmarkSerializer,
     TagSerializer,
     UserProfileSerializer,
-    BookmarkBundleSerializer,
 )
 from bookmarks.models import (
     Bookmark,
     BookmarkAsset,
+    BookmarkBundle,
     BookmarkSearch,
     Tag,
     User,
-    BookmarkBundle,
 )
-from bookmarks.services import assets, bookmarks, bundles, auto_tagging, website_loader
+from bookmarks.services import assets, auto_tagging, bookmarks, bundles, website_loader
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
 
@@ -197,7 +197,7 @@ class BookmarkAssetViewSet(
             file_stream = (
                 gzip.GzipFile(file_path, mode="rb")
                 if asset.gzip
-                else open(file_path, "rb")
+                else open(file_path, "rb")  # noqa: SIM115
             )
             response = StreamingHttpResponse(file_stream, content_type=content_type)
             response["Content-Disposition"] = (
@@ -205,7 +205,7 @@ class BookmarkAssetViewSet(
             )
             return response
         except FileNotFoundError:
-            raise Http404("Asset file does not exist")
+            raise Http404("Asset file does not exist") from None
         except Exception as e:
             logger.error(
                 f"Failed to download asset. bookmark_id={bookmark_id}, asset_id={pk}",

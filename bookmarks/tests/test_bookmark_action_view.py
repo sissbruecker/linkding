@@ -19,7 +19,6 @@ from bookmarks.tests.helpers import (
 class BookmarkActionViewTestCase(
     TestCase, BookmarkFactoryMixin, BookmarkListTestMixin, TagCloudTestMixin
 ):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)

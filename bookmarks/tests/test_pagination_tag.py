@@ -1,12 +1,11 @@
 from django.core.paginator import Paginator
-from django.template import Template, RequestContext
-from django.test import TestCase, RequestFactory
+from django.template import RequestContext, Template
+from django.test import RequestFactory, TestCase
 
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 class PaginationTagTest(TestCase, BookmarkFactoryMixin):
-
     def render_template(
         self, num_items: int, page_size: int, current_page: int, url: str = "/test"
     ) -> str:
@@ -18,7 +17,7 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
         page = paginator.page(current_page)
 
         context = RequestContext(request, {"page": page})
-        template_to_render = Template("{% load pagination %}" "{% pagination page %}")
+        template_to_render = Template("{% load pagination %}{% pagination page %}")
         return template_to_render.render(context)
 
     def assertPrevLinkDisabled(self, html: str):
@@ -32,15 +31,13 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
         )
 
     def assertPrevLink(self, html: str, page_number: int, href: str = None):
-        href = href if href else "/test?page={0}".format(page_number)
+        href = href if href else f"/test?page={page_number}"
         self.assertInHTML(
-            """
+            f"""
             <li class="page-item">
-                <a href="{0}" tabindex="-1">Previous</a>
+                <a href="{href}" tabindex="-1">Previous</a>
             </li>
-            """.format(
-                href
-            ),
+            """,
             html,
         )
 
@@ -55,15 +52,13 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
         )
 
     def assertNextLink(self, html: str, page_number: int, href: str = None):
-        href = href if href else "/test?page={0}".format(page_number)
+        href = href if href else f"/test?page={page_number}"
         self.assertInHTML(
-            """
+            f"""
             <li class="page-item">
-                <a href="{0}" tabindex="-1">Next</a>
+                <a href="{href}" tabindex="-1">Next</a>
             </li>
-            """.format(
-                href
-            ),
+            """,
             html,
         )
 
@@ -76,15 +71,13 @@ class PaginationTagTest(TestCase, BookmarkFactoryMixin):
         href: str = None,
     ):
         active_class = "active" if active else ""
-        href = href if href else "/test?page={0}".format(page_number)
+        href = href if href else f"/test?page={page_number}"
         self.assertInHTML(
-            """
-            <li class="page-item {1}">
-                <a href="{2}">{0}</a>
+            f"""
+            <li class="page-item {active_class}">
+                <a href="{href}">{page_number}</a>
             </li>
-            """.format(
-                page_number, active_class, href
-            ),
+            """,
             html,
             count=count,
         )

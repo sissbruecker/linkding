@@ -7,7 +7,6 @@ from bookmarks.utils import app_version
 
 
 class BundleIndexViewTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
@@ -32,7 +31,7 @@ class BundleIndexViewTestCase(TestCase, BookmarkFactoryMixin):
                   <svg class="text-secondary mr-1" width="16" height="16">
                     <use href="/static/icons.svg?v={app_version}#drag"></use>
                   </svg>
-                  <span>{ bundle.name }</span>
+                  <span>{bundle.name}</span>
                 </div>
               </td>
               <td class="actions">

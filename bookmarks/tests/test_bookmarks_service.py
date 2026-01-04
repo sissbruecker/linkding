@@ -4,31 +4,29 @@ from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, Tag
-from bookmarks.services import tasks
-from bookmarks.services import website_loader
+from bookmarks.services import tasks, website_loader
 from bookmarks.services.bookmarks import (
-    create_bookmark,
-    update_bookmark,
     archive_bookmark,
     archive_bookmarks,
-    unarchive_bookmark,
-    unarchive_bookmarks,
+    create_bookmark,
+    create_html_snapshots,
     delete_bookmarks,
-    tag_bookmarks,
-    untag_bookmarks,
+    enhance_with_website_metadata,
     mark_bookmarks_as_read,
     mark_bookmarks_as_unread,
-    share_bookmarks,
-    unshare_bookmarks,
-    enhance_with_website_metadata,
     refresh_bookmarks_metadata,
-    create_html_snapshots,
+    share_bookmarks,
+    tag_bookmarks,
+    unarchive_bookmark,
+    unarchive_bookmarks,
+    unshare_bookmarks,
+    untag_bookmarks,
+    update_bookmark,
 )
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self) -> None:
         self.get_or_create_test_user()
 

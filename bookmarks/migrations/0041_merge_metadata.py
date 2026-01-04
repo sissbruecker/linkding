@@ -10,9 +10,9 @@ from bookmarks.models import Bookmark
 def forwards(apps, schema_editor):
     Bookmark.objects.filter(
         Q(title__isnull=True) | Q(title__exact=""),
-    ).extra(
-        where=["website_title IS NOT NULL"]
-    ).update(title=RawSQL("website_title", ()))
+    ).extra(where=["website_title IS NOT NULL"]).update(
+        title=RawSQL("website_title", ())
+    )
 
     Bookmark.objects.filter(
         Q(description__isnull=True) | Q(description__exact=""),
@@ -26,7 +26,6 @@ def reverse(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("bookmarks", "0040_userprofile_items_per_page_and_more"),
     ]

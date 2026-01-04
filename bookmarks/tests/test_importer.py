@@ -1,4 +1,3 @@
-from typing import List
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
@@ -6,19 +5,18 @@ from django.utils import timezone
 
 from bookmarks.models import Bookmark, Tag, parse_tag_string
 from bookmarks.services import tasks
-from bookmarks.services.importer import import_netscape_html, ImportOptions
+from bookmarks.services.importer import ImportOptions, import_netscape_html
 from bookmarks.tests.helpers import (
     BookmarkFactoryMixin,
-    ImportTestMixin,
     BookmarkHtmlTag,
+    ImportTestMixin,
     disable_logging,
 )
 from bookmarks.utils import parse_timestamp
 
 
 class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
-
-    def assertBookmarksImported(self, html_tags: List[BookmarkHtmlTag]):
+    def assertBookmarksImported(self, html_tags: list[BookmarkHtmlTag]):
         for html_tag in html_tags:
             bookmark = Bookmark.objects.get(url=html_tag.href)
             self.assertIsNotNone(bookmark)
@@ -299,7 +297,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
     @override_settings(USE_TZ=False)
     def test_use_current_date_when_no_add_date(self):
         test_html = self.render_html(
-            tags_html=f"""
+            tags_html="""
             <DT><A HREF="https://example.com">Example.com</A>
             <DD>Example.com
         """
@@ -315,7 +313,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
 
     def test_use_add_date_when_no_last_modified(self):
         test_html = self.render_html(
-            tags_html=f"""
+            tags_html="""
             <DT><A HREF="https://example.com" ADD_DATE="1">Example.com</A>
             <DD>Example.com
         """
@@ -354,7 +352,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
 
     def test_replace_whitespace_in_tag_names(self):
         test_html = self.render_html(
-            tags_html=f"""
+            tags_html="""
             <DT><A HREF="https://example.com" TAGS="tag 1, tag 2, tag 3">Example.com</A>
             <DD>Example.com
         """
@@ -395,7 +393,7 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
     @disable_logging
     def test_validate_empty_or_missing_bookmark_url(self):
         test_html = self.render_html(
-            tags_html=f"""
+            tags_html="""
             <DT><A HREF="">Empty URL</A>
             <DD>Empty URL
             <DT><A>Missing URL</A>

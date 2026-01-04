@@ -3,7 +3,6 @@ from django.urls import reverse
 
 
 class OpenSearchViewTestCase(TestCase):
-
     def test_opensearch_configuration(self):
         response = self.client.get(reverse("linkding:opensearch"))
         self.assertEqual(response.status_code, 200)

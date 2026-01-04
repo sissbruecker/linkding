@@ -1,8 +1,8 @@
 from django.urls import reverse
 from playwright.sync_api import expect
 
-from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 from bookmarks.models import UserProfile
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 
 class SettingsGeneralE2ETestCase(LinkdingE2ETestCase):

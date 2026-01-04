@@ -1,5 +1,5 @@
 from django.test import TestCase, override_settings
-from django.urls import path, include
+from django.urls import include, path
 
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 from bookmarks.urls import urlpatterns as base_patterns
@@ -10,7 +10,6 @@ urlpatterns = base_patterns + [path("oidc/", include("mozilla_django_oidc.urls")
 
 @override_settings(ROOT_URLCONF=__name__)
 class LoginViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-
     def test_failed_login_should_return_401(self):
         response = self.client.post("/login/", {"username": "test", "password": "test"})
         self.assertEqual(response.status_code, 401)

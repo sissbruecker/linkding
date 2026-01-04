@@ -1,18 +1,17 @@
+import datetime
 import logging
 import re
 import unicodedata
 import urllib.parse
-import datetime
-from typing import Optional
 
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import pluralize
-from django.utils import timezone, formats
-from django.conf import settings
+from django.utils import formats, timezone
 
 try:
-    with open("version.txt", "r") as f:
+    with open("version.txt") as f:
         app_version = f.read().strip("\n")
 except Exception as exc:
     logging.exception(exc)
@@ -35,7 +34,7 @@ weekday_names = {
 
 
 def humanize_absolute_date(
-    value: datetime.datetime, now: Optional[datetime.datetime] = None
+    value: datetime.datetime, now: datetime.datetime | None = None
 ):
     if not now:
         now = timezone.now()
@@ -55,7 +54,7 @@ def humanize_absolute_date(
 
 
 def humanize_relative_date(
-    value: datetime.datetime, now: Optional[datetime.datetime] = None
+    value: datetime.datetime, now: datetime.datetime | None = None
 ):
     if not now:
         now = timezone.now()
@@ -89,7 +88,7 @@ def parse_timestamp(value: str):
     try:
         timestamp = int(value)
     except ValueError:
-        raise ValueError(f"{value} is not a valid timestamp")
+        raise ValueError(f"{value} is not a valid timestamp") from None
 
     try:
         return datetime.datetime.fromtimestamp(timestamp, datetime.UTC)

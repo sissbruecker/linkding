@@ -2,7 +2,6 @@ from django.test import TestCase, override_settings
 
 
 class MetadataViewTestCase(TestCase):
-
     def test_default_manifest(self):
         response = self.client.get("/manifest.json")
 

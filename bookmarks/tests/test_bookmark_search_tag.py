@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
-from django.template import Template, RequestContext
-from django.test import TestCase, RequestFactory
+from django.template import RequestContext, Template
+from django.test import RequestFactory, TestCase
 
 from bookmarks.models import BookmarkSearch
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin

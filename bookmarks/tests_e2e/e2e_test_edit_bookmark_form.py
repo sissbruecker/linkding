@@ -3,8 +3,8 @@ from unittest.mock import patch
 from django.urls import reverse
 from playwright.sync_api import expect
 
-from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 from bookmarks.services import website_loader
+from bookmarks.tests_e2e.helpers import LinkdingE2ETestCase
 
 mock_website_metadata = website_loader.WebsiteMetadata(
     url="https://example.com",
@@ -15,7 +15,6 @@ mock_website_metadata = website_loader.WebsiteMetadata(
 
 
 class BookmarkFormE2ETestCase(LinkdingE2ETestCase):
-
     def setUp(self) -> None:
         super().setUp()
         self.website_loader_patch = patch.object(

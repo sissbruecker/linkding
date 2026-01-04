@@ -1,5 +1,5 @@
-import sqlite3
 import os
+import sqlite3
 
 from django.core.management.base import BaseCommand
 
@@ -14,7 +14,7 @@ class Command(BaseCommand):
         destination = options["destination"]
 
         def progress(status, remaining, total):
-            self.stdout.write(f"Copied {total-remaining} of {total} pages...")
+            self.stdout.write(f"Copied {total - remaining} of {total} pages...")
 
         source_db = sqlite3.connect(os.path.join("data", "db.sqlite3"))
         backup_db = sqlite3.connect(destination)

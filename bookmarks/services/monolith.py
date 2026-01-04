@@ -1,7 +1,7 @@
 import gzip
+import os
 import shutil
 import subprocess
-import os
 
 from django.conf import settings
 
@@ -30,4 +30,4 @@ def create_snapshot(url: str, filepath: str):
 
         os.remove(temp_filepath)
     except subprocess.CalledProcessError as error:
-        raise MonolithError(f"Failed to create snapshot: {error.stderr}")
+        raise MonolithError(f"Failed to create snapshot: {error.stderr}") from error

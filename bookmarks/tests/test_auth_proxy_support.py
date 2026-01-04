@@ -1,9 +1,10 @@
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock, patch
 
 from django.test import TestCase, modify_settings
 from django.urls import reverse
-from bookmarks.models import User
+
 from bookmarks.middlewares import CustomRemoteUserMiddleware
+from bookmarks.models import User
 
 
 class AuthProxySupportTest(TestCase):

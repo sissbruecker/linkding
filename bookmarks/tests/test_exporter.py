@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from django.test import TestCase
 
@@ -12,15 +12,15 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(
                 url="https://example.com/1",
                 title="Title 1",
-                added=datetime.fromtimestamp(1, timezone.utc),
-                modified=datetime.fromtimestamp(11, timezone.utc),
+                added=datetime.fromtimestamp(1, UTC),
+                modified=datetime.fromtimestamp(11, UTC),
                 description="Example description",
             ),
             self.setup_bookmark(
                 url="https://example.com/2",
                 title="Title 2",
-                added=datetime.fromtimestamp(2, timezone.utc),
-                modified=datetime.fromtimestamp(22, timezone.utc),
+                added=datetime.fromtimestamp(2, UTC),
+                modified=datetime.fromtimestamp(22, UTC),
                 tags=[
                     self.setup_tag(name="tag1"),
                     self.setup_tag(name="tag2"),
@@ -30,22 +30,22 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(
                 url="https://example.com/3",
                 title="Title 3",
-                added=datetime.fromtimestamp(3, timezone.utc),
-                modified=datetime.fromtimestamp(33, timezone.utc),
+                added=datetime.fromtimestamp(3, UTC),
+                modified=datetime.fromtimestamp(33, UTC),
                 unread=True,
             ),
             self.setup_bookmark(
                 url="https://example.com/4",
                 title="Title 4",
-                added=datetime.fromtimestamp(4, timezone.utc),
-                modified=datetime.fromtimestamp(44, timezone.utc),
+                added=datetime.fromtimestamp(4, UTC),
+                modified=datetime.fromtimestamp(44, UTC),
                 shared=True,
             ),
             self.setup_bookmark(
                 url="https://example.com/5",
                 title="Title 5",
-                added=datetime.fromtimestamp(5, timezone.utc),
-                modified=datetime.fromtimestamp(55, timezone.utc),
+                added=datetime.fromtimestamp(5, UTC),
+                modified=datetime.fromtimestamp(55, UTC),
                 shared=True,
                 description="Example description",
                 notes="Example notes",
@@ -53,23 +53,23 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
             self.setup_bookmark(
                 url="https://example.com/6",
                 title="Title 6",
-                added=datetime.fromtimestamp(6, timezone.utc),
-                modified=datetime.fromtimestamp(66, timezone.utc),
+                added=datetime.fromtimestamp(6, UTC),
+                modified=datetime.fromtimestamp(66, UTC),
                 shared=True,
                 notes="Example notes",
             ),
             self.setup_bookmark(
                 url="https://example.com/7",
                 title="Title 7",
-                added=datetime.fromtimestamp(7, timezone.utc),
-                modified=datetime.fromtimestamp(77, timezone.utc),
+                added=datetime.fromtimestamp(7, UTC),
+                modified=datetime.fromtimestamp(77, UTC),
                 is_archived=True,
             ),
             self.setup_bookmark(
                 url="https://example.com/8",
                 title="Title 8",
-                added=datetime.fromtimestamp(8, timezone.utc),
-                modified=datetime.fromtimestamp(88, timezone.utc),
+                added=datetime.fromtimestamp(8, UTC),
+                modified=datetime.fromtimestamp(88, UTC),
                 tags=[self.setup_tag(name="tag4"), self.setup_tag(name="tag5")],
                 is_archived=True,
             ),

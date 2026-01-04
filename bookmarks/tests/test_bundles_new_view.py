@@ -1,13 +1,13 @@
+from urllib.parse import urlencode
+
 from django.test import TestCase
 from django.urls import reverse
-from urllib.parse import urlencode
 
 from bookmarks.models import BookmarkBundle
 from bookmarks.tests.helpers import BookmarkFactoryMixin, HtmlTestMixin
 
 
 class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)

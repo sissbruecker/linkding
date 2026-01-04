@@ -51,18 +51,17 @@ def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = N
 
     form = BookmarkBundleForm(form_data, instance=bundle, initial=initial_data)
 
-    if request.method == "POST":
-        if form.is_valid():
-            instance = form.save(commit=False)
+    if request.method == "POST" and form.is_valid():
+        instance = form.save(commit=False)
 
-            if bundle is None:
-                instance.order = None
-                bundles.create_bundle(instance, request.user)
-            else:
-                instance.save()
+        if bundle is None:
+            instance.order = None
+            bundles.create_bundle(instance, request.user)
+        else:
+            instance.save()
 
-            messages.success(request, "Bundle saved successfully.")
-            return HttpResponseRedirect(reverse("linkding:bundles.index"))
+        messages.success(request, "Bundle saved successfully.")
+        return HttpResponseRedirect(reverse("linkding:bundles.index"))
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200
     bookmark_list = _get_bookmark_list_preview(request, bundle, initial_data)

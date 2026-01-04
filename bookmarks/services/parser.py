@@ -1,6 +1,6 @@
+import contextlib
 from dataclasses import dataclass
 from html.parser import HTMLParser
-from typing import Dict, List
 
 from bookmarks.models import parse_tag_string
 
@@ -13,7 +13,7 @@ class NetscapeBookmark:
     notes: str
     date_added: str
     date_modified: str
-    tag_names: List[str]
+    tag_names: list[str]
     to_read: bool
     private: bool
     archived: bool
@@ -56,17 +56,15 @@ class BookmarkParser(HTMLParser):
     def handle_end_dl(self):
         self.add_bookmark()
 
-    def handle_start_dt(self, attrs: Dict[str, str]):
+    def handle_start_dt(self, attrs: dict[str, str]):
         self.add_bookmark()
 
-    def handle_start_a(self, attrs: Dict[str, str]):
+    def handle_start_a(self, attrs: dict[str, str]):
         vars(self).update(attrs)
         tag_names = parse_tag_string(self.tags)
         archived = "linkding:bookmarks.archived" in self.tags
-        try:
+        with contextlib.suppress(ValueError):
             tag_names.remove("linkding:bookmarks.archived")
-        except ValueError:
-            pass
 
         self.bookmark = NetscapeBookmark(
             href=self.href,
@@ -109,7 +107,7 @@ class BookmarkParser(HTMLParser):
         self.private = ""
 
 
-def parse(html: str) -> List[NetscapeBookmark]:
+def parse(html: str) -> list[NetscapeBookmark]:
     parser = BookmarkParser()
     parser.feed(html)
     return parser.bookmarks

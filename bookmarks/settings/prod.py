@@ -2,6 +2,8 @@
 Production settings for linkding webapp
 """
 
+# ruff: noqa
+
 # Start from development settings
 # noinspection PyUnresolvedReferences
 import os

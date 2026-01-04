@@ -1,5 +1,6 @@
-from urllib.parse import urlparse, parse_qs
 import re
+from urllib.parse import parse_qs, urlparse
+
 import idna
 
 

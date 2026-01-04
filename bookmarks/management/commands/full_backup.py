@@ -1,5 +1,5 @@
-import sqlite3
 import os
+import sqlite3
 import tempfile
 import zipfile
 
@@ -65,7 +65,7 @@ class Command(BaseCommand):
 
     def backup_database(self, backup_db_file):
         def progress(status, remaining, total):
-            self.stdout.write(f"Copied {total-remaining} of {total} pages...")
+            self.stdout.write(f"Copied {total - remaining} of {total} pages...")
 
         source_db = sqlite3.connect(os.path.join("data", "db.sqlite3"))
         backup_db = sqlite3.connect(backup_db_file)

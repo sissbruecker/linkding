@@ -9,7 +9,6 @@ User = get_user_model()
 
 
 def forwards(apps, schema_editor):
-
     for user in User.objects.all():
         toast = Toast(
             key="new_search_toast",
@@ -24,7 +23,6 @@ def reverse(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("bookmarks", "0049_userprofile_legacy_search"),
     ]

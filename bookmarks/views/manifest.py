@@ -1,5 +1,5 @@
-from django.http import JsonResponse
 from django.conf import settings
+from django.http import JsonResponse
 
 
 def manifest(request):

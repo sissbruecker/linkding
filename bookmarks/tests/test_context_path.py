@@ -10,7 +10,6 @@ class MockUrlConf:
 
 
 class ContextPathTestCase(TestCase):
-
     def setUp(self):
         self.urls_module = importlib.import_module("bookmarks.urls")
 

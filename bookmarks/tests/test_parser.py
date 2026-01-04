@@ -1,16 +1,13 @@
-from typing import List
-
 from django.test import TestCase
 
 from bookmarks.models import parse_tag_string
-from bookmarks.services.parser import NetscapeBookmark
-from bookmarks.services.parser import parse
-from bookmarks.tests.helpers import ImportTestMixin, BookmarkHtmlTag
+from bookmarks.services.parser import NetscapeBookmark, parse
+from bookmarks.tests.helpers import BookmarkHtmlTag, ImportTestMixin
 
 
 class ParserTestCase(TestCase, ImportTestMixin):
     def assertTagsEqual(
-        self, bookmarks: List[NetscapeBookmark], html_tags: List[BookmarkHtmlTag]
+        self, bookmarks: list[NetscapeBookmark], html_tags: list[BookmarkHtmlTag]
     ):
         self.assertEqual(len(bookmarks), len(html_tags))
         for bookmark in bookmarks:

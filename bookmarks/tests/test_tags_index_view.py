@@ -132,7 +132,7 @@ class TagsIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_pagination(self):
         tags = []
-        for i in range(75):
+        for _i in range(75):
             tags.append(self.setup_tag())
 
         response = self.client.get(reverse("linkding:tags.index"))

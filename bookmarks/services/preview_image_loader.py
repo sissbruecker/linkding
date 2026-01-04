@@ -1,11 +1,12 @@
+import hashlib
 import logging
 import mimetypes
 import os.path
-import hashlib
 from pathlib import Path
 
 import requests
 from django.conf import settings
+
 from bookmarks.services import website_loader
 
 logger = logging.getLogger(__name__)

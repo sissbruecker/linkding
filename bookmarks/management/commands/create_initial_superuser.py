@@ -1,8 +1,8 @@
-import os
 import logging
+import os
 
-from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
 
 logger = logging.getLogger(__name__)
 

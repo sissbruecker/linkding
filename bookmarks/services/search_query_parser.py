@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional
 
 from bookmarks.models import UserProfile
 
@@ -124,7 +123,7 @@ class SearchQueryTokenizer:
 
         return keyword
 
-    def tokenize(self) -> List[Token]:
+    def tokenize(self) -> list[Token]:
         """Convert the query string into a list of tokens."""
         tokens = []
 
@@ -221,7 +220,7 @@ class SearchQueryParseError(Exception):
 
 
 class SearchQueryParser:
-    def __init__(self, tokens: List[Token]):
+    def __init__(self, tokens: list[Token]):
         self.tokens = tokens
         self.position = 0
         self.current_token = tokens[0] if tokens else Token(TokenType.EOF, "", 0)
@@ -244,7 +243,7 @@ class SearchQueryParser:
                 self.current_token.position,
             )
 
-    def parse(self) -> Optional[SearchExpression]:
+    def parse(self) -> SearchExpression | None:
         """Parse the tokens into an AST."""
         if not self.tokens or (
             len(self.tokens) == 1 and self.tokens[0].type == TokenType.EOF
@@ -283,7 +282,6 @@ class SearchQueryParser:
             TokenType.LPAREN,
             TokenType.NOT,
         ]:
-
             if self.current_token.type == TokenType.AND:
                 self.advance()  # consume explicit AND
             # else: implicit AND (don't advance token)
@@ -328,7 +326,7 @@ class SearchQueryParser:
             )
 
 
-def parse_search_query(query: str) -> Optional[SearchExpression]:
+def parse_search_query(query: str) -> SearchExpression | None:
     if not query or not query.strip():
         return None
 
@@ -342,9 +340,9 @@ def _needs_parentheses(expr: SearchExpression, parent_type: type) -> bool:
     if isinstance(expr, OrExpression) and parent_type == AndExpression:
         return True
     # AndExpression or OrExpression needs parentheses when inside NotExpression
-    if isinstance(expr, (AndExpression, OrExpression)) and parent_type == NotExpression:
-        return True
-    return False
+    return (
+        isinstance(expr, (AndExpression, OrExpression)) and parent_type == NotExpression
+    )
 
 
 def _is_simple_expression(expr: SearchExpression) -> bool:
@@ -412,15 +410,15 @@ def _expression_to_string(expr: SearchExpression, parent_type: type = None) -> s
         raise ValueError(f"Unknown expression type: {type(expr)}")
 
 
-def expression_to_string(expr: Optional[SearchExpression]) -> str:
+def expression_to_string(expr: SearchExpression | None) -> str:
     if expr is None:
         return ""
     return _expression_to_string(expr)
 
 
 def _strip_tag_from_expression(
-    expr: Optional[SearchExpression], tag_name: str, enable_lax_search: bool = False
-) -> Optional[SearchExpression]:
+    expr: SearchExpression | None, tag_name: str, enable_lax_search: bool = False
+) -> SearchExpression | None:
     if expr is None:
         return None
 
@@ -511,8 +509,8 @@ def strip_tag_from_query(
 
 
 def _extract_tag_names_from_expression(
-    expr: Optional[SearchExpression], enable_lax_search: bool = False
-) -> List[str]:
+    expr: SearchExpression | None, enable_lax_search: bool = False
+) -> list[str]:
     if expr is None:
         return []
 
@@ -546,7 +544,7 @@ def _extract_tag_names_from_expression(
 
 def extract_tag_names_from_query(
     query: str, user_profile: UserProfile | None = None
-) -> List[str]:
+) -> list[str]:
     try:
         ast = parse_search_query(query)
     except SearchQueryParseError:

@@ -1,9 +1,9 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from bookmarks.models import UserProfile, GlobalSettings
-from bookmarks.tests.helpers import BookmarkFactoryMixin
 from bookmarks.middlewares import standard_profile
+from bookmarks.models import GlobalSettings, UserProfile
+from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 class LinkdingMiddlewareTestCase(TestCase, BookmarkFactoryMixin):

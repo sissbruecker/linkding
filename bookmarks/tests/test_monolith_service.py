@@ -1,7 +1,7 @@
 import gzip
 import os
-from unittest import mock
 import subprocess
+from unittest import mock
 
 from django.test import TestCase
 

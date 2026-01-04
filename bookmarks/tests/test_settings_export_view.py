@@ -9,7 +9,6 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 class SettingsExportViewTestCase(TestCase, BookmarkFactoryMixin):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
@@ -81,9 +80,7 @@ class SettingsExportViewTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark()
 
         # Mock timezone.now to return a fixed datetime for predictable filename
-        fixed_time = datetime.datetime(
-            2023, 5, 15, 14, 30, 45, tzinfo=datetime.timezone.utc
-        )
+        fixed_time = datetime.datetime(2023, 5, 15, 14, 30, 45, tzinfo=datetime.UTC)
 
         with patch("bookmarks.views.settings.timezone.now", return_value=fixed_time):
             response = self.client.get(reverse("linkding:settings.export"), follow=True)

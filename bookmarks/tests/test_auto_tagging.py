@@ -1,5 +1,6 @@
-from bookmarks.services import auto_tagging
 from django.test import TestCase
+
+from bookmarks.services import auto_tagging
 
 
 class AutoTaggingTestCase(TestCase):

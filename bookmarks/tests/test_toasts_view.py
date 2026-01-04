@@ -6,13 +6,12 @@ from bookmarks.models import Toast
 from bookmarks.tests.helpers import (
     BookmarkFactoryMixin,
     HtmlTestMixin,
-    random_sentence,
     disable_logging,
+    random_sentence,
 )
 
 
 class ToastsViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
-
     def setUp(self) -> None:
         user = self.get_or_create_test_user()
         self.client.force_login(user)
@@ -73,7 +72,7 @@ class ToastsViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
     def test_form_tag(self):
         self.create_toast()
-        expected_action = f'{reverse("linkding:toasts.acknowledge")}?return_url={reverse("linkding:bookmarks.index")}'
+        expected_action = f"{reverse('linkding:toasts.acknowledge')}?return_url={reverse('linkding:bookmarks.index')}"
 
         response = self.client.get(reverse("linkding:bookmarks.index"))
         soup = self.make_soup(response.content.decode())

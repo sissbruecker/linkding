@@ -1,9 +1,7 @@
-from typing import List, Type
-
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpResponse
-from django.template import Template, RequestContext
-from django.test import TestCase, RequestFactory
+from django.template import RequestContext, Template
+from django.test import RequestFactory, TestCase
 
 from bookmarks.middlewares import LinkdingMiddleware
 from bookmarks.models import BookmarkSearch, UserProfile
@@ -14,7 +12,7 @@ from bookmarks.views import contexts
 class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def render_template(
         self,
-        context_type: Type[contexts.TagCloudContext] = contexts.ActiveTagCloudContext,
+        context_type: type[contexts.TagCloudContext] = contexts.ActiveTagCloudContext,
         url: str = "/test",
         user: User | AnonymousUser = None,
     ):
@@ -35,7 +33,7 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
     def assertTagGroups(
         self,
         rendered_template: str,
-        groups: List[List[str]],
+        groups: list[list[str]],
         highlight_first_char: bool = True,
     ):
         soup = self.make_soup(rendered_template)

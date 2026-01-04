@@ -1,5 +1,5 @@
 from bs4 import TemplateString
-from bs4.element import NavigableString, CData
+from bs4.element import CData, NavigableString
 from django.test import TestCase
 from django.urls import reverse
 
@@ -146,7 +146,7 @@ class TagsMergeViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertIn("This field is required", self.get_text(merge_tags_group))
 
     def test_validate_nonexistent_target_tag(self):
-        merge_tag = self.setup_tag(name="merge_tag")
+        self.setup_tag(name="merge_tag")
 
         response = self.client.post(
             reverse("linkding:tags.merge"),
