@@ -15,7 +15,6 @@ dependencies = [
     "huey>=2.5.5",
     "markdown>=3.10",
     "mozilla-django-oidc>=5.0.2",
-    "python-dateutil>=2.9.0.post0",
     "requests>=2.32.5",
     "supervisor>=4.3.0",
     "uwsgi>=2.0.31",
