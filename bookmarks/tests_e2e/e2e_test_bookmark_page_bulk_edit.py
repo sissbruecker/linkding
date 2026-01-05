@@ -334,15 +334,11 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
         expect(execute_button).to_be_disabled()
 
         # Check a single bookmark - execute button should be enabled
-        self.locate_bookmark("Bookmark 1").locator(
-            "label.bulk-edit-checkbox"
-        ).click()
+        self.locate_bookmark("Bookmark 1").locator("label.bulk-edit-checkbox").click()
         expect(execute_button).to_be_enabled()
 
         # Uncheck the bookmark - execute button should be disabled again
-        self.locate_bookmark("Bookmark 1").locator(
-            "label.bulk-edit-checkbox"
-        ).click()
+        self.locate_bookmark("Bookmark 1").locator("label.bulk-edit-checkbox").click()
         expect(execute_button).to_be_disabled()
 
         # Check all bookmarks - execute button should be enabled
