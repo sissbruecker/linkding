@@ -2,7 +2,7 @@
 
 variant="${1:-default}"
 
-docker build -f "docker/$variant.Dockerfile" -t sissbruecker/linkding:local .
+docker build -f "docker/$variant.Dockerfile" --target linkding -t sissbruecker/linkding:local .
 
 docker rm -f linkding-local || true
 

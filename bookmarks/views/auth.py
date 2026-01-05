@@ -18,7 +18,6 @@ class LinkdingLoginView(auth_views.LoginView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["allow_registration"] = settings.ALLOW_REGISTRATION
         context["enable_oidc"] = settings.LD_ENABLE_OIDC
         return context
 

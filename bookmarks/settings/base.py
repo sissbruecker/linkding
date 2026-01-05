@@ -136,9 +136,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
 }
 
-# Registration switch
-ALLOW_REGISTRATION = False
-
 # URL validation flag
 LD_DISABLE_URL_VALIDATION = os.getenv("LD_DISABLE_URL_VALIDATION", False) in (
     True,
