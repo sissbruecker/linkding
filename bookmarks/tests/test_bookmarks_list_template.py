@@ -919,6 +919,42 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         note_html = '<p><a href="https://example.com" rel="nofollow">https://example.com</a></p>'
         self.assertNotes(html, note_html, 1)
 
+    def test_note_linkify_converts_schemeless_urls_to_https(self):
+        # Scheme-less URL should become HTTPS
+        self.setup_bookmark(notes="Example: example.com")
+        html = self.render_template()
+
+        note_html = '<p>Example: <a href="https://example.com" rel="nofollow">example.com</a></p>'
+        self.assertNotes(html, note_html, 1)
+
+        # Explicit http:// should stay as http://
+        self.setup_bookmark(notes="Example: http://example.com")
+        html = self.render_template()
+
+        note_html = '<p>Example: <a href="http://example.com" rel="nofollow">http://example.com</a></p>'
+        self.assertNotes(html, note_html, 1)
+
+        # Explicit https:// should stay as https://
+        self.setup_bookmark(notes="Example: https://example.com")
+        html = self.render_template()
+
+        note_html = '<p>Example: <a href="https://example.com" rel="nofollow">https://example.com</a></p>'
+        self.assertNotes(html, note_html, 1)
+
+        # Email addresses should not be affected
+        self.setup_bookmark(notes="Contact: hello@example.com")
+        html = self.render_template()
+
+        note_html = "<p>Contact: hello@example.com</p>"
+        self.assertNotes(html, note_html, 1)
+
+        # ftp:// should not be converted to https
+        self.setup_bookmark(notes="FTP: ftp://ftp.example.com")
+        html = self.render_template()
+
+        note_html = '<p>FTP: <a href="ftp://ftp.example.com" rel="nofollow">ftp://ftp.example.com</a></p>'
+        self.assertNotes(html, note_html, 1)
+
     def test_note_cleans_html(self):
         self.setup_bookmark(notes='<script>alert("test")</script>')
         self.setup_bookmark(
