@@ -194,6 +194,14 @@ Multiple origins can be specified by separating them with a comma (`,`).
 
 This setting is adopted from the Django framework used by linkding, more information on the setting is available in the [Django documentation](https://docs.djangoproject.com/en/4.0/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS).
 
+### `LD_USE_X_FORWARDED_HOST`
+
+Values: `true` or `false` | Default =  `false`
+
+If enabled the server will trust the `X-Forwarded-Host` header over the `Host` header to determine the hostname of the server. This should only be enabled if a proxy which sets this header is in use.
+
+This setting is adopted from the Django framework used by linkding, more information on the setting is available in the [Django documentation](https://docs.djangoproject.com/en/6.0/ref/settings/#std-setting-USE_X_FORWARDED_HOST)
+
 ### `LD_LOG_X_FORWARDED_FOR`
 
 Values: `true` or `false` | Default =  `false`

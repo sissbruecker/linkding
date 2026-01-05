@@ -176,18 +176,11 @@ def integrations(request):
     )
 
     feed_token = FeedToken.objects.get_or_create(user=request.user)[0]
-    all_feed_url = request.build_absolute_uri(
-        reverse("linkding:feeds.all", args=[feed_token.key])
-    )
-    unread_feed_url = request.build_absolute_uri(
-        reverse("linkding:feeds.unread", args=[feed_token.key])
-    )
-    shared_feed_url = request.build_absolute_uri(
-        reverse("linkding:feeds.shared", args=[feed_token.key])
-    )
-    public_shared_feed_url = request.build_absolute_uri(
-        reverse("linkding:feeds.public_shared")
-    )
+
+    all_feed_url = reverse("linkding:feeds.all", args=[feed_token.key])
+    unread_feed_url = reverse("linkding:feeds.unread", args=[feed_token.key])
+    shared_feed_url = reverse("linkding:feeds.shared", args=[feed_token.key])
+    public_shared_feed_url = reverse("linkding:feeds.public_shared")
 
     return render(
         request,
