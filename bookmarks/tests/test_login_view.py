@@ -41,3 +41,43 @@ class LoginViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
 
         # should have turbo disabled
         self.assertEqual("false", oidc_login_link.get("data-turbo"))
+
+    def test_should_show_login_form_by_default(self):
+        response = self.client.get("/login/")
+        soup = self.make_soup(response.content.decode())
+
+        form = soup.find("form", {"action": "/login/"})
+        username_input = soup.find("input", {"name": "username"})
+        password_input = soup.find("input", {"name": "password"})
+        submit_button = soup.find("input", {"type": "submit", "value": "Login"})
+
+        self.assertIsNotNone(form)
+        self.assertIsNotNone(username_input)
+        self.assertIsNotNone(password_input)
+        self.assertIsNotNone(submit_button)
+
+    @override_settings(LD_DISABLE_LOGIN_FORM=True)
+    def test_should_hide_login_form_when_disabled(self):
+        response = self.client.get("/login/")
+        soup = self.make_soup(response.content.decode())
+
+        form = soup.find("form", {"action": "/login/"})
+        username_input = soup.find("input", {"name": "username"})
+        password_input = soup.find("input", {"name": "password"})
+        submit_button = soup.find("input", {"type": "submit", "value": "Login"})
+
+        self.assertIsNone(form)
+        self.assertIsNone(username_input)
+        self.assertIsNone(password_input)
+        self.assertIsNone(submit_button)
+
+    @override_settings(LD_DISABLE_LOGIN_FORM=True, LD_ENABLE_OIDC=True)
+    def test_should_only_show_oidc_login_when_login_disabled_and_oidc_enabled(self):
+        response = self.client.get("/login/")
+        soup = self.make_soup(response.content.decode())
+
+        form = soup.find("form", {"action": "/login/"})
+        oidc_login_link = soup.find("a", string="Login with OIDC")
+
+        self.assertIsNone(form)
+        self.assertIsNotNone(oidc_login_link)
