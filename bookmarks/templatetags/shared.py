@@ -79,19 +79,16 @@ class HtmlMinNode(template.Node):
         return output
 
 
-def schemeless_urls_to_https(attrs, new=False):
+def schemeless_urls_to_https(attrs, _new):
     href_key = (None, "href")
     if href_key not in attrs:
         return attrs
 
-    if attrs[href_key].startswith("mailto:"):
+    if attrs.get("_text", "").startswith("http://"):
+        # The original text explicitly specifies http://, so keep it
         return attrs
 
-    if attrs.get("_text", "").startswith("http"):
-        # The initial text explicitly specifies the HTTP scheme, so don't do anything
-        return attrs
-
-    attrs[href_key] = attrs[href_key].replace("http://", "https://", 1)
+    attrs[href_key] = re.sub(r"^http://", "https://", attrs[href_key])
     return attrs
 
 
