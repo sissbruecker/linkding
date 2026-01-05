@@ -1,7 +1,7 @@
 import re
 
 import bleach
-from bleach.linkifier import DEFAULT_CALLBACKS
+from bleach.linkifier import DEFAULT_CALLBACKS, Linker
 import markdown
 from bleach_allowlist import markdown_attrs, markdown_tags
 from django import template
@@ -95,6 +95,9 @@ def schemeless_urls_to_https(attrs, new=False):
     return attrs
 
 
+linker = Linker(callbacks=[*DEFAULT_CALLBACKS, schemeless_urls_to_https])
+
+
 @register.simple_tag(name="markdown", takes_context=True)
 def render_markdown(context, markdown_text):
     # naive approach to reusing the renderer for a single request
@@ -107,8 +110,7 @@ def render_markdown(context, markdown_text):
 
     as_html = renderer.convert(markdown_text)
     sanitized_html = bleach.clean(as_html, markdown_tags, markdown_attrs)
-    callbacks = [*DEFAULT_CALLBACKS, schemeless_urls_to_https]
-    linkified_html = bleach.linkify(sanitized_html, callbacks=callbacks)
+    linkified_html = linker.linkify(sanitized_html)
 
     return mark_safe(linkified_html)
 
