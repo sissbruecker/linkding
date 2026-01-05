@@ -179,6 +179,14 @@ identity_providers:
 
 </details>
 
+### `LD_DISABLE_LOGIN_FORM`
+
+Values: `True`, `False` | Default = `False`
+
+Disables the login form on the login page.
+This is useful when you want to enforce authentication through OIDC only.
+When enabled, users will not be able to log in using their username and password, and only the "Login with OIDC" button will be shown on the login page.
+
 ### `LD_CSRF_TRUSTED_ORIGINS`
 
 Values: `String` | Default = None
