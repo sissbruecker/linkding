@@ -1,4 +1,4 @@
-{% load static widget_tweaks %}
+{% load static shared %}
 <div class="search-container">
   <form id="search" action="" method="get" role="search">
     <ld-search-autocomplete input-name="q"
@@ -28,7 +28,7 @@
           <div class="form-group">
             <label for="{{ preferences_form.sort.id_for_label }}"
                    class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">Sort by</label>
-            {{ preferences_form.sort|add_class:"form-select select-sm" }}
+            {% formfield preferences_form.sort class='select-sm' %}
           </div>
         {% endif %}
         {% if 'shared' in preferences_form.editable_fields %}

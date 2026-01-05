@@ -342,15 +342,6 @@ wheels = [
 ]
 
 [[package]]
-name = "django-widget-tweaks"
-version = "1.5.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a5/fe/26eb92fba83844e71bbec0ced7fc2e843e5990020e3cc676925204031654/django-widget-tweaks-1.5.0.tar.gz", hash = "sha256:1c2180681ebb994e922c754804c7ffebbe1245014777ac47897a81f57cc629c7", size = 14767, upload-time = "2023-08-25T15:29:12.778Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/6a/6cb6deb5c38b785c77c3ba66f53051eada49205979c407323eb666930915/django_widget_tweaks-1.5.0-py3-none-any.whl", hash = "sha256:a41b7b2f05bd44d673d11ebd6c09a96f1d013ee98121cb98c384fe84e33b881e", size = 8960, upload-time = "2023-08-25T15:29:05.644Z" },
-]
-
-[[package]]
 name = "djangorestframework"
 version = "3.16.1"
 source = { registry = "https://pypi.org/simple" }
@@ -494,7 +485,6 @@ dependencies = [
     { name = "bleach-allowlist" },
     { name = "django" },
     { name = "django-registration" },
-    { name = "django-widget-tweaks" },
     { name = "djangorestframework" },
     { name = "huey" },
     { name = "markdown" },
@@ -528,7 +518,6 @@ requires-dist = [
     { name = "bleach-allowlist", specifier = ">=1.0.3" },
     { name = "django", specifier = ">=6.0" },
     { name = "django-registration", specifier = ">=5.2.1" },
-    { name = "django-widget-tweaks", specifier = ">=1.5.0" },
     { name = "djangorestframework", specifier = ">=3.16.1" },
     { name = "huey", specifier = ">=2.5.5" },
     { name = "markdown", specifier = ">=3.10" },

@@ -9,6 +9,7 @@ export class TagAutocomplete extends TurboLitElement {
     inputId: { type: String, attribute: "input-id" },
     inputName: { type: String, attribute: "input-name" },
     inputValue: { type: String, attribute: "input-value" },
+    inputClass: { type: String, attribute: "input-class" },
     inputPlaceholder: { type: String, attribute: "input-placeholder" },
     inputAriaDescribedBy: { type: String, attribute: "input-aria-describedby" },
     variant: { type: String },
@@ -160,7 +161,7 @@ export class TagAutocomplete extends TurboLitElement {
             name="${this.inputName || nothing}"
             .value="${this.inputValue || ""}"
             placeholder="${this.inputPlaceholder || " "}"
-            class="form-input"
+            class="form-input ${this.inputClass || ""}"
             type="text"
             autocomplete="off"
             autocapitalize="off"

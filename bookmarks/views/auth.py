@@ -1,12 +1,19 @@
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 
+from bookmarks.widgets import FormErrorList
+
 
 class LinkdingLoginView(auth_views.LoginView):
     """
     Custom login view to lazily add additional context data
     Allows to override settings in tests
     """
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.error_class = FormErrorList
+        return form
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -27,6 +34,11 @@ class LinkdingLoginView(auth_views.LoginView):
 
 
 class LinkdingPasswordChangeView(auth_views.PasswordChangeView):
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.error_class = FormErrorList
+        return form
+
     def form_invalid(self, form):
         """
         Hotwired Turbo requires a non 2xx status code to handle failed form

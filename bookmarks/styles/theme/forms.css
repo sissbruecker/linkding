@@ -135,6 +135,10 @@ textarea.form-input {
   .is-error + & {
     color: var(--error-color);
   }
+
+  &.is-error {
+    color: var(--error-color);
+  }
 }
 
 /* Form element: Select */

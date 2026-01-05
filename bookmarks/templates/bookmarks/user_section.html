@@ -1,4 +1,4 @@
-{% load widget_tweaks %}
+{% load shared %}
 <section aria-labelledby="user-heading">
   <div class="section-header">
     <h2 id="user-heading">User</h2>
@@ -9,7 +9,7 @@
         {% for hidden_field in user_list.form.hidden_fields %}{{ hidden_field }}{% endfor %}
         <div class="form-group">
           <div class="d-flex">
-            {% render_field user_list.form.user class+="form-select" data-submit-on-change="" %}
+            {% formfield user_list.form.user data_submit_on_change="" %}
             <noscript>
               <button type="submit" class="btn btn-link ml-2">Apply</button>
             </noscript>

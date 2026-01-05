@@ -78,7 +78,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             """
-            <input type="text" name="url" aria-invalid="false" autofocus class="form-input" required id="id_url" value="http://example.com">
+            <input type="text" name="url" aria-invalid="false" autocomplete="off" autofocus class="form-input" required id="id_url" value="http://example.com">
             """,
             html,
         )

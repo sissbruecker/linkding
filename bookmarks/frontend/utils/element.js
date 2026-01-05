@@ -42,10 +42,10 @@ document.addEventListener("turbo:render", () => {
 });
 
 document.addEventListener("turbo:before-morph-element", (event) => {
-  if (event.target instanceof TurboLitElement) {
-    // Prevent Turbo from morphing Lit elements, which would remove rendered
-    // contents. For now this means that any Lit element / widget can not be
-    // updated from the server when using morphing.
+  const parent = event.target?.parentElement;
+  if (parent instanceof TurboLitElement) {
+    // Prevent Turbo from morphing Lit elements contents, which would remove
+    // elements rendered on the client side.
     event.preventDefault();
   }
 });

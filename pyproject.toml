@@ -10,7 +10,6 @@ dependencies = [
     "bleach-allowlist>=1.0.3",
     "django>=6.0",
     "django-registration>=5.2.1",
-    "django-widget-tweaks>=1.5.0",
     "djangorestframework>=3.16.1",
     "huey>=2.5.5",
     "markdown>=3.10",
@@ -50,6 +49,7 @@ python-preference = "system"
 
 [tool.djlint]
 custom_html="ld-\\w+,ld-\\w+-\\w+"
+custom_blocks="formhelp"
 indent=2
 format_js=true
 profile="django"

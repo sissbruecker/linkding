@@ -1,9 +1,7 @@
 from django import template
 
-from bookmarks.models import (
-    BookmarkSearch,
-    BookmarkSearchForm,
-)
+from bookmarks.forms import BookmarkSearchForm
+from bookmarks.models import BookmarkSearch
 
 register = template.Library()
 

@@ -410,7 +410,9 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             """
-            <input type="checkbox" name="enable_automatic_html_snapshots" id="id_enable_automatic_html_snapshots" checked="">
+            <input type="checkbox" name="enable_automatic_html_snapshots"
+            aria-describedby="id_enable_automatic_html_snapshots_help"
+            id="id_enable_automatic_html_snapshots" checked="">
             """,
             html,
             count=0,
@@ -425,7 +427,9 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             """
-            <input type="checkbox" name="enable_automatic_html_snapshots" id="id_enable_automatic_html_snapshots" checked="">
+            <input type="checkbox" name="enable_automatic_html_snapshots"
+            aria-describedby="id_enable_automatic_html_snapshots_help"
+            id="id_enable_automatic_html_snapshots" checked="">
             """,
             html,
             count=1,

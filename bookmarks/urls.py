@@ -160,7 +160,15 @@ if settings.LD_ENABLE_OIDC:
 
 # Registration
 if settings.ALLOW_REGISTRATION:
-    urlpatterns.append(path("", include("django_registration.backends.one_step.urls")))
+    from django_registration.backends.one_step.views import RegistrationView
+
+    urlpatterns.append(
+        path(
+            "accounts/register/",
+            RegistrationView.as_view(),
+            name="django_registration_register",
+        )
+    )
 
 # Context path
 if settings.LD_CONTEXT_PATH:
