@@ -107,8 +107,7 @@ def render_markdown(context, markdown_text):
 
     as_html = renderer.convert(markdown_text)
     sanitized_html = bleach.clean(as_html, markdown_tags, markdown_attrs)
-    callbacks = DEFAULT_CALLBACKS
-    callbacks.append(schemeless_urls_to_https)
+    callbacks = [*DEFAULT_CALLBACKS, schemeless_urls_to_https]
     linkified_html = bleach.linkify(sanitized_html, callbacks=callbacks)
 
     return mark_safe(linkified_html)
