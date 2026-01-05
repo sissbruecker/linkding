@@ -139,3 +139,42 @@ def fake_request_headers():
         "Upgrade-Insecure-Requests": "1",
         "User-Agent": DEFAULT_USER_AGENT,
     }
+
+
+def detect_content_type(url: str, timeout: int = 10) -> str | None:
+    """Make HEAD request to detect content type of URL. Returns None on failure."""
+    headers = fake_request_headers()
+
+    try:
+        response = requests.head(
+            url, headers=headers, timeout=timeout, allow_redirects=True
+        )
+        if response.status_code == 200:
+            return (
+                response.headers.get("Content-Type", "").split(";")[0].strip().lower()
+            )
+    except requests.RequestException:
+        pass
+
+    try:
+        with requests.get(
+            url, headers=headers, timeout=timeout, stream=True, allow_redirects=True
+        ) as response:
+            if response.status_code == 200:
+                return (
+                    response.headers.get("Content-Type", "")
+                    .split(";")[0]
+                    .strip()
+                    .lower()
+                )
+    except requests.RequestException:
+        pass
+
+    return None
+
+
+def is_pdf_content_type(content_type: str | None) -> bool:
+    """Check if the content type indicates a PDF."""
+    if not content_type:
+        return False
+    return content_type in ("application/pdf", "application/x-pdf")

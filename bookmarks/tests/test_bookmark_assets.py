@@ -79,3 +79,39 @@ class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
         # Create asset with initial file
         asset = self.setup_asset(bookmark=bookmark, file="temp.html.gz")
         self.assertEqual(asset.file_size, 4)
+
+    def test_download_name_for_html_snapshot(self):
+        from bookmarks.models import BookmarkAsset
+
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            content_type=BookmarkAsset.CONTENT_TYPE_HTML,
+            display_name="HTML snapshot from Jan 1, 2025",
+        )
+        self.assertEqual(asset.download_name, "HTML snapshot from Jan 1, 2025.html")
+
+    def test_download_name_for_pdf_snapshot(self):
+        from bookmarks.models import BookmarkAsset
+
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            content_type=BookmarkAsset.CONTENT_TYPE_PDF,
+            display_name="PDF snapshot from Jan 1, 2025",
+        )
+        self.assertEqual(asset.download_name, "PDF snapshot from Jan 1, 2025.pdf")
+
+    def test_download_name_for_upload(self):
+        from bookmarks.models import BookmarkAsset
+
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(
+            bookmark=bookmark,
+            asset_type=BookmarkAsset.TYPE_UPLOAD,
+            content_type="text/plain",
+            display_name="document.txt",
+        )
+        self.assertEqual(asset.download_name, "document.txt")

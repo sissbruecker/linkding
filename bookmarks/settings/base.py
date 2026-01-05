@@ -327,6 +327,7 @@ LD_SINGLEFILE_UBLOCK_OPTIONS = os.getenv(
 )
 LD_SINGLEFILE_OPTIONS = os.getenv("LD_SINGLEFILE_OPTIONS", "")
 LD_SINGLEFILE_TIMEOUT_SEC = float(os.getenv("LD_SINGLEFILE_TIMEOUT_SEC", 120))
+LD_SNAPSHOT_PDF_MAX_SIZE = int(os.getenv("LD_SNAPSHOT_PDF_MAX_SIZE", 15728640))  # 15MB
 
 # Monolith isn't used at the moment, as the local snapshot implementation
 # switched to single-file after the prototype. Keeping this around in case
