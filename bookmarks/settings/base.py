@@ -29,6 +29,13 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
+USE_X_FORWARDED_HOST = os.getenv("LD_USE_X_FORWARDED_HOST", False) in (
+    True,
+    "True",
+    "true",
+    "1",
+)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -216,16 +223,6 @@ if LD_ENABLE_AUTH_PROXY:
     # Configure logout URL
     if LD_AUTH_PROXY_LOGOUT_URL:
         LOGOUT_REDIRECT_URL = LD_AUTH_PROXY_LOGOUT_URL
-
-LD_USE_X_FORWARDED_HOST = os.getenv("LD_USE_X_FORWARDED_HOST", False) in (
-    True,
-    "True",
-    "true",
-    "1",
-)
-
-if LD_USE_X_FORWARDED_HOST:
-    USE_X_FORWARDED_HOST = LD_USE_X_FORWARDED_HOST
 
 # CSRF trusted origins
 trusted_origins = os.getenv("LD_CSRF_TRUSTED_ORIGINS", "")
