@@ -30,9 +30,6 @@
              href="{% url 'oidc_authentication_init' %}"
              data-turbo="false">Login with OIDC</a>
         {% endif %}
-        {% if allow_registration %}
-          <a href="{% url 'django_registration_register' %}" class="btn btn-link">Register</a>
-        {% endif %}
       </div>
     </form>
   </main>

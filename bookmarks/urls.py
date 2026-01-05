@@ -158,18 +158,6 @@ if settings.LD_ENABLE_OIDC:
 #    import debug_toolbar
 #    urlpatterns.append(path("__debug__/", include(debug_toolbar.urls)))
 
-# Registration
-if settings.ALLOW_REGISTRATION:
-    from django_registration.backends.one_step.views import RegistrationView
-
-    urlpatterns.append(
-        path(
-            "accounts/register/",
-            RegistrationView.as_view(),
-            name="django_registration_register",
-        )
-    )
-
 # Context path
 if settings.LD_CONTEXT_PATH:
     urlpatterns = [path(settings.LD_CONTEXT_PATH, include(urlpatterns))]

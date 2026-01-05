@@ -9,7 +9,6 @@ dependencies = [
     "bleach>=6.3.0",
     "bleach-allowlist>=1.0.3",
     "django>=6.0",
-    "django-registration>=5.2.1",
     "djangorestframework>=3.16.1",
     "huey>=2.5.5",
     "markdown>=3.10",
