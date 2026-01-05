@@ -27,10 +27,14 @@ python manage.py migrate_tasks
 # Ensure folders are owned by the right user
 chown -R www-data: /etc/linkding/data
 
-# Start background task processor using supervisord, unless explicitly disabled
-if [ "$LD_DISABLE_BACKGROUND_TASKS" != "True" ]; then
-  supervisord -c supervisord.conf
+# Start processes
+# Experimental: use supervisor to manage all processes, enables logging background tasks to stdout/stderr
+if [ "$LD_SUPERVISOR_MANAGED" = "True" ]; then
+  exec supervisord -c supervisord-all.conf
+# Default: start background task processor as daemon, then uwsgi as main process
+else
+  if [ "$LD_DISABLE_BACKGROUND_TASKS" != "True" ]; then
+    supervisord -c supervisord-tasks.conf
+  fi
+  exec uwsgi --http $LD_SERVER_HOST:$LD_SERVER_PORT uwsgi.ini
 fi
-
-# Start uwsgi server
-exec uwsgi --http $LD_SERVER_HOST:$LD_SERVER_PORT uwsgi.ini

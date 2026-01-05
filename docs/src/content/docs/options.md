@@ -48,6 +48,18 @@ Disables background tasks, such as creating snapshots for bookmarks on the [the 
 Enabling this flag will prevent the background task processor from starting up, and prevents scheduling tasks.
 This might be useful if you are experiencing performance issues or other problematic behaviour due to background task processing.
 
+### `LD_SUPERVISOR_MANAGED` (Experimental)
+
+Values: `True`, `False` | Default = `False`
+
+Changes how processes are managed within the container.
+When enabled, supervisor manages both the background task processor and the web server (uwsgi).
+This enables background task logs to appear in the container output (visible via `docker logs`).
+At the moment, supervisor will automatically restart crashed processes and the `LD_DISABLE_BACKGROUND_TASKS` setting is ignored.
+
+When disabled (default), the background task processor runs as a daemon and uwsgi runs as the main process.
+Background task logs are written to a file (`background_tasks.log`) instead of the container output.
+
 ### `LD_DISABLE_URL_VALIDATION`
 
 Values: `True`, `False` | Default = `False`

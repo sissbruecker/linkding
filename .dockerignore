@@ -12,7 +12,8 @@
 !/postcss.config.js
 !/pyproject.toml
 !/rollup.config.mjs
-!/supervisord.conf
+!/supervisord-tasks.conf
+!/supervisord-all.conf
 !/uv.lock
 !/uwsgi.ini
 !/version.txt
