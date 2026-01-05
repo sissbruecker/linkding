@@ -1,8 +1,8 @@
 import re
 
 import bleach
-from bleach.linkifier import DEFAULT_CALLBACKS, Linker
 import markdown
+from bleach.linkifier import DEFAULT_CALLBACKS, Linker
 from bleach_allowlist import markdown_attrs, markdown_tags
 from django import template
 from django.utils.safestring import mark_safe
