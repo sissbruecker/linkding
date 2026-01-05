@@ -21,6 +21,7 @@ This section lists community projects around using linkding, in alphabetical ord
 - [linkding-api](https://github.com/vbsampath/linkding-api) A Javascript library implementing linkding REST API by [vbsampath](https://github.com/vbsampath)
 - [linkding-archiver](https://github.com/sebw/linkding-archiver) A Python application that integrates with SingleFile and Tube Archivist to archive your links and videos. By [sebw](https://github.com/sebw)  
 - [linkding-cli](https://github.com/bachya/linkding-cli) A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). By [bachya](https://github.com/bachya)
+- [linkdinger](https://github.com/lmmendes/linkdinger) A Telegram bot that saves links directly to Linkding, with support for tags, notes, and searching bookmarks. By [lmmendes](https://github.com/lmmendes)
 - [linkding-extension](https://github.com/jeroenpardon/linkding-extension) Chromium compatible extension that wraps the linkding bookmarklet. Tested with Chrome, Edge, Brave. By [jeroenpardon](https://github.com/jeroenpardon)
 - [linkding-healthcheck](https://github.com/sebw/linkding-healthcheck) A Go application that checks the health of your bookmarks and add a tag on dead and problematic URLs. By [sebw](https://github.com/sebw) 
 - [linkding-injector](https://github.com/Fivefold/linkding-injector) Injects search results from linkding into the sidebar of search pages like google and duckduckgo. Tested with Firefox and Chrome. By [Fivefold](https://github.com/Fivefold)
