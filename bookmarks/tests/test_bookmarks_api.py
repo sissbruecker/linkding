@@ -649,11 +649,24 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         bookmark = Bookmark.objects.get(url=data["url"])
         self.assertCountEqual(bookmark.tags.all(), [tag1, tag2])
 
+    def test_create_bookmark_should_set_default_dates(self):
+        self.authenticate()
+
+        with patch("bookmarks.services.bookmarks.timezone.now") as mock_now:
+            fixed_time = timezone.make_aware(datetime.datetime(2024, 1, 15, 12, 0, 0))
+            mock_now.return_value = fixed_time
+
+            data = {"url": "https://example.com/"}
+            self.post(reverse("linkding:bookmark-list"), data, status.HTTP_201_CREATED)
+            bookmark = Bookmark.objects.get(url=data["url"])
+            self.assertEqual(bookmark.date_added, fixed_time)
+            self.assertEqual(bookmark.date_modified, fixed_time)
+
     def test_create_bookmark_with_date_added(self):
         self.authenticate()
 
-        date1= timezone.now() - datetime.timedelta(days=30)
-        data = { "url": "https://example.com/", "date_added": date1.isoformat() }
+        date1 = timezone.now() - datetime.timedelta(days=30)
+        data = {"url": "https://example.com/", "date_added": date1.isoformat()}
         self.post(reverse("linkding:bookmark-list"), data, status.HTTP_201_CREATED)
         bookmark = Bookmark.objects.get(url=data["url"])
         self.assertEqual(bookmark.date_added.isoformat(), date1.isoformat())
@@ -661,8 +674,8 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
     def test_create_bookmark_with_date_modified(self):
         self.authenticate()
 
-        date1= timezone.now() - datetime.timedelta(days=15)
-        data = { "url": "https://example.com/", "date_modified": date1.isoformat() }
+        date1 = timezone.now() - datetime.timedelta(days=15)
+        data = {"url": "https://example.com/", "date_modified": date1.isoformat()}
         self.post(reverse("linkding:bookmark-list"), data, status.HTTP_201_CREATED)
         bookmark = Bookmark.objects.get(url=data["url"])
         self.assertEqual(bookmark.date_modified.isoformat(), date1.isoformat())

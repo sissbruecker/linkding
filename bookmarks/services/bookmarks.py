@@ -27,6 +27,7 @@ def create_bookmark(
     # Set currently logged in user as owner
     bookmark.owner = current_user
     # Set dates only if not already provided
+    # This allows to sync existing dates through the REST API for example
     if not bookmark.date_added:
         bookmark.date_added = timezone.now()
     if not bookmark.date_modified:
