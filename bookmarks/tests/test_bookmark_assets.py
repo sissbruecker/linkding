@@ -3,9 +3,9 @@ import os
 from django.conf import settings
 from django.test import TestCase
 
+from bookmarks.models import BookmarkAsset
 from bookmarks.services import bookmarks
 from bookmarks.tests.helpers import BookmarkFactoryMixin
-from bookmarks.models import BookmarkAsset
 
 
 class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
