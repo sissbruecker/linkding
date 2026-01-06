@@ -152,11 +152,11 @@ class BookmarkDetailsModalE2ETestCase(LinkdingE2ETestCase):
         asset_list = details_modal.locator(".assets")
 
         # No snapshots initially
-        snapshot = asset_list.get_by_text("HTML snapshot from", exact=False)
+        snapshot = asset_list.get_by_text("snapshot", exact=False)
         expect(snapshot).not_to_be_visible()
 
         # Create snapshot
-        details_modal.get_by_text("Create HTML snapshot", exact=False).click()
+        details_modal.get_by_text("snapshot", exact=False).click()
         self.assertReloads(0)
 
         # Has new snapshots
