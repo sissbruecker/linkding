@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from bookmarks.services import bookmarks
 from bookmarks.tests.helpers import BookmarkFactoryMixin
+from bookmarks.models import BookmarkAsset
 
 
 class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
@@ -81,8 +82,6 @@ class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.file_size, 4)
 
     def test_download_name_for_html_snapshot(self):
-        from bookmarks.models import BookmarkAsset
-
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(
             bookmark=bookmark,
@@ -93,8 +92,6 @@ class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.download_name, "HTML snapshot from Jan 1, 2025.html")
 
     def test_download_name_for_pdf_snapshot(self):
-        from bookmarks.models import BookmarkAsset
-
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(
             bookmark=bookmark,
@@ -105,8 +102,6 @@ class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.download_name, "PDF snapshot from Jan 1, 2025.pdf")
 
     def test_download_name_for_upload(self):
-        from bookmarks.models import BookmarkAsset
-
         bookmark = self.setup_bookmark()
         asset = self.setup_asset(
             bookmark=bookmark,
