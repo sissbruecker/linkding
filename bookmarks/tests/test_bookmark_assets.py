@@ -97,9 +97,9 @@ class BookmarkAssetsTestCase(TestCase, BookmarkFactoryMixin):
             bookmark=bookmark,
             asset_type=BookmarkAsset.TYPE_SNAPSHOT,
             content_type=BookmarkAsset.CONTENT_TYPE_PDF,
-            display_name="PDF snapshot from Jan 1, 2025",
+            display_name="PDF download from Jan 1, 2025",
         )
-        self.assertEqual(asset.download_name, "PDF snapshot from Jan 1, 2025.pdf")
+        self.assertEqual(asset.download_name, "PDF download from Jan 1, 2025.pdf")
 
     def test_download_name_for_upload(self):
         bookmark = self.setup_bookmark()

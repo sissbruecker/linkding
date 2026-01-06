@@ -129,7 +129,7 @@ def _create_pdf_snapshot(asset: BookmarkAsset):
 
     asset.status = BookmarkAsset.STATUS_COMPLETE
     asset.content_type = BookmarkAsset.CONTENT_TYPE_PDF
-    asset.display_name = f"PDF snapshot from {timestamp}"
+    asset.display_name = f"PDF download from {timestamp}"
     asset.file = filename
     asset.gzip = True
     asset.save()

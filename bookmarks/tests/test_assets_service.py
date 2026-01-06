@@ -191,7 +191,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.status, BookmarkAsset.STATUS_COMPLETE)
         self.assertEqual(asset.file, expected_filename)
         self.assertEqual(asset.content_type, BookmarkAsset.CONTENT_TYPE_PDF)
-        self.assertIn("PDF snapshot from", asset.display_name)
+        self.assertIn("PDF download from", asset.display_name)
         self.assertTrue(asset.gzip)
 
         # should update bookmark
