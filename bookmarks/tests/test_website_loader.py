@@ -203,8 +203,8 @@ class WebsiteLoaderTestCase(TestCase):
             self.assertEqual(mock_load_page.call_count, 2)
 
 
-class DetectContentTypeTestCase(TestCase):
-    def test_returns_content_type_from_head_request(self):
+class ContentTypeDetectionTestCase(TestCase):
+    def test_detect_content_type_returns_content_type_from_head_request(self):
         with mock.patch("requests.head") as mock_head:
             mock_response = mock.Mock()
             mock_response.status_code = 200
@@ -216,7 +216,7 @@ class DetectContentTypeTestCase(TestCase):
             self.assertEqual(result, "application/pdf")
             mock_head.assert_called_once()
 
-    def test_strips_charset_from_content_type(self):
+    def test_detect_content_type_strips_charset(self):
         with mock.patch("requests.head") as mock_head:
             mock_response = mock.Mock()
             mock_response.status_code = 200
@@ -227,7 +227,7 @@ class DetectContentTypeTestCase(TestCase):
 
             self.assertEqual(result, "text/html")
 
-    def test_returns_lowercase_content_type(self):
+    def test_detect_content_type_returns_lowercase(self):
         with mock.patch("requests.head") as mock_head:
             mock_response = mock.Mock()
             mock_response.status_code = 200
@@ -238,7 +238,7 @@ class DetectContentTypeTestCase(TestCase):
 
             self.assertEqual(result, "application/pdf")
 
-    def test_falls_back_to_get_when_head_fails(self):
+    def test_detect_content_type_falls_back_to_get_when_head_fails(self):
         with (
             mock.patch("requests.head") as mock_head,
             mock.patch("requests.get") as mock_get,
@@ -260,7 +260,7 @@ class DetectContentTypeTestCase(TestCase):
             mock_head.assert_called_once()
             mock_get.assert_called_once()
 
-    def test_returns_none_when_both_head_and_get_fail(self):
+    def test_detect_content_type_returns_none_when_both_head_and_get_fail(self):
         with (
             mock.patch("requests.head") as mock_head,
             mock.patch("requests.get") as mock_get,
@@ -274,7 +274,7 @@ class DetectContentTypeTestCase(TestCase):
 
             self.assertIsNone(result)
 
-    def test_returns_none_for_non_200_status(self):
+    def test_detect_content_type_returns_none_for_non_200_status(self):
         with (
             mock.patch("requests.head") as mock_head,
             mock.patch("requests.get") as mock_get,
@@ -293,19 +293,9 @@ class DetectContentTypeTestCase(TestCase):
 
             self.assertIsNone(result)
 
-
-class IsPdfContentTypeTestCase(TestCase):
-    def test_returns_true_for_application_pdf(self):
+    def test_is_pdf_content_type(self):
         self.assertTrue(website_loader.is_pdf_content_type("application/pdf"))
-
-    def test_returns_true_for_application_x_pdf(self):
         self.assertTrue(website_loader.is_pdf_content_type("application/x-pdf"))
-
-    def test_returns_false_for_text_html(self):
         self.assertFalse(website_loader.is_pdf_content_type("text/html"))
-
-    def test_returns_false_for_none(self):
         self.assertFalse(website_loader.is_pdf_content_type(None))
-
-    def test_returns_false_for_empty_string(self):
         self.assertFalse(website_loader.is_pdf_content_type(""))
