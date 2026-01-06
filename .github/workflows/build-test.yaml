@@ -38,6 +38,8 @@ jobs:
             ghcr.io/sissbruecker/linkding:test
           target: linkding
           push: true
+          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache
+          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache,mode=max
 
       - name: Build latest-alpine
         uses: docker/build-push-action@v6
@@ -49,6 +51,8 @@ jobs:
             ghcr.io/sissbruecker/linkding:test-alpine
           target: linkding
           push: true
+          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine
+          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine,mode=max
 
       - name: Build latest-plus
         uses: docker/build-push-action@v6
@@ -60,6 +64,8 @@ jobs:
             ghcr.io/sissbruecker/linkding:test-plus
           target: linkding-plus
           push: true
+          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache
+          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache,mode=max
 
       - name: Build latest-plus-alpine
         uses: docker/build-push-action@v6
@@ -71,3 +77,5 @@ jobs:
             ghcr.io/sissbruecker/linkding:test-plus-alpine
           target: linkding-plus
           push: true
+          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine
+          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine,mode=max
