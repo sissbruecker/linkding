@@ -1,5 +1,58 @@
 # Changelog
 
+## v1.45.0 (06/01/2026)
+
+### What's Changed
+* API token management by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1248
+* Add option to disable login form by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1269
+* Turn scheme-less URLs into HTTPS instead of HTTP links by @Maaxxs in https://github.com/sissbruecker/linkding/pull/1225
+* Disable bulk execute button when no bookmarks selected by @emanuelebeffa in https://github.com/sissbruecker/linkding/pull/1241
+* Add option to run supervisor as main process by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1270
+* Allow setting date_added and date_modified for new bookmarks through REST API by @jmason in https://github.com/sissbruecker/linkding/pull/1063
+* Download PDF instead of creating HTML snapshot if URL points at PDF by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1271
+* Allow sandboxed scripts when viewing assets by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1252
+* Allow viewing video assets by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1259
+* Remove absolute URIs from settings page by @packrat386 in https://github.com/sissbruecker/linkding/pull/1261
+* Move tag management forms into dialogs by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1253
+* Move bulk edit checkboxes into bookmark list container by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1257
+* Remove registration switch by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1268
+* Add linkdinger to community projects by @lmmendes in https://github.com/sissbruecker/linkding/pull/1266
+
+### New Contributors
+* @packrat386 made their first contribution in https://github.com/sissbruecker/linkding/pull/1261
+* @lmmendes made their first contribution in https://github.com/sissbruecker/linkding/pull/1266
+* @Maaxxs made their first contribution in https://github.com/sissbruecker/linkding/pull/1225
+* @emanuelebeffa made their first contribution in https://github.com/sissbruecker/linkding/pull/1241
+* @jmason made their first contribution in https://github.com/sissbruecker/linkding/pull/1063
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.44.2...v1.45.0
+
+---
+
+## v1.44.2 (13/12/2025)
+
+### What's Changed
+
+> [!WARNING] 
+> *This resolves a [security vulnerability](https://github.com/sissbruecker/linkding/security/advisories/GHSA-3pf9-5cjv-2w7q) in linkding. Everyone is encouraged to upgrade to the latest version as soon as possible.*
+
+* Use sandbox CSP for viewing assets by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1245
+* Fix devcontainer by @m3eno in https://github.com/sissbruecker/linkding/pull/1208
+* Fix tag cloud highlighting first char when tags are not grouped by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1209
+* Bump supervisor to 4.3.0 to fix warning by @simonhammes in https://github.com/sissbruecker/linkding/pull/1216
+* Added Javascript client and library for Linkding REST API by @vbsampath in https://github.com/sissbruecker/linkding/pull/1195
+* Add Komrade project to community resources by @dev-inside in https://github.com/sissbruecker/linkding/pull/1236
+
+### New Contributors
+* @m3eno made their first contribution in https://github.com/sissbruecker/linkding/pull/1208
+* @vbsampath made their first contribution in https://github.com/sissbruecker/linkding/pull/1195
+* @dev-inside made their first contribution in https://github.com/sissbruecker/linkding/pull/1236
+* @simonhammes made their first contribution in https://github.com/sissbruecker/linkding/pull/1216
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.44.1...v1.44.2
+
+---
+
 ## v1.44.1 (11/10/2025)
 
 ### What's Changed

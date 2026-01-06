@@ -455,7 +455,7 @@ wheels = [
 
 [[package]]
 name = "linkding"
-version = "1.44.2"
+version = "1.45.0"
 source = { virtual = "." }
 dependencies = [
     { name = "beautifulsoup4" },
