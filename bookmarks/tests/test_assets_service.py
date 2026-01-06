@@ -79,8 +79,8 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertIsNotNone(asset)
         self.assertEqual(asset.bookmark, bookmark)
         self.assertEqual(asset.asset_type, BookmarkAsset.TYPE_SNAPSHOT)
-        self.assertEqual(asset.content_type, BookmarkAsset.CONTENT_TYPE_HTML)
-        self.assertIn("HTML snapshot from", asset.display_name)
+        self.assertEqual(asset.content_type, "")
+        self.assertEqual(asset.display_name, "New snapshot")
         self.assertEqual(asset.status, BookmarkAsset.STATUS_PENDING)
 
         # asset is not saved to the database
@@ -123,6 +123,8 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         # should update asset status and file
         asset.refresh_from_db()
         self.assertEqual(asset.status, BookmarkAsset.STATUS_COMPLETE)
+        self.assertEqual(asset.content_type, BookmarkAsset.CONTENT_TYPE_HTML)
+        self.assertIn("HTML snapshot from", asset.display_name)
         self.assertEqual(asset.file, expected_filename)
         self.assertTrue(asset.gzip)
 

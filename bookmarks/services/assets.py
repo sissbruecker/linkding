@@ -26,14 +26,12 @@ class PdfTooLargeError(Exception):
 
 
 def create_snapshot_asset(bookmark: Bookmark) -> BookmarkAsset:
-    date_created = timezone.now()
-    timestamp = formats.date_format(date_created, "SHORT_DATE_FORMAT")
     asset = BookmarkAsset(
         bookmark=bookmark,
         asset_type=BookmarkAsset.TYPE_SNAPSHOT,
-        date_created=date_created,
-        content_type=BookmarkAsset.CONTENT_TYPE_HTML,
-        display_name=f"HTML snapshot from {timestamp}",
+        date_created=timezone.now(),
+        content_type="",
+        display_name="New snapshot",
         status=BookmarkAsset.STATUS_PENDING,
     )
     return asset
@@ -72,7 +70,12 @@ def _create_html_snapshot(asset: BookmarkAsset):
     # Remove temporary file
     os.remove(temp_filepath)
 
+    # Update display name for HTML
+    timestamp = formats.date_format(asset.date_created, "SHORT_DATE_FORMAT")
+
     asset.status = BookmarkAsset.STATUS_COMPLETE
+    asset.content_type = BookmarkAsset.CONTENT_TYPE_HTML
+    asset.display_name = f"HTML snapshot from {timestamp}"
     asset.file = filename
     asset.gzip = True
     asset.save()
@@ -148,7 +151,11 @@ def upload_snapshot(bookmark: Bookmark, html: bytes):
         gz_file.write(html)
 
     # Only save the asset if the file was written successfully
+    timestamp = formats.date_format(asset.date_created, "SHORT_DATE_FORMAT")
+
     asset.status = BookmarkAsset.STATUS_COMPLETE
+    asset.content_type = BookmarkAsset.CONTENT_TYPE_HTML
+    asset.display_name = f"HTML snapshot from {timestamp}"
     asset.file = filename
     asset.gzip = True
     asset.save()
