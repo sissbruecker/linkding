@@ -201,3 +201,101 @@ class WebsiteLoaderTestCase(TestCase):
                 "https://example.com", ignore_cache=True
             )
             self.assertEqual(mock_load_page.call_count, 2)
+
+
+class ContentTypeDetectionTestCase(TestCase):
+    def test_detect_content_type_returns_content_type_from_head_request(self):
+        with mock.patch("requests.head") as mock_head:
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.headers = {"Content-Type": "application/pdf"}
+            mock_head.return_value = mock_response
+
+            result = website_loader.detect_content_type("https://example.com/doc.pdf")
+
+            self.assertEqual(result, "application/pdf")
+            mock_head.assert_called_once()
+
+    def test_detect_content_type_strips_charset(self):
+        with mock.patch("requests.head") as mock_head:
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.headers = {"Content-Type": "text/html; charset=utf-8"}
+            mock_head.return_value = mock_response
+
+            result = website_loader.detect_content_type("https://example.com")
+
+            self.assertEqual(result, "text/html")
+
+    def test_detect_content_type_returns_lowercase(self):
+        with mock.patch("requests.head") as mock_head:
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.headers = {"Content-Type": "Application/PDF"}
+            mock_head.return_value = mock_response
+
+            result = website_loader.detect_content_type("https://example.com/doc.pdf")
+
+            self.assertEqual(result, "application/pdf")
+
+    def test_detect_content_type_falls_back_to_get_when_head_fails(self):
+        with (
+            mock.patch("requests.head") as mock_head,
+            mock.patch("requests.get") as mock_get,
+        ):
+            import requests
+
+            mock_head.side_effect = requests.RequestException("HEAD failed")
+
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.headers = {"Content-Type": "application/pdf"}
+            mock_response.__enter__ = mock.Mock(return_value=mock_response)
+            mock_response.__exit__ = mock.Mock(return_value=False)
+            mock_get.return_value = mock_response
+
+            result = website_loader.detect_content_type("https://example.com/doc.pdf")
+
+            self.assertEqual(result, "application/pdf")
+            mock_head.assert_called_once()
+            mock_get.assert_called_once()
+
+    def test_detect_content_type_returns_none_when_both_head_and_get_fail(self):
+        with (
+            mock.patch("requests.head") as mock_head,
+            mock.patch("requests.get") as mock_get,
+        ):
+            import requests
+
+            mock_head.side_effect = requests.RequestException("HEAD failed")
+            mock_get.side_effect = requests.RequestException("GET failed")
+
+            result = website_loader.detect_content_type("https://example.com/doc.pdf")
+
+            self.assertIsNone(result)
+
+    def test_detect_content_type_returns_none_for_non_200_status(self):
+        with (
+            mock.patch("requests.head") as mock_head,
+            mock.patch("requests.get") as mock_get,
+        ):
+            mock_head_response = mock.Mock()
+            mock_head_response.status_code = 404
+            mock_head.return_value = mock_head_response
+
+            mock_get_response = mock.Mock()
+            mock_get_response.status_code = 404
+            mock_get_response.__enter__ = mock.Mock(return_value=mock_get_response)
+            mock_get_response.__exit__ = mock.Mock(return_value=False)
+            mock_get.return_value = mock_get_response
+
+            result = website_loader.detect_content_type("https://example.com/doc.pdf")
+
+            self.assertIsNone(result)
+
+    def test_is_pdf_content_type(self):
+        self.assertTrue(website_loader.is_pdf_content_type("application/pdf"))
+        self.assertTrue(website_loader.is_pdf_content_type("application/x-pdf"))
+        self.assertFalse(website_loader.is_pdf_content_type("text/html"))
+        self.assertFalse(website_loader.is_pdf_content_type(None))
+        self.assertFalse(website_loader.is_pdf_content_type(""))
