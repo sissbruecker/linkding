@@ -113,6 +113,14 @@ LOGIN_URL = "/" + LD_CONTEXT_PATH + "login"
 LOGIN_REDIRECT_URL = "/" + LD_CONTEXT_PATH + "bookmarks"
 LOGOUT_REDIRECT_URL = "/" + LD_CONTEXT_PATH + "login"
 
+CSRF_COOKIE_PATH = "/" + LD_CONTEXT_PATH
+LANGUAGE_COOKIE_PATH = "/" + LD_CONTEXT_PATH
+SESSION_COOKIE_PATH = "/" + LD_CONTEXT_PATH
+
+CSRF_COOKIE_NAME = "ld_csrftoken"
+LANGUAGE_COOKIE_NAME = "ld_language"
+SESSION_COOKIE_NAME = "ld_sessionid"
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
