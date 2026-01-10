@@ -3,6 +3,7 @@ import "./components/bookmark-page.js";
 import "./components/clear-button.js";
 import "./components/confirm-dropdown.js";
 import "./components/details-modal.js";
+import "./components/dev-tool.js";
 import "./components/dropdown.js";
 import "./components/filter-drawer.js";
 import "./components/form.js";

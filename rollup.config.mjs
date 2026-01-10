@@ -3,6 +3,17 @@ import terser from '@rollup/plugin-terser';
 
 const production = !process.env.ROLLUP_WATCH;
 
+// Custom plugin to exclude dev-tool.js from production builds
+const excludeDevTool = {
+  name: 'exclude-dev-tool',
+  load(id) {
+    if (production && id.endsWith('dev-tool.js')) {
+      return '';
+    }
+    return null;
+  },
+};
+
 export default {
   input: 'bookmarks/frontend/index.js',
   output: {
@@ -13,6 +24,7 @@ export default {
     file: 'bookmarks/static/bundle.js',
   },
   plugins: [
+    excludeDevTool,
     // If you have external dependencies installed from
     // npm, you'll most likely need these plugins. In
     // some cases you'll need additional configuration —

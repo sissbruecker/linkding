@@ -1,0 +1,9 @@
+{% load shared %}
+{% if debug and request.user.is_authenticated %}
+  {{ request.user.profile|model_to_dict|json_script:"json_profile" }}
+  <ld-dev-tool id="dev-tool"
+               data-csrf-token="{{ csrf_token }}"
+               data-form-action="{% url 'linkding:settings.update' %}"
+               data-turbo-permanent>
+  </ld-dev-tool>
+{% endif %}

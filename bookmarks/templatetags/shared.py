@@ -5,6 +5,7 @@ import markdown
 from bleach.linkifier import DEFAULT_CALLBACKS, Linker
 from bleach_allowlist import markdown_attrs, markdown_tags
 from django import template
+from django.forms.models import model_to_dict
 from django.utils.safestring import mark_safe
 
 from bookmarks import utils
@@ -58,6 +59,12 @@ def humanize_relative_date(value):
     if value in (None, ""):
         return ""
     return utils.humanize_relative_date(value)
+
+
+@register.filter(name="model_to_dict")
+def model_to_dict_filter(value):
+    result = model_to_dict(value)
+    return result
 
 
 @register.tag
