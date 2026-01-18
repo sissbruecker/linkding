@@ -3,7 +3,6 @@ import hashlib
 import logging
 import os
 
-from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
@@ -17,21 +16,6 @@ from bookmarks.utils import normalize_url, unique
 from bookmarks.validators import BookmarkURLValidator
 
 logger = logging.getLogger(__name__)
-
-
-class MaskedPasswordInput(forms.PasswordInput):
-    """
-    A password input that shows bullets when there's an existing value.
-    """
-
-    def __init__(self, attrs=None, render_value=True):
-        # Enable render_value so we can display the masked value
-        super().__init__(attrs=attrs, render_value=render_value)
-
-    def get_context(self, name, value, attrs):
-        if value:
-            value = "••••••••••••••••••••••••"
-        return super().get_context(name, value, attrs)
 
 
 class Tag(models.Model):
@@ -461,59 +445,6 @@ class UserProfile(models.Model):
         else:
             self.custom_css_hash = ""
         super().save(*args, **kwargs)
-
-
-class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = [
-            "theme",
-            "bookmark_date_display",
-            "bookmark_description_display",
-            "bookmark_description_max_lines",
-            "bookmark_link_target",
-            "web_archive_integration",
-            "tag_search",
-            "tag_grouping",
-            "enable_sharing",
-            "enable_public_sharing",
-            "enable_favicons",
-            "enable_preview_images",
-            "enable_automatic_html_snapshots",
-            "display_url",
-            "display_view_bookmark_action",
-            "display_edit_bookmark_action",
-            "display_archive_bookmark_action",
-            "display_remove_bookmark_action",
-            "permanent_notes",
-            "default_mark_unread",
-            "default_mark_shared",
-            "custom_css",
-            "auto_tagging_rules",
-            "ai_api_key",
-            "ai_model",
-            "ai_tag_vocabulary",
-            "ai_base_url",
-            "items_per_page",
-            "sticky_pagination",
-            "collapse_side_panel",
-            "hide_bundles",
-            "legacy_search",
-        ]
-        widgets = {
-            "ai_api_key": MaskedPasswordInput(),
-        }
-
-    def clean_ai_api_key(self):
-        """
-        If the submitted value is the masked placeholder, preserve the existing value,
-        otherwise return the new value.
-        """
-        value = self.cleaned_data.get("ai_api_key")
-        # If masked bullets, keep the existing value (user didn't change it)
-        if value == "••••••••••••••••••••••••":
-            return self.instance.ai_api_key
-        return value
 
 
 @receiver(post_save, sender=User)
