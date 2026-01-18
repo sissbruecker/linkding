@@ -250,6 +250,56 @@ def _refresh_metadata_task(bookmark_id: int):
     logger.info(f"Successfully refreshed metadata for bookmark. url={bookmark.url}")
 
 
+def auto_tag_bookmark(user: User, bookmark: Bookmark, force: bool = False):
+    """Schedule AI auto-tagging task if AI auto-tagging is configured for user."""
+    if not settings.LD_DISABLE_BACKGROUND_TASKS:
+        from bookmarks.services.ai_auto_tagger import is_ai_auto_tagging_enabled
+
+        if is_ai_auto_tagging_enabled(user):
+            _auto_tag_bookmark_task(bookmark.id, user.id, force)
+
+
+@task()
+def _auto_tag_bookmark_task(bookmark_id: int, user_id: int, force: bool = False):
+    """
+    Background task to generate and apply AI tags.
+    Only applies if bookmark currently has no tags and was just created.
+    If force=True, applies AI tags even if the bookmark already has tags.
+    """
+    try:
+        bookmark = Bookmark.objects.get(id=bookmark_id)
+        user = User.objects.get(id=user_id)
+
+        # Skip if bookmark already has tags
+        if bookmark.tags.exists() and not force:
+            logger.info(
+                f"Skipping AI tagging - bookmark {bookmark_id} already has tags"
+            )
+            return
+
+        # Get AI suggestions
+        from bookmarks.services.ai_auto_tagger import get_ai_tags
+
+        ai_tag_names = get_ai_tags(bookmark, user)
+
+        if ai_tag_names:
+            from bookmarks.services.tags import get_or_create_tags
+
+            tags = get_or_create_tags(ai_tag_names, user)
+            bookmark.tags.set(tags)
+            logger.info(f"Applied AI tags to bookmark {bookmark_id}: {ai_tag_names}")
+        else:
+            logger.info(f"No AI tags suggested for bookmark {bookmark_id}")
+
+    except Bookmark.DoesNotExist:
+        logger.error(f"Bookmark {bookmark_id} not found for AI tagging")
+    except User.DoesNotExist:
+        logger.error(f"User {user_id} not found for AI tagging")
+    except Exception as e:
+        # Avoid re-raising exception to prevent task retries and wasting AI credits
+        logger.error(f"Failed to auto-tag bookmark {bookmark_id}", exc_info=e)
+
+
 def is_html_snapshot_feature_active() -> bool:
     return settings.LD_ENABLE_SNAPSHOTS and not settings.LD_DISABLE_BACKGROUND_TASKS
 
