@@ -72,7 +72,8 @@ class ConfirmDropdown extends LitElement {
     // Add warning for bulk AI auto-tagging
     const form = this.button.closest("form");
     const bulkActionSelect = form?.querySelector('select[name="bulk_action"]');
-    const isBulkRefreshAITags = bulkActionSelect?.value === "bulk_refresh_ai_tags";
+    const isBulkRefreshAITags =
+      bulkActionSelect?.value === "bulk_refresh_ai_tags";
 
     return html`
       <div
@@ -86,7 +87,8 @@ class ConfirmDropdown extends LitElement {
         </span>
         ${isBulkRefreshAITags
           ? html`<p class="text-small text-error mb-2">
-              This will trigger API calls to your AI provider for each selected bookmark, which may exceed rate limits or incur unexpected costs.
+              This will trigger API calls to your AI provider for each selected
+              bookmark, which may exceed rate limits or incur unexpected costs.
             </p>`
           : ""}
         <button type="button" class="btn" @click=${this.close}>Cancel</button>
