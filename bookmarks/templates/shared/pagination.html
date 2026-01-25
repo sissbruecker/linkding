@@ -2,7 +2,9 @@
 <ul class="pagination">
   {% if prev_link %}
     <li class="page-item">
-      <a href="{{ prev_link }}" tabindex="-1">Previous</a>
+      <a href="{{ prev_link }}"
+         tabindex="-1"
+         data-turbo-frame="{{ pagination_frame }}">Previous</a>
     </li>
   {% else %}
     <li class="page-item disabled">
@@ -12,7 +14,7 @@
   {% for page_link in page_links %}
     {% if page_link %}
       <li class="page-item {% if page_link.active %}active{% endif %}">
-        <a href="{{ page_link.link }}">{{ page_link.number }}</a>
+        <a href="{{ page_link.link }}" data-turbo-frame="{{ pagination_frame }}">{{ page_link.number }}</a>
       </li>
     {% else %}
       <li class="page-item">
@@ -22,7 +24,9 @@
   {% endfor %}
   {% if next_link %}
     <li class="page-item">
-      <a href="{{ next_link }}" tabindex="-1">Next</a>
+      <a href="{{ next_link }}"
+         tabindex="-1"
+         data-turbo-frame="{{ pagination_frame }}">Next</a>
     </li>
   {% else %}
     <li class="page-item disabled">

@@ -5,6 +5,7 @@
 {% endblock %}
 {% block content %}
   <div class="tags-page crud-page">
+    <turbo-frame id="tag-main">
     <main aria-labelledby="main-heading">
       <div class="crud-header">
         <h1 id="main-heading">Tags</h1>
@@ -97,7 +98,7 @@
                   </td>
                   <td class="actions">
                     <a class="btn btn-link"
-                       href="{% url 'linkding:tags.edit' tag.id %}"
+                       href="{% url 'linkding:tags.edit' tag.id %}?{{ request.GET.urlencode }}"
                        data-turbo-frame="tag-modal">Edit</a>
                     <button type="submit"
                             name="delete_tag"
@@ -123,6 +124,7 @@
         </div>
       {% endif %}
     </main>
+    <turbo-frame id="tag-modal"></turbo-frame>
+    </turbo-frame>
   </div>
-  <turbo-frame id="tag-modal"></turbo-frame>
 {% endblock %}

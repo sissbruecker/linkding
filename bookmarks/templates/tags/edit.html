@@ -1,11 +1,11 @@
 <turbo-frame id="tag-modal">
 <form method="post"
-      action="{% url 'linkding:tags.edit' tag.id %}"
-      data-turbo-frame="_top"
+      action="{% url 'linkding:tags.edit' tag.id %}?{{ request.GET.urlencode }}"
+      data-turbo-frame="tag-main"
       novalidate>
   {% csrf_token %}
   <ld-modal class="modal tag-edit-modal active"
-            data-close-url="{% url 'linkding:tags.index' %}"
+            data-close-url="{% url 'linkding:tags.index' %}?{{ request.GET.urlencode }}"
             data-turbo-frame="tag-modal">
     <div class="modal-overlay" data-close-modal></div>
     <div class="modal-container" role="dialog" aria-modal="true">

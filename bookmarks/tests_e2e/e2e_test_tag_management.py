@@ -113,9 +113,6 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         # Verify modal is closed
         expect(modal).not_to_be_visible()
 
-        # Verify the success message is shown
-        self.verify_success_message('Tag "new-name" updated successfully.')
-
         # Verify the updated tag is shown in the list
         expect(self.locate_tag_row("new-name")).to_be_visible()
         expect(self.locate_tag_row("old-name")).not_to_be_visible()
@@ -156,6 +153,89 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         # Verify the tag was not modified
         tag.refresh_from_db()
         self.assertEqual(tag.name, "tag-to-edit")
+
+    def test_edit_tag_preserves_query_and_scroll_position(self):
+        # Create enough tags to have multiple pages (50 per page)
+        for i in range(70):
+            self.setup_tag(name=f"test-tag-{i:02d}")
+
+        # Open tags page 2 with search query
+        url = reverse("linkding:tags.index") + "?search=test&page=2"
+        self.open(url)
+
+        # Verify we're on page 2
+        expect(self.locate_tag_row("test-tag-00")).not_to_be_visible()
+        expect(self.locate_tag_row("test-tag-50")).to_be_visible()
+        expect(self.locate_tag_row("test-tag-60")).to_be_visible()
+
+        # Scroll down
+        self.page.evaluate("window.scrollTo(0, 300)")
+        initial_scroll = self.page.evaluate("window.scrollY")
+        self.assertGreater(initial_scroll, 0)
+
+        # Edit tag
+        tag_row = self.locate_tag_row("test-tag-55")
+        tag_row.get_by_role("link", name="Edit").click()
+
+        modal = self.locate_tag_modal()
+
+        name_input = modal.get_by_label("Name")
+        name_input.fill("test-tag-55-edited")
+
+        modal.get_by_text("Save").click()
+
+        expect(modal).not_to_be_visible()
+
+        # Verify query parameters and scroll position are preserved
+        current_url = self.page.url
+        self.assertIn("search=test", current_url)
+        self.assertIn("page=2", current_url)
+
+        expect(self.locate_tag_row("test-tag-00")).not_to_be_visible()
+        expect(self.locate_tag_row("test-tag-50")).to_be_visible()
+        expect(self.locate_tag_row("test-tag-55-edited")).to_be_visible()
+        expect(self.locate_tag_row("test-tag-60")).to_be_visible()
+
+        final_scroll = self.page.evaluate("window.scrollY")
+        self.assertEqual(initial_scroll, final_scroll)
+
+    def test_delete_tag_preserves_query_and_scroll_position(self):
+        # Create enough tags to have multiple pages (50 per page)
+        for i in range(70):
+            self.setup_tag(name=f"test-tag-{i:02d}")
+
+        # Open tags page 2 with search query
+        url = reverse("linkding:tags.index") + "?search=test&page=2"
+        self.open(url)
+
+        # Verify we're on page 2
+        expect(self.locate_tag_row("test-tag-00")).not_to_be_visible()
+        expect(self.locate_tag_row("test-tag-50")).to_be_visible()
+        expect(self.locate_tag_row("test-tag-55")).to_be_visible()
+        expect(self.locate_tag_row("test-tag-60")).to_be_visible()
+
+        # Scroll down
+        self.page.evaluate("window.scrollTo(0, 300)")
+        initial_scroll = self.page.evaluate("window.scrollY")
+        self.assertGreater(initial_scroll, 0)
+
+        # Delete tag
+        tag_row = self.locate_tag_row("test-tag-55")
+        tag_row.get_by_role("button", name="Remove").click()
+        self.locate_confirm_dialog().get_by_text("Confirm").click()
+
+        # Verify query parameters and scroll position are preserved
+        current_url = self.page.url
+        self.assertIn("search=test", current_url)
+        self.assertIn("page=2", current_url)
+
+        expect(self.locate_tag_row("test-tag-00")).not_to_be_visible()
+        expect(self.locate_tag_row("test-tag-50")).to_be_visible()
+        expect(self.locate_tag_row("test-tag-55")).not_to_be_visible()
+        expect(self.locate_tag_row("test-tag-60")).to_be_visible()
+
+        final_scroll = self.page.evaluate("window.scrollY")
+        self.assertEqual(initial_scroll, final_scroll)
 
     def test_merge_tags(self):
         target_tag = self.setup_tag(name="target-tag")
