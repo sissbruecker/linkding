@@ -2,6 +2,7 @@
 
 init:
 	uv sync
+	[ -d data ] || mkdir data data/assets data/favicons data/previews
 	uv run manage.py migrate
 	npm install
 
