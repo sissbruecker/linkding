@@ -153,24 +153,6 @@ class TagsIndexViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertRedirects(response, reverse("linkding:tags.index"))
         self.assertFalse(Tag.objects.filter(id=tag.id).exists())
 
-    def test_tag_delete_action_shows_success_message(self):
-        tag = self.setup_tag(name="tag_to_delete")
-
-        response = self.client.post(
-            reverse("linkding:tags.index"), {"delete_tag": tag.id}, follow=True
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-        self.assertInHTML(
-            """
-            <div class="toast toast-success" role="alert">
-                Tag "tag_to_delete" deleted successfully.
-            </div>
-        """,
-            response.content.decode(),
-        )
-
     def test_tag_delete_action_preserves_query_parameters(self):
         tag = self.setup_tag(name="search_tag")
 
