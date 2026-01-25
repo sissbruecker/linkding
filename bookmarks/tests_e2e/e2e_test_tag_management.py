@@ -334,3 +334,28 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         self.assertEqual(
             Tag.objects.filter(owner=self.get_or_create_test_user()).count(), 2
         )
+
+    def test_search_updates_url_query_params(self):
+        self.setup_tag(name="python")
+        self.setup_tag(name="javascript")
+        self.setup_tag(name="typescript")
+
+        self.open(reverse("linkding:tags.index"))
+
+        # Verify all tags are visible initially
+        expect(self.locate_tag_row("python")).to_be_visible()
+        expect(self.locate_tag_row("javascript")).to_be_visible()
+        expect(self.locate_tag_row("typescript")).to_be_visible()
+
+        # Enter search term and submit
+        search_input = self.page.get_by_placeholder("Search tags...")
+        search_input.fill("script")
+        self.page.get_by_role("button", name="Search").click()
+
+        # Wait for filtered results to appear
+        expect(self.locate_tag_row("python")).not_to_be_visible()
+        expect(self.locate_tag_row("javascript")).to_be_visible()
+        expect(self.locate_tag_row("typescript")).to_be_visible()
+
+        # Verify URL contains search query param
+        self.assertIn("search=script", self.page.url)
