@@ -1,4 +1,6 @@
 import importlib
+import os
+from unittest import mock
 
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -12,6 +14,7 @@ class MockUrlConf:
 class ContextPathTestCase(TestCase):
     def setUp(self):
         self.urls_module = importlib.import_module("bookmarks.urls")
+        self.settings_module = importlib.import_module("bookmarks.settings.base")
 
     @override_settings(LD_CONTEXT_PATH=None)
     def tearDown(self):
@@ -53,3 +56,18 @@ class ContextPathTestCase(TestCase):
         for url_name, expected_url in test_cases:
             url = reverse(url_name, urlconf=urlconf)
             self.assertEqual(expected_url, url)
+
+    @mock.patch.dict(os.environ)
+    def test_default_cookie_path(self):
+        os.environ.pop("LD_CONTEXT_PATH", None)
+        module = importlib.reload(self.settings_module)
+        self.assertEqual(module.CSRF_COOKIE_PATH, '/')
+        self.assertEqual(module.LANGUAGE_COOKIE_PATH, '/')
+        self.assertEqual(module.SESSION_COOKIE_PATH, '/')
+
+    @mock.patch.dict(os.environ, {"LD_CONTEXT_PATH": "linkding/"})
+    def test_custom_cookie_path(self):
+        module = importlib.reload(self.settings_module)
+        self.assertEqual(module.CSRF_COOKIE_PATH, '/linkding/')
+        self.assertEqual(module.LANGUAGE_COOKIE_PATH, '/linkding/')
+        self.assertEqual(module.SESSION_COOKIE_PATH, '/linkding/')
