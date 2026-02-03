@@ -94,3 +94,43 @@ The font size can be adjusted globally by adding the following CSS to the custom
 You can adjust the `--font-size`, `--font-size-sm` and `--font-size-lg` variables to your liking.
 Note that increasing the font might also require you to adjust the line-height in certain places to better separate texts from each other.
 As an example, the above also increases the font size and line height of the bookmark list and tag cloud.
+
+## Authentication Proxies & REST API Clients
+
+If you are using an authentication proxy (see `LD_ENABLE_AUTH_PROXY`) in combination with REST API clients, you will need to bypass the authentication proxy for API requests. You must take care to not over-match your routes when doing this, as API calls are also made in-page by Linkding and these should pass through the authentication proxy.
+
+For example, if using Caddy,
+
+```caddyfile
+linkding.example.com {
+  # Requests for /api/* with a bearer token may skip the other authentication.
+  @external_api_call {
+    path /api/*
+    header Authorization Bearer*
+  }
+  handle @external_api_call {
+    reverse_proxy linkding:9090
+  }
+
+  # otherwise pass all requests through the authentication proxy.
+  handle {
+    forward_auth authelia:9091 {
+      uri /api/authz/forward-auth
+      copy_headers Remote-User
+    }
+    reverse_proxy linkding:9090
+  }
+}
+```
+
+If you only use Linkding via an authenticated browser session, you can safely route all requests through the authentication proxy.
+
+```caddyfile
+linkding.example.com {
+  forward_auth authelia:9091 {
+    uri /api/authz/forward-auth
+    copy_headers Remote-User
+  }
+  reverse_proxy linkding:9090
+}
+```
