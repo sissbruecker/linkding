@@ -20,7 +20,7 @@ INTERNAL_IPS = [
 ]
 
 # Allow access through ngrok
-CSRF_TRUSTED_ORIGINS = ["https://*.ngrok-free.app"]
+CSRF_TRUSTED_ORIGINS.append("https://*.ngrok-free.app")
 
 STATICFILES_DIRS = [
     # Resolve theme files from style source folder
