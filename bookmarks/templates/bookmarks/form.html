@@ -216,8 +216,19 @@
 
       // Fetch website metadata when page loads and when URL changes, unless we are editing an existing bookmark
       if (!editedBookmarkId) {
+        function debounce(callback, delay = 250) {
+          let timeoutId;
+          return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+              timeoutId = null;
+              callback(...args);
+            }, delay);
+          };
+        }
+
         checkUrl();
-        urlInput.addEventListener('input', checkUrl);
+        urlInput.addEventListener('input', debounce(checkUrl));
         titleInput.addEventListener('input', () => {
           isTitleModified = true;
         });
