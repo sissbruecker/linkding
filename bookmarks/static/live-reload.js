@@ -25,7 +25,11 @@ function connect() {
     const data = JSON.parse(event.data);
     console.log("[live-reload] File changed:", data);
 
-    if (data.file_path.endsWith(".html") || data.file_path.endsWith(".css") || data.file_path.endsWith(".js")) {
+    if (
+      data.file_path.endsWith(".html") ||
+      data.file_path.endsWith(".css") ||
+      data.file_path.endsWith(".js")
+    ) {
       console.log("[live-reload] Asset changed, reloading page");
       window.location.reload();
     }

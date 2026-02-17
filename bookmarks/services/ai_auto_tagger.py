@@ -109,7 +109,7 @@ URL: {bookmark.url}
 Title: {bookmark.title or "N/A"}
 Description: {bookmark.description or "N/A"}
 
-Allowed tags: {', '.join(allowed_tags)}
+Allowed tags: {", ".join(allowed_tags)}
 """
 
         base_url = profile.ai_base_url.strip() if profile.ai_base_url else None
