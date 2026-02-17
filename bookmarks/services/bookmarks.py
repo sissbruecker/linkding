@@ -209,7 +209,7 @@ def refresh_bookmarks_metadata(bookmark_ids: [int | str], current_user: User):
         tasks.load_preview_image(current_user, bookmark)
 
 
-def refresh_ai_tags(bookmark_ids: list[Union[int, str]], current_user: User):
+def refresh_ai_tags(bookmark_ids: list[int | str], current_user: User):
     """Refresh AI tags for bookmarks without refreshing metadata"""
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
     owned_bookmarks = Bookmark.objects.filter(
