@@ -44,6 +44,8 @@ class BookmarkBundleSerializer(serializers.ModelSerializer):
             "any_tags",
             "all_tags",
             "excluded_tags",
+            "filter_unread",
+            "filter_shared",
             "order",
             "date_created",
             "date_modified",

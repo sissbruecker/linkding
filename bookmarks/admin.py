@@ -278,6 +278,8 @@ class AdminBookmarkBundle(admin.ModelAdmin):
         "any_tags",
         "all_tags",
         "excluded_tags",
+        "filter_shared",
+        "filter_unread",
         "date_created",
     )
     search_fields = ["name", "search", "any_tags", "all_tags", "excluded_tags"]

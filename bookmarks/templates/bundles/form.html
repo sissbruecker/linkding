@@ -33,6 +33,20 @@
     None of these tags must be present in a bookmark to match.
   {% endformhelp %}
 </div>
+<div class="form-group">
+  {% formlabel form.filter_unread "Reading State" %}
+  {% formfield form.filter_unread has_help=True %}
+  {% formhelp form.filter_unread %}
+    Limit matches to unread or read bookmarks.
+  {% endformhelp %}
+</div>
+<div class="form-group">
+  {% formlabel form.filter_shared "Sharing State" %}
+  {% formfield form.filter_shared has_help=True %}
+  {% formhelp form.filter_shared %}
+    Limit matches to shared or unshared bookmarks.
+  {% endformhelp %}
+</div>
 <div class="form-footer d-flex mt-4">
   <input type="submit"
          name="save"

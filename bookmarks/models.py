@@ -181,11 +181,37 @@ def bookmark_asset_deleted(sender, instance, **kwargs):
 
 
 class BookmarkBundle(models.Model):
+    FILTER_STATE_OFF = "off"
+    FILTER_STATE_YES = "yes"
+    FILTER_STATE_NO = "no"
+    FILTER_UNREAD_CHOICES = [
+        (FILTER_STATE_OFF, "All"),
+        (FILTER_STATE_YES, "Unread"),
+        (FILTER_STATE_NO, "Read"),
+    ]
+    FILTER_SHARED_CHOICES = [
+        (FILTER_STATE_OFF, "All"),
+        (FILTER_STATE_YES, "Shared"),
+        (FILTER_STATE_NO, "Unshared"),
+    ]
+
     name = models.CharField(max_length=256, blank=False)
     search = models.CharField(max_length=256, blank=True)
     any_tags = models.CharField(max_length=1024, blank=True)
     all_tags = models.CharField(max_length=1024, blank=True)
     excluded_tags = models.CharField(max_length=1024, blank=True)
+    filter_unread = models.CharField(
+        max_length=3,
+        choices=FILTER_UNREAD_CHOICES,
+        blank=False,
+        default=FILTER_STATE_OFF,
+    )
+    filter_shared = models.CharField(
+        max_length=3,
+        choices=FILTER_SHARED_CHOICES,
+        blank=False,
+        default=FILTER_STATE_OFF,
+    )
     order = models.IntegerField(null=False, default=0)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     date_modified = models.DateTimeField(auto_now=True, null=False)

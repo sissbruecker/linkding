@@ -211,6 +211,16 @@ def _filter_bundle(query_set: QuerySet, bundle: BookmarkBundle) -> QuerySet:
             Exists(Bookmark.objects.filter(tag_conditions, id=OuterRef("id")))
         )
 
+    if bundle.filter_unread == BookmarkSearch.FILTER_UNREAD_YES:
+        query_set = query_set.filter(unread=True)
+    elif bundle.filter_unread == BookmarkSearch.FILTER_UNREAD_NO:
+        query_set = query_set.filter(unread=False)
+
+    if bundle.filter_shared == BookmarkSearch.FILTER_SHARED_SHARED:
+        query_set = query_set.filter(shared=True)
+    elif bundle.filter_shared == BookmarkSearch.FILTER_SHARED_UNSHARED:
+        query_set = query_set.filter(shared=False)
+
     return query_set
 
 
