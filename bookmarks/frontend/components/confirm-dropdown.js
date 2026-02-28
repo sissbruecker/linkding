@@ -68,6 +68,13 @@ class ConfirmDropdown extends LitElement {
 
   render() {
     const questionText = this.button.dataset.confirmQuestion || "Are you sure?";
+
+    // Add warning for bulk AI auto-tagging
+    const form = this.button.closest("form");
+    const bulkActionSelect = form?.querySelector('select[name="bulk_action"]');
+    const isBulkRefreshAITags =
+      bulkActionSelect?.value === "bulk_refresh_ai_tags";
+
     return html`
       <div
         class="menu with-arrow"
@@ -78,6 +85,12 @@ class ConfirmDropdown extends LitElement {
         <span id=${this.confirmId} style="font-weight: bold;">
           ${questionText}
         </span>
+        ${isBulkRefreshAITags
+          ? html`<p class="text-small text-error mb-2">
+              This will trigger API calls to your AI provider for each selected
+              bookmark, which may exceed rate limits or incur unexpected costs.
+            </p>`
+          : ""}
         <button type="button" class="btn" @click=${this.close}>Cancel</button>
         <button type="submit" class="btn btn-error" @click=${this.confirm}>
           Confirm

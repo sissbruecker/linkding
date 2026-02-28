@@ -24,6 +24,7 @@ from bookmarks.widgets import (
     FormNumberInput,
     FormSelect,
     FormTextarea,
+    MaskedPasswordInput,
     TagAutocomplete,
 )
 
@@ -335,6 +336,10 @@ class UserProfileForm(forms.ModelForm):
             "collapse_side_panel",
             "hide_bundles",
             "legacy_search",
+            "ai_api_key",
+            "ai_model",
+            "ai_base_url",
+            "ai_tag_vocabulary",
         ]
         widgets = {
             "theme": FormSelect,
@@ -365,7 +370,25 @@ class UserProfileForm(forms.ModelForm):
             "enable_automatic_html_snapshots": FormCheckbox,
             "default_mark_unread": FormCheckbox,
             "default_mark_shared": FormCheckbox,
+            "ai_api_key": MaskedPasswordInput,
+            "ai_model": FormInput,
+            "ai_base_url": FormInput,
+            "ai_tag_vocabulary": FormTextarea,
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, error_class=FormErrorList)
+
+    def clean_ai_api_key(self):
+        """
+        If the submitted value is the masked placeholder, preserve the existing value,
+        otherwise return the new value.
+        """
+        value = self.cleaned_data.get("ai_api_key")
+        # If masked bullets, keep the existing value (user didn't change it)
+        if value == "••••••••••••••••••••••••":
+            return self.instance.ai_api_key
+        return value
 
 
 class GlobalSettingsForm(forms.ModelForm):

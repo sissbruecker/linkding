@@ -33,6 +33,9 @@ from bookmarks.services.bookmarks import (
     unarchive_bookmarks,
     unshare_bookmarks,
     untag_bookmarks,
+    refresh_bookmarks_metadata,
+    refresh_ai_tags,
+    create_html_snapshots,
 )
 from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import get_safe_return_url
@@ -420,6 +423,8 @@ def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
             return refresh_bookmarks_metadata(bookmark_ids, request.user)
         if bulk_action == "bulk_snapshot":
             return create_html_snapshots(bookmark_ids, request.user)
+        if bulk_action == "bulk_refresh_ai_tags":
+            return refresh_ai_tags(bookmark_ids, request.user)
 
 
 @login_required

@@ -218,7 +218,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "display_url",
             "permanent_notes",
             "search_preferences",
+            "ai_api_key",
+            "ai_model",
+            "ai_tag_vocabulary",
+            "ai_base_url",
             "version",
         ]
 
+    ai_api_key = serializers.CharField(
+        write_only=True, required=False, allow_blank=True, max_length=256
+    )
     version = serializers.ReadOnlyField(default=app_version)
