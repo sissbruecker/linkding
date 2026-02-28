@@ -21,6 +21,8 @@ class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             "any_tags": "tag1 tag2",
             "all_tags": "required-tag",
             "excluded_tags": "excluded-tag",
+            "filter_unread": BookmarkBundle.FILTER_STATE_YES,
+            "filter_shared": BookmarkBundle.FILTER_STATE_NO,
         }
         return {**form_data, **overrides}
 
@@ -38,6 +40,8 @@ class BundleNewViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertEqual(bundle.any_tags, form_data["any_tags"])
         self.assertEqual(bundle.all_tags, form_data["all_tags"])
         self.assertEqual(bundle.excluded_tags, form_data["excluded_tags"])
+        self.assertEqual(bundle.filter_unread, form_data["filter_unread"])
+        self.assertEqual(bundle.filter_shared, form_data["filter_shared"])
 
         self.assertRedirects(response, reverse("linkding:bundles.index"))
 

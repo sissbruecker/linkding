@@ -179,6 +179,8 @@ class BookmarkFactoryMixin:
         any_tags: str = "",
         all_tags: str = "",
         excluded_tags: str = "",
+        filter_unread: str = BookmarkBundle.FILTER_STATE_OFF,
+        filter_shared: str = BookmarkBundle.FILTER_STATE_OFF,
         order: int = 0,
     ):
         if user is None:
@@ -193,6 +195,8 @@ class BookmarkFactoryMixin:
             any_tags=any_tags,
             all_tags=all_tags,
             excluded_tags=excluded_tags,
+            filter_unread=filter_unread,
+            filter_shared=filter_shared,
             order=order,
         )
         bundle.save()
