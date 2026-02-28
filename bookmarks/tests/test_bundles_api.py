@@ -73,8 +73,8 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             any_tags="tag1 tag2",
             all_tags="required-tag",
             excluded_tags="excluded-tag",
-            filter_unread="yes",
-            filter_shared="no",
+            filter_unread=BookmarkBundle.FILTER_STATE_YES,
+            filter_shared=BookmarkBundle.FILTER_STATE_NO,
             order=5,
         )
 
@@ -106,8 +106,8 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             "any_tags": "tag1 tag2",
             "all_tags": "required-tag",
             "excluded_tags": "excluded-tag",
-            "filter_unread": "yes",
-            "filter_shared": "no",
+            "filter_unread": BookmarkBundle.FILTER_STATE_YES,
+            "filter_shared": BookmarkBundle.FILTER_STATE_NO,
         }
 
         url = reverse("linkding:bundle-list")
@@ -209,8 +209,8 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             "any_tags": "updated-tag1 updated-tag2",
             "all_tags": "required-updated-tag",
             "excluded_tags": "excluded-updated-tag",
-            "filter_unread": "yes",
-            "filter_shared": "no",
+            "filter_unread": BookmarkBundle.FILTER_STATE_YES,
+            "filter_shared": BookmarkBundle.FILTER_STATE_NO,
             "order": 5,
         }
 

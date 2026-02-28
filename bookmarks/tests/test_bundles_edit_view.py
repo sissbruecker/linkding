@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from bookmarks.models import BookmarkBundle
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -18,8 +19,8 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
             "any_tags": "tag1 tag2",
             "all_tags": "required-tag",
             "excluded_tags": "excluded-tag",
-            "filter_unread": "yes",
-            "filter_shared": "no",
+            "filter_unread": BookmarkBundle.FILTER_STATE_YES,
+            "filter_shared": BookmarkBundle.FILTER_STATE_NO,
         }
         return {**form_data, **overrides}
 
@@ -50,8 +51,8 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
             any_tags="tag1 tag2 tag3",
             all_tags="required-tag all-tag",
             excluded_tags="excluded-tag banned-tag",
-            filter_unread="yes",
-            filter_shared="no",
+            filter_unread=BookmarkBundle.FILTER_STATE_YES,
+            filter_shared=BookmarkBundle.FILTER_STATE_NO,
         )
 
         response = self.client.get(reverse("linkding:bundles.edit", args=[bundle.id]))

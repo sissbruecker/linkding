@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks import queries
-from bookmarks.models import BookmarkSearch, UserProfile
+from bookmarks.models import BookmarkBundle, BookmarkSearch, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, random_sentence
 from bookmarks.utils import unique
 
@@ -1512,21 +1512,21 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         ]
 
         # Filter unread
-        bundle = self.setup_bundle(filter_unread="yes")
+        bundle = self.setup_bundle(filter_unread=BookmarkBundle.FILTER_STATE_YES)
         query = queries.query_bookmarks(
             self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [unread_bookmarks])
 
         # Filter read
-        bundle = self.setup_bundle(filter_unread="no")
+        bundle = self.setup_bundle(filter_unread=BookmarkBundle.FILTER_STATE_NO)
         query = queries.query_bookmarks(
             self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [read_bookmarks])
 
         # Filter off
-        bundle = self.setup_bundle(filter_unread="off")
+        bundle = self.setup_bundle(filter_unread=BookmarkBundle.FILTER_STATE_OFF)
         query = queries.query_bookmarks(
             self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
@@ -1543,21 +1543,21 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         ]
 
         # Filter shared
-        bundle = self.setup_bundle(filter_shared="yes")
+        bundle = self.setup_bundle(filter_shared=BookmarkBundle.FILTER_STATE_YES)
         query = queries.query_bookmarks(
             self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [shared_bookmarks])
 
         # Filter unshared
-        bundle = self.setup_bundle(filter_shared="no")
+        bundle = self.setup_bundle(filter_shared=BookmarkBundle.FILTER_STATE_NO)
         query = queries.query_bookmarks(
             self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
         self.assertQueryResult(query, [unshared_bookmarks])
 
         # Filter off
-        bundle = self.setup_bundle(filter_shared="off")
+        bundle = self.setup_bundle(filter_shared=BookmarkBundle.FILTER_STATE_OFF)
         query = queries.query_bookmarks(
             self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
         )
@@ -1565,7 +1565,9 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
 
     def test_query_bookmarks_with_bundle_unread_shared_filters_combined(self):
         bundle = self.setup_bundle(
-            search="python", filter_unread="yes", filter_shared="no"
+            search="python",
+            filter_unread=BookmarkBundle.FILTER_STATE_YES,
+            filter_shared=BookmarkBundle.FILTER_STATE_NO,
         )
 
         matching_bookmarks = [
