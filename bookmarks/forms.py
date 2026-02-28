@@ -231,7 +231,15 @@ class BookmarkBundleForm(forms.ModelForm):
 
     class Meta:
         model = BookmarkBundle
-        fields = ["name", "search", "any_tags", "all_tags", "excluded_tags", "filter_unread", "filter_shared"]
+        fields = [
+            "name",
+            "search",
+            "any_tags",
+            "all_tags",
+            "excluded_tags",
+            "filter_unread",
+            "filter_shared",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, error_class=FormErrorList)

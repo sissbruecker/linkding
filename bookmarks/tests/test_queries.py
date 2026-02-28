@@ -1569,9 +1569,7 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         )
 
         matching_bookmarks = [
-            self.setup_bookmark(
-                title="Python Tutorial", unread=True, shared=False
-            ),
+            self.setup_bookmark(title="Python Tutorial", unread=True, shared=False),
         ]
 
         # Bookmarks that should not match
@@ -1636,6 +1634,7 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
             None, self.profile, BookmarkSearch(q="", bundle=bundle), False
         )
         self.assertQueryResult(query, [matching_bookmarks])
+
 
 # Legacy search should be covered by basic test suite which was effectively the
 # full test suite before advanced search was introduced.
