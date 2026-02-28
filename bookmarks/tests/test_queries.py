@@ -1501,6 +1501,89 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         )
         self.assertQueryResult(query, [matching_bookmarks])
 
+    def test_query_bookmarks_with_bundle_filter_unread(self):
+        unread_bookmarks = [
+            self.setup_bookmark(unread=True),
+            self.setup_bookmark(unread=True),
+        ]
+        read_bookmarks = [
+            self.setup_bookmark(unread=False),
+            self.setup_bookmark(unread=False),
+        ]
+
+        # Filter unread
+        bundle = self.setup_bundle(filter_unread="yes")
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [unread_bookmarks])
+
+        # Filter read
+        bundle = self.setup_bundle(filter_unread="no")
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [read_bookmarks])
+
+        # Filter off
+        bundle = self.setup_bundle(filter_unread="off")
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [unread_bookmarks, read_bookmarks])
+
+    def test_query_bookmarks_with_bundle_filter_shared(self):
+        shared_bookmarks = [
+            self.setup_bookmark(shared=True),
+            self.setup_bookmark(shared=True),
+        ]
+        unshared_bookmarks = [
+            self.setup_bookmark(shared=False),
+            self.setup_bookmark(shared=False),
+        ]
+
+        # Filter shared
+        bundle = self.setup_bundle(filter_shared="yes")
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [shared_bookmarks])
+
+        # Filter unshared
+        bundle = self.setup_bundle(filter_shared="no")
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [unshared_bookmarks])
+
+        # Filter off
+        bundle = self.setup_bundle(filter_shared="off")
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [shared_bookmarks, unshared_bookmarks])
+
+    def test_query_bookmarks_with_bundle_unread_shared_filters_combined(self):
+        bundle = self.setup_bundle(
+            search="python", filter_unread="yes", filter_shared="no"
+        )
+
+        matching_bookmarks = [
+            self.setup_bookmark(
+                title="Python Tutorial", unread=True, shared=False
+            ),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(title="Python Guide", unread=False, shared=False)
+        self.setup_bookmark(title="Python Docs", unread=True, shared=True)
+        self.setup_bookmark(title="Java Guide", unread=True, shared=False)
+
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [matching_bookmarks])
+
     def test_query_archived_bookmarks_with_bundle(self):
         bundle = self.setup_bundle(any_tags="bundleTag1 bundleTag2")
 
@@ -1553,7 +1636,6 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
             None, self.profile, BookmarkSearch(q="", bundle=bundle), False
         )
         self.assertQueryResult(query, [matching_bookmarks])
-
 
 # Legacy search should be covered by basic test suite which was effectively the
 # full test suite before advanced search was introduced.

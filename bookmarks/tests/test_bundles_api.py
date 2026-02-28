@@ -13,6 +13,8 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bundle.any_tags, data["any_tags"])
         self.assertEqual(bundle.all_tags, data["all_tags"])
         self.assertEqual(bundle.excluded_tags, data["excluded_tags"])
+        self.assertEqual(bundle.filter_unread, data["filter_unread"])
+        self.assertEqual(bundle.filter_shared, data["filter_shared"])
         self.assertEqual(bundle.order, data["order"])
         self.assertEqual(
             bundle.date_created.isoformat().replace("+00:00", "Z"), data["date_created"]
@@ -71,6 +73,8 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             any_tags="tag1 tag2",
             all_tags="required-tag",
             excluded_tags="excluded-tag",
+            filter_unread="yes",
+            filter_shared="no",
             order=5,
         )
 
@@ -102,6 +106,8 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             "any_tags": "tag1 tag2",
             "all_tags": "required-tag",
             "excluded_tags": "excluded-tag",
+            "filter_unread": "yes",
+            "filter_shared": "no",
         }
 
         url = reverse("linkding:bundle-list")
@@ -115,6 +121,8 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bundle.any_tags, bundle_data["any_tags"])
         self.assertEqual(bundle.all_tags, bundle_data["all_tags"])
         self.assertEqual(bundle.excluded_tags, bundle_data["excluded_tags"])
+        self.assertEqual(bundle.filter_unread, bundle_data["filter_unread"])
+        self.assertEqual(bundle.filter_shared, bundle_data["filter_shared"])
         self.assertEqual(bundle.owner, self.user)
         self.assertEqual(bundle.order, 0)
 
@@ -201,6 +209,8 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             "any_tags": "updated-tag1 updated-tag2",
             "all_tags": "required-updated-tag",
             "excluded_tags": "excluded-updated-tag",
+            "filter_unread": "yes",
+            "filter_shared": "no",
             "order": 5,
         }
 
@@ -213,6 +223,8 @@ class BundlesApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.assertEqual(bundle.any_tags, updated_data["any_tags"])
         self.assertEqual(bundle.all_tags, updated_data["all_tags"])
         self.assertEqual(bundle.excluded_tags, updated_data["excluded_tags"])
+        self.assertEqual(bundle.filter_unread, updated_data["filter_unread"])
+        self.assertEqual(bundle.filter_shared, updated_data["filter_shared"])
         self.assertEqual(bundle.order, updated_data["order"])
 
         self.assertBundle(bundle, response.data)

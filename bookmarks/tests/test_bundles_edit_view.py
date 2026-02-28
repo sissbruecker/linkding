@@ -18,6 +18,8 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
             "any_tags": "tag1 tag2",
             "all_tags": "required-tag",
             "excluded_tags": "excluded-tag",
+            "filter_unread": "yes",
+            "filter_shared": "no",
         }
         return {**form_data, **overrides}
 
@@ -38,6 +40,8 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bundle.any_tags, updated_data["any_tags"])
         self.assertEqual(bundle.all_tags, updated_data["all_tags"])
         self.assertEqual(bundle.excluded_tags, updated_data["excluded_tags"])
+        self.assertEqual(bundle.filter_unread, updated_data["filter_unread"])
+        self.assertEqual(bundle.filter_shared, updated_data["filter_shared"])
 
     def test_should_render_edit_form_with_prefilled_fields(self):
         bundle = self.setup_bundle(
@@ -46,6 +50,8 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
             any_tags="tag1 tag2 tag3",
             all_tags="required-tag all-tag",
             excluded_tags="excluded-tag banned-tag",
+            filter_unread="yes",
+            filter_shared="no",
         )
 
         response = self.client.get(reverse("linkding:bundles.edit", args=[bundle.id]))
@@ -91,6 +97,30 @@ class BundleEditViewTestCase(TestCase, BookmarkFactoryMixin):
             f"""
                 <ld-tag-autocomplete input-name="excluded_tags" input-value="{bundle.excluded_tags}"
                 input-aria-describedby="id_excluded_tags_help" input-id="id_excluded_tags">
+            """,
+            html,
+        )
+
+        self.assertInHTML(
+            """
+                <select name="filter_unread" class="form-select"
+                aria-describedby="id_filter_unread_help" id="id_filter_unread">
+                    <option value="off">All</option>
+                    <option value="yes" selected>Unread</option>
+                    <option value="no">Read</option>
+                </select>
+            """,
+            html,
+        )
+
+        self.assertInHTML(
+            """
+                <select name="filter_shared" class="form-select"
+                aria-describedby="id_filter_shared_help" id="id_filter_shared">
+                    <option value="off">All</option>
+                    <option value="yes">Shared</option>
+                    <option value="no" selected>Unshared</option>
+                </select>
             """,
             html,
         )
