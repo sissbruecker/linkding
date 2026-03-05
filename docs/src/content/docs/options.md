@@ -317,3 +317,9 @@ Example: `LD_SINGLEFILE_OPTIONS=--user-agent="Mozilla/5.0 (Macintosh; Intel Mac 
 Values: `true` or `false` | Default =  `false`
 
 Set uWSGI [disable-logging](https://uwsgi-docs.readthedocs.io/en/latest/Options.html#disable-logging) parameter to disable request logs, except for requests with a client (4xx) or server (5xx) error response.
+
+### `LD_SESSION_COOKIE_AGE`
+
+Values: `Integer` | Default = 1209600
+
+Set the length of the session cookie, in seconds. This value determines how long a browser will stay logged in to the web interface. Default value is 2 weeks.
