@@ -112,10 +112,15 @@ class PublicSharedBookmarksFeed(BaseBookmarksFeed):
     description = "All public shared bookmarks"
 
     def get_object(self, request):
+        self.current_request = request
         return super().get_object(request, None)
 
     def get_query_set(self, feed_token: FeedToken, search: BookmarkSearch):
-        return queries.query_shared_bookmarks(None, UserProfile(), search, True)
+        qs = queries.query_shared_bookmarks(None, UserProfile(), search, True)
+        username = self.current_request.GET.get("user")
+        if username:
+            qs = qs.filter(owner__username__iexact=username)
+        return qs
 
     def link(self, context: FeedContext):
         return reverse("linkding:feeds.public_shared")
