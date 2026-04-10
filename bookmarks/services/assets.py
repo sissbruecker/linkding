@@ -244,7 +244,7 @@ def _generate_asset_filename(
     asset: BookmarkAsset, filename: str, extension: str
 ) -> str:
     def sanitize_char(char):
-        if char.isalnum() or char in ("-", "_", "."):
+        if char.isascii() and (char.isalnum() or char in ("-", "_", ".")):
             return char
         else:
             return "_"

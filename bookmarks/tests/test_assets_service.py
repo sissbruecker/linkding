@@ -407,6 +407,21 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         bookmark.refresh_from_db()
         self.assertGreater(bookmark.date_modified, initial_modified)
 
+    def test_upload_asset_with_non_ascii_filename(self):
+        bookmark = self.setup_bookmark()
+        file_content = b"test content"
+        upload_file = SimpleUploadedFile(
+            "explodér.html", file_content, content_type="text/html"
+        )
+
+        asset = assets.upload_asset(bookmark, upload_file)
+
+        saved_file_name = self.get_saved_snapshot_file()
+        self.assertTrue(saved_file_name.startswith("upload_"))
+        self.assertTrue(saved_file_name.endswith("_explod_r.html.gz"))
+        self.assertEqual(self.read_asset_file(asset), file_content)
+        self.assertEqual(asset.display_name, "explodér.html")
+
     @disable_logging
     def test_upload_asset_truncates_asset_file_name(self):
         # Create a bookmark with a very long URL
