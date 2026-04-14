@@ -1214,6 +1214,17 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         actual_effective_titles = [b.resolved_title for b in query]
         self.assertEqual(expected_effective_titles, actual_effective_titles)
 
+    def test_sort_by_random(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM)
+
+        bookmarks = [self.setup_bookmark() for _ in range(10)]
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        result = list(query)
+
+        self.assertEqual(len(result), len(bookmarks))
+        self.assertEqual(set(result), set(bookmarks))
+
     def test_query_bookmarks_filter_modified_since(self):
         # Create bookmarks with different modification dates
         older_bookmark = self.setup_bookmark(title="old bookmark")

@@ -226,6 +226,7 @@ class BookmarkSearch:
     SORT_ADDED_DESC = "added_desc"
     SORT_TITLE_ASC = "title_asc"
     SORT_TITLE_DESC = "title_desc"
+    SORT_RANDOM = "random"
 
     FILTER_SHARED_OFF = "off"
     FILTER_SHARED_SHARED = "yes"
