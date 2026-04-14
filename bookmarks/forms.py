@@ -253,6 +253,7 @@ class BookmarkSearchForm(forms.Form):
         (BookmarkSearch.SORT_MODIFIED_DESC, "Modified ↓"),
         (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
         (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
+        (BookmarkSearch.SORT_RANDOM, "Random"),
     ]
     FILTER_SHARED_CHOICES = [
         (BookmarkSearch.FILTER_SHARED_OFF, "Off"),
