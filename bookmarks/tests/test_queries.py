@@ -1225,6 +1225,35 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(len(result), len(bookmarks))
         self.assertEqual(set(result), set(bookmarks))
 
+    def test_sort_by_random_is_deterministic_for_same_seed(self):
+        [self.setup_bookmark() for _ in range(20)]
+
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM, random_seed="42")
+        first = list(queries.query_bookmarks(self.user, self.profile, search))
+        second = list(queries.query_bookmarks(self.user, self.profile, search))
+
+        self.assertEqual(first, second)
+
+    def test_sort_by_random_differs_across_seeds(self):
+        [self.setup_bookmark() for _ in range(20)]
+
+        search_a = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM, random_seed="1")
+        search_b = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM, random_seed="2")
+
+        result_a = list(queries.query_bookmarks(self.user, self.profile, search_a))
+        result_b = list(queries.query_bookmarks(self.user, self.profile, search_b))
+
+        self.assertEqual(set(result_a), set(result_b))
+        self.assertNotEqual(result_a, result_b)
+
+    def test_random_seed_cleared_when_sort_not_random(self):
+        search = BookmarkSearch(
+            sort=BookmarkSearch.SORT_TITLE_ASC, random_seed="123"
+        )
+
+        self.assertIsNone(search.random_seed)
+        self.assertNotIn("random_seed", search.query_params)
+
     def test_query_bookmarks_filter_modified_since(self):
         # Create bookmarks with different modification dates
         older_bookmark = self.setup_bookmark(title="old bookmark")
