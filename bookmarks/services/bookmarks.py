@@ -42,6 +42,20 @@ def create_bookmark(
     tasks.load_favicon(current_user, bookmark)
     # Load preview image
     tasks.load_preview_image(current_user, bookmark)
+
+    # Create PDF snapshot asset if enabled and URL is a PDF
+    from django.conf import settings
+    from bookmarks.services.website_loader import detect_content_type, is_pdf_content_type
+    from bookmarks.services import assets
+
+    if getattr(settings, "LD_ENABLE_PDF_SNAPSHOTS", True):
+        content_type = detect_content_type(bookmark.url)
+        if is_pdf_content_type(content_type):
+            asset = assets.create_snapshot_asset(bookmark)
+            asset.content_type = assets.BookmarkAsset.CONTENT_TYPE_PDF
+            asset.display_name = "PDF snapshot (pending)"
+            asset.save()
+
     # Create HTML snapshot
     if (
         current_user.profile.enable_automatic_html_snapshots

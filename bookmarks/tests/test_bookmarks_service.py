@@ -1,3 +1,29 @@
+    def test_create_should_create_pdf_snapshot_asset_for_pdf_url_when_enabled(self):
+        with patch("bookmarks.services.bookmarks.detect_content_type", return_value="application/pdf"), \
+             patch("bookmarks.services.bookmarks.is_pdf_content_type", return_value=True), \
+             patch("bookmarks.services.bookmarks.assets.create_snapshot_asset") as mock_create_snapshot_asset, \
+             patch("bookmarks.services.bookmarks.assets.BookmarkAsset") as MockBookmarkAsset, \
+             patch("bookmarks.services.bookmarks.tasks.create_html_snapshot"):
+            from django.conf import settings
+            setattr(settings, "LD_ENABLE_PDF_SNAPSHOTS", True)
+            mock_asset = MockBookmarkAsset()
+            mock_create_snapshot_asset.return_value = mock_asset
+            bookmark_data = Bookmark(url="https://example.com/test.pdf")
+            create_bookmark(bookmark_data, "", self.user)
+            mock_create_snapshot_asset.assert_called_once()
+            mock_asset.save.assert_called_once()
+
+    def test_create_should_not_create_pdf_snapshot_asset_when_disabled(self):
+        with patch("bookmarks.services.bookmarks.detect_content_type", return_value="application/pdf"), \
+             patch("bookmarks.services.bookmarks.is_pdf_content_type", return_value=True), \
+             patch("bookmarks.services.bookmarks.assets.create_snapshot_asset") as mock_create_snapshot_asset, \
+             patch("bookmarks.services.bookmarks.assets.BookmarkAsset") as MockBookmarkAsset, \
+             patch("bookmarks.services.bookmarks.tasks.create_html_snapshot"):
+            from django.conf import settings
+            setattr(settings, "LD_ENABLE_PDF_SNAPSHOTS", False)
+            bookmark_data = Bookmark(url="https://example.com/test.pdf")
+            create_bookmark(bookmark_data, "", self.user)
+            mock_create_snapshot_asset.assert_not_called()
 import datetime
 from unittest.mock import patch
 

@@ -11,7 +11,8 @@ Linkding can automatically create HTML snapshots whenever a bookmark is added. T
 
 The snapshots are created using [singlefile-cli](https://github.com/gildas-lormeau/single-file-cli), which effectively runs a headless Chromium instance on the server to convert the web page into a single HTML file. Linkding will also load the [uBlock Origin Lite extension](https://github.com/uBlockOrigin/uBOL-home) into Chromium to attempt to block ads and other unwanted content.
 
-When bookmarking a URL that points directly to a PDF file, linkding will download the PDF instead of creating an HTML snapshot. This happens automatically based on the content type of the URL, and the downloaded PDF will be stored as an asset alongside the bookmark, just like HTML snapshots.
+
+When bookmarking a URL that points directly to a PDF file, linkding can automatically download the PDF and store it as an asset alongside the bookmark, just like HTML snapshots. This feature is controlled by the `LD_ENABLE_PDF_SNAPSHOTS` option (see [Options](/options)), which is enabled by default. When enabled, a pending PDF snapshot asset will be created for any PDF URL you bookmark, and the background worker will download and store the PDF file. If you wish to disable this feature, set `LD_ENABLE_PDF_SNAPSHOTS=False` in your environment or `.env` file.
 
 This method is fairly easy to set up, but also has several downsides:
 - The Docker image is significantly larger than the base image, as it includes a Chromium installation.
