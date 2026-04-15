@@ -50,7 +50,10 @@ def create_bookmark(
 
     if getattr(settings, "LD_ENABLE_PDF_SNAPSHOTS", True):
         content_type = detect_content_type(bookmark.url)
-        if is_pdf_content_type(content_type):
+        is_pdf = is_pdf_content_type(content_type)
+        # Fallback: also treat as PDF if URL ends with .pdf (before query string)
+        url_path = bookmark.url.lower().split('?', 1)[0]
+        if is_pdf or url_path.endswith('.pdf'):
             asset = assets.create_snapshot_asset(bookmark)
             asset.content_type = assets.BookmarkAsset.CONTENT_TYPE_PDF
             asset.display_name = "PDF snapshot (pending)"
