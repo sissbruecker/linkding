@@ -632,3 +632,41 @@ class BookmarkIndexViewTestCase(
         html = response.content.decode()
 
         self.assertInHTML('<h2 id="bundles-heading">Bundles</h2>', html, count=0)
+
+    def test_random_sort_without_seed_redirects_with_generated_seed(self):
+        response = self.client.get(
+            reverse("linkding:bookmarks.index") + "?sort=random"
+        )
+
+        self.assertEqual(response.status_code, 302)
+        location = response.headers["Location"]
+        query = urllib.parse.parse_qs(urllib.parse.urlparse(location).query)
+        self.assertIn("random_seed", query)
+        self.assertTrue(query["random_seed"][0].isdigit())
+        self.assertEqual(query["sort"], ["random"])
+
+    def test_random_sort_with_invalid_seed_redirects_with_repaired_seed(self):
+        response = self.client.get(
+            reverse("linkding:bookmarks.index") + "?sort=random&random_seed=abc"
+        )
+
+        self.assertEqual(response.status_code, 302)
+        location = response.headers["Location"]
+        query = urllib.parse.parse_qs(urllib.parse.urlparse(location).query)
+        self.assertTrue(query["random_seed"][0].isdigit())
+        self.assertNotEqual(query["random_seed"][0], "abc")
+
+    def test_random_sort_with_valid_seed_does_not_redirect(self):
+        response = self.client.get(
+            reverse("linkding:bookmarks.index") + "?sort=random&random_seed=42"
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_non_random_sort_does_not_redirect_even_with_stale_seed(self):
+        response = self.client.get(
+            reverse("linkding:bookmarks.index")
+            + "?sort=title_asc&random_seed=42"
+        )
+
+        self.assertEqual(response.status_code, 200)
