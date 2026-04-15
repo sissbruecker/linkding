@@ -1,3 +1,9 @@
+### `LD_ENABLE_PDF_SNAPSHOTS`
+
+Values: `True`, `False` | Default = `True`
+
+When enabled, linkding will automatically create a pending PDF snapshot asset for any bookmarked URL that points to a PDF file. This allows the PDF to be downloaded and stored as an asset alongside the bookmark, similar to HTML snapshots. If disabled, this feature is turned off and PDF assets will not be created automatically.
+
 ---
 title: "Options"
 description: "Options for configuring linkding"

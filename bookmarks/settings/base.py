@@ -151,8 +151,17 @@ LD_DISABLE_URL_VALIDATION = os.getenv("LD_DISABLE_URL_VALIDATION", False) in (
     "1",
 )
 
+
 # Background task enabled setting
 LD_DISABLE_BACKGROUND_TASKS = os.getenv("LD_DISABLE_BACKGROUND_TASKS", False) in (
+    True,
+    "True",
+    "true",
+    "1",
+)
+
+# Enable automatic PDF snapshot asset creation for PDF URLs
+LD_ENABLE_PDF_SNAPSHOTS = os.getenv("LD_ENABLE_PDF_SNAPSHOTS", True) in (
     True,
     "True",
     "true",
