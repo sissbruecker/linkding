@@ -142,6 +142,7 @@ location /linkding {
 }
 ```
 
+It's also wise to raise the default `client_body_buffer_size` up from 16k if you plan on importing large bookmark backups, if only temporarily.
 </details>
 
 Instead of configuring header forwarding in your proxy, you can also configure the URL from which you want to access your linkding instance with the  [`LD_CSRF_TRUSTED_ORIGINS` option](/options#ld_csrf_trusted_origins).
