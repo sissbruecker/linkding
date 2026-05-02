@@ -1164,6 +1164,68 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertEqual(list(query), sorted_bookmarks)
 
+    def test_sort_by_date_modified_asc(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_MODIFIED_ASC)
+
+        bookmarks = [
+            self.setup_bookmark(
+                modified=timezone.datetime(2020, 1, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2021, 2, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2022, 3, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2023, 4, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2022, 5, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2021, 6, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2020, 7, 1, tzinfo=datetime.UTC)
+            ),
+        ]
+        sorted_bookmarks = sorted(bookmarks, key=lambda b: b.date_modified)
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertEqual(list(query), sorted_bookmarks)
+
+    def test_sort_by_date_modified_desc(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_MODIFIED_DESC)
+
+        bookmarks = [
+            self.setup_bookmark(
+                modified=timezone.datetime(2020, 1, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2021, 2, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2022, 3, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2023, 4, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2022, 5, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2021, 6, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2020, 7, 1, tzinfo=datetime.UTC)
+            ),
+        ]
+        sorted_bookmarks = sorted(bookmarks, key=lambda b: b.date_modified, reverse=True)
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertEqual(list(query), sorted_bookmarks)
+
     def setup_title_sort_data(self):
         # lots of combinations to test effective title logic
         bookmarks = [

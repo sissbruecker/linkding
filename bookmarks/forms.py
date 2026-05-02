@@ -249,6 +249,8 @@ class BookmarkSearchForm(forms.Form):
     SORT_CHOICES = [
         (BookmarkSearch.SORT_ADDED_ASC, "Added ↑"),
         (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
+        (BookmarkSearch.SORT_MODIFIED_ASC, "Modified ↑"),
+        (BookmarkSearch.SORT_MODIFIED_DESC, "Modified ↓"),
         (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
         (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
     ]
