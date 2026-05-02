@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import views as django_auth_views
 from django.urls import include, path, re_path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from bookmarks import feeds
 from bookmarks.admin import linkding_admin_site
@@ -125,6 +126,16 @@ if settings.DEBUG:
 
 # Put all linkding URLs into a linkding namespace
 urlpatterns = [path("", include((urlpatterns, "linkding")))]
+
+# API Schema - outside of namespace
+urlpatterns += [
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+]
 
 # Auth
 urlpatterns += [
