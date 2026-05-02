@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
+    "drf_spectacular",
     "huey.contrib.djhuey",
     "mozilla_django_oidc",
 ]
@@ -140,8 +141,34 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": 100,
 }
+
+# drf-spectacular configuration
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Linkding API",
+    "VERSION": "1.0.0",
+    "DESCRIPTION": "Bookmark manager REST API with advanced search, tagging, and sharing.",
+    "CONTACT": {
+        "name": "Linkding",
+        "url": "https://github.com/sissbruecker/linkding",
+    },
+    "LICENSE": {"name": "MIT"},
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENTS": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "Token",
+                "description": "Token-based authentication. Format: `Bearer <token>` or `Token <token>`",
+            }
+        }
+    },
+    "SECURITY": [{"bearerAuth": []}],
+}
+
 
 # URL validation flag
 LD_DISABLE_URL_VALIDATION = os.getenv("LD_DISABLE_URL_VALIDATION", False) in (
