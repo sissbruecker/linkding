@@ -1,7 +1,9 @@
+import ipaddress
 import logging
+import socket
 from dataclasses import dataclass
 from functools import lru_cache
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -9,6 +11,39 @@ from charset_normalizer import from_bytes
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
+
+# Private/internal IP ranges blocked for SSRF protection
+BLOCKED_NETWORKS = [
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("0.0.0.0/32"),
+    ipaddress.ip_network("0.0.0.0/8"),  # "This" network
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("fc00::/7"),  # Unique local addresses
+]
+
+
+def is_safe_url(url: str) -> bool:
+    """Check if URL hostname resolves to a safe (non-internal) IP address.
+
+    Returns False for private/internal IPs, True otherwise.
+    Used to prevent SSRF attacks when fetching bookmark URLs.
+    """
+    try:
+        hostname = urlparse(url).hostname
+        if not hostname:
+            return False
+        ip = ipaddress.ip_address(socket.gethostbyname(hostname))
+        for network in BLOCKED_NETWORKS:
+            if ip in network:
+                logger.warning(f"Blocked request to internal IP: {hostname} ({ip})")
+                return False
+        return True
+    except Exception:
+        return False
 
 
 @dataclass
@@ -94,6 +129,8 @@ MAX_CONTENT_LIMIT = 5000 * 1024
 
 
 def load_page(url: str):
+    if not is_safe_url(url):
+        raise ValueError(f"Request to internal/private IP is blocked: {url}")
     headers = fake_request_headers()
     size = 0
     content = None
@@ -143,6 +180,8 @@ def fake_request_headers():
 
 def detect_content_type(url: str, timeout: int = 10) -> str | None:
     """Make HEAD request to detect content type of URL. Returns None on failure."""
+    if not is_safe_url(url):
+        return None
     headers = fake_request_headers()
 
     try:

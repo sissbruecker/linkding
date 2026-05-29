@@ -34,6 +34,10 @@ def load_preview_image(url: str) -> str | None:
 
     image_url = metadata.preview_image
 
+    if not website_loader.is_safe_url(image_url):
+        logger.debug(f"Blocked request to internal IP for preview image: {image_url}")
+        return None
+
     logger.debug(f"Loading preview image: {image_url}")
     with requests.get(image_url, stream=True) as response:
         if response.status_code < 200 or response.status_code >= 300:
