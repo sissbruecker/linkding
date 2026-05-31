@@ -35,7 +35,7 @@ def append_bookmark(doc: BookmarkDocument, bookmark: Bookmark):
     tag_names = bookmark.tag_names
     if bookmark.is_archived:
         tag_names.append("linkding:bookmarks.archived")
-    tags = ",".join(tag_names)
+    tags = ",".join(html.escape(tag) for tag in tag_names)
     toread = "1" if bookmark.unread else "0"
     private = "0" if bookmark.shared else "1"
     added = int(bookmark.date_added.timestamp())
