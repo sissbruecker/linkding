@@ -46,6 +46,16 @@ postgres = [
 # Prefer system Python for now, less complications when copying the venv in the Docker build
 python-preference = "system"
 
+[tool.uv.extra-build-dependencies]
+psycopg-c = ["setuptools"]
+uwsgi = ["setuptools"]
+
+[tool.setuptools.packages.find]
+include = ["bookmarks*"]
+
+[tool.setuptools.package-data]
+bookmarks = ["static/**/*", "styles/**/*", "templates/**/*", "version.txt"]
+
 [tool.djlint]
 custom_html="ld-\\w+,ld-\\w+-\\w+"
 custom_blocks="formhelp"
