@@ -436,18 +436,22 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
         )
 
     def test_about_shows_version_info(self):
-        response = self.client.get(reverse("linkding:settings.general"))
-        html = response.content.decode()
-
-        self.assertInHTML(
-            f"""
-            <tr>
-                <td>Version</td>
-                <td>{get_version_info(random.random())}</td>
-            </tr>
-        """,
-            html,
+        latest_version_response_mock = Mock(
+            status_code=200, json=lambda: {"name": f"v{app_version}"}
         )
+        with patch.object(requests, "get", return_value=latest_version_response_mock):
+            response = self.client.get(reverse("linkding:settings.general"))
+            html = response.content.decode()
+
+            self.assertInHTML(
+                f"""
+                <tr>
+                    <td>Version</td>
+                    <td>{get_version_info(random.random())}</td>
+                </tr>
+            """,
+                html,
+            )
 
     def test_get_version_info_just_displays_latest_when_versions_are_equal(self):
         latest_version_response_mock = Mock(
