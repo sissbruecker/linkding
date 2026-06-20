@@ -47,10 +47,12 @@ def read(request, asset_id: int):
     content = _get_asset_content(asset)
     content = content.decode("utf-8")
 
-    return render(
+    response = render(
         request,
         "bookmarks/read.html",
         {
             "content": content,
         },
     )
+    response["Content-Security-Policy"] = "sandbox allow-scripts"
+    return response

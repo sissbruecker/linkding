@@ -153,6 +153,13 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
         )
         self.assertEqual(response["Content-Security-Policy"], "sandbox allow-scripts")
 
+    def test_reader_view_headers(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset_with_file(bookmark)
+        response = self.client.get(reverse("linkding:assets.read", args=[asset.id]))
+
+        self.assertEqual(response["Content-Security-Policy"], "sandbox allow-scripts")
+
     def test_uploaded_file_download_headers(self):
         bookmark = self.setup_bookmark()
         asset = self.setup_asset_with_uploaded_file(bookmark)
