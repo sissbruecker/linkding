@@ -48,7 +48,7 @@ Consider the following auto tagging rule:
 reddit.com/r/Music music reddit
 ```
 
-When adding or editing a bookmark for a URL like `https://www.reddit.com/r/Music/comments/...`, the auto tagging mechanism will:
+When adding a bookmark for a URL like `https://www.reddit.com/r/Music/comments/...`, the auto tagging mechanism will:
 
 1. Parse the URL to extract the hostname (`www.reddit.com`), path (`/r/Music/comments/...`), and query string (none).
 2. Match the hostname against the pattern. The domain `reddit.com` matches. Since the rule does not specify a subdomain,
