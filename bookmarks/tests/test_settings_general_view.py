@@ -440,6 +440,10 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             status_code=200, json=lambda: {"name": f"v{app_version}"}
         )
         with patch.object(requests, "get", return_value=latest_version_response_mock):
+            # Clear the lru_cache so the view recomputes the version info under
+            # the mock instead of returning a value cached by an earlier test
+            # that made a real (potentially rate-limited) network call.
+            get_version_info.cache_clear()
             response = self.client.get(reverse("linkding:settings.general"))
             html = response.content.decode()
 
