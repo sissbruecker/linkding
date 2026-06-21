@@ -7,7 +7,7 @@ from django.utils import timezone
 from bookmarks.models import Bookmark, Tag
 from bookmarks.services import tasks
 from bookmarks.services.parser import NetscapeBookmark, parse
-from bookmarks.utils import normalize_url, parse_timestamp
+from bookmarks.utils import parse_timestamp
 
 logger = logging.getLogger(__name__)
 
@@ -137,8 +137,12 @@ def _import_batch(
     result: ImportResult,
 ):
     # Query existing bookmarks
-    batch_urls = [bookmark.href for bookmark in netscape_bookmarks]
-    existing_bookmarks = Bookmark.objects.filter(owner=user, url__in=batch_urls)
+    normalized_batch_urls = [
+        bookmark.href_normalized for bookmark in netscape_bookmarks
+    ]
+    existing_bookmarks = Bookmark.objects.filter(
+        owner=user, url_normalized__in=normalized_batch_urls
+    )
 
     # Create or update bookmarks from parsed Netscape bookmarks
     bookmarks_to_create = []
@@ -152,7 +156,7 @@ def _import_batch(
                 (
                     bookmark
                     for bookmark in existing_bookmarks
-                    if bookmark.url == netscape_bookmark.href
+                    if bookmark.url_normalized == netscape_bookmark.href_normalized
                 ),
                 None,
             )
@@ -200,7 +204,9 @@ def _import_batch(
     # Bulk assign tags
     # In Django 3, bulk_create does not return the auto-generated IDs when bulk inserting,
     # so we have to reload the inserted bookmarks, and match them to the parsed bookmarks by URL
-    existing_bookmarks = Bookmark.objects.filter(owner=user, url__in=batch_urls)
+    existing_bookmarks = Bookmark.objects.filter(
+        owner=user, url_normalized__in=normalized_batch_urls
+    )
 
     BookmarkToTagRelationShip = Bookmark.tags.through
     relationships = []
@@ -237,7 +243,7 @@ def _copy_bookmark_data(
     netscape_bookmark: NetscapeBookmark, bookmark: Bookmark, options: ImportOptions
 ):
     bookmark.url = netscape_bookmark.href
-    bookmark.url_normalized = normalize_url(bookmark.url)
+    bookmark.url_normalized = netscape_bookmark.href_normalized
     if netscape_bookmark.date_added:
         bookmark.date_added = parse_timestamp(netscape_bookmark.date_added)
     else:

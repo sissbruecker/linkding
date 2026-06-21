@@ -407,6 +407,18 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         self.assertEqual(import_result.success, 0)
         self.assertEqual(import_result.failed, 2)
 
+    def test_synchronize_compares_by_normalized_url(self):
+        self.setup_bookmark(url="https://example.com", description="initial")
+
+        html_tags = [
+            BookmarkHtmlTag(href="https://example.com/", description="updated"),
+        ]
+        import_html = self.render_html(tags=html_tags)
+        import_netscape_html(import_html, self.get_or_create_test_user())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(Bookmark.objects.all()[0].description, "updated")
+
     def test_generate_normalized_url(self):
         html_tags = [
             BookmarkHtmlTag(href="https://example.com/?z=1&a=2#"),
