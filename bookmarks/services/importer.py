@@ -1,5 +1,5 @@
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -17,6 +17,7 @@ class ImportResult:
     total: int = 0
     success: int = 0
     failed: int = 0
+    imported_urls: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -151,6 +152,15 @@ def _import_batch(
     for netscape_bookmark in netscape_bookmarks:
         result.total = result.total + 1
         try:
+            # Skip duplicates coming from the imported HTML
+            if netscape_bookmark.href_normalized in result.imported_urls:
+                logger.warning(
+                    "Skipping bookmark as its normalized URL is a duplicate of a bookmark found in the same HTML file: "
+                    + netscape_bookmark.href_normalized
+                )
+                result.failed = result.failed + 1
+                continue
+
             # Lookup existing bookmark by URL, or create new bookmark if there is no bookmark for that URL yet
             bookmark = next(
                 (
@@ -177,6 +187,7 @@ def _import_batch(
                 bookmarks_to_create.append(bookmark)
 
             result.success = result.success + 1
+            result.imported_urls.append(netscape_bookmark.href_normalized)
         except Exception:
             shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + "..."
             logging.exception("Error importing bookmark: " + shortened_bookmark_tag_str)
