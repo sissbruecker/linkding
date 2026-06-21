@@ -3,11 +3,13 @@ from dataclasses import dataclass
 from html.parser import HTMLParser
 
 from bookmarks.models import parse_tag_string
+from bookmarks.utils import normalize_url
 
 
 @dataclass
 class NetscapeBookmark:
     href: str
+    href_normalized: str
     title: str
     description: str
     notes: str
@@ -68,6 +70,7 @@ class BookmarkParser(HTMLParser):
 
         self.bookmark = NetscapeBookmark(
             href=self.href,
+            href_normalized=normalize_url(self.href),
             title="",
             description="",
             notes="",
