@@ -17,7 +17,7 @@ class ImportResult:
     total: int = 0
     success: int = 0
     failed: int = 0
-    imported_urls: list[str] = field(default_factory=list)
+    imported_urls: set = field(default_factory=set)
 
 
 @dataclass
@@ -149,6 +149,9 @@ def _import_batch(
     bookmarks_to_create = []
     bookmarks_to_update = []
 
+    # Track import bookmarks that were processed successfully
+    imported_in_batch = []
+
     for netscape_bookmark in netscape_bookmarks:
         result.total = result.total + 1
         try:
@@ -187,7 +190,8 @@ def _import_batch(
                 bookmarks_to_create.append(bookmark)
 
             result.success = result.success + 1
-            result.imported_urls.append(netscape_bookmark.href_normalized)
+            result.imported_urls.add(netscape_bookmark.href_normalized)
+            imported_in_batch.append(netscape_bookmark)
         except Exception:
             shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + "..."
             logging.exception("Error importing bookmark: " + shortened_bookmark_tag_str)
@@ -222,13 +226,14 @@ def _import_batch(
     BookmarkToTagRelationShip = Bookmark.tags.through
     relationships = []
 
-    for netscape_bookmark in netscape_bookmarks:
+    # Iterate only over bookmarks that have been successfully imported
+    for netscape_bookmark in imported_in_batch:
         # Lookup bookmark by URL again
         bookmark = next(
             (
                 bookmark
                 for bookmark in existing_bookmarks
-                if bookmark.url == netscape_bookmark.href
+                if bookmark.url_normalized == netscape_bookmark.href_normalized
             ),
             None,
         )
