@@ -15,6 +15,7 @@ This section lists community projects around using linkding. If you have a proje
 | [Linklater](https://github.com/danielyrovas/linklater) | An open-source Android client written in Kotlin. | [danielyrovas](https://github.com/danielyrovas) |
 | [LinkThing](https://apps.apple.com/us/app/linkthing/id1666031776) | An iOS client for linkding. | [amoscardino](https://github.com/amoscardino) |
 | [Pinkt](https://github.com/fibelatti/pinboard-kotlin) | An Android client for linkding. | [fibelatti](https://github.com/fibelatti) |
+| [Tsundoku](https://www.gingerbeardman.com/apps/tsundoku/) | macOS client linkding and others. | [gingerbeardman]([https://github.com/fibelatti](https://blog.gingerbeardman.com/2026/04/17/today-i-shipped-twenty-apps-and-a-screensaver/)) |
 
 ## Browser Extensions
 
