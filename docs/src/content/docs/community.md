@@ -22,6 +22,7 @@ This section lists community projects around using linkding. If you have a proje
 | ---- | ----------- | ------ |
 | [linkding-extension](https://github.com/jeroenpardon/linkding-extension) | An alternative to the official browser extension that wraps the linkding bookmarklet. | [jeroenpardon](https://github.com/jeroenpardon) |
 | [linkding-injector](https://github.com/Fivefold/linkding-injector) | Injects search results from linkding into the sidebar of search pages like google and duckduckgo. | [Fivefold](https://github.com/Fivefold) |
+| [ [linkding for Safari](https://github.com/phmagic/linkding-safari) | Free browser extension for saving and searching bookmarks in Safari | [phmagic](https://github.com/phmagic) |
 
 ## Web and CLI Apps
 
