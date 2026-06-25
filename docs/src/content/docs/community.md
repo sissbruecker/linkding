@@ -20,6 +20,7 @@ This section lists community projects around using linkding. If you have a proje
 
 | Name | Description | Author |
 | ---- | ----------- | ------ |
+| [Save to Linkding](https://giuliomagnifico.blog/apps/savetolinkding/) | Save links from any browser on iOS-iPadOS using the system Share Sheet, and manage your istance using the main app. [App Store](https://apps.apple.com/app/save-to-linkding/id6761113021) | [Giulio Magnifico]([https://giuliomagnifico.blog/apps/](https://github.com/giuliomagnifico)) |
 | [linkding-extension](https://github.com/jeroenpardon/linkding-extension) | An alternative to the official browser extension that wraps the linkding bookmarklet. | [jeroenpardon](https://github.com/jeroenpardon) |
 | [linkding-injector](https://github.com/Fivefold/linkding-injector) | Injects search results from linkding into the sidebar of search pages like google and duckduckgo. | [Fivefold](https://github.com/Fivefold) |
 
