@@ -296,6 +296,10 @@ def _base_bookmarks_query(
             query_set = query_set.order_by(order_field)
         elif search.sort == BookmarkSearch.SORT_TITLE_DESC:
             query_set = query_set.order_by(order_field).reverse()
+    elif search.sort == BookmarkSearch.SORT_MODIFIED_ASC:
+        query_set = query_set.order_by("date_modified")
+    elif search.sort == BookmarkSearch.SORT_MODIFIED_DESC:
+        query_set = query_set.order_by("-date_modified")
     elif search.sort == BookmarkSearch.SORT_ADDED_ASC:
         query_set = query_set.order_by("date_added")
     else:
