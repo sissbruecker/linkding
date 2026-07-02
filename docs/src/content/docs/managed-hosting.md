@@ -11,6 +11,7 @@ The following services provide fully managed hosting for linkding, including aut
 
 - [PikaPods.com](https://www.pikapods.com/) - Managed hosting for linkding, EU and US regions available. [1-click setup link](https://www.pikapods.com/pods?run=linkding) ([Disclosure](/acknowledgements#pikapods))
 - [CloudBreak](https://cloudbreak.app/products/linkding/?utm_medium=referral&utm_source=linkding-docs&utm_content=managed-hosting&rby=linkding-docs-managed-hosting) - Managed hosting for linkding, US regions available.
+- [Hostim.dev](https://hostim.dev/) - Managed hosting for linkding, EU region available. [1-click setup link](https://console.hostim.dev/dashboard?preview=1&modal=1&template=linkding)
 
 ## Self-Managed
 
