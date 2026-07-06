@@ -251,6 +251,7 @@ class TagViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
 ):
     request: HttpRequest
     serializer_class = TagSerializer
