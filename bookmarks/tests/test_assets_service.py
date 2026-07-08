@@ -427,6 +427,27 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertTrue(saved_file.endswith("aaaa.txt.gz"))
 
     @disable_logging
+    def test_upload_asset_with_non_ascii_file_name(self):
+        bookmark = self.setup_bookmark()
+        file_content = b"test content"
+        upload_file = SimpleUploadedFile(
+            "explodér.html", file_content, content_type="text/html"
+        )
+
+        asset = assets.upload_asset(bookmark, upload_file)
+
+        # on-disk file name must be ASCII-safe so it can be written regardless
+        # of the filesystem encoding / locale
+        saved_file_name = self.get_saved_snapshot_file()
+        self.assertTrue(saved_file_name.isascii())
+        self.assertTrue(saved_file_name.startswith("upload_"))
+        self.assertTrue(saved_file_name.endswith("_explod_r.html.gz"))
+
+        # display name keeps the original file name with non-ASCII characters
+        self.assertEqual(asset.display_name, "explodér.html")
+        self.assertEqual(asset.file, saved_file_name)
+
+    @disable_logging
     def test_upload_asset_failure(self):
         bookmark = self.setup_bookmark()
         upload_file = SimpleUploadedFile("test_file.txt", b"test content")
