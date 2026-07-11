@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -38,3 +40,28 @@ class RootViewTestCase(TestCase, BookmarkFactoryMixin):
 
         response = self.client.get(reverse("linkding:root"))
         self.assertRedirects(response, reverse("linkding:bookmarks.index"))
+
+    def test_authenticated_user_redirect_retains_query_string(self):
+        self.client.force_login(self.get_or_create_test_user())
+
+        query = urlencode({"q": "#china"})
+        response = self.client.get(reverse("linkding:root") + "?" + query)
+        self.assertRedirects(
+            response, reverse("linkding:bookmarks.index") + "?" + query
+        )
+
+    def test_unauthenticated_shared_landing_redirect_retains_query_string(self):
+        settings = GlobalSettings.get()
+        settings.landing_page = GlobalSettings.LANDING_PAGE_SHARED_BOOKMARKS
+        settings.save()
+
+        query = urlencode({"q": "#china"})
+        response = self.client.get(reverse("linkding:root") + "?" + query)
+        self.assertRedirects(
+            response, reverse("linkding:bookmarks.shared") + "?" + query
+        )
+
+    def test_unauthenticated_login_redirect_ignores_query_string(self):
+        query = urlencode({"q": "#china"})
+        response = self.client.get(reverse("linkding:root") + "?" + query)
+        self.assertRedirects(response, reverse("login"))
