@@ -32,7 +32,7 @@ This section lists community projects around using linkding. If you have a proje
 | [Komrade](https://codeberg.org/kodemonaut/komrade) | A simple docker based startpage/dashboard which syncs with Linkding, Linkwarden or Nextcloud Bookmarks. | [kodemonaut](https://codeberg.org/kodemonaut) |
 | [Linka!](https://github.com/cmsax/linka) | Web app (also a PWA) for quickly searching & opening bookmarks in linkding, support multi keywords, exclude mode and other advance options. | [cmsax](https://github.com/cmsax) |
 | [linkding-archiver](https://github.com/sebw/linkding-archiver) | A Python application that integrates with SingleFile and Tube Archivist to archive your links and videos. | [sebw](https://github.com/sebw) |
-| [linkding-bot](https://github.com/mesamirh/linkding-bot) | A Telegram bot for linkding to add bookmarks easily. | [mesamirh](https://github.com/mesamirh) |
+| [linkding-bot](https://github.com/mesamirh/linkding-bot) | A Telegram bot for linkding that automatically generates tags and notes using AI. | [mesamirh](https://github.com/mesamirh) |
 | [linkding-cli](https://github.com/bachya/linkding-cli) | A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). | [bachya](https://github.com/bachya) |
 | [linkdinger](https://github.com/lmmendes/linkdinger) | A Telegram bot that saves links directly to Linkding, with support for tags, notes, and searching bookmarks. | [lmmendes](https://github.com/lmmendes) |
 | [linkding-healthcheck](https://github.com/sebw/linkding-healthcheck) | A Go application that checks the health of your bookmarks and add a tag on dead and problematic URLs. | [sebw](https://github.com/sebw) |
