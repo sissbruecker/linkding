@@ -218,10 +218,28 @@ class BookmarkBundleForm(forms.ModelForm):
     any_tags = forms.CharField(required=False, widget=TagAutocomplete)
     all_tags = forms.CharField(required=False, widget=TagAutocomplete)
     excluded_tags = forms.CharField(required=False, widget=TagAutocomplete)
+    filter_unread = forms.ChoiceField(
+        choices=BookmarkBundle.FILTER_UNREAD_CHOICES,
+        required=False,
+        widget=FormSelect,
+    )
+    filter_shared = forms.ChoiceField(
+        choices=BookmarkBundle.FILTER_SHARED_CHOICES,
+        required=False,
+        widget=FormSelect,
+    )
 
     class Meta:
         model = BookmarkBundle
-        fields = ["name", "search", "any_tags", "all_tags", "excluded_tags"]
+        fields = [
+            "name",
+            "search",
+            "any_tags",
+            "all_tags",
+            "excluded_tags",
+            "filter_unread",
+            "filter_shared",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, error_class=FormErrorList)

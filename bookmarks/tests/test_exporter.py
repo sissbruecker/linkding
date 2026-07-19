@@ -96,6 +96,7 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
             title="<style>: The Style Information element",
             description="The <style> HTML element contains style information for a document, or part of a document.",
             notes="Interesting notes about the <style> HTML element.",
+            tags=[self.setup_tag(name='"'), self.setup_tag(name="&")],
         )
         html = exporter.export_netscape_html([bookmark])
 
@@ -105,6 +106,7 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
             html,
         )
         self.assertIn("Interesting notes about the &lt;style&gt; HTML element.", html)
+        self.assertIn('TAGS="&quot;,&amp;"', html)
 
     def test_handle_empty_values(self):
         bookmark = self.setup_bookmark()

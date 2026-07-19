@@ -287,7 +287,9 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         import_html = self.render_html(tags=html_tags)
         import_netscape_html(import_html, self.get_or_create_test_user())
 
-        html_tags.append(BookmarkHtmlTag(href="https://example.com", tags="tag2, tag3"))
+        html_tags = [
+            BookmarkHtmlTag(href="https://example.com", tags="tag2, tag3"),
+        ]
         import_html = self.render_html(tags=html_tags)
         import_netscape_html(import_html, self.get_or_create_test_user())
 
@@ -406,6 +408,41 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
         self.assertEqual(Bookmark.objects.count(), 0)
         self.assertEqual(import_result.success, 0)
         self.assertEqual(import_result.failed, 2)
+
+    def test_synchronize_compares_by_normalized_url(self):
+        self.setup_bookmark(url="https://example.com", description="initial")
+
+        html_tags = [
+            BookmarkHtmlTag(href="https://example.com/", description="updated"),
+        ]
+        import_html = self.render_html(tags=html_tags)
+        import_netscape_html(import_html, self.get_or_create_test_user())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(Bookmark.objects.all()[0].description, "updated")
+
+    def test_import_skips_duplicate_urls(self):
+        html_tags = [
+            BookmarkHtmlTag(href="https://example.com"),
+            BookmarkHtmlTag(href="https://example.com/"),
+            BookmarkHtmlTag(href="https://example.com/"),
+        ]
+        import_html = self.render_html(tags=html_tags)
+        import_netscape_html(import_html, self.get_or_create_test_user())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+
+    def test_import_skips_adding_tags_from_duplicate_urls(self):
+        html_tags = [
+            BookmarkHtmlTag(href="https://example.com", tags="tag1"),
+            BookmarkHtmlTag(href="https://example.com/", tags="tag2"),
+            BookmarkHtmlTag(href="https://example.com/", tags="tag3"),
+        ]
+        import_html = self.render_html(tags=html_tags)
+        import_netscape_html(import_html, self.get_or_create_test_user())
+
+        self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertEqual(Bookmark.objects.all()[0].tag_names, ["tag1"])
 
     def test_generate_normalized_url(self):
         html_tags = [

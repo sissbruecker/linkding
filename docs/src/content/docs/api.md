@@ -167,10 +167,13 @@ PATCH /api/bookmarks/<id>/
 ```
 
 Updates a bookmark.
-When using `POST`, at least all required fields must be provided (currently only `url`).
+When using `PUT`, at least all required fields must be provided (currently only `url`).
 When using `PATCH`, only the fields that should be updated need to be provided.
 Regardless which method is used, any field that is not provided is not modified.
 Tags are simply assigned using their names.
+
+Note that [auto tagging](/auto-tagging) rules are applied on every update: tags from
+matching rules are merged into `tag_names`, even if the request does not include that field.
 
 If the provided URL is already bookmarked this returns an error.
 
