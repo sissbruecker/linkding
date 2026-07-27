@@ -191,6 +191,52 @@ identity_providers:
 
 </details>
 
+#### `OIDC` and API access
+
+Depending on your setup, the path to linkding's API might be intercepted by an authentication middleware. This path needs to be excluded in order to let the API use its intended token authentication.
+
+<details>
+
+<summary>Traefik Example</summary>
+
+This docker compose example shows how to configure Traefik to avoid using an authentication middleware when forwarding requests to linkding's REST API.
+
+```yaml
+services:
+
+ traefik:
+  image: traefik:latest
+  volumes:
+  - /var/run/docker.sock:/var/run/docker.sock
+  # ...
+
+ linkding:
+  image: "sissbruecker/linkding:latest"
+  labels:
+  - "traefik.enable=true"
+  - "traefik.http.services.route-linkding.loadbalancer.server.port=9090"
+
+  # API is higher priority without auth middleware
+  - "traefik.http.routers.route-linkding-api.rule=(Host(`linkding.example.com`) && PathPrefix(`/api`))"
+  - "traefik.http.routers.route-linkding-api.priority=2"
+
+  # All the rest is lower priority going through the auth middleware
+  - "traefik.http.routers.route-linkding.rule=Host(`linkding.example.com`)"
+  - "traefik.http.routers.route-linkding.priority=1"
+  - "traefik.http.routers.route-linkding.middlewares=oauth-linkding@file"
+  environment:
+  - "LD_ENABLE_OIDC=true"
+  - "OIDC_OP_AUTHORIZATION_ENDPOINT=https://auth.example.com/realms/my-realm/protocol/openid-connect/auth"
+  - "OIDC_OP_TOKEN_ENDPOINT=https://auth.example.com/realms/my-realm/protocol/openid-connect/token"
+  - "OIDC_OP_USER_ENDPOINT=https://auth.example.com/realms/my-realm/protocol/openid-connect/userinfo"
+  - "OIDC_OP_JWKS_ENDPOINT=https://auth.example.com/realms/my-realm/protocol/openid-connect/certs"
+  - "OIDC_RP_CLIENT_ID=linkding"
+  - "OIDC_RP_CLIENT_SECRET=myClientSecret"
+  # ...
+```
+
+</details>
+
 ### `LD_DISABLE_LOGIN_FORM`
 
 Values: `True`, `False` | Default = `False`
