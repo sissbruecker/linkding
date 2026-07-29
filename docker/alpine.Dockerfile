@@ -88,13 +88,14 @@ CMD ["./bootstrap.sh"]
 FROM node:22-alpine AS ublock-build
 WORKDIR /etc/linkding
 # Install necessary tools
-# Download and unzip the latest uBlock Origin Lite release
+# Download and unzip the latest uBlock Origin Lite release with a Chromium asset
 # Patch manifest to enable annoyances by default
 RUN apk add --no-cache curl jq unzip && \
-    TAG=$(curl -sL https://api.github.com/repos/uBlockOrigin/uBOL-home/releases/latest | jq -r '.tag_name') && \
-    DOWNLOAD_URL=https://github.com/uBlockOrigin/uBOL-home/releases/download/$TAG/uBOLite_$TAG.chromium.zip && \
+    DOWNLOAD_URL=$(curl -fsSL "https://api.github.com/repos/uBlockOrigin/uBOL-home/releases?per_page=20" | \
+        jq -r 'first(.[] | .assets[] | select(.name | endswith(".chromium.zip")) | .browser_download_url) // empty') && \
+    test -n "$DOWNLOAD_URL" && \
     echo "Downloading $DOWNLOAD_URL" && \
-    curl -L -o uBOLite.zip $DOWNLOAD_URL && \
+    curl -fL -o uBOLite.zip "$DOWNLOAD_URL" && \
     unzip uBOLite.zip -d uBOLite.chromium.mv3 && \
     rm uBOLite.zip && \
     jq '.declarative_net_request.rule_resources |= map(if .id == "annoyances-overlays" or .id == "annoyances-cookies" or .id == "annoyances-social" or .id == "annoyances-widgets" or .id == "annoyances-others" then .enabled = true else . end)' \
