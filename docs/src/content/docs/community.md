@@ -15,7 +15,7 @@ This section lists community projects around using linkding. If you have a proje
 | [Linklater](https://github.com/danielyrovas/linklater) | An open-source Android client written in Kotlin. | [danielyrovas](https://github.com/danielyrovas) |
 | [LinkThing](https://apps.apple.com/us/app/linkthing/id1666031776) | An iOS client for linkding. | [amoscardino](https://github.com/amoscardino) |
 | [Pinkt](https://github.com/fibelatti/pinboard-kotlin) | An Android client for linkding. | [fibelatti](https://github.com/fibelatti) |
-| [Save to Linkding](https://www.giuliomagnifico.dev/apps/savetolinkding/) | Save links from any browser on iOS-iPadOS using the system Share Sheet, and manage your istance using the main app. [App Store](https://apps.apple.com/app/save-to-linkding/id6761113021) | [Giulio Magnifico](https://www.giuliomagnifico.dev) |
+| [Save to Linkding](https://www.giuliomagnifico.dev/apps/savetolinkding/) | Save links from any browser on iOS or iPadOS using the system Share Sheet, and manage your instance using the main app. [App Store](https://apps.apple.com/app/save-to-linkding/id6761113021) | [Giulio Magnifico](https://www.giuliomagnifico.dev) |
 
 ## Browser Extensions
 
