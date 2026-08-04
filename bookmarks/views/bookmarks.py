@@ -1,3 +1,4 @@
+import random
 import urllib.parse
 
 from django.conf import settings
@@ -47,6 +48,9 @@ def index(request: HttpRequest):
     search = BookmarkSearch.from_request(
         request, request.GET, request.user_profile.search_preferences
     )
+    seed_redirect = _ensure_random_seed_in_url(request, search)
+    if seed_redirect:
+        return seed_redirect
     bookmark_list = contexts.ActiveBookmarkListContext(request, search)
     bundles = contexts.BundlesContext(request)
     tag_cloud = contexts.ActiveTagCloudContext(request, search)
@@ -86,6 +90,9 @@ def archived(request: HttpRequest):
     search = BookmarkSearch.from_request(
         request, request.GET, request.user_profile.search_preferences
     )
+    seed_redirect = _ensure_random_seed_in_url(request, search)
+    if seed_redirect:
+        return seed_redirect
     bookmark_list = contexts.ArchivedBookmarkListContext(request, search)
     bundles = contexts.BundlesContext(request)
     tag_cloud = contexts.ArchivedTagCloudContext(request, search)
@@ -124,6 +131,9 @@ def shared(request: HttpRequest):
     search = BookmarkSearch.from_request(
         request, request.GET, request.user_profile.search_preferences
     )
+    seed_redirect = _ensure_random_seed_in_url(request, search)
+    if seed_redirect:
+        return seed_redirect
     bookmark_list = contexts.SharedBookmarkListContext(request, search)
     tag_cloud = contexts.SharedTagCloudContext(request, search)
     bookmark_details = contexts.get_details_context(
@@ -153,6 +163,25 @@ def shared_update(request: HttpRequest):
         request, contexts.SharedBookmarkDetailsContext
     )
     return render_bookmarks_update(request, bookmark_list, tag_cloud, details)
+
+
+def _ensure_random_seed_in_url(request: HttpRequest, search: BookmarkSearch):
+    # Pagination links are built from request.GET, so the seed must be in the
+    # URL for ordering to stay consistent across pages. Generate (or repair)
+    # the seed here whenever the URL is missing one or has a non-digit value.
+    # API/RSS callers bypass this helper and are expected to supply their own.
+    if search.sort != BookmarkSearch.SORT_RANDOM:
+        return None
+
+    url_seed = request.GET.get("random_seed")
+    if url_seed and url_seed.isdigit():
+        search.random_seed = url_seed
+        return None
+
+    search.random_seed = str(random.randint(1, 2**31 - 1))
+    query_params = request.GET.copy()
+    query_params["random_seed"] = search.random_seed
+    return HttpResponseRedirect(f"{request.path}?{query_params.urlencode()}")
 
 
 def render_bookmarks_view(request: HttpRequest, context):
