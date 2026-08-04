@@ -67,3 +67,10 @@ This section lists community projects around using linkding. If you have a proje
 | [linkding-api](https://github.com/vbsampath/linkding-api) | A Javascript library implementing linkding REST API. | [vbsampath](https://github.com/vbsampath) |
 | [linkding-rs](https://github.com/zbrox/linkding-rs) | A Rust client library to interact with the linkding REST API with cross platform support to be easily used in Android or iOS apps. | [zbrox](https://github.com/zbrox) |
 
+## Self-Hosting Guides
+
+| Name | Description | Author |
+| ---- | ----------- | ------ |
+| [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) | Guide for hosting a linkding installation on [fly.io](https://fly.io). | [fspoettel](https://github.com/fspoettel) |
+| [linkding on railway.app](https://github.com/tianheg/linkding-on-railway) | Guide for hosting a linkding installation on [railway.app](https://railway.app/). | [tianheg](https://github.com/tianheg) |
+
