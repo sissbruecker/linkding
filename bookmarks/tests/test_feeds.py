@@ -184,6 +184,37 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(response.status_code, 200)
         self.assertFeedItems(response, shared_bookmarks)
 
+    def test_shared_user_parameter(self):
+        user1 = self.setup_user(enable_sharing=True)
+        user2 = self.setup_user(enable_sharing=True)
+
+        user1_bookmarks = [
+            self.setup_bookmark(shared=True, user=user1),
+            self.setup_bookmark(shared=True, user=user1),
+        ]
+        user2_bookmarks = [self.setup_bookmark(shared=True, user=user2)]
+
+        feed_url = reverse("linkding:feeds.shared", args=[self.token.key])
+
+        # without user parameter
+        response = self.client.get(feed_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, user1_bookmarks + user2_bookmarks)
+
+        # with user parameter
+        response = self.client.get(feed_url + f"?user={user1.username}")
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, user1_bookmarks)
+
+        response = self.client.get(feed_url + f"?user={user2.username}")
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, user2_bookmarks)
+
+        # with unknown user
+        response = self.client.get(feed_url + "?user=unknown")
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, [])
+
     def test_public_shared_does_not_require_auth(self):
         response = self.client.get(reverse("linkding:feeds.public_shared"))
 
@@ -223,6 +254,37 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse("linkding:feeds.public_shared"))
         self.assertEqual(response.status_code, 200)
         self.assertFeedItems(response, public_shared_bookmarks)
+
+    def test_public_shared_user_parameter(self):
+        user1 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+        user2 = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+
+        user1_bookmarks = [
+            self.setup_bookmark(shared=True, user=user1),
+            self.setup_bookmark(shared=True, user=user1),
+        ]
+        user2_bookmarks = [self.setup_bookmark(shared=True, user=user2)]
+
+        feed_url = reverse("linkding:feeds.public_shared")
+
+        # without user parameter
+        response = self.client.get(feed_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, user1_bookmarks + user2_bookmarks)
+
+        # with user parameter
+        response = self.client.get(feed_url + f"?user={user1.username}")
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, user1_bookmarks)
+
+        response = self.client.get(feed_url + f"?user={user2.username}")
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, user2_bookmarks)
+
+        # with unknown user
+        response = self.client.get(feed_url + "?user=unknown")
+        self.assertEqual(response.status_code, 200)
+        self.assertFeedItems(response, [])
 
     def test_with_query(self):
         tag1 = self.setup_tag()
