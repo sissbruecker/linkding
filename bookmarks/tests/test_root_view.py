@@ -8,9 +8,17 @@ from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
 class RootViewTestCase(TestCase, BookmarkFactoryMixin):
+    def assertRedirectsToLogin(self, response, next_url):
+        # The root view redirects to the bookmarks page, which in turn
+        # redirects unauthenticated users to the login page
+        self.assertEqual(response.redirect_chain[0], (next_url, 302))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.request["PATH_INFO"], "/login/")
+        self.assertEqual(response.context["next"], next_url)
+
     def test_unauthenticated_user_redirect_to_login_by_default(self):
-        response = self.client.get(reverse("linkding:root"))
-        self.assertRedirects(response, reverse("login"))
+        response = self.client.get(reverse("linkding:root"), follow=True)
+        self.assertRedirectsToLogin(response, reverse("linkding:bookmarks.index"))
 
     def test_unauthenticated_redirect_to_shared_bookmarks_if_configured_in_global_settings(
         self,
@@ -61,7 +69,9 @@ class RootViewTestCase(TestCase, BookmarkFactoryMixin):
             response, reverse("linkding:bookmarks.shared") + "?" + query
         )
 
-    def test_unauthenticated_login_redirect_ignores_query_string(self):
+    def test_unauthenticated_login_redirect_retains_query_string(self):
         query = urlencode({"q": "#china"})
-        response = self.client.get(reverse("linkding:root") + "?" + query)
-        self.assertRedirects(response, reverse("login"))
+        response = self.client.get(reverse("linkding:root") + "?" + query, follow=True)
+        self.assertRedirectsToLogin(
+            response, reverse("linkding:bookmarks.index") + "?" + query
+        )
