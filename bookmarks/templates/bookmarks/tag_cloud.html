@@ -4,9 +4,7 @@
   {% if tag_cloud.has_selected_tags %}
     <p class="selected-tags">
       {% for tag in tag_cloud.selected_tags %}
-        <a href="?{{ tag.query_string }}" class="text-bold mr-2">
-          <span>-{{ tag.name }}</span>
-        </a>
+        <a href="?{{ tag.query_string }}" class="text-bold mr-2"><span>-{{ tag.name }}</span></a>
       {% endfor %}
     </p>
   {% endif %}
@@ -16,14 +14,10 @@
         {% for tag in group.tags %}
           {# Highlight first char of first tag in group if grouping is enabled #}
           {% if group.highlight_first_char and forloop.counter == 1 %}
-            <a href="?{{ tag.query_string }}" class="mr-2" data-is-tag-item>
-              <span class="highlight-char">{{ tag.name|first_char }}</span><span>{{ tag.name|remaining_chars:1 }}</span>
-            </a>
+            <a href="?{{ tag.query_string }}" class="mr-2" data-is-tag-item><span class="highlight-char">{{ tag.name|first_char }}</span><span>{{ tag.name|remaining_chars:1 }}</span></a>
           {% else %}
             {# Render tags normally #}
-            <a href="?{{ tag.query_string }}" class="mr-2" data-is-tag-item>
-              <span>{{ tag.name }}</span>
-            </a>
+            <a href="?{{ tag.query_string }}" class="mr-2" data-is-tag-item><span>{{ tag.name }}</span></a>
           {% endif %}
         {% endfor %}
       </p>
