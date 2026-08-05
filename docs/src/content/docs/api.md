@@ -359,6 +359,14 @@ Example payload:
 }
 ```
 
+**Delete**
+
+```
+DELETE /api/tags/<id>/
+```
+
+Deletes a tag by ID.
+
 ### Bundles
 
 **List**
