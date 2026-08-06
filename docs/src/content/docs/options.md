@@ -117,6 +117,39 @@ For example, for Authelia, which passes the `Remote-User` HTTP header, the `LD_A
 By default, the logout redirects to the login URL, which means the user will be automatically authenticated again.
 Instead, you might want to configure the logout URL of the auth proxy here.
 
+:::note[Using REST API clients]
+
+If you intend to use any API client (e.g. the browser extension, a mobile app, or anything that requires you to configure an API token) you need to bypass the authentication proxy for API requests. These clients can not complete the authentication flow you would use when accessing linkding in the browser and authenticate with an API token instead. You must take care to not over-match your routes when doing this, as API calls are also made in-page by linkding and these should pass through the authentication proxy.
+
+<details>
+
+<summary>Example using Caddy and Authelia</summary>
+
+```
+linkding.example.com {
+  # Requests for /api/* with an API token may skip the authentication proxy.
+  @external_api_call {
+    path /api/*
+    header Authorization *
+  }
+  handle @external_api_call {
+    reverse_proxy linkding:9090
+  }
+
+  # otherwise pass all requests through the authentication proxy.
+  handle {
+    forward_auth authelia:9091 {
+      uri /api/authz/forward-auth
+      copy_headers Remote-User
+    }
+    reverse_proxy linkding:9090
+  }
+}
+```
+
+</details>
+:::
+
 ### `LD_ENABLE_OIDC`
 
 Values: `True`, `False` | Default = `False`
