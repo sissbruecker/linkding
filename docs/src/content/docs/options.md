@@ -232,6 +232,12 @@ Disables the login form on the login page.
 This is useful when you want to enforce authentication through OIDC only.
 When enabled, users will not be able to log in using their username and password, and only the "Login with OIDC" button will be shown on the login page.
 
+### `LD_SESSION_COOKIE_AGE`
+
+Values: `Integer` as seconds | Default = `1209600`
+
+Set the lifetime of the session cookie, in seconds. This value determines how long a browser will stay logged in to the web interface. The default value is 2 weeks.
+
 ### `LD_CSRF_TRUSTED_ORIGINS`
 
 Values: `String` | Default = None

@@ -180,6 +180,9 @@ HUEY = {
     },
 }
 
+# Allow override of the session cookie length, provided in seconds.
+SESSION_COOKIE_AGE = int(os.getenv("LD_SESSION_COOKIE_AGE", 1209600))  # 2 weeks
+
 # Disable login form if configured
 LD_DISABLE_LOGIN_FORM = os.getenv("LD_DISABLE_LOGIN_FORM", False) in (
     True,
