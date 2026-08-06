@@ -11,6 +11,14 @@ If the `Host` header is modified by the reverse proxy then this check fails.
 
 To fix this, check the [reverse proxy setup documentation](/installation#reverse-proxy-setup) on how to configure header forwarding for your proxy server, or alternatively configure the  [`LD_CSRF_TRUSTED_ORIGINS` option](/options#ld_csrf_trusted_origins) to the URL from which you are accessing your linkding instance.
 
+## API clients fail to authenticate when using an authentication proxy
+
+When you have enabled authentication proxy support with the [`LD_ENABLE_AUTH_PROXY` option](/options#ld_enable_auth_proxy), API clients such as the browser extension or a mobile app may fail to connect, even though the API token is configured correctly. Depending on your setup, requests may be answered with a redirect to the login page of your auth proxy, or fail with a `401` or `403` error.
+
+The reason is that the auth proxy intercepts requests before they reach linkding, and API clients can not complete the browser-based authentication flow that the proxy expects. They authenticate with an API token instead.
+
+To fix this, configure your reverse proxy to let external API requests bypass the authentication proxy. See the *Using REST API clients* note in the [`LD_ENABLE_AUTH_PROXY` documentation](/options#ld_enable_auth_proxy).
+
 ## Automatically detected title and description are incorrect
 
 linkding automatically fetches the title and description of the web page from the metadata in the HTML `<head>`. By default, this happens on the server, which can return different results than what you see in your browser, for example, if a website uses JavaScript to dynamically change the title or description, or if a website requires login. Alternatively, both the browser extension and the bookmarklet can use the metadata directly from the page you are currently viewing in your browser. Note that for some websites this can give worse results, as not all websites correctly update the metadata in `<head>` while browsing the website (which is why fetching a fresh page on the server is still the default).
