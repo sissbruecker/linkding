@@ -45,7 +45,6 @@ export default defineConfig({
           label: "Resources",
           items: [
             { label: "Community", slug: "community" },
-            { label: "Acknowledgements", slug: "acknowledgements" },
           ],
         },
       ],
