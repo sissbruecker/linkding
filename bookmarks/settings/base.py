@@ -180,6 +180,9 @@ HUEY = {
     },
 }
 
+# Allow override of the session cookie length, provided in seconds.
+SESSION_COOKIE_AGE = int(os.getenv("LD_SESSION_COOKIE_AGE", 1209600))  # 2 weeks
+
 # Disable login form if configured
 LD_DISABLE_LOGIN_FORM = os.getenv("LD_DISABLE_LOGIN_FORM", False) in (
     True,
@@ -334,6 +337,3 @@ LD_SNAPSHOT_PDF_MAX_SIZE = int(os.getenv("LD_SNAPSHOT_PDF_MAX_SIZE", 15728640)) 
 # it turns out to be useful in the future.
 LD_MONOLITH_PATH = os.getenv("LD_MONOLITH_PATH", "monolith")
 LD_MONOLITH_OPTIONS = os.getenv("LD_MONOLITH_OPTIONS", "-a -v -s")
-
-# Allow override of the session cookie length, provided in seconds.
-SESSION_COOKIE_AGE = int(os.getenv("LD_SESSION_COOKIE_AGE", 1209600))  # 2 weeks
