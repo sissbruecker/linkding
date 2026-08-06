@@ -19,9 +19,6 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-# Allow access through ngrok
-CSRF_TRUSTED_ORIGINS = ["https://*.ngrok-free.app"]
-
 STATICFILES_DIRS = [
     # Resolve theme files from style source folder
     os.path.join(BASE_DIR, "bookmarks", "styles"),
