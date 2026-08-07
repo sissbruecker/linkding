@@ -211,6 +211,16 @@ def _filter_bundle(query_set: QuerySet, bundle: BookmarkBundle) -> QuerySet:
             Exists(Bookmark.objects.filter(tag_conditions, id=OuterRef("id")))
         )
 
+    if bundle.filter_unread == BookmarkBundle.FILTER_STATE_YES:
+        query_set = query_set.filter(unread=True)
+    elif bundle.filter_unread == BookmarkBundle.FILTER_STATE_NO:
+        query_set = query_set.filter(unread=False)
+
+    if bundle.filter_shared == BookmarkBundle.FILTER_STATE_YES:
+        query_set = query_set.filter(shared=True)
+    elif bundle.filter_shared == BookmarkBundle.FILTER_STATE_NO:
+        query_set = query_set.filter(shared=False)
+
     return query_set
 
 
@@ -288,6 +298,10 @@ def _base_bookmarks_query(
             query_set = query_set.order_by(order_field).reverse()
     elif search.sort == BookmarkSearch.SORT_ADDED_ASC:
         query_set = query_set.order_by("date_added")
+    elif search.sort == BookmarkSearch.SORT_MODIFIED_ASC:
+        query_set = query_set.order_by("date_modified")
+    elif search.sort == BookmarkSearch.SORT_MODIFIED_DESC:
+        query_set = query_set.order_by("-date_modified")
     else:
         # Sort by date added, descending by default
         query_set = query_set.order_by("-date_added")

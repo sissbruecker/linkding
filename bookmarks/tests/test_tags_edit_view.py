@@ -90,20 +90,17 @@ class TagsEditViewTestCase(TestCase, BookmarkFactoryMixin):
         tag2.refresh_from_db()
         self.assertEqual(tag2.name, "tag1")
 
-    def test_update_shows_success_message(self):
+    def test_update_tag_preserves_query_parameters(self):
         tag = self.setup_tag(name="old_name")
 
-        response = self.client.post(
-            reverse("linkding:tags.edit", args=[tag.id]),
-            {"name": "new_name"},
-            follow=True,
+        url = (
+            reverse("linkding:tags.edit", args=[tag.id])
+            + "?search=search&unused=true&page=2&sort=name-desc"
         )
+        response = self.client.post(url, {"name": "new_name"})
 
-        self.assertInHTML(
-            """
-            <div class="toast toast-success" role="alert">
-                Tag "new_name" updated successfully.
-            </div>
-        """,
-            response.content.decode(),
+        expected_redirect = (
+            reverse("linkding:tags.index")
+            + "?search=search&unused=true&page=2&sort=name-desc"
         )
+        self.assertRedirects(response, expected_redirect)

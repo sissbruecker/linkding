@@ -113,6 +113,14 @@ LOGIN_URL = "/" + LD_CONTEXT_PATH + "login"
 LOGIN_REDIRECT_URL = "/" + LD_CONTEXT_PATH + "bookmarks"
 LOGOUT_REDIRECT_URL = "/" + LD_CONTEXT_PATH + "login"
 
+CSRF_COOKIE_PATH = "/" + LD_CONTEXT_PATH
+LANGUAGE_COOKIE_PATH = "/" + LD_CONTEXT_PATH
+SESSION_COOKIE_PATH = "/" + LD_CONTEXT_PATH
+
+CSRF_COOKIE_NAME = "ld_csrftoken"
+LANGUAGE_COOKIE_NAME = "ld_language"
+SESSION_COOKIE_NAME = "ld_sessionid"
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -179,6 +187,9 @@ HUEY = {
         "health_check_interval": 10,
     },
 }
+
+# Allow override of the session cookie length, provided in seconds.
+SESSION_COOKIE_AGE = int(os.getenv("LD_SESSION_COOKIE_AGE", 1209600))  # 2 weeks
 
 # Disable login form if configured
 LD_DISABLE_LOGIN_FORM = os.getenv("LD_DISABLE_LOGIN_FORM", False) in (

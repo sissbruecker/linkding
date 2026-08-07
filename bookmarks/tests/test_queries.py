@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks import queries
-from bookmarks.models import BookmarkSearch, UserProfile
+from bookmarks.models import BookmarkBundle, BookmarkSearch, UserProfile
 from bookmarks.tests.helpers import BookmarkFactoryMixin, random_sentence
 from bookmarks.utils import unique
 
@@ -1164,6 +1164,70 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertEqual(list(query), sorted_bookmarks)
 
+    def test_sort_by_date_modified_asc(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_MODIFIED_ASC)
+
+        bookmarks = [
+            self.setup_bookmark(
+                modified=timezone.datetime(2022, 5, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2020, 7, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2023, 4, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2021, 2, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2022, 3, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2020, 1, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2021, 6, 1, tzinfo=datetime.UTC)
+            ),
+        ]
+        sorted_bookmarks = sorted(bookmarks, key=lambda b: b.date_modified)
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertEqual(list(query), sorted_bookmarks)
+
+    def test_sort_by_date_modified_desc(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_MODIFIED_DESC)
+
+        bookmarks = [
+            self.setup_bookmark(
+                modified=timezone.datetime(2021, 6, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2023, 4, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2020, 1, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2022, 3, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2021, 2, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2020, 7, 1, tzinfo=datetime.UTC)
+            ),
+            self.setup_bookmark(
+                modified=timezone.datetime(2022, 5, 1, tzinfo=datetime.UTC)
+            ),
+        ]
+        sorted_bookmarks = sorted(
+            bookmarks, key=lambda b: b.date_modified, reverse=True
+        )
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        self.assertEqual(list(query), sorted_bookmarks)
+
     def setup_title_sort_data(self):
         # lots of combinations to test effective title logic
         bookmarks = [
@@ -1495,6 +1559,89 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         self.setup_bookmark(tags=[any_tag_b, all_tag_1, all_tag_2, excluded_tag])
         self.setup_bookmark(tags=[other_tag])
         self.setup_bookmark()
+
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [matching_bookmarks])
+
+    def test_query_bookmarks_with_bundle_filter_unread(self):
+        unread_bookmarks = [
+            self.setup_bookmark(unread=True),
+            self.setup_bookmark(unread=True),
+        ]
+        read_bookmarks = [
+            self.setup_bookmark(unread=False),
+            self.setup_bookmark(unread=False),
+        ]
+
+        # Filter unread
+        bundle = self.setup_bundle(filter_unread=BookmarkBundle.FILTER_STATE_YES)
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [unread_bookmarks])
+
+        # Filter read
+        bundle = self.setup_bundle(filter_unread=BookmarkBundle.FILTER_STATE_NO)
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [read_bookmarks])
+
+        # Filter off
+        bundle = self.setup_bundle(filter_unread=BookmarkBundle.FILTER_STATE_OFF)
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [unread_bookmarks, read_bookmarks])
+
+    def test_query_bookmarks_with_bundle_filter_shared(self):
+        shared_bookmarks = [
+            self.setup_bookmark(shared=True),
+            self.setup_bookmark(shared=True),
+        ]
+        unshared_bookmarks = [
+            self.setup_bookmark(shared=False),
+            self.setup_bookmark(shared=False),
+        ]
+
+        # Filter shared
+        bundle = self.setup_bundle(filter_shared=BookmarkBundle.FILTER_STATE_YES)
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [shared_bookmarks])
+
+        # Filter unshared
+        bundle = self.setup_bundle(filter_shared=BookmarkBundle.FILTER_STATE_NO)
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [unshared_bookmarks])
+
+        # Filter off
+        bundle = self.setup_bundle(filter_shared=BookmarkBundle.FILTER_STATE_OFF)
+        query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
+        )
+        self.assertQueryResult(query, [shared_bookmarks, unshared_bookmarks])
+
+    def test_query_bookmarks_with_bundle_unread_shared_filters_combined(self):
+        bundle = self.setup_bundle(
+            search="python",
+            filter_unread=BookmarkBundle.FILTER_STATE_YES,
+            filter_shared=BookmarkBundle.FILTER_STATE_NO,
+        )
+
+        matching_bookmarks = [
+            self.setup_bookmark(title="Python Tutorial", unread=True, shared=False),
+        ]
+
+        # Bookmarks that should not match
+        self.setup_bookmark(title="Python Guide", unread=False, shared=False)
+        self.setup_bookmark(title="Python Docs", unread=True, shared=True)
+        self.setup_bookmark(title="Java Guide", unread=True, shared=False)
 
         query = queries.query_bookmarks(
             self.user, self.profile, BookmarkSearch(q="", bundle=bundle)
