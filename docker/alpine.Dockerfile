@@ -1,4 +1,5 @@
-FROM node:22-alpine AS node-build
+# Run on the native build platform, the JS/CSS output is architecture-independent.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY rollup.config.mjs postcss.config.js package.json package-lock.json ./
@@ -85,7 +86,8 @@ CMD curl -f http://localhost:${LD_SERVER_PORT:-9090}/${LD_CONTEXT_PATH}health ||
 CMD ["./bootstrap.sh"]
 
 
-FROM node:22-alpine AS ublock-build
+# Run on the native build platform, the downloaded extension is architecture-independent
+FROM --platform=$BUILDPLATFORM node:22-alpine AS ublock-build
 WORKDIR /etc/linkding
 COPY scripts/setup-ublock.sh .
 # Install necessary tools
