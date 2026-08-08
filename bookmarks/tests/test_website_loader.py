@@ -238,6 +238,20 @@ class ContentTypeDetectionTestCase(TestCase):
 
             self.assertEqual(result, "application/pdf")
 
+    def test_detect_content_type_returns_empty_string_when_head_has_no_content_type(
+        self,
+    ):
+        with mock.patch("requests.head") as mock_head:
+            mock_response = mock.Mock()
+            mock_response.status_code = 200
+            mock_response.headers = {}
+            mock_head.return_value = mock_response
+
+            result = website_loader.detect_content_type("https://example.com")
+
+            self.assertEqual(result, "")
+            mock_head.assert_called_once()
+
     def test_detect_content_type_falls_back_to_get_when_head_fails(self):
         with (
             mock.patch("requests.head") as mock_head,
