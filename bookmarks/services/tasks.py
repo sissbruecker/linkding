@@ -6,7 +6,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
-from huey import crontab
 from huey.contrib.djhuey import HUEY as huey
 from huey.exceptions import TaskLockedException
 from waybackpy.exceptions import TooManyRequestsError, WaybackError
@@ -32,12 +31,6 @@ def task(retries=5, retry_delay=15, retry_backoff=4):
             task = kwargs.pop("task")
             try:
                 return fn(*args, **kwargs)
-            except TaskLockedException as exc:
-                # Task locks are currently only used as workaround to enforce
-                # running specific types of tasks (e.g. singlefile snapshots)
-                # sequentially. In that case don't reduce the number of retries.
-                task.retries = retries
-                raise exc
             except Exception as exc:
                 task.retry_delay *= retry_backoff
                 raise exc
@@ -261,6 +254,8 @@ def create_html_snapshot(bookmark: Bookmark):
     asset = assets.create_snapshot_asset(bookmark)
     asset.save()
 
+    _trigger_html_snapshot_processing()
+
 
 def create_html_snapshots(bookmark_list: list[Bookmark]):
     if not is_html_snapshot_feature_active():
@@ -273,30 +268,72 @@ def create_html_snapshots(bookmark_list: list[Bookmark]):
 
     BookmarkAsset.objects.bulk_create(assets_to_create)
 
-
-# singe-file does not support running multiple instances in parallel, so we can
-# not queue up multiple snapshot tasks at once. Instead, schedule a periodic
-# task that grabs a number of pending assets and creates snapshots for them in
-# sequence. The task uses a lock to ensure that a new task isn't scheduled
-# before the previous one has finished.
-@huey.periodic_task(crontab(minute="*"))
-@huey.lock_task("schedule-html-snapshots-lock")
-def _schedule_html_snapshots_task():
-    # Get five pending assets
-    assets = BookmarkAsset.objects.filter(status=BookmarkAsset.STATUS_PENDING).order_by(
-        "date_created"
-    )[:5]
-
-    for asset in assets:
-        _create_html_snapshot_task(asset.id)
+    _trigger_html_snapshot_processing()
 
 
-def _create_html_snapshot_task(asset_id: int):
-    try:
-        asset = BookmarkAsset.objects.get(id=asset_id)
-    except BookmarkAsset.DoesNotExist:
+# single-file does not support running multiple instances in parallel, so we can
+# not queue up a task per snapshot. Instead, a single task processes all pending
+# assets in sequence, and is triggered whenever new assets are created. The lock
+# ensures that only one of these tasks is running at a time.
+_html_snapshot_lock = huey.lock_task("html-snapshots-lock")
+
+
+def _trigger_html_snapshot_processing():
+    # If a task is already running, it also picks up the assets that were just
+    # created, either in its processing loop or when checking for remaining
+    # assets after releasing the lock. Skip queuing a task that would only be
+    # dropped by the lock anyway.
+    if _html_snapshot_lock.is_locked():
         return
 
+    _process_html_snapshots_task()
+
+
+def _get_next_pending_asset() -> BookmarkAsset | None:
+    return (
+        BookmarkAsset.objects.filter(
+            asset_type=BookmarkAsset.TYPE_SNAPSHOT,
+            status=BookmarkAsset.STATUS_PENDING,
+        )
+        .order_by("date_created", "id")
+        .first()
+    )
+
+
+@task()
+def _process_html_snapshots_task():
+    # Tasks may still be queued after the feature has been disabled
+    if not is_html_snapshot_feature_active():
+        return
+
+    try:
+        with _html_snapshot_lock:
+            # Processing an asset always moves it off the pending status, so
+            # the loop terminates once all pending assets have been processed.
+            while asset := _get_next_pending_asset():
+                _create_html_snapshot(asset)
+    except TaskLockedException:
+        # Another task is already creating snapshots. As it processes assets
+        # until there are no pending ones left, it also picks up the assets that
+        # this task was triggered for.
+        return
+
+    # Assets that were created while holding the lock may have triggered a task
+    # that was dropped above, in which case they have to be picked up here.
+    if _get_next_pending_asset():
+        _process_html_snapshots_task()
+
+
+@huey.on_startup()
+def _process_html_snapshots_on_startup():
+    # Pick up assets that are still pending, for example because the consumer
+    # was stopped while creating snapshots. This hook runs once per consumer
+    # worker, the additional tasks are dropped by the lock.
+    if is_html_snapshot_feature_active():
+        _process_html_snapshots_task()
+
+
+def _create_html_snapshot(asset: BookmarkAsset):
     logger.info(f"Create HTML snapshot for bookmark. url={asset.bookmark.url}")
 
     try:
@@ -307,9 +344,23 @@ def _create_html_snapshot_task(asset_id: int):
         )
     except Exception as error:
         logger.error(
-            f"Failed to HTML snapshot for bookmark. url={asset.bookmark.url}",
+            f"Failed to create HTML snapshot for bookmark. url={asset.bookmark.url}",
             exc_info=error,
         )
+
+
+@task()
+def _schedule_html_snapshots_task():
+    # Snapshots are no longer created by a periodic task, keeping the task
+    # function for now to prevent errors when huey tries to run the task
+    pass
+
+
+@task()
+def _create_html_snapshot_task(asset_id: int):
+    # Snapshots are now created by _process_html_snapshots_task, keeping the
+    # task function for now to prevent errors when huey tries to run the task
+    pass
 
 
 def create_missing_html_snapshots(user: User) -> int:
