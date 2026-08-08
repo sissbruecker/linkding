@@ -16,7 +16,8 @@ FROM python:3.13.7-slim-trixie AS build-deps
 # build-essential pkg-config: build Python packages from source
 # libpq-dev: build Postgres client from source
 # libicu-dev libsqlite3-dev: build Sqlite ICU extension
-RUN apt-get update && apt-get -y install build-essential pkg-config libpq-dev libicu-dev libsqlite3-dev libffi-dev wget unzip
+# libpcre2-dev: build uwsgi with internal routing support
+RUN apt-get update && apt-get -y install build-essential pkg-config libpq-dev libicu-dev libsqlite3-dev libffi-dev libpcre2-dev wget unzip
 WORKDIR /etc/linkding
 # install uv, use installer script for now as distroless images are not availabe for armv7
 ADD https://astral.sh/uv/0.8.13/install.sh /uv-installer.sh
@@ -50,7 +51,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
 FROM python:3.13.7-slim-trixie AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
-RUN apt-get update && apt-get -y install media-types libpq-dev libicu-dev libssl3t64 curl
+RUN apt-get update && apt-get -y install media-types libpq-dev libicu-dev libssl3t64 libpcre2-8-0 curl
 WORKDIR /etc/linkding
 # copy python dependencies
 COPY --from=build-deps /etc/linkding/.venv /etc/linkding/.venv

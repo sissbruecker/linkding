@@ -17,7 +17,8 @@ FROM python:3.13.7-alpine3.22 AS build-deps
 # libpq-dev: build Postgres client from source
 # icu-dev sqlite-dev: build Sqlite ICU extension
 # libffi-dev openssl-dev rust cargo: build Python cryptography from source
-RUN apk update && apk add alpine-sdk linux-headers libpq-dev pkgconfig icu-dev sqlite-dev libffi-dev openssl-dev rust cargo
+# pcre2-dev: build uwsgi with internal routing support
+RUN apk update && apk add alpine-sdk linux-headers libpq-dev pkgconfig icu-dev sqlite-dev libffi-dev openssl-dev pcre2-dev rust cargo
 WORKDIR /etc/linkding
 # install uv, use installer script for now as distroless images are not availabe for armv7
 ADD https://astral.sh/uv/0.8.13/install.sh /uv-installer.sh
@@ -51,7 +52,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
 FROM python:3.13.7-alpine3.22 AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
-RUN apk update && apk add bash curl icu libpq mailcap libssl3
+RUN apk update && apk add bash curl icu libpq mailcap libssl3 pcre2
 # create www-data user and group
 RUN set -x ; \
   addgroup -g 82 -S www-data ; \
