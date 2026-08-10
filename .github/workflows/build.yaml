@@ -2,6 +2,11 @@ name: build
 
 on: workflow_dispatch
 
+permissions:
+  contents: read
+  # Pushing the images to ghcr.io uses the workflow token.
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
