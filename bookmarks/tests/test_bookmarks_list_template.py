@@ -337,7 +337,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             self.assertEqual(len(tag_links), len(bookmark.tags.all()))
 
             for tag in bookmark.tags.all():
-                tag_link = tags.find("a", string=f"#{tag.name}")
+                tag_link = tags.find("a", string=tag.name)
                 self.assertIsNotNone(tag_link)
                 self.assertEqual(tag_link["href"], f"?q=%23{tag.name}")
 
@@ -406,7 +406,7 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
             self.assertEqual(len(tag_links), len(bookmark.tags.all()))
 
             for tag in bookmark.tags.all():
-                tag_link = tags.find("a", string=f"#{tag.name}")
+                tag_link = tags.find("a", string=tag.name)
                 self.assertIsNotNone(tag_link)
                 self.assertEqual(tag_link["href"], f"?q=%23{tag.name}")
 
@@ -470,9 +470,9 @@ class BookmarkListTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         tags = soup.select_one(".tags")
         tag_links = tags.find_all("a")
         self.assertEqual(len(tag_links), 3)
-        self.assertEqual(tag_links[0].text, "#tag1")
-        self.assertEqual(tag_links[1].text, "#tag2")
-        self.assertEqual(tag_links[2].text, "#tag3")
+        self.assertEqual(tag_links[0].text, "tag1")
+        self.assertEqual(tag_links[1].text, "tag2")
+        self.assertEqual(tag_links[2].text, "tag3")
 
     def test_bookmark_tag_query_string(self):
         # appends tag to existing query string
