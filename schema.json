@@ -1,0 +1,1077 @@
+openapi: 3.0.3
+info:
+  title: Linkding API
+  version: 1.0.0
+  description: Bookmark manager REST API with advanced search, tagging, and sharing.
+  contact:
+    name: Linkding
+    url: https://github.com/sissbruecker/linkding
+  license:
+    name: MIT
+paths:
+  /api/bookmarks/:
+    get:
+      operationId: bookmarks_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBookmarkList'
+          description: ''
+    post:
+      operationId: bookmarks_create
+      tags:
+      - bookmarks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+  /api/bookmarks/{bookmark_id}/assets/:
+    get:
+      operationId: bookmarks_assets_list
+      parameters:
+      - in: path
+        name: bookmark_id
+        schema:
+          type: integer
+        required: true
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBookmarkAssetList'
+          description: ''
+  /api/bookmarks/{bookmark_id}/assets/{id}/:
+    get:
+      operationId: bookmarks_assets_retrieve
+      parameters:
+      - in: path
+        name: bookmark_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkAsset'
+          description: ''
+    delete:
+      operationId: bookmarks_assets_destroy
+      parameters:
+      - in: path
+        name: bookmark_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/bookmarks/{bookmark_id}/assets/{id}/download/:
+    get:
+      operationId: bookmarks_assets_download_retrieve
+      parameters:
+      - in: path
+        name: bookmark_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkAsset'
+          description: ''
+  /api/bookmarks/{bookmark_id}/assets/upload/:
+    post:
+      operationId: bookmarks_assets_upload_create
+      parameters:
+      - in: path
+        name: bookmark_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - bookmarks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookmarkAsset'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookmarkAsset'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BookmarkAsset'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkAsset'
+          description: ''
+  /api/bookmarks/{id}/:
+    get:
+      operationId: bookmarks_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+    put:
+      operationId: bookmarks_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bookmarks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+    patch:
+      operationId: bookmarks_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bookmarks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBookmark'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBookmark'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBookmark'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+    delete:
+      operationId: bookmarks_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/bookmarks/{id}/archive/:
+    post:
+      operationId: bookmarks_archive_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bookmarks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+  /api/bookmarks/{id}/unarchive/:
+    post:
+      operationId: bookmarks_unarchive_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bookmarks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+  /api/bookmarks/archived/:
+    get:
+      operationId: bookmarks_archived_retrieve
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+  /api/bookmarks/check/:
+    get:
+      operationId: bookmarks_check_retrieve
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+  /api/bookmarks/shared/:
+    get:
+      operationId: bookmarks_shared_retrieve
+      tags:
+      - bookmarks
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+  /api/bookmarks/singlefile/:
+    post:
+      operationId: bookmarks_singlefile_create
+      tags:
+      - bookmarks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Bookmark'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+          description: ''
+  /api/bundles/:
+    get:
+      operationId: bundles_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - bundles
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBookmarkBundleList'
+          description: ''
+    post:
+      operationId: bundles_create
+      tags:
+      - bundles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookmarkBundle'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookmarkBundle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BookmarkBundle'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkBundle'
+          description: ''
+  /api/bundles/{id}/:
+    get:
+      operationId: bundles_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bundles
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkBundle'
+          description: ''
+    put:
+      operationId: bundles_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bundles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookmarkBundle'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookmarkBundle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BookmarkBundle'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkBundle'
+          description: ''
+    patch:
+      operationId: bundles_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bundles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBookmarkBundle'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBookmarkBundle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBookmarkBundle'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkBundle'
+          description: ''
+    delete:
+      operationId: bundles_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - bundles
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/tags/:
+    get:
+      operationId: tags_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - tags
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTagList'
+          description: ''
+    post:
+      operationId: tags_create
+      tags:
+      - tags
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Tag'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+  /api/tags/{id}/:
+    get:
+      operationId: tags_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tags
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+  /api/user/profile/:
+    get:
+      operationId: user_profile_retrieve
+      tags:
+      - user
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    Bookmark:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          maxLength: 2048
+        title:
+          type: string
+          maxLength: 512
+        description:
+          type: string
+        notes:
+          type: string
+        web_archive_snapshot_url:
+          type: string
+          readOnly: true
+        favicon_url:
+          type: string
+          readOnly: true
+        preview_image_url:
+          type: string
+          readOnly: true
+        is_archived:
+          type: boolean
+        unread:
+          type: boolean
+        shared:
+          type: boolean
+        tag_names:
+          type: array
+          items:
+            type: string
+        date_added:
+          type: string
+          format: date-time
+        date_modified:
+          type: string
+          format: date-time
+        website_title:
+          type: string
+          nullable: true
+          readOnly: true
+        website_description:
+          type: string
+          nullable: true
+          readOnly: true
+      required:
+      - favicon_url
+      - id
+      - preview_image_url
+      - url
+      - web_archive_snapshot_url
+      - website_description
+      - website_title
+    BookmarkAsset:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        bookmark:
+          type: integer
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        file_size:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        asset_type:
+          type: string
+          maxLength: 64
+        content_type:
+          type: string
+          maxLength: 128
+        display_name:
+          type: string
+          maxLength: 2048
+        status:
+          type: string
+          maxLength: 64
+      required:
+      - asset_type
+      - bookmark
+      - content_type
+      - date_created
+      - id
+      - status
+    BookmarkBundle:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 256
+        search:
+          type: string
+          maxLength: 256
+        any_tags:
+          type: string
+          maxLength: 1024
+        all_tags:
+          type: string
+          maxLength: 1024
+        excluded_tags:
+          type: string
+          maxLength: 1024
+        filter_unread:
+          $ref: '#/components/schemas/FilterUnreadEnum'
+        filter_shared:
+          $ref: '#/components/schemas/FilterSharedEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_created
+      - date_modified
+      - id
+      - name
+    FilterSharedEnum:
+      enum:
+      - 'off'
+      - 'yes'
+      - 'no'
+      type: string
+      description: |-
+        * `off` - All
+        * `yes` - Shared
+        * `no` - Unshared
+    FilterUnreadEnum:
+      enum:
+      - 'off'
+      - 'yes'
+      - 'no'
+      type: string
+      description: |-
+        * `off` - All
+        * `yes` - Unread
+        * `no` - Read
+    PaginatedBookmarkAssetList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookmarkAsset'
+    PaginatedBookmarkBundleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookmarkBundle'
+    PaginatedBookmarkList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bookmark'
+    PaginatedTagList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    PatchedBookmark:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          maxLength: 2048
+        title:
+          type: string
+          maxLength: 512
+        description:
+          type: string
+        notes:
+          type: string
+        web_archive_snapshot_url:
+          type: string
+          readOnly: true
+        favicon_url:
+          type: string
+          readOnly: true
+        preview_image_url:
+          type: string
+          readOnly: true
+        is_archived:
+          type: boolean
+        unread:
+          type: boolean
+        shared:
+          type: boolean
+        tag_names:
+          type: array
+          items:
+            type: string
+        date_added:
+          type: string
+          format: date-time
+        date_modified:
+          type: string
+          format: date-time
+        website_title:
+          type: string
+          nullable: true
+          readOnly: true
+        website_description:
+          type: string
+          nullable: true
+          readOnly: true
+    PatchedBookmarkBundle:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 256
+        search:
+          type: string
+          maxLength: 256
+        any_tags:
+          type: string
+          maxLength: 1024
+        all_tags:
+          type: string
+          maxLength: 1024
+        excluded_tags:
+          type: string
+          maxLength: 1024
+        filter_unread:
+          $ref: '#/components/schemas/FilterUnreadEnum'
+        filter_shared:
+          $ref: '#/components/schemas/FilterSharedEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 64
+        date_added:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_added
+      - id
+      - name
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
