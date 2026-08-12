@@ -96,8 +96,9 @@ FROM linkding AS linkding-plus
 # install chromium
 RUN apt-get update && apt-get -y install chromium
 # install node
-ENV NODE_MAJOR=24
-RUN apt-get install -y gnupg2 apt-transport-https ca-certificates && \
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm" ]; then NODE_MAJOR=23; else NODE_MAJOR=24; fi && \
+    apt-get install -y gnupg2 apt-transport-https ca-certificates && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && apt-get install -y nodejs
