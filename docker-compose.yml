@@ -1,7 +1,7 @@
 services:
   linkding:
     container_name: "${LD_CONTAINER_NAME:-linkding}"
-    image: sissbruecker/linkding:latest
+    image: ghcr.io/b13rg/linkding:latest
     ports:
       - "${LD_HOST_PORT:-9090}:9090"
     volumes:

@@ -35,11 +35,11 @@ jobs:
           file: ./docker/default.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            ghcr.io/sissbruecker/linkding:test
+            ghcr.io/b13rg/linkding:test
           target: linkding
           push: true
-          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache
-          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache,mode=max
+          cache-from: type=registry,ref=ghcr.io/b13rg/linkding:buildcache
+          cache-to: type=registry,ref=ghcr.io/b13rg/linkding:buildcache,mode=max
 
       - name: Build latest-alpine
         uses: docker/build-push-action@v6
@@ -48,11 +48,11 @@ jobs:
           file: ./docker/alpine.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            ghcr.io/sissbruecker/linkding:test-alpine
+            ghcr.io/b13rg/linkding:test-alpine
           target: linkding
           push: true
-          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine
-          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine,mode=max
+          cache-from: type=registry,ref=ghcr.io/b13rg/linkding:buildcache-alpine
+          cache-to: type=registry,ref=ghcr.io/b13rg/linkding:buildcache-alpine,mode=max
 
       - name: Build latest-plus
         uses: docker/build-push-action@v6
@@ -61,11 +61,11 @@ jobs:
           file: ./docker/default.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            ghcr.io/sissbruecker/linkding:test-plus
+            ghcr.io/b13rg/linkding:test-plus
           target: linkding-plus
           push: true
-          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache
-          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache,mode=max
+          cache-from: type=registry,ref=ghcr.io/b13rg/linkding:buildcache
+          cache-to: type=registry,ref=ghcr.io/b13rg/linkding:buildcache,mode=max
 
       - name: Build latest-plus-alpine
         uses: docker/build-push-action@v6
@@ -74,8 +74,8 @@ jobs:
           file: ./docker/alpine.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            ghcr.io/sissbruecker/linkding:test-plus-alpine
+            ghcr.io/b13rg/linkding:test-plus-alpine
           target: linkding-plus
           push: true
-          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine
-          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine,mode=max
+          cache-from: type=registry,ref=ghcr.io/b13rg/linkding:buildcache-alpine
+          cache-to: type=registry,ref=ghcr.io/b13rg/linkding:buildcache-alpine,mode=max

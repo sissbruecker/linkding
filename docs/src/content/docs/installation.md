@@ -53,7 +53,7 @@ To install linkding using Docker you can just run the image from either [Docker 
 docker run --name linkding -p 9090:9090 -v {host-data-folder}:/etc/linkding/data -d sissbruecker/linkding:latest
 
 # Using GitHub Container Registry
-docker run --name linkding -p 9090:9090 -v {host-data-folder}:/etc/linkding/data -d ghcr.io/sissbruecker/linkding:latest
+docker run --name linkding -p 9090:9090 -v {host-data-folder}:/etc/linkding/data -d ghcr.io/b13rg/linkding:latest
 ```
 
 In the command above, replace the `{host-data-folder}` placeholder with an absolute path to a folder on your host system where you want to store the linkding database.
