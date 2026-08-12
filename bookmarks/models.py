@@ -224,6 +224,8 @@ class BookmarkBundle(models.Model):
 class BookmarkSearch:
     SORT_ADDED_ASC = "added_asc"
     SORT_ADDED_DESC = "added_desc"
+    SORT_MODIFIED_ASC = "modified_asc"
+    SORT_MODIFIED_DESC = "modified_desc"
     SORT_TITLE_ASC = "title_asc"
     SORT_TITLE_DESC = "title_desc"
 

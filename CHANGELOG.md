@@ -1,5 +1,56 @@
 # Changelog
 
+## v1.46.0 (09/08/2026)
+
+### What's Changed
+* Filter bundles by reading or sharing state by @dfederschmidt in https://github.com/sissbruecker/linkding/pull/1308
+* Support deleting tags through the API by @sethfitz in https://github.com/sissbruecker/linkding/pull/1411
+* Add sort by modification date option by @alwoodm in https://github.com/sissbruecker/linkding/pull/1363
+* Allow filtering RSS feeds by user name by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1436
+* Allow configuring session duration by @fardog in https://github.com/sissbruecker/linkding/pull/1295
+* Preserve page and scroll position when editing tags by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1291
+* Set empty alt-text on previews for better screenreader experience in https://github.com/sissbruecker/linkding/pull/1309
+* Use sandbox CSP for reader mode by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1402
+* Escape tag names in HTML export by @l0b0 in https://github.com/sissbruecker/linkding/pull/1378
+* Fix uploading assets with non-ascii characters in file name by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1403
+* Fix bookmarks not being de-duplicated on import by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1404
+* Retain query string when redirecting from root view by @TowyTowy in https://github.com/sissbruecker/linkding/pull/1416
+* Fix stray whitespace in tag cloud links by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1437
+* Debounce edits on URL field by @mdujava in https://github.com/sissbruecker/linkding/pull/1304
+* Increase padding on maskable PWA icons by @Nameless-Monster-Nerd in https://github.com/sissbruecker/linkding/pull/1428
+* Make init command initialize data dir by @alexlehm in https://github.com/sissbruecker/linkding/pull/1292
+* Clarify auto tagging behavior in API docs by @brdns in https://github.com/sissbruecker/linkding/pull/1385
+* Add note for using auth-proxies with rest-clients by @rktjmp in https://github.com/sissbruecker/linkding/pull/1297
+* Add linkding bot to community section by @mesamirh in https://github.com/sissbruecker/linkding/pull/1418
+* Add 'Save to Linkding' app to community section by @giuliomagnifico in https://github.com/sissbruecker/linkding/pull/1413
+* Add linkding for Safari extension to community section by @phmagic in https://github.com/sissbruecker/linkding/pull/1371
+* Add Ribbon iOS client to community section by @cdransf in https://github.com/sissbruecker/linkding/pull/1360
+* Add Tsundoku macOS client to community section by @gingerbeardman in https://github.com/sissbruecker/linkding/pull/1364
+* Add linkding-cleanup script to community section by @andrewferrier in https://github.com/sissbruecker/linkding/pull/1286
+
+
+### New Contributors
+* @alexlehm made their first contribution in https://github.com/sissbruecker/linkding/pull/1292
+* @dfederschmidt made their first contribution in https://github.com/sissbruecker/linkding/pull/1308
+* @brdns made their first contribution in https://github.com/sissbruecker/linkding/pull/1385
+* @l0b0 made their first contribution in https://github.com/sissbruecker/linkding/pull/1378
+* @mesamirh made their first contribution in https://github.com/sissbruecker/linkding/pull/1418
+* @giuliomagnifico made their first contribution in https://github.com/sissbruecker/linkding/pull/1413
+* @phmagic made their first contribution in https://github.com/sissbruecker/linkding/pull/1371
+* @cdransf made their first contribution in https://github.com/sissbruecker/linkding/pull/1360
+* @TowyTowy made their first contribution in https://github.com/sissbruecker/linkding/pull/1416
+* @sethfitz made their first contribution in https://github.com/sissbruecker/linkding/pull/1411
+* @alwoodm made their first contribution in https://github.com/sissbruecker/linkding/pull/1363
+* @rktjmp made their first contribution in https://github.com/sissbruecker/linkding/pull/1297
+* @fardog made their first contribution in https://github.com/sissbruecker/linkding/pull/1295
+* @mdujava made their first contribution in https://github.com/sissbruecker/linkding/pull/1304
+* @andrewferrier made their first contribution in https://github.com/sissbruecker/linkding/pull/1286
+* @Nameless-Monster-Nerd made their first contribution in https://github.com/sissbruecker/linkding/pull/1428
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.45.0...v1.46.0
+
+---
+
 ## v1.45.0 (06/01/2026)
 
 ### What's Changed

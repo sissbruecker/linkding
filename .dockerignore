@@ -12,6 +12,7 @@
 !/postcss.config.js
 !/pyproject.toml
 !/rollup.config.mjs
+!/scripts/setup-ublock.sh
 !/supervisord-tasks.conf
 !/supervisord-all.conf
 !/uv.lock

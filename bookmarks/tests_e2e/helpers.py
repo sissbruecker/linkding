@@ -14,7 +14,7 @@ os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
     def setUp(self) -> None:
         self.client.force_login(self.get_or_create_test_user())
-        self.cookie = self.client.cookies["sessionid"]
+        self.cookie = self.client.cookies["ld_sessionid"]
         self.playwright = None
         self.browser = None
         self.context = None
@@ -63,7 +63,7 @@ class LinkdingE2ETestCase(LiveServerTestCase, BookmarkFactoryMixin):
         context.add_cookies(
             [
                 {
-                    "name": "sessionid",
+                    "name": "ld_sessionid",
                     "value": self.cookie.value,
                     "domain": self.live_server_url.replace("http:", ""),
                     "path": "/",

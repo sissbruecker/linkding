@@ -546,3 +546,28 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         """,
             rendered_template,
         )
+
+    def test_tag_links_have_no_whitespace_around_contents(self):
+        tags = [
+            self.setup_tag(name="tag1"),
+            self.setup_tag(name="tag2"),
+            self.setup_tag(name="tag3"),
+        ]
+        self.setup_bookmark(tags=tags)
+
+        rendered_template = self.render_template(url="/test?q=%23tag1")
+
+        soup = self.make_soup(rendered_template)
+        link_elements = soup.select(".tag-cloud a")
+        self.assertEqual(len(link_elements), 3)
+
+        for link_element in link_elements:
+            contents = link_element.decode_contents()
+            self.assertTrue(
+                contents.startswith("<span"),
+                f"unexpected characters after opening anchor tag: {contents!r}",
+            )
+            self.assertTrue(
+                contents.endswith("</span>"),
+                f"unexpected characters before closing anchor tag: {contents!r}",
+            )

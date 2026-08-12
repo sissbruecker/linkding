@@ -15,6 +15,9 @@ This section lists community projects around using linkding. If you have a proje
 | [Linklater](https://github.com/danielyrovas/linklater) | An open-source Android client written in Kotlin. | [danielyrovas](https://github.com/danielyrovas) |
 | [LinkThing](https://apps.apple.com/us/app/linkthing/id1666031776) | An iOS client for linkding. | [amoscardino](https://github.com/amoscardino) |
 | [Pinkt](https://github.com/fibelatti/pinboard-kotlin) | An Android client for linkding. | [fibelatti](https://github.com/fibelatti) |
+| [Ribbon](https://apps.apple.com/us/app/ribbon-a-linkding-client/id6762416055) | A native iOS client for linkding | [cdransf](https://github.com/cdransf) |
+| [Save to Linkding](https://www.giuliomagnifico.dev/apps/savetolinkding/) | Save links from any browser on iOS or iPadOS using the system Share Sheet, and manage your instance using the main app. [App Store](https://apps.apple.com/app/save-to-linkding/id6761113021) | [Giulio Magnifico](https://www.giuliomagnifico.dev) |
+| [Tsundoku](https://www.gingerbeardman.com/apps/tsundoku/) | macOS client for linkding and other bookmark managers. | [gingerbeardman](https://blog.gingerbeardman.com/2026/04/17/today-i-shipped-twenty-apps-and-a-screensaver/) |
 
 ## Browser Extensions
 
@@ -22,6 +25,7 @@ This section lists community projects around using linkding. If you have a proje
 | ---- | ----------- | ------ |
 | [linkding-extension](https://github.com/jeroenpardon/linkding-extension) | An alternative to the official browser extension that wraps the linkding bookmarklet. | [jeroenpardon](https://github.com/jeroenpardon) |
 | [linkding-injector](https://github.com/Fivefold/linkding-injector) | Injects search results from linkding into the sidebar of search pages like google and duckduckgo. | [Fivefold](https://github.com/Fivefold) |
+| [linkding for Safari](https://github.com/phmagic/linkding-safari) | Free browser extension for saving and searching bookmarks in Safari | [phmagic](https://github.com/phmagic) |
 
 ## Web and CLI Apps
 
@@ -32,6 +36,8 @@ This section lists community projects around using linkding. If you have a proje
 | [Komrade](https://codeberg.org/kodemonaut/komrade) | A simple docker based startpage/dashboard which syncs with Linkding, Linkwarden or Nextcloud Bookmarks. | [kodemonaut](https://codeberg.org/kodemonaut) |
 | [Linka!](https://github.com/cmsax/linka) | Web app (also a PWA) for quickly searching & opening bookmarks in linkding, support multi keywords, exclude mode and other advance options. | [cmsax](https://github.com/cmsax) |
 | [linkding-archiver](https://github.com/sebw/linkding-archiver) | A Python application that integrates with SingleFile and Tube Archivist to archive your links and videos. | [sebw](https://github.com/sebw) |
+| [linkding-bot](https://github.com/mesamirh/linkding-bot) | A Telegram bot for linkding that automatically generates tags and notes using AI. | [mesamirh](https://github.com/mesamirh) |
+| [linkding-cleanup](https://github.com/andrewferrier/dotfiles/blob/main/stow/common/.local/bin/common-dotfiles/linkding-clean) | A Python script which validates if bookmarks are still valid (reachable), archiving and unarchiving appropriately, as well as cleaning broken bookmark titles | [andrewferrier](https://github.com/andrewferrier) |
 | [linkding-cli](https://github.com/bachya/linkding-cli) | A command-line interface (CLI) to interact with the linkding REST API. Powered by [aiolinkding](https://github.com/bachya/aiolinkding). | [bachya](https://github.com/bachya) |
 | [linkdinger](https://github.com/lmmendes/linkdinger) | A Telegram bot that saves links directly to Linkding, with support for tags, notes, and searching bookmarks. | [lmmendes](https://github.com/lmmendes) |
 | [linkding-healthcheck](https://github.com/sebw/linkding-healthcheck) | A Go application that checks the health of your bookmarks and add a tag on dead and problematic URLs. | [sebw](https://github.com/sebw) |
@@ -61,4 +67,11 @@ This section lists community projects around using linkding. If you have a proje
 | [go-linkding](https://github.com/piero-vic/go-linkding) | A Go client library to interact with the linkding REST API. | [piero-vic](https://github.com/piero-vic) |
 | [linkding-api](https://github.com/vbsampath/linkding-api) | A Javascript library implementing linkding REST API. | [vbsampath](https://github.com/vbsampath) |
 | [linkding-rs](https://github.com/zbrox/linkding-rs) | A Rust client library to interact with the linkding REST API with cross platform support to be easily used in Android or iOS apps. | [zbrox](https://github.com/zbrox) |
+
+## Self-Hosting Guides
+
+| Name | Description | Author |
+| ---- | ----------- | ------ |
+| [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) | Guide for hosting a linkding installation on [fly.io](https://fly.io). | [fspoettel](https://github.com/fspoettel) |
+| [linkding on railway.app](https://github.com/tianheg/linkding-on-railway) | Guide for hosting a linkding installation on [railway.app](https://railway.app/). | [tianheg](https://github.com/tianheg) |
 

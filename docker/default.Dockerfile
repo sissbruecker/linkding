@@ -1,4 +1,5 @@
-FROM node:22-alpine AS node-build
+# Run on the native build platform, the JS/CSS output is architecture-independent.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
 COPY rollup.config.mjs postcss.config.js package.json package-lock.json ./
@@ -15,7 +16,8 @@ FROM python:3.13.7-slim-trixie AS build-deps
 # build-essential pkg-config: build Python packages from source
 # libpq-dev: build Postgres client from source
 # libicu-dev libsqlite3-dev: build Sqlite ICU extension
-RUN apt-get update && apt-get -y install build-essential pkg-config libpq-dev libicu-dev libsqlite3-dev libffi-dev wget unzip
+# libpcre2-dev: build uwsgi with internal routing support
+RUN apt-get update && apt-get -y install build-essential pkg-config libpq-dev libicu-dev libsqlite3-dev libffi-dev libpcre2-dev wget unzip
 WORKDIR /etc/linkding
 # install uv, use installer script for now as distroless images are not availabe for armv7
 ADD https://astral.sh/uv/0.8.13/install.sh /uv-installer.sh
@@ -49,7 +51,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
 FROM python:3.13.7-slim-trixie AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
-RUN apt-get update && apt-get -y install media-types libpq-dev libicu-dev libssl3t64 curl
+RUN apt-get update && apt-get -y install media-types libpq-dev libicu-dev libssl3t64 libpcre2-8-0 curl
 WORKDIR /etc/linkding
 # copy python dependencies
 COPY --from=build-deps /etc/linkding/.venv /etc/linkding/.venv
@@ -80,21 +82,14 @@ CMD curl -f http://localhost:${LD_SERVER_PORT:-9090}/${LD_CONTEXT_PATH}health ||
 CMD ["./bootstrap.sh"]
 
 
-FROM node:22-alpine AS ublock-build
+# Run on the native build platform, the downloaded extension is architecture-independent
+FROM --platform=$BUILDPLATFORM node:22-alpine AS ublock-build
 WORKDIR /etc/linkding
+COPY scripts/setup-ublock.sh .
 # Install necessary tools
-# Download and unzip the latest uBlock Origin Lite release
-# Patch manifest to enable annoyances by default
+# Download and unzip uBlock Origin Lite, patch manifest to enable annoyances by default
 RUN apk add --no-cache curl jq unzip && \
-    TAG=$(curl -sL https://api.github.com/repos/uBlockOrigin/uBOL-home/releases/latest | jq -r '.tag_name') && \
-    DOWNLOAD_URL=https://github.com/uBlockOrigin/uBOL-home/releases/download/$TAG/uBOLite_$TAG.chromium.zip && \
-    echo "Downloading $DOWNLOAD_URL" && \
-    curl -L -o uBOLite.zip $DOWNLOAD_URL && \
-    unzip uBOLite.zip -d uBOLite.chromium.mv3 && \
-    rm uBOLite.zip && \
-    jq '.declarative_net_request.rule_resources |= map(if .id == "annoyances-overlays" or .id == "annoyances-cookies" or .id == "annoyances-social" or .id == "annoyances-widgets" or .id == "annoyances-others" then .enabled = true else . end)' \
-        uBOLite.chromium.mv3/manifest.json > temp.json && \
-    mv temp.json uBOLite.chromium.mv3/manifest.json
+    sh setup-ublock.sh
 
 
 FROM linkding AS linkding-plus

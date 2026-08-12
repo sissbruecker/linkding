@@ -9,13 +9,13 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.4",
-    "@hotwired/turbo": "^8.0.6",
+    "@hotwired/turbo": "^8.0.21",
     "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "@rollup/wasm-node": "^4.13.0",
     "cssnano": "^7.0.6",
     "lit": "^3.3.1",
-    "postcss": "^8.4.45",
+    "postcss": "^8.5.25",
     "postcss-cli": "^11.0.0",
     "postcss-import": "^16.1.0",
     "postcss-nesting": "^13.0.0"

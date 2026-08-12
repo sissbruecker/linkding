@@ -3,19 +3,14 @@ title: "Managed Hosting"
 description: "Managed hosting options for linkding"
 ---
 
-Self-hosting web applications still requires a lot of technical know-how and commitment to maintenance, in order to keep everything up-to-date and secure. This section is intended to provide simple alternatives in form of managed hosting solutions.
+This section lists third-party services and platforms for hosting linkding, split by how much of the operation and maintenance they take care of for you.
 
-## Fully Managed
+A _managed service_ is the least technical option where the provider essentially just runs the app for you in a manner that you would expect any online app to work: you just register, start using the app, get automatic updates when available. _Hosting platforms_ are more generic in that they allow deploying arbitrary apps, which have a built-in template for linkding that makes that process easier for less technical users. Application updates require a manual redeployment, and managing the app might involve more technical details.
 
-The following services provide fully managed hosting for linkding, including automatic updates and backups:
+| Provider                                                                                                                                              | Type             | Updates   | Backups                                    | Regions |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|-----------|--------------------------------------------|---------|
+| [PikaPods.com](https://www.pikapods.com/) <br> [1-click setup](https://www.pikapods.com/pods?run=linkding) | Managed service  | Automatic | Automated backups to S3 compatible buckets | EU, US  |
+| [CloudBreak](https://cloudbreak.app/products/linkding/)                                                                                               | Managed service  | Automatic  | Unknown                                    | US      |
+| [Hostim.dev](https://hostim.dev/) <br> [1-click setup](https://console.hostim.dev/dashboard?preview=1&modal=1&template=linkding)                                                                                                               | Hosting platform | Manual    | Custom through SSH access                  | EU      |
 
-- [PikaPods.com](https://www.pikapods.com/) - Managed hosting for linkding, EU and US regions available. [1-click setup link](https://www.pikapods.com/pods?run=linkding) ([Disclosure](/acknowledgements#pikapods))
-- [CloudBreak](https://cloudbreak.app/products/linkding/?utm_medium=referral&utm_source=linkding-docs&utm_content=managed-hosting&rby=linkding-docs-managed-hosting) - Managed hosting for linkding, US regions available.
-
-## Self-Managed
-
-The following guides provide instructions for hosting a linkding installation on various platforms, however you are still responsible for updates and backups:
-
-- [linkding on fly.io](https://github.com/fspoettel/linkding-on-fly) - Guide for hosting a linkding installation on [fly.io](https://fly.io). By [fspoettel](https://github.com/fspoettel)
-- [CapRover](https://caprover.com/) - Linkding is included as a default one-click app
-- [linkding on railway.app](https://github.com/tianheg/linkding-on-railway) - Guide for hosting a linkding installation on [railway.app](https://railway.app/). By [tianheg](https://github.com/tianheg)
+_Disclosure: PikaPods has a revenue sharing agreement with this project, sharing some of their revenue from hosting linkding instances._

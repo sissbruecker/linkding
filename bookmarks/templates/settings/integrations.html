@@ -202,7 +202,7 @@
           <span class="text-small text-secondary">The public shared feed does not contain an authentication token and can be shared with other people. Only shows shared bookmarks from users who have explicitly enabled public sharing.</span>
         </li>
       </ul>
-      <p>All URLs support the following URL parameters:</p>
+      <p>Feed URLs support the following URL parameters:</p>
       <ul style="list-style-position: outside;">
         <li>
           A <code>limit</code> parameter for specifying the maximum number of bookmarks to include in the feed. By
@@ -219,6 +219,9 @@
         <li>
           A <code>shared</code> parameter for filtering for shared or unshared bookmarks. Use <code>yes</code> for
           shared bookmarks and <code>no</code> for unshared bookmarks.
+        </li>
+        <li>
+          A <code>user</code> parameter for filtering bookmarks by user name. Only applies to the shared bookmark feeds.
         </li>
       </ul>
       <p>
