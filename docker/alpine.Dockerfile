@@ -11,7 +11,7 @@ COPY bookmarks/styles ./bookmarks/styles
 RUN npm run build
 
 
-FROM python:3.13.15-alpine3.23 AS build-deps
+FROM python:3.13.7-alpine3.22 AS build-deps
 # Add required packages
 # alpine-sdk linux-headers pkgconfig: build Python packages from source
 # libpq-dev: build Postgres client from source
@@ -49,7 +49,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
     gcc -fPIC -shared icu.c `pkg-config --libs --cflags icu-uc icu-io` -o libicu.so
 
 
-FROM python:3.13.15-alpine3.23 AS linkding
+FROM python:3.13.7-alpine3.22 AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
 RUN apk update && apk add bash curl icu libpq mailcap libssl3 pcre2
@@ -99,9 +99,11 @@ RUN apk add --no-cache curl jq unzip && \
 
 FROM linkding AS linkding-plus
 # install node, chromium
-RUN apk update && apk add nodejs npm chromium chromium-swiftshader
+RUN apk update && apk add nodejs npm chromium-swiftshader
 # install single-file-cli
-RUN npm install -g single-file-cli@2.0.75
+# pin transitive simple-cdp dependency, newer versions require Node >= 23 (CloseEvent global)
+RUN npm install -g single-file-cli@2.0.75 && \
+    npm install --prefix "$(npm root -g)/single-file-cli" simple-cdp@1.8.6
 # copy uBlock
 COPY --from=ublock-build /etc/linkding/uBOLite.chromium.mv3 uBOLite.chromium.mv3/
 # create chromium profile folder for user running background tasks and set permissions
