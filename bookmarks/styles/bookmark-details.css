@@ -82,6 +82,10 @@
     color: var(--alternative-color);
   }
 
+  & .tags a::before {
+    content: "#";
+  }
+
   & .status form {
     display: flex;
     gap: var(--unit-2);

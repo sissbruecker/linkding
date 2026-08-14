@@ -63,7 +63,7 @@ class BundlePreviewViewTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertContains(response, bookmark.title)
         self.assertContains(response, bookmark.description)
         self.assertContains(response, bookmark.url)
-        self.assertContains(response, "#test-tag")
+        self.assertContains(response, "test-tag")
 
     def test_preview_renders_bookmark_in_preview_mode(self):
         tag = self.setup_tag(name="test-tag")

@@ -448,7 +448,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         section = self.get_section_content(soup, "Tags")
 
         for tag in bookmark.tags.all():
-            tag_link = section.find("a", string=f"#{tag.name}")
+            tag_link = section.find("a", string=tag.name)
             self.assertIsNotNone(tag_link)
             expected_url = reverse("linkding:bookmarks.index") + f"?q=%23{tag.name}"
             self.assertEqual(tag_link["href"], expected_url)
