@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.46.1 (14/08/2026)
+
+### What's Changed
+* Fix singlefile snapshots failing with old node version by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1445
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.46.0...v1.46.1
+
+---
+
 ## v1.46.0 (09/08/2026)
 
 ### What's Changed
