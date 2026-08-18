@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.46.2 (18/08/2026)
+
+### What's Changed
+* Render tag hash character with CSS so it can be hidden by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1447
+* Fix tag management not correctly linking to bookmarks page by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1452
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.46.1...v1.46.2
+
+---
+
 ## v1.46.1 (14/08/2026)
 
 ### What's Changed
