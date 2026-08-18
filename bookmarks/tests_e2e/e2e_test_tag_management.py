@@ -237,6 +237,20 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         final_scroll = self.page.evaluate("window.scrollY")
         self.assertEqual(initial_scroll, final_scroll)
 
+    def test_bookmark_count_link_opens_bookmarks_filtered_by_tag(self):
+        tag = self.setup_tag(name="test-tag")
+        bookmark = self.setup_bookmark(tags=[tag], title="Tagged bookmark")
+
+        self.open(reverse("linkding:tags.index"))
+
+        # Click the bookmark count link for the tag
+        tag_row = self.locate_tag_row(tag.name)
+        tag_row.get_by_role("link", name="1").click()
+
+        # Verify navigation to the bookmarks page filtered by the tag
+        expect(self.page).to_have_url(self.live_server_url + "/bookmarks?q=%23test-tag")
+        expect(self.locate_bookmark(bookmark.title)).to_be_visible()
+
     def test_merge_tags(self):
         target_tag = self.setup_tag(name="target-tag")
         merge_tag1 = self.setup_tag(name="merge-tag1")

@@ -92,6 +92,7 @@
                   <td>{{ tag.name }}</td>
                   <td style="width: 25%">
                     <a class="btn btn-link"
+                       data-turbo-frame="_top"
                        href="{% url 'linkding:bookmarks.index' %}?q=%23{{ tag.name|urlencode }}">
                       {{ tag.bookmark_count }}
                     </a>
