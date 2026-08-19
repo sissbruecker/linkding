@@ -276,6 +276,9 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(feed_url + f"?user={user1.username}")
         self.assertEqual(response.status_code, 200)
         self.assertFeedItems(response, user1_bookmarks)
+        self.assertContains(
+            response, f"<title>Public shared bookmarks ({user1.username})</title>"
+        )
 
         response = self.client.get(feed_url + f"?user={user2.username}")
         self.assertEqual(response.status_code, 200)
