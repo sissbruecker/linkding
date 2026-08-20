@@ -6,6 +6,7 @@ from django.conf import settings
 from django.http import Http404, StreamingHttpResponse
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter, SimpleRouter
@@ -15,6 +16,7 @@ from bookmarks.api.serializers import (
     BookmarkAssetSerializer,
     BookmarkBundleSerializer,
     BookmarkSerializer,
+    TagMergeSerializer,
     TagSerializer,
     UserProfileSerializer,
 )
@@ -26,7 +28,14 @@ from bookmarks.models import (
     Tag,
     User,
 )
-from bookmarks.services import assets, auto_tagging, bookmarks, bundles, website_loader
+from bookmarks.services import (
+    assets,
+    auto_tagging,
+    bookmarks,
+    bundles,
+    tags,
+    website_loader,
+)
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
 
@@ -262,6 +271,37 @@ class TagViewSet(
 
     def get_serializer_context(self):
         return {"user": self.request.user}
+
+    @action(methods=["post"], detail=True)
+    def merge(self, request: HttpRequest, pk):
+        target_tag = self.get_object()
+
+        serializer = TagMergeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        merge_tag_ids = set(serializer.validated_data["merge_tag_ids"])
+
+        if target_tag.id in merge_tag_ids:
+            raise ValidationError(
+                {"merge_tag_ids": ["The target tag cannot be selected for merging."]}
+            )
+
+        # Resolve through the queryset so that tags of other users are rejected
+        # the same way as tags that do not exist
+        merge_tags = list(self.get_queryset().filter(id__in=merge_tag_ids))
+        missing_tag_ids = merge_tag_ids - {tag.id for tag in merge_tags}
+        if missing_tag_ids:
+            raise ValidationError(
+                {
+                    "merge_tag_ids": [
+                        f"Tag with ID {tag_id} does not exist."
+                        for tag_id in sorted(missing_tag_ids)
+                    ]
+                }
+            )
+
+        tags.merge_tags(target_tag, merge_tags)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserViewSet(viewsets.GenericViewSet):

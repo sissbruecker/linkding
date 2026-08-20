@@ -1,14 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
 from bookmarks.forms import TagForm, TagMergeForm
-from bookmarks.models import Bookmark, Tag
+from bookmarks.models import Tag
+from bookmarks.services import tags
 from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import redirect_with_query
 from bookmarks.views import turbo
@@ -118,40 +118,14 @@ def tag_merge(request: HttpRequest):
         if form.is_valid():
             target_tag = form.cleaned_data["target_tag"]
             merge_tags = form.cleaned_data["merge_tags"]
+            tag_names = [tag.name for tag in merge_tags]
 
-            with transaction.atomic():
-                BookmarkTag = Bookmark.tags.through
+            tags.merge_tags(target_tag, merge_tags)
 
-                # Get all bookmarks that have any of the merge tags, but do not
-                # already have the target tag
-                bookmark_ids = list(
-                    Bookmark.objects.filter(tags__in=merge_tags)
-                    .exclude(tags=target_tag)
-                    .values_list("id", flat=True)
-                    .distinct()
-                )
-
-                # Create new relationships to the target tag
-                new_relationships = [
-                    BookmarkTag(tag_id=target_tag.id, bookmark_id=bookmark_id)
-                    for bookmark_id in bookmark_ids
-                ]
-
-                if new_relationships:
-                    BookmarkTag.objects.bulk_create(new_relationships)
-
-                # Bulk delete all relationships for merge tags
-                merge_tag_ids = [tag.id for tag in merge_tags]
-                BookmarkTag.objects.filter(tag_id__in=merge_tag_ids).delete()
-
-                # Delete the merged tags
-                tag_names = [tag.name for tag in merge_tags]
-                Tag.objects.filter(id__in=merge_tag_ids).delete()
-
-                messages.success(
-                    request,
-                    f'Successfully merged {len(merge_tags)} tags ({", ".join(tag_names)}) into "{target_tag.name}".',
-                )
+            messages.success(
+                request,
+                f'Successfully merged {len(merge_tags)} tags ({", ".join(tag_names)}) into "{target_tag.name}".',
+            )
 
             return HttpResponseRedirect(reverse("linkding:tags.index"))
         else:

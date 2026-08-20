@@ -367,6 +367,23 @@ DELETE /api/tags/<id>/
 
 Deletes a tag by ID.
 
+**Merge**
+
+```
+POST /api/tags/<id>/merge/
+```
+
+Merges other tags into the tag with the given ID. Bookmarks tagged with one of the
+merged tags are tagged with the target tag instead, and the merged tags are deleted.
+
+Example payload:
+
+```json
+{
+  "merge_tag_ids": [2, 3]
+}
+```
+
 ### Bundles
 
 **List**
