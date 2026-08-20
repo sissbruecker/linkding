@@ -79,6 +79,7 @@ ENV UWSGI_MAX_FD=4096
 EXPOSE 9090
 # Allow running containers as an an arbitrary user in the root group, to support deployment scenarios like OpenShift, Podman
 RUN chmod g+w . && \
+    chmod -R a+rX . && \
     chmod +x ./bootstrap.sh
 
 HEALTHCHECK --interval=30s --retries=3 --timeout=1s \
