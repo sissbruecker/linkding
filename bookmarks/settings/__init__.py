@@ -2,5 +2,5 @@
 # ruff: noqa
 try:
     from .dev import *
-except:
+except Exception:
     from .prod import *

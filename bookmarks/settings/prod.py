@@ -18,7 +18,7 @@ DEBUG = False
 try:
     with open(os.path.join(BASE_DIR, "data", "secretkey.txt")) as f:
         SECRET_KEY = f.read().strip()
-except:
+except Exception:
     SECRET_KEY = get_random_secret_key()
 
 # Set ALLOWED_HOSTS
