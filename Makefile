@@ -1,4 +1,4 @@
-.PHONY: serve
+.PHONY: init serve tasks test coverage coverage-html lint format prepare-e2e e2e frontend
 
 init:
 	uv sync
@@ -14,6 +14,14 @@ tasks:
 
 test:
 	uv run pytest -n auto
+
+coverage:
+	uv run coverage run -m pytest
+	uv run coverage report
+
+coverage-html:
+	uv run coverage run -m pytest
+	uv run coverage html
 
 lint:
 	uv run ruff check bookmarks
