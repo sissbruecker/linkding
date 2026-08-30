@@ -328,6 +328,7 @@ Example response:
     {
       "id": 1,
       "name": "example",
+      "description": "example",
       "date_added": "2020-09-26T09:46:23.006313Z"
     },
     ...

@@ -15,11 +15,12 @@ def get_or_create_tags(tag_names: list[str], user: User):
     return unique(tags, operator.attrgetter("id"))
 
 
-def get_or_create_tag(name: str, user: User):
+def get_or_create_tag(name: str, user: User, description: str = ""):
     try:
         return Tag.objects.get(name__iexact=name, owner=user)
     except Tag.DoesNotExist:
         tag = Tag(name=name, owner=user)
+        tag.description = description
         tag.date_added = timezone.now()
         tag.save()
         return tag

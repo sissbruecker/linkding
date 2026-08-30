@@ -67,3 +67,13 @@ class TagServiceTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertEqual(len(tags), 1)
         self.assertListEqual(tags, [books_tag])
+
+    def test_get_or_create_tag_should_store_blank_description_by_default(self):
+        tag = get_or_create_tag("Book", self.user)
+
+        self.assertEqual(tag.description, "")
+
+    def test_get_or_create_tag_should_store_description_if_provided(self):
+        tag = get_or_create_tag("Book", self.user, description="Reading is cool.")
+
+        self.assertEqual(tag.description, "Reading is cool.")

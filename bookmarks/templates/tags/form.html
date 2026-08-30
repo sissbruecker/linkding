@@ -6,4 +6,9 @@
     Tag names are case-insensitive and cannot contain spaces (spaces will be replaced with hyphens).
   {% endformhelp %}
   {{ form.name.errors }}
+  {% formlabel form.description "Description" %}
+  {% formfield form.description rows="8" has_help=True %}
+  {% formhelp form.description %}
+    Notes to display when filtering by this tag. Supports Markdown.
+  {% endformhelp %}
 </div>

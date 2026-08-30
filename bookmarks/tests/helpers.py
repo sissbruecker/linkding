@@ -261,12 +261,12 @@ class BookmarkFactoryMixin:
         filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
         return os.path.exists(filepath)
 
-    def setup_tag(self, user: User = None, name: str = ""):
+    def setup_tag(self, user: User = None, name: str = "", description: str = ""):
         if user is None:
             user = self.get_or_create_test_user()
         if not name:
             name = get_random_string(length=32)
-        tag = Tag(name=name, date_added=timezone.now(), owner=user)
+        tag = Tag(name=name, description=description, date_added=timezone.now(), owner=user)
         tag.save()
         return tag
 
