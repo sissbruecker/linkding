@@ -22,23 +22,31 @@
         </div>
       </div>
       {# Show tag details when the user searches for a single tag #}
-      {% if tag_cloud.selected_tags|length == 1 %}
-      {% with tag=tag_cloud.selected_tags|first %}
+      {% if tag_cloud.tag_details %}
+      {% with details=tag_cloud.tag_details %}
         <div class="tag-details">
-            <h2 class="tag-heading">&num;{{ tag.name }}</h2>
-            {% if tag.tag.description == '' %}
-            <div class="tag-description blank">
-                No tag description provided.
-                <a href="{% url 'linkding:tags.index' %}?search={{ tag.name|urlencode }}">
-                    Add one now?
+            <h2 class="tag-heading">&num;{{ details.name }}</h2>
+            {% if details.has_description %}
+            <div class="tag-description">
+                {% markdown details.tag.description %}
+                <a class="tag-action" href="{% url 'linkding:tags.index' %}?search={{ details.name|urlencode }}">
+                    Edit tag description
                 </a>
             </div>
             {% else %}
-            <div class="tag-description">
-                {% markdown tag.tag.description %}
-                <a class="tag-action" href="{% url 'linkding:tags.index' %}?search={{ tag.name|urlencode }}">
-                    Edit tag
+            <div class="tag-description blank">
+                No tag description provided.
+                <a href="{% url 'linkding:tags.index' %}?search={{ details.name|urlencode }}">
+                    Add one now?
                 </a>
+            </div>
+            {% endif %}
+            {% if details.has_related %}
+            <div class="tag-related">
+                This tag is frequently used with:
+                <span class="tags">
+                  {% for tag in details.related_tags %}<a href="?{{ tag.query_string }}">{{ tag.name }}</a>{% endfor %}
+                </span>
             </div>
             {% endif %}
         </div>

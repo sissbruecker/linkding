@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks.models import Tag
-from bookmarks.services.tags import get_or_create_tag, get_or_create_tags
+from bookmarks.services.tags import get_or_create_tag, get_or_create_tags, get_related_tags
 from bookmarks.tests.helpers import BookmarkFactoryMixin
 
 
@@ -77,3 +77,16 @@ class TagServiceTestCase(TestCase, BookmarkFactoryMixin):
         tag = get_or_create_tag("Book", self.user, description="Reading is cool.")
 
         self.assertEqual(tag.description, "Reading is cool.")
+
+    def test_get_related_tags_sorted_by_frequency(self):
+        books_tag = get_or_create_tag("Book", self.user)
+        fun_tag = get_or_create_tag("Fun", self.user)
+        autobiography_tag = get_or_create_tag("Autobiography", self.user)
+        movies_tag = get_or_create_tag("Movies", self.user)
+        self.setup_bookmark(url="http://example.com/1", user=self.user, title="Autobiography", tags=[books_tag, autobiography_tag, fun_tag])
+        self.setup_bookmark(url="http://example.com/2", user=self.user, title="Boring autobiography", tags=[books_tag, autobiography_tag])
+        self.setup_bookmark(url="http://example.com/2", user=self.user, title="Movie", tags=[movies_tag])
+
+        related_tags = list(get_related_tags(books_tag, self.user))
+
+        self.assertListEqual(related_tags, [autobiography_tag, fun_tag])
