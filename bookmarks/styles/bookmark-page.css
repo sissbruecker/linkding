@@ -124,6 +124,29 @@
   }
 }
 
+/* Tag details */
+.tag-details {
+    margin: var(--unit-4) 0;
+
+    .tag-description > p:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .tag-description.blank {
+      color: var(--bookmark-actions-color);
+      font-style: italic;
+    }
+
+    .tag-action {
+      color: var(--bookmark-actions-color);
+      font-size: var(--font-size-sm);
+    }
+
+    h2.tag-heading {
+        font-size: var(--font-size-lg);
+    }
+}
+
 /* Bookmark list */
 @keyframes appear {
   0% {

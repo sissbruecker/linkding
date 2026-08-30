@@ -21,6 +21,29 @@
           </ld-filter-drawer-trigger>
         </div>
       </div>
+      {# Show tag details when the user searches for a single tag #}
+      {% if tag_cloud.selected_tags|length == 1 %}
+      {% with tag=tag_cloud.selected_tags|first %}
+        <div class="tag-details">
+            <h2 class="tag-heading">&num;{{ tag.name }}</h2>
+            {% if tag.tag.description == '' %}
+            <div class="tag-description blank">
+                No tag description provided.
+                <a href="{% url 'linkding:tags.index' %}?search={{ tag.name|urlencode }}">
+                    Add one now?
+                </a>
+            </div>
+            {% else %}
+            <div class="tag-description">
+                {% markdown tag.tag.description %}
+                <a class="tag-action" href="{% url 'linkding:tags.index' %}?search={{ tag.name|urlencode }}">
+                    Edit tag
+                </a>
+            </div>
+            {% endif %}
+        </div>
+      {% endwith %}
+      {% endif %}
       <form class="bookmark-actions"
             action="{{ bookmark_list.action_url|safe }}"
             method="post"
