@@ -1,7 +1,9 @@
+import ipaddress
 import logging
+import socket
 from dataclasses import dataclass
 from functools import lru_cache
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -9,6 +11,84 @@ from charset_normalizer import from_bytes
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
+
+MAX_REDIRECTS = 5
+
+# Addresses that must never be fetched server-side to protect against SSRF.
+# This includes loopback, private, link-local and reserved ranges as well as
+# broadcast/multicast ranges for both IPv4 and IPv6.
+_PRIVATE_NETWORKS = [
+    ipaddress.ip_network("0.0.0.0/8"),
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("100.64.0.0/10"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.0.0.0/24"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("198.18.0.0/15"),
+    ipaddress.ip_network("224.0.0.0/4"),
+    ipaddress.ip_network("240.0.0.0/4"),
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("fc00::/7"),
+    ipaddress.ip_network("fe80::/10"),
+]
+
+
+def _validate_resource_url(url: str) -> str:
+    """Validate that a URL may be fetched server-side to prevent SSRF.
+
+    Only http(s) URLs are allowed and the target hostname must not resolve to a
+    private, loopback, link-local or reserved address. Returns the (possibly
+    normalized) URL or raises ValueError if the URL is not safe to fetch.
+    """
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError(f"Unsupported URL scheme: {parsed.scheme}")
+    if not parsed.hostname:
+        raise ValueError("URL has no host")
+
+    try:
+        addresses = socket.getaddrinfo(
+            parsed.hostname, None, proto=socket.IPPROTO_TCP
+        )
+    except socket.gaierror as error:
+        raise ValueError(f"Could not resolve host: {parsed.hostname}") from error
+
+    for address in addresses:
+        ip = ipaddress.ip_address(address[4][0])
+        if any(ip in network for network in _PRIVATE_NETWORKS):
+            raise ValueError(f"URL resolves to a disallowed address: {ip}")
+
+    return url
+
+
+def _guarded_redirect_target(response) -> str:
+    """Validate the redirect target of a response before following it."""
+    target = response.headers.get("Location")
+    if not target:
+        raise ValueError("Redirect without a Location header")
+    return _validate_resource_url(target)
+
+
+def _request_with_redirects(method: str, url: str, **kwargs) -> requests.Response:
+    """Perform a request with manual, SSRF-safe redirect handling.
+
+    Redirects are followed one hop at a time and every target is validated so a
+    redirect cannot bypass the SSRF protection.
+    """
+    # Disable automatic redirects so each hop can be validated individually.
+    kwargs.setdefault("allow_redirects", False)
+    current_url = _validate_resource_url(url)
+    for _ in range(MAX_REDIRECTS + 1):
+        response = requests.request(method, current_url, **kwargs)
+        if response.is_redirect:
+            current_url = _guarded_redirect_target(response)
+            kwargs.pop("allow_redirects", None)
+            logger.debug(f"Following redirect to: {current_url}")
+            continue
+        return response
+    raise ValueError(f"Too many redirects for URL: {url}")
 
 
 @dataclass
@@ -99,7 +179,9 @@ def load_page(url: str):
     content = None
     iteration = 0
     # Use with to ensure request gets closed even if it's only read partially
-    with requests.get(url, timeout=10, headers=headers, stream=True) as r:
+    with _request_with_redirects(
+        "get", url, timeout=10, headers=headers, stream=True
+    ) as r:
         for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
             size += len(chunk)
             iteration = iteration + 1
@@ -146,19 +228,17 @@ def detect_content_type(url: str, timeout: int = 10) -> str | None:
     headers = fake_request_headers()
 
     try:
-        response = requests.head(
-            url, headers=headers, timeout=timeout, allow_redirects=True
-        )
+        response = _request_with_redirects("head", url, headers=headers, timeout=timeout)
         if response.status_code == 200:
             return (
                 response.headers.get("Content-Type", "").split(";")[0].strip().lower()
             )
-    except requests.RequestException:
+    except (requests.RequestException, ValueError):
         pass
 
     try:
-        with requests.get(
-            url, headers=headers, timeout=timeout, stream=True, allow_redirects=True
+        with _request_with_redirects(
+            "get", url, headers=headers, timeout=timeout, stream=True
         ) as response:
             if response.status_code == 200:
                 return (

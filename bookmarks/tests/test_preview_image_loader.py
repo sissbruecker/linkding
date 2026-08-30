@@ -4,12 +4,22 @@ import tempfile
 from pathlib import Path
 from unittest import mock
 
+import ipaddress
+
 from django.conf import settings
 from django.test import TestCase
 
 from bookmarks.services import preview_image_loader
 
 mock_image_data = b"mock_image"
+
+
+def fake_getaddrinfo(host, port, **kwargs):
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        ip = ipaddress.ip_address("93.184.216.34")
+    return [(0, 0, 0, "", (str(ip), 0))]
 
 
 class MockStreamingResponse:
@@ -37,6 +47,8 @@ class MockStreamingResponse:
     def __exit__(self, exc_type, exc_value, traceback):
         pass
 
+    is_redirect = False
+
 
 class PreviewImageLoaderTestCase(TestCase):
     def setUp(self) -> None:
@@ -52,11 +64,17 @@ class PreviewImageLoaderTestCase(TestCase):
         self.mock_load_website_metadata.return_value = mock.Mock(
             preview_image="https://example.com/image.png"
         )
+        self.dns_patcher = mock.patch(
+            "bookmarks.services.website_loader.socket.getaddrinfo",
+            side_effect=fake_getaddrinfo,
+        )
+        self.dns_patcher.start()
 
     def tearDown(self) -> None:
         self.temp_folder.cleanup()
         self.settings_override.disable()
         self.mock_load_website_metadata_patcher.stop()
+        self.dns_patcher.stop()
 
     def create_mock_response(
         self,
@@ -85,7 +103,7 @@ class PreviewImageLoaderTestCase(TestCase):
         self.assertFalse(os.listdir(settings.LD_PREVIEW_FOLDER))
 
     def test_load_preview_image(self):
-        with mock.patch("requests.get") as mock_get:
+        with mock.patch("requests.request") as mock_get:
             mock_get.return_value = self.create_mock_response()
 
             file = preview_image_loader.load_preview_image("https://example.com")
@@ -94,7 +112,7 @@ class PreviewImageLoaderTestCase(TestCase):
             self.assertImageExists(file, mock_image_data)
 
     def test_load_preview_image_returns_none_if_no_preview_image_detected(self):
-        with mock.patch("requests.get") as mock_get:
+        with mock.patch("requests.request") as mock_get:
             mock_get.return_value = self.create_mock_response()
             self.mock_load_website_metadata.return_value = mock.Mock(preview_image=None)
 
@@ -107,7 +125,7 @@ class PreviewImageLoaderTestCase(TestCase):
         invalid_status_codes = [199, 300, 400, 500]
 
         for status_code in invalid_status_codes:
-            with mock.patch("requests.get") as mock_get:
+            with mock.patch("requests.request") as mock_get:
                 mock_get.return_value = self.create_mock_response(
                     status_code=status_code
                 )
@@ -119,7 +137,7 @@ class PreviewImageLoaderTestCase(TestCase):
 
     def test_load_preview_image_returns_none_if_content_length_exceeds_limit(self):
         # exceeds max size
-        with mock.patch("requests.get") as mock_get:
+        with mock.patch("requests.request") as mock_get:
             mock_get.return_value = self.create_mock_response(
                 content_length=settings.LD_PREVIEW_MAX_SIZE + 1
             )
@@ -130,7 +148,7 @@ class PreviewImageLoaderTestCase(TestCase):
             self.assertNoImageExists()
 
         # equals max size
-        with mock.patch("requests.get") as mock_get:
+        with mock.patch("requests.request") as mock_get:
             mock_get.return_value = self.create_mock_response(
                 content_length=settings.LD_PREVIEW_MAX_SIZE
             )
@@ -144,7 +162,7 @@ class PreviewImageLoaderTestCase(TestCase):
         invalid_content_types = ["text/html", "application/json"]
 
         for content_type in invalid_content_types:
-            with mock.patch("requests.get") as mock_get:
+            with mock.patch("requests.request") as mock_get:
                 mock_get.return_value = self.create_mock_response(
                     content_type=content_type
                 )
@@ -157,7 +175,7 @@ class PreviewImageLoaderTestCase(TestCase):
         valid_content_types = ["image/png", "image/jpeg", "image/gif"]
 
         for content_type in valid_content_types:
-            with mock.patch("requests.get") as mock_get:
+            with mock.patch("requests.request") as mock_get:
                 mock_get.return_value = self.create_mock_response(
                     content_type=content_type
                 )
@@ -168,7 +186,7 @@ class PreviewImageLoaderTestCase(TestCase):
                 self.assertImageExists(file, mock_image_data)
 
     def test_load_preview_image_returns_none_if_download_exceeds_content_length(self):
-        with mock.patch("requests.get") as mock_get:
+        with mock.patch("requests.request") as mock_get:
             mock_get.return_value = self.create_mock_response(content_length=1)
 
             file = preview_image_loader.load_preview_image("https://example.com")
@@ -177,7 +195,7 @@ class PreviewImageLoaderTestCase(TestCase):
             self.assertNoImageExists()
 
     def test_load_preview_image_creates_folder_if_not_exists(self):
-        with mock.patch("requests.get") as mock_get:
+        with mock.patch("requests.request") as mock_get:
             mock_get.return_value = self.create_mock_response()
 
             folder = Path(settings.LD_PREVIEW_FOLDER)
@@ -190,7 +208,7 @@ class PreviewImageLoaderTestCase(TestCase):
             self.assertTrue(folder.exists())
 
     def test_guess_file_extension(self):
-        with mock.patch("requests.get") as mock_get:
+        with mock.patch("requests.request") as mock_get:
             mock_get.return_value = self.create_mock_response(content_type="image/png")
 
             file = preview_image_loader.load_preview_image("https://example.com")
@@ -198,7 +216,7 @@ class PreviewImageLoaderTestCase(TestCase):
             self.assertImageExists(file, mock_image_data)
             self.assertEqual("png", file.split(".")[-1])
 
-        with mock.patch("requests.get") as mock_get:
+        with mock.patch("requests.request") as mock_get:
             mock_get.return_value = self.create_mock_response(content_type="image/jpeg")
 
             file = preview_image_loader.load_preview_image("https://example.com")

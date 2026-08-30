@@ -1,5 +1,7 @@
 from unittest import mock
 
+import ipaddress
+
 from django.test import TestCase
 
 from bookmarks.services import website_loader
@@ -15,6 +17,8 @@ class MockStreamingResponse:
             if index == insert_head_after_chunk:
                 self.chunks.append(b"</head>")
 
+        self.is_redirect = False
+
     def iter_content(self, **kwargs):
         return self.chunks
 
@@ -25,10 +29,26 @@ class MockStreamingResponse:
         pass
 
 
+def fake_getaddrinfo(host, port, **kwargs):
+    """Resolve literal IPs to themselves, hostnames to a safe public address."""
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        ip = ipaddress.ip_address("93.184.216.34")
+    return [(0, 0, 0, "", (str(ip), 0))]
+
+
 class WebsiteLoaderTestCase(TestCase):
     def setUp(self):
         # clear cached metadata before test run
         website_loader._load_website_metadata_cached.cache_clear()
+        # stub DNS so the SSRF guard resolves hosts deterministically
+        self.dns_patcher = mock.patch(
+            "bookmarks.services.website_loader.socket.getaddrinfo",
+            side_effect=fake_getaddrinfo,
+        )
+        self.dns_patcher.start()
+        self.addCleanup(self.dns_patcher.stop)
 
     def render_html_document(
         self, title, description="", og_description="", og_image=""
@@ -59,8 +79,8 @@ class WebsiteLoaderTestCase(TestCase):
         """
 
     def test_load_page_returns_content(self):
-        with mock.patch("requests.get") as mock_get:
-            mock_get.return_value = MockStreamingResponse(
+        with mock.patch("requests.request") as mock_request:
+            mock_request.return_value = MockStreamingResponse(
                 num_chunks=10, chunk_size=1024
             )
             content = website_loader.load_page("https://example.com")
@@ -69,8 +89,8 @@ class WebsiteLoaderTestCase(TestCase):
             self.assertEqual(expected_content_size, len(content))
 
     def test_load_page_limits_large_documents(self):
-        with mock.patch("requests.get") as mock_get:
-            mock_get.return_value = MockStreamingResponse(
+        with mock.patch("requests.request") as mock_request:
+            mock_request.return_value = MockStreamingResponse(
                 num_chunks=10, chunk_size=1024 * 1000
             )
             content = website_loader.load_page("https://example.com")
@@ -80,8 +100,8 @@ class WebsiteLoaderTestCase(TestCase):
             self.assertEqual(expected_content_size, len(content))
 
     def test_load_page_stops_reading_at_end_of_head(self):
-        with mock.patch("requests.get") as mock_get:
-            mock_get.return_value = MockStreamingResponse(
+        with mock.patch("requests.request") as mock_request:
+            mock_request.return_value = MockStreamingResponse(
                 num_chunks=10, chunk_size=1024 * 1000, insert_head_after_chunk=0
             )
             content = website_loader.load_page("https://example.com")
@@ -91,12 +111,12 @@ class WebsiteLoaderTestCase(TestCase):
             self.assertEqual(expected_content_size, len(content))
 
     def test_load_page_removes_bytes_after_end_of_head(self):
-        with mock.patch("requests.get") as mock_get:
+        with mock.patch("requests.request") as mock_request:
             mock_response = MockStreamingResponse(num_chunks=1, chunk_size=0)
             mock_response.chunks[0] = "<head>人</head>".encode()
             # add a single byte that can't be decoded to utf-8
             mock_response.chunks[0] += 0xFF.to_bytes(1, "big")
-            mock_get.return_value = mock_response
+            mock_request.return_value = mock_response
             content = website_loader.load_page("https://example.com")
 
             # verify that byte after head was removed, content parsed as utf-8
@@ -202,94 +222,128 @@ class WebsiteLoaderTestCase(TestCase):
             )
             self.assertEqual(mock_load_page.call_count, 2)
 
+    def test_load_page_rejects_loopback_address(self):
+        with mock.patch("requests.request") as mock_request:
+            with self.assertRaises(ValueError):
+                website_loader.load_page("http://127.0.0.1:8080/internal")
+            mock_request.assert_not_called()
+
+    def test_load_page_rejects_private_ipv4(self):
+        with mock.patch("requests.request") as mock_request:
+            with self.assertRaises(ValueError):
+                website_loader.load_page("http://10.0.0.5/")
+            mock_request.assert_not_called()
+
+    def test_load_page_rejects_cloud_metadata_address(self):
+        with mock.patch("requests.request") as mock_request:
+            with self.assertRaises(ValueError):
+                website_loader.load_page("http://169.254.169.254/latest/meta-data/")
+            mock_request.assert_not_called()
+
+    def test_load_page_rejects_non_http_scheme(self):
+        with mock.patch("requests.request") as mock_request:
+            with self.assertRaises(ValueError):
+                website_loader.load_page("file:///etc/passwd")
+            mock_request.assert_not_called()
+
+    def test_load_page_rejects_redirect_to_internal_address(self):
+        def side_effect(method, url, **kwargs):
+            if url == "http://public.example/":
+                response = mock.Mock()
+                response.is_redirect = True
+                response.headers = {"Location": "http://127.0.0.1:8080/internal"}
+                return response
+            raise AssertionError(f"Unexpected request to disallowed URL: {url}")
+
+        with mock.patch("requests.request", side_effect=side_effect) as mock_request:
+            with self.assertRaises(ValueError):
+                website_loader.load_page("http://public.example/")
+            # only the initial public URL should have been requested
+            self.assertEqual(
+                [call.args[0:2] for call in mock_request.call_args_list],
+                [("get", "http://public.example/")],
+            )
+
 
 class ContentTypeDetectionTestCase(TestCase):
+    def setUp(self):
+        self.dns_patcher = mock.patch(
+            "bookmarks.services.website_loader.socket.getaddrinfo",
+            side_effect=fake_getaddrinfo,
+        )
+        self.dns_patcher.start()
+        self.addCleanup(self.dns_patcher.stop)
+
+    def make_response(self, status_code=200, headers=None, is_redirect=False):
+        response = mock.Mock()
+        response.status_code = status_code
+        response.headers = headers or {}
+        response.is_redirect = is_redirect
+        response.__enter__ = mock.Mock(return_value=response)
+        response.__exit__ = mock.Mock(return_value=False)
+        return response
+
     def test_detect_content_type_returns_content_type_from_head_request(self):
-        with mock.patch("requests.head") as mock_head:
-            mock_response = mock.Mock()
-            mock_response.status_code = 200
-            mock_response.headers = {"Content-Type": "application/pdf"}
-            mock_head.return_value = mock_response
+        with mock.patch("requests.request") as mock_request:
+            mock_request.return_value = self.make_response(
+                headers={"Content-Type": "application/pdf"}
+            )
 
             result = website_loader.detect_content_type("https://example.com/doc.pdf")
 
             self.assertEqual(result, "application/pdf")
-            mock_head.assert_called_once()
+            mock_request.assert_called_once()
 
     def test_detect_content_type_strips_charset(self):
-        with mock.patch("requests.head") as mock_head:
-            mock_response = mock.Mock()
-            mock_response.status_code = 200
-            mock_response.headers = {"Content-Type": "text/html; charset=utf-8"}
-            mock_head.return_value = mock_response
+        with mock.patch("requests.request") as mock_request:
+            mock_request.return_value = self.make_response(
+                headers={"Content-Type": "text/html; charset=utf-8"}
+            )
 
             result = website_loader.detect_content_type("https://example.com")
 
             self.assertEqual(result, "text/html")
 
     def test_detect_content_type_returns_lowercase(self):
-        with mock.patch("requests.head") as mock_head:
-            mock_response = mock.Mock()
-            mock_response.status_code = 200
-            mock_response.headers = {"Content-Type": "Application/PDF"}
-            mock_head.return_value = mock_response
+        with mock.patch("requests.request") as mock_request:
+            mock_request.return_value = self.make_response(
+                headers={"Content-Type": "Application/PDF"}
+            )
 
             result = website_loader.detect_content_type("https://example.com/doc.pdf")
 
             self.assertEqual(result, "application/pdf")
 
     def test_detect_content_type_falls_back_to_get_when_head_fails(self):
-        with (
-            mock.patch("requests.head") as mock_head,
-            mock.patch("requests.get") as mock_get,
-        ):
-            import requests
+        import requests
 
-            mock_head.side_effect = requests.RequestException("HEAD failed")
+        def side_effect(method, url, **kwargs):
+            if method == "head":
+                raise requests.RequestException("HEAD failed")
+            return self.make_response(headers={"Content-Type": "application/pdf"})
 
-            mock_response = mock.Mock()
-            mock_response.status_code = 200
-            mock_response.headers = {"Content-Type": "application/pdf"}
-            mock_response.__enter__ = mock.Mock(return_value=mock_response)
-            mock_response.__exit__ = mock.Mock(return_value=False)
-            mock_get.return_value = mock_response
-
+        with mock.patch("requests.request", side_effect=side_effect) as mock_request:
             result = website_loader.detect_content_type("https://example.com/doc.pdf")
 
             self.assertEqual(result, "application/pdf")
-            mock_head.assert_called_once()
-            mock_get.assert_called_once()
+            self.assertEqual(mock_request.call_count, 2)
 
     def test_detect_content_type_returns_none_when_both_head_and_get_fail(self):
-        with (
-            mock.patch("requests.head") as mock_head,
-            mock.patch("requests.get") as mock_get,
-        ):
-            import requests
+        import requests
 
-            mock_head.side_effect = requests.RequestException("HEAD failed")
-            mock_get.side_effect = requests.RequestException("GET failed")
-
-            result = website_loader.detect_content_type("https://example.com/doc.pdf")
+        with mock.patch(
+            "requests.request", side_effect=requests.RequestException("GET failed")
+        ) as mock_request:
+            result = website_loader.detect_content_type("https://example.com")
 
             self.assertIsNone(result)
 
     def test_detect_content_type_returns_none_for_non_200_status(self):
-        with (
-            mock.patch("requests.head") as mock_head,
-            mock.patch("requests.get") as mock_get,
-        ):
-            mock_head_response = mock.Mock()
-            mock_head_response.status_code = 404
-            mock_head.return_value = mock_head_response
+        def side_effect(method, url, **kwargs):
+            return self.make_response(status_code=404)
 
-            mock_get_response = mock.Mock()
-            mock_get_response.status_code = 404
-            mock_get_response.__enter__ = mock.Mock(return_value=mock_get_response)
-            mock_get_response.__exit__ = mock.Mock(return_value=False)
-            mock_get.return_value = mock_get_response
-
-            result = website_loader.detect_content_type("https://example.com/doc.pdf")
+        with mock.patch("requests.request", side_effect=side_effect) as mock_request:
+            result = website_loader.detect_content_type("https://example.com")
 
             self.assertIsNone(result)
 
