@@ -33,6 +33,14 @@ Does nothing if the user already exists.
 
 See [`LD_SUPERUSER_PASSWORD`](#ld_superuser_password) on how to configure the respective password.
 
+### `LD_SUPERUSER_EMAIL`
+
+Values: `String` | Default = None
+
+An e-mail address to assign to initial superuser. This is particularly useful to set when `LD_ENABLE_OIDC` is `True`
+
+See [`OIDC` and `LD_SUPERUSER_NAME`](#oidc-and-ld_superuser_name) for more details
+
 ### `LD_SUPERUSER_PASSWORD`
 
 Values: `String` | Default = None
@@ -180,8 +188,10 @@ The following options can be configured:
 
 #### `OIDC` and `LD_SUPERUSER_NAME`
 
-As noted above, OIDC matches users by email address, but `LD_SUPERUSER_NAME` will only set the username.
-Instead of setting `LD_SUPERUSER_NAME` it is recommended that you use the method described in [User setup](/installation#user-setup) to configure a superuser with both username and email address.
+As noted above, OIDC matches users by email address, but `LD_SUPERUSER_NAME` will only set the username. Thus, it's recommended to set `LD_SUPERUSER_EMAIL` as well which should match the upstream identity provider (IdP) user that will become linkding superuser.
+
+If `LD_SUPERUSER_EMAIL` does not match any user in IdP, you will need to use the method described in [User setup](/installation#user-setup) to configure a superuser with both username and email address.
+
 This way when OIDC searches for a matching user it will find the superuser account you created.
 Note that you should create the superuser **before** logging in with OIDC for the first time.
 
