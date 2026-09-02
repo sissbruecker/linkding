@@ -279,7 +279,18 @@ def create_html_snapshots(bookmark_list: list[Bookmark]):
 # task that grabs a number of pending assets and creates snapshots for them in
 # sequence. The task uses a lock to ensure that a new task isn't scheduled
 # before the previous one has finished.
-@huey.periodic_task(crontab(minute="*"))
+_html_snapshots_schedule = crontab(minute="*")
+
+
+def _should_schedule_html_snapshots(timestamp) -> bool:
+    # Only enqueue the periodic task while the feature is active. Otherwise a
+    # disabled instance floods the logs enqueueing and executing a task with
+    # nothing to do every minute (#1420). Mirrors the is_html_snapshot_feature_active()
+    # guard the on-demand snapshot paths already use.
+    return is_html_snapshot_feature_active() and _html_snapshots_schedule(timestamp)
+
+
+@huey.periodic_task(_should_schedule_html_snapshots)
 @huey.lock_task("schedule-html-snapshots-lock")
 def _schedule_html_snapshots_task():
     # Get five pending assets

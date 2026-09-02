@@ -1,3 +1,4 @@
+import datetime
 from unittest import mock
 
 import waybackpy
@@ -505,6 +506,23 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         for asset in assets:
             self.mock_assets_create_snapshot.assert_any_call(asset)
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True)
+    def test_should_schedule_html_snapshots_when_feature_active(self):
+        timestamp = datetime.datetime(2026, 1, 1, 12, 0)
+        self.assertTrue(tasks._should_schedule_html_snapshots(timestamp))
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=False)
+    def test_should_not_schedule_html_snapshots_when_snapshots_disabled(self):
+        # Without this guard the periodic task is enqueued every minute and
+        # floods the logs even though it has nothing to do (#1420).
+        timestamp = datetime.datetime(2026, 1, 1, 12, 0)
+        self.assertFalse(tasks._should_schedule_html_snapshots(timestamp))
+
+    @override_settings(LD_ENABLE_SNAPSHOTS=True, LD_DISABLE_BACKGROUND_TASKS=True)
+    def test_should_not_schedule_html_snapshots_when_background_tasks_disabled(self):
+        timestamp = datetime.datetime(2026, 1, 1, 12, 0)
+        self.assertFalse(tasks._should_schedule_html_snapshots(timestamp))
 
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_html_snapshot_should_handle_missing_asset(self):
