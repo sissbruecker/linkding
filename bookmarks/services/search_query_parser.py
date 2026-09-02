@@ -94,15 +94,27 @@ class SearchQueryTokenizer:
         return content
 
     def read_tag(self) -> str:
-        """Read a tag (starts with # and continues until whitespace or special chars)."""
+        """Read a tag (starts with # and continues until whitespace or a quote).
+
+        Parentheses are grouping operators, but a tag name may itself contain balanced
+        parentheses (e.g. ``#hello(world)``). Track the nesting depth so balanced parens are
+        kept as part of the tag, while an unbalanced ``)`` still closes an enclosing group (#1279).
+        """
         tag = ""
         self.advance()  # skip the # character
+        paren_depth = 0
 
         while (
             self.current_char
             and not self.current_char.isspace()
-            and self.current_char not in "()\"'"
+            and self.current_char not in "\"'"
         ):
+            if self.current_char == "(":
+                paren_depth += 1
+            elif self.current_char == ")":
+                if paren_depth == 0:
+                    break  # closing paren belongs to an enclosing group, not the tag
+                paren_depth -= 1
             tag += self.current_char
             self.advance()
 
