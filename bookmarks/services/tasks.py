@@ -4,6 +4,7 @@ import logging
 import waybackpy
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import close_old_connections
 from django.db.models import Q
 from django.utils import timezone
 from huey import crontab
@@ -16,6 +17,23 @@ from bookmarks.services import assets, favicon_loader, preview_image_loader
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT, load_website_metadata
 
 logger = logging.getLogger(__name__)
+
+
+# Background tasks run in worker threads that are reused across many tasks.
+# The database connections they hold are therefore idle for long periods of
+# time between task executions, so databases (and network devices) may drop
+# them behind the back of Django. On the next query the stale connection is
+# reused and fails with e.g. psycopg.OperationalError: the connection is
+# closed (see #1316). Django only recycles stale connections on request
+# signals, which never fire in background tasks, so close them before each
+# task runs. Connections that are still healthy are left untouched, so the
+# hook is a no-op in the normal case and is safe to register unconditionally
+# (it also applies in immediate mode, which is what the tests use).
+def close_stale_database_connections(task):
+    close_old_connections()
+
+
+huey.pre_execute("close_stale_database_connections")(close_stale_database_connections)
 
 
 # Create custom decorator for Huey tasks that implements exponential backoff
