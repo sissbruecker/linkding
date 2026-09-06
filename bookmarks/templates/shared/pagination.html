@@ -1,14 +1,14 @@
-{% load shared %}
+{% load shared i18n %}
 <ul class="pagination">
   {% if prev_link %}
     <li class="page-item">
       <a href="{{ prev_link }}"
          tabindex="-1"
-         data-turbo-frame="{{ pagination_frame }}">Previous</a>
+         data-turbo-frame="{{ pagination_frame }}">{% translate "Previous" %}</a>
     </li>
   {% else %}
     <li class="page-item disabled">
-      <a href="#" tabindex="-1">Previous</a>
+      <a href="#" tabindex="-1">{% translate "Previous" %}</a>
     </li>
   {% endif %}
   {% for page_link in page_links %}
@@ -26,11 +26,11 @@
     <li class="page-item">
       <a href="{{ next_link }}"
          tabindex="-1"
-         data-turbo-frame="{{ pagination_frame }}">Next</a>
+         data-turbo-frame="{{ pagination_frame }}">{% translate "Next" %}</a>
     </li>
   {% else %}
     <li class="page-item disabled">
-      <a href="#" tabindex="-1">Next</a>
+      <a href="#" tabindex="-1">{% translate "Next" %}</a>
     </li>
   {% endif %}
 </ul>

@@ -12,6 +12,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from bookmarks.forms import GlobalSettingsForm, UserProfileForm
 from bookmarks.models import (
@@ -73,13 +74,13 @@ def update(request: HttpRequest):
         if "update_global_settings" in request.POST:
             update_global_settings(request)
             messages.success(
-                request, "Global settings updated", "settings_success_message"
+                request, _("Global settings updated"), "settings_success_message"
             )
         if "refresh_favicons" in request.POST:
             tasks.schedule_refresh_favicons(request.user)
             messages.success(
                 request,
-                "Scheduled favicon update. This may take a while...",
+                _("Scheduled favicon update. This may take a while..."),
                 "settings_success_message",
             )
         if "create_missing_html_snapshots" in request.POST:
@@ -87,12 +88,15 @@ def update(request: HttpRequest):
             if count > 0:
                 messages.success(
                     request,
-                    f"Queued {count} missing snapshots. This may take a while...",
+                    _("Queued %(count)d missing snapshots. This may take a while...")
+                    % {"count": count},
                     "settings_success_message",
                 )
             else:
                 messages.success(
-                    request, "No missing snapshots found.", "settings_success_message"
+                    request,
+                    _("No missing snapshots found."),
+                    "settings_success_message",
                 )
 
     return HttpResponseRedirect(reverse("linkding:settings.general"))
@@ -106,7 +110,7 @@ def update_profile(request: HttpRequest):
     form = UserProfileForm(request.POST, instance=profile)
     if form.is_valid():
         form.save()
-        messages.success(request, "Profile updated", "settings_success_message")
+        messages.success(request, _("Profile updated"), "settings_success_message")
         # Load missing favicons if the feature was just enabled
         if profile.enable_favicons and not favicons_were_enabled:
             tasks.schedule_bookmarks_without_favicons(request.user)
@@ -118,7 +122,7 @@ def update_profile(request: HttpRequest):
 
     messages.error(
         request,
-        "Profile update failed, check the form below for errors",
+        _("Profile update failed, check the form below for errors"),
         "settings_error_message",
     )
     return general(request, 422, {"form": form})
@@ -214,7 +218,7 @@ def create_api_token(request):
 
         messages.success(
             request,
-            f'API token "{token.name}" created successfully',
+            _('API token "%(name)s" created successfully') % {"name": token.name},
             "api_success_message",
         )
 
@@ -232,7 +236,7 @@ def delete_api_token(request):
         token.delete()
         messages.success(
             request,
-            f'API token "{token_name}" has been deleted.',
+            _('API token "%(name)s" has been deleted.') % {"name": token_name},
             "api_success_message",
         )
 
@@ -248,26 +252,27 @@ def bookmark_import(request: HttpRequest):
 
     if import_file is None:
         messages.error(
-            request, "Please select a file to import.", "settings_error_message"
+            request, _("Please select a file to import."), "settings_error_message"
         )
         return HttpResponseRedirect(reverse("linkding:settings.general"))
 
     try:
         content = import_file.read().decode()
         result = importer.import_netscape_html(content, request.user, import_options)
-        success_msg = str(result.success) + " bookmarks were successfully imported."
+        success_msg = _("%(count)s bookmarks were successfully imported.") % {
+            "count": result.success
+        }
         messages.success(request, success_msg, "settings_success_message")
         if result.failed > 0:
-            err_msg = (
-                str(result.failed)
-                + " bookmarks could not be imported. Please check the logs for more details."
-            )
+            err_msg = _(
+                "%(count)s bookmarks could not be imported. Please check the logs for more details."
+            ) % {"count": result.failed}
             messages.error(request, err_msg, "settings_error_message")
     except Exception:
         logging.exception("Unexpected error during bookmark import")
         messages.error(
             request,
-            "An error occurred during bookmark import.",
+            _("An error occurred during bookmark import."),
             "settings_error_message",
         )
 
@@ -296,7 +301,7 @@ def bookmark_export(request: HttpRequest):
         return general(
             request,
             context_overrides={
-                "export_error": "An error occurred during bookmark export."
+                "export_error": _("An error occurred during bookmark export.")
             },
         )
 

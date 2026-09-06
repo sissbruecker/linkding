@@ -1,59 +1,59 @@
-{% load shared %}
+{% load shared i18n %}
 <div class="form-group">
-  {% formlabel form.name "Name" %}
+  {% formlabel form.name _("Name") %}
   {% formfield form.name %}
   {{ form.name.errors }}
 </div>
 <div class="form-group">
-  {% formlabel form.search "Search terms" %}
+  {% formlabel form.search _("Search terms") %}
   {% formfield form.search has_help=True %}
   {{ form.search.errors }}
   {% formhelp form.search %}
-    All of these search terms must be present in a bookmark to match.
+    {% translate "All of these search terms must be present in a bookmark to match." %}
   {% endformhelp %}
 </div>
 <div class="form-group">
-  {% formlabel form.any_tags "Tags" %}
+  {% formlabel form.any_tags _("Tags") %}
   {% formfield form.any_tags has_help=True %}
   {% formhelp form.any_tags %}
-    At least one of these tags must be present in a bookmark to match.
+    {% translate "At least one of these tags must be present in a bookmark to match." %}
   {% endformhelp %}
 </div>
 <div class="form-group">
-  {% formlabel form.all_tags "Required tags" %}
+  {% formlabel form.all_tags _("Required tags") %}
   {% formfield form.all_tags has_help=True %}
   {% formhelp form.all_tags %}
-    All of these tags must be present in a bookmark to match.
+    {% translate "All of these tags must be present in a bookmark to match." %}
   {% endformhelp %}
 </div>
 <div class="form-group">
-  {% formlabel form.excluded_tags "Excluded tags" %}
+  {% formlabel form.excluded_tags _("Excluded tags") %}
   {% formfield form.excluded_tags has_help=True %}
   {% formhelp form.excluded_tags %}
-    None of these tags must be present in a bookmark to match.
+    {% translate "None of these tags must be present in a bookmark to match." %}
   {% endformhelp %}
 </div>
 <div class="form-group">
-  {% formlabel form.filter_unread "Reading State" %}
+  {% formlabel form.filter_unread _("Reading State") %}
   {% formfield form.filter_unread has_help=True %}
   {% formhelp form.filter_unread %}
-    Limit matches to unread or read bookmarks.
+    {% translate "Limit matches to unread or read bookmarks." %}
   {% endformhelp %}
 </div>
 <div class="form-group">
-  {% formlabel form.filter_shared "Sharing State" %}
+  {% formlabel form.filter_shared _("Sharing State") %}
   {% formfield form.filter_shared has_help=True %}
   {% formhelp form.filter_shared %}
-    Limit matches to shared or unshared bookmarks.
+    {% translate "Limit matches to shared or unshared bookmarks." %}
   {% endformhelp %}
 </div>
 <div class="form-footer d-flex mt-4">
   <input type="submit"
          name="save"
-         value="Save"
+         value="{% translate 'Save' %}"
          class="btn btn-primary btn-wide">
   <a href="{% url 'linkding:bundles.index' %}"
-     class="btn btn-wide ml-auto">Cancel</a>
+     class="btn btn-wide ml-auto">{% translate "Cancel" %}</a>
   <a href="{% url 'linkding:bundles.preview' %}"
      data-turbo-frame="preview"
      class="d-none"

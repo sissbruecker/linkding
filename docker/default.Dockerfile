@@ -51,7 +51,7 @@ RUN wget https://www.sqlite.org/${SQLITE_RELEASE_YEAR}/sqlite-amalgamation-${SQL
 FROM python:3.13.7-slim-trixie AS linkding
 LABEL org.opencontainers.image.source="https://github.com/sissbruecker/linkding"
 # install runtime dependencies
-RUN apt-get update && apt-get -y install media-types libpq-dev libicu-dev libssl3t64 libpcre2-8-0 curl
+RUN apt-get update && apt-get -y install media-types libpq-dev libicu-dev libssl3t64 libpcre2-8-0 curl gettext
 WORKDIR /etc/linkding
 # copy python dependencies
 COPY --from=build-deps /etc/linkding/.venv /etc/linkding/.venv
@@ -64,9 +64,10 @@ COPY . .
 # Activate virtual env
 ENV VIRTUAL_ENV=/etc/linkding/.venv
 ENV PATH="/etc/linkding/.venv/bin:$PATH"
-# Generate static files
+# Generate static files and compile translations
 RUN mkdir data && \
-    python manage.py collectstatic
+    python manage.py collectstatic && \
+    python manage.py compilemessages --ignore .venv
 
 # Limit file descriptors used by uwsgi, see https://github.com/sissbruecker/linkding/issues/453
 ENV UWSGI_MAX_FD=4096

@@ -1,18 +1,19 @@
 {% extends "shared/layout.html" %}
 {% load shared %}
+{% load i18n %}
 {% block head %}
-  {% with page_title="Settings - Linkding" %}{{ block.super }}{% endwith %}
+  {% with page_title=_("Settings - Linkding") %}{{ block.super }}{% endwith %}
 {% endblock %}
 {% block content %}
   <main class="settings-page" aria-labelledby="main-heading">
-    <h1 id="main-heading">Settings</h1>
+    <h1 id="main-heading">{% translate "Settings" %}</h1>
     {# Profile section #}
     {% if success_message %}<div class="toast toast-success mb-4">{{ success_message }}</div>{% endif %}
     {% if error_message %}<div class="toast toast-error mb-4">{{ error_message }}</div>{% endif %}
     <section aria-labelledby="profile-heading">
-      <h2 id="profile-heading">Profile</h2>
+      <h2 id="profile-heading">{% translate "Profile" %}</h2>
       <p>
-        <a href="{% url 'change_password' %}">Change password</a>
+        <a href="{% url 'change_password' %}">{% translate "Change password" %}</a>
       </p>
       <form action="{% url 'linkding:settings.update' %}"
             method="post"
@@ -20,223 +21,256 @@
             data-turbo="false">
         {% csrf_token %}
         <div class="form-group">
-          {% formlabel form.theme "Theme" %}
+          {% formlabel form.theme _("Theme") %}
           {% formfield form.theme has_help=True class="width-25 width-sm-100" %}
           {% formhelp form.theme %}
-            Whether to use a light or dark theme, or automatically adjust the theme based on your system's settings.
+            {% translate "Whether to use a light or dark theme, or automatically adjust the theme based on your system's settings." %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formlabel form.bookmark_date_display "Bookmark date format" %}
+          {% formlabel form.bookmark_date_display _("Bookmark date format") %}
           {% formfield form.bookmark_date_display has_help=True class="width-25 width-sm-100" %}
           {% formhelp form.bookmark_date_display %}
-            Whether to show bookmark dates as relative (how long ago), or as absolute dates. Alternatively the date can
-            be hidden.
+            {% blocktranslate trimmed %}
+              Whether to show bookmark dates as relative (how long ago), or as absolute dates. Alternatively the date can
+              be hidden.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formlabel form.bookmark_description_display "Bookmark description" %}
+          {% formlabel form.bookmark_description_display _("Bookmark description") %}
           {% formfield form.bookmark_description_display has_help=True class="width-25 width-sm-100" %}
           {% formhelp form.bookmark_description_display %}
-            Whether to show bookmark descriptions and tags in the same line, or as separate blocks.
+            {% translate "Whether to show bookmark descriptions and tags in the same line, or as separate blocks." %}
           {% endformhelp %}
         </div>
         <div class="form-group {% if request.user_profile.bookmark_description_display == 'inline' %}d-hide{% endif %}">
-          {% formlabel form.bookmark_description_max_lines "Bookmark description max lines" %}
+          {% formlabel form.bookmark_description_max_lines _("Bookmark description max lines") %}
           {% formfield form.bookmark_description_max_lines has_help=True class="width-25 width-sm-100" %}
           {% formhelp form.bookmark_description_max_lines %}
-            Limits the number of lines that are displayed for the bookmark description.
+            {% translate "Limits the number of lines that are displayed for the bookmark description." %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.display_url label="Show bookmark URL" has_help=True %}
+          {% formfield form.display_url label=_("Show bookmark URL") has_help=True %}
           {% formhelp form.display_url %}
-            When enabled, this setting displays the bookmark URL below the title.
+            {% translate "When enabled, this setting displays the bookmark URL below the title." %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.permanent_notes label="Show notes permanently" has_help=True %}
+          {% formfield form.permanent_notes label=_("Show notes permanently") has_help=True %}
           {% formhelp form.permanent_notes %}
-            Whether to show bookmark notes permanently, without having to toggle them individually.
-            Alternatively the keyboard shortcut <code>e</code> can be used to temporarily show all notes.
+            {% blocktranslate trimmed %}
+              Whether to show bookmark notes permanently, without having to toggle them individually.
+              Alternatively the keyboard shortcut <code>e</code> can be used to temporarily show all notes.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          <span class="form-label">Bookmark actions</span>
-          {% formfield form.display_view_bookmark_action label="View" %}
-          {% formfield form.display_edit_bookmark_action label="Edit" %}
-          {% formfield form.display_archive_bookmark_action label="Archive" %}
-          {% formfield form.display_remove_bookmark_action label="Remove" %}
-          <div class="form-input-hint">Which actions to display for each bookmark.</div>
+          <span class="form-label">{% translate "Bookmark actions" %}</span>
+          {% formfield form.display_view_bookmark_action label=_("View") %}
+          {% formfield form.display_edit_bookmark_action label=_("Edit") %}
+          {% formfield form.display_archive_bookmark_action label=_("Archive") %}
+          {% formfield form.display_remove_bookmark_action label=_("Remove") %}
+          <div class="form-input-hint">{% translate "Which actions to display for each bookmark." %}</div>
         </div>
         <div class="form-group">
-          {% formlabel form.bookmark_link_target "Open bookmarks in" %}
+          {% formlabel form.bookmark_link_target _("Open bookmarks in") %}
           {% formfield form.bookmark_link_target has_help=True class="width-25 width-sm-100" %}
           {% formhelp form.bookmark_link_target %}
-            Whether to open bookmarks a new page or in the same page.
+            {% translate "Whether to open bookmarks a new page or in the same page." %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formlabel form.items_per_page "Items per page" %}
+          {% formlabel form.items_per_page _("Items per page") %}
           {% formfield form.items_per_page has_help=True class="width-25 width-sm-100" min="10" %}
           {{ form.items_per_page.errors }}
           {% formhelp form.items_per_page %}
-            The number of bookmarks to display per page.
+            {% translate "The number of bookmarks to display per page." %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.sticky_pagination label="Sticky pagination" has_help=True %}
+          {% formfield form.sticky_pagination label=_("Sticky pagination") has_help=True %}
           {% formhelp form.sticky_pagination %}
-            When enabled, the pagination controls will stick to the bottom of the screen, so that they are always
-            visible without having to scroll to the end of the page first.
+            {% blocktranslate trimmed %}
+              When enabled, the pagination controls will stick to the bottom of the screen, so that they are always
+              visible without having to scroll to the end of the page first.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.collapse_side_panel label="Collapse side panel" has_help=True %}
+          {% formfield form.collapse_side_panel label=_("Collapse side panel") has_help=True %}
           {% formhelp form.collapse_side_panel %}
-            When enabled, the tags side panel will be collapsed by default to give more space to the bookmark list.
-            Instead, the tags are shown in an expandable drawer.
+            {% blocktranslate trimmed %}
+              When enabled, the tags side panel will be collapsed by default to give more space to the bookmark list.
+              Instead, the tags are shown in an expandable drawer.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.hide_bundles label="Hide bundles" has_help=True %}
+          {% formfield form.hide_bundles label=_("Hide bundles") has_help=True %}
           {% formhelp form.hide_bundles %}
-            Allows to hide the bundles in the side panel if you don't intend to use them.
+            {% translate "Allows to hide the bundles in the side panel if you don't intend to use them." %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formlabel form.tag_search "Tag search" %}
+          {% formlabel form.tag_search _("Tag search") %}
           {% formfield form.tag_search has_help=True class="width-25 width-sm-100" %}
           {% formhelp form.tag_search %}
-            In strict mode, tags must be prefixed with a hash character (#).
-            In lax mode, tags can also be searched without the hash character.
-            Note that tags without the hash character are indistinguishable from search terms, which means the search
-            result will also include bookmarks where a search term matches otherwise.
+            {% blocktranslate trimmed %}
+              In strict mode, tags must be prefixed with a hash character (#).
+              In lax mode, tags can also be searched without the hash character.
+              Note that tags without the hash character are indistinguishable from search terms, which means the search
+              result will also include bookmarks where a search term matches otherwise.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.legacy_search label="Enable legacy search" has_help=True %}
+          {% formfield form.legacy_search label=_("Enable legacy search") has_help=True %}
           {% formhelp form.legacy_search %}
-            Since version 1.44.0, linkding has a new search engine that supports logical expressions (and, or, not).
-            If you run into any issues with the new search, you can enable this option to temporarily switch back to the old search.
-            Please report any issues you encounter with the new search on <a href="https://github.com/sissbruecker/linkding/issues"
+            {% blocktranslate trimmed %}
+              Since version 1.44.0, linkding has a new search engine that supports logical expressions (and, or, not).
+              If you run into any issues with the new search, you can enable this option to temporarily switch back to the old search.
+              Please report any issues you encounter with the new search on <a href="https://github.com/sissbruecker/linkding/issues"
     target="_blank">GitHub</a> so they can be addressed.
-            This option will be removed in a future version.
+              This option will be removed in a future version.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formlabel form.tag_grouping "Tag grouping" %}
+          {% formlabel form.tag_grouping _("Tag grouping") %}
           {% formfield form.tag_grouping has_help=True class="width-25 width-sm-100" %}
           {% formhelp form.tag_grouping %}
-            In alphabetical mode, tags will be grouped by the first letter.
-            If disabled, tags will not be grouped.
+            {% blocktranslate trimmed %}
+              In alphabetical mode, tags will be grouped by the first letter.
+              If disabled, tags will not be grouped.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
           <details {% if form.auto_tagging_rules.value %}open{% endif %}>
             <summary>
-              <span class="form-label d-inline-block">Auto Tagging</span>
+              <span class="form-label d-inline-block">{% translate "Auto Tagging" %}</span>
             </summary>
             <label for="{{ form.auto_tagging_rules.id_for_label }}"
-                   class="text-assistive">Auto Tagging</label>
+                   class="text-assistive">{% translate "Auto Tagging" %}</label>
             <div>{% formfield form.auto_tagging_rules has_help=True class="monospace" rows="6" %}</div>
           </details>
           {% formhelp form.auto_tagging_rules %}
-            Automatically adds tags to bookmarks based on predefined rules.
-            Each line is a single rule that maps a URL to one or more tags. For example:
+            {% blocktranslate trimmed %}
+              Automatically adds tags to bookmarks based on predefined rules.
+              Each line is a single rule that maps a URL to one or more tags. For example:
+            {% endblocktranslate %}
             <pre>youtube.com video
 reddit.com/r/Music music reddit</pre>
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.enable_favicons label="Enable Favicons" has_help=True %}
+          {% formfield form.enable_favicons label=_("Enable Favicons") has_help=True %}
           {% formhelp form.enable_favicons %}
-            Automatically loads favicons for bookmarked websites and displays them next to each bookmark.
-            Enabling this feature automatically downloads all missing favicons.
-            By default, this feature uses a <b>Google service</b> to download favicons.
-            If you don't want to use this service, check the
-            <a href="https://linkding.link/options/#ld_favicon_provider"
-               target="_blank">options documentation</a> on how to configure a custom favicon provider.
-            Icons are downloaded in the background, and it may take a while for them to show up.
+            {% blocktranslate trimmed %}
+              Automatically loads favicons for bookmarked websites and displays them next to each bookmark.
+              Enabling this feature automatically downloads all missing favicons.
+              By default, this feature uses a <b>Google service</b> to download favicons.
+              If you don't want to use this service, check the
+              <a href="https://linkding.link/options/#ld_favicon_provider"
+                 target="_blank">options documentation</a> on how to configure a custom favicon provider.
+              Icons are downloaded in the background, and it may take a while for them to show up.
+            {% endblocktranslate %}
           {% endformhelp %}
           {% if request.user_profile.enable_favicons and enable_refresh_favicons %}
-            <button class="btn mt-2" name="refresh_favicons">Refresh Favicons</button>
+            <button class="btn mt-2" name="refresh_favicons">{% translate "Refresh Favicons" %}</button>
           {% endif %}
         </div>
         <div class="form-group">
-          {% formfield form.enable_preview_images label="Enable Preview Images" has_help=True %}
+          {% formfield form.enable_preview_images label=_("Enable Preview Images") has_help=True %}
           {% formhelp form.enable_preview_images %}
-            Automatically loads preview images for bookmarked websites and displays them next to each bookmark.
-            Enabling this feature automatically downloads all missing preview images.
+            {% blocktranslate trimmed %}
+              Automatically loads preview images for bookmarked websites and displays them next to each bookmark.
+              Enabling this feature automatically downloads all missing preview images.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formlabel form.web_archive_integration "Internet Archive integration" %}
+          {% formlabel form.web_archive_integration _("Internet Archive integration") %}
           {% formfield form.web_archive_integration has_help=True class="width-25 width-sm-100" %}
           {% formhelp form.web_archive_integration %}
-            Enabling this feature will automatically create snapshots of bookmarked websites on the
-            <a href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive Wayback Machine</a>.
-            This allows to preserve, and later access the website as it was at the point in time it was bookmarked, in
-            case it goes offline or its content is modified.
-            Please consider donating to the <a href="https://archive.org/donate" target="_blank" rel="noopener">Internet Archive</a> if you make use of this feature.
+            {% blocktranslate trimmed %}
+              Enabling this feature will automatically create snapshots of bookmarked websites on the
+              <a href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive Wayback Machine</a>.
+              This allows to preserve, and later access the website as it was at the point in time it was bookmarked, in
+              case it goes offline or its content is modified.
+              Please consider donating to the <a href="https://archive.org/donate" target="_blank" rel="noopener">Internet Archive</a> if you make use of this feature.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.enable_sharing label="Enable bookmark sharing" has_help=True %}
+          {% formfield form.enable_sharing label=_("Enable bookmark sharing") has_help=True %}
           {% formhelp form.enable_sharing %}
-            Allows to share bookmarks with other users, and to view shared bookmarks.
-            Disabling this feature will hide all previously shared bookmarks from other users.
+            {% blocktranslate trimmed %}
+              Allows to share bookmarks with other users, and to view shared bookmarks.
+              Disabling this feature will hide all previously shared bookmarks from other users.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.enable_public_sharing label="Enable public bookmark sharing" has_help=True %}
+          {% formfield form.enable_public_sharing label=_("Enable public bookmark sharing") has_help=True %}
+          {% url 'linkding:bookmarks.shared' as shared_bookmarks_url %}
           {% formhelp form.enable_public_sharing %}
-            Makes shared bookmarks publicly accessible, without requiring a login.
-            That means that anyone with a link to this instance can view shared bookmarks via the <a href="{% url 'linkding:bookmarks.shared' %}">shared bookmarks page</a>.
+            {% blocktranslate trimmed %}
+              Makes shared bookmarks publicly accessible, without requiring a login.
+              That means that anyone with a link to this instance can view shared bookmarks via the <a href="{{ shared_bookmarks_url }}">shared bookmarks page</a>.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         {% if has_snapshot_support %}
           <div class="form-group">
-            {% formfield form.enable_automatic_html_snapshots label="Automatically create HTML snapshots" has_help=True %}
+            {% formfield form.enable_automatic_html_snapshots label=_("Automatically create HTML snapshots") has_help=True %}
             {% formhelp form.enable_automatic_html_snapshots %}
-              Automatically creates HTML snapshots when adding bookmarks. Alternatively, when disabled, snapshots can be
-              created manually in the details view of a bookmark.
+              {% blocktranslate trimmed %}
+                Automatically creates HTML snapshots when adding bookmarks. Alternatively, when disabled, snapshots can be
+                created manually in the details view of a bookmark.
+              {% endblocktranslate %}
             {% endformhelp %}
-            <button class="btn mt-2" name="create_missing_html_snapshots">Create missing HTML snapshots</button>
+            <button class="btn mt-2" name="create_missing_html_snapshots">{% translate "Create missing HTML snapshots" %}</button>
           </div>
         {% endif %}
         <div class="form-group">
-          {% formfield form.default_mark_unread label="Create bookmarks as unread by default" has_help=True %}
+          {% formfield form.default_mark_unread label=_("Create bookmarks as unread by default") has_help=True %}
           {% formhelp form.default_mark_unread %}
-            Sets the default state for the "Mark as unread" option when creating a new bookmark.
-            Setting this option will make all new bookmarks default to unread.
-            This can be overridden when creating each new bookmark.
+            {% blocktranslate trimmed %}
+              Sets the default state for the "Mark as unread" option when creating a new bookmark.
+              Setting this option will make all new bookmarks default to unread.
+              This can be overridden when creating each new bookmark.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formfield form.default_mark_shared label="Create bookmarks as shared by default" has_help=True %}
+          {% formfield form.default_mark_shared label=_("Create bookmarks as shared by default") has_help=True %}
           {% formhelp form.default_mark_shared %}
-            Sets the default state for the "Share" option when creating a new bookmark.
-            Setting this option will make all new bookmarks default to shared.
-            This can be overridden when creating each new bookmark.
+            {% blocktranslate trimmed %}
+              Sets the default state for the "Share" option when creating a new bookmark.
+              Setting this option will make all new bookmarks default to shared.
+              This can be overridden when creating each new bookmark.
+            {% endblocktranslate %}
           {% endformhelp %}
         </div>
         <div class="form-group">
           <details {% if form.custom_css.value %}open{% endif %}>
             <summary>
-              <span class="form-label d-inline-block">Custom CSS</span>
+              <span class="form-label d-inline-block">{% translate "Custom CSS" %}</span>
             </summary>
-            <label for="{{ form.custom_css.id_for_label }}" class="text-assistive">Custom CSS</label>
+            <label for="{{ form.custom_css.id_for_label }}" class="text-assistive">{% translate "Custom CSS" %}</label>
             <div>{% formfield form.custom_css has_help=True class="monospace" rows="6" %}</div>
           </details>
           {% formhelp form.custom_css %}
-            Allows to add custom CSS to the page.
+            {% translate "Allows to add custom CSS to the page." %}
           {% endformhelp %}
         </div>
         <div class="form-group">
           <input type="submit"
                  name="update_profile"
-                 value="Save"
+                 value="{% translate 'Save' %}"
                  class="btn btn-primary btn-wide mt-2">
         </div>
       </form>
@@ -244,39 +278,43 @@ reddit.com/r/Music music reddit</pre>
     {# Global settings section #}
     {% if global_settings_form %}
       <section aria-labelledby="global-settings-heading">
-        <h2 id="global-settings-heading">Global settings</h2>
+        <h2 id="global-settings-heading">{% translate "Global settings" %}</h2>
         <form action="{% url 'linkding:settings.update' %}"
               method="post"
               novalidate
               data-turbo="false">
           {% csrf_token %}
           <div class="form-group">
-            {% formlabel global_settings_form.landing_page "Landing page" %}
+            {% formlabel global_settings_form.landing_page _("Landing page") %}
             {% formfield global_settings_form.landing_page has_help=True class="width-25 width-sm-100" %}
             {% formhelp global_settings_form.landing_page %}
-              The page that unauthenticated users are redirected to when accessing the root URL.
+              {% translate "The page that unauthenticated users are redirected to when accessing the root URL." %}
             {% endformhelp %}
           </div>
           <div class="form-group">
-            {% formlabel global_settings_form.guest_profile_user "Guest user profile" %}
+            {% formlabel global_settings_form.guest_profile_user _("Guest user profile") %}
             {% formfield global_settings_form.guest_profile_user has_help=True class="width-25 width-sm-100" %}
             {% formhelp global_settings_form.guest_profile_user %}
-              The user profile to use for users that are not logged in. This will affect how publicly shared bookmarks
-              are displayed regarding theme, bookmark list settings, etc. You can either use your own profile or create
-              a dedicated user for this purpose. By default, a standard profile with fixed settings is used.
+              {% blocktranslate trimmed %}
+                The user profile to use for users that are not logged in. This will affect how publicly shared bookmarks
+                are displayed regarding theme, bookmark list settings, etc. You can either use your own profile or create
+                a dedicated user for this purpose. By default, a standard profile with fixed settings is used.
+              {% endblocktranslate %}
             {% endformhelp %}
           </div>
           <div class="form-group">
-            {% formfield global_settings_form.enable_link_prefetch label="Enable prefetching links on hover" has_help=True %}
+            {% formfield global_settings_form.enable_link_prefetch label=_("Enable prefetching links on hover") has_help=True %}
             {% formhelp global_settings_form.enable_link_prefetch %}
-              Prefetches internal links when hovering over them. This can improve the perceived performance when
-              navigating application, but also increases the load on the server as well as bandwidth usage.
+              {% blocktranslate trimmed %}
+                Prefetches internal links when hovering over them. This can improve the perceived performance when
+                navigating application, but also increases the load on the server as well as bandwidth usage.
+              {% endblocktranslate %}
             {% endformhelp %}
           </div>
           <div class="form-group">
             <input type="submit"
                    name="update_global_settings"
-                   value="Save"
+                   value="{% translate 'Save' %}"
                    class="btn btn-primary btn-wide mt-2">
           </div>
         </form>
@@ -284,10 +322,12 @@ reddit.com/r/Music music reddit</pre>
     {% endif %}
     {# Import section #}
     <section aria-labelledby="import-heading">
-      <h2 id="import-heading">Import</h2>
+      <h2 id="import-heading">{% translate "Import" %}</h2>
       <p>
-        Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
-        added and existing ones are updated.
+        {% blocktranslate trimmed %}
+          Import bookmarks and tags in the Netscape HTML format. This will execute a sync where new bookmarks are
+          added and existing ones are updated.
+        {% endblocktranslate %}
       </p>
       <form method="post"
             enctype="multipart/form-data"
@@ -299,30 +339,34 @@ reddit.com/r/Music music reddit</pre>
                    id="import_map_private_flag"
                    name="map_private_flag"
                    aria-describedby="import_map_private_flag_help">
-            <i class="form-icon"></i> Import public bookmarks as shared
+            <i class="form-icon"></i> {% translate "Import public bookmarks as shared" %}
           </label>
           <div id="import_map_private_flag_help" class="form-input-hint">
-            When importing bookmarks from a service that supports marking bookmarks as public or private (using the
-            <code>PRIVATE</code> attribute), enabling this option will import all bookmarks that are marked as not
-            private as shared bookmarks.
-            Otherwise, all bookmarks will be imported as private bookmarks.
+            {% blocktranslate trimmed %}
+              When importing bookmarks from a service that supports marking bookmarks as public or private (using the
+              <code>PRIVATE</code> attribute), enabling this option will import all bookmarks that are marked as not
+              private as shared bookmarks.
+              Otherwise, all bookmarks will be imported as private bookmarks.
+            {% endblocktranslate %}
           </div>
         </div>
         <div class="form-group">
           <div class="input-group width-75 width-md-100">
             <input class="form-input" type="file" name="import_file">
-            <input type="submit" class="input-group-btn btn btn-primary" value="Upload">
+            <input type="submit"
+                   class="input-group-btn btn btn-primary"
+                   value="{% translate 'Upload' %}">
           </div>
         </div>
       </form>
     </section>
     {# Export section #}
     <section aria-labelledby="export-heading">
-      <h2 id="export-heading">Export</h2>
-      <p>Export all bookmarks in Netscape HTML format.</p>
+      <h2 id="export-heading">{% translate "Export" %}</h2>
+      <p>{% translate "Export all bookmarks in Netscape HTML format." %}</p>
       <a class="btn btn-primary"
          target="_blank"
-         href="{% url 'linkding:settings.export' %}">Download (.html)</a>
+         href="{% url 'linkding:settings.export' %}">{% translate "Download (.html)" %}</a>
       {% if export_error %}
         <div class="has-error">
           <p class="form-input-hint">{{ export_error }}</p>
@@ -331,21 +375,21 @@ reddit.com/r/Music music reddit</pre>
     </section>
     {# About section #}
     <section class="about" aria-labelledby="about-heading">
-      <h2 id="about-heading">About</h2>
+      <h2 id="about-heading">{% translate "About" %}</h2>
       <table class="table">
         <tbody>
           <tr>
-            <td>Version</td>
+            <td>{% translate "Version" %}</td>
             <td>{{ version_info }}</td>
           </tr>
           <tr>
-            <td style="vertical-align: top">Links</td>
+            <td style="vertical-align: top">{% translate "Links" %}</td>
             <td>
               <div class="d-flex flex-column gap-2">
                 <a href="https://github.com/sissbruecker/linkding/" target="_blank">GitHub</a>
-                <a href="https://linkding.link/" target="_blank">Documentation</a>
+                <a href="https://linkding.link/" target="_blank">{% translate "Documentation" %}</a>
                 <a href="https://github.com/sissbruecker/linkding/blob/master/CHANGELOG.md"
-                   target="_blank">Changelog</a>
+                   target="_blank">{% translate "Changelog" %}</a>
               </div>
             </td>
           </tr>

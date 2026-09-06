@@ -1,8 +1,8 @@
-{% load static shared %}
+{% load static shared i18n %}
 <div class="search-container">
   <form id="search" action="" method="get" role="search">
     <ld-search-autocomplete input-name="q"
-                            input-placeholder="Search for words or #tags"
+                            input-placeholder="{% translate 'Search for words or #tags' %}"
                             input-value="{{ search.q|default_if_none:'' }}"
                             target="{{ request.user_profile.bookmark_link_target }}"
                             mode="{{ mode }}"
@@ -10,12 +10,12 @@
                             shared="{{ search.shared }}"
                             unread="{{ search.unread }}">
     </ld-search-autocomplete>
-    <input type="submit" value="Search" class="d-none">
+    <input type="submit" value="{% translate 'Search' %}" class="d-none">
     {% for hidden_field in search_form.hidden_fields %}{{ hidden_field }}{% endfor %}
   </form>
   <ld-dropdown class="search-options dropdown dropdown-right">
     <button type="button"
-            aria-label="Search preferences"
+            aria-label="{% translate 'Search preferences' %}"
             class="btn dropdown-toggle{% if search.has_modified_preferences %} badge{% endif %}">
       <svg width="20" height="20">
         <use href="{% static 'icons.svg' %}?v={{ app_version }}#preferences"></use>
@@ -27,7 +27,9 @@
         {% if 'sort' in preferences_form.editable_fields %}
           <div class="form-group">
             <label for="{{ preferences_form.sort.id_for_label }}"
-                   class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">Sort by</label>
+                   class="form-label{% if 'sort' in search.modified_params %} text-bold{% endif %}">
+              {% translate "Sort by" %}
+            </label>
             {% formfield preferences_form.sort class='select-sm' %}
           </div>
         {% endif %}
@@ -37,7 +39,7 @@
                aria-labelledby="search-shared-label">
             <label id="search-shared-label"
                    class="form-label{% if 'shared' in search.modified_params %} text-bold{% endif %}">
-              Shared filter
+              {% translate "Shared filter" %}
             </label>
             {% for radio in preferences_form.shared %}
               <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
@@ -54,7 +56,7 @@
                aria-labelledby="search-unread-label">
             <label id="search-unread-label"
                    class="form-label{% if 'unread' in search.modified_params %} text-bold{% endif %}">
-              Unread filter
+              {% translate "Unread filter" %}
             </label>
             {% for radio in preferences_form.unread %}
               <label for="{{ radio.id_for_label }}" class="form-radio form-inline">
@@ -66,9 +68,9 @@
           </div>
         {% endif %}
         <div class="actions">
-          <button type="submit" class="btn btn-sm btn-primary" name="apply">Apply</button>
+          <button type="submit" class="btn btn-sm btn-primary" name="apply">{% translate "Apply" %}</button>
           {% if request.user.is_authenticated %}
-            <button type="submit" class="btn btn-sm" name="save">Save as default</button>
+            <button type="submit" class="btn btn-sm" name="save">{% translate "Save as default" %}</button>
           {% endif %}
         </div>
         {% for hidden_field in preferences_form.hidden_fields %}{{ hidden_field }}{% endfor %}

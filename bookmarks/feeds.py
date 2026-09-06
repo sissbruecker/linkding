@@ -5,6 +5,7 @@ from django.contrib.syndication.views import Feed
 from django.db.models import QuerySet, prefetch_related_objects
 from django.http import HttpRequest
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkSearch, FeedToken, User, UserProfile
@@ -76,8 +77,8 @@ class BaseBookmarksFeed(Feed):
 
 
 class AllBookmarksFeed(BaseBookmarksFeed):
-    title = "All bookmarks"
-    description = "All bookmarks"
+    title = _("All bookmarks")
+    description = _("All bookmarks")
 
     def get_query_set(self, feed_token: FeedToken, search: BookmarkSearch):
         return queries.query_bookmarks(feed_token.user, feed_token.user.profile, search)
@@ -87,8 +88,8 @@ class AllBookmarksFeed(BaseBookmarksFeed):
 
 
 class UnreadBookmarksFeed(BaseBookmarksFeed):
-    title = "Unread bookmarks"
-    description = "All unread bookmarks"
+    title = _("Unread bookmarks")
+    description = _("All unread bookmarks")
 
     def get_query_set(self, feed_token: FeedToken, search: BookmarkSearch):
         return queries.query_bookmarks(
@@ -100,8 +101,8 @@ class UnreadBookmarksFeed(BaseBookmarksFeed):
 
 
 class SharedBookmarksFeed(BaseBookmarksFeed):
-    title = "Shared bookmarks"
-    description = "All shared bookmarks"
+    title = _("Shared bookmarks")
+    description = _("All shared bookmarks")
 
     def get_query_set(self, feed_token: FeedToken, search: BookmarkSearch):
         user = resolve_user(search)
@@ -116,8 +117,8 @@ class SharedBookmarksFeed(BaseBookmarksFeed):
 
 
 class PublicSharedBookmarksFeed(BaseBookmarksFeed):
-    title = "Public shared bookmarks"
-    description = "All public shared bookmarks"
+    title = _("Public shared bookmarks")
+    description = _("All public shared bookmarks")
 
     def get_object(self, request):
         return super().get_object(request, None)

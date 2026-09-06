@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.db import models
 from django.http import Http404
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from bookmarks import queries, utils
 from bookmarks.forms import BookmarkSearchForm
@@ -152,10 +153,10 @@ class BookmarkItem:
             self.snapshot_url = reverse(
                 "linkding:assets.view", args=[bookmark.latest_snapshot_id]
             )
-            self.snapshot_title = "View latest snapshot"
+            self.snapshot_title = _("View latest snapshot")
         else:
             self.snapshot_url = bookmark.web_archive_snapshot_url
-            self.snapshot_title = (
+            self.snapshot_title = _(
                 "View snapshot on the Internet Archive Wayback Machine"
             )
             if not self.snapshot_url:
@@ -265,7 +266,7 @@ class BookmarkListContext:
 
 
 class ActiveBookmarkListContext(BookmarkListContext):
-    list_title = "Bookmarks"
+    list_title = _("Bookmarks")
     search_mode = ""
     bulk_edit_enabled = True
     bulk_edit_disabled_actions = "bulk_unarchive"
@@ -273,7 +274,7 @@ class ActiveBookmarkListContext(BookmarkListContext):
 
 
 class ArchivedBookmarkListContext(BookmarkListContext):
-    list_title = "Archived bookmarks"
+    list_title = _("Archived bookmarks")
     search_mode = "archived"
     bulk_edit_enabled = True
     bulk_edit_disabled_actions = "bulk_archive"
@@ -281,7 +282,7 @@ class ArchivedBookmarkListContext(BookmarkListContext):
 
 
 class SharedBookmarkListContext(BookmarkListContext):
-    list_title = "Shared bookmarks"
+    list_title = _("Shared bookmarks")
     search_mode = "shared"
     bulk_edit_enabled = False
     bulk_edit_disabled_actions = ""

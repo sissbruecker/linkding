@@ -1,4 +1,4 @@
-{% load shared %}
+{% load shared i18n %}
 {% htmlmin %}
 <div class="bulk-edit-bar">
   <label class="form-checkbox bulk-edit-checkbox all">
@@ -7,37 +7,41 @@
   </label>
   <select name="bulk_action" class="form-select select-sm">
     {% if not 'bulk_archive' in bookmark_list.bulk_edit_disabled_actions %}
-      <option value="bulk_archive">Archive</option>
+      <option value="bulk_archive">{% translate "Archive" %}</option>
     {% endif %}
     {% if not 'bulk_unarchive' in bookmark_list.bulk_edit_disabled_actions %}
-      <option value="bulk_unarchive">Unarchive</option>
+      <option value="bulk_unarchive">{% translate "Unarchive" %}</option>
     {% endif %}
-    <option value="bulk_delete">Delete</option>
-    <option value="bulk_tag">Add tags</option>
-    <option value="bulk_untag">Remove tags</option>
-    <option value="bulk_read">Mark as read</option>
-    <option value="bulk_unread">Mark as unread</option>
+    <option value="bulk_delete">{% translate "Delete" %}</option>
+    <option value="bulk_tag">{% translate "Add tags" %}</option>
+    <option value="bulk_untag">{% translate "Remove tags" %}</option>
+    <option value="bulk_read">{% translate "Mark as read" %}</option>
+    <option value="bulk_unread">{% translate "Mark as unread" %}</option>
     {% if request.user_profile.enable_sharing %}
-      <option value="bulk_share">Share</option>
-      <option value="bulk_unshare">Unshare</option>
+      <option value="bulk_share">{% translate "Share" %}</option>
+      <option value="bulk_unshare">{% translate "Unshare" %}</option>
     {% endif %}
-    <option value="bulk_refresh">Refresh from website</option>
-    {% if bookmark_list.snapshot_feature_enabled %}<option value="bulk_snapshot">Create HTML snapshot</option>{% endif %}
+    <option value="bulk_refresh">{% translate "Refresh from website" %}</option>
+    {% if bookmark_list.snapshot_feature_enabled %}
+      <option value="bulk_snapshot">{% translate "Create HTML snapshot" %}</option>
+    {% endif %}
   </select>
   <ld-tag-autocomplete input-name="bulk_tag_string"
-                       input-placeholder="Tag names..."
+                       input-placeholder="{% translate 'Tag names...' %}"
                        variant="small">
   </ld-tag-autocomplete>
   <button data-confirm
           type="submit"
           name="bulk_execute"
           class="btn btn-link btn-sm">
-    <span>Execute</span>
+    <span>{% translate "Execute" %}</span>
   </button>
   <label class="form-checkbox select-across d-none">
     <input type="checkbox" name="bulk_select_across">
     <i class="form-icon"></i>
-    All <span class="total">{{ bookmark_list.bookmarks_total }}</span> bookmarks
+    {% blocktranslate trimmed with total=bookmark_list.bookmarks_total %}
+      All <span class="total">{{ total }}</span> bookmarks
+    {% endblocktranslate %}
   </label>
 </div>
 {% endhtmlmin %}

@@ -2,6 +2,7 @@ import { html, render } from "lit";
 import { Modal } from "./modal.js";
 import { HeadlessElement } from "../utils/element.js";
 import { isKeyboardActive } from "../utils/focus.js";
+import { translate } from "../utils/i18n.js";
 
 class FilterDrawerTrigger extends HeadlessElement {
   init() {
@@ -27,10 +28,10 @@ class FilterDrawer extends Modal {
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-container" role="dialog" aria-modal="true">
           <div class="modal-header">
-            <h2>Filters</h2>
+            <h2>${translate("i18nFilters", "Filters")}</h2>
             <button
               class="btn btn-noborder close"
-              aria-label="Close dialog"
+              aria-label="${translate("i18nCloseDialog", "Close dialog")}"
               data-close-modal
             >
               <svg

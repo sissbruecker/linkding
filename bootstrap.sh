@@ -13,6 +13,14 @@ mkdir -p data/previews
 # Create assets folder if it does not exist
 mkdir -p data/assets
 
+# Compile translations that were added to the data folder, see docs/translations
+for po_file in data/locale/*/LC_MESSAGES/django.po; do
+  [ -f "$po_file" ] || continue
+  if ! msgfmt --check -o "${po_file%.po}.mo" "$po_file"; then
+    echo "Could not compile translation $po_file, skipping"
+  fi
+done
+
 # Generate secret key file if it does not exist
 python manage.py generate_secret_key
 # Run database migration

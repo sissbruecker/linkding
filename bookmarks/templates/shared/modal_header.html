@@ -1,9 +1,9 @@
-{% load static %}
+{% load static i18n %}
 <div class="modal-header">
   <h2 class="title">{{ title }}</h2>
   <button type="button"
           class="btn btn-noborder close"
-          aria-label="Close dialog"
+          aria-label="{% translate 'Close dialog' %}"
           data-close-modal>
     <svg width="24" height="24">
       <use href="{% static 'icons.svg' %}?v={{ app_version }}#close"></use>

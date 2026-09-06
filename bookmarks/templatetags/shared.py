@@ -6,6 +6,7 @@ from bleach.linkifier import DEFAULT_CALLBACKS, Linker
 from bleach_allowlist import markdown_attrs, markdown_tags
 from django import template
 from django.forms.models import model_to_dict
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from bookmarks import utils
@@ -129,8 +130,8 @@ def append_attr(widget, attr, value):
 
 @register.simple_tag
 def formlabel(field, label_text):
-    return mark_safe(
-        f'<label for="{field.id_for_label}" class="form-label">{label_text}</label>'
+    return format_html(
+        '<label for="{}" class="form-label">{}</label>', field.id_for_label, label_text
     )
 
 

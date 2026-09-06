@@ -1,21 +1,21 @@
 {% extends "shared/layout.html" %}
-{% load shared static pagination %}
+{% load shared static pagination i18n %}
 {% block head %}
-  {% with page_title="Tags - Linkding" %}{{ block.super }}{% endwith %}
+  {% with page_title=_("Tags - Linkding") %}{{ block.super }}{% endwith %}
 {% endblock %}
 {% block content %}
   <div class="tags-page crud-page">
     <turbo-frame id="tag-main">
     <main aria-labelledby="main-heading">
       <div class="crud-header">
-        <h1 id="main-heading">Tags</h1>
+        <h1 id="main-heading">{% translate "Tags" %}</h1>
         <div class="d-flex gap-2 ml-auto">
           <a href="{% url 'linkding:tags.new' %}"
              data-turbo-frame="tag-modal"
-             class="btn">Create Tag</a>
+             class="btn">{% translate "Create Tag" %}</a>
           <a href="{% url 'linkding:tags.merge' %}"
              data-turbo-frame="tag-modal"
-             class="btn">Merge Tags</a>
+             class="btn">{% translate "Merge Tags" %}</a>
         </div>
       </div>
       {% include 'shared/messages.html' %}
@@ -24,19 +24,19 @@
         <ld-form data-form-reset>
           <form method="get" class="mb-2" data-turbo-frame="_top">
             <div class="form-group">
-              <label class="form-label text-assistive" for="search">Search tags</label>
+              <label class="form-label text-assistive" for="search">{% translate "Search tags" %}</label>
               <div class="input-group">
                 <input type="text"
                        id="search"
                        name="search"
                        value="{{ search }}"
-                       placeholder="Search tags..."
+                       placeholder="{% translate 'Search tags...' %}"
                        class="form-input">
-                <button type="submit" class="btn input-group-btn">Search</button>
+                <button type="submit" class="btn input-group-btn">{% translate "Search" %}</button>
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label text-assistive" for="sort">Sort by</label>
+              <label class="form-label text-assistive" for="sort">{% translate "Sort by" %}</label>
               <div class="input-group">
                 <span class="input-group-addon text-secondary">
                   <svg width="20" height="20">
@@ -44,10 +44,10 @@
                   </svg>
                 </span>
                 <select id="sort" name="sort" class="form-select" data-submit-on-change>
-                  <option value="name-asc" {% if sort == "name-asc" %}selected{% endif %}>Name A-Z</option>
-                  <option value="name-desc" {% if sort == "name-desc" %}selected{% endif %}>Name Z-A</option>
-                  <option value="count-asc" {% if sort == "count-asc" %}selected{% endif %}>Fewest bookmarks</option>
-                  <option value="count-desc" {% if sort == "count-desc" %}selected{% endif %}>Most bookmarks</option>
+                  <option value="name-asc" {% if sort == "name-asc" %}selected{% endif %}>{% translate "Name A-Z" %}</option>
+                  <option value="name-desc" {% if sort == "name-desc" %}selected{% endif %}>{% translate "Name Z-A" %}</option>
+                  <option value="count-asc" {% if sort == "count-asc" %}selected{% endif %}>{% translate "Fewest bookmarks" %}</option>
+                  <option value="count-desc" {% if sort == "count-desc" %}selected{% endif %}>{% translate "Most bookmarks" %}</option>
                 </select>
               </div>
             </div>
@@ -58,7 +58,7 @@
                        value="true"
                        {% if unused_only %}checked{% endif %}
                        data-submit-on-change>
-                <i class="form-icon"></i> Show only unused tags
+                <i class="form-icon"></i> {% translate "Show only unused tags" %}
               </label>
             </div>
           </form>
@@ -66,9 +66,13 @@
         {# Tags count #}
         <p class="text-secondary text-small m-0">
           {% if search or unused_only %}
-            Showing {{ page.paginator.count }} of {{ total_tags }} tags
+            {% blocktranslate trimmed with count=page.paginator.count %}
+              Showing {{ count }} of {{ total_tags }} tags
+            {% endblocktranslate %}
           {% else %}
-            {{ total_tags }} tags total
+            {% blocktranslate trimmed %}
+              {{ total_tags }} tags total
+            {% endblocktranslate %}
           {% endif %}
         </p>
       </div>
@@ -79,10 +83,10 @@
           <table class="table crud-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th style="width: 25%">Bookmarks</th>
+                <th>{% translate "Name" %}</th>
+                <th style="width: 25%">{% translate "Bookmarks" %}</th>
                 <th class="actions">
-                  <span class="text-assistive">Actions</span>
+                  <span class="text-assistive">{% translate "Actions" %}</span>
                 </th>
               </tr>
             </thead>
@@ -100,12 +104,12 @@
                   <td class="actions">
                     <a class="btn btn-link"
                        href="{% url 'linkding:tags.edit' tag.id %}?{{ request.GET.urlencode }}"
-                       data-turbo-frame="tag-modal">Edit</a>
+                       data-turbo-frame="tag-modal">{% translate "Edit" %}</a>
                     <button type="submit"
                             name="delete_tag"
                             value="{{ tag.id }}"
                             class="btn btn-link text-error"
-                            data-confirm>Remove</button>
+                            data-confirm>{% translate "Remove" %}</button>
                   </td>
                 </tr>
               {% endfor %}
@@ -116,11 +120,11 @@
       {% else %}
         <div class="empty">
           {% if search or unused_only %}
-            <p class="empty-title h5">No tags found</p>
-            <p class="empty-subtitle">Try adjusting your search or filters</p>
+            <p class="empty-title h5">{% translate "No tags found" %}</p>
+            <p class="empty-subtitle">{% translate "Try adjusting your search or filters" %}</p>
           {% else %}
-            <p class="empty-title h5">You have no tags yet</p>
-            <p class="empty-subtitle">Tags will appear here when you add bookmarks with tags</p>
+            <p class="empty-title h5">{% translate "You have no tags yet" %}</p>
+            <p class="empty-subtitle">{% translate "Tags will appear here when you add bookmarks with tags" %}</p>
           {% endif %}
         </div>
       {% endif %}
