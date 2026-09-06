@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.middleware import RemoteUserMiddleware
+from django.utils import translation
 
 from bookmarks.models import GlobalSettings, UserProfile
 
@@ -39,3 +40,22 @@ class LinkdingMiddleware:
         response = self.get_response(request)
 
         return response
+
+
+class UserLanguageMiddleware:
+    """
+    Activates the language chosen in the user profile. Must run after Django's
+    LocaleMiddleware, which handles the browser language, and after
+    LinkdingMiddleware, which provides request.user_profile.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        language = getattr(request.user_profile, "language", "")
+        if language and language in dict(settings.LANGUAGES):
+            translation.activate(language)
+            request.LANGUAGE_CODE = translation.get_language()
+
+        return self.get_response(request)

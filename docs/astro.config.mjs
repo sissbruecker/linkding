@@ -39,6 +39,7 @@ export default defineConfig({
             { label: "Troubleshooting", slug: "troubleshooting" },
             { label: "Admin", slug: "admin" },
             { label: "REST API", slug: "api" },
+            { label: "Translations", slug: "translations" },
           ],
         },
         {

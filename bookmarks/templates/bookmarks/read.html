@@ -1,9 +1,9 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
 <html lang="en" class="reader-mode">
   <head>
     <meta charset="UTF-8">
-    <title>Reader view</title>
+    <title>{% translate "Reader view" %}</title>
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimal-ui">
     {# Include specific theme variant based on user profile setting #}
@@ -44,6 +44,7 @@
     <template id="content">{{ content|safe }}</template>
     <script src="{% static 'vendor/Readability.js' %}"
             type="application/javascript"></script>
+    {% translate 'minutes' as minutes_label %}
     <script type="application/javascript">
       function estimateReadingTime(charCount, wordsPerMinute) {
         const avgWordLength = 5;
@@ -85,7 +86,7 @@
           const maxTime = estimateReadingTime(article.length, 175);
 
           const articleReadingTime = document.createElement('p');
-          articleReadingTime.textContent = `${minTime}-${maxTime} minutes`;
+          articleReadingTime.textContent = `${minTime}-${maxTime} {{ minutes_label|escapejs }}`;
           articleReadingTime.classList.add('reading-time');
           container.append(articleReadingTime);
         }

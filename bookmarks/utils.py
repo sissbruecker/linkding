@@ -7,8 +7,8 @@ from dataclasses import dataclass
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.template.defaultfilters import pluralize
 from django.utils import formats, timezone
+from django.utils.translation import gettext, gettext_lazy, ngettext
 
 try:
     with open("version.txt") as f:
@@ -23,13 +23,13 @@ def unique(elements, key):
 
 
 weekday_names = {
-    1: "Monday",
-    2: "Tuesday",
-    3: "Wednesday",
-    4: "Thursday",
-    5: "Friday",
-    6: "Saturday",
-    7: "Sunday",
+    1: gettext_lazy("Monday"),
+    2: gettext_lazy("Tuesday"),
+    3: gettext_lazy("Wednesday"),
+    4: gettext_lazy("Thursday"),
+    5: gettext_lazy("Friday"),
+    6: gettext_lazy("Saturday"),
+    7: gettext_lazy("Sunday"),
 }
 
 
@@ -73,9 +73,9 @@ def humanize_absolute_date(
     if is_older_than_a_week:
         return formats.date_format(value, "SHORT_DATE_FORMAT")
     elif value.day == now.day:
-        return "Today"
+        return gettext("Today")
     elif value.day == yesterday.day:
-        return "Yesterday"
+        return gettext("Yesterday")
     else:
         return weekday_names[value.isoweekday()]
 
@@ -88,17 +88,23 @@ def humanize_relative_date(
     delta = _calculate_date_delta(now, value)
 
     if delta.years > 0:
-        return f"{delta.years} year{pluralize(delta.years)} ago"
+        return ngettext("%(count)d year ago", "%(count)d years ago", delta.years) % {
+            "count": delta.years
+        }
     elif delta.months > 0:
-        return f"{delta.months} month{pluralize(delta.months)} ago"
+        return ngettext("%(count)d month ago", "%(count)d months ago", delta.months) % {
+            "count": delta.months
+        }
     elif delta.weeks > 0:
-        return f"{delta.weeks} week{pluralize(delta.weeks)} ago"
+        return ngettext("%(count)d week ago", "%(count)d weeks ago", delta.weeks) % {
+            "count": delta.weeks
+        }
     else:
         yesterday = now - datetime.timedelta(days=1)
         if value.day == now.day:
-            return "Today"
+            return gettext("Today")
         elif value.day == yesterday.day:
-            return "Yesterday"
+            return gettext("Yesterday")
         else:
             return weekday_names[value.isoweekday()]
 

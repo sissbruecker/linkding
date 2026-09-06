@@ -14,6 +14,8 @@ import json
 import os
 import shlex
 
+from bookmarks.i18n import discover_extra_languages
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -62,6 +64,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    "bookmarks.middlewares.UserLanguageMiddleware",
 ]
 
 ROOT_URLCONF = "bookmarks.urls"
@@ -125,6 +128,19 @@ SESSION_COOKIE_NAME = "ld_sessionid"
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
+
+# Translations in the data folder take precedence over the ones bundled with
+# the application, and additional languages found there are added to LANGUAGES
+LOCALE_PATHS = [os.path.join(BASE_DIR, "data", "locale")]
+
+LANGUAGES = [
+    ("en", "English"),
+    ("de", "Deutsch"),
+    ("es", "Español"),
+]
+LANGUAGES += discover_extra_languages(
+    LOCALE_PATHS[0], [code for code, name in LANGUAGES]
+)
 
 TIME_ZONE = os.getenv("TZ", "UTC")
 

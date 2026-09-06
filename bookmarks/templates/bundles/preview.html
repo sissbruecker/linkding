@@ -1,8 +1,13 @@
+{% load i18n %}
 <turbo-frame id="preview">
 {% if bookmark_list.is_empty %}
-  <div>No bookmarks match the current bundle.</div>
+  <div>{% translate "No bookmarks match the current bundle." %}</div>
 {% else %}
-  <div class="mb-4">Found {{ bookmark_list.bookmarks_total }} bookmarks matching this bundle.</div>
+  <div class="mb-4">
+    {% blocktranslate trimmed with total=bookmark_list.bookmarks_total %}
+      Found {{ total }} bookmarks matching this bundle.
+    {% endblocktranslate %}
+  </div>
   {% with pagination_frame="preview" %}
     {% include 'bookmarks/bookmark_list.html' %}
   {% endwith %}

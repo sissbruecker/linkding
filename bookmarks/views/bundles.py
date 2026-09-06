@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from bookmarks.forms import BookmarkBundleForm
 from bookmarks.models import BookmarkBundle, BookmarkSearch
@@ -26,7 +27,10 @@ def action(request: HttpRequest):
         bundle = access.bundle_write(request, remove_bundle_id)
         bundle_name = bundle.name
         bundles.delete_bundle(bundle)
-        messages.success(request, f"Bundle '{bundle_name}' removed successfully.")
+        messages.success(
+            request,
+            _("Bundle '%(name)s' removed successfully.") % {"name": bundle_name},
+        )
 
     elif "move_bundle" in request.POST:
         bundle_id = request.POST.get("move_bundle")
@@ -61,7 +65,7 @@ def _handle_edit(request: HttpRequest, template: str, bundle: BookmarkBundle = N
         else:
             instance.save()
 
-        messages.success(request, "Bundle saved successfully.")
+        messages.success(request, _("Bundle saved successfully."))
         return HttpResponseRedirect(reverse("linkding:bundles.index"))
 
     status = 422 if request.method == "POST" and not form.is_valid() else 200

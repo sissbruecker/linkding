@@ -1,12 +1,13 @@
 {% extends "admin/base_site.html" %}
+{% load i18n %}
 {% block content %}
   <table style="width: 100%">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Args</th>
-        <th>Retries</th>
+        <th>{% translate "ID" %}</th>
+        <th>{% translate "Name" %}</th>
+        <th>{% translate "Args" %}</th>
+        <th>{% translate "Retries" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -33,6 +34,6 @@
       {% endfor %}
       &nbsp;
     {% endif %}
-    {{ page.paginator.count }} tasks
+    {% blocktranslate count counter=page.paginator.count %}{{ counter }} task{% plural %}{{ counter }} tasks{% endblocktranslate %}
   </p>
 {% endblock %}
