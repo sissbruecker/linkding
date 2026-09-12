@@ -239,6 +239,39 @@ class SearchQueryTokenizerTest(TestCase):
         self.assertEqual(tokens[0].value, "machine-learning")
         self.assertEqual(tokens[1].type, TokenType.EOF)
 
+    def test_tags_with_parentheses_in_name(self):
+        # Parentheses are allowed as part of the tag name itself
+        tokenizer = SearchQueryTokenizer("#hello(world)")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TAG)
+        self.assertEqual(tokens[0].value, "hello(world)")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+        # Nested parentheses in the tag name balance out correctly
+        tokenizer = SearchQueryTokenizer("#a(b(c))")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(tokens[0].type, TokenType.TAG)
+        self.assertEqual(tokens[0].value, "a(b(c))")
+
+        # A tag immediately followed by a grouping ")" still terminates
+        # correctly, so grouping parentheses around tags keep working
+        tokenizer = SearchQueryTokenizer("(#frontend or #backend)")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(
+            [t.type for t in tokens],
+            [
+                TokenType.LPAREN,
+                TokenType.TAG,
+                TokenType.OR,
+                TokenType.TAG,
+                TokenType.RPAREN,
+                TokenType.EOF,
+            ],
+        )
+        self.assertEqual(tokens[1].value, "frontend")
+        self.assertEqual(tokens[3].value, "backend")
+
     def test_tags_with_operators(self):
         tokenizer = SearchQueryTokenizer("#python and #django")
         tokens = tokenizer.tokenize()
@@ -565,6 +598,11 @@ class SearchQueryParserTest(TestCase):
     def test_tags_with_parentheses(self):
         result = parse_search_query("(#frontend or #backend) and javascript")
         expected = _and(_or(_tag("frontend"), _tag("backend")), _term("javascript"))
+        self.assertEqual(result, expected)
+
+    def test_tag_with_parentheses_in_name(self):
+        result = parse_search_query("#hello(world)")
+        expected = _tag("hello(world)")
         self.assertEqual(result, expected)
 
     def test_empty_tags_ignored(self):
