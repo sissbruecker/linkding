@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "bookmarks.middlewares.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -246,6 +247,9 @@ if LD_ENABLE_AUTH_PROXY:
 trusted_origins = os.getenv("LD_CSRF_TRUSTED_ORIGINS", "")
 if trusted_origins:
     CSRF_TRUSTED_ORIGINS = trusted_origins.split(",")
+
+# CORS allowed origins for the API, comma-separated
+LD_CORS_ALLOWED_ORIGINS = os.getenv("LD_CORS_ALLOWED_ORIGINS", "")
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
