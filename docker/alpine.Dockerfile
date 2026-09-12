@@ -2,7 +2,7 @@
 FROM --platform=$BUILDPLATFORM node:22-alpine AS node-build
 WORKDIR /etc/linkding
 # install build dependencies
-COPY rollup.config.mjs postcss.config.js package.json package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm ci
 # copy files needed for JS build
 COPY bookmarks/frontend ./bookmarks/frontend

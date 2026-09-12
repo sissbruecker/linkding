@@ -2,26 +2,18 @@
   "name": "linkding",
   "scripts": {
     "build": "npm run build-js && npm run build-theme-light && npm run build-theme-dark",
-    "build-js": "rollup -c",
-    "build-theme-light": "postcss -o bookmarks/static/theme-light.css bookmarks/styles/theme-light.css",
-    "build-theme-dark": "postcss -o bookmarks/static/theme-dark.css bookmarks/styles/theme-dark.css",
-    "dev": "rollup -c -w"
+    "build-js": "esbuild bookmarks/frontend/index.js --bundle --minify --sourcemap --format=iife --outfile=bookmarks/static/bundle.js",
+    "build-theme-light": "esbuild bookmarks/styles/theme-light.css --bundle --minify --external:*.svg --target=chrome109,firefox115,safari16 --outfile=bookmarks/static/theme-light.css",
+    "build-theme-dark": "esbuild bookmarks/styles/theme-dark.css --bundle --minify --external:*.svg --target=chrome109,firefox115,safari16 --outfile=bookmarks/static/theme-dark.css",
+    "dev": "esbuild bookmarks/frontend/dev.js --bundle --sourcemap --format=iife --outfile=bookmarks/static/bundle.js --watch"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.4",
     "@hotwired/turbo": "^8.0.21",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-terser": "^1.0.0",
-    "@rollup/wasm-node": "^4.13.0",
-    "cssnano": "^7.0.6",
-    "lit": "^3.3.1",
-    "postcss": "^8.5.25",
-    "postcss-cli": "^11.0.0",
-    "postcss-import": "^16.1.0",
-    "postcss-nesting": "^13.0.0"
+    "esbuild": "^0.28.2",
+    "lit": "^3.3.1"
   },
   "devDependencies": {
     "prettier": "^3.3.3"
-  },
-  "web-types": "./web-types.json"
+  }
 }
