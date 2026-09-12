@@ -238,6 +238,21 @@ Values: `Integer` as seconds | Default = `1209600`
 
 Set the lifetime of the session cookie, in seconds. This value determines how long a browser will stay logged in to the web interface. The default value is 2 weeks.
 
+### `LD_CORS_ALLOWED_ORIGINS`
+
+Values: `String` | Default = None
+
+Comma-separated list of origins that are allowed to call the REST API from a browser, for example when running an alternative web frontend on a different domain.
+Setting this option enables CORS headers for the API endpoints (`/api/*`) only. No other part of the application is affected.
+
+For example, to allow a frontend hosted at https://frontend.mydomain.com, configure the setting to `https://frontend.mydomain.com`.
+Note that origins **must** include the correct protocol (`https` or `http`), and **must not** include a path, query string, fragment or user credentials.
+Origins are compared exactly as sent by the browser, so use lowercase and omit default ports (`:80` and `:443`).
+Multiple origins can be specified by separating them with a comma (`,`). Wildcards (`*`) are not supported, each origin must be listed explicitly.
+
+Cross-origin requests must authenticate using an API token in the `Authorization` header.
+If you need more control over CORS headers, configure them in your reverse proxy instead.
+
 ### `LD_CSRF_TRUSTED_ORIGINS`
 
 Values: `String` | Default = None
