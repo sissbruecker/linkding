@@ -1,3 +1,4 @@
+import base64
 import re
 
 import bleach
@@ -59,6 +60,12 @@ def humanize_relative_date(value):
     if value in (None, ""):
         return ""
     return utils.humanize_relative_date(value)
+
+
+@register.filter(name="css_data_url")
+def css_data_url(css):
+    encoded = base64.b64encode(css.encode("utf-8")).decode("ascii")
+    return f"data:text/css;charset=utf-8;base64,{encoded}"
 
 
 @register.filter(name="model_to_dict")

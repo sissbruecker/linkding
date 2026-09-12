@@ -1,4 +1,5 @@
 {% load static %}
+{% load shared %}
 <!DOCTYPE html>
 <html lang="en" class="reader-mode">
   <head>
@@ -34,8 +35,9 @@
             media="(prefers-color-scheme: light)"
             content="#5856e0">
     {% endif %}
+    {# The page is sandboxed, so requests to the custom CSS view would not include credentials. Embed the CSS as data URL instead. #}
     {% if request.user_profile.custom_css %}
-      <link href="{% url 'linkding:custom_css' %}?hash={{ request.user_profile.custom_css_hash }}"
+      <link href="{{ request.user_profile.custom_css|css_data_url }}"
             rel="stylesheet"
             type="text/css" />
     {% endif %}
