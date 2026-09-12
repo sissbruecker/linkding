@@ -1,5 +1,7 @@
+import base64
 import os
 
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
@@ -159,6 +161,48 @@ class BookmarkAssetViewTestCase(TestCase, BookmarkFactoryMixin):
         response = self.client.get(reverse("linkding:assets.read", args=[asset.id]))
 
         self.assertEqual(response["Content-Security-Policy"], "sandbox allow-scripts")
+
+    def test_reader_view_without_custom_css(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset_with_file(bookmark)
+        response = self.client.get(reverse("linkding:assets.read", args=[asset.id]))
+
+        soup = BeautifulSoup(response.content, "html.parser")
+        link = soup.select_one("link[rel='stylesheet'][href^='data:text/css']")
+        self.assertIsNone(link)
+
+    def test_reader_view_with_custom_css(self):
+        # The reader view is sandboxed, so requests to the custom CSS view
+        # would not include credentials. Custom CSS is embedded as data URL instead.
+        css = "body { background-color: red; }"
+        profile = self.get_or_create_test_user().profile
+        profile.custom_css = css
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset_with_file(bookmark)
+        response = self.client.get(reverse("linkding:assets.read", args=[asset.id]))
+
+        soup = BeautifulSoup(response.content, "html.parser")
+        link = soup.select_one("link[rel='stylesheet'][href^='data:text/css']")
+        self.assertIsNotNone(link)
+        encoded = base64.b64encode(css.encode("utf-8")).decode("ascii")
+        self.assertEqual(link["href"], f"data:text/css;charset=utf-8;base64,{encoded}")
+        self.assertNotIn(reverse("linkding:custom_css"), response.content.decode())
+
+    def test_reader_view_custom_css_can_not_inject_html(self):
+        css = "</style><script>alert('xss')</script><style>"
+        profile = self.get_or_create_test_user().profile
+        profile.custom_css = css
+        profile.save()
+
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset_with_file(bookmark)
+        response = self.client.get(reverse("linkding:assets.read", args=[asset.id]))
+
+        html = response.content.decode()
+        self.assertNotIn("alert('xss')", html)
+        self.assertNotIn("</style>", html)
 
     def test_uploaded_file_download_headers(self):
         bookmark = self.setup_bookmark()
