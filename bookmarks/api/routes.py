@@ -1,9 +1,7 @@
-import gzip
 import logging
-import os
 
 from django.conf import settings
-from django.http import Http404, StreamingHttpResponse
+from django.http import Http404
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -192,14 +190,7 @@ class BookmarkAssetViewSet(
     def download(self, request: HttpRequest, bookmark_id, pk):
         asset = self.get_object()
         try:
-            file_path = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
-            content_type = asset.content_type
-            file_stream = (
-                gzip.GzipFile(file_path, mode="rb")
-                if asset.gzip
-                else open(file_path, "rb")  # noqa: SIM115
-            )
-            response = StreamingHttpResponse(file_stream, content_type=content_type)
+            response = assets.stream_asset_file(asset)
             response["Content-Disposition"] = (
                 f'attachment; filename="{asset.download_name}"'
             )
