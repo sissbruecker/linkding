@@ -1,5 +1,7 @@
 .PHONY: serve
 
+BIND ?= 127.0.0.1:8000
+
 init:
 	uv sync
 	[ -d data ] || mkdir data data/assets data/favicons data/previews
@@ -7,7 +9,7 @@ init:
 	npm install
 
 serve:
-	uv run manage.py runserver
+	uv run manage.py runserver $(BIND)
 
 tasks:
 	uv run manage.py run_huey -f
