@@ -274,6 +274,95 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         asset.refresh_from_db()
         self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
 
+    def test_open_asset_file(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark, file="plain.html")
+        self.setup_asset_file(asset, "<p>plain content</p>")
+
+        with assets.open_asset_file(asset) as file:
+            self.assertEqual(file.read(), b"<p>plain content</p>")
+
+    def test_open_asset_file_gzip(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark, file="gzipped.html.gz", gzip=True)
+        self.setup_asset_file(asset, "<p>gzipped content</p>")
+
+        with assets.open_asset_file(asset) as file:
+            self.assertEqual(file.read(), b"<p>gzipped content</p>")
+
+    def test_open_asset_file_missing_file(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark, file="missing.html")
+
+        with self.assertRaises(FileNotFoundError):
+            assets.open_asset_file(asset)
+
+    def test_stream_asset_file(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(
+            bookmark=bookmark, file="plain.html", content_type="text/html"
+        )
+        self.setup_asset_file(asset, "<p>plain content</p>")
+
+        response = assets.stream_asset_file(asset)
+
+        self.assertTrue(response.streaming)
+        self.assertEqual(response["Content-Type"], "text/html")
+        self.assertEqual(b"".join(response.streaming_content), b"<p>plain content</p>")
+
+    def test_stream_asset_file_in_chunks(self):
+        # Iterating a file object yields lines, which would load a file without
+        # newlines into memory as a whole. Verify content is streamed in chunks.
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark, file="plain.bin")
+        content = "\0" * (assets.STREAM_CHUNK_SIZE * 5)
+        self.setup_asset_file(asset, content)
+
+        response = assets.stream_asset_file(asset)
+
+        chunks = list(response.streaming_content)
+        self.assertGreater(len(chunks), 1)
+        self.assertLessEqual(
+            max(len(chunk) for chunk in chunks), assets.STREAM_CHUNK_SIZE
+        )
+        self.assertEqual(b"".join(chunks), content.encode())
+
+    def test_stream_asset_file_gzip_in_chunks(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark, file="gzipped.bin.gz", gzip=True)
+        content = "\0" * (assets.STREAM_CHUNK_SIZE * 5)
+        self.setup_asset_file(asset, content)
+
+        response = assets.stream_asset_file(asset)
+
+        chunks = list(response.streaming_content)
+        self.assertGreater(len(chunks), 1)
+        self.assertLessEqual(
+            max(len(chunk) for chunk in chunks), assets.STREAM_CHUNK_SIZE
+        )
+        self.assertEqual(b"".join(chunks), content.encode())
+
+    def test_stream_asset_file_closes_file_with_response(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark, file="plain.html")
+        self.setup_asset_file(asset, "<p>plain content</p>")
+        file = assets.open_asset_file(asset)
+
+        with mock.patch.object(assets, "open_asset_file", return_value=file):
+            response = assets.stream_asset_file(asset)
+        list(response.streaming_content)
+        self.assertFalse(file.closed)
+
+        response.close()
+        self.assertTrue(file.closed)
+
+    def test_stream_asset_file_missing_file(self):
+        bookmark = self.setup_bookmark()
+        asset = self.setup_asset(bookmark=bookmark, file="missing.html")
+
+        with self.assertRaises(FileNotFoundError):
+            assets.stream_asset_file(asset)
+
     def test_upload_snapshot(self):
         initial_modified = timezone.datetime(2025, 1, 1, 0, 0, 0, tzinfo=datetime.UTC)
         bookmark = self.setup_bookmark(

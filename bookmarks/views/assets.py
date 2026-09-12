@@ -1,37 +1,17 @@
-import gzip
-import os
-
-from django.conf import settings
-from django.http import (
-    Http404,
-    HttpResponse,
-)
+from django.http import Http404
 from django.shortcuts import render
 
+from bookmarks.services import assets
 from bookmarks.views import access
-
-
-def _get_asset_content(asset):
-    filepath = os.path.join(settings.LD_ASSET_FOLDER, asset.file)
-
-    if not os.path.exists(filepath):
-        raise Http404("Asset file does not exist")
-
-    if asset.gzip:
-        with gzip.open(filepath, "rb") as f:
-            content = f.read()
-    else:
-        with open(filepath, "rb") as f:
-            content = f.read()
-
-    return content
 
 
 def view(request, asset_id: int):
     asset = access.asset_read(request, asset_id)
-    content = _get_asset_content(asset)
+    try:
+        response = assets.stream_asset_file(asset)
+    except FileNotFoundError:
+        raise Http404("Asset file does not exist") from None
 
-    response = HttpResponse(content, content_type=asset.content_type)
     response["Content-Disposition"] = f'inline; filename="{asset.download_name}"'
     if asset.content_type and asset.content_type.startswith("video/"):
         response["Content-Security-Policy"] = "default-src 'none'; media-src 'self';"
@@ -44,8 +24,11 @@ def view(request, asset_id: int):
 
 def read(request, asset_id: int):
     asset = access.asset_read(request, asset_id)
-    content = _get_asset_content(asset)
-    content = content.decode("utf-8")
+    try:
+        with assets.open_asset_file(asset) as file:
+            content = file.read().decode("utf-8")
+    except FileNotFoundError:
+        raise Http404("Asset file does not exist") from None
 
     response = render(
         request,
