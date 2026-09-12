@@ -10,7 +10,7 @@ serve:
 	uv run manage.py runserver
 
 tasks:
-	uv run manage.py run_huey
+	uv run manage.py run_huey -f
 
 test:
 	uv run pytest -n auto

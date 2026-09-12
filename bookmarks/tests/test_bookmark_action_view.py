@@ -169,7 +169,7 @@ class BookmarkActionViewTestCase(
     @override_settings(LD_ENABLE_SNAPSHOTS=True)
     def test_create_html_snapshot(self):
         bookmark = self.setup_bookmark()
-        with patch.object(tasks, "_create_html_snapshot_task"):
+        with patch.object(tasks, "_process_html_snapshots_task"):
             self.client.post(
                 reverse("linkding:bookmarks.index.action"),
                 {
@@ -184,7 +184,7 @@ class BookmarkActionViewTestCase(
     def test_can_only_create_html_snapshot_for_own_bookmarks(self):
         other_user = self.setup_user()
         bookmark = self.setup_bookmark(user=other_user)
-        with patch.object(tasks, "_create_html_snapshot_task"):
+        with patch.object(tasks, "_process_html_snapshots_task"):
             response = self.client.post(
                 reverse("linkding:bookmarks.index.action"),
                 {
