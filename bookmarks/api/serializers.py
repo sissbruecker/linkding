@@ -203,6 +203,12 @@ class TagSerializer(serializers.ModelSerializer):
         return get_or_create_tag(validated_data["name"], self.context["user"])
 
 
+class TagMergeSerializer(serializers.Serializer):
+    merge_tag_ids = serializers.ListField(
+        child=serializers.IntegerField(), allow_empty=False
+    )
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
