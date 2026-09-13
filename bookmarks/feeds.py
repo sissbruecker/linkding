@@ -116,8 +116,15 @@ class SharedBookmarksFeed(BaseBookmarksFeed):
 
 
 class PublicSharedBookmarksFeed(BaseBookmarksFeed):
-    title = "Public shared bookmarks"
     description = "All public shared bookmarks"
+
+    def title(self, context: FeedContext):
+        username = context.request.GET.get("user")
+        return (
+            f"Public shared bookmarks ({username})"
+            if username
+            else "Public shared bookmarks"
+        )
 
     def get_object(self, request):
         return super().get_object(request, None)
