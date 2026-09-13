@@ -239,6 +239,33 @@ class SearchQueryTokenizerTest(TestCase):
         self.assertEqual(tokens[0].value, "machine-learning")
         self.assertEqual(tokens[1].type, TokenType.EOF)
 
+    def test_tag_with_parentheses(self):
+        # A tag name may contain balanced parentheses; it must tokenize as a single tag (#1279).
+        tokenizer = SearchQueryTokenizer("#hello(world)")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(len(tokens), 2)
+        self.assertEqual(tokens[0].type, TokenType.TAG)
+        self.assertEqual(tokens[0].value, "hello(world)")
+        self.assertEqual(tokens[1].type, TokenType.EOF)
+
+    def test_grouping_with_tags_still_works(self):
+        # An unbalanced ) after a tag still closes the enclosing group (#1279 regression guard).
+        tokenizer = SearchQueryTokenizer("(#frontend or #backend)")
+        tokens = tokenizer.tokenize()
+        self.assertEqual(
+            [token.type for token in tokens],
+            [
+                TokenType.LPAREN,
+                TokenType.TAG,
+                TokenType.OR,
+                TokenType.TAG,
+                TokenType.RPAREN,
+                TokenType.EOF,
+            ],
+        )
+        self.assertEqual(tokens[1].value, "frontend")
+        self.assertEqual(tokens[3].value, "backend")
+
     def test_tags_with_operators(self):
         tokenizer = SearchQueryTokenizer("#python and #django")
         tokens = tokenizer.tokenize()
