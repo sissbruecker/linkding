@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.47.0 (13/09/2026)
+
+### What's Changed
+* Only schedule snapshot tasks when there are pending snapshots by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1480
+* Add CORS support for the REST API by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1487
+* Add SSRF protection for server-side requests by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1488
+* Avoid reading assets into memory in full when viewing them in the UI by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1482
+* Fix custom CSS not working in sandboxed reader view by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1481
+* Bundle JS and CSS with esbuild by @sissbruecker in https://github.com/sissbruecker/linkding/pull/1483
+
+
+**Full Changelog**: https://github.com/sissbruecker/linkding/compare/v1.46.2...v1.47.0
+
+---
+
 ## v1.46.2 (18/08/2026)
 
 ### What's Changed
