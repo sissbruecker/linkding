@@ -469,6 +469,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "coverage" },
+    { name = "cryptography" },
     { name = "django-debug-toolbar" },
     { name = "djlint" },
     { name = "playwright" },
@@ -501,6 +502,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "coverage", specifier = ">=7.13.1" },
+    { name = "cryptography", specifier = ">=50.0.0" },
     { name = "django-debug-toolbar", specifier = ">=6.1.0" },
     { name = "djlint", specifier = ">=1.36.4" },
     { name = "playwright", specifier = ">=1.62.0" },

@@ -1,5 +1,6 @@
 import datetime
 import gzip
+import ipaddress
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -11,6 +12,7 @@ from django.utils import timezone
 
 from bookmarks.models import BookmarkAsset
 from bookmarks.services import assets
+from bookmarks.services.http_client import BlockedAddressError
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
@@ -172,7 +174,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_detect_content_type.return_value = "application/pdf"
         self.mock_is_pdf_content_type.return_value = True
 
-        with mock.patch("bookmarks.services.assets.requests.get") as mock_get:
+        with mock.patch("bookmarks.services.http_client.get") as mock_get:
             mock_get.return_value = self.create_mock_pdf_response()
             assets.create_snapshot(asset)
 
@@ -223,7 +225,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_detect_content_type.return_value = "application/pdf"
         self.mock_is_pdf_content_type.return_value = True
 
-        with mock.patch("bookmarks.services.assets.requests.get") as mock_get:
+        with mock.patch("bookmarks.services.http_client.get") as mock_get:
             mock_get.return_value = self.create_mock_pdf_response(
                 content_length=1000  # Exceeds 100 byte limit
             )
@@ -245,7 +247,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_detect_content_type.return_value = "application/pdf"
         self.mock_is_pdf_content_type.return_value = True
 
-        with mock.patch("bookmarks.services.assets.requests.get") as mock_get:
+        with mock.patch("bookmarks.services.http_client.get") as mock_get:
             # Response without Content-Length header, will fail during streaming
             mock_get.return_value = self.create_mock_pdf_response(content=large_content)
 
@@ -263,13 +265,35 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_detect_content_type.return_value = "application/pdf"
         self.mock_is_pdf_content_type.return_value = True
 
-        with mock.patch("bookmarks.services.assets.requests.get") as mock_get:
+        with mock.patch("bookmarks.services.http_client.get") as mock_get:
             import requests
 
             mock_get.side_effect = requests.RequestException("Download failed")
 
             with self.assertRaises(requests.RequestException):
                 assets.create_snapshot(asset)
+
+        asset.refresh_from_db()
+        self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
+
+    def test_create_snapshot_fails_for_blocked_address(self):
+        bookmark = self.setup_bookmark(url="http://nas.local")
+        asset = assets.create_snapshot_asset(bookmark)
+        asset.save()
+
+        self.mock_detect_content_type.side_effect = BlockedAddressError(
+            "nas.local", ipaddress.ip_address("192.168.1.20")
+        )
+
+        with (
+            mock.patch("bookmarks.services.http_client.get") as mock_get,
+            self.assertRaises(BlockedAddressError),
+        ):
+            assets.create_snapshot(asset)
+
+        # should neither download a PDF nor create an HTML snapshot
+        mock_get.assert_not_called()
+        self.mock_singlefile_create_snapshot.assert_not_called()
 
         asset.refresh_from_db()
         self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)

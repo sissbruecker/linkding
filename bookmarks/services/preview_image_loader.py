@@ -4,10 +4,9 @@ import mimetypes
 import os.path
 from pathlib import Path
 
-import requests
 from django.conf import settings
 
-from bookmarks.services import website_loader
+from bookmarks.services import http_client, website_loader
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +34,13 @@ def load_preview_image(url: str) -> str | None:
     image_url = metadata.preview_image
 
     logger.debug(f"Loading preview image: {image_url}")
-    with requests.get(image_url, stream=True) as response:
+    try:
+        response = http_client.get(image_url, stream=True, timeout=10)
+    except http_client.BlockedAddressError:
+        # Already logged as warning by http_client
+        return None
+
+    with response:
         if response.status_code < 200 or response.status_code >= 300:
             logger.debug(
                 f"Bad response status code for preview image: {image_url} status_code={response.status_code}"

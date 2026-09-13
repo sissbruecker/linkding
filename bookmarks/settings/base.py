@@ -160,6 +160,12 @@ LD_DISABLE_URL_VALIDATION = os.getenv("LD_DISABLE_URL_VALIDATION", False) in (
     "1",
 )
 
+# Hosts that server-side requests may connect to even though they resolve to
+# non-public addresses (SSRF protection). Comma-separated list of hostnames,
+# IP addresses and CIDR ranges, or * to allow all hosts.
+# Parsed by bookmarks.services.http_client
+LD_ALLOWED_INTERNAL_HOSTS = os.getenv("LD_ALLOWED_INTERNAL_HOSTS", "")
+
 # Background task enabled setting
 LD_DISABLE_BACKGROUND_TASKS = os.getenv("LD_DISABLE_BACKGROUND_TASKS", False) in (
     True,
