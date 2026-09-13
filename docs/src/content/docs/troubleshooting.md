@@ -3,7 +3,7 @@ title: "Troubleshooting"
 description: "Common issues and solutions"
 ---
 
-## Login fails with `403 CSRF verfication failed`
+## Login fails with `403 CSRF verification failed`
 
 This can be the case when using a reverse proxy that rewrites the `Host` header, such as Nginx.
 Since linkding version 1.15, the application includes a CSRF check that verifies that the `Origin` request header matches the `Host` header.
