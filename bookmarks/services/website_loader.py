@@ -3,10 +3,11 @@ from dataclasses import dataclass
 from functools import lru_cache
 from urllib.parse import urljoin
 
-import requests
 from bs4 import BeautifulSoup
 from charset_normalizer import from_bytes
 from django.utils import timezone
+
+from bookmarks.services import http_client
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +100,7 @@ def load_page(url: str):
     content = None
     iteration = 0
     # Use with to ensure request gets closed even if it's only read partially
-    with requests.get(url, timeout=10, headers=headers, stream=True) as r:
+    with http_client.get(url, timeout=10, headers=headers, stream=True) as r:
         for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
             size += len(chunk)
             iteration = iteration + 1
@@ -142,22 +143,30 @@ def fake_request_headers():
 
 
 def detect_content_type(url: str, timeout: int = 10) -> str | None:
-    """Make HEAD request to detect content type of URL. Returns None on failure."""
+    """
+    Make HEAD request to detect content type of URL. Returns None on failure.
+
+    Raises BlockedAddressError if the URL, or any redirect it leads to, points
+    to a non-public address. Callers should not attempt to load the URL by
+    other means in that case.
+    """
     headers = fake_request_headers()
 
     try:
-        response = requests.head(
+        response = http_client.head(
             url, headers=headers, timeout=timeout, allow_redirects=True
         )
         if response.status_code == 200:
             return (
                 response.headers.get("Content-Type", "").split(";")[0].strip().lower()
             )
-    except requests.RequestException:
+    except http_client.BlockedAddressError:
+        raise
+    except http_client.RequestException:
         pass
 
     try:
-        with requests.get(
+        with http_client.get(
             url, headers=headers, timeout=timeout, stream=True, allow_redirects=True
         ) as response:
             if response.status_code == 200:
@@ -167,7 +176,9 @@ def detect_content_type(url: str, timeout: int = 10) -> str | None:
                     .strip()
                     .lower()
                 )
-    except requests.RequestException:
+    except http_client.BlockedAddressError:
+        raise
+    except http_client.RequestException:
         pass
 
     return None

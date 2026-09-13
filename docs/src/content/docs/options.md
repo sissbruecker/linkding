@@ -67,6 +67,28 @@ Values: `True`, `False` | Default = `False`
 Completely disables URL validation for bookmarks.
 This can be useful if you intend to store non fully qualified domain name URLs, such as network paths, or you want to store URLs that use another protocol than `http` or `https`.
 
+### `LD_ALLOWED_INTERNAL_HOSTS`
+
+Values: `String` | Default = None
+
+By default, linkding refuses to load data from URLs that point to hosts on internal networks, such as the server linkding runs on, other Docker containers, hosts on your local network, or cloud provider metadata services.
+This protects against server-side request forgery (SSRF), where a user of a linkding instance could otherwise use it to access services on the internal network that are not reachable from the outside.
+The protection covers loading website metadata (title, description), preview images and PDF snapshots.
+For HTML snapshots, the bookmark URL and any redirects are checked before the snapshot is created, but the browser process that creates the snapshot is not restricted, so it can still load embedded resources from internal hosts.
+
+If you want to bookmark URLs on your local network and have linkding load metadata for them, you can allow specific hosts with this option.
+The value is a comma-separated list of hostnames, IP addresses, or IP ranges in CIDR notation.
+A hostname starting with a dot allows the domain and all of its subdomains.
+Use `*` to disable the protection completely and allow all hosts.
+
+Examples:
+- `nas.local,192.168.1.20` - allow a specific host by name and another one by IP address
+- `192.168.1.0/24,.home.arpa` - allow a whole IP range and all hosts under a domain
+- `*` - allow all hosts
+
+Blocked requests are logged as warnings.
+Note that configuring an HTTP proxy for linkding through the `HTTP_PROXY` / `HTTPS_PROXY` environment variables circumvents this protection, as all connections are then made to the proxy, which in turn connects to the actual host.
+
 ### `LD_REQUEST_MAX_CONTENT_LENGTH`
 
 Values: `Integer` as bytes | Default = `None`

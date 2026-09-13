@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from urllib.parse import urlparse
 
-import requests
+import requests  # noqa: TID251 - fetches the admin-configured favicon provider, not user URLs
 from django.conf import settings
 
 max_file_age = 60 * 60 * 24  # 1 day
@@ -70,6 +70,9 @@ def load_favicon(url: str) -> str:
         # Load favicon from provider, save to file
         favicon_url = settings.LD_FAVICON_PROVIDER.format(**url_parameters)
         logger.debug(f"Loading favicon from: {favicon_url}")
+        # The favicon provider is configured by the admin, not by users, so
+        # this intentionally does not use the SSRF-protected http_client.
+        # This allows using a favicon provider on the local network.
         with requests.get(favicon_url, stream=True) as response:
             content_type = response.headers["Content-Type"]
             file_extension = mimetypes.guess_extension(content_type)

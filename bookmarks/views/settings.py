@@ -2,7 +2,7 @@ import logging
 import time
 from functools import lru_cache
 
-import requests
+import requests  # noqa: TID251 - fetches the fixed GitHub releases URL, not user URLs
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required

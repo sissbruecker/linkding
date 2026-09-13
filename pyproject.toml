@@ -22,6 +22,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "coverage>=7.13.1",
+    "cryptography>=50.0.0",
     "django-debug-toolbar>=6.1.0",
     "djlint>=1.36.4",
     "playwright>=1.62.0",
@@ -70,6 +71,17 @@ select = [
     "SIM",
     # isort
     "I",
+    # flake8-tidy-imports: banned APIs
+    "TID251",
 ]
 # ignore line length violations
 ignore = ["E501"]
+
+# Outbound requests to user-supplied URLs must go through http_client, which
+# protects against SSRF
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"requests".msg = "Use bookmarks.services.http_client instead (SSRF protection)"
+
+[tool.ruff.lint.per-file-ignores]
+"bookmarks/tests/*" = ["TID251"]
+"bookmarks/tests_e2e/*" = ["TID251"]

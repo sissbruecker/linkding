@@ -54,3 +54,11 @@ If you need to store URLs that don't pass the default validation, you can disabl
 Further info:
 - https://github.com/sissbruecker/linkding/issues/206
 - https://code.djangoproject.com/ticket/18517
+
+## No title, description or preview image for URLs on the local network
+
+By default, linkding does not load website metadata, preview images or PDF snapshots for URLs that point to hosts on internal networks, for example `http://nas.local:5000` or `http://192.168.1.20`.
+This is a security measure to prevent users from using linkding to access internal services, see [`LD_ALLOWED_INTERNAL_HOSTS`](/options#ld_allowed_internal_hosts).
+Blocked requests are logged as warnings in the application logs.
+
+If you want linkding to load metadata for such URLs, add the respective hosts to the `LD_ALLOWED_INTERNAL_HOSTS` option, or set it to `*` to allow all hosts.
