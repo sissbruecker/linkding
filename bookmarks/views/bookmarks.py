@@ -26,6 +26,7 @@ from bookmarks.services.bookmarks import (
     delete_bookmarks,
     mark_bookmarks_as_read,
     mark_bookmarks_as_unread,
+    refresh_ai_tags,
     refresh_bookmarks_metadata,
     share_bookmarks,
     tag_bookmarks,
@@ -420,6 +421,8 @@ def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
             return refresh_bookmarks_metadata(bookmark_ids, request.user)
         if bulk_action == "bulk_snapshot":
             return create_html_snapshots(bookmark_ids, request.user)
+        if bulk_action == "bulk_refresh_ai_tags":
+            return refresh_ai_tags(bookmark_ids, request.user)
 
 
 @login_required

@@ -104,6 +104,42 @@ def update_profile(request: HttpRequest):
     favicons_were_enabled = profile.enable_favicons
     previews_were_enabled = profile.enable_preview_images
     form = UserProfileForm(request.POST, instance=profile)
+
+    # Validate API key and base URL if provided
+    if form.is_valid():
+        ai_api_key = form.cleaned_data.get("ai_api_key")
+        ai_base_url = form.cleaned_data.get("ai_base_url")
+        ai_tag_vocabulary = form.cleaned_data.get("ai_tag_vocabulary")
+
+        # Remove duplicate tags and empty lines from tag vocabulary
+        if ai_tag_vocabulary:
+            tags = set(
+                tag.strip() for tag in ai_tag_vocabulary.splitlines() if tag.strip()
+            )
+            form.instance.ai_tag_vocabulary = "\n".join(sorted(tags))
+
+        # Validate base URL format if provided
+        if ai_base_url:
+            from urllib.parse import urlparse
+
+            try:
+                parsed = urlparse(ai_base_url)
+                if not parsed.scheme or not parsed.netloc:
+                    form.add_error(
+                        "ai_base_url",
+                        "Invalid URL format. Must include protocol (http:// or https://) and domain.",
+                    )
+            except Exception:
+                form.add_error("ai_base_url", "Invalid URL format.")
+
+        # Validate API key (skips validation if base_url is provided)
+        if ai_api_key:
+            from bookmarks.services.ai_auto_tagger import validate_api_key
+
+            is_valid, error_msg = validate_api_key(ai_api_key, ai_base_url)
+            if not is_valid:
+                form.add_error("ai_api_key", error_msg)
+
     if form.is_valid():
         form.save()
         messages.success(request, "Profile updated", "settings_success_message")

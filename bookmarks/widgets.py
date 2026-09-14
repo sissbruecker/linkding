@@ -60,6 +60,24 @@ class FormCheckbox(forms.CheckboxInput):
         )
 
 
+class MaskedPasswordInput(forms.PasswordInput):
+    """
+    A password input that shows bullets when there's an existing value.
+    """
+
+    def __init__(self, attrs=None):
+        default_attrs = {"class": "form-input", "autocomplete": "off"}
+        if attrs:
+            default_attrs.update(attrs)
+        # Enable render_value so we can display the masked value
+        super().__init__(attrs=default_attrs, render_value=True)
+
+    def get_context(self, name, value, attrs):
+        if value:
+            value = "••••••••••••••••••••••••"
+        return super().get_context(name, value, attrs)
+
+
 class TagAutocomplete(forms.TextInput):
     def __init__(self, attrs=None):
         super().__init__(attrs)

@@ -149,6 +149,49 @@ reddit.com/r/Music music reddit</pre>
           {% endformhelp %}
         </div>
         <div class="form-group">
+          <details {% if form.ai_api_key.value or form.ai_base_url.value %}open{% endif %}>
+            <summary>
+              <span class="form-label d-inline-block">AI auto-tagging</span>
+            </summary>
+            <div class="form-group">
+              {% formlabel form.ai_api_key "API key" %}
+              {% formfield form.ai_api_key has_help=True %}
+              {{ form.ai_api_key.errors }}
+              {% formhelp form.ai_api_key %}
+                Not required if using a compatible API without authentication.
+              {% endformhelp %}
+            </div>
+            <div class="form-group">
+              {% formlabel form.ai_model "Model name" %}
+              {% formfield form.ai_model has_help=True class="width-50 width-md-100" %}
+              {{ form.ai_model.errors }}
+              {% formhelp form.ai_model %}
+                <strong>Note:</strong> ensure the model you choose supports structured outputs.
+              {% endformhelp %}
+            </div>
+            <div class="form-group">
+              {% formlabel form.ai_base_url "Base URL" %}
+              {% formfield form.ai_base_url has_help=True class="width-50 width-md-100" %}
+              {{ form.ai_base_url.errors }}
+              {% formhelp form.ai_base_url %}
+                Leave blank to use OpenAI. You can use any OpenAI-compatible API, either self-hosted (Ollama: <code>http://localhost:11434/v1</code>) or cloud-based (Perplexity: <code>https://api.perplexity.ai</code>, OpenRouter: <code>https://openrouter.ai/api/v1</code>).
+              {% endformhelp %}
+            </div>
+            <div class="form-group">
+              {% formlabel form.ai_tag_vocabulary "Allowed tags" %}
+              {% formfield form.ai_tag_vocabulary has_help=True class="monospace" rows="8" %}
+              {% formhelp form.ai_tag_vocabulary %}
+                One tag per line. AI will <strong>only</strong> suggest tags from this list.
+                <br>
+                <strong>Note:</strong> large tag lists increase API costs per request. The entire vocabulary is sent with each API call.
+              {% endformhelp %}
+            </div>
+          </details>
+          <div class="form-input-hint">
+            <strong>How it works:</strong> AI auto-tagging runs when you create bookmarks without manually adding tags. Only tags from your allowed list will be suggested. Use bulk "Refresh AI tags" to regenerate tags for existing bookmarks.
+          </div>
+        </div>
+        <div class="form-group">
           {% formfield form.enable_favicons label="Enable Favicons" has_help=True %}
           {% formhelp form.enable_favicons %}
             Automatically loads favicons for bookmarked websites and displays them next to each bookmark.

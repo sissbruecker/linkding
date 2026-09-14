@@ -34,6 +34,7 @@ export default defineConfig({
             { label: "Search", slug: "search" },
             { label: "Archiving", slug: "archiving" },
             { label: "Auto Tagging", slug: "auto-tagging" },
+            { label: "AI auto-tagging", slug: "ai-auto-tagging" },
             { label: "Keyboard Shortcuts", slug: "shortcuts" },
             { label: "How To", slug: "how-to" },
             { label: "Troubleshooting", slug: "troubleshooting" },
