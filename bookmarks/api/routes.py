@@ -11,6 +11,7 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 from bookmarks import queries
 from bookmarks.api.serializers import (
     BookmarkAssetSerializer,
+    BookmarkBulkActionSerializer,
     BookmarkBundleSerializer,
     BookmarkSerializer,
     TagSerializer,
@@ -99,6 +100,34 @@ class BookmarkViewSet(
     def unarchive(self, request: HttpRequest, pk):
         bookmark = self.get_object()
         bookmarks.unarchive_bookmark(bookmark)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        methods=["post"],
+        detail=False,
+        url_path="bulk-archive",
+        serializer_class=BookmarkBulkActionSerializer,
+    )
+    def bulk_archive(self, request: HttpRequest):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        bookmarks.archive_bookmarks(
+            serializer.validated_data["bookmark_ids"], request.user
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        methods=["post"],
+        detail=False,
+        url_path="bulk-unarchive",
+        serializer_class=BookmarkBulkActionSerializer,
+    )
+    def bulk_unarchive(self, request: HttpRequest):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        bookmarks.unarchive_bookmarks(
+            serializer.validated_data["bookmark_ids"], request.user
+        )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["get"], detail=False)
