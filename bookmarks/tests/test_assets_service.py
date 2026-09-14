@@ -7,6 +7,8 @@ from pathlib import Path
 from unittest import mock
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.signals import request_finished
+from django.db import close_old_connections
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
@@ -377,7 +379,14 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         list(response.streaming_content)
         self.assertFalse(file.closed)
 
-        response.close()
+        # Closing a response sends request_finished, which closes the DB
+        # connection. Disconnect the handler like Django's test client does, so
+        # that subsequent tests can still use the connection.
+        request_finished.disconnect(close_old_connections)
+        try:
+            response.close()
+        finally:
+            request_finished.connect(close_old_connections)
         self.assertTrue(file.closed)
 
     def test_stream_asset_file_missing_file(self):
