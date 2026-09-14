@@ -207,6 +207,36 @@ POST /api/bookmarks/<id>/unarchive/
 
 Unarchives a bookmark.
 
+**Bulk archive / unarchive**
+
+```
+POST /api/bookmarks/bulk-archive/
+POST /api/bookmarks/bulk-unarchive/
+```
+
+Archives or unarchives multiple bookmarks in one request. Both endpoints require
+authentication and only modify bookmarks owned by the authenticated user, including
+when other users' bookmarks are shared publicly.
+
+Example payload:
+
+```json
+{
+  "bookmark_ids": [1, 2, 3]
+}
+```
+
+`bookmark_ids` is required and must contain between 1 and 1000 positive integer IDs.
+Invalid payloads return `400 Bad Request` without modifying any bookmarks. Split
+larger lists into batches of at most 1000 IDs.
+
+Successful requests return `204 No Content`. Duplicate IDs, missing bookmarks, and
+bookmarks owned by other users are ignored, matching the web application's bulk
+actions. The response does not disclose whether another user's bookmark exists.
+Repeating a request leaves the bookmarks in the requested archive state. As with
+single-bookmark archive actions, `date_modified` is updated for matching bookmarks;
+other fields and tags are preserved.
+
 **Delete**
 
 ```

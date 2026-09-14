@@ -21,6 +21,14 @@ class TagListField(serializers.ListField):
     child = serializers.CharField()
 
 
+class BookmarkBulkActionSerializer(serializers.Serializer):
+    bookmark_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        allow_empty=False,
+        max_length=1000,
+    )
+
+
 class BookmarkListSerializer(ListSerializer):
     def to_representation(self, data):
         # Prefetch nested relations to avoid n+1 queries
