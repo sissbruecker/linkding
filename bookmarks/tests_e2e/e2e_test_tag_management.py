@@ -90,7 +90,7 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         )
 
     def test_edit_tag(self):
-        tag = self.setup_tag(name="old-name")
+        tag = self.setup_tag(name="old-name", description="old-desc")
 
         self.open(reverse("linkding:tags.index"))
 
@@ -100,12 +100,16 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
 
         modal = self.locate_tag_modal()
 
-        # Verify the form is pre-filled with the tag name
+        # Verify the form is pre-filled with the tag name and description
         name_input = modal.get_by_label("Name")
         expect(name_input).to_have_value(tag.name)
 
+        desc_input = modal.get_by_label("Description")
+        expect(desc_input).to_have_value(tag.description)
+
         # Change the tag name
         name_input.fill("new-name")
+        desc_input.fill("new-desc")
 
         # Submit the form
         modal.get_by_text("Save").click()
@@ -120,6 +124,7 @@ class TagManagementE2ETestCase(LinkdingE2ETestCase):
         # Verify the tag was updated in the database
         tag.refresh_from_db()
         self.assertEqual(tag.name, "new-name")
+        self.assertEqual(tag.description, "new-desc")
 
     def test_edit_tag_validation_error(self):
         tag = self.setup_tag(name="tag-to-edit")

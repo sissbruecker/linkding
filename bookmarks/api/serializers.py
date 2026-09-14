@@ -196,11 +196,13 @@ class BookmarkAssetSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ["id", "name", "date_added"]
+        fields = ["id", "name", "description", "date_added"]
         read_only_fields = ["date_added"]
 
+    description = serializers.CharField(required=False)
+
     def create(self, validated_data):
-        return get_or_create_tag(validated_data["name"], self.context["user"])
+        return get_or_create_tag(validated_data["name"], self.context["user"], validated_data["description"])
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

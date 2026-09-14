@@ -24,6 +24,7 @@ from bookmarks.services.search_query_parser import (
     parse_search_query,
     strip_tag_from_query,
 )
+from bookmarks.services.tags import get_related_tags
 from bookmarks.services.wayback import generate_fallback_webarchive_url
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
@@ -488,6 +489,9 @@ class TagCloudContext:
         self.groups = groups
         self.selected_tags = selected_tag_items
         self.has_selected_tags = has_selected_tags
+        self.tag_details: TagIndexContext | None = None
+        if len(unique_selected_tags) == 1:
+            self.tag_details = TagIndexContext(request, unique_selected_tags[0])
 
     def get_selected_tags(self):
         raise NotImplementedError("Must be implemented by subclass")
@@ -500,6 +504,21 @@ class TagCloudContext:
         tag_names = [tag_name.lower() for tag_name in tag_names]
 
         return [tag for tag in tags if tag.name.lower() in tag_names]
+
+class TagIndexContext:
+    request_context = RequestContext
+
+    def __init__(self, request: HttpRequest, tag: Tag) -> None:
+        request_context = self.request_context(request)
+        user = request.user
+        description = str(tag.description).strip()
+
+        self.tag: Tag = tag
+        self.has_description: bool = description != ''
+        self.description: str = description
+        self.name: str = str(tag.name)
+        self.related_tags: list[AddTagItem] = [AddTagItem(request_context, tag) for tag in list(get_related_tags(tag, user))]
+        self.has_related: bool = len(self.related_tags) > 0
 
 
 class ActiveTagCloudContext(TagCloudContext):

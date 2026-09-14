@@ -21,6 +21,37 @@
           </ld-filter-drawer-trigger>
         </div>
       </div>
+      {# Show tag details when the user searches for a single tag #}
+      {% if tag_cloud.tag_details %}
+      {% with details=tag_cloud.tag_details %}
+        <div class="tag-details">
+            <h2 class="tag-heading">&num;{{ details.name }}</h2>
+            {% if details.has_description %}
+            <div class="tag-description">
+                {% markdown details.tag.description %}
+                <a class="tag-action" href="{% url 'linkding:tags.index' %}?search={{ details.name|urlencode }}">
+                    Edit tag description
+                </a>
+            </div>
+            {% else %}
+            <div class="tag-description blank">
+                No tag description provided.
+                <a href="{% url 'linkding:tags.index' %}?search={{ details.name|urlencode }}">
+                    Add one now?
+                </a>
+            </div>
+            {% endif %}
+            {% if details.has_related %}
+            <div class="tag-related">
+                This tag is frequently used with:
+                <span class="tags">
+                  {% for tag in details.related_tags %}<a href="?{{ tag.query_string }}">{{ tag.name }}</a>{% endfor %}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+      {% endwith %}
+      {% endif %}
       <form class="bookmark-actions"
             action="{{ bookmark_list.action_url|safe }}"
             method="post"

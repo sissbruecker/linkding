@@ -124,6 +124,45 @@
   }
 }
 
+/* Tag details */
+.tag-details {
+    margin: var(--unit-4) 0;
+
+    .tag-description > p:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .tag-description.blank {
+      color: var(--bookmark-actions-color);
+      font-style: italic;
+    }
+
+    .tag-action {
+      color: var(--bookmark-actions-color);
+      font-size: var(--font-size-sm);
+    }
+
+    h2.tag-heading {
+        font-size: var(--font-size-lg);
+    }
+
+    .tag-related {
+        margin: var(--unit-2) 0;
+
+        .tags {
+         a, a:visited:hover {
+                color: var(--alternative-color);
+            }
+            a::before {
+                content: "#";
+            }
+            a:not(:last-child) {
+                margin-right: var(--unit-1);
+            }
+        }
+    }
+}
+
 /* Bookmark list */
 @keyframes appear {
   0% {
