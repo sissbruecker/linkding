@@ -94,15 +94,27 @@ class SearchQueryTokenizer:
         return content
 
     def read_tag(self) -> str:
-        """Read a tag (starts with # and continues until whitespace or special chars)."""
+        """Read a tag (starts with # and continues until whitespace or quote).
+
+        Parentheses are allowed in the tag name (e.g. "#hello(world)"), but a
+        ")" that closes a still-open grouping parenthesis from *outside* the
+        tag (e.g. the ")" in "(#backend)") must still terminate the tag, so
+        unmatched "(" inside the tag name are tracked to tell them apart.
+        """
         tag = ""
         self.advance()  # skip the # character
+        open_parens = 0
 
         while (
             self.current_char
             and not self.current_char.isspace()
-            and self.current_char not in "()\"'"
+            and self.current_char not in "\"'"
+            and not (self.current_char == ")" and open_parens == 0)
         ):
+            if self.current_char == "(":
+                open_parens += 1
+            elif self.current_char == ")":
+                open_parens -= 1
             tag += self.current_char
             self.advance()
 
