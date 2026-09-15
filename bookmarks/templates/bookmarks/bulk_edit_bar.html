@@ -21,6 +21,11 @@
       <option value="bulk_share">Share</option>
       <option value="bulk_unshare">Unshare</option>
     {% endif %}
+    {% if request.user_profile.enable_web_archiving %}
+      <option value="bulk_enable_web_archive">Enable web archive</option>
+      <option value="bulk_disable_web_archive">Disable web archive</option>
+      <option value="bulk_refresh_web_archive_snapshot">Refresh web archive</option>
+    {% endif %}
     <option value="bulk_refresh">Refresh from website</option>
     {% if bookmark_list.snapshot_feature_enabled %}<option value="bulk_snapshot">Create HTML snapshot</option>{% endif %}
   </select>

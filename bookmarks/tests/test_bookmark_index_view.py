@@ -23,7 +23,7 @@ class BookmarkIndexViewTestCase(
         html = response.content.decode()
         self.assertInHTML(
             f"""
-            <a href="{url}">Edit</a>        
+            <a href="{url}">Edit</a>
         """,
             html,
         )
@@ -355,6 +355,33 @@ class BookmarkIndexViewTestCase(
             <option value="bulk_unread">Mark as unread</option>
             <option value="bulk_share">Share</option>
             <option value="bulk_unshare">Unshare</option>
+            <option value="bulk_refresh">Refresh from website</option>
+          </select>
+        """,
+            html,
+        )
+
+    def test_allowed_bulk_actions_with_web_archive_enabled(self):
+        user_profile = self.user.profile
+        user_profile.enable_web_archiving = True
+        user_profile.save()
+
+        url = reverse("linkding:bookmarks.index")
+        response = self.client.get(url)
+        html = response.content.decode()
+
+        self.assertInHTML(
+            """
+          <select name="bulk_action" class="form-select select-sm">
+            <option value="bulk_archive">Archive</option>
+            <option value="bulk_delete">Delete</option>
+            <option value="bulk_tag">Add tags</option>
+            <option value="bulk_untag">Remove tags</option>
+            <option value="bulk_read">Mark as read</option>
+            <option value="bulk_unread">Mark as unread</option>
+            <option value="bulk_enable_web_archive">Enable web archive</option>
+            <option value="bulk_disable_web_archive">Disable web archive</option>
+            <option value="bulk_refresh_web_archive_snapshot">Refresh web archive</option>
             <option value="bulk_refresh">Refresh from website</option>
           </select>
         """,

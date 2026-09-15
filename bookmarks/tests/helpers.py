@@ -62,6 +62,7 @@ class BookmarkFactoryMixin:
         title: str = None,
         description: str = "",
         notes: str = "",
+        web_archive: bool = False,
         web_archive_snapshot_url: str = "",
         favicon_file: str = "",
         preview_image_file: str = "",
@@ -92,6 +93,7 @@ class BookmarkFactoryMixin:
             is_archived=is_archived,
             unread=unread,
             shared=shared,
+            web_archive=web_archive,
             web_archive_snapshot_url=web_archive_snapshot_url,
             favicon_file=favicon_file,
             preview_image_file=preview_image_file,
@@ -111,6 +113,7 @@ class BookmarkFactoryMixin:
         archived: bool = False,
         unread: bool = False,
         shared: bool = False,
+        web_archive: bool = False,
         with_tags: bool = False,
         with_web_archive_snapshot_url: bool = False,
         with_favicon_file: bool = False,
@@ -159,6 +162,7 @@ class BookmarkFactoryMixin:
                 unread=unread,
                 shared=shared,
                 tags=tags,
+                web_archive=web_archive,
                 web_archive_snapshot_url=web_archive_snapshot_url,
                 favicon_file=favicon_file,
                 preview_image_file=preview_image_file,
@@ -275,12 +279,14 @@ class BookmarkFactoryMixin:
         name: str = None,
         enable_sharing: bool = False,
         enable_public_sharing: bool = False,
+        enable_web_archiving: bool = False,
     ):
         if not name:
             name = get_random_string(length=32)
         user = User.objects.create_user(name, "user@example.com", "password123")
         user.profile.enable_sharing = enable_sharing
         user.profile.enable_public_sharing = enable_public_sharing
+        user.profile.enable_web_archiving = enable_web_archiving
         user.profile.save()
         return user
 

@@ -38,6 +38,7 @@ class BookmarkForm(forms.ModelForm):
     notes = forms.CharField(required=False, widget=FormTextarea)
     unread = forms.BooleanField(required=False, widget=FormCheckbox)
     shared = forms.BooleanField(required=False, widget=FormCheckbox)
+    web_archive = forms.BooleanField(required=False, widget=FormCheckbox)
     # Hidden field that determines whether to close window/tab after saving the bookmark
     auto_close = forms.CharField(required=False, widget=forms.HiddenInput)
 
@@ -51,6 +52,7 @@ class BookmarkForm(forms.ModelForm):
             "notes",
             "unread",
             "shared",
+            "web_archive",
             "auto_close",
         ]
 
@@ -68,6 +70,8 @@ class BookmarkForm(forms.ModelForm):
                 "auto_close": "auto_close" in request.GET,
                 "unread": request.user_profile.default_mark_unread,
                 "shared": request.user_profile.default_mark_shared,
+                "web_archive": request.user_profile.enable_web_archiving
+                and request.user_profile.default_web_archive,
             }
         if instance is not None and request.method == "GET":
             initial = {"tag_string": build_tag_string(instance.tag_names, " ")}
@@ -314,11 +318,11 @@ class UserProfileForm(forms.ModelForm):
             "bookmark_description_display",
             "bookmark_description_max_lines",
             "bookmark_link_target",
-            "web_archive_integration",
             "tag_search",
             "tag_grouping",
             "enable_sharing",
             "enable_public_sharing",
+            "enable_web_archiving",
             "enable_favicons",
             "enable_preview_images",
             "enable_automatic_html_snapshots",
@@ -330,6 +334,7 @@ class UserProfileForm(forms.ModelForm):
             "permanent_notes",
             "default_mark_unread",
             "default_mark_shared",
+            "default_web_archive",
             "custom_css",
             "auto_tagging_rules",
             "items_per_page",
@@ -344,7 +349,6 @@ class UserProfileForm(forms.ModelForm):
             "bookmark_description_display": FormSelect,
             "bookmark_description_max_lines": FormNumberInput,
             "bookmark_link_target": FormSelect,
-            "web_archive_integration": FormSelect,
             "tag_search": FormSelect,
             "tag_grouping": FormSelect,
             "auto_tagging_rules": FormTextarea,
@@ -364,9 +368,11 @@ class UserProfileForm(forms.ModelForm):
             "enable_preview_images": FormCheckbox,
             "enable_sharing": FormCheckbox,
             "enable_public_sharing": FormCheckbox,
+            "enable_web_archiving": FormCheckbox,
             "enable_automatic_html_snapshots": FormCheckbox,
             "default_mark_unread": FormCheckbox,
             "default_mark_shared": FormCheckbox,
+            "default_web_archive": FormCheckbox,
         }
 
 

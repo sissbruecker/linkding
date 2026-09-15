@@ -6,7 +6,7 @@ from django.test import TestCase, override_settings
 from huey.contrib.djhuey import HUEY as huey
 from waybackpy.exceptions import WaybackError
 
-from bookmarks.models import BookmarkAsset, UserProfile
+from bookmarks.models import BookmarkAsset
 from bookmarks.services import tasks
 from bookmarks.services.website_loader import WebsiteMetadata
 from bookmarks.tests.helpers import BookmarkFactoryMixin
@@ -59,9 +59,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_load_preview_image.return_value = "preview_image.png"
 
         user = self.get_or_create_test_user()
-        user.profile.web_archive_integration = (
-            UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED
-        )
+        user.profile.enable_web_archiving = True
         user.profile.enable_favicons = True
         user.profile.enable_preview_images = True
         user.profile.save()
@@ -87,11 +85,9 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         raise Exception("Boom")
 
     def test_create_web_archive_snapshot_should_update_snapshot_url(self):
-        bookmark = self.setup_bookmark()
+        bookmark = self.setup_bookmark(web_archive=True)
 
-        tasks.create_web_archive_snapshot(
-            self.get_or_create_test_user(), bookmark, False
-        )
+        tasks.create_web_archive_snapshot(self.user, bookmark, False)
         bookmark.refresh_from_db()
 
         self.mock_save_api.save.assert_called_once()
@@ -108,28 +104,28 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_save_api.save.assert_not_called()
 
     def test_create_web_archive_snapshot_should_skip_if_snapshot_exists(self):
-        bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com")
-
-        self.mock_save_api.create_web_archive_snapshot(
-            self.get_or_create_test_user(), bookmark, False
+        bookmark = self.setup_bookmark(
+            web_archive=True, web_archive_snapshot_url="https://example.com"
         )
+
+        self.mock_save_api.create_web_archive_snapshot(self.user, bookmark, False)
 
         self.assertEqual(self.executed_count(), 0)
         self.mock_save_api.assert_not_called()
 
     def test_create_web_archive_snapshot_should_force_update_snapshot(self):
-        bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com")
+        bookmark = self.setup_bookmark(
+            web_archive=True, web_archive_snapshot_url="https://example.com"
+        )
         self.mock_save_api.archive_url = "https://other.com"
 
-        tasks.create_web_archive_snapshot(
-            self.get_or_create_test_user(), bookmark, True
-        )
+        tasks.create_web_archive_snapshot(self.user, bookmark, True)
         bookmark.refresh_from_db()
 
         self.assertEqual(bookmark.web_archive_snapshot_url, "https://other.com")
 
     def test_create_web_archive_snapshot_should_not_save_stale_bookmark_data(self):
-        bookmark = self.setup_bookmark()
+        bookmark = self.setup_bookmark(web_archive=True)
 
         # update bookmark during API call to check that saving
         # the snapshot does not overwrite updated bookmark data
@@ -139,9 +135,7 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
 
         self.mock_save_api.save.side_effect = mock_save_impl
 
-        tasks.create_web_archive_snapshot(
-            self.get_or_create_test_user(), bookmark, False
-        )
+        tasks.create_web_archive_snapshot(self.user, bookmark, False)
         bookmark.refresh_from_db()
 
         self.assertEqual(bookmark.title, "Updated title")
@@ -154,25 +148,19 @@ class BookmarkTasksTestCase(TestCase, BookmarkFactoryMixin):
     def test_create_web_archive_snapshot_should_not_run_when_background_tasks_are_disabled(
         self,
     ):
-        bookmark = self.setup_bookmark()
+        bookmark = self.setup_bookmark(web_archive=True)
 
-        tasks.create_web_archive_snapshot(
-            self.get_or_create_test_user(), bookmark, False
-        )
+        tasks.create_web_archive_snapshot(self.user, bookmark, False)
         self.assertEqual(self.executed_count(), 0)
 
     def test_create_web_archive_snapshot_should_not_run_when_web_archive_integration_is_disabled(
         self,
     ):
-        self.user.profile.web_archive_integration = (
-            UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED
-        )
+        self.user.profile.enable_web_archiving = False
         self.user.profile.save()
 
-        bookmark = self.setup_bookmark()
-        tasks.create_web_archive_snapshot(
-            self.get_or_create_test_user(), bookmark, False
-        )
+        bookmark = self.setup_bookmark(web_archive=True)
+        tasks.create_web_archive_snapshot(self.user, bookmark, False)
 
         self.assertEqual(self.executed_count(), 0)
 

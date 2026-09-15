@@ -171,12 +171,10 @@ reddit.com/r/Music music reddit</pre>
           {% endformhelp %}
         </div>
         <div class="form-group">
-          {% formlabel form.web_archive_integration "Internet Archive integration" %}
-          {% formfield form.web_archive_integration has_help=True class="width-25 width-sm-100" %}
-          {% formhelp form.web_archive_integration %}
-            Enabling this feature will automatically create snapshots of bookmarked websites on the
-            <a href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive Wayback Machine</a>.
-            This allows to preserve, and later access the website as it was at the point in time it was bookmarked, in
+          {% formfield form.enable_web_archiving label="Enable web archiving" has_help=True %}
+          {% formhelp form.enable_web_archiving %}
+            Allows to send bookmarks to the <a href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive Wayback Machine</a> upon create/update.
+            This feature allows you to preserve, and later access the website as it was at the point in time it was bookmarked, in
             case it goes offline or its content is modified.
             Please consider donating to the <a href="https://archive.org/donate" target="_blank" rel="noopener">Internet Archive</a> if you make use of this feature.
           {% endformhelp %}
@@ -218,6 +216,14 @@ reddit.com/r/Music music reddit</pre>
           {% formhelp form.default_mark_shared %}
             Sets the default state for the "Share" option when creating a new bookmark.
             Setting this option will make all new bookmarks default to shared.
+            This can be overridden when creating each new bookmark.
+          {% endformhelp %}
+        </div>
+        <div class="form-group">
+          {% formfield form.default_web_archive label="Create bookmarks with web archiving enabled by default" has_help=True %}
+          {% formhelp form.default_web_archive %}
+            Sets the default state for the "Preserve Online" option when creating a new bookmark.
+            Setting this option will make all new bookmarks default to web archiving when created/updated.
             This can be overridden when creating each new bookmark.
           {% endformhelp %}
         </div>
@@ -357,7 +363,9 @@ reddit.com/r/Music music reddit</pre>
     (function init() {
       const enableSharing = document.getElementById("{{ form.enable_sharing.id_for_label }}");
       const enablePublicSharing = document.getElementById("{{ form.enable_public_sharing.id_for_label }}");
+      const enableWebArchiving = document.getElementById("{{ form.enable_web_archiving.id_for_label }}");
       const defaultMarkShared = document.getElementById("{{ form.default_mark_shared.id_for_label }}");
+      const defaultWebArchive = document.getElementById("{{ form.default_web_archive.id_for_label }}");
       const bookmarkDescriptionDisplay = document.getElementById("{{ form.bookmark_description_display.id_for_label }}");
       const bookmarkDescriptionMaxLines = document.getElementById("{{ form.bookmark_description_max_lines.id_for_label }}");
 
@@ -376,6 +384,19 @@ reddit.com/r/Music music reddit</pre>
 
       updateSharingOptions();
       enableSharing.addEventListener("change", updateSharingOptions);
+
+      // Automatically disable bookmark web archiving default enabled option if bookmark web archving is disabled
+      function updateDefaultWebArchiveEnabled() {
+        if (enableWebArchiving.checked) {
+          defaultWebArchive.disabled = false;
+        } else {
+          defaultWebArchive.disabled = true;
+          defaultWebArchive.checked = false;
+        }
+      }
+
+      updateDefaultWebArchiveEnabled();
+      enableWebArchiving.addEventListener("change", updateDefaultWebArchiveEnabled);
 
       // Automatically hide the bookmark description max lines input if the description display is set to inline
       function updateBookmarkDescriptionMaxLines() {

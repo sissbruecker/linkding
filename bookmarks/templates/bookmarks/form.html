@@ -75,6 +75,14 @@
       {% endformhelp %}
     </div>
   {% endif %}
+  {% if request.user_profile.enable_web_archiving %}
+    <div class="form-group">
+      {% formfield form.web_archive label="Preserve online" has_help=True %}
+      {% formhelp form.web_archive %}
+        When enabled this bookmark will be submitted to the Internet Archive (Wayback Machine) when first created and whenever the URL is updated.
+      {% endformhelp %}
+    </div>
+  {% endif %}
   <div class="divider"></div>
   <div class="form-group d-flex justify-between">
     {% if form.is_auto_close %}
@@ -99,6 +107,7 @@
       const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
       const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
+      const webArchiveCheckbox = document.getElementById('{{ form.web_archive.id_for_label }}');
       const refreshButton = document.getElementById('refresh-button');
       const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
       const editedBookmarkId = parseInt('{{ form.instance.id|default:0 }}');
@@ -159,6 +168,7 @@
               updateInput(tagsInput, existingBookmark.tag_names.join(" "));
               updateCheckbox(unreadCheckbox, existingBookmark.unread);
               updateCheckbox(sharedCheckbox, existingBookmark.shared);
+              updateCheckbox(webArchiveCheckbox, existingBookmark.web_archive);
             } else {
               // Update title and description with website metadata, unless they have been modified
               if (!isTitleModified) {

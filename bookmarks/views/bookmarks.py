@@ -24,9 +24,12 @@ from bookmarks.services.bookmarks import (
     archive_bookmarks,
     create_html_snapshots,
     delete_bookmarks,
+    disable_bookmarks_web_archive,
+    enable_bookmarks_web_archive,
     mark_bookmarks_as_read,
     mark_bookmarks_as_unread,
     refresh_bookmarks_metadata,
+    refresh_bookmarks_web_archive_snapshot,
     share_bookmarks,
     tag_bookmarks,
     unarchive_bookmark,
@@ -306,6 +309,10 @@ def update_state(request: HttpRequest, bookmark_id: int | str):
     bookmark.is_archived = request.POST.get("is_archived") == "on"
     bookmark.unread = request.POST.get("unread") == "on"
     bookmark.shared = request.POST.get("shared") == "on"
+    if request.user_profile.enable_web_archiving:
+        # we don't want the flag to be flipped to False if the feature is disabled
+        # preserve pre-disabled state in the event user re-enables feature later
+        bookmark.web_archive = request.POST.get("web_archive") == "on"
     bookmark.save()
 
 
@@ -416,6 +423,12 @@ def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
             return share_bookmarks(bookmark_ids, request.user)
         if bulk_action == "bulk_unshare":
             return unshare_bookmarks(bookmark_ids, request.user)
+        if bulk_action == "bulk_enable_web_archive":
+            return enable_bookmarks_web_archive(bookmark_ids, request.user)
+        if bulk_action == "bulk_disable_web_archive":
+            return disable_bookmarks_web_archive(bookmark_ids, request.user)
+        if bulk_action == "bulk_refresh_web_archive_snapshot":
+            return refresh_bookmarks_web_archive_snapshot(bookmark_ids, request.user)
         if bulk_action == "bulk_refresh":
             return refresh_bookmarks_metadata(bookmark_ids, request.user)
         if bulk_action == "bulk_snapshot":

@@ -201,7 +201,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
                 <input type="checkbox" name="shared" aria-describedby="id_shared_help" id="id_shared">
                 <i class="form-icon"></i>
                 <label for="id_shared">Share</label>
-            </div>          
+            </div>
             """,
             html,
             count=0,
@@ -218,7 +218,7 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
                 <input type="checkbox" name="shared" aria-describedby="id_shared_help" id="id_shared">
                 <i class="form-icon"></i>
                 <label for="id_shared">Share</label>
-            </div>              
+            </div>
             """,
             html,
             count=1,
@@ -304,5 +304,31 @@ class BookmarkNewViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             '<input type="checkbox" name="shared" id="id_shared" checked="" aria-describedby="id_shared_help">',
+            html,
+        )
+
+    def test_should_not_show_web_archive_when_disabled_in_profile(self):
+        self.user.profile.enable_web_archiving = False
+        self.user.profile.save()
+
+        response = self.client.get(reverse("linkding:bookmarks.new"))
+        html = response.content.decode()
+
+        self.assertInHTML(
+            '<input type="checkbox" name="web_archive" id="id_web_archive" aria-describedby="id_web_archive_help">',
+            html,
+            count=0,
+        )
+
+    def test_should_check_web_archive_when_enabled_in_profile(self):
+        self.user.profile.enable_web_archiving = True
+        self.user.profile.default_web_archive = True
+        self.user.profile.save()
+
+        response = self.client.get(reverse("linkding:bookmarks.new"))
+        html = response.content.decode()
+
+        self.assertInHTML(
+            '<input type="checkbox" name="web_archive" id="id_web_archive" checked="" aria-describedby="id_web_archive_help">',
             html,
         )

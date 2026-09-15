@@ -184,7 +184,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         # no latest snapshot
         bookmark = self.setup_bookmark()
         soup = self.get_index_details_modal(bookmark)
-        self.assertEqual(self.count_weblinks(soup), 2)
+        self.assertEqual(self.count_weblinks(soup), 1)
 
         # snapshot is not complete
         self.setup_asset(
@@ -198,7 +198,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             status=BookmarkAsset.STATUS_FAILURE,
         )
         soup = self.get_index_details_modal(bookmark)
-        self.assertEqual(self.count_weblinks(soup), 2)
+        self.assertEqual(self.count_weblinks(soup), 1)
 
         # not a snapshot
         self.setup_asset(
@@ -207,7 +207,7 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             status=BookmarkAsset.STATUS_COMPLETE,
         )
         soup = self.get_index_details_modal(bookmark)
-        self.assertEqual(self.count_weblinks(soup), 2)
+        self.assertEqual(self.count_weblinks(soup), 1)
 
         # snapshot is complete
         asset = self.setup_asset(
@@ -216,14 +216,21 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
             status=BookmarkAsset.STATUS_COMPLETE,
         )
         soup = self.get_index_details_modal(bookmark)
-        self.assertEqual(self.count_weblinks(soup), 3)
+        self.assertEqual(self.count_weblinks(soup), 2)
 
         reader_mode_url = reverse("linkding:assets.read", args=[asset.id])
         link = self.find_weblink(soup, reader_mode_url)
         self.assertIsNotNone(link)
 
     def test_internet_archive_link_with_snapshot_url(self):
-        bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")
+        user = self.get_or_create_test_user()
+        profile = user.profile
+        profile.enable_web_archiving = True
+        profile.save()
+
+        bookmark = self.setup_bookmark(
+            web_archive=True, web_archive_snapshot_url="https://example.com/"
+        )
         soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
         self.assertIsNotNone(link)
@@ -232,7 +239,9 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # favicons disabled
         bookmark = self.setup_bookmark(
-            web_archive_snapshot_url="https://example.com/", favicon_file="example.png"
+            web_archive=True,
+            web_archive_snapshot_url="https://example.com/",
+            favicon_file="example.png",
         )
         soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
@@ -240,12 +249,13 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertIsNone(image)
 
         # favicons enabled, no favicon
-        profile = self.get_or_create_test_user().profile
         profile.enable_favicons = True
         profile.save()
 
         bookmark = self.setup_bookmark(
-            web_archive_snapshot_url="https://example.com/", favicon_file=""
+            web_archive=True,
+            web_archive_snapshot_url="https://example.com/",
+            favicon_file="",
         )
         soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
@@ -254,7 +264,9 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
 
         # favicons enabled, favicon present
         bookmark = self.setup_bookmark(
-            web_archive_snapshot_url="https://example.com/", favicon_file="example.png"
+            web_archive=True,
+            web_archive_snapshot_url="https://example.com/",
+            favicon_file="example.png",
         )
         soup = self.get_index_details_modal(bookmark)
         link = self.find_weblink(soup, bookmark.web_archive_snapshot_url)
@@ -262,8 +274,15 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertIsNotNone(image)
 
     def test_internet_archive_link_with_fallback_url(self):
+        user = self.get_or_create_test_user()
+        profile = user.profile
+        profile.enable_web_archiving = True
+        profile.save()
+
         date_added = timezone.datetime(2023, 8, 11, 21, 45, 11, tzinfo=datetime.UTC)
-        bookmark = self.setup_bookmark(url="https://example.com/", added=date_added)
+        bookmark = self.setup_bookmark(
+            web_archive=True, url="https://example.com/", added=date_added
+        )
         fallback_web_archive_url = (
             "https://web.archive.org/web/20230811214511/https://example.com/"
         )
@@ -275,12 +294,15 @@ class BookmarkDetailsModalTestCase(TestCase, BookmarkFactoryMixin, HtmlTestMixin
         self.assertEqual(link.text.strip(), "Internet Archive")
 
     def test_weblinks_respect_target_setting(self):
-        bookmark = self.setup_bookmark(web_archive_snapshot_url="https://example.com/")
-
-        # target blank
         profile = self.get_or_create_test_user().profile
+        profile.enable_web_archiving = True
+        # target blank
         profile.bookmark_link_target = UserProfile.BOOKMARK_LINK_TARGET_BLANK
         profile.save()
+
+        bookmark = self.setup_bookmark(
+            web_archive=True, web_archive_snapshot_url="https://example.com/"
+        )
 
         soup = self.get_index_details_modal(bookmark)
 

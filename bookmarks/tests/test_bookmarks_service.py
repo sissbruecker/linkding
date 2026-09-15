@@ -171,10 +171,14 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         )
 
     def test_create_should_create_web_archive_snapshot(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_web_archiving = True
+        profile.save()
+
         with patch.object(
             tasks, "create_web_archive_snapshot"
         ) as mock_create_web_archive_snapshot:
-            bookmark_data = Bookmark(url="https://example.com")
+            bookmark_data = Bookmark(url="https://example.com", web_archive=True)
             bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
 
             mock_create_web_archive_snapshot.assert_called_once_with(
@@ -270,10 +274,14 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(bookmark.date_modified, custom_date_modified)
 
     def test_update_should_create_web_archive_snapshot_if_url_did_change(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_web_archiving = True
+        profile.save()
+
         with patch.object(
             tasks, "create_web_archive_snapshot"
         ) as mock_create_web_archive_snapshot:
-            bookmark = self.setup_bookmark()
+            bookmark = self.setup_bookmark(web_archive=True)
             bookmark.url = "https://example.com/updated"
             update_bookmark(bookmark, "tag1,tag2", self.user)
 

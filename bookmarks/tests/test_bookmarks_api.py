@@ -64,6 +64,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             expectation["is_archived"] = bookmark.is_archived
             expectation["unread"] = bookmark.unread
             expectation["shared"] = bookmark.shared
+            expectation["web_archive"] = bookmark.web_archive
             expectation["tag_names"] = tag_names
             expectation["date_added"] = bookmark.date_added.isoformat().replace(
                 "+00:00", "Z"
@@ -1246,7 +1247,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
             response.data["bookmark_link_target"], profile.bookmark_link_target
         )
         self.assertEqual(
-            response.data["web_archive_integration"], profile.web_archive_integration
+            response.data["enable_web_archiving"], profile.enable_web_archiving
         )
         self.assertEqual(response.data["tag_search"], profile.tag_search)
         self.assertEqual(response.data["enable_sharing"], profile.enable_sharing)
@@ -1275,7 +1276,7 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         profile.theme = "dark"
         profile.bookmark_date_display = "absolute"
         profile.bookmark_link_target = "_self"
-        profile.web_archive_integration = "enabled"
+        profile.enable_web_archiving = True
         profile.tag_search = "lax"
         profile.enable_sharing = True
         profile.enable_public_sharing = True

@@ -16,7 +16,7 @@ def create_bookmark(
     disable_html_snapshot: bool = False,
 ):
     # If URL is already bookmarked, then update it
-    existing_bookmark: Bookmark = Bookmark.query_existing(
+    existing_bookmark: Bookmark | None = Bookmark.query_existing(
         current_user, bookmark.url
     ).first()
 
@@ -91,7 +91,7 @@ def archive_bookmark(bookmark: Bookmark):
     return bookmark
 
 
-def archive_bookmarks(bookmark_ids: [int | str], current_user: User):
+def archive_bookmarks(bookmark_ids: list[int | str], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
     Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
@@ -106,7 +106,7 @@ def unarchive_bookmark(bookmark: Bookmark):
     return bookmark
 
 
-def unarchive_bookmarks(bookmark_ids: [int | str], current_user: User):
+def unarchive_bookmarks(bookmark_ids: list[int | str], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
     Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
@@ -114,13 +114,13 @@ def unarchive_bookmarks(bookmark_ids: [int | str], current_user: User):
     )
 
 
-def delete_bookmarks(bookmark_ids: [int | str], current_user: User):
+def delete_bookmarks(bookmark_ids: list[int | str], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
     Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).delete()
 
 
-def tag_bookmarks(bookmark_ids: [int | str], tag_string: str, current_user: User):
+def tag_bookmarks(bookmark_ids: list[int | str], tag_string: str, current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
     owned_bookmark_ids = Bookmark.objects.filter(
         owner=current_user, id__in=sanitized_bookmark_ids
@@ -143,7 +143,7 @@ def tag_bookmarks(bookmark_ids: [int | str], tag_string: str, current_user: User
     )
 
 
-def untag_bookmarks(bookmark_ids: [int | str], tag_string: str, current_user: User):
+def untag_bookmarks(bookmark_ids: list[int | str], tag_string: str, current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
     owned_bookmark_ids = Bookmark.objects.filter(
         owner=current_user, id__in=sanitized_bookmark_ids
@@ -163,7 +163,7 @@ def untag_bookmarks(bookmark_ids: [int | str], tag_string: str, current_user: Us
     )
 
 
-def mark_bookmarks_as_read(bookmark_ids: [int | str], current_user: User):
+def mark_bookmarks_as_read(bookmark_ids: list[int | str], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
     Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
@@ -171,7 +171,7 @@ def mark_bookmarks_as_read(bookmark_ids: [int | str], current_user: User):
     )
 
 
-def mark_bookmarks_as_unread(bookmark_ids: [int | str], current_user: User):
+def mark_bookmarks_as_unread(bookmark_ids: list[int | str], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
     Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
@@ -179,7 +179,7 @@ def mark_bookmarks_as_unread(bookmark_ids: [int | str], current_user: User):
     )
 
 
-def share_bookmarks(bookmark_ids: [int | str], current_user: User):
+def share_bookmarks(bookmark_ids: list[int | str], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
     Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
@@ -187,7 +187,7 @@ def share_bookmarks(bookmark_ids: [int | str], current_user: User):
     )
 
 
-def unshare_bookmarks(bookmark_ids: [int | str], current_user: User):
+def unshare_bookmarks(bookmark_ids: list[int | str], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
 
     Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
@@ -195,7 +195,36 @@ def unshare_bookmarks(bookmark_ids: [int | str], current_user: User):
     )
 
 
-def refresh_bookmarks_metadata(bookmark_ids: [int | str], current_user: User):
+def enable_bookmarks_web_archive(bookmark_ids: list[int | str], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+
+    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
+        web_archive=True, date_modified=timezone.now()
+    )
+
+
+def disable_bookmarks_web_archive(bookmark_ids: list[int | str], current_user: User):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+
+    Bookmark.objects.filter(owner=current_user, id__in=sanitized_bookmark_ids).update(
+        web_archive=False, date_modified=timezone.now()
+    )
+
+
+def refresh_bookmarks_web_archive_snapshot(
+    bookmark_ids: list[int | str], current_user: User
+):
+    sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
+    # Respect the flag to avoid accidentally sending opt-outs
+    owned_bookmarks = Bookmark.objects.filter(
+        owner=current_user, web_archive=True, id__in=sanitized_bookmark_ids
+    )
+
+    for bookmark in owned_bookmarks:
+        tasks.create_web_archive_snapshot(current_user, bookmark, True)
+
+
+def refresh_bookmarks_metadata(bookmark_ids: list[int | str], current_user: User):
     sanitized_bookmark_ids = _sanitize_id_list(bookmark_ids)
     owned_bookmarks = Bookmark.objects.filter(
         owner=current_user, id__in=sanitized_bookmark_ids
@@ -244,6 +273,6 @@ def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):
     bookmark.tags.set(tags)
 
 
-def _sanitize_id_list(bookmark_ids: [int | str]) -> [int]:
+def _sanitize_id_list(bookmark_ids: list[int | str]) -> list[int]:
     # Convert string ids to int if necessary
     return [int(bm_id) if isinstance(bm_id, str) else bm_id for bm_id in bookmark_ids]

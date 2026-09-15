@@ -60,6 +60,7 @@ class Bookmark(models.Model):
     website_title = models.CharField(max_length=512, blank=True, null=True)
     # Obsolete field, kept to not remove column when generating migrations
     website_description = models.TextField(blank=True, null=True)
+    web_archive = models.BooleanField(default=False)
     web_archive_snapshot_url = models.CharField(max_length=2048, blank=True)
     favicon_file = models.CharField(max_length=512, blank=True)
     preview_image_file = models.CharField(max_length=512, blank=True)
@@ -374,12 +375,6 @@ class UserProfile(models.Model):
         (BOOKMARK_LINK_TARGET_BLANK, "New page"),
         (BOOKMARK_LINK_TARGET_SELF, "Same page"),
     ]
-    WEB_ARCHIVE_INTEGRATION_DISABLED = "disabled"
-    WEB_ARCHIVE_INTEGRATION_ENABLED = "enabled"
-    WEB_ARCHIVE_INTEGRATION_CHOICES = [
-        (WEB_ARCHIVE_INTEGRATION_DISABLED, "Disabled"),
-        (WEB_ARCHIVE_INTEGRATION_ENABLED, "Enabled"),
-    ]
     TAG_SEARCH_STRICT = "strict"
     TAG_SEARCH_LAX = "lax"
     TAG_SEARCH_CHOICES = [
@@ -418,12 +413,6 @@ class UserProfile(models.Model):
         blank=False,
         default=BOOKMARK_LINK_TARGET_BLANK,
     )
-    web_archive_integration = models.CharField(
-        max_length=10,
-        choices=WEB_ARCHIVE_INTEGRATION_CHOICES,
-        blank=False,
-        default=WEB_ARCHIVE_INTEGRATION_DISABLED,
-    )
     tag_search = models.CharField(
         max_length=10,
         choices=TAG_SEARCH_CHOICES,
@@ -438,6 +427,7 @@ class UserProfile(models.Model):
     )
     enable_sharing = models.BooleanField(default=False, null=False)
     enable_public_sharing = models.BooleanField(default=False, null=False)
+    enable_web_archiving = models.BooleanField(default=False, null=False)
     enable_favicons = models.BooleanField(default=False, null=False)
     enable_preview_images = models.BooleanField(default=False, null=False)
     display_url = models.BooleanField(default=False, null=False)
@@ -453,6 +443,7 @@ class UserProfile(models.Model):
     enable_automatic_html_snapshots = models.BooleanField(default=True, null=False)
     default_mark_unread = models.BooleanField(default=False, null=False)
     default_mark_shared = models.BooleanField(default=False, null=False)
+    default_web_archive = models.BooleanField(default=False, null=False)
     items_per_page = models.IntegerField(
         null=False, default=30, validators=[MinValueValidator(10)]
     )

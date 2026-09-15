@@ -28,7 +28,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "bookmark_description_display": UserProfile.BOOKMARK_DESCRIPTION_DISPLAY_INLINE,
             "bookmark_description_max_lines": 1,
             "bookmark_link_target": UserProfile.BOOKMARK_LINK_TARGET_BLANK,
-            "web_archive_integration": UserProfile.WEB_ARCHIVE_INTEGRATION_DISABLED,
+            "enable_web_archiving": False,
             "enable_sharing": False,
             "enable_public_sharing": False,
             "enable_favicons": False,
@@ -100,7 +100,7 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             "bookmark_description_display": UserProfile.BOOKMARK_DESCRIPTION_DISPLAY_SEPARATE,
             "bookmark_description_max_lines": 3,
             "bookmark_link_target": UserProfile.BOOKMARK_LINK_TARGET_SELF,
-            "web_archive_integration": UserProfile.WEB_ARCHIVE_INTEGRATION_ENABLED,
+            "enable_web_archiving": True,
             "enable_sharing": True,
             "enable_public_sharing": True,
             "enable_favicons": True,
@@ -148,8 +148,8 @@ class SettingsGeneralViewTestCase(TestCase, BookmarkFactoryMixin):
             self.user.profile.bookmark_link_target, form_data["bookmark_link_target"]
         )
         self.assertEqual(
-            self.user.profile.web_archive_integration,
-            form_data["web_archive_integration"],
+            self.user.profile.enable_web_archiving,
+            form_data["enable_web_archiving"],
         )
         self.assertEqual(self.user.profile.enable_sharing, form_data["enable_sharing"])
         self.assertEqual(

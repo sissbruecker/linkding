@@ -130,7 +130,7 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
 
         self.assertInHTML(
             f"""
-            <input type="text" name="title" value="{bookmark.title}" maxlength="512" autocomplete="off" 
+            <input type="text" name="title" value="{bookmark.title}" maxlength="512" autocomplete="off"
                     class="form-input" id="id_title">
         """,
             html,
@@ -300,6 +300,46 @@ class BookmarkEditViewTestCase(TestCase, BookmarkFactoryMixin):
                 <input type="checkbox" name="shared" aria-describedby="id_shared_help" id="id_shared">
                 <i class="form-icon"></i>
                 <label for="id_shared">Share</label>
+            </div>
+            """,
+            html,
+            count=1,
+        )
+
+    def test_should_respect_enable_web_archiving_profile_setting(self):
+        bookmark = self.setup_bookmark()
+
+        # profile setting defaults to disabled
+        response = self.client.get(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        )
+        html = response.content.decode()
+
+        self.assertInHTML(
+            """
+            <div class="form-checkbox">
+                <input type="checkbox" name="web_archive" aria-describedby="id_web_archive_help" id="id_web_archive">
+                <i class="form-icon"></i>
+                <label for="id_web_archive">Preserve online</label>
+            </div>
+            """,
+            html,
+            count=0,
+        )
+
+        self.user.profile.enable_web_archiving = True
+        self.user.profile.save()
+        response = self.client.get(
+            reverse("linkding:bookmarks.edit", args=[bookmark.id])
+        )
+        html = response.content.decode()
+
+        self.assertInHTML(
+            """
+            <div class="form-checkbox">
+                <input type="checkbox" name="web_archive" aria-describedby="id_web_archive_help" id="id_web_archive">
+                <i class="form-icon"></i>
+                <label for="id_web_archive">Preserve online</label>
             </div>
             """,
             html,
