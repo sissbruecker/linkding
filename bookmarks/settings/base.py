@@ -268,18 +268,28 @@ LD_DB_PASSWORD = os.getenv("LD_DB_PASSWORD", None)
 LD_DB_PORT = os.getenv("LD_DB_PORT", None)
 LD_DB_OPTIONS = json.loads(os.getenv("LD_DB_OPTIONS") or "{}")
 
-if LD_DB_ENGINE == "postgres":
-    default_database = {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": LD_DB_DATABASE,
-        "USER": LD_DB_USER,
-        "PASSWORD": LD_DB_PASSWORD,
-        "HOST": LD_DB_HOST,
-        "PORT": LD_DB_PORT,
-        "OPTIONS": LD_DB_OPTIONS,
-    }
-else:
-    default_database = {
+def get_default_database():
+    if LD_DB_ENGINE == "postgres":
+        return {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": LD_DB_DATABASE,
+            "USER": LD_DB_USER,
+            "PASSWORD": LD_DB_PASSWORD,
+            "HOST": LD_DB_HOST,
+            "PORT": LD_DB_PORT,
+            "OPTIONS": LD_DB_OPTIONS,
+            # The web app runs in long-lived worker processes (uwsgi) and
+            # background tasks in long-lived worker threads (huey), so
+            # connections can sit idle for extended periods, during which the
+            # database (e.g. CloudNativePG) or the network may drop them. Keep
+            # connections persistent and make Django verify a connection is
+            # still alive before (re)using it, so stale connections are
+            # silently re-created instead of failing tasks with
+            # psycopg.OperationalError: the connection is closed (see #1316).
+            "CONN_MAX_AGE": None,
+            "CONN_HEALTH_CHECKS": True,
+        }
+    return {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "data", "db.sqlite3"),
         "OPTIONS": LD_DB_OPTIONS,
@@ -289,6 +299,9 @@ else:
         # persistent.
         "CONN_MAX_AGE": None,
     }
+
+
+default_database = get_default_database()
 
 DATABASES = {"default": default_database}
 
