@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.db.models import Count, Q
 from django.http import Http404
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -249,7 +250,12 @@ class TagViewSet(
 
     def get_queryset(self):
         user = self.request.user
-        return Tag.objects.all().filter(owner=user)
+        queryset = Tag.objects.filter(owner=user)
+        if self.request.GET.get("with_counts") == "true":
+            queryset = queryset.annotate(
+                bookmark_count=Count("bookmark", filter=Q(bookmark__owner=user))
+            )
+        return queryset
 
     def get_serializer_context(self):
         return {"user": self.request.user}

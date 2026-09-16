@@ -194,9 +194,11 @@ class BookmarkAssetSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    bookmark_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Tag
-        fields = ["id", "name", "date_added"]
+        fields = ["id", "name", "date_added", "bookmark_count"]
         read_only_fields = ["date_added"]
 
     def create(self, validated_data):

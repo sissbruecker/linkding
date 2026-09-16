@@ -316,6 +316,10 @@ Parameters:
 
 - `limit` - Limits the max. number of results. Default is `100`.
 - `offset` - Index from which to start returning results
+- `with_counts` - Set to `true` to include a `bookmark_count` integer on each tag.
+  Counts include both archived and unarchived bookmarks owned by the authenticated
+  user. Unused tags have a count of `0`. Counts are omitted by default to avoid
+  additional aggregation work when they are not needed.
 
 Example response:
 
@@ -342,6 +346,8 @@ GET /api/tags/<id>/
 ```
 
 Retrieves a single tag by ID.
+
+Supports `with_counts=true` with the same behavior as the list endpoint.
 
 **Create**
 
