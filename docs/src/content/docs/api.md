@@ -22,6 +22,11 @@ The following resources are available:
 
 ### Bookmarks
 
+The `favicon_url`, `preview_image_url`, and `web_archive_snapshot_url` fields are read-only.
+They are managed by linkding and cannot be set through `POST`, `PUT`, or `PATCH` requests.
+Values supplied for these fields are ignored. In particular, `preview_image_url` is the URL of
+the preview image cached by linkding, not an input for providing a custom image URL.
+
 **List**
 
 ```
