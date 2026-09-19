@@ -57,7 +57,7 @@ class BookmarkViewSet(
         # Provide filtered queryset for list actions
         user = self.request.user
         search = BookmarkSearch.from_request(self.request, self.request.GET)
-        if self.action == "list":
+        if self.action in ("list", "search"):
             return queries.query_bookmarks(user, user.profile, search)
         elif self.action == "archived":
             return queries.query_archived_bookmarks(user, user.profile, search)
@@ -80,6 +80,29 @@ class BookmarkViewSet(
             "disable_scraping": disable_scraping,
             "disable_html_snapshot": disable_html_snapshot,
         }
+
+    @action(methods=["get"], detail=False)
+    def search(self, request: HttpRequest):
+        response = self.list(request)
+        user = request.user
+        profile = user.profile
+        search = BookmarkSearch.from_request(request, request.GET)
+        selected = queries.get_tags_for_query(user, profile, search.q)
+        selected_names = sorted(selected.values_list("name", flat=True), key=str.lower)
+        selected_keys = {name.lower() for name in selected_names}
+        # Derive facets from the complete search, before pagination is applied.
+        available = queries.query_bookmark_tags(user, profile, search)
+        available_names = sorted(
+            (
+                name
+                for name in available.values_list("name", flat=True)
+                if name.lower() not in selected_keys
+            ),
+            key=str.lower,
+        )
+        response.data["selected_tag_names"] = selected_names
+        response.data["available_tag_names"] = available_names
+        return response
 
     @action(methods=["get"], detail=False)
     def archived(self, request: HttpRequest):
