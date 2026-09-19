@@ -71,6 +71,27 @@ Example response:
 }
 ```
 
+**Search with tag facets**
+
+```
+GET /api/bookmarks/search/
+```
+
+Search the authenticated user's non-archived bookmarks using the same parameters
+and paginated bookmark results as the regular list endpoint. The response also includes:
+
+- `selected_tag_names` - Existing tags selected by the search query, using the user's
+  tag search mode. These remain present even when no bookmarks match.
+- `available_tag_names` - Distinct tags on all matching bookmarks, excluding selected
+  tags. These are calculated before pagination, so changing `limit` or `offset` does
+  not change the available tags.
+
+Both arrays contain tag names in their stored spelling, sorted case-insensitively.
+Tags belonging to other users are not included. For example, a search for
+`#python` may return `"selected_tag_names": ["Python"]` and
+`"available_tag_names": ["tutorial", "web"]` alongside `count`, `next`, `previous`,
+and `results`. The regular list endpoint's response is unchanged.
+
 **List Archived**
 
 ```
