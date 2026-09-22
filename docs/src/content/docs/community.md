@@ -67,6 +67,7 @@ This section lists community projects around using linkding. If you have a proje
 | [go-linkding](https://github.com/piero-vic/go-linkding) | A Go client library to interact with the linkding REST API. | [piero-vic](https://github.com/piero-vic) |
 | [linkding-api](https://github.com/vbsampath/linkding-api) | A Javascript library implementing linkding REST API. | [vbsampath](https://github.com/vbsampath) |
 | [linkding-rs](https://github.com/zbrox/linkding-rs) | A Rust client library to interact with the linkding REST API with cross platform support to be easily used in Android or iOS apps. | [zbrox](https://github.com/zbrox) |
+| [PwshLinkding](https://github.com/kylebavis/PwshLinkding) | A PowerShell module to interact with the linkding REST API | [kylebavis](https://github.com/kylebavis) |
 
 ## Self-Hosting Guides
 
