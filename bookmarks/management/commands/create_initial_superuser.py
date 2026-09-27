@@ -14,6 +14,7 @@ class Command(BaseCommand):
         User = get_user_model()
         superuser_name = os.getenv("LD_SUPERUSER_NAME", None)
         superuser_password = os.getenv("LD_SUPERUSER_PASSWORD", None)
+        superuser_email = os.getenv("LD_SUPERUSER_EMAIL", None)
 
         # Skip if option is undefined
         if not superuser_name:
@@ -28,7 +29,7 @@ class Command(BaseCommand):
             logger.info("Skip creating initial superuser, user already exists")
             return
 
-        user = User(username=superuser_name, is_superuser=True, is_staff=True)
+        user = User(username=superuser_name, email=superuser_email, is_superuser=True, is_staff=True)
 
         if superuser_password:
             user.set_password(superuser_password)
