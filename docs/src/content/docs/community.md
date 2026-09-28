@@ -17,6 +17,7 @@ This section lists community projects around using linkding. If you have a proje
 | [Pinkt](https://github.com/fibelatti/pinboard-kotlin) | An Android client for linkding. | [fibelatti](https://github.com/fibelatti) |
 | [Ribbon](https://apps.apple.com/us/app/ribbon-a-linkding-client/id6762416055) | A native iOS client for linkding | [cdransf](https://github.com/cdransf) |
 | [Save to Linkding](https://www.giuliomagnifico.dev/apps/savetolinkding/) | Save links from any browser on iOS or iPadOS using the system Share Sheet, and manage your instance using the main app. [App Store](https://apps.apple.com/app/save-to-linkding/id6761113021) | [Giulio Magnifico](https://www.giuliomagnifico.dev) |
+| [ShareDing](https://github.com/juev/shareding) | Android share target that saves links to a persistent local queue and sends them to linkding when the server is reachable. APKs are available on [GitHub Releases](https://github.com/juev/shareding/releases). | [Denis Evsyukov](https://denis.evsyukov.org/) |
 | [Tsundoku](https://www.gingerbeardman.com/apps/tsundoku/) | macOS client for linkding and other bookmark managers. | [gingerbeardman](https://blog.gingerbeardman.com/2026/04/17/today-i-shipped-twenty-apps-and-a-screensaver/) |
 
 ## Browser Extensions
