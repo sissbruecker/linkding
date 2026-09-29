@@ -308,3 +308,7 @@ def get(url: str, **kwargs) -> requests.Response:
 
 def head(url: str, **kwargs) -> requests.Response:
     return request("HEAD", url, **kwargs)
+
+
+def post(url: str, **kwargs) -> requests.Response:
+    return request("POST", url, **kwargs)

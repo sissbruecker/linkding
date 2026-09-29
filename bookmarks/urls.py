@@ -84,6 +84,26 @@ urlpatterns = [
         settings_views.delete_api_token,
         name="settings.integrations.delete_api_token",
     ),
+    path(
+        "settings/integrations/webhooks/new",
+        settings_views.create_webhook,
+        name="settings.integrations.create_webhook",
+    ),
+    path(
+        "settings/integrations/webhooks/<int:webhook_id>/edit",
+        settings_views.edit_webhook,
+        name="settings.integrations.edit_webhook",
+    ),
+    path(
+        "settings/integrations/webhooks/delete",
+        settings_views.delete_webhook,
+        name="settings.integrations.delete_webhook",
+    ),
+    path(
+        "settings/integrations/webhooks/test",
+        settings_views.test_webhook,
+        name="settings.integrations.test_webhook",
+    ),
     path("settings/import", settings_views.bookmark_import, name="settings.import"),
     path("settings/export", settings_views.bookmark_export, name="settings.export"),
     # Toasts

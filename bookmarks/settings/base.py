@@ -282,7 +282,12 @@ else:
     default_database = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "data", "db.sqlite3"),
-        "OPTIONS": LD_DB_OPTIONS,
+        # Acquire the write lock when a transaction starts, instead of when it
+        # first writes. Otherwise, transactions that read before writing fail
+        # immediately with "database is locked" if another connection writes
+        # in between, instead of waiting for the lock. Tracking bookmark
+        # changes for webhooks relies on this, see BookmarkChanges.
+        "OPTIONS": {"transaction_mode": "IMMEDIATE", **LD_DB_OPTIONS},
         # Creating a connection loads the ICU extension into the SQLite
         # connection, and also loads an ICU collation. The latter causes a
         # memory leak, so try to counter that by making connections indefinitely

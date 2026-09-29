@@ -23,6 +23,7 @@ from bookmarks.services.bookmarks import (
     archive_bookmark,
     archive_bookmarks,
     create_html_snapshots,
+    delete_bookmark,
     delete_bookmarks,
     mark_bookmarks_as_read,
     mark_bookmarks_as_unread,
@@ -254,7 +255,7 @@ def edit(request: HttpRequest, bookmark_id: int):
 
 def remove(request: HttpRequest, bookmark_id: int | str):
     bookmark = access.bookmark_write(request, bookmark_id)
-    bookmark.delete()
+    delete_bookmark(bookmark)
 
 
 def archive(request: HttpRequest, bookmark_id: int | str):
@@ -269,14 +270,17 @@ def unarchive(request: HttpRequest, bookmark_id: int | str):
 
 def unshare(request: HttpRequest, bookmark_id: int | str):
     bookmark = access.bookmark_write(request, bookmark_id)
-    bookmark.shared = False
-    bookmark.save()
+    with tasks.track_bookmark_changes(request.user, [bookmark.id]):
+        bookmark.shared = False
+        # Only save changed fields, to not revert concurrent changes
+        bookmark.save(update_fields=["shared"])
 
 
 def mark_as_read(request: HttpRequest, bookmark_id: int | str):
     bookmark = access.bookmark_write(request, bookmark_id)
-    bookmark.unread = False
-    bookmark.save()
+    with tasks.track_bookmark_changes(request.user, [bookmark.id]):
+        bookmark.unread = False
+        bookmark.save(update_fields=["unread"])
 
 
 def create_html_snapshot(request: HttpRequest, bookmark_id: int | str):
@@ -303,10 +307,11 @@ def remove_asset(request: HttpRequest, asset_id: int | str):
 
 def update_state(request: HttpRequest, bookmark_id: int | str):
     bookmark = access.bookmark_write(request, bookmark_id)
-    bookmark.is_archived = request.POST.get("is_archived") == "on"
-    bookmark.unread = request.POST.get("unread") == "on"
-    bookmark.shared = request.POST.get("shared") == "on"
-    bookmark.save()
+    with tasks.track_bookmark_changes(request.user, [bookmark.id]):
+        bookmark.is_archived = request.POST.get("is_archived") == "on"
+        bookmark.unread = request.POST.get("unread") == "on"
+        bookmark.shared = request.POST.get("shared") == "on"
+        bookmark.save(update_fields=["is_archived", "unread", "shared"])
 
 
 @login_required

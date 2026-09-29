@@ -1,17 +1,25 @@
+import contextlib
 import functools
 import logging
 
 import waybackpy
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from huey.contrib.djhuey import HUEY as huey
 from huey.exceptions import TaskLockedException
 from waybackpy.exceptions import TooManyRequestsError, WaybackError
 
-from bookmarks.models import Bookmark, BookmarkAsset, UserProfile
-from bookmarks.services import assets, favicon_loader, preview_image_loader
+from bookmarks.models import Bookmark, BookmarkAsset, Tag, UserProfile, Webhook
+from bookmarks.services import (
+    assets,
+    favicon_loader,
+    http_client,
+    preview_image_loader,
+    webhooks,
+)
 from bookmarks.services.website_loader import DEFAULT_USER_AGENT, load_website_metadata
 
 logger = logging.getLogger(__name__)
@@ -61,8 +69,9 @@ def _create_snapshot(bookmark: Bookmark):
         bookmark.url, DEFAULT_USER_AGENT, max_tries=1
     )
     archive.save()
-    bookmark.web_archive_snapshot_url = archive.archive_url
-    bookmark.save(update_fields=["web_archive_snapshot_url"])
+    with track_bookmark_changes(bookmark.owner, [bookmark.id]):
+        bookmark.web_archive_snapshot_url = archive.archive_url
+        bookmark.save(update_fields=["web_archive_snapshot_url"])
     logger.info(f"Successfully created new snapshot for bookmark:. url={bookmark.url}")
 
 
@@ -233,13 +242,16 @@ def _refresh_metadata_task(bookmark_id: int):
     logger.info(f"Refresh metadata for bookmark. url={bookmark.url}")
 
     metadata = load_website_metadata(bookmark.url)
-    if metadata.title:
-        bookmark.title = metadata.title
-    if metadata.description:
-        bookmark.description = metadata.description
-    bookmark.date_modified = timezone.now()
-
-    bookmark.save()
+    with track_bookmark_changes(bookmark.owner, [bookmark.id]):
+        if metadata.title:
+            bookmark.title = metadata.title
+        if metadata.description:
+            bookmark.description = metadata.description
+        bookmark.date_modified = timezone.now()
+        # Only save the refreshed fields. The bookmark was loaded before
+        # loading the metadata, saving all fields would revert changes that
+        # were made in the meantime.
+        bookmark.save(update_fields=["title", "description", "date_modified"])
     logger.info(f"Successfully refreshed metadata for bookmark. url={bookmark.url}")
 
 
@@ -381,3 +393,214 @@ def create_missing_html_snapshots(user: User) -> int:
     create_html_snapshots(list(bookmarks_without_snapshots))
 
     return bookmarks_without_snapshots.count()
+
+
+def is_webhooks_feature_active() -> bool:
+    return not settings.LD_DISABLE_BACKGROUND_TASKS
+
+
+class BookmarkChanges:
+    """
+    Records the state of bookmarks before a change, and sends webhook events
+    for everything that changed once the change is complete. Usually used
+    through track_bookmark_changes. Must be used within a transaction that
+    covers the whole change. Changes to the same bookmark must not be tracked by
+    multiple instances at once, as that would send duplicate events.
+
+    Failing to track changes never fails the change itself. Errors are logged,
+    and no events are sent for the change.
+    """
+
+    def __init__(self, user: User):
+        self.user = user
+        # Skip tracking entirely if there is no webhook that could receive events
+        self.enabled = (
+            is_webhooks_feature_active()
+            and Webhook.objects.filter(owner=user, enabled=True).exists()
+        )
+        # Bookmark data before the change by ID, None for created bookmarks
+        self._before: dict[int, dict | None] = {}
+
+    def track(self, bookmark_ids):
+        """
+        Records the current state of bookmarks that are about to change. Only
+        bookmarks of the user are tracked. IDs can be passed as a lazy
+        queryset, which is only evaluated if tracking is enabled.
+        """
+        if not self.enabled:
+            return
+        try:
+            # Savepoint, so that errors leave the transaction usable
+            with transaction.atomic():
+                untracked_ids = [
+                    bookmark_id
+                    for bookmark_id in bookmark_ids
+                    if bookmark_id not in self._before
+                ]
+                if not untracked_ids:
+                    return
+                # Lock the bookmarks until the transaction completes, so that
+                # concurrent changes wait for this one, and are compared against
+                # its result. SQLite does not support row locks, instead
+                # transactions lock the whole database when they start.
+                bookmarks = (
+                    Bookmark.objects.filter(owner=self.user, id__in=untracked_ids)
+                    .order_by("id")
+                    .select_for_update()
+                )
+                for data in webhooks.serialize_bookmarks(bookmarks):
+                    self._before[data["id"]] = data
+        except Exception:
+            self._disable("Failed to record the state of bookmarks")
+
+    def lock_tags(self, tags):
+        """
+        Locks tags that are about to be added to bookmarks, so that renaming,
+        merging or deleting the tags concurrently either completes before, or
+        waits until this change is complete. Otherwise, events could contain
+        outdated tag names. Must be called before tracking bookmarks, as tag
+        changes lock tags before bookmarks, and locking in a different order
+        could result in deadlocks.
+        """
+        if not self.enabled:
+            return
+        tag_ids = [tag.id for tag in tags]
+        if not tag_ids:
+            return
+        try:
+            with transaction.atomic():
+                list(
+                    Tag.objects.filter(id__in=tag_ids)
+                    .order_by("id")
+                    .select_for_update(no_key=True)
+                )
+        except Exception:
+            self._disable("Failed to lock tags")
+
+    def track_created(self, bookmark: Bookmark):
+        """Records a bookmark that was created as part of the change."""
+        if self.enabled:
+            self._before.setdefault(bookmark.id, None)
+
+    def send_events(self):
+        """
+        Compares the tracked bookmarks with their current state, and queues
+        messages for the resulting events once the current transaction commits.
+        """
+        if not self.enabled or not self._before:
+            return
+        try:
+            with transaction.atomic():
+                bookmarks = Bookmark.objects.filter(
+                    owner=self.user, id__in=self._before
+                )
+                after = {
+                    data["id"]: data for data in webhooks.serialize_bookmarks(bookmarks)
+                }
+
+            changes = []
+            for bookmark_id, before_data in self._before.items():
+                after_data = after.get(bookmark_id)
+                for event in webhooks.get_change_events(before_data, after_data):
+                    # Deleted bookmarks are reported with their last known state
+                    changes.append((event, after_data or before_data))
+            # Determined while bookmarks are locked, so that the timestamps of
+            # consecutive changes to a bookmark increase
+            timestamp = timezone.now()
+        except Exception:
+            self._disable("Failed to determine changes of bookmarks")
+            return
+        finally:
+            self._before = {}
+
+        if changes:
+            # Do not notify webhooks about changes that are rolled back. Create
+            # messages after committing, to keep the transaction short.
+            user = self.user
+            transaction.on_commit(
+                lambda: _queue_webhook_messages(user, changes, timestamp)
+            )
+
+    def _disable(self, message: str):
+        logger.exception(
+            f"{message}, webhook events are not sent for this change. user={self.user.username}"
+        )
+        self.enabled = False
+        self._before = {}
+
+
+def _queue_webhook_messages(user: User, changes: list[tuple[str, dict]], timestamp):
+    # Runs after the change has been committed, errors must not fail the
+    # request, or prevent queuing the remaining messages
+    try:
+        messages = webhooks.create_messages(user, changes, timestamp)
+    except Exception:
+        logger.exception(f"Failed to create webhook messages. user={user.username}")
+        return
+
+    for message in messages:
+        try:
+            _deliver_webhook_task(message.webhook_id, message.message_id, message.body)
+        except Exception:
+            logger.exception(
+                f"Failed to queue webhook message. webhook_id={message.webhook_id} message_id={message.message_id}"
+            )
+
+
+@contextlib.contextmanager
+def track_bookmark_changes(user: User, bookmark_ids=()):
+    """
+    Sends webhook events for changes made to bookmarks of the user within the
+    block. Bookmarks that change must be passed up front, bookmarks created
+    within the block must be registered with track_created on the yielded
+    instance. If the user has webhooks, the block runs in a transaction, so
+    that events are only sent once the change is persisted, and not at all if
+    the change fails. Otherwise, the block runs as is.
+    """
+    changes = BookmarkChanges(user)
+    if not changes.enabled:
+        yield changes
+        return
+
+    with transaction.atomic():
+        changes.track(bookmark_ids)
+        yield changes
+        changes.send_events()
+
+
+@contextlib.contextmanager
+def track_bookmark_changes_of_all_owners(bookmark_ids):
+    """
+    Like track_bookmark_changes, for bookmarks that can belong to different
+    users, such as in the admin panel. Each owner's webhooks only receive
+    events for their own bookmarks.
+    """
+    bookmark_ids = list(bookmark_ids)
+    # Consistent order, so that concurrent operations lock bookmarks in the
+    # same order
+    owners = (
+        User.objects.filter(bookmark__id__in=bookmark_ids).distinct().order_by("id")
+    )
+    with contextlib.ExitStack() as stack:
+        for owner in owners:
+            stack.enter_context(track_bookmark_changes(owner, bookmark_ids))
+        yield
+
+
+@task()
+def _deliver_webhook_task(webhook_id: int, message_id: str, body: str):
+    # The webhook may have been deleted or disabled while the message was queued
+    webhook = Webhook.objects.filter(id=webhook_id).first()
+    if not webhook or not webhook.enabled:
+        return
+
+    try:
+        webhooks.deliver(webhook, message_id, body)
+    except http_client.BlockedAddressError:
+        # Retrying does not help, the request would be blocked again
+        return
+    except Exception as error:
+        logger.warning(
+            f"Failed to deliver webhook message. webhook={webhook.name} url={webhook.url} error={error}"
+        )
+        raise

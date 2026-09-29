@@ -44,7 +44,7 @@ When left undefined, the superuser will be created without a usable password, wh
 
 Values: `True`, `False` | Default = `False`
 
-Disables background tasks, such as creating snapshots for bookmarks on the [the Internet Archive Wayback Machine](https://archive.org/web/).
+Disables background tasks, such as creating snapshots for bookmarks on the [the Internet Archive Wayback Machine](https://archive.org/web/), or sending [webhooks](/webhooks).
 Enabling this flag will prevent the background task processor from starting up, and prevents scheduling tasks.
 This might be useful if you are experiencing performance issues or other problematic behaviour due to background task processing.
 
@@ -73,10 +73,10 @@ Values: `String` | Default = None
 
 By default, linkding refuses to load data from URLs that point to hosts on internal networks, such as the server linkding runs on, other Docker containers, hosts on your local network, or cloud provider metadata services.
 This protects against server-side request forgery (SSRF), where a user of a linkding instance could otherwise use it to access services on the internal network that are not reachable from the outside.
-The protection covers loading website metadata (title, description), preview images and PDF snapshots.
+The protection covers loading website metadata (title, description), preview images, PDF snapshots and sending [webhooks](/webhooks).
 For HTML snapshots, the bookmark URL and any redirects are checked before the snapshot is created, but the browser process that creates the snapshot is not restricted, so it can still load embedded resources from internal hosts.
 
-If you want to bookmark URLs on your local network and have linkding load metadata for them, you can allow specific hosts with this option.
+If you want to bookmark URLs on your local network and have linkding load metadata for them, or use webhooks that point to hosts on your local network, you can allow specific hosts with this option.
 The value is a comma-separated list of hostnames, IP addresses, or IP ranges in CIDR notation.
 A hostname starting with a dot allows the domain and all of its subdomains.
 Use `*` to disable the protection completely and allow all hosts.
@@ -350,6 +350,9 @@ Should use the default port if left empty, for example `5432` for PostgresSQL.
 Values: `String` | Default = `{}`
 
 A json string with additional options for the database. Passed directly to OPTIONS.
+
+When using SQLite, linkding sets the `transaction_mode` option to `IMMEDIATE` by default, which avoids "database is locked" errors when multiple changes are made at the same time.
+It is not recommended to change this option.
 
 ### `LD_FAVICON_PROVIDER`
 

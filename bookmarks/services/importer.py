@@ -197,62 +197,85 @@ def _import_batch(
             logging.exception("Error importing bookmark: " + shortened_bookmark_tag_str)
             result.failed = result.failed + 1
 
-    # Bulk update bookmarks in DB
-    Bookmark.objects.bulk_update(
-        bookmarks_to_update,
-        [
-            "url",
-            "url_normalized",
-            "date_added",
-            "date_modified",
-            "unread",
-            "shared",
-            "title",
-            "description",
-            "notes",
-            "owner",
-        ],
-    )
-    # Bulk insert new bookmarks into DB
-    Bookmark.objects.bulk_create(bookmarks_to_create)
+    # Track changes for webhooks. Bookmarks that exist in the database but
+    # failed to import are not modified, so they do not result in any events.
+    updated_bookmark_ids = [bookmark.id for bookmark in bookmarks_to_update]
+    with tasks.track_bookmark_changes(user) as changes:
+        # Tags must be locked before the bookmarks, see lock_tags
+        changes.lock_tags(
+            {
+                tag.id: tag
+                for netscape_bookmark in imported_in_batch
+                for tag in tag_cache.get_all(netscape_bookmark.tag_names)
+            }.values()
+        )
+        changes.track(updated_bookmark_ids)
+        # Bulk update bookmarks in DB
+        Bookmark.objects.bulk_update(
+            bookmarks_to_update,
+            [
+                "url",
+                "url_normalized",
+                "date_added",
+                "date_modified",
+                "unread",
+                "shared",
+                "title",
+                "description",
+                "notes",
+                "owner",
+            ],
+        )
+        # Bulk insert new bookmarks into DB
+        Bookmark.objects.bulk_create(bookmarks_to_create)
 
-    # Bulk assign tags
-    # In Django 3, bulk_create does not return the auto-generated IDs when bulk inserting,
-    # so we have to reload the inserted bookmarks, and match them to the parsed bookmarks by URL
-    existing_bookmarks = Bookmark.objects.filter(
-        owner=user, url_normalized__in=normalized_batch_urls
-    )
-
-    BookmarkToTagRelationShip = Bookmark.tags.through
-    relationships = []
-
-    # Iterate only over bookmarks that have been successfully imported
-    for netscape_bookmark in imported_in_batch:
-        # Lookup bookmark by URL again
-        bookmark = next(
-            (
-                bookmark
-                for bookmark in existing_bookmarks
-                if bookmark.url_normalized == netscape_bookmark.href_normalized
-            ),
-            None,
+        # Bulk assign tags
+        # In Django 3, bulk_create does not return the auto-generated IDs when bulk inserting,
+        # so we have to reload the inserted bookmarks, and match them to the parsed bookmarks by URL
+        existing_bookmarks = Bookmark.objects.filter(
+            owner=user, url_normalized__in=normalized_batch_urls
         )
 
-        if not bookmark:
-            # Something is wrong, we should have just created this bookmark
-            shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + "..."
-            logging.warning(
-                f"Failed to assign tags to the bookmark: {shortened_bookmark_tag_str}. Could not find bookmark by URL."
+        BookmarkToTagRelationShip = Bookmark.tags.through
+        relationships = []
+
+        # Iterate only over bookmarks that have been successfully imported
+        for netscape_bookmark in imported_in_batch:
+            # Lookup bookmark by URL again
+            bookmark = next(
+                (
+                    bookmark
+                    for bookmark in existing_bookmarks
+                    if bookmark.url_normalized == netscape_bookmark.href_normalized
+                ),
+                None,
             )
-            continue
 
-        # Get tag models by string, schedule inserts for bookmark -> tag associations
-        tags = tag_cache.get_all(netscape_bookmark.tag_names)
-        for tag in tags:
-            relationships.append(BookmarkToTagRelationShip(bookmark=bookmark, tag=tag))
+            if not bookmark:
+                # Something is wrong, we should have just created this bookmark
+                shortened_bookmark_tag_str = str(netscape_bookmark)[:100] + "..."
+                logging.warning(
+                    f"Failed to assign tags to the bookmark: {shortened_bookmark_tag_str}. Could not find bookmark by URL."
+                )
+                continue
 
-    # Insert all bookmark -> tag associations at once, should ignore errors if association already exists
-    BookmarkToTagRelationShip.objects.bulk_create(relationships, ignore_conflicts=True)
+            # Get tag models by string, schedule inserts for bookmark -> tag associations
+            tags = tag_cache.get_all(netscape_bookmark.tag_names)
+            for tag in tags:
+                relationships.append(
+                    BookmarkToTagRelationShip(bookmark=bookmark, tag=tag)
+                )
+
+        # Insert all bookmark -> tag associations at once, should ignore errors if association already exists
+        BookmarkToTagRelationShip.objects.bulk_create(
+            relationships, ignore_conflicts=True
+        )
+
+        # Bulk inserts return IDs on all supported databases, only report the
+        # bookmarks that were created by the import, not ones created
+        # concurrently for the same URLs
+        for bookmark in bookmarks_to_create:
+            changes.track_created(bookmark)
 
 
 def _copy_bookmark_data(

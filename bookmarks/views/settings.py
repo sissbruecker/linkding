@@ -13,17 +13,18 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 
-from bookmarks.forms import GlobalSettingsForm, UserProfileForm
+from bookmarks.forms import GlobalSettingsForm, UserProfileForm, WebhookForm
 from bookmarks.models import (
     ApiToken,
     Bookmark,
     FeedToken,
     GlobalSettings,
+    Webhook,
 )
-from bookmarks.services import exporter, importer, tasks
+from bookmarks.services import exporter, http_client, importer, tasks, webhooks
 from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import app_version
-from bookmarks.views import access
+from bookmarks.views import access, turbo
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +176,15 @@ def integrations(request):
         messages.get_messages(request), "api_success_message"
     )
 
+    user_webhooks = Webhook.objects.filter(owner=request.user).order_by("-date_created")
+    webhook_secret = request.session.pop("webhook_secret", None)
+    webhook_success_message = _find_message_with_tag(
+        messages.get_messages(request), "webhook_success_message"
+    )
+    webhook_error_message = _find_message_with_tag(
+        messages.get_messages(request), "webhook_error_message"
+    )
+
     feed_token = FeedToken.objects.get_or_create(user=request.user)[0]
 
     all_feed_url = reverse("linkding:feeds.all", args=[feed_token.key])
@@ -191,6 +201,11 @@ def integrations(request):
             "api_token_key": api_token_key,
             "api_token_name": api_token_name,
             "api_success_message": api_success_message,
+            "webhooks": user_webhooks,
+            "webhook_secret": webhook_secret,
+            "webhook_success_message": webhook_success_message,
+            "webhook_error_message": webhook_error_message,
+            "webhooks_active": tasks.is_webhooks_feature_active(),
             "all_feed_url": all_feed_url,
             "unread_feed_url": unread_feed_url,
             "shared_feed_url": shared_feed_url,
@@ -235,6 +250,101 @@ def delete_api_token(request):
             f'API token "{token_name}" has been deleted.',
             "api_success_message",
         )
+
+    return HttpResponseRedirect(reverse("linkding:settings.integrations"))
+
+
+@login_required
+def create_webhook(request: HttpRequest):
+    if request.method == "POST":
+        form = WebhookForm(request.POST)
+        if form.is_valid():
+            webhook = form.save(commit=False)
+            webhook.owner = request.user
+            webhook.save()
+
+            request.session["webhook_secret"] = webhook.secret
+            messages.success(
+                request,
+                f'Webhook "{webhook.name}" created successfully',
+                "webhook_success_message",
+            )
+            return HttpResponseRedirect(reverse("linkding:settings.integrations"))
+
+        return _render_webhook_modal_errors(request, form)
+
+    all_events = [event for event, _ in Webhook.EVENT_CHOICES]
+    form = WebhookForm(initial={"events": all_events, "enabled": True})
+    return render(request, "settings/webhook_modal.html", {"form": form})
+
+
+@login_required
+def edit_webhook(request: HttpRequest, webhook_id: int):
+    webhook = access.webhook_write(request, webhook_id)
+
+    if request.method == "POST":
+        form = WebhookForm(request.POST, instance=webhook)
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                f'Webhook "{webhook.name}" updated successfully',
+                "webhook_success_message",
+            )
+            return HttpResponseRedirect(reverse("linkding:settings.integrations"))
+
+        return _render_webhook_modal_errors(request, form, webhook)
+
+    form = WebhookForm(instance=webhook)
+    return render(
+        request, "settings/webhook_modal.html", {"form": form, "webhook": webhook}
+    )
+
+
+def _render_webhook_modal_errors(request: HttpRequest, form, webhook=None):
+    return turbo.stream(
+        turbo.replace(
+            request,
+            "webhook-modal",
+            "settings/webhook_modal.html",
+            {"form": form, "webhook": webhook},
+            method="morph",
+        )
+    )
+
+
+@login_required
+def delete_webhook(request: HttpRequest):
+    if request.method == "POST":
+        webhook = access.webhook_write(request, request.POST.get("webhook_id"))
+        webhook_name = webhook.name
+        webhook.delete()
+        messages.success(
+            request,
+            f'Webhook "{webhook_name}" has been deleted.',
+            "webhook_success_message",
+        )
+
+    return HttpResponseRedirect(reverse("linkding:settings.integrations"))
+
+
+@login_required
+def test_webhook(request: HttpRequest):
+    if request.method == "POST":
+        webhook = access.webhook_write(request, request.POST.get("webhook_id"))
+        try:
+            webhooks.send_test_message(webhook)
+            messages.success(
+                request,
+                f'Test message sent to webhook "{webhook.name}" successfully ({webhook.last_delivery_message}).',
+                "webhook_success_message",
+            )
+        except (webhooks.WebhookDeliveryError, http_client.RequestException) as error:
+            messages.error(
+                request,
+                f'Failed to send test message to webhook "{webhook.name}": {error}',
+                "webhook_error_message",
+            )
 
     return HttpResponseRedirect(reverse("linkding:settings.integrations"))
 

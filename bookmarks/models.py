@@ -1,3 +1,4 @@
+import base64
 import binascii
 import hashlib
 import logging
@@ -536,6 +537,49 @@ class ApiToken(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.user.username})"
+
+
+class Webhook(models.Model):
+    EVENT_BOOKMARK_CREATED = "bookmark.created"
+    EVENT_BOOKMARK_UPDATED = "bookmark.updated"
+    EVENT_BOOKMARK_DELETED = "bookmark.deleted"
+    EVENT_BOOKMARK_ARCHIVED = "bookmark.archived"
+    EVENT_BOOKMARK_UNARCHIVED = "bookmark.unarchived"
+    EVENT_CHOICES = [
+        (EVENT_BOOKMARK_CREATED, "Bookmark created"),
+        (EVENT_BOOKMARK_UPDATED, "Bookmark updated"),
+        (EVENT_BOOKMARK_DELETED, "Bookmark deleted"),
+        (EVENT_BOOKMARK_ARCHIVED, "Bookmark archived"),
+        (EVENT_BOOKMARK_UNARCHIVED, "Bookmark unarchived"),
+    ]
+
+    DELIVERY_STATUS_SUCCESS = "success"
+    DELIVERY_STATUS_FAILURE = "failure"
+
+    owner = models.ForeignKey(User, related_name="webhooks", on_delete=models.CASCADE)
+    name = models.CharField(max_length=128, blank=False)
+    url = models.CharField(max_length=2048, blank=False)
+    secret = models.CharField(max_length=64, blank=False)
+    events = models.JSONField(default=list, null=False)
+    enabled = models.BooleanField(default=True, null=False)
+    date_created = models.DateTimeField(auto_now_add=True, null=False)
+    last_delivery_date = models.DateTimeField(null=True, blank=True)
+    last_delivery_status = models.CharField(max_length=16, blank=True, null=False)
+    last_delivery_message = models.CharField(max_length=512, blank=True, null=False)
+
+    def save(self, *args, **kwargs):
+        if not self.secret:
+            self.secret = self.generate_secret()
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def generate_secret(cls):
+        # Format used by the Standard Webhooks specification, a base64 encoded
+        # key with a prefix
+        return "whsec_" + base64.b64encode(os.urandom(32)).decode()
+
+    def __str__(self):
+        return f"{self.name} ({self.owner.username})"
 
 
 class GlobalSettings(models.Model):

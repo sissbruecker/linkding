@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.validators import URLValidator
 from django.db import models
 from django.utils import timezone
 
@@ -10,6 +11,7 @@ from bookmarks.models import (
     GlobalSettings,
     Tag,
     UserProfile,
+    Webhook,
     build_tag_string,
     parse_tag_string,
     sanitize_tag_name,
@@ -92,7 +94,21 @@ class BookmarkForm(forms.ModelForm):
         tag_string = convert_tag_string(self.data["tag_string"])
         bookmark = super().save(commit=False)
         if self.instance.pk:
-            return update_bookmark(bookmark, tag_string, self.request.user)
+            # Only save fields of the form, to not revert changes to other
+            # fields that were made concurrently
+            return update_bookmark(
+                bookmark,
+                tag_string,
+                self.request.user,
+                update_fields=[
+                    "url",
+                    "title",
+                    "description",
+                    "notes",
+                    "unread",
+                    "shared",
+                ],
+            )
         else:
             return create_bookmark(bookmark, tag_string, self.request.user)
 
@@ -383,3 +399,31 @@ class GlobalSettingsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["guest_profile_user"].empty_label = "Standard profile"
+
+
+class WebhookForm(forms.ModelForm):
+    name = forms.CharField(max_length=128, widget=FormInput)
+    url = forms.CharField(
+        label="URL",
+        max_length=2048,
+        validators=[URLValidator(schemes=["http", "https"])],
+        widget=FormInput,
+    )
+    events = forms.MultipleChoiceField(
+        choices=Webhook.EVENT_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        error_messages={"required": "Please select at least one event."},
+    )
+    enabled = forms.BooleanField(required=False, widget=FormCheckbox)
+
+    class Meta:
+        model = Webhook
+        fields = ["name", "url", "events", "enabled"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, error_class=FormErrorList)
+
+    def clean_events(self):
+        # Store events in a consistent order
+        events = self.cleaned_data["events"]
+        return [event for event, _ in Webhook.EVENT_CHOICES if event in events]

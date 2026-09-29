@@ -1,6 +1,13 @@
 from django.http import Http404
 
-from bookmarks.models import ApiToken, Bookmark, BookmarkAsset, BookmarkBundle, Toast
+from bookmarks.models import (
+    ApiToken,
+    Bookmark,
+    BookmarkAsset,
+    BookmarkBundle,
+    Toast,
+    Webhook,
+)
 from bookmarks.type_defs import HttpRequest
 
 
@@ -72,3 +79,10 @@ def api_token_write(request: HttpRequest, token_id: int | str):
         return ApiToken.objects.get(id=token_id, user=request.user)
     except (ApiToken.DoesNotExist, ValueError):
         raise Http404("API token does not exist") from None
+
+
+def webhook_write(request: HttpRequest, webhook_id: int | str):
+    try:
+        return Webhook.objects.get(id=webhook_id, owner=request.user)
+    except (Webhook.DoesNotExist, ValueError):
+        raise Http404("Webhook does not exist") from None
