@@ -9,6 +9,7 @@ from django.urls import reverse
 
 from bookmarks.forms import TagForm, TagMergeForm
 from bookmarks.models import Bookmark, Tag
+from bookmarks.services import tags as tag_service
 from bookmarks.type_defs import HttpRequest
 from bookmarks.utils import redirect_with_query
 from bookmarks.views import turbo
@@ -19,7 +20,7 @@ def tags_index(request: HttpRequest):
     if request.method == "POST" and "delete_tag" in request.POST:
         tag_id = request.POST.get("delete_tag")
         tag = get_object_or_404(Tag, id=tag_id, owner=request.user)
-        tag.delete()
+        tag_service.delete_tag(tag)
         return redirect_with_query(request, reverse("linkding:tags.index"))
 
     search = request.GET.get("search", "").strip()
@@ -93,7 +94,9 @@ def tag_edit(request: HttpRequest, tag_id: int):
 
     if request.method == "POST":
         if form.is_valid():
-            form.save()
+            # Renaming a tag changes the tags of all of its bookmarks
+            with tag_service.track_tag_changes([tag]):
+                form.save()
             return redirect_with_query(request, reverse("linkding:tags.index"))
         else:
             return turbo.stream(
@@ -119,7 +122,11 @@ def tag_merge(request: HttpRequest):
             target_tag = form.cleaned_data["target_tag"]
             merge_tags = form.cleaned_data["merge_tags"]
 
-            with transaction.atomic():
+            # Also lock the target tag, as it is added to bookmarks
+            with (
+                tag_service.track_tag_changes([*merge_tags, target_tag]),
+                transaction.atomic(),
+            ):
                 BookmarkTag = Bookmark.tags.through
 
                 # Get all bookmarks that have any of the merge tags, but do not

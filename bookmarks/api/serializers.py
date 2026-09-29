@@ -136,28 +136,34 @@ class BookmarkSerializer(serializers.ModelSerializer):
         disable_scraping = self.context.get("disable_scraping", False)
         disable_html_snapshot = self.context.get("disable_html_snapshot", False)
 
-        saved_bookmark = bookmarks.create_bookmark(
+        # Unless scraping is explicitly disabled, enhance bookmark with website
+        # metadata to preserve backwards compatibility with clients that expect
+        # title and description to be populated automatically when left empty
+        if not disable_scraping:
+            bookmarks.enhance_with_website_metadata(bookmark)
+
+        return bookmarks.create_bookmark(
             bookmark,
             tag_string,
             self.context["user"],
             disable_html_snapshot=disable_html_snapshot,
         )
-        # Unless scraping is explicitly disabled, enhance bookmark with website
-        # metadata to preserve backwards compatibility with clients that expect
-        # title and description to be populated automatically when left empty
-        if not disable_scraping:
-            bookmarks.enhance_with_website_metadata(saved_bookmark)
-        return saved_bookmark
 
     def update(self, instance: Bookmark, validated_data):
-        tag_names = validated_data.pop("tag_names", instance.tag_names)
-        tag_string = build_tag_string(tag_names)
+        # Keep existing tags if no tags are passed
+        tag_names = validated_data.pop("tag_names", None)
+        tag_string = build_tag_string(tag_names) if tag_names is not None else None
 
+        updated_fields = []
         for field_name, field in self.fields.items():
             if not field.read_only and field_name in validated_data:
                 setattr(instance, field_name, validated_data[field_name])
+                updated_fields.append(field_name)
 
-        return bookmarks.update_bookmark(instance, tag_string, self.context["user"])
+        # Only save passed fields, to not revert changes made concurrently
+        return bookmarks.update_bookmark(
+            instance, tag_string, self.context["user"], update_fields=updated_fields
+        )
 
     def validate(self, attrs):
         # When creating a bookmark, the service logic prevents duplicate URLs by

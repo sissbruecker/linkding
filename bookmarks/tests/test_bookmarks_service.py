@@ -969,7 +969,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertFalse(Bookmark.objects.get(id=bookmark3.id).shared)
 
     def test_enhance_with_website_metadata(self):
-        bookmark = self.setup_bookmark(url="https://example.com")
+        bookmark = Bookmark(url="https://example.com")
         with patch.object(
             website_loader, "load_website_metadata"
         ) as mock_load_website_metadata:
@@ -983,9 +983,8 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             # missing title and description
             bookmark.title = ""
             bookmark.description = ""
-            bookmark.save()
             enhance_with_website_metadata(bookmark)
-            bookmark.refresh_from_db()
+            self.assertIsNone(bookmark.pk)
 
             self.assertEqual("Website title", bookmark.title)
             self.assertEqual("Website description", bookmark.description)
@@ -993,9 +992,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             # missing title only
             bookmark.title = ""
             bookmark.description = "Initial description"
-            bookmark.save()
             enhance_with_website_metadata(bookmark)
-            bookmark.refresh_from_db()
 
             self.assertEqual("Website title", bookmark.title)
             self.assertEqual("Initial description", bookmark.description)
@@ -1003,9 +1000,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             # missing description only
             bookmark.title = "Initial title"
             bookmark.description = ""
-            bookmark.save()
             enhance_with_website_metadata(bookmark)
-            bookmark.refresh_from_db()
 
             self.assertEqual("Initial title", bookmark.title)
             self.assertEqual("Website description", bookmark.description)
@@ -1019,9 +1014,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             )
             bookmark.title = ""
             bookmark.description = ""
-            bookmark.save()
             enhance_with_website_metadata(bookmark)
-            bookmark.refresh_from_db()
 
             self.assertEqual("", bookmark.title)
             self.assertEqual("", bookmark.description)

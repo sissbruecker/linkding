@@ -183,6 +183,127 @@
       })();
     </script>
     </turbo-frame>
+    <turbo-frame id="webhooks-section">
+    <section aria-labelledby="webhooks-heading">
+      <h2 id="webhooks-heading">Webhooks</h2>
+      {% if webhook_success_message %}
+        <div class="toast toast-success mb-2">{{ webhook_success_message }}</div>
+      {% endif %}
+      {% if webhook_error_message %}
+        <div class="toast toast-error mb-2">{{ webhook_error_message }}</div>
+      {% endif %}
+      {% if webhook_secret %}
+        <div class="mt-4 mb-6">
+          <p class="mb-2">
+            <strong>Copy the signing secret now, it will only be shown once:</strong>
+          </p>
+          <label class="text-assistive" for="new-webhook-secret">New webhook secret</label>
+          <div class="input-group">
+            <input class="form-input"
+                   value="{{ webhook_secret }}"
+                   readonly
+                   id="new-webhook-secret">
+            <button id="copy-new-webhook-secret"
+                    class="btn input-group-btn"
+                    type="button">Copy</button>
+          </div>
+        </div>
+      {% endif %}
+      <p>
+        Webhooks notify other applications when you add, edit, archive, or delete bookmarks. linkding sends a POST
+        request with a JSON payload to each webhook that is subscribed to an event, and signs it with the webhook's
+        secret so that the receiver can verify that it was sent by linkding. Failed deliveries are retried several times
+        over a few hours. See the <a href="https://linkding.link/webhooks/" target="_blank">documentation</a> for
+        the payload format and how to verify signatures.
+      </p>
+      {% if not webhooks_active %}
+        <div class="toast toast-warning mb-4">
+          Background tasks are disabled on this installation, so webhooks will not receive any events. Test messages
+          can still be sent.
+        </div>
+      {% endif %}
+      {% if webhooks %}
+        <form method="post"
+              action="{% url 'linkding:settings.integrations.delete_webhook' %}"
+              data-turbo-frame="webhooks-section">
+          {% csrf_token %}
+          <table class="table crud-table mb-6">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>URL</th>
+                <th>Last delivery</th>
+                <th class="actions">
+                  <span class="text-assistive">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for webhook in webhooks %}
+                <tr>
+                  <td title="{{ webhook.name }}">
+                    {{ webhook.name }}
+                    {% if not webhook.enabled %}<span class="text-secondary">(disabled)</span>{% endif %}
+                  </td>
+                  <td title="{{ webhook.url }}">{{ webhook.url }}</td>
+                  <td title="{{ webhook.last_delivery_message }}">
+                    {% if webhook.last_delivery_date %}
+                      {% if webhook.last_delivery_status == "success" %}
+                        <span class="text-success">{{ webhook.last_delivery_message }}</span>
+                      {% else %}
+                        <span class="text-error">{{ webhook.last_delivery_message }}</span>
+                      {% endif %}
+                      <span class="text-secondary">({{ webhook.last_delivery_date|date:"M d, Y H:i" }})</span>
+                    {% else %}
+                      <span class="text-secondary">Never</span>
+                    {% endif %}
+                  </td>
+                  <td class="actions">
+                    <button name="webhook_id"
+                            value="{{ webhook.id }}"
+                            type="submit"
+                            formaction="{% url 'linkding:settings.integrations.test_webhook' %}"
+                            class="btn btn-link">Test</button>
+                    <a class="btn btn-link"
+                       href="{% url 'linkding:settings.integrations.edit_webhook' webhook.id %}"
+                       data-turbo-frame="webhook-modal">Edit</a>
+                    <button data-confirm
+                            name="webhook_id"
+                            value="{{ webhook.id }}"
+                            type="submit"
+                            class="btn btn-link">Delete</button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </form>
+      {% endif %}
+      <a class="btn"
+         href="{% url 'linkding:settings.integrations.create_webhook' %}"
+         data-turbo-frame="webhook-modal">Create webhook</a>
+    </section>
+    <turbo-frame id="webhook-modal"></turbo-frame>
+    <script>
+      (function init() {
+        // Copy new webhook secret to clipboard
+        const copyButton = document.getElementById('copy-new-webhook-secret');
+        if (copyButton) {
+          copyButton.addEventListener('click', () => {
+            const secretInput = document.getElementById('new-webhook-secret');
+            navigator.clipboard.writeText(secretInput.value).then(() => {
+              copyButton.textContent = 'Copied!';
+              setTimeout(() => {
+                copyButton.textContent = 'Copy';
+              }, 2000);
+            }, (err) => {
+              console.error('Could not copy text: ', err);
+            });
+          });
+        }
+      })();
+    </script>
+    </turbo-frame>
     <section aria-labelledby="rss-feeds-heading">
       <h2 id="rss-feeds-heading">RSS Feeds</h2>
       <p>The following URLs provide RSS feeds for your bookmarks:</p>

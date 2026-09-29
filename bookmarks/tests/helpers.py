@@ -22,6 +22,7 @@ from bookmarks.models import (
     BookmarkBundle,
     Tag,
     User,
+    Webhook,
 )
 
 
@@ -292,6 +293,26 @@ class BookmarkFactoryMixin:
         token = ApiToken(user=user, name=name)
         token.save()
         return token
+
+    def setup_webhook(
+        self,
+        user: User = None,
+        name: str = "",
+        url: str = "https://example.com/webhook",
+        events: list[str] = None,
+        enabled: bool = True,
+    ):
+        if user is None:
+            user = self.get_or_create_test_user()
+        if not name:
+            name = get_random_string(length=32)
+        if events is None:
+            events = [event for event, _ in Webhook.EVENT_CHOICES]
+        webhook = Webhook(
+            owner=user, name=name, url=url, events=events, enabled=enabled
+        )
+        webhook.save()
+        return webhook
 
     def get_tags_from_bookmarks(self, bookmarks: list[Bookmark]):
         all_tags = []

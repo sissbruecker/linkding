@@ -86,7 +86,9 @@ def _create_html_snapshot(asset: BookmarkAsset):
 
     asset.bookmark.latest_snapshot = asset
     asset.bookmark.date_modified = timezone.now()
-    asset.bookmark.save()
+    # Only save changed fields. The bookmark may have been loaded long before,
+    # saving all fields would silently revert changes made in the meantime.
+    asset.bookmark.save(update_fields=["latest_snapshot", "date_modified"])
 
 
 def _create_pdf_snapshot(asset: BookmarkAsset):
@@ -145,7 +147,9 @@ def _create_pdf_snapshot(asset: BookmarkAsset):
 
     asset.bookmark.latest_snapshot = asset
     asset.bookmark.date_modified = timezone.now()
-    asset.bookmark.save()
+    # Only save changed fields. The bookmark may have been loaded long before,
+    # saving all fields would silently revert changes made in the meantime.
+    asset.bookmark.save(update_fields=["latest_snapshot", "date_modified"])
 
 
 def upload_snapshot(bookmark: Bookmark, html: bytes):
@@ -168,7 +172,9 @@ def upload_snapshot(bookmark: Bookmark, html: bytes):
 
     asset.bookmark.latest_snapshot = asset
     asset.bookmark.date_modified = timezone.now()
-    asset.bookmark.save()
+    # Only save changed fields. The bookmark may have been loaded long before,
+    # saving all fields would silently revert changes made in the meantime.
+    asset.bookmark.save(update_fields=["latest_snapshot", "date_modified"])
 
     return asset
 
@@ -210,7 +216,7 @@ def upload_asset(bookmark: Bookmark, upload_file: UploadedFile):
         asset.save()
 
         asset.bookmark.date_modified = timezone.now()
-        asset.bookmark.save()
+        asset.bookmark.save(update_fields=["date_modified"])
 
         logger.info(
             f"Successfully uploaded asset file. bookmark={bookmark} file={upload_file.name}"
@@ -282,7 +288,7 @@ def remove_asset(asset: BookmarkAsset):
 
     asset.delete()
     bookmark.date_modified = timezone.now()
-    bookmark.save()
+    bookmark.save(update_fields=["latest_snapshot", "date_modified"])
 
 
 def _generate_asset_filename(

@@ -24,7 +24,14 @@ from bookmarks.models import (
     Tag,
     User,
 )
-from bookmarks.services import assets, auto_tagging, bookmarks, bundles, website_loader
+from bookmarks.services import (
+    assets,
+    auto_tagging,
+    bookmarks,
+    bundles,
+    tags,
+    website_loader,
+)
 from bookmarks.type_defs import HttpRequest
 from bookmarks.views import access
 
@@ -80,6 +87,9 @@ class BookmarkViewSet(
             "disable_scraping": disable_scraping,
             "disable_html_snapshot": disable_html_snapshot,
         }
+
+    def perform_destroy(self, instance: Bookmark):
+        bookmarks.delete_bookmark(instance)
 
     @action(methods=["get"], detail=False)
     def archived(self, request: HttpRequest):
@@ -153,10 +163,10 @@ class BookmarkViewSet(
 
         if not bookmark:
             bookmark = Bookmark(url=url)
+            bookmarks.enhance_with_website_metadata(bookmark)
             bookmark = bookmarks.create_bookmark(
                 bookmark, "", request.user, disable_html_snapshot=True
             )
-            bookmarks.enhance_with_website_metadata(bookmark)
 
         assets.upload_snapshot(bookmark, file.read())
 
@@ -253,6 +263,9 @@ class TagViewSet(
 
     def get_serializer_context(self):
         return {"user": self.request.user}
+
+    def perform_destroy(self, instance: Tag):
+        tags.delete_tag(instance)
 
 
 class UserViewSet(viewsets.GenericViewSet):

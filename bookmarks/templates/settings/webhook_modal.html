@@ -1,0 +1,59 @@
+{% load shared %}
+<turbo-frame id="webhook-modal">
+<form method="post"
+      action="{% if webhook %}{% url 'linkding:settings.integrations.edit_webhook' webhook.id %}{% else %}{% url 'linkding:settings.integrations.create_webhook' %}{% endif %}"
+      data-turbo-frame="webhooks-section"
+      novalidate>
+  {% csrf_token %}
+  <ld-modal class="modal active"
+            data-close-url="{% url 'linkding:settings.integrations' %}"
+            data-turbo-frame="webhook-modal">
+    <div class="modal-overlay" data-close-modal></div>
+    <div class="modal-container" role="dialog" aria-modal="true">
+      {% if webhook %}
+        {% include 'shared/modal_header.html' with title="Edit Webhook" %}
+      {% else %}
+        {% include 'shared/modal_header.html' with title="Create Webhook" %}
+      {% endif %}
+      <div class="modal-body">
+        <div class="form-group">
+          {% formlabel form.name "Name" %}
+          {% formfield form.name has_help=True autofocus=True %}
+          {% formhelp form.name %}
+            A descriptive name to identify the webhook
+          {% endformhelp %}
+          {{ form.name.errors }}
+        </div>
+        <div class="form-group">
+          {% formlabel form.url "URL" %}
+          {% formfield form.url has_help=True placeholder="https://example.com/webhook" %}
+          {% formhelp form.url %}
+            linkding sends a POST request to this URL whenever one of the selected events occurs
+          {% endformhelp %}
+          {{ form.url.errors }}
+        </div>
+        <fieldset class="form-group">
+          <legend class="form-label">Events</legend>
+          {% for choice in form.events %}
+            <label class="form-checkbox" for="{{ choice.id_for_label }}">
+              {{ choice.tag }}
+              <i class="form-icon"></i> {{ choice.choice_label }}
+            </label>
+          {% endfor %}
+          {{ form.events.errors }}
+        </fieldset>
+        <div class="form-group">
+          {% formfield form.enabled label="Enabled" has_help=True %}
+          {% formhelp form.enabled %}
+            Disabled webhooks do not receive any events, including events that are already queued
+          {% endformhelp %}
+        </div>
+      </div>
+      <div class="modal-footer d-flex justify-between">
+        <button type="button" class="btn btn-wide" data-close-modal>Cancel</button>
+        <button type="submit" class="btn btn-primary btn-wide">Save</button>
+      </div>
+    </div>
+  </ld-modal>
+</form>
+</turbo-frame>

@@ -946,6 +946,23 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         updated_bookmark = Bookmark.objects.get(id=bookmark.id)
         self.assertCountEqual(updated_bookmark.tags.all(), [tag1, tag2])
 
+    def test_patch_without_tags_keeps_tags_and_adds_tags_from_auto_tagging(self):
+        self.authenticate()
+        tag1 = self.setup_tag()
+        tag2 = self.setup_tag()
+        bookmark = self.setup_bookmark(url="https://other.com", tags=[tag1])
+
+        profile = self.get_or_create_test_user().profile
+        profile.auto_tagging_rules = f"example.com {tag2.name}"
+        profile.save()
+
+        data = {"url": "https://example.com"}
+        url = reverse("linkding:bookmark-detail", args=[bookmark.id])
+        self.patch(url, data, expected_status_code=status.HTTP_200_OK)
+        updated_bookmark = Bookmark.objects.get(id=bookmark.id)
+        self.assertEqual("https://example.com", updated_bookmark.url)
+        self.assertCountEqual(updated_bookmark.tags.all(), [tag1, tag2])
+
     def test_delete_bookmark(self):
         self.authenticate()
         bookmark = self.setup_bookmark()

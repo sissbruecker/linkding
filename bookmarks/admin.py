@@ -22,7 +22,13 @@ from bookmarks.models import (
     Toast,
     UserProfile,
 )
-from bookmarks.services.bookmarks import archive_bookmark, unarchive_bookmark
+from bookmarks.services import tags as tag_service
+from bookmarks.services import tasks
+from bookmarks.services.bookmarks import (
+    archive_bookmark,
+    delete_bookmark,
+    unarchive_bookmark,
+)
 
 
 # Custom paginator to paginate through Huey tasks
@@ -142,10 +148,42 @@ class AdminBookmark(admin.ModelAdmin):
         del actions["delete_selected"]
         return actions
 
+    def save_model(self, request, obj, form, change):
+        # Track changes for the previous and the new owner, as moving a bookmark
+        # to another user is reported as a deletion and a creation. Changes are
+        # completed in save_related, after saving tags.
+        owners = [obj.owner]
+        if change:
+            previous_owner = Bookmark.objects.get(pk=obj.pk).owner
+            if previous_owner != obj.owner:
+                owners.append(previous_owner)
+        bookmark_changes = [tasks.BookmarkChanges(owner) for owner in owners]
+        # Tags must be locked before the bookmark, see lock_tags
+        bookmark_changes[0].lock_tags(form.cleaned_data.get("tags", []))
+        if change:
+            for changes in bookmark_changes:
+                changes.track([obj.pk])
+
+        super().save_model(request, obj, form, change)
+
+        # Does nothing if the bookmark was already tracked for the owner
+        bookmark_changes[0].track_created(obj)
+        request._bookmark_changes = bookmark_changes
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        # The admin saves the form in a transaction, so events are only sent
+        # once it commits
+        for changes in getattr(request, "_bookmark_changes", []):
+            changes.send_events()
+
+    def delete_model(self, request, obj):
+        delete_bookmark(obj)
+
     def delete_selected_bookmarks(self, request, queryset: QuerySet):
         bookmarks_count = queryset.count()
         for bookmark in queryset:
-            bookmark.delete()
+            delete_bookmark(bookmark)
         self.message_user(
             request,
             ngettext(
@@ -189,7 +227,7 @@ class AdminBookmark(admin.ModelAdmin):
 
     def mark_as_read(self, request, queryset: QuerySet):
         bookmarks_count = queryset.count()
-        queryset.update(unread=False)
+        self._update_bookmarks(queryset, unread=False)
         self.message_user(
             request,
             ngettext(
@@ -203,7 +241,7 @@ class AdminBookmark(admin.ModelAdmin):
 
     def mark_as_unread(self, request, queryset: QuerySet):
         bookmarks_count = queryset.count()
-        queryset.update(unread=True)
+        self._update_bookmarks(queryset, unread=True)
         self.message_user(
             request,
             ngettext(
@@ -214,6 +252,13 @@ class AdminBookmark(admin.ModelAdmin):
             % bookmarks_count,
             messages.SUCCESS,
         )
+
+    def _update_bookmarks(self, queryset: QuerySet, **fields):
+        # Resolve IDs first, as the queryset may be filtered by the fields that
+        # are updated
+        bookmark_ids = list(queryset.values_list("id", flat=True))
+        with tasks.track_bookmark_changes_of_all_owners(bookmark_ids):
+            Bookmark.objects.filter(id__in=bookmark_ids).update(**fields)
 
 
 class AdminBookmarkAsset(admin.ModelAdmin):
@@ -246,11 +291,26 @@ class AdminTag(admin.ModelAdmin):
 
     bookmarks_count.admin_order_field = "bookmarks_count"
 
+    def save_model(self, request, obj, form, change):
+        if not change:
+            return super().save_model(request, obj, form, change)
+        # Renaming a tag changes the tags of all of its bookmarks
+        with tag_service.track_tag_changes([obj]):
+            super().save_model(request, obj, form, change)
+
+    def delete_model(self, request, obj):
+        tag_service.delete_tag(obj)
+
+    def delete_queryset(self, request, queryset):
+        with tag_service.track_tag_changes(queryset):
+            super().delete_queryset(request, queryset)
+
     def delete_unused_tags(self, request, queryset: QuerySet):
         unused_tags = queryset.filter(bookmark__isnull=True)
         unused_tags_count = unused_tags.count()
         for tag in unused_tags:
-            tag.delete()
+            # The tag may have been added to a bookmark in the meantime
+            tag_service.delete_tag(tag)
 
         if unused_tags_count > 0:
             self.message_user(
