@@ -228,6 +228,7 @@ class BookmarkSearch:
     SORT_MODIFIED_DESC = "modified_desc"
     SORT_TITLE_ASC = "title_asc"
     SORT_TITLE_DESC = "title_desc"
+    SORT_RANDOM = "random"
 
     FILTER_SHARED_OFF = "off"
     FILTER_SHARED_SHARED = "yes"
@@ -246,6 +247,7 @@ class BookmarkSearch:
         "unread",
         "modified_since",
         "added_since",
+        "random_seed",
     ]
     preferences = ["sort", "shared", "unread"]
     defaults = {
@@ -257,6 +259,7 @@ class BookmarkSearch:
         "unread": FILTER_UNREAD_OFF,
         "modified_since": None,
         "added_since": None,
+        "random_seed": None,
     }
 
     def __init__(
@@ -269,6 +272,7 @@ class BookmarkSearch:
         unread: str = None,
         modified_since: str = None,
         added_since: str = None,
+        random_seed: str = None,
         preferences: dict = None,
         request: any = None,
     ):
@@ -285,6 +289,11 @@ class BookmarkSearch:
         self.unread = unread or self.defaults["unread"]
         self.modified_since = modified_since or self.defaults["modified_since"]
         self.added_since = added_since or self.defaults["added_since"]
+        # Drop a stale seed so it doesn't linger in query_params after the sort changes.
+        if self.sort == BookmarkSearch.SORT_RANDOM:
+            self.random_seed = random_seed or self.defaults["random_seed"]
+        else:
+            self.random_seed = None
 
     def is_modified(self, param):
         value = self.__dict__[param]

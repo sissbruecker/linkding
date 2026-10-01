@@ -302,6 +302,16 @@ def _base_bookmarks_query(
         query_set = query_set.order_by("date_modified")
     elif search.sort == BookmarkSearch.SORT_MODIFIED_DESC:
         query_set = query_set.order_by("-date_modified")
+    elif search.sort == BookmarkSearch.SORT_RANDOM:
+        if search.random_seed:
+            # Seeded hash keeps the shuffle stable across pages.
+            order_field = RawSQL(
+                "md5(CAST(bookmarks_bookmark.id AS TEXT) || %s)",
+                (search.random_seed,),
+            )
+            query_set = query_set.order_by(order_field)
+        else:
+            query_set = query_set.order_by("?")
     else:
         # Sort by date added, descending by default
         query_set = query_set.order_by("-date_added")

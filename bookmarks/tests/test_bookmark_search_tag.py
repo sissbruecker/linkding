@@ -236,3 +236,20 @@ class BookmarkSearchTagTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         self.assertUnmodifiedLabel(rendered_template, "Sort by")
         self.assertUnmodifiedLabel(rendered_template, "Shared filter")
         self.assertModifiedLabel(rendered_template, "Unread filter")
+
+    def test_random_seed_is_kept_by_both_forms(self):
+        url = "/test?sort=random&random_seed=42"
+        soup = self.make_soup(self.render_template(url))
+
+        self.assertHiddenInput(soup.select_one("form#search"), "random_seed", "42")
+        self.assertHiddenInput(
+            soup.select_one("form#search_preferences"), "random_seed", "42"
+        )
+
+        url = "/test?sort=title_asc&random_seed=42"
+        soup = self.make_soup(self.render_template(url))
+
+        self.assertNoHiddenInput(soup.select_one("form#search"), "random_seed")
+        self.assertNoHiddenInput(
+            soup.select_one("form#search_preferences"), "random_seed"
+        )

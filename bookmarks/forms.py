@@ -253,6 +253,7 @@ class BookmarkSearchForm(forms.Form):
         (BookmarkSearch.SORT_MODIFIED_DESC, "Modified ↓"),
         (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
         (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
+        (BookmarkSearch.SORT_RANDOM, "Random"),
     ]
     FILTER_SHARED_CHOICES = [
         (BookmarkSearch.FILTER_SHARED_OFF, "Off"),
@@ -273,6 +274,7 @@ class BookmarkSearchForm(forms.Form):
     unread = forms.ChoiceField(choices=FILTER_UNREAD_CHOICES, widget=forms.RadioSelect)
     modified_since = forms.CharField(required=False)
     added_since = forms.CharField(required=False)
+    random_seed = forms.CharField(required=False)
 
     def __init__(
         self,

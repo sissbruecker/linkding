@@ -1278,6 +1278,55 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         actual_effective_titles = [b.resolved_title for b in query]
         self.assertEqual(expected_effective_titles, actual_effective_titles)
 
+    def test_sort_by_random(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM)
+
+        bookmarks = self.setup_numbered_bookmarks(10)
+
+        query = queries.query_bookmarks(self.user, self.profile, search)
+        result = list(query)
+
+        self.assertEqual(len(result), len(bookmarks))
+        self.assertEqual(set(result), set(bookmarks))
+
+    def test_sort_by_random_is_deterministic_for_same_seed(self):
+        self.setup_numbered_bookmarks(20)
+
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM, random_seed="42")
+        first = list(queries.query_bookmarks(self.user, self.profile, search))
+        second = list(queries.query_bookmarks(self.user, self.profile, search))
+
+        self.assertEqual(first, second)
+
+    def test_sort_by_random_differs_across_seeds(self):
+        self.setup_numbered_bookmarks(20)
+
+        search_a = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM, random_seed="1")
+        search_b = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM, random_seed="2")
+
+        result_a = list(queries.query_bookmarks(self.user, self.profile, search_a))
+        result_b = list(queries.query_bookmarks(self.user, self.profile, search_b))
+
+        self.assertEqual(set(result_a), set(result_b))
+        self.assertNotEqual(result_a, result_b)
+
+    def test_sort_by_random_without_seed_is_not_fixed(self):
+        self.setup_numbered_bookmarks(20)
+
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM)
+        orders = {
+            tuple(queries.query_bookmarks(self.user, self.profile, search))
+            for _ in range(3)
+        }
+
+        self.assertGreater(len(orders), 1)
+
+    def test_random_seed_cleared_when_sort_not_random(self):
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_TITLE_ASC, random_seed="123")
+
+        self.assertIsNone(search.random_seed)
+        self.assertNotIn("random_seed", search.query_params)
+
     def test_query_bookmarks_filter_modified_since(self):
         # Create bookmarks with different modification dates
         older_bookmark = self.setup_bookmark(title="old bookmark")
