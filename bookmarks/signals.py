@@ -16,8 +16,7 @@ def extend_sqlite(connection=None, **kwargs):
     if connection.vendor != "sqlite":
         return
 
-    # Register md5 so random-sort ordering is identical across engines
-    # (Postgres ships md5 natively).
+    # Postgres has md5 built in; random sort needs it on SQLite too.
     connection.connection.create_function("md5", 1, _sqlite_md5, deterministic=True)
 
     # Load ICU extension into Sqlite connection to support case-insensitive

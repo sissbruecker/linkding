@@ -246,9 +246,6 @@ class BookmarkBundleForm(forms.ModelForm):
 
 
 class BookmarkSearchForm(forms.Form):
-    # BookmarkSearch params that are carried in the URL but have no form field.
-    NON_FIELD_PARAMS = {"random_seed"}
-
     SORT_CHOICES = [
         (BookmarkSearch.SORT_ADDED_ASC, "Added ↑"),
         (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
@@ -277,6 +274,7 @@ class BookmarkSearchForm(forms.Form):
     unread = forms.ChoiceField(choices=FILTER_UNREAD_CHOICES, widget=forms.RadioSelect)
     modified_since = forms.CharField(required=False)
     added_since = forms.CharField(required=False)
+    random_seed = forms.CharField(required=False)
 
     def __init__(
         self,
@@ -295,9 +293,6 @@ class BookmarkSearchForm(forms.Form):
             self.fields["user"].choices = user_choices
 
         for param in search.params:
-            if param in BookmarkSearchForm.NON_FIELD_PARAMS:
-                continue
-
             # set initial values for modified params
             value = search.__dict__.get(param)
             if isinstance(value, models.Model):

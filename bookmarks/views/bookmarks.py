@@ -166,21 +166,12 @@ def shared_update(request: HttpRequest):
 
 
 def _ensure_random_seed_in_url(request: HttpRequest, search: BookmarkSearch):
-    # Pagination links are built from request.GET, so the seed must be in the
-    # URL for ordering to stay consistent across pages. Generate (or repair)
-    # the seed here whenever the URL is missing one or has a non-digit value.
-    # API/RSS callers bypass this helper and are expected to supply their own.
-    if search.sort != BookmarkSearch.SORT_RANDOM:
+    # Pagination links are built from request.GET, so the seed must be in the URL.
+    if search.sort != BookmarkSearch.SORT_RANDOM or search.random_seed:
         return None
 
-    url_seed = request.GET.get("random_seed")
-    if url_seed and url_seed.isdigit():
-        search.random_seed = url_seed
-        return None
-
-    search.random_seed = str(random.randint(1, 2**31 - 1))
     query_params = request.GET.copy()
-    query_params["random_seed"] = search.random_seed
+    query_params["random_seed"] = str(random.randint(1, 2**31 - 1))
     return HttpResponseRedirect(f"{request.path}?{query_params.urlencode()}")
 
 

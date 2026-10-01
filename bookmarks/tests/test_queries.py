@@ -1281,7 +1281,7 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
     def test_sort_by_random(self):
         search = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM)
 
-        bookmarks = [self.setup_bookmark() for _ in range(10)]
+        bookmarks = self.setup_numbered_bookmarks(10)
 
         query = queries.query_bookmarks(self.user, self.profile, search)
         result = list(query)
@@ -1290,7 +1290,7 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(set(result), set(bookmarks))
 
     def test_sort_by_random_is_deterministic_for_same_seed(self):
-        [self.setup_bookmark() for _ in range(20)]
+        self.setup_numbered_bookmarks(20)
 
         search = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM, random_seed="42")
         first = list(queries.query_bookmarks(self.user, self.profile, search))
@@ -1299,7 +1299,7 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(first, second)
 
     def test_sort_by_random_differs_across_seeds(self):
-        [self.setup_bookmark() for _ in range(20)]
+        self.setup_numbered_bookmarks(20)
 
         search_a = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM, random_seed="1")
         search_b = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM, random_seed="2")
@@ -1310,10 +1310,19 @@ class QueriesBasicTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(set(result_a), set(result_b))
         self.assertNotEqual(result_a, result_b)
 
+    def test_sort_by_random_without_seed_is_not_fixed(self):
+        self.setup_numbered_bookmarks(20)
+
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_RANDOM)
+        orders = {
+            tuple(queries.query_bookmarks(self.user, self.profile, search))
+            for _ in range(3)
+        }
+
+        self.assertGreater(len(orders), 1)
+
     def test_random_seed_cleared_when_sort_not_random(self):
-        search = BookmarkSearch(
-            sort=BookmarkSearch.SORT_TITLE_ASC, random_seed="123"
-        )
+        search = BookmarkSearch(sort=BookmarkSearch.SORT_TITLE_ASC, random_seed="123")
 
         self.assertIsNone(search.random_seed)
         self.assertNotIn("random_seed", search.query_params)

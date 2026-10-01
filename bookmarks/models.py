@@ -289,10 +289,7 @@ class BookmarkSearch:
         self.unread = unread or self.defaults["unread"]
         self.modified_since = modified_since or self.defaults["modified_since"]
         self.added_since = added_since or self.defaults["added_since"]
-        # Seed is only meaningful while sorting randomly; drop it otherwise so
-        # it stops propagating through query_params when the user changes sort.
-        # HTML views generate a seed via _ensure_random_seed_in_url when one is
-        # missing; API and feed callers are expected to supply their own.
+        # Drop a stale seed so it doesn't linger in query_params after the sort changes.
         if self.sort == BookmarkSearch.SORT_RANDOM:
             self.random_seed = random_seed or self.defaults["random_seed"]
         else:

@@ -303,14 +303,15 @@ def _base_bookmarks_query(
     elif search.sort == BookmarkSearch.SORT_MODIFIED_DESC:
         query_set = query_set.order_by("-date_modified")
     elif search.sort == BookmarkSearch.SORT_RANDOM:
-        # Deterministic shuffle keyed on a per-search seed so pagination is
-        # stable across requests. SQLite gets md5 from a UDF registered in
-        # bookmarks.signals.extend_sqlite.
-        order_field = RawSQL(
-            "md5(CAST(bookmarks_bookmark.id AS TEXT) || %s)",
-            (str(search.random_seed),),
-        )
-        query_set = query_set.order_by(order_field)
+        if search.random_seed:
+            # Seeded hash keeps the shuffle stable across pages.
+            order_field = RawSQL(
+                "md5(CAST(bookmarks_bookmark.id AS TEXT) || %s)",
+                (search.random_seed,),
+            )
+            query_set = query_set.order_by(order_field)
+        else:
+            query_set = query_set.order_by("?")
     else:
         # Sort by date added, descending by default
         query_set = query_set.order_by("-date_added")
