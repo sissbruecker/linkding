@@ -1,5 +1,7 @@
 import logging
+from urllib.parse import urlsplit
 
+from django.conf import settings
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, User, parse_tag_string
@@ -46,10 +48,19 @@ def create_bookmark(
     if (
         current_user.profile.enable_automatic_html_snapshots
         and not disable_html_snapshot
+        and not _snapshot_domain_excluded(bookmark.url)
     ):
         tasks.create_html_snapshot(bookmark)
 
     return bookmark
+
+
+def _snapshot_domain_excluded(url: str) -> bool:
+    hostname = (urlsplit(url).hostname or "").lower().rstrip(".")
+    return any(
+        hostname == domain or hostname.endswith("." + domain)
+        for domain in settings.LD_SNAPSHOT_EXCLUDED_DOMAINS
+    )
 
 
 def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):

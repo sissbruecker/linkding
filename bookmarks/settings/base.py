@@ -334,6 +334,11 @@ LD_DISABLE_ASSET_UPLOAD = os.getenv("LD_DISABLE_ASSET_UPLOAD", False) in (
     "true",
     "1",
 )
+LD_SNAPSHOT_EXCLUDED_DOMAINS = [
+    domain.strip().lower().rstrip(".")
+    for domain in os.getenv("LD_SNAPSHOT_EXCLUDED_DOMAINS", "").split(",")
+    if domain.strip().rstrip(".")
+]
 LD_SINGLEFILE_PATH = os.getenv("LD_SINGLEFILE_PATH", "single-file")
 LD_SINGLEFILE_UBLOCK_OPTIONS = os.getenv(
     "LD_SINGLEFILE_UBLOCK_OPTIONS",

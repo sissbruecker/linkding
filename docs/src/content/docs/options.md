@@ -393,3 +393,13 @@ Example: `LD_SINGLEFILE_OPTIONS=--user-agent="Mozilla/5.0 (Macintosh; Intel Mac 
 Values: `true` or `false` | Default =  `false`
 
 Set uWSGI [disable-logging](https://uwsgi-docs.readthedocs.io/en/latest/Options.html#disable-logging) parameter to disable request logs, except for requests with a client (4xx) or server (5xx) error response.
+
+### `LD_SNAPSHOT_EXCLUDED_DOMAINS`
+
+Values: comma-separated domain names | Default = empty
+
+Exclude domains from automatic local snapshots, for example
+`LD_SNAPSHOT_EXCLUDED_DOMAINS=youtube.com,youtu.be`. Matches the domain and its
+subdomains, case-insensitively. Specify hostnames without a scheme, path, or port.
+This applies to all users. Bookmarks are still saved, and manually requested
+snapshots, uploaded snapshots, and Internet Archive snapshots are unaffected.
