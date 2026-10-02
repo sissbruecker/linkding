@@ -1,7 +1,7 @@
 import datetime
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, Tag
@@ -194,6 +194,35 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             bookmark = create_bookmark(bookmark_data, "tag1,tag2", self.user)
 
             mock_create_html_snapshot.assert_called_once_with(bookmark)
+
+    @override_settings(LD_SNAPSHOT_EXCLUDED_DOMAINS=["example.com"])
+    def test_automatic_snapshots_skip_excluded_domains(self):
+        for url, excluded in (
+            ("https://example.com", True),
+            ("https://www.example.com/watch", True),
+            ("https://EXAMPLE.COM.:8443/watch", True),
+            ("https://notexample.com", False),
+            ("https://example.com.other.test", False),
+            ("https://other.test/example.com", False),
+        ):
+            with (
+                self.subTest(url=url),
+                patch.object(tasks, "create_html_snapshot") as create,
+            ):
+                bookmark = create_bookmark(Bookmark(url=url), "", self.user)
+                if excluded:
+                    create.assert_not_called()
+                else:
+                    create.assert_called_once_with(bookmark)
+                self.assertTrue(Bookmark.objects.filter(pk=bookmark.pk).exists())
+
+    @override_settings(LD_SNAPSHOT_EXCLUDED_DOMAINS=["example.com"])
+    def test_manual_snapshots_allow_excluded_domains(self):
+        bookmark = self.setup_bookmark(url="https://example.com")
+        with patch.object(tasks, "create_html_snapshots") as create:
+            create_html_snapshots([bookmark.id], self.user)
+            create.assert_called_once()
+            self.assertEqual(list(create.call_args.args[0]), [bookmark])
 
     def test_create_should_not_load_html_snapshot_when_disabled(self):
         with patch.object(tasks, "create_html_snapshot") as mock_create_html_snapshot:
