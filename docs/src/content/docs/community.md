@@ -46,6 +46,7 @@ This section lists community projects around using linkding. If you have a proje
 | [linktiles](https://github.com/haondt/linktiles) | A web app that displays your links as tiles in a configurable mosaic. | [haondt](https://github.com/haondt) |
 | [Pocket2Linkding](https://github.com/hkclark/Pocket2Linkding/) | A tool to migrate from Mozilla Pocket to linkding. Preserves the date the link was added to pocket and any tags. | [hkclark](https://github.com/hkclark) |
 | [serchding](https://github.com/ldwgchen/serchding) | Full-text search for linkding. | [ldwgchen](https://github.com/ldwgchen) |
+| [twinmarks](https://rezarys.github.io/twinmarks/) | A web page that finds near-duplicate bookmarks in a linkding export (http/https, www, tracking parameters) and writes an import file that tags the extra copies for bulk delete. Runs in the browser. | [Rezarys](https://github.com/Rezarys) |
 
 ## Utilities
 
