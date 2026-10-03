@@ -2,6 +2,7 @@ import datetime
 import email
 import unittest
 import urllib.parse
+from xml.etree import ElementTree
 
 from django.conf import settings
 from django.test import TestCase
@@ -50,6 +51,84 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
                 "</item>"
             )
             self.assertContains(response, expected_item, count=1)
+
+    def test_notes_are_opt_in_and_do_not_leak_between_requests(self):
+        bookmark = self.setup_bookmark(description="Description", notes="**My notes**")
+        feed_url = reverse("linkding:feeds.all", args=[self.token.key])
+        response = self.client.get(feed_url, {"include_notes": "true"})
+        description = ElementTree.fromstring(response.content).findtext(
+            "channel/item/description"
+        )
+        self.assertEqual(description, "Description<hr><p><strong>My notes</strong></p>")
+        for params in ({}, {"include_notes": "false"}, {"include_notes": "invalid"}):
+            with self.subTest(params=params):
+                self.assertFeedItems(self.client.get(feed_url, params), [bookmark])
+
+    def test_notes_are_sanitized_and_descriptions_are_escaped(self):
+        self.setup_bookmark(
+            description='<img src=x onerror="alert(1)">',
+            notes="**Comment**\x00 <script>alert(1)</script> [unsafe](javascript:alert)",
+        )
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key]),
+            {"include_notes": "true"},
+        )
+        self.assertEqual(response.status_code, 200)
+        description = ElementTree.fromstring(response.content).findtext(
+            "channel/item/description"
+        )
+        self.assertIn("<strong>Comment</strong>", description)
+        self.assertNotIn("<script>", description)
+        self.assertNotIn("<img", description)
+        self.assertNotIn('href="javascript:', description)
+        self.assertNotIn("\x00", description)
+
+    def test_empty_notes_preserve_description(self):
+        bookmark = self.setup_bookmark(description="Description", notes="")
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key]),
+            {"include_notes": "true"},
+        )
+        self.assertFeedItems(response, [bookmark])
+
+    def test_notes_respect_feed_visibility(self):
+        other_user = self.setup_user()
+        for name in ("all", "unread", "shared", "public_shared"):
+            with self.subTest(feed=name):
+                self.setup_bookmark(
+                    user=other_user, notes="Private note", shared=False, unread=True
+                )
+                bookmark = self.setup_bookmark(
+                    description="Visible",
+                    notes="Visible note",
+                    shared=True,
+                    unread=True,
+                )
+                self.get_or_create_test_user().profile.enable_sharing = True
+                self.get_or_create_test_user().profile.enable_public_sharing = True
+                self.get_or_create_test_user().profile.save()
+                args = [] if name == "public_shared" else [self.token.key]
+                response = self.client.get(
+                    reverse("linkding:feeds." + name, args=args),
+                    {"include_notes": "true"},
+                )
+                self.assertEqual(response.status_code, 200)
+                descriptions = [
+                    item.findtext("description")
+                    for item in ElementTree.fromstring(response.content).findall(
+                        "channel/item"
+                    )
+                ]
+                self.assertTrue(
+                    any("Visible note" in description for description in descriptions)
+                )
+                self.assertTrue(
+                    all(
+                        "Private note" not in description
+                        for description in descriptions
+                    )
+                )
+                bookmark.delete()
 
     def test_all_returns_404_for_unknown_feed_token(self):
         response = self.client.get(reverse("linkding:feeds.all", args=["foo"]))
