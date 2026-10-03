@@ -5,9 +5,11 @@ from django.contrib.syndication.views import Feed
 from django.db.models import QuerySet, prefetch_related_objects
 from django.http import HttpRequest
 from django.urls import reverse
+from django.utils.html import format_html
 
 from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkSearch, FeedToken, User, UserProfile
+from bookmarks.templatetags.shared import render_markdown
 from bookmarks.views import access
 
 
@@ -57,13 +59,23 @@ class BaseBookmarksFeed(Feed):
         limit = context.request.GET.get("limit", 100)
         data = context.query_set[: int(limit)] if limit else list(context.query_set)
         prefetch_related_objects(data, "tags")
+        if context.request.GET.get("include_notes") == "true":
+            for item in data:
+                if item.notes:
+                    item.feed_description = sanitize(
+                        format_html(
+                            "{}<hr>{}",
+                            item.resolved_description,
+                            render_markdown({}, sanitize(item.notes)),
+                        )
+                    )
         return data
 
     def item_title(self, item: Bookmark):
         return sanitize(item.resolved_title)
 
     def item_description(self, item: Bookmark):
-        return sanitize(item.resolved_description)
+        return getattr(item, "feed_description", sanitize(item.resolved_description))
 
     def item_link(self, item: Bookmark):
         return item.url
