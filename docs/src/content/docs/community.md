@@ -56,6 +56,7 @@ This section lists community projects around using linkding. If you have a proje
 | [iOS Shortcut using API and Tagging](https://gist.github.com/andrewdolphin/a7dff49505e588d940bec55132fab8ad) | An iOS shortcut using the Linkding API (no extra logins required) that pulls previously used tags and allows tagging at the time of link creation. | [andrewdolphin](https://github.com/andrewdolphin) |
 | [iOS Shortcut and workflow](https://joshdick.net/2025/01/23/how_i_use_linkding_on_ios.html) | iOS shortcut that accepts URLs in various ways, and shows a corresponding Linkding add/edit webview in a modal popup. | [joshdick](https://joshdick.net) |
 | [k8s + s3](https://github.com/jzck/linkding-k8s-s3) | Setup for hosting stateless linkding on k8s with sqlite replicated to s3. | [jzck](https://github.com/jzck) |
+| [linkding-flow-launcher](https://github.com/arthackrc/linkding-flow-launcher) | A [Flow Launcher](https://www.flowlauncher.com/) plugin for searching, adding, and managing linkding bookmarks. | [arthackrc](https://github.com/arthackrc) |
 | [Open all links bookmarklet](https://gist.github.com/ukcuddlyguy/336dd7339e6d35fc64a75ccfc9323c66) | A browser bookmarklet to open all links on the current Linkding page in new tabs. | [ukcuddlyguy](https://github.com/ukcuddlyguy) |
 | [Postman collection](https://gist.github.com/gingerbeardman/f0b42502f3bc9344e92ce63afd4360d3) | A group of saved request templates for API testing. | [gingerbeardman](https://github.com/gingerbeardman) |
 
