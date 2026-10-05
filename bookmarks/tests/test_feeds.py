@@ -2,6 +2,7 @@ import datetime
 import email
 import unittest
 import urllib.parse
+from xml.etree import ElementTree
 
 from django.conf import settings
 from django.test import TestCase
@@ -23,6 +24,106 @@ class FeedsTestCase(TestCase, BookmarkFactoryMixin):
         user = self.get_or_create_test_user()
         self.client.force_login(user)
         self.token = FeedToken.objects.get_or_create(user=user)[0]
+
+    def get_item_descriptions(self, response):
+        self.assertEqual(response.status_code, 200)
+        root = ElementTree.fromstring(response.content)
+        return [
+            item.findtext("description", "") for item in root.findall("channel/item")
+        ]
+
+    def test_notes_require_explicit_opt_in_on_each_request(self):
+        self.setup_bookmark(description="Description", notes="**Note**")
+        url = reverse("linkding:feeds.all", args=[self.token.key])
+
+        response = self.client.get(url, {"include_notes": "true"})
+        self.assertEqual(
+            self.get_item_descriptions(response),
+            ["Description<hr><p><strong>Note</strong></p>"],
+        )
+        for params in ({}, {"include_notes": "false"}, {"include_notes": "invalid"}):
+            with self.subTest(params=params):
+                self.assertEqual(
+                    self.get_item_descriptions(self.client.get(url, params)),
+                    ["Description"],
+                )
+
+    def test_notes_without_description_do_not_add_separator(self):
+        self.setup_bookmark(description="", notes="A note")
+
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key]),
+            {"include_notes": "true"},
+        )
+
+        self.assertEqual(self.get_item_descriptions(response), ["<p>A note</p>"])
+
+    def test_empty_notes_preserve_description(self):
+        bookmark = self.setup_bookmark(description="Description", notes="")
+
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key]),
+            {"include_notes": "true"},
+        )
+
+        self.assertFeedItems(response, [bookmark])
+
+    def test_notes_use_sanitized_markdown_and_escape_description(self):
+        self.setup_bookmark(
+            description='<img src="x" onerror="alert(1)"> & description',
+            notes="**Comment**\x00\n<script>alert(1)</script>\n[link](javascript:alert(1))",
+        )
+
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key]),
+            {"include_notes": "true"},
+        )
+
+        description = self.get_item_descriptions(response)[0]
+        self.assertIn("&lt;img", description)
+        self.assertIn("&amp; description", description)
+        self.assertIn("<strong>Comment</strong>", description)
+        self.assertNotIn("<img", description)
+        self.assertNotIn("<script>", description)
+        self.assertNotIn('href="javascript:', description)
+        self.assertNotIn("\x00", description)
+
+    def test_notes_do_not_change_visibility_across_feed_types(self):
+        user = self.get_or_create_test_user()
+        user.profile.enable_sharing = True
+        user.profile.enable_public_sharing = True
+        user.profile.save()
+        other_user = self.setup_user()
+        self.setup_bookmark(
+            user=other_user, shared=False, unread=True, notes="Private note"
+        )
+        self.setup_bookmark(shared=True, unread=True, notes="Visible note")
+
+        for feed in ("all", "unread", "shared", "public_shared"):
+            with self.subTest(feed=feed):
+                args = [] if feed == "public_shared" else [self.token.key]
+                response = self.client.get(
+                    reverse("linkding:feeds." + feed, args=args),
+                    {"include_notes": "true"},
+                )
+                descriptions = self.get_item_descriptions(response)
+                self.assertEqual(len(descriptions), 1)
+                self.assertIn("Visible note", descriptions[0])
+                self.assertNotIn("Private note", descriptions[0])
+
+    def test_notes_keep_search_and_limit_filters(self):
+        self.setup_bookmark(title="Matching first", notes="First note")
+        self.setup_bookmark(title="Matching second", notes="Second note")
+        self.setup_bookmark(title="Other bookmark", notes="Other note")
+
+        response = self.client.get(
+            reverse("linkding:feeds.all", args=[self.token.key]),
+            {"include_notes": "true", "q": "Matching", "limit": "1"},
+        )
+
+        descriptions = self.get_item_descriptions(response)
+        self.assertEqual(len(descriptions), 1)
+        self.assertIn("Second note", descriptions[0])
 
     def assertFeedItems(self, response, bookmarks):
         self.assertContains(response, "<item>", count=len(bookmarks))
