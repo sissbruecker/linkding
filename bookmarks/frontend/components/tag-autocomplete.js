@@ -120,6 +120,9 @@ export class TagAutocomplete extends TurboLitElement {
       suggestion.name +
       " " +
       value.substring(bounds.end);
+    const caret = bounds.start + suggestion.name.length + 1;
+    this.input.focus();
+    this.input.setSelectionRange(caret, caret);
     this.dispatchEvent(new CustomEvent("input", { bubbles: true }));
 
     this.close();
