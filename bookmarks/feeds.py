@@ -5,9 +5,11 @@ from django.contrib.syndication.views import Feed
 from django.db.models import QuerySet, prefetch_related_objects
 from django.http import HttpRequest
 from django.urls import reverse
+from django.utils.html import format_html
 
 from bookmarks import queries
 from bookmarks.models import Bookmark, BookmarkSearch, FeedToken, User, UserProfile
+from bookmarks.templatetags.shared import render_markdown
 from bookmarks.views import access
 
 
@@ -16,6 +18,7 @@ class FeedContext:
     request: HttpRequest
     feed_token: FeedToken | None
     query_set: QuerySet[Bookmark]
+    include_notes: bool = False
 
 
 def resolve_user(search: BookmarkSearch) -> User | None:
@@ -48,7 +51,8 @@ class BaseBookmarksFeed(Feed):
             bundle=bundle,
         )
         query_set = self.get_query_set(feed_token, search)
-        return FeedContext(request, feed_token, query_set)
+        include_notes = request.GET.get("include_notes") == "true"
+        return FeedContext(request, feed_token, query_set, include_notes)
 
     def get_query_set(self, feed_token: FeedToken, search: BookmarkSearch):
         raise NotImplementedError
@@ -57,13 +61,23 @@ class BaseBookmarksFeed(Feed):
         limit = context.request.GET.get("limit", 100)
         data = context.query_set[: int(limit)] if limit else list(context.query_set)
         prefetch_related_objects(data, "tags")
+        if context.include_notes:
+            for item in data:
+                item._feed_include_notes = True
         return data
 
     def item_title(self, item: Bookmark):
         return sanitize(item.resolved_title)
 
     def item_description(self, item: Bookmark):
-        return sanitize(item.resolved_description)
+        description = sanitize(item.resolved_description)
+        if not getattr(item, "_feed_include_notes", False) or not item.notes:
+            return description
+
+        notes = render_markdown({}, sanitize(item.notes))
+        if description:
+            return sanitize(format_html("{}<hr>{}", description, notes))
+        return sanitize(notes)
 
     def item_link(self, item: Bookmark):
         return item.url
