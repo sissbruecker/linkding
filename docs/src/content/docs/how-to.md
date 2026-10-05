@@ -94,3 +94,14 @@ The font size can be adjusted globally by adding the following CSS to the custom
 You can adjust the `--font-size`, `--font-size-sm` and `--font-size-lg` variables to your liking.
 Note that increasing the font might also require you to adjust the line-height in certain places to better separate texts from each other.
 As an example, the above also increases the font size and line height of the bookmark list and tag cloud.
+
+## Show notes in RSS feeds
+
+Add `?include_notes=true` to a feed URL to include bookmark notes after the description.
+For URLs that already contain a query string, append `&include_notes=true` instead.
+For example, `/feeds/shared?user=alice&include_notes=true` includes notes in Alice's public feed.
+
+Notes are rendered as Markdown, using the same HTML sanitization as the bookmark page.
+The option works with all, unread, shared, and public feeds, including search and limit parameters.
+It keeps the feed's existing visibility rules: shared feeds include notes only for visible shared bookmarks.
+Omit the parameter to keep the usual description-only output.
