@@ -28,6 +28,7 @@
       </li>
     </ul>
   </ld-dropdown>
+  <a href="{% url 'linkding:tags.index' %}" class="btn btn-link">Tags</a>
   <ld-dropdown class="dropdown">
     <button class="btn btn-link dropdown-toggle" tabindex="0">Settings</button>
     <ul class="menu" role="list" tabindex="-1">
@@ -91,6 +92,9 @@
            class="menu-link">Untagged</a>
       </li>
       <div class="divider"></div>
+      <li class="menu-item">
+        <a href="{% url 'linkding:tags.index' %}" class="menu-link">Tags</a>
+      </li>
       <li class="menu-item">
         <a href="{% url 'linkding:settings.general' %}" class="menu-link">Settings</a>
       </li>
