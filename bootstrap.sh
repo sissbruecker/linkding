@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Bootstrap script that gets executed in new Docker containers
 
+source scripts/load-env-files.sh || exit 1
+load_env_files || exit 1
+
 LD_SERVER_HOST="${LD_SERVER_HOST:-[::]}"
 LD_SERVER_PORT="${LD_SERVER_PORT:-9090}"
 
