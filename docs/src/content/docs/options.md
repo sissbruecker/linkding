@@ -22,6 +22,26 @@ For multiple options, use one `-e` argument per option.
 For docker-compose options are configured using an `.env` file.
 Follow the docker-compose setup in the README and copy `.env.sample` to `.env`. Then modify the options in `.env`.
 
+### Configuration from files
+
+At container startup, options beginning with `LD_` or `OIDC_`, as well as `TZ` and `HOST_NAME`, can be read from files by appending `_FILE` to the variable name and setting it to a file path inside the container (file values override ordinary values and image defaults; unreadable files stop startup).
+
+For example, add the following to your Compose configuration to use a [Docker secret](https://docs.docker.com/compose/how-tos/use-secrets/) for the initial superuser password:
+
+```yaml
+services:
+  linkding:
+    environment:
+      LD_SUPERUSER_NAME: admin
+      LD_SUPERUSER_PASSWORD_FILE: /run/secrets/linkding_password
+    secrets:
+      - linkding_password
+
+secrets:
+  linkding_password:
+    file: ./linkding_password.txt
+```
+
 ## List of options
 
 ### `LD_SUPERUSER_NAME`

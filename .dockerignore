@@ -10,6 +10,8 @@
 !/package.json
 !/package-lock.json
 !/pyproject.toml
+!/scripts/healthcheck.sh
+!/scripts/load-env-files.sh
 !/scripts/setup-ublock.sh
 !/supervisord-tasks.conf
 !/supervisord-all.conf

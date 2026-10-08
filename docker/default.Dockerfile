@@ -77,7 +77,7 @@ RUN chmod g+w . && \
     chmod +x ./bootstrap.sh
 
 HEALTHCHECK --interval=30s --retries=3 --timeout=1s \
-CMD curl -f http://localhost:${LD_SERVER_PORT:-9090}/${LD_CONTEXT_PATH}health || exit 1
+CMD ["./scripts/healthcheck.sh"]
 
 CMD ["./bootstrap.sh"]
 
