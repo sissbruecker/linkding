@@ -19,8 +19,10 @@ from bookmarks.services.search_query_parser import (
 )
 
 
-def _term(term: str) -> TermExpression:
-    return TermExpression(term)
+def _term(term: str, quoted: bool | None = None) -> TermExpression:
+    if quoted is None:
+        quoted = any(char.isspace() for char in term)
+    return TermExpression(term, quoted=quoted)
 
 
 def _tag(tag: str) -> TagExpression:
@@ -175,6 +177,7 @@ class SearchQueryTokenizerTest(TestCase):
         self.assertEqual(len(tokens), 2)
         self.assertEqual(tokens[0].type, TokenType.TERM)
         self.assertEqual(tokens[0].value, "good and bad")
+        self.assertTrue(tokens[0].quoted)
         self.assertEqual(tokens[1].type, TokenType.EOF)
 
         # Single quotes
@@ -183,6 +186,7 @@ class SearchQueryTokenizerTest(TestCase):
         self.assertEqual(len(tokens), 2)
         self.assertEqual(tokens[0].type, TokenType.TERM)
         self.assertEqual(tokens[0].value, "hello world")
+        self.assertTrue(tokens[0].quoted)
         self.assertEqual(tokens[1].type, TokenType.EOF)
 
     def test_quoted_strings_with_operators(self):
@@ -484,45 +488,55 @@ class SearchQueryParserTest(TestCase):
     def test_quoted_strings(self):
         # Basic quoted string
         result = parse_search_query('"good and bad"')
-        expected = _term("good and bad")
+        expected = _term("good and bad", quoted=True)
         self.assertEqual(result, expected)
 
         # Single quotes
         result = parse_search_query("'hello world'")
-        expected = _term("hello world")
+        expected = _term("hello world", quoted=True)
         self.assertEqual(result, expected)
 
     def test_quoted_strings_with_operators(self):
         # Quoted string with OR
         result = parse_search_query('"good and bad" or programming')
-        expected = _or(_term("good and bad"), _term("programming"))
+        expected = _or(_term("good and bad", quoted=True), _term("programming"))
         self.assertEqual(result, expected)
 
         # Quoted string with AND
         result = parse_search_query('documentation and "API reference"')
-        expected = _and(_term("documentation"), _term("API reference"))
+        expected = _and(
+            _term("documentation"), _term("API reference", quoted=True)
+        )
         self.assertEqual(result, expected)
 
         # Quoted string with NOT
         result = parse_search_query('programming and not "bad practices"')
-        expected = _and(_term("programming"), _not(_term("bad practices")))
+        expected = _and(
+            _term("programming"), _not(_term("bad practices", quoted=True))
+        )
         self.assertEqual(result, expected)
 
     def test_multiple_quoted_strings(self):
         result = parse_search_query('"hello world" and "goodbye moon"')
-        expected = _and(_term("hello world"), _term("goodbye moon"))
+        expected = _and(
+            _term("hello world", quoted=True), _term("goodbye moon", quoted=True)
+        )
         self.assertEqual(result, expected)
 
     def test_quoted_strings_with_parentheses(self):
         result = parse_search_query('("good morning" or "good evening") and coffee')
         expected = _and(
-            _or(_term("good morning"), _term("good evening")), _term("coffee")
+            _or(
+                _term("good morning", quoted=True),
+                _term("good evening", quoted=True),
+            ),
+            _term("coffee"),
         )
         self.assertEqual(result, expected)
 
     def test_escaped_quotes_in_terms(self):
         result = parse_search_query('"say \\"hello\\""')
-        expected = _term('say "hello"')
+        expected = _term('say "hello"', quoted=True)
         self.assertEqual(result, expected)
 
     def test_tags(self):
