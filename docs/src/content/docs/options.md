@@ -374,10 +374,10 @@ Alternative favicon providers:
 
 ### `LD_SINGLEFILE_TIMEOUT_SEC`
 
-Values: `Float` | Default =  60.0
+Values: `Float` | Default =  120.0
 
 When creating HTML archive snapshots, control the timeout for how long to wait for the snapshot to complete, in `seconds`.
-Defaults to 60 seconds; on lower-powered hardware you may need to increase this value.
+Defaults to 120 seconds; on lower-powered hardware you may need to increase this value.
 
 ### `LD_SINGLEFILE_OPTIONS`
 
