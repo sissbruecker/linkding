@@ -1843,6 +1843,29 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertCountEqual(list(query), [self.web_development])
 
+    def test_quoted_single_word_matches_whole_words(self):
+        exact = self.setup_bookmark(title="UIC")
+        with_punctuation = self.setup_bookmark(title="UIC guide")
+        embedded = [
+            self.setup_bookmark(title="qUICkly"),
+            self.setup_bookmark(title="sUICide"),
+            self.setup_bookmark(title="jUICe"),
+            self.setup_bookmark(title="bUICk"),
+        ]
+
+        quoted_query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q='"UIC"')
+        )
+        self.assertCountEqual(list(quoted_query), [exact, with_punctuation])
+
+        unquoted_query = queries.query_bookmarks(
+            self.user, self.profile, BookmarkSearch(q="UIC")
+        )
+        self.assertCountEqual(
+            list(unquoted_query),
+            [exact, with_punctuation, *embedded],
+        )
+
     def test_empty_query(self):
         # empty query returns all bookmarks
         search = BookmarkSearch(q="")

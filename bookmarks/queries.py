@@ -1,8 +1,10 @@
 import contextlib
+import re
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.db.models import Case, CharField, Exists, OuterRef, Q, QuerySet, When
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import Lower
@@ -57,14 +59,33 @@ def query_shared_bookmarks(
     return _base_bookmarks_query(user, profile, search).filter(conditions)
 
 
+def _quoted_word_pattern(term: str) -> str:
+    """Build a whole-word regex for a quoted single-word search term."""
+    # SQLite's regex lookup uses Python's regex syntax, while PostgreSQL uses
+    # its ARE syntax. Both provide a word boundary, but use different escapes.
+    boundary = r"\y" if connection.vendor == "postgresql" else r"\b"
+    return f"{boundary}{re.escape(term)}{boundary}"
+
+
+def _term_search_conditions(term: str, exact_word: bool = False) -> Q:
+    lookup = "iregex" if exact_word else "icontains"
+    value = _quoted_word_pattern(term) if exact_word else term
+    return (
+        Q(**{f"title__{lookup}": value})
+        | Q(**{f"description__{lookup}": value})
+        | Q(**{f"notes__{lookup}": value})
+        | Q(**{f"url__{lookup}": value})
+    )
+
+
 def _convert_ast_to_q_object(ast_node: SearchExpression, profile: UserProfile) -> Q:
     if isinstance(ast_node, TermExpression):
         # Search across title, description, notes, URL
-        conditions = (
-            Q(title__icontains=ast_node.term)
-            | Q(description__icontains=ast_node.term)
-            | Q(notes__icontains=ast_node.term)
-            | Q(url__icontains=ast_node.term)
+        conditions = _term_search_conditions(
+            ast_node.term,
+            exact_word=ast_node.quoted
+            and bool(ast_node.term)
+            and ast_node.term.replace("_", "").isalnum(),
         )
 
         # In lax mode, also search in tag names

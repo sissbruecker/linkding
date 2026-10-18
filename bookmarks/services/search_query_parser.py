@@ -21,6 +21,7 @@ class Token:
     type: TokenType
     value: str
     position: int
+    quoted: bool = False
 
 
 class SearchQueryTokenizer:
@@ -145,7 +146,7 @@ class SearchQueryTokenizer:
                 # Read a quoted string - always treated as a term
                 quote_char = self.current_char
                 term = self.read_quoted_string(quote_char)
-                tokens.append(Token(TokenType.TERM, term, start_pos))
+                tokens.append(Token(TokenType.TERM, term, start_pos, quoted=True))
             elif self.current_char == "#":
                 # Read a tag
                 tag = self.read_tag()
@@ -183,6 +184,7 @@ class SearchExpression:
 @dataclass
 class TermExpression(SearchExpression):
     term: str
+    quoted: bool = False
 
 
 @dataclass
@@ -304,8 +306,9 @@ class SearchQueryParser:
         """Parse primary expressions (terms, tags, special keywords, and parenthesized expressions)."""
         if self.current_token.type == TokenType.TERM:
             term = self.current_token.value
+            quoted = self.current_token.quoted
             self.advance()
-            return TermExpression(term)
+            return TermExpression(term, quoted=quoted)
         elif self.current_token.type == TokenType.TAG:
             tag = self.current_token.value
             self.advance()
@@ -353,7 +356,9 @@ def _is_simple_expression(expr: SearchExpression) -> bool:
 def _expression_to_string(expr: SearchExpression, parent_type: type = None) -> str:
     if isinstance(expr, TermExpression):
         # Quote terms if they contain spaces or special characters
-        if " " in expr.term or any(c in expr.term for c in ["(", ")", '"', "'"]):
+        if expr.quoted or " " in expr.term or any(
+            c in expr.term for c in ["(", ")", '"', "'"]
+        ):
             # Escape any quotes in the term
             escaped = expr.term.replace("\\", "\\\\").replace('"', '\\"')
             return f'"{escaped}"'
