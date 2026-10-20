@@ -67,6 +67,22 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertEqual("Initial description", created_bookmark.description)
             mock_load_website_metadata.assert_not_called()
 
+    def test_create_should_not_leave_bookmark_without_tags_when_tagging_fails(self):
+        with (
+            patch(
+                "bookmarks.services.bookmarks._update_bookmark_tags",
+                side_effect=RuntimeError("tagging failed"),
+            ),
+            self.assertRaises(RuntimeError),
+        ):
+            create_bookmark(
+                Bookmark(url="https://example.com"),
+                "tag1 tag2",
+                self.get_or_create_test_user(),
+            )
+
+        self.assertFalse(Bookmark.objects.filter(url="https://example.com").exists())
+
     def test_create_should_update_existing_bookmark_with_same_url(self):
         original_bookmark = self.setup_bookmark(
             url="https://example.com", unread=False, shared=False

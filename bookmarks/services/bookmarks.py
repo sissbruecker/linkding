@@ -1,5 +1,6 @@
 import logging
 
+from django.db import transaction
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, User, parse_tag_string
@@ -32,10 +33,13 @@ def create_bookmark(
         bookmark.date_added = timezone.now()
     if not bookmark.date_modified:
         bookmark.date_modified = timezone.now()
-    bookmark.save()
-    # Update tag list
-    _update_bookmark_tags(bookmark, tag_string, current_user)
-    bookmark.save()
+    # Save the bookmark and its tags together, so that readers never see the
+    # bookmark without its tags
+    with transaction.atomic():
+        bookmark.save()
+        # Update tag list
+        _update_bookmark_tags(bookmark, tag_string, current_user)
+        bookmark.save()
     # Create snapshot on web archive
     tasks.create_web_archive_snapshot(current_user, bookmark, False)
     # Load favicon
