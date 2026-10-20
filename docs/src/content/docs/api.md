@@ -38,6 +38,7 @@ Parameters:
 - `modified_since` - Filter results to only include bookmarks modified after the specified date (format: ISO 8601, e.g. "2025-01-01T00:00:00Z")
 - `added_since` - Filter results to only include bookmarks added after the specified date (format: ISO 8601, e.g. "2025-05-29T00:00:00Z")
 - `bundle` - Filter results by bundle id to only include bookmarks matched by a given bundle
+- `shared` - Use `true` (or `yes`) for shared bookmarks only, or `false` (or `no`) for unshared bookmarks only. Omitting the parameter or passing an unrecognized value leaves this filter disabled. Results remain limited to your own bookmarks.
 
 Example response:
 

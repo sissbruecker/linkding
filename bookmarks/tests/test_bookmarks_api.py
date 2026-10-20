@@ -183,28 +183,51 @@ class BookmarksApiTestCase(LinkdingApiTestCase, BookmarkFactoryMixin):
         self.authenticate()
         unshared_bookmarks = self.setup_numbered_bookmarks(5)
         shared_bookmarks = self.setup_numbered_bookmarks(5, shared=True)
+        other_user = self.setup_user(enable_sharing=True, enable_public_sharing=True)
+        self.setup_bookmark(user=other_user, shared=True)
+        self.setup_bookmark(user=other_user, shared=False)
+        self.setup_bookmark(is_archived=True, shared=True)
+        self.setup_bookmark(is_archived=True, shared=False)
 
-        # Filter off
-        response = self.get(
-            reverse("linkding:bookmark-list"), expected_status_code=status.HTTP_200_OK
-        )
-        self.assertBookmarkListEqual(
-            response.data["results"], unshared_bookmarks + shared_bookmarks
-        )
+        cases = [
+            ({}, unshared_bookmarks + shared_bookmarks),
+            ({"shared": "true"}, shared_bookmarks),
+            ({"shared": "false"}, unshared_bookmarks),
+            ({"shared": "yes"}, shared_bookmarks),
+            ({"shared": "no"}, unshared_bookmarks),
+            ({"shared": "off"}, unshared_bookmarks + shared_bookmarks),
+            ({"shared": "invalid"}, unshared_bookmarks + shared_bookmarks),
+            ({"shared": ""}, unshared_bookmarks + shared_bookmarks),
+        ]
+        for params, expected_bookmarks in cases:
+            with self.subTest(params=params):
+                response = self.get(
+                    reverse("linkding:bookmark-list")
+                    + "?"
+                    + urllib.parse.urlencode(params),
+                    expected_status_code=status.HTTP_200_OK,
+                )
+                self.assertBookmarkListEqual(
+                    response.data["results"], expected_bookmarks
+                )
 
-        # Filter shared
-        response = self.get(
-            reverse("linkding:bookmark-list") + "?shared=yes",
-            expected_status_code=status.HTTP_200_OK,
-        )
-        self.assertBookmarkListEqual(response.data["results"], shared_bookmarks)
+    def test_list_bookmarks_filter_shared_with_query(self):
+        self.authenticate()
+        shared_bookmark = self.setup_bookmark(title="matching", shared=True)
+        unshared_bookmark = self.setup_bookmark(title="matching", shared=False)
+        self.setup_bookmark(title="different", shared=True)
+        self.setup_bookmark(title="different", shared=False)
 
-        # Filter unshared
-        response = self.get(
-            reverse("linkding:bookmark-list") + "?shared=no",
-            expected_status_code=status.HTTP_200_OK,
-        )
-        self.assertBookmarkListEqual(response.data["results"], unshared_bookmarks)
+        for value, bookmark in [
+            ("true", shared_bookmark),
+            ("false", unshared_bookmark),
+        ]:
+            with self.subTest(shared=value):
+                response = self.get(
+                    reverse("linkding:bookmark-list") + f"?q=matching&shared={value}",
+                    expected_status_code=status.HTTP_200_OK,
+                )
+                self.assertBookmarkListEqual(response.data["results"], [bookmark])
 
     def test_list_bookmarks_should_respect_sort(self):
         self.authenticate()
