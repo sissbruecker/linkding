@@ -1162,3 +1162,31 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertCountEqual(
                 bookmark_ids, [bookmark1.id, bookmark2.id, bookmark3.id]
             )
+
+    def test_create_bookmark_rolls_back_when_tag_update_fails(self):
+        bookmark = Bookmark(url="https://example.com")
+
+        with (
+            patch(
+                "bookmarks.services.bookmarks._update_bookmark_tags",
+                side_effect=RuntimeError("tag update failed"),
+            ),
+            self.assertRaises(RuntimeError),
+        ):
+            create_bookmark(bookmark, "tag1", self.user)
+
+        self.assertFalse(Bookmark.objects.filter(url="https://example.com").exists())
+
+    def test_update_bookmark_rolls_back_tag_changes_when_save_fails(self):
+        bookmark = self.setup_bookmark(tags=[self.setup_tag(name="old")])
+
+        def failing_save(instance, *args, **kwargs):
+            raise RuntimeError("save failed")
+
+        with patch.object(Bookmark, "save", failing_save), self.assertRaises(
+            RuntimeError
+        ):
+            update_bookmark(bookmark, "new", self.user)
+
+        bookmark.refresh_from_db()
+        self.assertCountEqual([tag.name for tag in bookmark.tags.all()], ["old"])

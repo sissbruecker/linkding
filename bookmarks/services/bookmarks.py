@@ -1,5 +1,6 @@
 import logging
 
+from django.db import transaction
 from django.utils import timezone
 
 from bookmarks.models import Bookmark, User, parse_tag_string
@@ -32,10 +33,13 @@ def create_bookmark(
         bookmark.date_added = timezone.now()
     if not bookmark.date_modified:
         bookmark.date_modified = timezone.now()
-    bookmark.save()
-    # Update tag list
-    _update_bookmark_tags(bookmark, tag_string, current_user)
-    bookmark.save()
+    # Publish the bookmark and its tags together: a concurrent read must not
+    # observe the row between the first save and the tag update.
+    with transaction.atomic():
+        bookmark.save()
+        # Update tag list
+        _update_bookmark_tags(bookmark, tag_string, current_user)
+        bookmark.save()
     # Create snapshot on web archive
     tasks.create_web_archive_snapshot(current_user, bookmark, False)
     # Load favicon
@@ -56,11 +60,13 @@ def update_bookmark(bookmark: Bookmark, tag_string, current_user: User):
     # Detect URL change
     original_bookmark = Bookmark.objects.get(id=bookmark.id)
     has_url_changed = original_bookmark.url != bookmark.url
-    # Update tag list
-    _update_bookmark_tags(bookmark, tag_string, current_user)
-    # Update dates
-    bookmark.date_modified = timezone.now()
-    bookmark.save()
+    # Same atomicity as create: tags and the row must land together.
+    with transaction.atomic():
+        # Update tag list
+        _update_bookmark_tags(bookmark, tag_string, current_user)
+        # Update dates
+        bookmark.date_modified = timezone.now()
+        bookmark.save()
     # Update favicon
     tasks.load_favicon(current_user, bookmark)
     # Update preview image
