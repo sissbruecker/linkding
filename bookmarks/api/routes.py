@@ -57,6 +57,11 @@ class BookmarkViewSet(
         # Provide filtered queryset for list actions
         user = self.request.user
         search = BookmarkSearch.from_request(self.request, self.request.GET)
+        # Accept API boolean aliases while reusing the existing shared filter.
+        search.shared = {
+            "true": BookmarkSearch.FILTER_SHARED_SHARED,
+            "false": BookmarkSearch.FILTER_SHARED_UNSHARED,
+        }.get(search.shared, search.shared)
         if self.action == "list":
             return queries.query_bookmarks(user, user.profile, search)
         elif self.action == "archived":
