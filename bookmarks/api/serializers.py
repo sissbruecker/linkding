@@ -77,6 +77,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             "is_archived",
             "unread",
             "shared",
+            "favorite",
             "tag_names",
             "date_added",
             "date_modified",

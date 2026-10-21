@@ -221,6 +221,7 @@ def _merge_bookmark_data(from_bookmark: Bookmark, to_bookmark: Bookmark):
     to_bookmark.notes = from_bookmark.notes
     to_bookmark.unread = from_bookmark.unread
     to_bookmark.shared = from_bookmark.shared
+    to_bookmark.favorite = from_bookmark.favorite
 
 
 def _update_bookmark_tags(bookmark: Bookmark, tag_string: str, user: User):

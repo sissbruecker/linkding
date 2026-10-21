@@ -38,6 +38,7 @@ class BookmarkForm(forms.ModelForm):
     notes = forms.CharField(required=False, widget=FormTextarea)
     unread = forms.BooleanField(required=False, widget=FormCheckbox)
     shared = forms.BooleanField(required=False, widget=FormCheckbox)
+    favorite = forms.BooleanField(required=False, widget=FormCheckbox)
     # Hidden field that determines whether to close window/tab after saving the bookmark
     auto_close = forms.CharField(required=False, widget=forms.HiddenInput)
 
@@ -51,6 +52,7 @@ class BookmarkForm(forms.ModelForm):
             "notes",
             "unread",
             "shared",
+            "favorite",
             "auto_close",
         ]
 
@@ -271,6 +273,7 @@ class BookmarkSearchForm(forms.Form):
     sort = forms.ChoiceField(choices=SORT_CHOICES, widget=FormSelect)
     shared = forms.ChoiceField(choices=FILTER_SHARED_CHOICES, widget=forms.RadioSelect)
     unread = forms.ChoiceField(choices=FILTER_UNREAD_CHOICES, widget=forms.RadioSelect)
+    favorite = forms.CharField(required=False)
     modified_since = forms.CharField(required=False)
     added_since = forms.CharField(required=False)
 

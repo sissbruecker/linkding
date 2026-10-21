@@ -63,6 +63,9 @@
       Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them.
     {% endformhelp %}
   </div>
+  <div class="form-group">
+    {% formfield form.favorite label="Favorite" %}
+  </div>
   {% if request.user_profile.enable_sharing %}
     <div class="form-group">
       {% formfield form.shared label="Share" has_help=True %}
@@ -98,6 +101,7 @@
       const notesDetails = document.querySelector('form details.notes');
       const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
       const unreadCheckbox = document.getElementById('{{ form.unread.id_for_label }}');
+      const favoriteCheckbox = document.getElementById('{{ form.favorite.id_for_label }}');
       const sharedCheckbox = document.getElementById('{{ form.shared.id_for_label }}');
       const refreshButton = document.getElementById('refresh-button');
       const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
@@ -159,6 +163,7 @@
               updateInput(tagsInput, existingBookmark.tag_names.join(" "));
               updateCheckbox(unreadCheckbox, existingBookmark.unread);
               updateCheckbox(sharedCheckbox, existingBookmark.shared);
+              updateCheckbox(favoriteCheckbox, existingBookmark.favorite);
             } else {
               // Update title and description with website metadata, unless they have been modified
               if (!isTitleModified) {
