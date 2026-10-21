@@ -515,3 +515,7 @@ Example response:
   }
 }
 ```
+
+
+<!-- conflict-lab -->
+Conflict experiment: version B.
