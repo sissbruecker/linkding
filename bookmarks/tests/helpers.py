@@ -67,6 +67,7 @@ class BookmarkFactoryMixin:
         preview_image_file: str = "",
         added: datetime = None,
         modified: datetime = None,
+        favorite: bool = False,
     ):
         if title is None:
             title = get_random_string(length=32)
@@ -92,6 +93,7 @@ class BookmarkFactoryMixin:
             is_archived=is_archived,
             unread=unread,
             shared=shared,
+            favorite=favorite,
             web_archive_snapshot_url=web_archive_snapshot_url,
             favicon_file=favicon_file,
             preview_image_file=preview_image_file,

@@ -20,6 +20,7 @@
                   <i class="form-icon"></i>
                 </label>
               {% endif %}
+              {% if bookmark_item.favorite %}<span class="label">Favorite</span>{% endif %}
               {% if bookmark_item.favicon_file and bookmark_list.show_favicons %}
                 <img class="favicon" src="{% static bookmark_item.favicon_file %}" alt="">
               {% endif %}

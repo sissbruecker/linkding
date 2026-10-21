@@ -166,6 +166,7 @@ class BookmarkItem:
         self.preview_image_file = bookmark.preview_image_file
         self.is_archived = bookmark.is_archived
         self.unread = bookmark.unread
+        self.favorite = bookmark.favorite
         self.owner = bookmark.owner
         self.details_url = context.details(bookmark.id)
 

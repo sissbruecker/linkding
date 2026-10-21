@@ -66,6 +66,7 @@ class Bookmark(models.Model):
     unread = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     shared = models.BooleanField(default=False)
+    favorite = models.BooleanField(default=False)
     date_added = models.DateTimeField()
     date_modified = models.DateTimeField()
     date_accessed = models.DateTimeField(blank=True, null=True)
@@ -243,6 +244,7 @@ class BookmarkSearch:
         "bundle",
         "sort",
         "shared",
+        "favorite",
         "unread",
         "modified_since",
         "added_since",
@@ -254,6 +256,7 @@ class BookmarkSearch:
         "bundle": None,
         "sort": SORT_ADDED_DESC,
         "shared": FILTER_SHARED_OFF,
+        "favorite": "off",
         "unread": FILTER_UNREAD_OFF,
         "modified_since": None,
         "added_since": None,
@@ -271,6 +274,7 @@ class BookmarkSearch:
         added_since: str = None,
         preferences: dict = None,
         request: any = None,
+        favorite: str = None,
     ):
         if not preferences:
             preferences = {}
@@ -282,6 +286,7 @@ class BookmarkSearch:
         self.bundle = bundle or self.defaults["bundle"]
         self.sort = sort or self.defaults["sort"]
         self.shared = shared or self.defaults["shared"]
+        self.favorite = favorite or self.defaults["favorite"]
         self.unread = unread or self.defaults["unread"]
         self.modified_since = modified_since or self.defaults["modified_since"]
         self.added_since = added_since or self.defaults["added_since"]

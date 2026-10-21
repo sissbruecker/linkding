@@ -265,6 +265,12 @@ def _base_bookmarks_query(
     elif search.shared == BookmarkSearch.FILTER_SHARED_UNSHARED:
         query_set = query_set.filter(shared=False)
 
+    # Favorite filter; unrecognized or absent values leave it disabled.
+    if search.favorite in ("true", "yes"):
+        query_set = query_set.filter(favorite=True)
+    elif search.favorite in ("false", "no"):
+        query_set = query_set.filter(favorite=False)
+
     # Filter by bundle
     if search.bundle:
         query_set = _filter_bundle(query_set, search.bundle)

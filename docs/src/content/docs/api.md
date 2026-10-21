@@ -38,6 +38,7 @@ Parameters:
 - `modified_since` - Filter results to only include bookmarks modified after the specified date (format: ISO 8601, e.g. "2025-01-01T00:00:00Z")
 - `added_since` - Filter results to only include bookmarks added after the specified date (format: ISO 8601, e.g. "2025-05-29T00:00:00Z")
 - `bundle` - Filter results by bundle id to only include bookmarks matched by a given bundle
+- `favorite` - Use `true` (or `yes`) for favorites only, or `false` (or `no`) for non-favorites. Omitting the parameter or passing an unrecognized value leaves this filter disabled. Ownership and visibility rules remain unchanged.
 - `shared` - Use `true` (or `yes`) for shared bookmarks only, or `false` (or `no`) for unshared bookmarks only. Omitting the parameter or passing an unrecognized value leaves this filter disabled. Results remain limited to your own bookmarks.
 
 Example response:
@@ -60,6 +61,7 @@ Example response:
       "is_archived": false,
       "unread": false,
       "shared": false,
+      "favorite": false,
       "tag_names": [
         "tag1",
         "tag2"
@@ -142,6 +144,10 @@ the future to return an error instead.
 If the title and description are not provided or empty, the application automatically tries to scrape them from the
 bookmarked website. This behavior can be disabled by adding the `disable_scraping` query parameter to the API request.
 
+`favorite` is an optional boolean (default `false`) included in bookmark responses.
+Set it on creation or update to mark or unmark a favorite. Updates that omit it preserve its value.
+Like other state fields, creating a duplicate URL applies the submitted state (default `false`).
+
 Example payload:
 
 ```json
@@ -153,6 +159,7 @@ Example payload:
   "is_archived": false,
   "unread": false,
   "shared": false,
+  "favorite": false,
   "tag_names": [
     "tag1",
     "tag2"
