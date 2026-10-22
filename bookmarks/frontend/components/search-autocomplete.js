@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { api } from "../api.js";
+import { t } from "../i18n.js";
 import { TurboLitElement } from "../utils/element.js";
 import {
   clampText,
@@ -305,12 +306,18 @@ export class SearchAutocomplete extends TurboLitElement {
         </div>
 
         <ul class="menu ${this.isOpen ? "open" : ""}">
-          ${this.renderSuggestions(this.suggestions.tags, "Tags")}
+          ${this.renderSuggestions(
+            this.suggestions.tags,
+            t("search.tags", "Tags"),
+          )}
           ${this.renderSuggestions(
             this.suggestions.recentSearches,
-            "Recent Searches",
+            t("search.recentSearches", "Recent Searches"),
           )}
-          ${this.renderSuggestions(this.suggestions.bookmarks, "Bookmarks")}
+          ${this.renderSuggestions(
+            this.suggestions.bookmarks,
+            t("search.bookmarks", "Bookmarks"),
+          )}
         </ul>
       </div>
     `;

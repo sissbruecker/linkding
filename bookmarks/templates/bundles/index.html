@@ -1,13 +1,13 @@
 {% extends "shared/layout.html" %}
-{% load static %}
+{% load i18n static %}
 {% block head %}
-  {% with page_title="Bundles - Linkding" %}{{ block.super }}{% endwith %}
+  {% trans "Bundles - Linkding" as page_title %}{{ block.super }}
 {% endblock %}
 {% block content %}
   <main class="bundles-page crud-page" aria-labelledby="main-heading">
     <div class="crud-header">
-      <h1 id="main-heading">Bundles</h1>
-      <a href="{% url 'linkding:bundles.new' %}" class="btn">Add bundle</a>
+      <h1 id="main-heading">{% trans "Bundles" %}</h1>
+      <a href="{% url 'linkding:bundles.new' %}" class="btn">{% trans "Add bundle" %}</a>
     </div>
     {% include 'shared/messages.html' %}
     {% if bundles %}
@@ -16,9 +16,9 @@
         <table class="table crud-table">
           <thead>
             <tr>
-              <th>Name</th>
+              <th>{% trans "Name" %}</th>
               <th class="actions">
-                <span class="text-assistive">Actions</span>
+                <span class="text-assistive">{% trans "Actions" %}</span>
               </th>
             </tr>
           </thead>
@@ -35,12 +35,12 @@
                 </td>
                 <td class="actions">
                   <a class="btn btn-link"
-                     href="{% url 'linkding:bundles.edit' bundle.id %}">Edit</a>
+                     href="{% url 'linkding:bundles.edit' bundle.id %}">{% trans "Edit" %}</a>
                   <button data-confirm
                           type="submit"
                           name="remove_bundle"
                           value="{{ bundle.id }}"
-                          class="btn btn-link">Remove</button>
+                          class="btn btn-link">{% trans "Remove" %}</button>
                 </td>
               </tr>
             {% endfor %}
@@ -51,8 +51,8 @@
       </form>
     {% else %}
       <div class="empty">
-        <p class="empty-title h5">You have no bundles yet</p>
-        <p class="empty-subtitle">Create your first bundle to get started</p>
+        <p class="empty-title h5">{% trans "You have no bundles yet" %}</p>
+        <p class="empty-subtitle">{% trans "Create your first bundle to get started" %}</p>
       </div>
     {% endif %}
   </main>

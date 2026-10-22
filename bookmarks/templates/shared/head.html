@@ -1,4 +1,4 @@
-{% load static %}
+{% load i18n static %}
 <head>
   <meta charset="UTF-8">
   <link rel="icon" href="{% static 'favicon.ico' %}" sizes="48x48">
@@ -20,7 +20,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0, minimal-ui">
-  <meta name="description" content="Self-hosted bookmark service">
+  <meta name="description" content="{% trans 'Self-hosted bookmark service' %}">
   <meta name="robots" content="index,follow">
   <meta name="author" content="Sascha Ißbrücker">
   <title>{{ page_title|default:'Linkding' }}</title>
@@ -60,6 +60,7 @@
   <meta name="turbo-cache-control" content="no-preview">
   {% if not request.global_settings.enable_link_prefetch %}<meta name="turbo-prefetch" content="false">{% endif %}
   {% if rss_feed_url %}<link rel="alternate" type="application/rss+xml" href="{{ rss_feed_url }}" />{% endif %}
+  {{ js_i18n|json_script:"ld-i18n" }}
   <script src="{% static "bundle.js" %}?v={{ app_version }}"></script>
   {% if debug %}
     <script src="{% static "live-reload.js" %}"></script>

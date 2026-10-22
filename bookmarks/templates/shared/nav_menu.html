@@ -1,45 +1,45 @@
-{% load shared static %}
+{% load i18n shared static %}
 {% htmlmin %}
 {# Basic menu list #}
 <div class="hide-md">
   <a href="{% url 'linkding:bookmarks.new' %}"
-     class="btn btn-primary mr-2">Add bookmark</a>
+     class="btn btn-primary mr-2">{% trans "Add bookmark" %}</a>
   <ld-dropdown class="dropdown">
-    <button class="btn btn-link dropdown-toggle" tabindex="0">Bookmarks</button>
+    <button class="btn btn-link dropdown-toggle" tabindex="0">{% trans "Bookmarks" %}</button>
     <ul class="menu" role="list" tabindex="-1">
       <li class="menu-item">
-        <a href="{% url 'linkding:bookmarks.index' %}" class="menu-link">Active</a>
+        <a href="{% url 'linkding:bookmarks.index' %}" class="menu-link">{% trans "Active" %}</a>
       </li>
       <li class="menu-item">
-        <a href="{% url 'linkding:bookmarks.archived' %}" class="menu-link">Archived</a>
+        <a href="{% url 'linkding:bookmarks.archived' %}" class="menu-link">{% trans "Archived" %}</a>
       </li>
       {% if request.user_profile.enable_sharing %}
         <li class="menu-item">
-          <a href="{% url 'linkding:bookmarks.shared' %}" class="menu-link">Shared</a>
+          <a href="{% url 'linkding:bookmarks.shared' %}" class="menu-link">{% trans "Shared" %}</a>
         </li>
       {% endif %}
       <li class="menu-item">
         <a href="{% url 'linkding:bookmarks.index' %}?unread=yes"
-           class="menu-link">Unread</a>
+           class="menu-link">{% trans "Unread" %}</a>
       </li>
       <li class="menu-item">
         <a href="{% url 'linkding:bookmarks.index' %}?q=!untagged"
-           class="menu-link">Untagged</a>
+           class="menu-link">{% trans "Untagged" %}</a>
       </li>
     </ul>
   </ld-dropdown>
   <ld-dropdown class="dropdown">
-    <button class="btn btn-link dropdown-toggle" tabindex="0">Settings</button>
+    <button class="btn btn-link dropdown-toggle" tabindex="0">{% trans "Settings" %}</button>
     <ul class="menu" role="list" tabindex="-1">
       <li class="menu-item">
-        <a href="{% url 'linkding:settings.general' %}" class="menu-link">General</a>
+        <a href="{% url 'linkding:settings.general' %}" class="menu-link">{% trans "General" %}</a>
       </li>
       <li class="menu-item">
-        <a href="{% url 'linkding:settings.integrations' %}" class="menu-link">Integrations</a>
+        <a href="{% url 'linkding:settings.integrations' %}" class="menu-link">{% trans "Integrations" %}</a>
       </li>
       {% if request.user.is_superuser %}
         <li class="menu-item">
-          <a href="{% url 'admin:index' %}" class="menu-link" data-turbo="false">Admin</a>
+          <a href="{% url 'admin:index' %}" class="menu-link" data-turbo="false">{% trans "Admin" %}</a>
         </li>
       {% endif %}
     </ul>
@@ -49,13 +49,13 @@
         method="post"
         data-turbo="false">
     {% csrf_token %}
-    <button type="submit" class="btn btn-link">Logout</button>
+    <button type="submit" class="btn btn-link">{% trans "Logout" %}</button>
   </form>
 </div>
 {# Menu drop-down for smaller devices #}
 <div class="show-md">
   <a href="{% url 'linkding:bookmarks.new' %}"
-     aria-label="Add bookmark"
+     aria-label="{% trans 'Add bookmark' %}"
      class="btn btn-primary">
     <svg width="24" height="24">
       <use href="{% static 'icons.svg' %}?v={{ app_version }}#plus"></use>
@@ -63,7 +63,7 @@
   </a>
   <ld-dropdown class="dropdown dropdown-right">
     <button class="btn btn-link dropdown-toggle"
-            aria-label="Navigation menu"
+            aria-label="{% trans 'Navigation menu' %}"
             tabindex="0">
       <svg width="24" height="24">
         <use href="{% static 'icons.svg' %}?v={{ app_version }}#menu"></use>
@@ -72,34 +72,34 @@
     <!-- menu component -->
     <ul class="menu" role="list" tabindex="-1">
       <li class="menu-item">
-        <a href="{% url 'linkding:bookmarks.index' %}" class="menu-link">Bookmarks</a>
+        <a href="{% url 'linkding:bookmarks.index' %}" class="menu-link">{% trans "Bookmarks" %}</a>
       </li>
       <li class="menu-item">
-        <a href="{% url 'linkding:bookmarks.archived' %}" class="menu-link">Archived bookmarks</a>
+        <a href="{% url 'linkding:bookmarks.archived' %}" class="menu-link">{% trans "Archived bookmarks" %}</a>
       </li>
       {% if request.user_profile.enable_sharing %}
         <li class="menu-item">
-          <a href="{% url 'linkding:bookmarks.shared' %}" class="menu-link">Shared bookmarks</a>
+          <a href="{% url 'linkding:bookmarks.shared' %}" class="menu-link">{% trans "Shared bookmarks" %}</a>
         </li>
       {% endif %}
       <li class="menu-item">
         <a href="{% url 'linkding:bookmarks.index' %}?unread=yes"
-           class="menu-link">Unread</a>
+           class="menu-link">{% trans "Unread" %}</a>
       </li>
       <li class="menu-item">
         <a href="{% url 'linkding:bookmarks.index' %}?q=!untagged"
-           class="menu-link">Untagged</a>
+           class="menu-link">{% trans "Untagged" %}</a>
       </li>
       <div class="divider"></div>
       <li class="menu-item">
-        <a href="{% url 'linkding:settings.general' %}" class="menu-link">Settings</a>
+        <a href="{% url 'linkding:settings.general' %}" class="menu-link">{% trans "Settings" %}</a>
       </li>
       <li class="menu-item">
-        <a href="{% url 'linkding:settings.integrations' %}" class="menu-link">Integrations</a>
+        <a href="{% url 'linkding:settings.integrations' %}" class="menu-link">{% trans "Integrations" %}</a>
       </li>
       {% if request.user.is_superuser %}
         <li class="menu-item">
-          <a href="{% url 'admin:index' %}" class="menu-link" data-turbo="false">Admin</a>
+          <a href="{% url 'admin:index' %}" class="menu-link" data-turbo="false">{% trans "Admin" %}</a>
         </li>
       {% endif %}
       <div class="divider"></div>
@@ -109,7 +109,7 @@
               method="post"
               data-turbo="false">
           {% csrf_token %}
-          <button type="submit" class="btn btn-link menu-link">Logout</button>
+          <button type="submit" class="btn btn-link menu-link">{% trans "Logout" %}</button>
         </form>
       </li>
     </ul>

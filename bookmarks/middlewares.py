@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.middleware import RemoteUserMiddleware
 from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpResponse
+from django.utils import translation
 from django.utils.cache import patch_vary_headers
 
 from bookmarks.models import GlobalSettings, UserProfile
@@ -47,6 +48,29 @@ class LinkdingMiddleware:
         response = self.get_response(request)
 
         return response
+
+
+class UserLanguageMiddleware:
+    """
+    Activates the language configured in the user profile. This takes precedence
+    over the language detected by Django's LocaleMiddleware from cookies or the
+    Accept-Language header. Users without a configured language keep the
+    automatically detected language.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        language = getattr(request.user_profile, "language", "")
+        if not language:
+            return self.get_response(request)
+
+        # Activate instead of using an override context manager, because
+        # template responses are rendered after the middleware chain returns.
+        translation.activate(language)
+        request.LANGUAGE_CODE = language
+        return self.get_response(request)
 
 
 class CorsMiddleware:

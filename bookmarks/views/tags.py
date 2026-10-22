@@ -6,6 +6,8 @@ from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from bookmarks.forms import TagForm, TagMergeForm
 from bookmarks.models import Bookmark, Tag
@@ -69,7 +71,9 @@ def tag_new(request: HttpRequest):
     if request.method == "POST":
         if form.is_valid():
             tag = form.save()
-            messages.success(request, f'Tag "{tag.name}" created successfully.')
+            messages.success(
+                request, _('Tag "%(name)s" created successfully.') % {"name": tag.name}
+            )
             return HttpResponseRedirect(reverse("linkding:tags.index"))
         else:
             return turbo.stream(
@@ -150,7 +154,16 @@ def tag_merge(request: HttpRequest):
 
                 messages.success(
                     request,
-                    f'Successfully merged {len(merge_tags)} tags ({", ".join(tag_names)}) into "{target_tag.name}".',
+                    ngettext(
+                        'Successfully merged %(count)s tag (%(names)s) into "%(name)s".',
+                        'Successfully merged %(count)s tags (%(names)s) into "%(name)s".',
+                        len(merge_tags),
+                    )
+                    % {
+                        "count": len(merge_tags),
+                        "names": ", ".join(tag_names),
+                        "name": target_tag.name,
+                    },
                 )
 
             return HttpResponseRedirect(reverse("linkding:tags.index"))

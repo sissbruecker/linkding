@@ -1,4 +1,5 @@
 import { html, render } from "lit";
+import { t } from "../i18n.js";
 import { Modal } from "./modal.js";
 import { HeadlessElement } from "../utils/element.js";
 import { isKeyboardActive } from "../utils/focus.js";
@@ -27,10 +28,10 @@ class FilterDrawer extends Modal {
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-container" role="dialog" aria-modal="true">
           <div class="modal-header">
-            <h2>Filters</h2>
+            <h2>${t("filters.title", "Filters")}</h2>
             <button
               class="btn btn-noborder close"
-              aria-label="Close dialog"
+              aria-label=${t("filters.close", "Close dialog")}
               data-close-modal
             >
               <svg

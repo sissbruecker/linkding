@@ -1,12 +1,13 @@
 from django.conf import settings
 from django.http import JsonResponse
+from django.utils.translation import gettext as _
 
 
 def manifest(request):
     response = {
         "short_name": "linkding",
         "name": "linkding",
-        "description": "Self-hosted bookmark service",
+        "description": _("Self-hosted bookmark service"),
         "start_url": "bookmarks",
         "display": "standalone",
         "scope": "/" + settings.LD_CONTEXT_PATH,
@@ -54,23 +55,23 @@ def manifest(request):
         ],
         "shortcuts": [
             {
-                "name": "Add bookmark",
+                "name": _("Add bookmark"),
                 "url": "/" + settings.LD_CONTEXT_PATH + "bookmarks/new",
             },
             {
-                "name": "Archived",
+                "name": _("Archived"),
                 "url": "/" + settings.LD_CONTEXT_PATH + "bookmarks/archived",
             },
             {
-                "name": "Unread",
+                "name": _("Unread"),
                 "url": "/" + settings.LD_CONTEXT_PATH + "bookmarks?unread=yes",
             },
             {
-                "name": "Untagged",
+                "name": _("Untagged"),
                 "url": "/" + settings.LD_CONTEXT_PATH + "bookmarks?q=!untagged",
             },
             {
-                "name": "Shared",
+                "name": _("Shared"),
                 "url": "/" + settings.LD_CONTEXT_PATH + "bookmarks/shared",
             },
         ],

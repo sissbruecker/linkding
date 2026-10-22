@@ -1,10 +1,11 @@
-{% load static %}
+{% load i18n static %}
 {% load shared %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="en" class="reader-mode">
+<html lang="{{ LANGUAGE_CODE }}" class="reader-mode">
   <head>
     <meta charset="UTF-8">
-    <title>Reader view</title>
+    <title>{% trans "Reader view" %}</title>
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimal-ui">
     {# Include specific theme variant based on user profile setting #}
@@ -43,10 +44,12 @@
     {% endif %}
   </head>
   <body>
+    {% trans "minutes" as reading_time_label %}
     <template id="content">{{ content|safe }}</template>
     <script src="{% static 'vendor/Readability.js' %}"
             type="application/javascript"></script>
     <script type="application/javascript">
+      const readingTimeLabel = "{{ reading_time_label|escapejs }}";
       function estimateReadingTime(charCount, wordsPerMinute) {
         const avgWordLength = 5;
         const totalWords = charCount / avgWordLength;
@@ -87,7 +90,7 @@
           const maxTime = estimateReadingTime(article.length, 175);
 
           const articleReadingTime = document.createElement('p');
-          articleReadingTime.textContent = `${minTime}-${maxTime} minutes`;
+          articleReadingTime.textContent = `${minTime}-${maxTime} ${readingTimeLabel}`;
           articleReadingTime.classList.add('reading-time');
           container.append(articleReadingTime);
         }

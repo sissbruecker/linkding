@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _lazy
 
 from bookmarks.models import (
     Bookmark,
@@ -110,7 +112,9 @@ class BookmarkForm(forms.ModelForm):
                 .exists()
             )
             if is_duplicate:
-                raise forms.ValidationError("A bookmark with this URL already exists.")
+                raise forms.ValidationError(
+                    _("A bookmark with this URL already exists.")
+                )
 
         return url
 
@@ -142,7 +146,9 @@ class TagForm(forms.ModelForm):
             queryset = queryset.exclude(pk=self.instance.pk)
 
         if queryset.exists():
-            raise forms.ValidationError(f'Tag "{name}" already exists.')
+            raise forms.ValidationError(
+                _('Tag "%(name)s" already exists.') % {"name": name}
+            )
 
         return name
 
@@ -172,7 +178,7 @@ class TagMergeForm(forms.Form):
         target_tag_names = parse_tag_string(target_tag_name, " ")
         if len(target_tag_names) != 1:
             raise forms.ValidationError(
-                "Please enter only one tag name for the target tag."
+                _("Please enter only one tag name for the target tag.")
             )
 
         target_tag_name = target_tag_names[0]
@@ -181,7 +187,7 @@ class TagMergeForm(forms.Form):
             target_tag = Tag.objects.get(name__iexact=target_tag_name, owner=self.user)
         except Tag.DoesNotExist:
             raise forms.ValidationError(
-                f'Tag "{target_tag_name}" does not exist.'
+                _('Tag "%(name)s" does not exist.') % {"name": target_tag_name}
             ) from None
 
         return target_tag
@@ -191,7 +197,7 @@ class TagMergeForm(forms.Form):
 
         merge_tag_names = parse_tag_string(merge_tags_string, " ")
         if not merge_tag_names:
-            raise forms.ValidationError("Please enter at least one tag to merge.")
+            raise forms.ValidationError(_("Please enter at least one tag to merge."))
 
         merge_tags = []
         for tag_name in merge_tag_names:
@@ -200,13 +206,13 @@ class TagMergeForm(forms.Form):
                 merge_tags.append(tag)
             except Tag.DoesNotExist:
                 raise forms.ValidationError(
-                    f'Tag "{tag_name}" does not exist.'
+                    _('Tag "%(name)s" does not exist.') % {"name": tag_name}
                 ) from None
 
         target_tag = self.cleaned_data.get("target_tag")
         if target_tag and target_tag in merge_tags:
             raise forms.ValidationError(
-                "The target tag cannot be selected for merging."
+                _("The target tag cannot be selected for merging.")
             )
 
         return merge_tags
@@ -247,22 +253,22 @@ class BookmarkBundleForm(forms.ModelForm):
 
 class BookmarkSearchForm(forms.Form):
     SORT_CHOICES = [
-        (BookmarkSearch.SORT_ADDED_ASC, "Added ↑"),
-        (BookmarkSearch.SORT_ADDED_DESC, "Added ↓"),
-        (BookmarkSearch.SORT_MODIFIED_ASC, "Modified ↑"),
-        (BookmarkSearch.SORT_MODIFIED_DESC, "Modified ↓"),
-        (BookmarkSearch.SORT_TITLE_ASC, "Title ↑"),
-        (BookmarkSearch.SORT_TITLE_DESC, "Title ↓"),
+        (BookmarkSearch.SORT_ADDED_ASC, _lazy("Added ↑")),
+        (BookmarkSearch.SORT_ADDED_DESC, _lazy("Added ↓")),
+        (BookmarkSearch.SORT_MODIFIED_ASC, _lazy("Modified ↑")),
+        (BookmarkSearch.SORT_MODIFIED_DESC, _lazy("Modified ↓")),
+        (BookmarkSearch.SORT_TITLE_ASC, _lazy("Title ↑")),
+        (BookmarkSearch.SORT_TITLE_DESC, _lazy("Title ↓")),
     ]
     FILTER_SHARED_CHOICES = [
-        (BookmarkSearch.FILTER_SHARED_OFF, "Off"),
-        (BookmarkSearch.FILTER_SHARED_SHARED, "Shared"),
-        (BookmarkSearch.FILTER_SHARED_UNSHARED, "Unshared"),
+        (BookmarkSearch.FILTER_SHARED_OFF, _lazy("Off")),
+        (BookmarkSearch.FILTER_SHARED_SHARED, _lazy("Shared")),
+        (BookmarkSearch.FILTER_SHARED_UNSHARED, _lazy("Unshared")),
     ]
     FILTER_UNREAD_CHOICES = [
-        (BookmarkSearch.FILTER_UNREAD_OFF, "Off"),
-        (BookmarkSearch.FILTER_UNREAD_YES, "Unread"),
-        (BookmarkSearch.FILTER_UNREAD_NO, "Read"),
+        (BookmarkSearch.FILTER_UNREAD_OFF, _lazy("Off")),
+        (BookmarkSearch.FILTER_UNREAD_YES, _lazy("Unread")),
+        (BookmarkSearch.FILTER_UNREAD_NO, _lazy("Read")),
     ]
 
     q = forms.CharField()
@@ -287,7 +293,7 @@ class BookmarkSearchForm(forms.Form):
         # set choices for user field if users are provided
         if users:
             user_choices = [(user.username, user.username) for user in users]
-            user_choices.insert(0, ("", "Everyone"))
+            user_choices.insert(0, ("", _("Everyone")))
             self.fields["user"].choices = user_choices
 
         for param in search.params:
@@ -309,6 +315,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = [
+            "language",
             "theme",
             "bookmark_date_display",
             "bookmark_description_display",
@@ -339,6 +346,7 @@ class UserProfileForm(forms.ModelForm):
             "legacy_search",
         ]
         widgets = {
+            "language": FormSelect,
             "theme": FormSelect,
             "bookmark_date_display": FormSelect,
             "bookmark_description_display": FormSelect,
@@ -382,4 +390,4 @@ class GlobalSettingsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["guest_profile_user"].empty_label = "Standard profile"
+        self.fields["guest_profile_user"].empty_label = _("Standard profile")

@@ -1,3 +1,4 @@
+{% load i18n %}
 <div>
   {% if details.assets %}
     <div class="item-list assets">
@@ -7,8 +8,8 @@
           <div class="list-item-text {{ asset.text_classes }}">
             <span class="truncate">
               {{ asset.display_name }}
-              {% if asset.status == 'pending' %}(queued){% endif %}
-              {% if asset.status == 'failure' %}(failed){% endif %}
+              {% if asset.status == 'pending' %}({% trans "queued" %}){% endif %}
+              {% if asset.status == 'failure' %}({% trans "failed" %}){% endif %}
             </span>
             {% if asset.file_size %}<span class="filesize">{{ asset.file_size|filesizeformat }}</span>{% endif %}
           </div>
@@ -16,14 +17,14 @@
             {% if asset.file %}
               <a class="btn btn-link"
                  href="{% url 'linkding:assets.view' asset.id %}"
-                 target="_blank">View</a>
+                 target="_blank">{% trans "View" %}</a>
             {% endif %}
             {% if details.is_editable %}
               <button data-confirm
                       type="submit"
                       name="remove_asset"
                       value="{{ asset.id }}"
-                      class="btn btn-link">Remove</button>
+                      class="btn btn-link">{% trans "Remove" %}</button>
             {% endif %}
           </div>
         </div>
@@ -37,7 +38,7 @@
                 name="create_html_snapshot"
                 value="{{ details.bookmark.id }}"
                 class="btn btn-sm"
-                {% if details.has_pending_assets %}disabled{% endif %}>Create HTML snapshot</button>
+                {% if details.has_pending_assets %}disabled{% endif %}>{% trans "Create HTML snapshot" %}</button>
       {% endif %}
       {% if details.uploads_enabled %}
         <ld-upload-button>
@@ -45,7 +46,7 @@
                   name="upload_asset"
                   value="{{ details.bookmark.id }}"
                   type="submit"
-                  class="btn btn-sm">Upload file</button>
+                  class="btn btn-sm">{% trans "Upload file" %}</button>
           <input id="upload-asset-file"
                  name="upload_asset_file"
                  type="file"

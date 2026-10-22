@@ -1,3 +1,4 @@
+{% load i18n %}
 <turbo-frame id="details-modal" target="_top">
 {% if details %}
   <ld-details-modal class="modal active bookmark-details"
@@ -13,7 +14,7 @@
           <div class="actions">
             <div class="left-actions">
               <a class="btn btn-wide"
-                 href="{% url 'linkding:bookmarks.edit' details.bookmark.id %}?return_url={{ details.edit_return_url|urlencode }}">Edit</a>
+                 href="{% url 'linkding:bookmarks.edit' details.bookmark.id %}?return_url={{ details.edit_return_url|urlencode }}">{% trans "Edit" %}</a>
             </div>
             <div class="right-actions">
               <form action="{{ details.delete_url }}"
@@ -25,7 +26,7 @@
                         class="btn btn-error btn-wide"
                         type="submit"
                         name="remove"
-                        value="{{ details.bookmark.id }}">Delete</button>
+                        value="{{ details.bookmark.id }}">{% trans "Delete" %}</button>
               </form>
             </div>
           </div>

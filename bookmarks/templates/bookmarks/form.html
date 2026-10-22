@@ -1,4 +1,4 @@
-{% load static %}
+{% load i18n static %}
 {% load shared %}
 <div class="bookmarks-form">
   {% csrf_token %}
@@ -11,26 +11,26 @@
     </div>
     {{ form.url.errors }}
     <div class="form-input-hint bookmark-exists">
-      This URL is already bookmarked.
-      The form has been pre-filled with the existing bookmark, and saving the form will update the existing bookmark.
+      {% blocktrans trimmed %}This URL is already bookmarked. The form has been pre-filled with the existing bookmark, and saving the form will update the existing bookmark.{% endblocktrans %}
     </div>
   </div>
   <div class="form-group">
-    {% formlabel form.tag_string "Tags" %}
+    {% trans "Tags" as tags_label %}
+    {% formlabel form.tag_string tags_label %}
     {% formfield form.tag_string has_help=True %}
     {% formhelp form.tag_string %}
-      Enter any number of tags separated by space and <strong>without</strong> the hash (#).
-      If a tag does not exist it will be automatically created.
+      {% blocktrans trimmed %}Enter any number of tags separated by space and <strong>without</strong> the hash (#). If a tag does not exist it will be automatically created.{% endblocktrans %}
     {% endformhelp %}
     <div class="form-input-hint auto-tags"></div>
   </div>
   <div class="form-group">
     <div class="d-flex justify-between align-baseline">
-      {% formlabel form.title "Title" %}
+      {% trans "Title" as title_label %}
+      {% formlabel form.title title_label %}
       <div class="flex">
-        <button id="refresh-button" class="btn btn-link suffix-button" type="button">Refresh from website</button>
+        <button id="refresh-button" class="btn btn-link suffix-button" type="button">{% trans "Refresh from website" %}</button>
         <ld-clear-button data-for="{{ form.title.id_for_label }}">
-          <button class="ml-2 btn btn-link suffix-button" type="button">Clear</button>
+          <button class="ml-2 btn btn-link suffix-button" type="button">{% trans "Clear" %}</button>
         </ld-clear-button>
       </div>
     </div>
@@ -38,9 +38,10 @@
   </div>
   <div class="form-group">
     <div class="d-flex justify-between align-baseline">
-      {% formlabel form.description "Description" %}
+      {% trans "Description" as description_label %}
+      {% formlabel form.description description_label %}
       <ld-clear-button data-for="{{ form.description.id_for_label }}">
-        <button class="btn btn-link suffix-button" type="button">Clear</button>
+        <button class="btn btn-link suffix-button" type="button">{% trans "Clear" %}</button>
       </ld-clear-button>
     </div>
     {% formfield form.description rows="3" %}
@@ -48,29 +49,31 @@
   <div class="form-group">
     <details class="notes"{% if form.has_notes %} open{% endif %}>
       <summary>
-        <span class="form-label d-inline-block">Notes</span>
+        <span class="form-label d-inline-block">{% trans "Notes" %}</span>
       </summary>
-      <label for="{{ form.notes.id_for_label }}" class="text-assistive">Notes</label>
+      <label for="{{ form.notes.id_for_label }}" class="text-assistive">{% trans "Notes" %}</label>
       {% formfield form.notes rows="8" has_help=True %}
       {% formhelp form.notes %}
-        Additional notes, supports Markdown.
+        {% trans "Additional notes, supports Markdown." %}
       {% endformhelp %}
     </details>
   </div>
   <div class="form-group">
-    {% formfield form.unread label="Mark as unread" has_help=True %}
+    {% trans "Mark as unread" as unread_label %}
+    {% formfield form.unread label=unread_label has_help=True %}
     {% formhelp form.unread %}
-      Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them.
+      {% trans "Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them." %}
     {% endformhelp %}
   </div>
   {% if request.user_profile.enable_sharing %}
     <div class="form-group">
-      {% formfield form.shared label="Share" has_help=True %}
+      {% trans "Share" as share_label %}
+      {% formfield form.shared label=share_label has_help=True %}
       {% formhelp form.shared %}
         {% if request.user_profile.enable_public_sharing %}
-          Share this bookmark with other registered users and anonymous users.
+          {% trans "Share this bookmark with other registered users and anonymous users." %}
         {% else %}
-          Share this bookmark with other registered users.
+          {% trans "Share this bookmark with other registered users." %}
         {% endif %}
       {% endformhelp %}
     </div>
@@ -78,15 +81,16 @@
   <div class="divider"></div>
   <div class="form-group d-flex justify-between">
     {% if form.is_auto_close %}
-      <input type="submit" value="Save and close" class="btn btn-primary btn-wide">
+      <input type="submit" value="{% trans 'Save and close' %}" class="btn btn-primary btn-wide">
     {% else %}
       <input type="submit"
-             value="Save"
+             value="{% trans 'Save' %}"
              class="btn btn-primary btn btn-primary btn-wide">
     {% endif %}
-    <a href="{{ return_url }}" class="btn">Cancel</a>
+    <a href="{{ return_url }}" class="btn">{% trans "Cancel" %}</a>
   </div>
-  <script type="application/javascript">
+  {% trans "Auto tags:" as auto_tags_label %}
+<script type="application/javascript">
     /**
      * - Pre-fill title and description with metadata from website as soon as URL changes
      * - Show hint if URL is already bookmarked
@@ -102,6 +106,7 @@
       const refreshButton = document.getElementById('refresh-button');
       const bookmarkExistsHint = document.querySelector('.form-input-hint.bookmark-exists');
       const editedBookmarkId = parseInt('{{ form.instance.id|default:0 }}');
+      const autoTagsLabel = "{{ auto_tags_label|escapejs }}";
       let isTitleModified = !!titleInput.value;
       let isDescriptionModified = !!descriptionInput.value;
 
@@ -176,7 +181,7 @@
             if (autoTags.length > 0) {
               autoTags.sort();
               autoTagsHint.style['display'] = 'block';
-              autoTagsHint.innerHTML = `Auto tags: ${autoTags.join(" ")}`;
+              autoTagsHint.innerHTML = `${autoTagsLabel} ${autoTags.join(" ")}`;
             } else {
               autoTagsHint.style['display'] = 'none';
             }
