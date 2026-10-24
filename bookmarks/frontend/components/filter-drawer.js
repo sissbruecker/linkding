@@ -27,10 +27,10 @@ class FilterDrawer extends Modal {
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-container" role="dialog" aria-modal="true">
           <div class="modal-header">
-            <h2>Filters</h2>
+            <h2>${window.gettext("Filters")}</h2>
             <button
               class="btn btn-noborder close"
-              aria-label="Close dialog"
+              aria-label=${window.gettext("Close dialog")}
               data-close-modal
             >
               <svg

@@ -78,39 +78,39 @@ class DevTool extends LitElement {
     {
       type: "select",
       key: "theme",
-      label: "Theme",
+      label: window.gettext("Theme"),
       options: [
-        { value: "auto", label: "Auto" },
-        { value: "light", label: "Light" },
-        { value: "dark", label: "Dark" },
+        { value: "auto", label: window.gettext("Auto") },
+        { value: "light", label: window.gettext("Light") },
+        { value: "dark", label: window.gettext("Dark") },
       ],
     },
     {
       type: "select",
       key: "bookmark_date_display",
-      label: "Date",
+      label: window.gettext("Date"),
       options: [
-        { value: "relative", label: "Relative" },
-        { value: "absolute", label: "Absolute" },
-        { value: "hidden", label: "Hidden" },
+        { value: "relative", label: window.gettext("Relative") },
+        { value: "absolute", label: window.gettext("Absolute") },
+        { value: "hidden", label: window.gettext("Hidden") },
       ],
     },
     {
       type: "select",
       key: "bookmark_description_display",
-      label: "Description",
+      label: window.gettext("Description"),
       options: [
-        { value: "inline", label: "Inline" },
-        { value: "separate", label: "Separate" },
+        { value: "inline", label: window.gettext("Inline") },
+        { value: "separate", label: window.gettext("Separate") },
       ],
     },
-    { type: "checkbox", key: "enable_favicons", label: "Favicons" },
-    { type: "checkbox", key: "enable_preview_images", label: "Preview images" },
-    { type: "checkbox", key: "display_url", label: "Display URL" },
-    { type: "checkbox", key: "permanent_notes", label: "Permanent notes" },
-    { type: "checkbox", key: "collapse_side_panel", label: "Collapse sidebar" },
-    { type: "checkbox", key: "sticky_pagination", label: "Sticky pagination" },
-    { type: "checkbox", key: "hide_bundles", label: "Hide bundles" },
+    { type: "checkbox", key: "enable_favicons", label: window.gettext("Favicons") },
+    { type: "checkbox", key: "enable_preview_images", label: window.gettext("Preview images") },
+    { type: "checkbox", key: "display_url", label: window.gettext("Display URL") },
+    { type: "checkbox", key: "permanent_notes", label: window.gettext("Permanent notes") },
+    { type: "checkbox", key: "collapse_side_panel", label: window.gettext("Collapse sidebar") },
+    { type: "checkbox", key: "sticky_pagination", label: window.gettext("Sticky pagination") },
+    { type: "checkbox", key: "hide_bundles", label: window.gettext("Hide bundles") },
   ];
 
   constructor() {
@@ -247,7 +247,7 @@ class DevTool extends LitElement {
         </svg>
       </button>
       <div class="overlay">
-        <h3>Dev Tools</h3>
+        <h3>${window.gettext("Dev Tools")}</h3>
         ${DevTool.fields.map((field) => this._renderField(field))}
       </div>
     `;

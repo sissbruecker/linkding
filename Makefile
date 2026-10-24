@@ -14,7 +14,7 @@ serve:
 tasks:
 	uv run manage.py run_huey -f
 
-test:
+test: compilemessages
 	uv run pytest -n auto
 
 lint:
@@ -26,7 +26,15 @@ format:
 	npx prettier bookmarks/frontend --write
 	npx prettier bookmarks/styles --write
 
+messages:
+	uv run manage.py makemessages -l zh_Hans --no-wrap --ignore=node_modules --ignore=docs --ignore=static
+	uv run manage.py makemessages -d djangojs -l zh_Hans --no-wrap --ignore=node_modules --ignore=docs --ignore=static
+
+compilemessages:
+	uv run manage.py compilemessages
+
 prepare-e2e:
+	uv run manage.py compilemessages
 	uv run playwright install chromium
 	rm -rf static
 	npm run build

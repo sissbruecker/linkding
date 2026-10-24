@@ -52,6 +52,48 @@ If you want to contribute to the documentation, you can find the source files in
 
 If you want to contribute a community project, feel free to [submit a PR](https://github.com/sissbruecker/linkding/edit/master/docs/src/content/docs/community.md).
 
+## Languages and translations
+
+The interface supports English and Simplified Chinese. Use the language selector
+on any page to save a preference in this browser. Without an explicit preference,
+linkding uses the browser's preferred supported language, falling back to English.
+Language choices do not change bookmark URLs, API values, or user content.
+
+Translation coverage includes the web UI, forms, validation messages, dynamic
+bookmark/tag counts, relative dates, PWA metadata, and JavaScript interactions.
+The browser extension itself is a separate project and is not translated by these
+catalogs.
+
+Translations use Django's gettext support. Install GNU gettext (including
+`xgettext`, `msgmerge`, and `msgfmt`) alongside the development dependencies.
+On Windows, use a Windows gettext distribution and add its `bin` directory to PATH.
+
+To add a language:
+
+1. Register its language code and native name in `LANGUAGES` in
+   [bookmarks/settings/base.py](bookmarks/settings/base.py).
+2. Run `uv run manage.py makemessages -l <locale> --no-wrap` and
+   `uv run manage.py makemessages -d djangojs -l <locale> --no-wrap`.
+   For example, Simplified Chinese uses `zh-hans` in `LANGUAGES` but `zh_Hans`
+   for the gettext locale directory.
+3. Translate both catalogs under `bookmarks/locale/<locale>/LC_MESSAGES/`.
+   Keep named placeholders intact, remove reviewed fuzzy markers, and translate
+   whole sentences rather than concatenating translated fragments.
+4. Run `uv run manage.py compilemessages` before starting the application or tests.
+   Generated `.mo` files are ignored by Git; both Docker images compile them during
+   the build. No database migration is needed to add a language.
+5. Test switching languages, JavaScript messages, fallback to English, and layout.
+   Languages with right-to-left scripts may also require layout changes.
+
+For new interface text, use `{% translate %}` / `{% blocktranslate trimmed %}`
+in templates, `gettext_lazy` for Python field labels and choices, and `gettext`
+(or `ngettext` for counts) for runtime messages. JavaScript uses the Django
+JavaScript catalog loaded before the application bundle. Do not translate stored
+choice values, API field names, URLs, or user-authored content.
+
+Run `make messages` to refresh the Chinese catalogs and `make compilemessages`
+to compile all catalogs. Review newly extracted or fuzzy entries before release.
+
 ## Contributing
 
 Small improvements, bugfixes and documentation improvements are always welcome. If you want to contribute a larger feature, consider opening an issue first to discuss it. I may choose to ignore PRs for features that don't align with the project's goals or that I don't want to maintain.

@@ -1,3 +1,4 @@
+{% load i18n %}
 {% if messages %}
   <div class="message-list">
     {% for message in messages %}<div class="toast toast-{{ message.tags }}" role="alert">{{ message }}</div>{% endfor %}

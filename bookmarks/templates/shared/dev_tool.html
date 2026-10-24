@@ -1,4 +1,5 @@
 {% load shared %}
+{% load i18n %}
 {% if debug and request.user.is_authenticated %}
   {{ request.user.profile|model_to_dict|json_script:"json_profile" }}
   <ld-dev-tool id="dev-tool"

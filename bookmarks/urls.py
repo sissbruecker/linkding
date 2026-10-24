@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import views as django_auth_views
 from django.urls import include, path, re_path
+from django.views.i18n import JavaScriptCatalog, set_language
 
 from bookmarks import feeds
 from bookmarks.admin import linkding_admin_site
@@ -19,6 +20,12 @@ from bookmarks.views.opensearch import opensearch as opensearch_view
 from bookmarks.views.root import root as root_view
 
 urlpatterns = [
+    path("i18n/set-language/", set_language, name="set_language"),
+    path(
+        "i18n/javascript/",
+        JavaScriptCatalog.as_view(packages=["bookmarks"]),
+        name="javascript_catalog",
+    ),
     # Root view handling redirection based on user authentication
     re_path(r"^$", root_view, name="root"),
     # Bookmarks

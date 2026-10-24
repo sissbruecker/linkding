@@ -17,5 +17,8 @@
 !/uwsgi.ini
 !/version.txt
 
+ # Compiled catalogs are generated in the image from source catalogs.
+ /bookmarks/locale/**/*.mo
+
  # Remove dev settings
 /bookmarks/settings/dev.py
