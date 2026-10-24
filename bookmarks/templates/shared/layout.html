@@ -1,7 +1,8 @@
-{% load static %}
+{% load static i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 {# Use data attributes as storage for access in static scripts #}
-<html lang="en" data-api-base-url="{% url 'linkding:api-root' %}">
+<html lang="{{ LANGUAGE_CODE }}" data-api-base-url="{% url 'linkding:api-root' %}">
   {% block head %}
     {% include 'shared/head.html' %}
   {% endblock %}
@@ -26,7 +27,7 @@
       {% endif %}
       <div class="d-flex justify-between">
         <a href="{% url 'linkding:root' %}" class="app-link d-flex align-center">
-          <img class="app-logo" src="{% static 'logo.png' %}" alt="Application logo">
+          <img class="app-logo" src="{% static 'logo.png' %}" alt="{% translate 'Application logo' %}">
           <span class="app-name">LINKDING</span>
         </a>
         <nav>
@@ -35,11 +36,26 @@
             {% include 'shared/nav_menu.html' %}
           {% else %}
             {# Otherwise show login link #}
-            <a href="{% url 'login' %}" class="btn btn-link">Login</a>
+            <a href="{% url 'login' %}" class="btn btn-link">{% translate "Login" %}</a>
           {% endif %}
         </nav>
       </div>
     </header>
+    <form action="{% url 'linkding:set_language' %}"
+          method="post"
+          class="container d-flex align-center"
+          data-turbo="false">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <label for="language" class="mr-2">{% translate "Language" %}</label>
+      {% get_available_languages as languages %}
+      <select id="language" name="language" class="form-select width-auto mr-2">
+        {% for code, name in languages %}
+          <option value="{{ code }}"{% if code == LANGUAGE_CODE %} selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn">{% translate "Apply" %}</button>
+    </form>
     <div class="content container">
       {% block content %}{% endblock %}
     </div>

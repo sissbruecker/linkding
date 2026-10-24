@@ -305,12 +305,12 @@ export class SearchAutocomplete extends TurboLitElement {
         </div>
 
         <ul class="menu ${this.isOpen ? "open" : ""}">
-          ${this.renderSuggestions(this.suggestions.tags, "Tags")}
+          ${this.renderSuggestions(this.suggestions.tags, window.gettext("Tags"))}
           ${this.renderSuggestions(
             this.suggestions.recentSearches,
-            "Recent Searches",
+            window.gettext("Recent Searches"),
           )}
-          ${this.renderSuggestions(this.suggestions.bookmarks, "Bookmarks")}
+          ${this.renderSuggestions(this.suggestions.bookmarks, window.gettext("Bookmarks"))}
         </ul>
       </div>
     `;

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+* Add English and Simplified Chinese UI translations using Django gettext.
+* Add language selection, browser-language negotiation, JavaScript catalogs, and
+  translation compilation to Docker and CI builds.
+
+
 ## v1.47.0 (13/09/2026)
 
 ### What's Changed

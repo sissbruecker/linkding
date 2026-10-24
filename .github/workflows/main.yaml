@@ -29,6 +29,10 @@ jobs:
         run: |
           uv sync
           mkdir data
+      - name: Compile translations
+        run: |
+          sudo apt-get update && sudo apt-get install -y gettext
+          uv run manage.py compilemessages
       - name: Run tests
         run: uv run pytest -n auto
   e2e_tests:
@@ -54,6 +58,10 @@ jobs:
           uv sync
           uv run playwright install chromium
           mkdir data
+      - name: Compile translations
+        run: |
+          sudo apt-get update && sudo apt-get install -y gettext
+          uv run manage.py compilemessages
       - name: Run build
         run: |
           npm run build

@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.shortcuts import render
+from django.utils.translation import gettext as _
 
 from bookmarks.services import assets
 from bookmarks.views import access
@@ -10,7 +11,7 @@ def view(request, asset_id: int):
     try:
         response = assets.stream_asset_file(asset)
     except FileNotFoundError:
-        raise Http404("Asset file does not exist") from None
+        raise Http404(_("Asset file does not exist")) from None
 
     response["Content-Disposition"] = f'inline; filename="{asset.download_name}"'
     if asset.content_type and asset.content_type.startswith("video/"):

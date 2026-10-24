@@ -1,0 +1,114 @@
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-24 00:55+0800\n"
+"Language: zh_Hans\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#: .\bookmarks\frontend\components\confirm-dropdown.js:70
+msgid "Are you sure?"
+msgstr "确定吗？"
+
+#: .\bookmarks\frontend\components\confirm-dropdown.js:81
+msgid "Cancel"
+msgstr "取消"
+
+#: .\bookmarks\frontend\components\confirm-dropdown.js:83
+msgid "Confirm"
+msgstr "确认"
+
+#: .\bookmarks\frontend\components\dev-tool.js:81
+msgid "Theme"
+msgstr "主题"
+
+#: .\bookmarks\frontend\components\dev-tool.js:83
+msgid "Auto"
+msgstr "自动"
+
+#: .\bookmarks\frontend\components\dev-tool.js:84
+msgid "Light"
+msgstr "浅色"
+
+#: .\bookmarks\frontend\components\dev-tool.js:85
+msgid "Dark"
+msgstr "深色"
+
+#: .\bookmarks\frontend\components\dev-tool.js:91
+msgid "Date"
+msgstr "日期"
+
+#: .\bookmarks\frontend\components\dev-tool.js:93
+msgid "Relative"
+msgstr "相对"
+
+#: .\bookmarks\frontend\components\dev-tool.js:94
+msgid "Absolute"
+msgstr "绝对"
+
+#: .\bookmarks\frontend\components\dev-tool.js:95
+msgid "Hidden"
+msgstr "隐藏"
+
+#: .\bookmarks\frontend\components\dev-tool.js:101
+msgid "Description"
+msgstr "描述"
+
+#: .\bookmarks\frontend\components\dev-tool.js:103
+msgid "Inline"
+msgstr "内嵌"
+
+#: .\bookmarks\frontend\components\dev-tool.js:104
+msgid "Separate"
+msgstr "分开"
+
+#: .\bookmarks\frontend\components\dev-tool.js:107
+msgid "Favicons"
+msgstr "网站图标"
+
+#: .\bookmarks\frontend\components\dev-tool.js:108
+msgid "Preview images"
+msgstr "预览图像"
+
+#: .\bookmarks\frontend\components\dev-tool.js:109
+msgid "Display URL"
+msgstr "显示 URL"
+
+#: .\bookmarks\frontend\components\dev-tool.js:110
+msgid "Permanent notes"
+msgstr "永久笔记"
+
+#: .\bookmarks\frontend\components\dev-tool.js:111
+msgid "Collapse sidebar"
+msgstr "折叠侧边栏"
+
+#: .\bookmarks\frontend\components\dev-tool.js:112
+msgid "Sticky pagination"
+msgstr "固定分页"
+
+#: .\bookmarks\frontend\components\dev-tool.js:113
+msgid "Hide bundles"
+msgstr "隐藏合集"
+
+#: .\bookmarks\frontend\components\dev-tool.js:250
+msgid "Dev Tools"
+msgstr "开发工具"
+
+#: .\bookmarks\frontend\components\filter-drawer.js:30
+msgid "Filters"
+msgstr "筛选器"
+
+#: .\bookmarks\frontend\components\filter-drawer.js:33
+msgid "Close dialog"
+msgstr "关闭对话框"
+
+#: .\bookmarks\frontend\components\search-autocomplete.js:308
+msgid "Tags"
+msgstr "标签"
+
+#: .\bookmarks\frontend\components\search-autocomplete.js:311
+msgid "Recent Searches"
+msgstr "最近搜索"
+
+#: .\bookmarks\frontend\components\search-autocomplete.js:313
+msgid "Bookmarks"
+msgstr "书签"

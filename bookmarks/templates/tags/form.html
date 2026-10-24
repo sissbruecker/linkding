@@ -1,6 +1,7 @@
 {% load shared %}
+{% load i18n %}
 <div class="form-group">
-  {% formlabel form.name "Name" %}
+  {% translate "Name" as form_label %}{% formlabel form.name form_label %}
   {% formfield form.name has_help=True autofocus=True %}
   {% formhelp form.name %}
     Tag names are case-insensitive and cannot contain spaces (spaces will be replaced with hyphens).
