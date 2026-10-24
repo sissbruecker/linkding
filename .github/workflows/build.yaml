@@ -39,14 +39,14 @@ jobs:
           file: ./docker/default.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            sissbruecker/linkding:latest
-            sissbruecker/linkding:${{ env.VERSION }}
-            ghcr.io/sissbruecker/linkding:latest
-            ghcr.io/sissbruecker/linkding:${{ env.VERSION }}
+            baibohai/linkding:latest
+            baibohai/linkding:${{ env.VERSION }}
+            ghcr.io/baibohai/linkding:latest
+            ghcr.io/baibohai/linkding:${{ env.VERSION }}
           target: linkding
           push: true
-          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache
-          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache,mode=max
+          cache-from: type=registry,ref=ghcr.io/baibohai/linkding:buildcache
+          cache-to: type=registry,ref=ghcr.io/baibohai/linkding:buildcache,mode=max
 
       - name: Build latest-alpine
         uses: docker/build-push-action@v6
@@ -55,14 +55,14 @@ jobs:
           file: ./docker/alpine.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            sissbruecker/linkding:latest-alpine
-            sissbruecker/linkding:${{ env.VERSION }}-alpine
-            ghcr.io/sissbruecker/linkding:latest-alpine
-            ghcr.io/sissbruecker/linkding:${{ env.VERSION }}-alpine
+            baibohai/linkding:latest-alpine
+            baibohai/linkding:${{ env.VERSION }}-alpine
+            ghcr.io/baibohai/linkding:latest-alpine
+            ghcr.io/baibohai/linkding:${{ env.VERSION }}-alpine
           target: linkding
           push: true
-          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine
-          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine,mode=max
+          cache-from: type=registry,ref=ghcr.io/baibohai/linkding:buildcache-alpine
+          cache-to: type=registry,ref=ghcr.io/baibohai/linkding:buildcache-alpine,mode=max
 
       - name: Build latest-plus
         uses: docker/build-push-action@v6
@@ -71,14 +71,14 @@ jobs:
           file: ./docker/default.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            sissbruecker/linkding:latest-plus
-            sissbruecker/linkding:${{ env.VERSION }}-plus
-            ghcr.io/sissbruecker/linkding:latest-plus
-            ghcr.io/sissbruecker/linkding:${{ env.VERSION }}-plus
+            baibohai/linkding:latest-plus
+            baibohai/linkding:${{ env.VERSION }}-plus
+            ghcr.io/baibohai/linkding:latest-plus
+            ghcr.io/baibohai/linkding:${{ env.VERSION }}-plus
           target: linkding-plus
           push: true
-          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache
-          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache,mode=max
+          cache-from: type=registry,ref=ghcr.io/baibohai/linkding:buildcache
+          cache-to: type=registry,ref=ghcr.io/baibohai/linkding:buildcache,mode=max
 
       - name: Build latest-plus-alpine
         uses: docker/build-push-action@v6
@@ -87,11 +87,11 @@ jobs:
           file: ./docker/alpine.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            sissbruecker/linkding:latest-plus-alpine
-            sissbruecker/linkding:${{ env.VERSION }}-plus-alpine
-            ghcr.io/sissbruecker/linkding:latest-plus-alpine
-            ghcr.io/sissbruecker/linkding:${{ env.VERSION }}-plus-alpine
+            baibohai/linkding:latest-plus-alpine
+            baibohai/linkding:${{ env.VERSION }}-plus-alpine
+            ghcr.io/baibohai/linkding:latest-plus-alpine
+            ghcr.io/baibohai/linkding:${{ env.VERSION }}-plus-alpine
           target: linkding-plus
           push: true
-          cache-from: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine
-          cache-to: type=registry,ref=ghcr.io/sissbruecker/linkding:buildcache-alpine,mode=max
+          cache-from: type=registry,ref=ghcr.io/baibohai/linkding:buildcache-alpine
+          cache-to: type=registry,ref=ghcr.io/baibohai/linkding:buildcache-alpine,mode=max
