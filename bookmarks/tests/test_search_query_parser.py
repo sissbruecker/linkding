@@ -84,6 +84,15 @@ class SearchQueryTokenizerTest(TestCase):
         self.assertEqual(tokens[0].value, "client-side")
         self.assertEqual(tokens[1].type, TokenType.EOF)
 
+    def test_hash_and_exclamation_marks_inside_terms(self):
+        for term in ["https://example.com/faq/#web-client", "C#", "Easy!Appointments"]:
+            with self.subTest(term=term):
+                tokens = SearchQueryTokenizer(term).tokenize()
+                self.assertEqual(
+                    [(token.type, token.value) for token in tokens],
+                    [(TokenType.TERM, term), (TokenType.EOF, "")],
+                )
+
     def test_and_operator(self):
         tokenizer = SearchQueryTokenizer("programming and books")
         tokens = tokenizer.tokenize()
@@ -469,6 +478,19 @@ class SearchQueryParserTest(TestCase):
     def test_special_characters_in_terms(self):
         result = parse_search_query("test@example.com and file.txt")
         expected = _and(_term("test@example.com"), _term("file.txt"))
+        self.assertEqual(result, expected)
+
+    def test_literal_terms_combined_with_search_syntax(self):
+        result = parse_search_query(
+            "(https://example.com/#intro or C#) !unread not #deprecated"
+        )
+        expected = _and(
+            _and(
+                _or(_term("https://example.com/#intro"), _term("C#")),
+                _keyword("unread"),
+            ),
+            _not(_tag("deprecated")),
+        )
         self.assertEqual(result, expected)
 
     def test_url_terms(self):
@@ -868,6 +890,20 @@ class ExpressionToStringTest(TestCase):
         expr = _term('say "hello"')
         self.assertEqual(expression_to_string(expr), '"say \\"hello\\""')
 
+    def test_literal_hash_and_exclamation_marks_round_trip(self):
+        for term in [
+            "https://example.com/faq/#web-client",
+            "C#",
+            "Easy!Appointments",
+            "#literal",
+            "!unread",
+        ]:
+            with self.subTest(term=term):
+                expression = _term(term)
+                self.assertEqual(
+                    parse_search_query(expression_to_string(expression)), expression
+                )
+
     def test_and_expression_implicit(self):
         expr = _and(_term("python"), _term("tutorial"))
         self.assertEqual(expression_to_string(expr), "python tutorial")
@@ -1008,6 +1044,12 @@ class StripTagFromQueryTest(TestCase):
     def test_quoted_terms_preserved(self):
         result = strip_tag_from_query('"machine learning" and #books', "books")
         self.assertEqual(result, '"machine learning"')
+
+    def test_literal_hash_and_exclamation_marks_preserved(self):
+        for term in ["C#", "Easy!Appointments", "#literal", "!unread"]:
+            with self.subTest(term=term):
+                result = strip_tag_from_query(f'"{term}" #books', "books")
+                self.assertEqual(parse_search_query(result), _term(term))
 
     def test_all_tags_in_and_chain(self):
         result = strip_tag_from_query("#books and #books and #books", "books")

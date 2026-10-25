@@ -1743,6 +1743,29 @@ class QueriesAdvancedSearchTestCase(TestCase, BookmarkFactoryMixin):
         query = queries.query_bookmarks(self.user, self.profile, search)
         self.assertCountEqual(list(query), [self.python_bookmark])
 
+    def test_search_terms_with_hash_and_exclamation_marks(self):
+        cases = [
+            ("C#", {"title": "C# reference"}, {"title": "C reference"}),
+            (
+                "Easy!Appointments",
+                {"title": "Easy!Appointments"},
+                {"title": "Easy appointments"},
+            ),
+            (
+                "https://example.com/faq/#web-client",
+                {"url": "https://example.com/faq/#web-client"},
+                {"url": "https://example.com/faq/#other"},
+            ),
+        ]
+        for term, matching, non_matching in cases:
+            with self.subTest(term=term):
+                bookmark = self.setup_bookmark(**matching)
+                self.setup_bookmark(**non_matching)
+                query = queries.query_bookmarks(
+                    self.user, self.profile, BookmarkSearch(q=term)
+                )
+                self.assertCountEqual(list(query), [bookmark])
+
     def test_or_operator(self):
         search = BookmarkSearch(q="#python OR #java")
         query = queries.query_bookmarks(self.user, self.profile, search)
