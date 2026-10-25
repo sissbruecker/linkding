@@ -475,7 +475,10 @@ class TagCloudContext:
             selected_tags, key=lambda x: str.lower(x.name)
         )
         has_selected_tags = len(unique_selected_tags) > 0
-        unselected_tags = set(unique_tags).symmetric_difference(unique_selected_tags)
+        selected_tag_names = {tag.name.lower() for tag in unique_selected_tags}
+        unselected_tags = {
+            tag for tag in unique_tags if tag.name.lower() not in selected_tag_names
+        }
         groups = TagGroup.create_tag_groups(
             request_context, user_profile.tag_grouping, unselected_tags
         )
