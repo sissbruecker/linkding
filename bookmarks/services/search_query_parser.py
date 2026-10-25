@@ -49,7 +49,7 @@ class SearchQueryTokenizer:
         while (
             self.current_char
             and not self.current_char.isspace()
-            and self.current_char not in "()\"'#!"
+            and self.current_char not in "()\"'"
         ):
             term += self.current_char
             self.advance()
@@ -353,7 +353,9 @@ def _is_simple_expression(expr: SearchExpression) -> bool:
 def _expression_to_string(expr: SearchExpression, parent_type: type = None) -> str:
     if isinstance(expr, TermExpression):
         # Quote terms if they contain spaces or special characters
-        if " " in expr.term or any(c in expr.term for c in ["(", ")", '"', "'"]):
+        if " " in expr.term or any(
+            c in expr.term for c in ["(", ")", '"', "'", "#", "!"]
+        ):
             # Escape any quotes in the term
             escaped = expr.term.replace("\\", "\\\\").replace('"', '\\"')
             return f'"{escaped}"'
