@@ -1,7 +1,7 @@
-{% load shared %}
+{% load i18n shared %}
 <section aria-labelledby="user-heading">
   <div class="section-header">
-    <h2 id="user-heading">User</h2>
+    <h2 id="user-heading">{% trans "User" %}</h2>
   </div>
   <div>
     <ld-form data-form-reset>
@@ -11,7 +11,7 @@
           <div class="d-flex">
             {% formfield user_list.form.user data_submit_on_change="" %}
             <noscript>
-              <button type="submit" class="btn btn-link ml-2">Apply</button>
+              <button type="submit" class="btn btn-link ml-2">{% trans "Apply" %}</button>
             </noscript>
           </div>
         </div>

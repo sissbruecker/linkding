@@ -1,21 +1,22 @@
 {% extends "shared/layout.html" %}
-{% load shared static pagination %}
+{% load i18n shared static pagination %}
 {% block head %}
-  {% with page_title="Tags - Linkding" %}{{ block.super }}{% endwith %}
+  {% trans "Tags - Linkding" as page_title %}
+  {{ block.super }}
 {% endblock %}
 {% block content %}
   <div class="tags-page crud-page">
     <turbo-frame id="tag-main">
     <main aria-labelledby="main-heading">
       <div class="crud-header">
-        <h1 id="main-heading">Tags</h1>
+        <h1 id="main-heading">{% trans "Tags" %}</h1>
         <div class="d-flex gap-2 ml-auto">
           <a href="{% url 'linkding:tags.new' %}"
              data-turbo-frame="tag-modal"
-             class="btn">Create Tag</a>
+             class="btn">{% trans "Create Tag" %}</a>
           <a href="{% url 'linkding:tags.merge' %}"
              data-turbo-frame="tag-modal"
-             class="btn">Merge Tags</a>
+             class="btn">{% trans "Merge Tags" %}</a>
         </div>
       </div>
       {% include 'shared/messages.html' %}
@@ -24,19 +25,19 @@
         <ld-form data-form-reset>
           <form method="get" class="mb-2" data-turbo-frame="_top">
             <div class="form-group">
-              <label class="form-label text-assistive" for="search">Search tags</label>
+              <label class="form-label text-assistive" for="search">{% trans "Search tags" %}</label>
               <div class="input-group">
                 <input type="text"
                        id="search"
                        name="search"
                        value="{{ search }}"
-                       placeholder="Search tags..."
+                       placeholder="{% trans 'Search tags...' %}"
                        class="form-input">
-                <button type="submit" class="btn input-group-btn">Search</button>
+                <button type="submit" class="btn input-group-btn">{% trans "Search" %}</button>
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label text-assistive" for="sort">Sort by</label>
+              <label class="form-label text-assistive" for="sort">{% trans "Sort by" %}</label>
               <div class="input-group">
                 <span class="input-group-addon text-secondary">
                   <svg width="20" height="20">
@@ -44,10 +45,10 @@
                   </svg>
                 </span>
                 <select id="sort" name="sort" class="form-select" data-submit-on-change>
-                  <option value="name-asc" {% if sort == "name-asc" %}selected{% endif %}>Name A-Z</option>
-                  <option value="name-desc" {% if sort == "name-desc" %}selected{% endif %}>Name Z-A</option>
-                  <option value="count-asc" {% if sort == "count-asc" %}selected{% endif %}>Fewest bookmarks</option>
-                  <option value="count-desc" {% if sort == "count-desc" %}selected{% endif %}>Most bookmarks</option>
+                  <option value="name-asc" {% if sort == "name-asc" %}selected{% endif %}>{% trans "Name A-Z" %}</option>
+                  <option value="name-desc" {% if sort == "name-desc" %}selected{% endif %}>{% trans "Name Z-A" %}</option>
+                  <option value="count-asc" {% if sort == "count-asc" %}selected{% endif %}>{% trans "Fewest bookmarks" %}</option>
+                  <option value="count-desc" {% if sort == "count-desc" %}selected{% endif %}>{% trans "Most bookmarks" %}</option>
                 </select>
               </div>
             </div>
@@ -58,7 +59,7 @@
                        value="true"
                        {% if unused_only %}checked{% endif %}
                        data-submit-on-change>
-                <i class="form-icon"></i> Show only unused tags
+                <i class="form-icon"></i> {% trans "Show only unused tags" %}
               </label>
             </div>
           </form>
@@ -66,9 +67,9 @@
         {# Tags count #}
         <p class="text-secondary text-small m-0">
           {% if search or unused_only %}
-            Showing {{ page.paginator.count }} of {{ total_tags }} tags
+            {% blocktrans trimmed with shown=page.paginator.count total=total_tags %}Showing {{ shown }} of {{ total }} tags{% endblocktrans %}
           {% else %}
-            {{ total_tags }} tags total
+            {% blocktrans trimmed with total=total_tags %}{{ total }} tags total{% endblocktrans %}
           {% endif %}
         </p>
       </div>
@@ -79,10 +80,10 @@
           <table class="table crud-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th style="width: 25%">Bookmarks</th>
+                <th>{% trans "Name" %}</th>
+                <th style="width: 25%">{% trans "Bookmarks" %}</th>
                 <th class="actions">
-                  <span class="text-assistive">Actions</span>
+                  <span class="text-assistive">{% trans "Actions" %}</span>
                 </th>
               </tr>
             </thead>
@@ -100,12 +101,12 @@
                   <td class="actions">
                     <a class="btn btn-link"
                        href="{% url 'linkding:tags.edit' tag.id %}?{{ request.GET.urlencode }}"
-                       data-turbo-frame="tag-modal">Edit</a>
+                       data-turbo-frame="tag-modal">{% trans "Edit" %}</a>
                     <button type="submit"
                             name="delete_tag"
                             value="{{ tag.id }}"
                             class="btn btn-link text-error"
-                            data-confirm>Remove</button>
+                            data-confirm>{% trans "Remove" %}</button>
                   </td>
                 </tr>
               {% endfor %}
@@ -116,11 +117,11 @@
       {% else %}
         <div class="empty">
           {% if search or unused_only %}
-            <p class="empty-title h5">No tags found</p>
-            <p class="empty-subtitle">Try adjusting your search or filters</p>
+            <p class="empty-title h5">{% trans "No tags found" %}</p>
+            <p class="empty-subtitle">{% trans "Try adjusting your search or filters" %}</p>
           {% else %}
-            <p class="empty-title h5">You have no tags yet</p>
-            <p class="empty-subtitle">Tags will appear here when you add bookmarks with tags</p>
+            <p class="empty-title h5">{% trans "You have no tags yet" %}</p>
+            <p class="empty-subtitle">{% trans "Tags will appear here when you add bookmarks with tags" %}</p>
           {% endif %}
         </div>
       {% endif %}

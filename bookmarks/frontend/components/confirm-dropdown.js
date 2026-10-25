@@ -1,4 +1,5 @@
 import { html, LitElement } from "lit";
+import { t } from "../i18n.js";
 import { FocusTrapController, isKeyboardActive } from "../utils/focus.js";
 import { PositionController } from "../utils/position-controller.js";
 
@@ -67,7 +68,9 @@ class ConfirmDropdown extends LitElement {
   }
 
   render() {
-    const questionText = this.button.dataset.confirmQuestion || "Are you sure?";
+    const questionText =
+      this.button.dataset.confirmQuestion ||
+      t("confirm.question", "Are you sure?");
     return html`
       <div
         class="menu with-arrow"
@@ -78,9 +81,11 @@ class ConfirmDropdown extends LitElement {
         <span id=${this.confirmId} style="font-weight: bold;">
           ${questionText}
         </span>
-        <button type="button" class="btn" @click=${this.close}>Cancel</button>
+        <button type="button" class="btn" @click=${this.close}>
+          ${t("confirm.cancel", "Cancel")}
+        </button>
         <button type="submit" class="btn btn-error" @click=${this.confirm}>
-          Confirm
+          ${t("confirm.confirm", "Confirm")}
         </button>
         <div class="menu-arrow"></div>
       </div>

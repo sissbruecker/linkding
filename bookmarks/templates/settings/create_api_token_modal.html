@@ -1,3 +1,5 @@
+{% load i18n %}
+{% trans "Create API Token" as modal_title %}
 <turbo-frame id="api-modal">
 <form method="post"
       action="{% url 'linkding:settings.integrations.create_api_token' %}"
@@ -8,23 +10,23 @@
             data-turbo-frame="api-modal">
     <div class="modal-overlay" data-close-modal></div>
     <div class="modal-container" role="dialog" aria-modal="true">
-      {% include 'shared/modal_header.html' with title="Create API Token" %}
+      {% include 'shared/modal_header.html' with title=modal_title %}
       <div class="modal-body">
         <div class="form-group">
-          <label class="form-label" for="token-name">Token name</label>
+          <label class="form-label" for="token-name">{% trans "Token name" %}</label>
           <input type="text"
                  class="form-input"
                  id="token-name"
                  name="name"
-                 placeholder="e.g., Browser Extension, Mobile App"
-                 value="API Token"
+                 placeholder="{% trans 'e.g., Browser Extension, Mobile App' %}"
+                 value="{% trans 'API Token' %}"
                  maxlength="128">
-          <p class="form-input-hint">A descriptive name to identify the purpose of the token</p>
+          <p class="form-input-hint">{% trans "A descriptive name to identify the purpose of the token" %}</p>
         </div>
       </div>
       <div class="modal-footer d-flex justify-between">
-        <button type="button" class="btn btn-wide" data-close-modal>Cancel</button>
-        <button type="submit" class="btn btn-primary">Create Token</button>
+        <button type="button" class="btn btn-wide" data-close-modal>{% trans "Cancel" %}</button>
+        <button type="submit" class="btn btn-primary">{% trans "Create Token" %}</button>
       </div>
     </div>
   </ld-modal>

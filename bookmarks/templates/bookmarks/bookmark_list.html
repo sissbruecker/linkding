@@ -1,8 +1,8 @@
-{% load static shared pagination %}
+{% load i18n static shared pagination %}
 {% if bookmark_list.is_empty %}
   {% include 'bookmarks/empty_bookmarks.html' %}
 {% else %}
-  <section aria-label="Bookmark list">
+  <section aria-label="{% trans 'Bookmark list' %}">
     <ul class="bookmark-list{% if bookmark_list.show_notes %} show-notes{% endif %}"
         role="list"
         tabindex="-1"
@@ -78,24 +78,24 @@
                   <a href="{{ bookmark_item.details_url }}"
                      class="view-action"
                      data-turbo-action="replace"
-                     data-turbo-frame="details-modal">View</a>
+                     data-turbo-frame="details-modal">{% trans "View" %}</a>
                 {% endif %}
                 {% if bookmark_item.is_editable %}
                   {# Bookmark owner actions #}
                   {% if bookmark_list.show_edit_action %}
-                    <a href="{% url 'linkding:bookmarks.edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">Edit</a>
+                    <a href="{% url 'linkding:bookmarks.edit' bookmark_item.id %}?return_url={{ bookmark_list.return_url|urlencode }}">{% trans "Edit" %}</a>
                   {% endif %}
                   {% if bookmark_list.show_archive_action %}
                     {% if bookmark_item.is_archived %}
                       <button type="submit"
                               name="unarchive"
                               value="{{ bookmark_item.id }}"
-                              class="btn btn-link btn-sm">Unarchive</button>
+                              class="btn btn-link btn-sm">{% trans "Unarchive" %}</button>
                     {% else %}
                       <button type="submit"
                               name="archive"
                               value="{{ bookmark_item.id }}"
-                              class="btn btn-link btn-sm">Archive</button>
+                              class="btn btn-link btn-sm">{% trans "Archive" %}</button>
                     {% endif %}
                   {% endif %}
                   {% if bookmark_list.show_remove_action %}
@@ -103,11 +103,11 @@
                             type="submit"
                             name="remove"
                             value="{{ bookmark_item.id }}"
-                            class="btn btn-link btn-sm">Remove</button>
+                            class="btn btn-link btn-sm">{% trans "Remove" %}</button>
                   {% endif %}
                 {% else %}
                   {# Shared bookmark actions #}
-                  <span>Shared by
+                  <span>{% trans "Shared by" %}
                     <a href="?{% replace_query_param user=bookmark_item.owner.username %}">{{ bookmark_item.owner.username }}</a>
                   </span>
                 {% endif %}
@@ -120,11 +120,11 @@
                               value="{{ bookmark_item.id }}"
                               class="btn btn-link btn-sm btn-icon"
                               data-confirm
-                              data-confirm-question="Mark as read?">
+                              data-confirm-question="{% trans 'Mark as read?' %}">
                         <svg width="16" height="16">
                           <use href="{% static 'icons.svg' %}?v={{ app_version }}#unread"></use>
                         </svg>
-                        Unread
+                        {% trans "Unread" %}
                       </button>
                     {% endif %}
                     {% if bookmark_item.show_unshare %}
@@ -133,11 +133,11 @@
                               value="{{ bookmark_item.id }}"
                               class="btn btn-link btn-sm btn-icon"
                               data-confirm
-                              data-confirm-question="Unshare?">
+                              data-confirm-question="{% trans 'Unshare?' %}">
                         <svg width="16" height="16">
                           <use href="{% static 'icons.svg' %}?v={{ app_version }}#share"></use>
                         </svg>
-                        Shared
+                        {% trans "Shared" %}
                       </button>
                     {% endif %}
                     {% if bookmark_item.show_notes_button %}
@@ -145,7 +145,7 @@
                         <svg width="16" height="16">
                           <use href="{% static 'icons.svg' %}?v={{ app_version }}#note"></use>
                         </svg>
-                        Notes
+                        {% trans "Notes" %}
                       </button>
                     {% endif %}
                   </div>
