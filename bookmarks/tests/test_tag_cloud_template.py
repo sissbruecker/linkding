@@ -68,6 +68,16 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         link_elements = soup.select("p.selected-tags a")
         self.assertEqual(len(link_elements), count)
 
+    def setup_tag_filter_bookmarks(self):
+        profile = self.get_or_create_test_user().profile
+        profile.enable_sharing = True
+        profile.save()
+        rss = self.setup_tag(name="rss")
+        email = self.setup_tag(name="email")
+        for is_archived in [False, True]:
+            self.setup_bookmark(tags=[rss], is_archived=is_archived, shared=True)
+            self.setup_bookmark(tags=[email], is_archived=is_archived, shared=True)
+
     def test_cjk_using_single_group(self):
         """
         Ideographic characters will be using the same group
@@ -503,6 +513,68 @@ class TagCloudTemplateTest(TestCase, BookmarkFactoryMixin, HtmlTestMixin):
         )
 
         self.assertTagGroups(rendered_template, [["tag3", "tag4", "tag5"]])
+
+    def test_excluded_query_tags_are_not_offered_in_groups(self):
+        self.setup_tag_filter_bookmarks()
+
+        for context_type in [
+            contexts.ActiveTagCloudContext,
+            contexts.ArchivedTagCloudContext,
+            contexts.SharedTagCloudContext,
+        ]:
+            with self.subTest(context=context_type.__name__):
+                rendered_template = self.render_template(
+                    context_type=context_type, url="/test?q=not+%23rss"
+                )
+
+                self.assertTagGroups(rendered_template, [["email"]])
+                self.assertNumSelectedTags(rendered_template, 1)
+
+    def test_query_tags_are_not_offered_when_results_are_empty(self):
+        self.setup_tag_filter_bookmarks()
+
+        for context_type in [
+            contexts.ActiveTagCloudContext,
+            contexts.ArchivedTagCloudContext,
+            contexts.SharedTagCloudContext,
+        ]:
+            with self.subTest(context=context_type.__name__):
+                rendered_template = self.render_template(
+                    context_type=context_type, url="/test?q=%23rss+%23email"
+                )
+
+                self.assertTagGroups(rendered_template, [])
+                self.assertNumSelectedTags(rendered_template, 2)
+
+    def test_shared_selected_tags_are_excluded_by_name(self):
+        first_owner = self.setup_user(enable_sharing=True)
+        first_tag = self.setup_tag(name="RSS", user=first_owner)
+        self.setup_bookmark(
+            user=first_owner,
+            tags=[first_tag],
+            shared=True,
+            title="First bookmark",
+            url="https://example.com/first",
+        )
+        second_owner = self.setup_user(enable_sharing=True)
+        second_tag = self.setup_tag(name="rss", user=second_owner)
+        self.setup_bookmark(
+            user=second_owner,
+            tags=[second_tag],
+            shared=True,
+            title="Second bookmark",
+            url="https://example.com/second",
+        )
+
+        for term in ["first", "second"]:
+            with self.subTest(term=term):
+                rendered_template = self.render_template(
+                    context_type=contexts.SharedTagCloudContext,
+                    url=f"/test?q=%23rss+{term}",
+                )
+
+                self.assertTagGroups(rendered_template, [])
+                self.assertNumSelectedTags(rendered_template, 1)
 
     def test_with_anonymous_user(self):
         profile = self.get_or_create_test_user().profile
