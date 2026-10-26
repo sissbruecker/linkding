@@ -64,8 +64,7 @@ def _domains_matches(expected_domain: str, actual_domain: str) -> bool:
     expected_domain = idna.encode(expected_domain)
     actual_domain = idna.encode(actual_domain)
 
-    return actual_domain.endswith(expected_domain)
-
+    return actual_domain == expected_domain or actual_domain.endswith(b"." + expected_domain)
 
 def _qs_matches(expected_qs: str, actual_qs: str) -> bool:
     expected_qs = parse_qs(expected_qs, keep_blank_values=True)
