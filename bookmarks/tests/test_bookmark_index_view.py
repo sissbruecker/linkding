@@ -64,6 +64,15 @@ class BookmarkIndexViewTestCase(
         self.assertVisibleBookmarks(response, visible_bookmarks)
         self.assertInvisibleBookmarks(response, invisible_bookmarks)
 
+    def test_should_show_bookmark_count_in_heading(self):
+        self.setup_numbered_bookmarks(3)
+        self.setup_numbered_bookmarks(2, archived=True)
+
+        response = self.client.get(reverse("linkding:bookmarks.index"))
+        soup = self.make_soup(response.content.decode())
+
+        self.assertEqual(soup.select_one("#bookmark-count").text, "(3)")
+
     def test_should_list_bookmarks_matching_query(self):
         visible_bookmarks = self.setup_numbered_bookmarks(3, prefix="foo")
         invisible_bookmarks = self.setup_numbered_bookmarks(3, prefix="bar")

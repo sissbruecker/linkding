@@ -1031,6 +1031,11 @@ class BookmarkActionViewTestCase(
             )
         )
 
+        # bookmark count update
+        self.assertIsNotNone(
+            soup.select_one("turbo-stream[action='update'][target='bookmark-count']")
+        )
+
         # tag cloud update
         self.assertIsNotNone(
             soup.select_one(
