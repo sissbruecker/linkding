@@ -32,14 +32,12 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
             Path(filepath).write_text(self.html_content)
         )
 
-        # Mock detect_content_type to return text/html by default
         self.mock_detect_content_type_patcher = mock.patch(
             "bookmarks.services.assets.detect_content_type",
         )
         self.mock_detect_content_type = self.mock_detect_content_type_patcher.start()
         self.mock_detect_content_type.return_value = "text/html"
 
-        # Mock is_pdf_content_type to return False by default
         self.mock_is_pdf_content_type_patcher = mock.patch(
             "bookmarks.services.assets.is_pdf_content_type",
         )
@@ -52,7 +50,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_is_pdf_content_type_patcher.stop()
 
     def get_saved_snapshot_file(self):
-        # look up first file in the asset folder
+
         files = os.listdir(self.assets_dir)
         if files:
             return files[0]
@@ -83,7 +81,6 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.display_name, "New snapshot")
         self.assertEqual(asset.status, BookmarkAsset.STATUS_PENDING)
 
-        # asset is not saved to the database
         self.assertIsNone(asset.id)
 
     def test_create_snapshot(self):
@@ -104,7 +101,6 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         expected_filename = "snapshot_2023-08-11_214511_https___example.com.html.gz"
         expected_filepath = os.path.join(self.assets_dir, expected_filename)
 
-        # should call singlefile.create_snapshot with the correct arguments
         self.mock_singlefile_create_snapshot.assert_called_once_with(
             "https://example.com",
             expected_temp_filepath,
@@ -117,7 +113,6 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         with gzip.open(expected_filepath, "rb") as gz_file:
             self.assertEqual(gz_file.read().decode(), self.html_content)
 
-        # should remove temporary file
         self.assertFalse(os.path.exists(expected_temp_filepath))
 
         # should update asset status and file
@@ -128,7 +123,6 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.file, expected_filename)
         self.assertTrue(asset.gzip)
 
-        # should update bookmark modified date
         bookmark.refresh_from_db()
 
     def test_create_snapshot_failure(self):
@@ -147,7 +141,6 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
 
     def test_create_snapshot_truncates_asset_file_name(self):
-        # Create a bookmark with a very long URL
         long_url = "http://" + "a" * 300 + ".com"
         bookmark = self.setup_bookmark(url=long_url)
 
@@ -181,14 +174,11 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         )
         expected_filepath = os.path.join(self.assets_dir, expected_filename)
 
-        # should create gzip file in asset folder
         self.assertTrue(os.path.exists(expected_filepath))
 
-        # gzip file should contain the correct content
         with gzip.open(expected_filepath, "rb") as gz_file:
             self.assertEqual(gz_file.read(), self.pdf_content)
 
-        # should update asset status and file
         asset.refresh_from_db()
         self.assertEqual(asset.status, BookmarkAsset.STATUS_COMPLETE)
         self.assertEqual(asset.file, expected_filename)
@@ -196,7 +186,6 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.assertIn("PDF download from", asset.display_name)
         self.assertTrue(asset.gzip)
 
-        # should update bookmark
         bookmark.refresh_from_db()
         self.assertEqual(bookmark.latest_snapshot, asset)
 
@@ -205,7 +194,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         asset = assets.create_snapshot_asset(bookmark)
         asset.save()
 
-        self.mock_detect_content_type.return_value = None  # Detection failed
+        self.mock_detect_content_type.return_value = None  
 
         assets.create_snapshot(asset)
 
@@ -240,13 +229,13 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         asset = assets.create_snapshot_asset(bookmark)
         asset.save()
 
-        large_content = b"x" * 150  # Exceeds 100 byte limit
+        large_content = b"x" * 150 
 
         self.mock_detect_content_type.return_value = "application/pdf"
         self.mock_is_pdf_content_type.return_value = True
 
         with mock.patch("bookmarks.services.assets.requests.get") as mock_get:
-            # Response without Content-Length header, will fail during streaming
+
             mock_get.return_value = self.create_mock_pdf_response(content=large_content)
 
             with self.assertRaises(assets.PdfTooLargeError):
@@ -281,15 +270,12 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         )
         asset = assets.upload_snapshot(bookmark, self.html_content.encode())
 
-        # should create gzip file in asset folder
         saved_file_name = self.get_saved_snapshot_file()
         self.assertIsNotNone(saved_file_name)
 
-        # verify file name
         self.assertTrue(saved_file_name.startswith("snapshot_"))
         self.assertTrue(saved_file_name.endswith("_https___example.com.html.gz"))
 
-        # gzip file should contain the correct content
         with gzip.open(os.path.join(self.assets_dir, saved_file_name), "rb") as gz_file:
             self.assertEqual(gz_file.read().decode(), self.html_content)
 
@@ -317,7 +303,6 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
             with self.assertRaises(OSError):
                 assets.upload_snapshot(bookmark, b"invalid content")
 
-        # asset is not saved to the database
         self.assertIsNone(BookmarkAsset.objects.first())
 
     def test_upload_snapshot_truncates_asset_file_name(self):
