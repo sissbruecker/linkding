@@ -49,8 +49,11 @@ class SingleFileServiceBlackBoxTestCase(SimpleTestCase):
     def test_create_snapshot_timeout_general(self, mock_popen):
         """CP-04: Timeout geral resulta em SingleFileError padronizado."""
         mock_process = MagicMock()
-        # Força TimeoutExpired em todas as esperas para esgotar a recuperação
-        mock_process.wait.side_effect = subprocess.TimeoutExpired(cmd="single-file", timeout=30)
+        # Primeiro wait estoura o timeout, segundo wait (na terminação) encerra normalmente
+        mock_process.wait.side_effect = [
+            subprocess.TimeoutExpired(cmd="single-file", timeout=30),
+            None
+        ]
         mock_popen.return_value = mock_process
 
         with self.assertRaises(SingleFileError) as ctx:
@@ -153,21 +156,31 @@ class SingleFileServiceWhiteBoxTestCase(SimpleTestCase):
         """CB-04: Valida o encadeamento correto em CalledProcessError e supressão em Timeout."""
         mock_process = MagicMock()
         called_error = subprocess.CalledProcessError(returncode=2, cmd="single-file", stderr=b"err")
-        mock_process.wait.side_effect = error = called_error
+        mock_process.wait.side_effect = called_error
         mock_popen.return_value = mock_process
         with self.assertRaises(SingleFileError) as ctx:
             create_snapshot("https://example.com", "/tmp/test.html")
         self.assertEqual(ctx.exception.__cause__, called_error)
 
-        mock_process.wait.side_effect = subprocess.TimeoutExpired(cmd="single-file", timeout=30)
+        # Verifica supressão de contexto (__suppress_context__ = True) nos timeouts
+        mock_process.wait.side_effect = [
+            subprocess.TimeoutExpired(cmd="single-file", timeout=30),
+            None
+        ]
         with self.assertRaises(SingleFileError) as ctx_timeout:
             create_snapshot("https://example.com", "/tmp/test.html")
         self.assertTrue(ctx_timeout.exception.__suppress_context__)
 
+    @patch("bookmarks.services.singlefile.os.getpgid")
+    @patch("bookmarks.services.singlefile.os.killpg")
     @patch("bookmarks.services.singlefile.subprocess.Popen")
-    def test_timeout_error_logging_calls(self, mock_popen):
+    def test_timeout_error_logging_calls(self, mock_popen, mock_killpg, mock_getpgid):
         """CB-05: Valida que mensagens de erro de logger são emitidas em cada nível de timeout."""
         mock_process = MagicMock()
+        mock_pid = 7777
+        mock_pgid = 7770
+        mock_process.pid = mock_pid
+        mock_getpgid.return_value = mock_pgid
         mock_process.wait.side_effect = [
             subprocess.TimeoutExpired(cmd="single-file", timeout=30),
             subprocess.TimeoutExpired(cmd="single-file", timeout=20)
