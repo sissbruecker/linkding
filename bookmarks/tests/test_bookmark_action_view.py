@@ -32,6 +32,28 @@ class BookmarkActionViewTestCase(
                 model_to_dict(Bookmark.objects.get(id=bookmark.id)),
             )
 
+    def test_bulk_copy_urls(self):
+        bookmark1 = self.setup_bookmark()
+        bookmark2 = self.setup_bookmark()
+
+        response = self.client.post(
+            reverse("linkding:bookmarks.index.action"),
+            {
+                "bulk_action": "bulk_copy_urls",
+                "bulk_execute": "",
+                "bookmark_id": [
+                 str(bookmark1.id),
+                    str(bookmark2.id),
+                ],
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertCountEqual(
+            response.content.decode().splitlines(),
+            [bookmark1.url, bookmark2.url],
+        )
+
     def test_archive_should_archive_bookmark(self):
         bookmark = self.setup_bookmark()
 

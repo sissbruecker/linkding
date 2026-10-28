@@ -308,6 +308,7 @@ class BookmarkIndexViewTestCase(
             <option value="bulk_read">Mark as read</option>
             <option value="bulk_unread">Mark as unread</option>
             <option value="bulk_refresh">Refresh from website</option>
+            <option value="bulk_copy_urls">Copy URLs</option>
           </select>
         """,
             html,

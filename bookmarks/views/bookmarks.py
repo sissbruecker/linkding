@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
 from django.http import (
+    HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
     HttpResponseRedirect,
@@ -420,6 +421,11 @@ def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
             return refresh_bookmarks_metadata(bookmark_ids, request.user)
         if bulk_action == "bulk_snapshot":
             return create_html_snapshots(bookmark_ids, request.user)
+        if bulk_action == "bulk_copy_urls":
+            urls = query.filter(id__in=bookmark_ids).values_list(
+                "url", flat=True
+            )
+            return HttpResponse("\n".join(urls), content_type="text/plain")
 
 
 @login_required
