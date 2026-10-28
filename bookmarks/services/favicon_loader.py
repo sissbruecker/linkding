@@ -28,9 +28,12 @@ def _url_to_filename(url: str) -> str:
 
 def _get_url_parameters(url: str) -> dict:
     parsed_uri = urlparse(url)
+    # Include the port, if any, so that services that only differ in their
+    # port get their own favicon
+    port = f":{parsed_uri.port}" if parsed_uri.port else ""
     return {
-        # https://example.com/foo?bar -> https://example.com
-        "url": f"{parsed_uri.scheme}://{parsed_uri.hostname}",
+        # https://example.com:8080/foo?bar -> https://example.com:8080
+        "url": f"{parsed_uri.scheme}://{parsed_uri.hostname}{port}",
         # https://example.com/foo?bar -> example.com
         "domain": parsed_uri.hostname,
     }
