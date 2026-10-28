@@ -111,6 +111,16 @@ class FaviconLoaderTestCase(TestCase):
             self.assertTrue(self.icon_exists("https_sub_example_com.png"))
             self.assertTrue(self.icon_exists("https_other_domain_com.png"))
 
+    def test_load_favicon_creates_distinct_icons_for_different_ports(self):
+        with mock.patch("requests.get") as mock_get:
+            mock_get.return_value = self.create_mock_response()
+            favicon_loader.load_favicon("http://example.com:8100")
+            favicon_loader.load_favicon("http://example.com:8200")
+
+            self.assertEqual(2, self.count_icons())
+            self.assertTrue(self.icon_exists("http_example_com_8100.png"))
+            self.assertTrue(self.icon_exists("http_example_com_8200.png"))
+
     def test_load_favicon_caches_icons(self):
         with mock.patch("requests.get") as mock_get:
             mock_get.return_value = self.create_mock_response()
@@ -162,6 +172,16 @@ class FaviconLoaderTestCase(TestCase):
             favicon_loader.load_favicon("https://example.com/foo?bar=baz")
             mock_get.assert_called_with(
                 "https://custom.icons.com/?url=https://example.com", stream=True
+            )
+
+    @override_settings(LD_FAVICON_PROVIDER="https://custom.icons.com/?url={url}")
+    def test_custom_provider_with_url_param_includes_port(self):
+        with mock.patch("requests.get") as mock_get:
+            mock_get.return_value = self.create_mock_response()
+
+            favicon_loader.load_favicon("https://example.com:8443/foo")
+            mock_get.assert_called_with(
+                "https://custom.icons.com/?url=https://example.com:8443", stream=True
             )
 
     @override_settings(LD_FAVICON_PROVIDER="https://custom.icons.com/?url={domain}")
