@@ -179,6 +179,12 @@ def render_bookmarks_update(request, bookmark_list, tag_cloud, details):
         ),
         turbo.update(
             request,
+            "bookmark-count",
+            "bookmarks/bookmark_count.html",
+            {"bookmark_list": bookmark_list},
+        ),
+        turbo.update(
+            request,
             "tag-cloud-container",
             "bookmarks/tag_cloud.html",
             {"tag_cloud": tag_cloud},

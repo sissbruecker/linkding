@@ -6,7 +6,10 @@
     {# Bookmark list #}
     <main class="main col-2" aria-labelledby="main-heading">
       <div class="section-header {% if bookmark_list.bulk_edit_enabled %}mb-0{% endif %}">
-        <h1 id="main-heading">{{ bookmark_list.list_title }}</h1>
+        <h1 id="main-heading">
+          {{ bookmark_list.list_title }}
+          <span id="bookmark-count" class="text-secondary">{% include 'bookmarks/bookmark_count.html' %}</span>
+        </h1>
         <div class="header-controls">
           {% bookmark_search bookmark_list.search mode=bookmark_list.search_mode %}
           {% if bookmark_list.bulk_edit_enabled %}
