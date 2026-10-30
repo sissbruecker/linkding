@@ -90,7 +90,52 @@ class BookmarkActionViewTestCase(
         )
 
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(response.content.decode(), "") 
+        self.assertEqual(response.content.decode(), "")
+
+    def test_bulk_copy_urls_ignores_other_users_bookmarks(self):
+        other_user = User.objects.create_user(
+            "otheruser", "otheruser@example.com", "password123"
+        )
+        own_bookmark = self.setup_bookmark()
+        other_bookmark = self.setup_bookmark(user=other_user)
+
+        response = self.client.post(
+            reverse("linkding:bookmarks.index.action"),
+            {
+                "bulk_action": "bulk_copy_urls",
+                "bulk_execute": "",
+                "bookmark_id": [
+                    str(own_bookmark.id),
+                    str(other_bookmark.id),
+                ],
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.content.decode().splitlines(),
+            [own_bookmark.url],
+        )
+
+    def test_bulk_copy_urls_select_across(self):
+        bookmark1 = self.setup_bookmark()
+        bookmark2 = self.setup_bookmark()
+        self.setup_bookmark(is_archived=True)
+
+        response = self.client.post(
+            reverse("linkding:bookmarks.index.action"),
+            {
+                "bulk_action": "bulk_copy_urls",
+                "bulk_execute": "",
+                "bulk_select_across": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertCountEqual(
+            response.content.decode().splitlines(),
+            [bookmark1.url, bookmark2.url],
+        )
     
 
     def test_archive_should_archive_bookmark(self):
