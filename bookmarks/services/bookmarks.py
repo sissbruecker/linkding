@@ -14,6 +14,7 @@ def create_bookmark(
     tag_string: str,
     current_user: User,
     disable_html_snapshot: bool = False,
+    bump_to_top: bool = True,
 ):
     # If URL is already bookmarked, then update it
     existing_bookmark: Bookmark = Bookmark.query_existing(
@@ -22,7 +23,8 @@ def create_bookmark(
 
     if existing_bookmark is not None:
         _merge_bookmark_data(bookmark, existing_bookmark)
-        existing_bookmark.date_added = timezone.now()
+        if bump_to_top:
+         existing_bookmark.date_added = timezone.now()
         return update_bookmark(existing_bookmark, tag_string, current_user)
 
     # Set currently logged in user as owner

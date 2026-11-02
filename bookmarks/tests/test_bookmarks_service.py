@@ -94,38 +94,7 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
         # Saving a duplicate bookmark should not modify archive flag - right?
         self.assertFalse(updated_bookmark.is_archived)
 
-    def test_create_should_move_existing_bookmark_to_top_when_duplicate_url_is_saved(
-        self,
-    ):
-        older_date = timezone.now() - datetime.timedelta(days=2)
-        newer_date = timezone.now() - datetime.timedelta(days=1)
-
-        existing_bookmark = self.setup_bookmark(
-            url="https://example.com",
-            added=older_date,
-        )
-        other_bookmark = self.setup_bookmark(
-            url="https://another-example.com",
-            added=newer_date,
-        )
-
-        bookmark_data = Bookmark(
-            url="https://example.com",
-            title="Updated Title",
-            description="Updated description",
-        )
-
-        create_bookmark(
-            bookmark_data, "", self.get_or_create_test_user()
-        )
-
-        existing_bookmark.refresh_from_db()
-        other_bookmark.refresh_from_db()
-
-        self.assertGreater(
-            existing_bookmark.date_added,
-            other_bookmark.date_added,
-        )
+    
     def test_create_should_update_existing_bookmark_with_normalized_url(
         self,
     ):
@@ -1194,35 +1163,60 @@ class BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):
             self.assertCountEqual(
                 bookmark_ids, [bookmark1.id, bookmark2.id, bookmark3.id]
             )
-    def test_create_should_move_first_existing_bookmark_to_top_when_multiple_duplicates(
+
+
+    def test_create_should_move_existing_bookmark_to_top_when_duplicate_url_is_saved(
+            self,
+        ):
+            older_date = timezone.now() - datetime.timedelta(days=2)
+            newer_date = timezone.now() - datetime.timedelta(days=1)
+
+            existing_bookmark = self.setup_bookmark(
+                url="https://example.com",
+                added=older_date,
+            )
+            other_bookmark = self.setup_bookmark(
+                url="https://another-example.com",
+                added=newer_date,
+            )
+
+            bookmark_data = Bookmark(
+                url="https://example.com",
+                title="Updated Title",
+                description="Updated description",
+            )
+
+            create_bookmark(
+                bookmark_data, "", self.get_or_create_test_user()
+            )
+
+            existing_bookmark.refresh_from_db()
+            other_bookmark.refresh_from_db()
+
+            self.assertGreater(
+                existing_bookmark.date_added,
+                other_bookmark.date_added,
+            )
+
+    def test_create_should_not_move_existing_bookmark_to_top_when_disabled(
         self,
     ):
         older_date = timezone.now() - datetime.timedelta(days=2)
-        newer_date = timezone.now() - datetime.timedelta(days=1)
 
-        first_dupe = self.setup_bookmark(
+        existing_bookmark = self.setup_bookmark(
             url="https://example.com",
             added=older_date,
         )
-        second_dupe = self.setup_bookmark(
-            url="https://example.com/",
-            added=newer_date,
-        )
 
-        bookmark_data = Bookmark(
-            url="https://example.com",
-            title="Updated Title",
-            description="Updated description",
-        )
+        bookmark_data = Bookmark(url="https://example.com")
 
         create_bookmark(
-            bookmark_data, "", self.get_or_create_test_user()
+            bookmark_data,
+            "",
+            self.get_or_create_test_user(),
+            bump_to_top=False,
         )
 
-        first_dupe.refresh_from_db()
-        second_dupe.refresh_from_db()
+        existing_bookmark.refresh_from_db()
 
-        self.assertGreater(
-            first_dupe.date_added,
-            second_dupe.date_added,
-        )
+        self.assertEqual(existing_bookmark.date_added, older_date)

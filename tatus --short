@@ -1,0 +1,89 @@
+warning: in the working copy of 'bookmarks/models.py', CRLF will be replaced by LF the next time Git touches it
+[1mdiff --git a/bookmarks/models.py b/bookmarks/models.py[m
+[1mindex bd45335..08fef06 100644[m
+[1m--- a/bookmarks/models.py[m
+[1m+++ b/bookmarks/models.py[m
+[36m@@ -8,7 +8,7 @@[m [mfrom django.contrib.auth.models import User[m
+ from django.core.validators import MinValueValidator[m
+ from django.db import models[m
+ from django.db.models import Q[m
+[31m-from django.db.models.signals import post_delete, post_save[m
+[32m+[m[32mfrom django.db.models.signals import post_delete, post_save,  m2m_changed, pre_delete[m
+ from django.dispatch import receiver[m
+ from django.http import QueryDict[m
+ [m
+[36m@@ -33,6 +33,7 @@[m [mdef sanitize_tag_name(tag_name: str):[m
+     return tag_name.strip().replace(" ", "-")[m
+ [m
+ [m
+[32m+[m
+ def parse_tag_string(tag_string: str, delimiter: str = ","):[m
+     if not tag_string:[m
+         return [][m
+[36m@@ -113,6 +114,47 @@[m [mclass Bookmark(models.Model):[m
+         return Bookmark.objects.filter(q)[m
+ [m
+ [m
+[32m+[m[32mdef _delete_unused_tags(owner, tag_ids):[m
+[32m+[m[32m    if not tag_ids or not owner.profile.delete_unused_tags:[m
+[32m+[m[32m        return[m
+[32m+[m
+[32m+[m[32m    Tag.objects.filter([m
+[32m+[m[32m        owner=owner,[m
+[32m+[m[32m        pk__in=tag_ids,[m
+[32m+[m[32m        bookmark__isnull=True,[m
+[32m+[m[32m    ).delete()[m
+[32m+[m
+[32m+[m
+[32m+[m[32m@receiver(m2m_changed, sender=Bookmark.tags.through)[m
+[32m+[m[32mdef cleanup_unused_tags_after_tag_change([m
+[32m+[m[32m    sender, instance, action, reverse, pk_set, **kwargs[m
+[32m+[m[32m):[m
+[32m+[m[32m    if action == "pre_clear":[m
+[32m+[m[32m        if reverse:[m
+[32m+[m[32m            instance._tag_ids_to_clean = [instance.pk][m
+[32m+[m[32m        else:[m
+[32m+[m[32m            instance._tag_ids_to_clean = list([m
+[32m+[m[32m                instance.tags.values_list("pk", flat=True)[m
+[32m+[m[32m            )[m
+[32m+[m[32m        return[m
+[32m+[m
+[32m+[m[32m    if action == "post_remove":[m
+[32m+[m[32m        tag_ids = [instance.pk] if reverse else list(pk_set or [])[m
+[32m+[m[32m    elif action == "post_clear":[m
+[32m+[m[32m        tag_ids = getattr(instance, "_tag_ids_to_clean", [])[m
+[32m+[m[32m    else:[m
+[32m+[m[32m        return[m
+[32m+[m
+[32m+[m[32m    _delete_unused_tags(instance.owner, tag_ids)[m
+[32m+[m
+[32m+[m
+[32m+[m[32m@receiver(pre_delete, sender=Bookmark)[m
+[32m+[m[32mdef bookmark_before_delete(sender, instance, **kwargs):[m
+[32m+[m[32m    instance._tag_ids_before_delete = list([m
+[32m+[m[32m        instance.tags.values_list("pk", flat=True)[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m
+ @receiver(post_delete, sender=Bookmark)[m
+ def bookmark_deleted(sender, instance, **kwargs):[m
+     if instance.preview_image_file:[m
+[36m@@ -125,6 +167,10 @@[m [mdef bookmark_deleted(sender, instance, **kwargs):[m
+                     f"Failed to delete preview image: {filepath}", exc_info=error[m
+                 )[m
+ [m
+[32m+[m[32m    _delete_unused_tags([m
+[32m+[m[32m        instance.owner,[m
+[32m+[m[32m        getattr(instance, "_tag_ids_before_delete", []),)[m
+[32m+[m
+ [m
+ class BookmarkAsset(models.Model):[m
+     TYPE_SNAPSHOT = "snapshot"[m
+[36m@@ -460,6 +506,7 @@[m [mclass UserProfile(models.Model):[m
+     collapse_side_panel = models.BooleanField(default=False, null=False)[m
+     hide_bundles = models.BooleanField(default=False, null=False)[m
+     legacy_search = models.BooleanField(default=False, null=False)[m
+[32m+[m[32m    delete_unused_tags = models.BooleanField(default=True, null=False)[m
+ [m
+     def save(self, *args, **kwargs):[m
+         if self.custom_css:[m
