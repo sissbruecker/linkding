@@ -308,6 +308,7 @@ class BookmarkIndexViewTestCase(
             <option value="bulk_read">Mark as read</option>
             <option value="bulk_unread">Mark as unread</option>
             <option value="bulk_refresh">Refresh from website</option>
+            <option value="bulk_copy_urls">Copy URLs</option>
           </select>
         """,
             html,
@@ -330,6 +331,7 @@ class BookmarkIndexViewTestCase(
             <option value="bulk_unread">Mark as unread</option>
             <option value="bulk_refresh">Refresh from website</option>
             <option value="bulk_snapshot">Create HTML snapshot</option>
+            <option value="bulk_copy_urls">Copy URLs</option>
           </select>
         """,
             html,
@@ -356,6 +358,7 @@ class BookmarkIndexViewTestCase(
             <option value="bulk_share">Share</option>
             <option value="bulk_unshare">Unshare</option>
             <option value="bulk_refresh">Refresh from website</option>
+            <option value="bulk_copy_urls">Copy URLs</option>
           </select>
         """,
             html,
@@ -384,6 +387,7 @@ class BookmarkIndexViewTestCase(
             <option value="bulk_unshare">Unshare</option>
             <option value="bulk_refresh">Refresh from website</option>
             <option value="bulk_snapshot">Create HTML snapshot</option>
+            <option value="bulk_copy_urls">Copy URLs</option>
           </select>
         """,
             html,

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
 from django.http import (
+    HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
     HttpResponseRedirect,
@@ -357,6 +358,18 @@ def shared_action(request: HttpRequest):
 
     return utils.redirect_with_query(request, reverse("linkding:bookmarks.shared"))
 
+def copy_urls_response(query: QuerySet[Bookmark], bookmark_ids) -> HttpResponse:
+    if not bookmark_ids:
+        return HttpResponse(status=204)
+
+    url_by_id = {
+        str(bookmark_id): url
+        for bookmark_id, url in query.filter(id__in=bookmark_ids).values_list(
+            "id", "url"
+        )
+    }
+    urls = [url_by_id[str(i)] for i in bookmark_ids if str(i) in url_by_id]
+    return HttpResponse("\n".join(urls), content_type="text/plain")
 
 def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
     # Single bookmark actions
@@ -420,6 +433,8 @@ def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
             return refresh_bookmarks_metadata(bookmark_ids, request.user)
         if bulk_action == "bulk_snapshot":
             return create_html_snapshots(bookmark_ids, request.user)
+        if bulk_action == "bulk_copy_urls":
+            return copy_urls_response(query, bookmark_ids)   
 
 
 @login_required

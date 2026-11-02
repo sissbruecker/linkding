@@ -23,6 +23,7 @@
     {% endif %}
     <option value="bulk_refresh">Refresh from website</option>
     {% if bookmark_list.snapshot_feature_enabled %}<option value="bulk_snapshot">Create HTML snapshot</option>{% endif %}
+    <option value="bulk_copy_urls">Copy URLs</option>
   </select>
   <ld-tag-autocomplete input-name="bulk_tag_string"
                        input-placeholder="Tag names..."

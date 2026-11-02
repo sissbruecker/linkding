@@ -33,6 +33,41 @@ class BookmarkPageBulkEditE2ETestCase(LinkdingE2ETestCase):
             Bookmark.objects.filter(is_archived=True, title__startswith="foo").count(),
         )
 
+
+    def test_copy_urls_of_selected_bookmarks(self):
+        self.setup_numbered_bookmarks(3)
+
+        page = self.open(reverse("linkding:bookmarks.index"))
+        page.context.grant_permissions(["clipboard-read", "clipboard-write"])
+
+        self.locate_bulk_edit_toggle().click()
+        self.locate_bookmark("Bookmark 1").locator(
+        "label.bulk-edit-checkbox"
+        ).click()
+        self.locate_bookmark("Bookmark 3").locator(
+        "label.bulk-edit-checkbox"
+        ).click()
+
+        self.select_bulk_action("Copy URLs")
+        self.locate_bulk_edit_bar().get_by_text("Execute").click()
+
+        page.wait_for_function(
+            """async () =>
+                (await navigator.clipboard.readText()).includes("https://")
+            """,
+            timeout=1000,
+        )
+
+        copied_urls = page.evaluate("navigator.clipboard.readText()")
+
+        expected_urls = [
+            Bookmark.objects.get(title="Bookmark 1").url,
+            Bookmark.objects.get(title="Bookmark 3").url,
+        ]
+
+        self.assertCountEqual(copied_urls.splitlines(), expected_urls)
+
+
     def test_active_bookmarks_bulk_select_across(self):
         self.setup_test_data()
 

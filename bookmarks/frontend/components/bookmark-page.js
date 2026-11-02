@@ -6,6 +6,7 @@ class BookmarkPage extends HeadlessElement {
     this.onToggleNotes = this.onToggleNotes.bind(this);
     this.onToggleBulkEdit = this.onToggleBulkEdit.bind(this);
     this.onBulkActionChange = this.onBulkActionChange.bind(this);
+    this.onExecuteBulkAction = this.onExecuteBulkAction.bind(this);
     this.onToggleAll = this.onToggleAll.bind(this);
     this.onToggleBookmark = this.onToggleBookmark.bind(this);
 
@@ -69,6 +70,7 @@ class BookmarkPage extends HeadlessElement {
     // Remove existing listeners
     this.activeToggle?.removeEventListener("click", this.onToggleBulkEdit);
     this.actionSelect?.removeEventListener("change", this.onBulkActionChange);
+    this.executeButton?.removeEventListener("click", this.onExecuteBulkAction);
     this.allCheckbox?.removeEventListener("change", this.onToggleAll);
     this.bookmarkCheckboxes?.forEach((checkbox) => {
       checkbox.removeEventListener("change", this.onToggleBookmark);
@@ -87,6 +89,7 @@ class BookmarkPage extends HeadlessElement {
     // Add listeners
     this.activeToggle.addEventListener("click", this.onToggleBulkEdit);
     this.actionSelect.addEventListener("change", this.onBulkActionChange);
+    this.executeButton.addEventListener("click", this.onExecuteBulkAction);
     this.allCheckbox.addEventListener("change", this.onToggleAll);
     this.bookmarkCheckboxes.forEach((checkbox) => {
       checkbox.addEventListener("change", this.onToggleBookmark);
@@ -113,6 +116,32 @@ class BookmarkPage extends HeadlessElement {
 
   onBulkActionChange() {
     this.dataset.bulkAction = this.actionSelect.value;
+    if (this.actionSelect.value === "bulk_copy_urls") {
+      this.executeButton.removeAttribute("data-confirm");
+    } else {
+      this.executeButton.setAttribute("data-confirm", "");
+    }
+  }
+
+  async onExecuteBulkAction(event) {
+    if (this.actionSelect.value !== "bulk_copy_urls") {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const form = this.executeButton.closest("form");
+    const formData = new FormData(form, this.executeButton);
+    const response = await fetch(form.action, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.ok) {
+      const urls = await response.text();
+      await navigator.clipboard.writeText(urls);
+    }
   }
 
   onToggleAll() {
