@@ -34,12 +34,24 @@ class SingleFileServiceTestCase(TestCase):
         ):
             singlefile.create_snapshot("http://example.com", "nonexistentfile.tmp")
 
+    def _mock_proxy(self):
+        proxy_ctx = mock.Mock()
+        proxy_ctx.__enter__ = mock.Mock(return_value=18080)
+        proxy_ctx.__exit__ = mock.Mock(return_value=False)
+        return proxy_ctx
+
     def test_create_snapshot_empty_options(self):
         mock_process = mock.Mock()
         mock_process.wait.return_value = 0
         self.create_test_file()
 
-        with mock.patch("subprocess.Popen") as mock_popen:
+        with (
+            mock.patch(
+                "bookmarks.services.ssrf_proxy.egress_proxy",
+                return_value=self._mock_proxy(),
+            ),
+            mock.patch("subprocess.Popen") as mock_popen,
+        ):
             singlefile.create_snapshot("http://example.com", self.temp_html_filepath)
 
             expected_args = [
@@ -48,6 +60,8 @@ class SingleFileServiceTestCase(TestCase):
                 '--browser-arg="--user-data-dir=./chromium-profile"',
                 '--browser-arg="--no-sandbox"',
                 '--browser-arg="--load-extension=uBOLite.chromium.mv3"',
+                '--browser-arg="--proxy-server=http://127.0.0.1:18080"',
+                '--browser-arg="--proxy-bypass-list=<-loopback>"',
                 "http://example.com",
                 self.temp_html_filepath,
             ]
@@ -61,7 +75,13 @@ class SingleFileServiceTestCase(TestCase):
         mock_process.wait.return_value = 0
         self.create_test_file()
 
-        with mock.patch("subprocess.Popen") as mock_popen:
+        with (
+            mock.patch(
+                "bookmarks.services.ssrf_proxy.egress_proxy",
+                return_value=self._mock_proxy(),
+            ),
+            mock.patch("subprocess.Popen") as mock_popen,
+        ):
             singlefile.create_snapshot("http://example.com", self.temp_html_filepath)
 
             expected_args = [
@@ -75,6 +95,8 @@ class SingleFileServiceTestCase(TestCase):
                 "--another-option",
                 "another value",
                 "--third-option=third value",
+                '--browser-arg="--proxy-server=http://127.0.0.1:18080"',
+                '--browser-arg="--proxy-bypass-list=<-loopback>"',
                 "http://example.com",
                 self.temp_html_filepath,
             ]

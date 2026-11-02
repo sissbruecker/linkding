@@ -32,8 +32,9 @@ Limitations:
 - If an HTTP proxy is configured through environment variables, requests
   bypass the guarded connection classes and connect to the proxy instead,
   which circumvents the protection.
-- Subprocesses, such as single-file for HTML snapshots, use their own network
-  stack and are not covered.
+- HTML snapshots run the snapshot browser behind the egress proxy in
+  ssrf_proxy.py, which enforces this same policy on every request the
+  browser makes. Other subprocesses are not covered.
 """
 
 import functools
@@ -181,23 +182,19 @@ def _parse_resolved_address(sockaddr: tuple) -> IPAddress:
     return ipaddress.ip_address(sockaddr[0].split("%", 1)[0])
 
 
-def create_guarded_connection(
-    address: tuple[str, int],
-    timeout=urllib3_util_connection._DEFAULT_TIMEOUT,
-    source_address: tuple[str, int] | None = None,
-    socket_options=None,
-) -> socket.socket:
+def resolve_allowed_addresses(host: str, port: int):
     """
-    Drop-in replacement for urllib3's create_connection that only connects to
-    addresses that are allowed by the SSRF policy.
+    Resolve a host once and enforce the SSRF policy on every resolved
+    address. Returns the getaddrinfo result, or None when the host is
+    allowlisted and needs no address check. Raises _BlockedAddress when any
+    resolved address is non-public and not allowlisted. Shared by the
+    guarded connection below and by the snapshot egress proxy, so both
+    stacks enforce exactly the same policy.
     """
-    host, port = address
     allowlist = get_allowlist()
 
     if allowlist.allow_all or allowlist.matches_host(host):
-        return urllib3_util_connection.create_connection(
-            address, timeout, source_address, socket_options
-        )
+        return None
 
     # Resolve the host exactly once. Connections are then made to the
     # resolved addresses, never to the hostname again.
@@ -210,6 +207,27 @@ def create_guarded_connection(
             resolved_address
         ):
             raise _BlockedAddress(host, resolved_address)
+
+    return resolved
+
+
+def create_guarded_connection(
+    address: tuple[str, int],
+    timeout=urllib3_util_connection._DEFAULT_TIMEOUT,
+    source_address: tuple[str, int] | None = None,
+    socket_options=None,
+) -> socket.socket:
+    """
+    Drop-in replacement for urllib3's create_connection that only connects to
+    addresses that are allowed by the SSRF policy.
+    """
+    host, port = address
+    resolved = resolve_allowed_addresses(host, port)
+
+    if resolved is None:
+        return urllib3_util_connection.create_connection(
+            address, timeout, source_address, socket_options
+        )
 
     # Passing IP literals to urllib3's create_connection does not trigger any
     # DNS lookup, but reuses its socket setup logic
