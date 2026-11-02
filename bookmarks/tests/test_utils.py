@@ -344,6 +344,7 @@ class UtilsTestCase(TestCase):
             with self.subTest(url=original):
                 result = normalize_url(original)
                 self.assertEqual(expected, result)
+<<<<<<< HEAD
 
 
                 
@@ -384,3 +385,15 @@ class UtilsTestCase(TestCase):
 
         self.assertEqual(expected, result)
 
+=======
+    def test_normalize_url_non_string_input(self):
+        for original in [None, 123]:
+            with self.subTest(url=original):
+             self.assertEqual("", normalize_url(original))
+
+
+    def test_normalize_url_invalid_port(self):
+        url = "https://example.com:abc/path"
+
+        self.assertEqual(url, normalize_url(url))
+>>>>>>> ee2229b239f91a15ce4befce5ceed3c59462ab32

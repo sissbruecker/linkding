@@ -22,6 +22,7 @@ def create_bookmark(
 
     if existing_bookmark is not None:
         _merge_bookmark_data(bookmark, existing_bookmark)
+        existing_bookmark.date_added = timezone.now()
         return update_bookmark(existing_bookmark, tag_string, current_user)
 
     # Set currently logged in user as owner
