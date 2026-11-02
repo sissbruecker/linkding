@@ -1,0 +1,92 @@
+[1mdiff --git a/bookmarks/services/bookmarks.py b/bookmarks/services/bookmarks.py[m
+[1mindex bcf0389..feb4d28 100644[m
+[1m--- a/bookmarks/services/bookmarks.py[m
+[1m+++ b/bookmarks/services/bookmarks.py[m
+[36m@@ -22,6 +22,7 @@[m [mdef create_bookmark([m
+ [m
+     if existing_bookmark is not None:[m
+         _merge_bookmark_data(bookmark, existing_bookmark)[m
+[32m+[m[32m        existing_bookmark.date_added = timezone.now()[m
+         return update_bookmark(existing_bookmark, tag_string, current_user)[m
+ [m
+     # Set currently logged in user as owner[m
+[1mdiff --git a/bookmarks/tests/test_bookmarks_service.py b/bookmarks/tests/test_bookmarks_service.py[m
+[1mindex 86ff6e5..e6f4674 100644[m
+[1m--- a/bookmarks/tests/test_bookmarks_service.py[m
+[1m+++ b/bookmarks/tests/test_bookmarks_service.py[m
+[36m@@ -94,6 +94,38 @@[m [mclass BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):[m
+         # Saving a duplicate bookmark should not modify archive flag - right?[m
+         self.assertFalse(updated_bookmark.is_archived)[m
+ [m
+[32m+[m[32m    def test_create_should_move_existing_bookmark_to_top_when_duplicate_url_is_saved([m
+[32m+[m[32m        self,[m
+[32m+[m[32m    ):[m
+[32m+[m[32m        older_date = timezone.now() - datetime.timedelta(days=2)[m
+[32m+[m[32m        newer_date = timezone.now() - datetime.timedelta(days=1)[m
+[32m+[m
+[32m+[m[32m        existing_bookmark = self.setup_bookmark([m
+[32m+[m[32m            url="https://example.com",[m
+[32m+[m[32m            added=older_date,[m
+[32m+[m[32m        )[m
+[32m+[m[32m        other_bookmark = self.setup_bookmark([m
+[32m+[m[32m            url="https://another-example.com",[m
+[32m+[m[32m            added=newer_date,[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        bookmark_data = Bookmark([m
+[32m+[m[32m            url="https://example.com",[m
+[32m+[m[32m            title="Updated Title",[m
+[32m+[m[32m            description="Updated description",[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        create_bookmark([m
+[32m+[m[32m            bookmark_data, "", self.get_or_create_test_user()[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        existing_bookmark.refresh_from_db()[m
+[32m+[m[32m        other_bookmark.refresh_from_db()[m
+[32m+[m
+[32m+[m[32m        self.assertGreater([m
+[32m+[m[32m            existing_bookmark.date_added,[m
+[32m+[m[32m            other_bookmark.date_added,[m
+[32m+[m[32m        )[m
+     def test_create_should_update_existing_bookmark_with_normalized_url([m
+         self,[m
+     ):[m
+[36m@@ -1162,3 +1194,35 @@[m [mclass BookmarkServiceTestCase(TestCase, BookmarkFactoryMixin):[m
+             self.assertCountEqual([m
+                 bookmark_ids, [bookmark1.id, bookmark2.id, bookmark3.id][m
+             )[m
+[32m+[m[32m    def test_create_should_move_first_existing_bookmark_to_top_when_multiple_duplicates([m
+[32m+[m[32m        self,[m
+[32m+[m[32m    ):[m
+[32m+[m[32m        older_date = timezone.now() - datetime.timedelta(days=2)[m
+[32m+[m[32m        newer_date = timezone.now() - datetime.timedelta(days=1)[m
+[32m+[m
+[32m+[m[32m        first_dupe = self.setup_bookmark([m
+[32m+[m[32m            url="https://example.com",[m
+[32m+[m[32m            added=older_date,[m
+[32m+[m[32m        )[m
+[32m+[m[32m        second_dupe = self.setup_bookmark([m
+[32m+[m[32m            url="https://example.com/",[m
+[32m+[m[32m            added=newer_date,[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        bookmark_data = Bookmark([m
+[32m+[m[32m            url="https://example.com",[m
+[32m+[m[32m            title="Updated Title",[m
+[32m+[m[32m            description="Updated description",[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        create_bookmark([m
+[32m+[m[32m            bookmark_data, "", self.get_or_create_test_user()[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        first_dupe.refresh_from_db()[m
+[32m+[m[32m        second_dupe.refresh_from_db()[m
+[32m+[m
+[32m+[m[32m        self.assertGreater([m
+[32m+[m[32m            first_dupe.date_added,[m
+[32m+[m[32m            second_dupe.date_added,[m
+[32m+[m[32m        )[m
+\ No newline at end of file[m

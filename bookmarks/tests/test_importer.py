@@ -576,3 +576,4 @@ class ImporterTestCase(TestCase, BookmarkFactoryMixin, ImportTestMixin):
             import_netscape_html(test_html, user)
 
             mock_schedule_bookmarks_without_previews.assert_called_once_with(user)
+    
