@@ -6,6 +6,8 @@ import subprocess
 
 from django.conf import settings
 
+from bookmarks.services import ssrf_proxy
+
 
 class SingleFileError(Exception):
     pass
@@ -20,8 +22,27 @@ def create_snapshot(url: str, filepath: str):
     # parse options to list of arguments
     ublock_options = shlex.split(settings.LD_SINGLEFILE_UBLOCK_OPTIONS)
     custom_options = shlex.split(settings.LD_SINGLEFILE_OPTIONS)
-    # concat lists
-    args = [singlefile_path] + ublock_options + custom_options + [url, filepath]
+    # Run the snapshot browser behind the egress proxy, so every request it
+    # makes — page, redirect hop, subresource — goes through the same SSRF
+    # policy as the pre-check, instead of the browser's own network stack.
+    # Proxy args come last so they win over any admin-set proxy option, and
+    # <-loopback> stops Chromium from bypassing the proxy for local targets.
+    with ssrf_proxy.egress_proxy() as proxy_port:
+        proxy_options = [
+            f'--browser-arg="--proxy-server=http://127.0.0.1:{proxy_port}"',
+            '--browser-arg="--proxy-bypass-list=<-loopback>"',
+        ]
+        args = (
+            [singlefile_path]
+            + ublock_options
+            + custom_options
+            + proxy_options
+            + [url, filepath]
+        )
+        _run_singlefile(args, filepath)
+
+
+def _run_singlefile(args: list[str], filepath: str):
     try:
         # Use start_new_session=True to create a new process group
         process = subprocess.Popen(args, start_new_session=True)
