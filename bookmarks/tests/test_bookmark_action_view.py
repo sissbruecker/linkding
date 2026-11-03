@@ -136,8 +136,54 @@ class BookmarkActionViewTestCase(
             response.content.decode().splitlines(),
             [bookmark1.url, bookmark2.url],
         )
-    
+#OPA
+    def test_bulk_copy_urls_deduplicates_selected_ids(self):
+        """Ciclo 13 RED: IDs duplicados na seleção devem gerar URLs únicas."""
+        bookmark1 = self.setup_bookmark()
+        bookmark2 = self.setup_bookmark()
+        response = self.client.post(
+            reverse("linkding:bookmarks.index.action"),
+            {
+                "bulk_action": "bulk_copy_urls",
+                "bulk_execute": "",
+                "bookmark_id": [
+                    str(bookmark1.id),
+                    str(bookmark2.id),
+                    str(bookmark1.id),  #            duplicado
+                ],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        urls = response.content.decode().splitlines()
+        self.assertEqual(len(urls), 2)  #Aqui é 2 (Ciclo 13)
+        self.assertCountEqual(urls, [bookmark1.url, bookmark2.url])
 
+    def test_bulk_copy_urls_ignores_empty_urls(self):
+        """Ciclo 14 RED: URLs vazias nao devem aparecer na resposta."""
+        bookmark1 = self.setup_bookmark()
+        bookmark2 = self.setup_bookmark()
+                  #Forca URL vazia direto no banco (NULL nao é permitido pelo Django)
+        bookmark2.url = ""
+        bookmark2.save()
+
+        response = self.client.post(
+            reverse("linkding:bookmarks.index.action"),
+            {
+                "bulk_action": "bulk_copy_urls",
+                "bulk_execute": "",
+                "bookmark_id": [
+                    str(bookmark1.id),
+                    str(bookmark2.id),
+                ],
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        urls = response.content.decode().splitlines()
+        #Apenas a URL valida (bookmark1) deve aparecer
+        self.assertEqual(len(urls), 1)
+        self.assertEqual(urls[0], bookmark1.url)
+#ADICIONADO..
     def test_archive_should_archive_bookmark(self):
         bookmark = self.setup_bookmark()
 

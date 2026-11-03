@@ -358,17 +358,22 @@ def shared_action(request: HttpRequest):
 
     return utils.redirect_with_query(request, reverse("linkding:bookmarks.shared"))
 
-def copy_urls_response(query: QuerySet[Bookmark], bookmark_ids) -> HttpResponse:
+def copy_urls_response(query, bookmark_ids):
     if not bookmark_ids:
         return HttpResponse(status=204)
 
     url_by_id = {
         str(bookmark_id): url
-        for bookmark_id, url in query.filter(id__in=bookmark_ids).values_list(
-            "id", "url"
-        )
+        for bookmark_id, url in query.filter(id__in=bookmark_ids).values_list("id", "url")
     }
-    urls = [url_by_id[str(i)] for i in bookmark_ids if str(i) in url_by_id]
+    seen = set()
+    urls = []
+    for i in bookmark_ids:
+        key = str(i)
+        if key in url_by_id and key not in seen:
+            seen.add(key)
+            if url_by_id[key]:  # <-- ESTA LINHA É CRUCIAL
+                urls.append(url_by_id[key])
     return HttpResponse("\n".join(urls), content_type="text/plain")
 
 def handle_action(request: HttpRequest, query: QuerySet[Bookmark] = None):
