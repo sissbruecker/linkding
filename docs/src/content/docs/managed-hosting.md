@@ -12,5 +12,6 @@ A _managed service_ is the least technical option where the provider essentially
 | [PikaPods.com](https://www.pikapods.com/) <br> [1-click setup](https://www.pikapods.com/pods?run=linkding) | Managed service  | Automatic | Automated backups to S3 compatible buckets | EU, US  |
 | [CloudBreak](https://cloudbreak.app/products/linkding/)                                                                                               | Managed service  | Automatic  | Unknown                                    | US      |
 | [Hostim.dev](https://hostim.dev/) <br> [1-click setup](https://console.hostim.dev/dashboard?preview=1&modal=1&template=linkding)                                                                                                               | Hosting platform | Manual    | Custom through SSH access                  | EU      |
+| [Podway](https://podway.io/) <br> [1-click setup](https://podway.io/start?app=linkding&ref=docs-linkding) | Hosting platform | Manual (AI admin checks weekly; one-click upgrade with automatic rollback) | Daily off-site (7 daily + 4 weekly), plus a snapshot before every upgrade | EU |
 
 _Disclosure: PikaPods has a revenue sharing agreement with this project, sharing some of their revenue from hosting linkding instances._
