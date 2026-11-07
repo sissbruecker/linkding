@@ -1,12 +1,17 @@
 export function debounce(callback, delay = 250) {
   let timeoutId;
-  return (...args) => {
+  const debounced = (...args) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
       timeoutId = null;
       callback(...args);
     }, delay);
   };
+  debounced.cancel = () => {
+    clearTimeout(timeoutId);
+    timeoutId = null;
+  };
+  return debounced;
 }
 
 export function clampText(text, maxChars = 30) {

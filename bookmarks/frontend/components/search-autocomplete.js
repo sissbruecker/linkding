@@ -47,6 +47,7 @@ export class SearchAutocomplete extends TurboLitElement {
     this.menu = null;
     this.searchHistory = new SearchHistory();
     this.debouncedLoadSuggestions = debounce(() => this.loadSuggestions());
+    this.loadSuggestionsId = 0;
   }
 
   firstUpdated() {
@@ -80,6 +81,8 @@ export class SearchAutocomplete extends TurboLitElement {
 
   handleInput(e) {
     this.inputValue = e.target.value;
+    // Discard suggestions that are still loading for the previous value
+    this.loadSuggestionsId++;
     this.debouncedLoadSuggestions();
   }
 
@@ -122,6 +125,10 @@ export class SearchAutocomplete extends TurboLitElement {
 
   close() {
     this.isOpen = false;
+    // Discard suggestions that are scheduled or still loading, so that they
+    // don't reopen the menu
+    this.debouncedLoadSuggestions.cancel();
+    this.loadSuggestionsId++;
     this.updateSuggestions();
     this.selectedIndex = undefined;
     this.positionController.disable();
@@ -132,6 +139,7 @@ export class SearchAutocomplete extends TurboLitElement {
   }
 
   async loadSuggestions() {
+    const loadSuggestionsId = ++this.loadSuggestionsId;
     let suggestionIndex = 0;
 
     function nextIndex() {
@@ -194,6 +202,13 @@ export class SearchAutocomplete extends TurboLitElement {
           bookmark,
         };
       });
+    }
+
+    // Ignore the result if the input changed, a newer request was started or
+    // the menu was closed in the meantime, so that a slow response for an
+    // earlier query does not replace the current suggestions
+    if (loadSuggestionsId !== this.loadSuggestionsId) {
+      return;
     }
 
     this.updateSuggestions(recentSearches, bookmarks, tagSuggestions);
