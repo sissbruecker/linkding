@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from bookmarks.models import BookmarkAsset
 from bookmarks.services import assets
-from bookmarks.services.http_client import BlockedAddressError
+from bookmarks.services.http_client import BlockedAddressError, RequestException
 from bookmarks.tests.helpers import BookmarkFactoryMixin, disable_logging
 
 
@@ -217,6 +217,32 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         self.mock_singlefile_create_snapshot.assert_called()
 
     @override_settings(LD_SNAPSHOT_PDF_MAX_SIZE=100)
+    def test_create_pdf_snapshot_accepts_size_limit_boundaries(self):
+        self.mock_detect_content_type.return_value = "application/pdf"
+        self.mock_is_pdf_content_type.return_value = True
+
+        for size in (99, 100):
+            with self.subTest(size=size):
+                bookmark = self.setup_bookmark(url=f"https://example.com/{size}.pdf")
+                asset = assets.create_snapshot_asset(bookmark)
+                asset.save()
+                content = b"x" * size
+                response = self.create_mock_pdf_response(content=content)
+                response.iter_content.return_value = [content[:60], content[60:]]
+
+                with mock.patch(
+                    "bookmarks.services.http_client.get", return_value=response
+                ):
+                    assets.create_snapshot(asset)
+
+                asset.refresh_from_db()
+                bookmark.refresh_from_db()
+                self.assertEqual(asset.status, BookmarkAsset.STATUS_COMPLETE)
+                self.assertEqual(self.read_asset_file(asset), content)
+                self.assertEqual(bookmark.latest_snapshot, asset)
+                self.assertEqual(list(Path(self.assets_dir).glob("*.tmp")), [])
+
+    @override_settings(LD_SNAPSHOT_PDF_MAX_SIZE=100)
     def test_create_pdf_snapshot_fails_when_content_length_exceeds_limit(self):
         bookmark = self.setup_bookmark(url="https://example.com/doc.pdf")
         asset = assets.create_snapshot_asset(bookmark)
@@ -239,6 +265,7 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
     @override_settings(LD_SNAPSHOT_PDF_MAX_SIZE=100)
     def test_create_pdf_snapshot_fails_when_download_exceeds_limit(self):
         bookmark = self.setup_bookmark(url="https://example.com/doc.pdf")
+        previous_snapshot = assets.upload_snapshot(bookmark, self.html_content.encode())
         asset = assets.create_snapshot_asset(bookmark)
         asset.save()
 
@@ -250,12 +277,128 @@ class AssetServiceTestCase(TestCase, BookmarkFactoryMixin):
         with mock.patch("bookmarks.services.http_client.get") as mock_get:
             # Response without Content-Length header, will fail during streaming
             mock_get.return_value = self.create_mock_pdf_response(content=large_content)
+            mock_get.return_value.iter_content.return_value = [
+                large_content[:75],
+                large_content[75:],
+            ]
 
             with self.assertRaises(assets.PdfTooLargeError):
                 assets.create_snapshot(asset)
 
         asset.refresh_from_db()
         self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, previous_snapshot)
+        self.assertEqual(set(os.listdir(self.assets_dir)), {previous_snapshot.file})
+        self.assertEqual(
+            self.read_asset_file(previous_snapshot), self.html_content.encode()
+        )
+
+    def test_create_pdf_snapshot_cleans_up_after_partial_download_failure(self):
+        bookmark = self.setup_bookmark(url="https://example.com/doc.pdf")
+        previous_snapshot = assets.upload_snapshot(bookmark, self.html_content.encode())
+        asset = assets.create_snapshot_asset(bookmark)
+        asset.save()
+        self.mock_detect_content_type.return_value = "application/pdf"
+        self.mock_is_pdf_content_type.return_value = True
+        error = RequestException("Download interrupted")
+
+        def stream_chunks(**kwargs):
+            yield b"x" * 60
+            raise error
+
+        response = self.create_mock_pdf_response()
+        response.iter_content.side_effect = stream_chunks
+        with (
+            mock.patch("bookmarks.services.http_client.get", return_value=response),
+            self.assertRaises(RequestException) as raised,
+        ):
+            assets.create_snapshot(asset)
+
+        self.assertIs(raised.exception, error)
+        asset.refresh_from_db()
+        self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
+        bookmark.refresh_from_db()
+        self.assertEqual(bookmark.latest_snapshot, previous_snapshot)
+        self.assertEqual(set(os.listdir(self.assets_dir)), {previous_snapshot.file})
+        self.assertEqual(
+            self.read_asset_file(previous_snapshot), self.html_content.encode()
+        )
+
+    def test_create_pdf_snapshot_preserves_download_error_when_cleanup_fails(self):
+        bookmark = self.setup_bookmark(url="https://example.com/doc.pdf")
+        asset = assets.create_snapshot_asset(bookmark)
+        asset.save()
+        self.mock_detect_content_type.return_value = "application/pdf"
+        self.mock_is_pdf_content_type.return_value = True
+        error = RequestException("Download interrupted")
+
+        def stream_chunks(**kwargs):
+            yield b"partial PDF"
+            raise error
+
+        response = self.create_mock_pdf_response()
+        response.iter_content.side_effect = stream_chunks
+        with (
+            mock.patch("bookmarks.services.http_client.get", return_value=response),
+            mock.patch(
+                "bookmarks.services.assets.os.remove",
+                side_effect=PermissionError("Cannot remove temporary file"),
+            ),
+            self.assertLogs("bookmarks.services.assets", level="WARNING"),
+            self.assertRaises(RequestException) as raised,
+        ):
+            assets.create_snapshot(asset)
+
+        self.assertIs(raised.exception, error)
+        asset.refresh_from_db()
+        self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
+        bookmark.refresh_from_db()
+        self.assertIsNone(bookmark.latest_snapshot)
+
+        # A retry must still overwrite the temporary file left by failed cleanup.
+        with mock.patch(
+            "bookmarks.services.http_client.get",
+            return_value=self.create_mock_pdf_response(),
+        ):
+            assets.create_snapshot(asset)
+
+        asset.refresh_from_db()
+        bookmark.refresh_from_db()
+        self.assertEqual(asset.status, BookmarkAsset.STATUS_COMPLETE)
+        self.assertEqual(bookmark.latest_snapshot, asset)
+        self.assertEqual(self.read_asset_file(asset), self.pdf_content)
+        self.assertEqual(os.listdir(self.assets_dir), [asset.file])
+
+    def test_create_pdf_snapshot_does_not_remove_file_when_open_fails(self):
+        bookmark = self.setup_bookmark(url="https://example.com/doc.pdf")
+        asset = assets.create_snapshot_asset(bookmark)
+        asset.save()
+        self.mock_detect_content_type.return_value = "application/pdf"
+        self.mock_is_pdf_content_type.return_value = True
+        temp_filename = assets._generate_asset_filename(asset, bookmark.url, "tmp")
+        temp_filepath = Path(self.assets_dir, temp_filename)
+        temp_filepath.write_bytes(b"existing temporary file")
+        error = PermissionError("Cannot open temporary file")
+
+        with (
+            mock.patch(
+                "bookmarks.services.http_client.get",
+                return_value=self.create_mock_pdf_response(),
+            ),
+            mock.patch("bookmarks.services.assets.open", side_effect=error),
+            mock.patch("bookmarks.services.assets.os.remove") as mock_remove,
+            self.assertRaises(PermissionError) as raised,
+        ):
+            assets.create_snapshot(asset)
+
+        self.assertIs(raised.exception, error)
+        mock_remove.assert_not_called()
+        asset.refresh_from_db()
+        bookmark.refresh_from_db()
+        self.assertEqual(asset.status, BookmarkAsset.STATUS_FAILURE)
+        self.assertIsNone(bookmark.latest_snapshot)
+        self.assertEqual(temp_filepath.read_bytes(), b"existing temporary file")
 
     def test_create_pdf_snapshot_failure(self):
         bookmark = self.setup_bookmark(url="https://example.com/doc.pdf")

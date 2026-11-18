@@ -114,12 +114,26 @@ def _create_pdf_snapshot(asset: BookmarkAsset):
 
         # Download in chunks, tracking size
         downloaded_size = 0
-        with open(temp_filepath, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                downloaded_size += len(chunk)
-                if downloaded_size > max_size:
-                    raise PdfTooLargeError(f"PDF size exceeds limit ({max_size} bytes)")
-                f.write(chunk)
+        f = None
+        try:
+            with open(temp_filepath, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    downloaded_size += len(chunk)
+                    if downloaded_size > max_size:
+                        raise PdfTooLargeError(
+                            f"PDF size exceeds limit ({max_size} bytes)"
+                        )
+                    f.write(chunk)
+        except Exception:
+            if f is not None:
+                try:
+                    os.remove(temp_filepath)
+                except OSError as error:
+                    logger.warning(
+                        f"Failed to delete temporary PDF file: {temp_filepath}",
+                        exc_info=error,
+                    )
+            raise
 
     # Store as gzip in asset folder
     filename = _generate_asset_filename(asset, url, "pdf.gz")
