@@ -11,7 +11,7 @@ The admin app provides several features that are not available in the linkding U
 
 ## Linkding administration page
 
-To open the Admin app, go the *Settings* view and click on the *Admin* tab. This should open a new window with the admin app.
+To open the Admin app, select *Admin* from the *Settings* dropdown in the top navigation. This opens the *Site administration* page.
 
 Alternatively you can open the URL directly by adding `/admin` to the URL of your linkding installation.
 
@@ -52,7 +52,7 @@ Click the button next to the checkbox to execute the operation.
 
 ## Tag management
 
-While linkding UI currently only allows to create or assign tags, you can use the admin app to manage your tags. This can be especially useful if you want to clean up your tag collection.
+To rename a tag in Linkding, open the *Tags* page, select *Edit* in the tag's row, update the *Name*, and select *Save*. You can use the admin app to manage your tags. This can be especially useful if you want to clean up your tag collection.
 
 In the main linkding administration page, choose *Tags*.
 
