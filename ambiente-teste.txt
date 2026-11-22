@@ -1,0 +1,63 @@
+===== DATA =====
+Sun Nov 22 19:52:25 -03 2026
+===== SISTEMA =====
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04.1 LTS (Resolute Raccoon)"
+VERSION_CODENAME=resolute
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=resolute
+LOGO=ubuntu-logo
+Linux DESKTOP-QCHSLP5 6.18.33.2-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Thu Jun 18 21:54:43 UTC 2026 x86_64 GNU/Linux
+===== PROCESSADOR =====
+CPU(s):                                  4
+On-line CPU(s) list:                     0-3
+Model name:                              Intel(R) Core(TM) i3-7100 CPU @ 3.90GHz
+NUMA node0 CPU(s):                       0-3
+===== MEMORIA =====
+               total        used        free      shared  buff/cache   available
+Mem:           7.7Gi       1.1Gi       6.2Gi        49Mi       691Mi       6.6Gi
+Swap:          2.0Gi          0B       2.0Gi
+===== DOCKER =====
+Client:
+ Version:           29.7.2
+ API version:       1.55
+ Go version:        go1.26.5
+ Git commit:        a7dcaa6
+ Built:             Wed Aug  5 18:27:38 2026
+ OS/Arch:           linux/amd64
+ Context:           default
+
+Server: Docker Desktop 4.88.1 (237512)
+ Engine:
+  Version:          29.7.2
+  API version:      1.55 (minimum version 1.40)
+  Go version:       go1.26.5
+  Git commit:       6a43e3d
+  Built:            Wed Aug  5 18:28:36 2026
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          v2.3.3
+  GitCommit:        aad11006b869517fcd3009450b6f82da282e1a9b
+ runc:
+  Version:          1.4.3
+  GitCommit:        v1.4.3-0-gbb14dabe
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+Docker Compose version v5.4.0
+===== CONTAINER =====
+NAME       IMAGE                          COMMAND            SERVICE    CREATED          STATUS                    PORTS
+linkding   sissbruecker/linkding:latest   "./bootstrap.sh"   linkding   40 minutes ago   Up 40 minutes (healthy)   0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
+Imagem: sissbruecker/linkding:latest | ID: sha256:e35cb50e0581178f245125ffaa909c565416c94c9f22ace305a7d234a4345522
+===== K6 =====
+k6 v2.4.0 (commit/dd9395906d, go1.26.11, linux/amd64)
+===== COMMIT LINKDING =====
+87e5509
