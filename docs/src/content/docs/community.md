@@ -10,6 +10,7 @@ This section lists community projects around using linkding. If you have a proje
 | Name | Description | Author |
 | ---- | ----------- | ------ |
 | [cosmicding](https://github.com/vkhitrin/cosmicding) | Desktop client built using [libcosmic](https://github.com/pop-os/libcosmic). | [vkhitrin](https://github.com/vkhitrin) |
+| [Dinghy](https://github.com/jpadgett314/dinghy) | A linux client optimized for GNOME desktop, built using libadwaita and [linkding-rs](https://github.com/zbrox/linkding-rs). | [Jacob Padgett](https://github.com/jpadgett314) |
 | [LinkBuddy](https://github.com/peterto/LinkBuddy) | An open-source Android and iOS client for linkding, written in React Native. Android apk available on [github](https://github.com/peterto/LinkBuddy/releases) and iOS version on [Apple AppStore](https://apps.apple.com/us/app/linkbuddy-for-linkding/id6740408952). | [peterto](https://github.com/peterto) |
 | [Linkdy](https://github.com/JGeek00/linkdy) | An open-source Android and iOS client created with Flutter. Available on the [Google Play Store](https://play.google.com/store/apps/details?id=com.jgeek00.linkdy) and [App Store](https://apps.apple.com/us/app/linkdy/id6479930976). | [JGeek00](https://github.com/JGeek00) |
 | [Linklater](https://github.com/danielyrovas/linklater) | An open-source Android client written in Kotlin. | [danielyrovas](https://github.com/danielyrovas) |
