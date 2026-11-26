@@ -123,10 +123,11 @@ def convert_tag_string(tag_string: str):
 
 class TagForm(forms.ModelForm):
     name = forms.CharField(widget=FormInput)
+    emoji = forms.CharField(max_length=32, required=False, widget=FormInput,)
 
     class Meta:
         model = Tag
-        fields = ["name"]
+        fields = ["name", "emoji"]
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs, error_class=FormErrorList)

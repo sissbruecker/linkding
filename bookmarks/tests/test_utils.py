@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks.utils import (
+    _calculate_date_delta,
     humanize_absolute_date,
     humanize_relative_date,
     normalize_url,
@@ -12,6 +13,62 @@ from bookmarks.utils import (
 
 
 class UtilsTestCase(TestCase):
+    def test_calculate_date_delta_mcdc_cases(self):
+        test_cases = [
+            (
+                "A true",
+                timezone.datetime(2024, 5, 15),
+                timezone.datetime(2022, 6, 14),
+                (1, 23, 100),
+            ),(
+                "A false",
+                timezone.datetime(2024, 6, 15),
+                timezone.datetime(2022, 5, 14),
+                (2, 25, 109),
+            ),(
+                "B and C true",
+                timezone.datetime(2024, 5, 15),
+                timezone.datetime(2022, 5, 16),
+                (1, 23, 104),
+            ),(
+                "B false",
+                timezone.datetime(2024, 6, 15),
+                timezone.datetime(2022, 5, 16),
+                (2, 24, 108),
+            ),(
+                "C false",
+                timezone.datetime(2024, 5, 16),
+                timezone.datetime(2022, 5, 15),
+                (2, 24, 104),
+            ),
+        ]
+
+        for name, now, value, expected in test_cases:
+            with self.subTest(case=name):
+                delta = _calculate_date_delta(now, value)
+
+                self.assertEqual(expected, (delta.years, delta.months, delta.weeks))
+
+    def test_calculate_date_delta_counts_complete_calendar_units(self):
+        start = timezone.datetime(2024, 5, 15)
+        end = timezone.datetime(2022, 4, 17)
+
+        result = _calculate_date_delta(start, end)
+
+        self.assertEqual(2, result.years)
+        self.assertEqual(24, result.months)
+        self.assertEqual(108, result.weeks)
+
+    def test_calculate_date_delta_clamps_future_values_to_zero(self):
+        start = timezone.datetime(2024, 1, 1)
+        end = timezone.datetime(2024, 1, 8)
+
+        result = _calculate_date_delta(start,end)
+
+        self.assertEqual(0, result.years)
+        self.assertEqual(0, result.months)
+        self.assertEqual(0, result.weeks)
+
     def test_humanize_absolute_date(self):
         test_cases = [
             (
@@ -344,3 +401,56 @@ class UtilsTestCase(TestCase):
             with self.subTest(url=original):
                 result = normalize_url(original)
                 self.assertEqual(expected, result)
+<<<<<<< HEAD
+
+
+                
+    def test_normalize_url_none_input(self):
+        self.assertEqual("", normalize_url(None))
+
+
+    def test_normalize_url_numeric_input(self):
+        test_cases = [
+            123,
+            0,
+            45.67,
+        ]
+
+        for original in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual("", result)
+
+
+    def test_normalize_url_invalid_port(self):
+        test_cases = [
+            "https://example.com:abc",
+            "https://example.com:99999",
+        ]
+
+        for original in test_cases:
+            with self.subTest(url=original):
+                result = normalize_url(original)
+                self.assertEqual(original, result)
+
+
+    def test_normalize_url_zero_port(self):
+        original = "https://example.com:0"
+        expected = "https://example.com"
+
+        result = normalize_url(original)
+
+        self.assertEqual(expected, result)
+
+=======
+    def test_normalize_url_non_string_input(self):
+        for original in [None, 123]:
+            with self.subTest(url=original):
+             self.assertEqual("", normalize_url(original))
+
+
+    def test_normalize_url_invalid_port(self):
+        url = "https://example.com:abc/path"
+
+        self.assertEqual(url, normalize_url(url))
+>>>>>>> ee2229b239f91a15ce4befce5ceed3c59462ab32

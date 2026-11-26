@@ -114,3 +114,16 @@ class ExporterTestCase(TestCase, BookmarkFactoryMixin):
         bookmark.description = ""
         bookmark.save()
         exporter.export_netscape_html([bookmark])
+    def test_export_bookmark_without_description_or_notes(self):
+        bookmark = self.setup_bookmark(
+            url="https://example.com/test",
+            title="Test bookmark",
+            description="",
+            notes="",
+        )
+
+        html = exporter.export_netscape_html([bookmark])
+
+        self.assertIn("Test bookmark", html)
+        self.assertIn('HREF="https://example.com/test"', html)
+        self.assertNotIn("[linkding-notes]", html)

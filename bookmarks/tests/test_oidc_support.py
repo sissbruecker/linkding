@@ -137,3 +137,20 @@ class OidcSupportTest(TestCase):
         username = utils.generate_username(claims["email"], claims)
 
         self.assertEqual("NormalizedUser", username)
+    @override_settings(LD_ENABLE_OIDC=True, OIDC_USERNAME_CLAIM="preferred_username")
+    def test_username_should_be_limited_to_150_characters(self):
+        claims = {
+            "preferred_username": "a" * 151,
+        }
+
+        username = utils.generate_username("test@example.com", claims)
+
+        self.assertEqual("a" * 150, username)
+    @override_settings(LD_ENABLE_OIDC=True, OIDC_USERNAME_CLAIM="preferred_username")
+    def test_username_should_limit_email_to_150_characters(self):
+        email = "a" * 151
+        claims = {}
+
+        username = utils.generate_username(email, claims)
+
+        self.assertEqual("a" * 150, username)
