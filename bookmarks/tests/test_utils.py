@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from bookmarks.utils import (
+    _calculate_date_delta,
     humanize_absolute_date,
     humanize_relative_date,
     normalize_url,
@@ -12,6 +13,62 @@ from bookmarks.utils import (
 
 
 class UtilsTestCase(TestCase):
+    def test_calculate_date_delta_mcdc_cases(self):
+        test_cases = [
+            (
+                "A true",
+                timezone.datetime(2024, 5, 15),
+                timezone.datetime(2022, 6, 14),
+                (1, 23, 100),
+            ),(
+                "A false",
+                timezone.datetime(2024, 6, 15),
+                timezone.datetime(2022, 5, 14),
+                (2, 25, 109),
+            ),(
+                "B and C true",
+                timezone.datetime(2024, 5, 15),
+                timezone.datetime(2022, 5, 16),
+                (1, 23, 104),
+            ),(
+                "B false",
+                timezone.datetime(2024, 6, 15),
+                timezone.datetime(2022, 5, 16),
+                (2, 24, 108),
+            ),(
+                "C false",
+                timezone.datetime(2024, 5, 16),
+                timezone.datetime(2022, 5, 15),
+                (2, 24, 104),
+            ),
+        ]
+
+        for name, now, value, expected in test_cases:
+            with self.subTest(case=name):
+                delta = _calculate_date_delta(now, value)
+
+                self.assertEqual(expected, (delta.years, delta.months, delta.weeks))
+
+    def test_calculate_date_delta_counts_complete_calendar_units(self):
+        start = timezone.datetime(2024, 5, 15)
+        end = timezone.datetime(2022, 4, 17)
+
+        result = _calculate_date_delta(start, end)
+
+        self.assertEqual(2, result.years)
+        self.assertEqual(24, result.months)
+        self.assertEqual(108, result.weeks)
+
+    def test_calculate_date_delta_clamps_future_values_to_zero(self):
+        start = timezone.datetime(2024, 1, 1)
+        end = timezone.datetime(2024, 1, 8)
+
+        result = _calculate_date_delta(start,end)
+
+        self.assertEqual(0, result.years)
+        self.assertEqual(0, result.months)
+        self.assertEqual(0, result.weeks)
+
     def test_humanize_absolute_date(self):
         test_cases = [
             (
