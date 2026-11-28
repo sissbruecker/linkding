@@ -37,6 +37,10 @@ The name comes from:
 
 ![Screenshot](/docs/public/linkding-screenshot.png?raw=true "Screenshot")
 
+![Linkding in action: add a bookmark and find it again](.github/linkding-demo.gif)
+
+*Adding a bookmark with tags and finding it again with a tag search.*
+
 ## Getting Started
 
 The following links help you to get started with linkding:
